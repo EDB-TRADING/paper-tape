@@ -628,12 +628,12 @@
 // slowly over time (dividends, index rebalances) — an approximation, but the
 // number ON the price, not a separate one next to it.
 const ASSETS = [
-  {symbol:"BTC",  name:"Bitcoin",              instrument:"BTCUSD",     decimals:2, icon:"₿", color:"#f7931a"},
-  {symbol:"ETH",  name:"Ethereum",             instrument:"ETHUSD",     decimals:2, icon:"Ξ", color:"#8c9eff"},
-  {symbol:"SOL",  name:"Solana",               instrument:"SOLUSD",     decimals:2, icon:"◎", color:"#14f195"},
-  {symbol:"HYPE", name:"Hyperliquid",          instrument:"HYPEUSD",    decimals:3, icon:"🐡", color:"#37c7db"},
-  {symbol:"SPY",  name:"S&P 500 (indice, recalé sur perp. ETF SPY)",    instrument:"SPYUSDPERP", decimals:2, indexRatio:10.08, icon:"📈", color:"#31c882"},
-  {symbol:"QQQ",  name:"Nasdaq 100 (indice, recalé sur perp. ETF QQQ)", instrument:"QQQUSDPERP",decimals:2, indexRatio:41.07, icon:"💻", color:"#d7b563"},
+  {symbol:"BTC",  name:"Bitcoin",              instrument:"BTC_USD",     decimals:2, icon:"₿", color:"#f7931a"},
+  {symbol:"ETH",  name:"Ethereum",             instrument:"ETH_USD",     decimals:2, icon:"Ξ", color:"#8c9eff"},
+  {symbol:"SOL",  name:"Solana",               instrument:"SOL_USD",     decimals:2, icon:"◎", color:"#14f195"},
+  {symbol:"HYPE", name:"Hyperliquid",          instrument:"HYPE_USD",    decimals:3, icon:"🐡", color:"#37c7db"},
+  {symbol:"SPY",  name:"S&P 500 (indice, recalé sur perp. ETF SPY)",    instrument:"SPYUSD-PERP", decimals:2, indexRatio:10.08, icon:"📈", color:"#31c882"},
+  {symbol:"QQQ",  name:"Nasdaq 100 (indice, recalé sur perp. ETF QQQ)", instrument:"QQQUSD-PERP",decimals:2, indexRatio:41.07, icon:"💻", color:"#d7b563"},
 ];
 // Direct browser calls to Crypto.com Exchange's public (no-auth) REST API —
 // this is the standalone build, so there's no Claude `mcp` capability to
@@ -971,7 +971,7 @@ function setMarketStatus(text){
   if (el) el.textContent = text;
 }
 async function fetchTickerRest(instrument){
-  const url = CRYPTO_API_BASE+"/get-ticker?instrument_name="+encodeURIComponent(instrument);
+  const url = CRYPTO_API_BASE+"/get-tickers?instrument_name="+encodeURIComponent(instrument);
   const res = await fetch(url, {signal:AbortSignal.timeout(12000)});
   if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
   const json = await res.json();
