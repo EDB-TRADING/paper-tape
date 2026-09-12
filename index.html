@@ -200,11 +200,17 @@
   .card{
     background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
     padding:14px;
+    /* Without this, a grid/flex child defaults to min-width:auto, which is
+       its content's intrinsic width — so a widget with any long unbreakable
+       text (e.g. the sessions pills) refuses to shrink to the column's track
+       width and visibly bleeds into the next column instead of wrapping.
+       box-sizing keeps the 14px padding inside that width. */
+    min-width:0; box-sizing:border-box;
   }
   .card > h3{font-size:11px;letter-spacing:0.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px;font-weight:600;}
 
   /* ---------- draggable / removable widgets ---------- */
-  .widget-col{display:flex;flex-direction:column;min-height:24px;}
+  .widget-col{display:flex;flex-direction:column;min-height:24px;min-width:0;}
   .widget{transition:opacity .15s, transform .15s;}
   .widget.dragging{opacity:.35;}
   .widget-col.drag-over{outline:1px dashed var(--accent);outline-offset:4px;border-radius:var(--radius);}
@@ -215,6 +221,11 @@
   .widget-grip:active{cursor:grabbing;}
   .widget-hide{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;line-height:1;padding:2px 4px;border-radius:4px;}
   .widget-hide:hover{color:var(--warn);background:var(--bg-raised);}
+  .widget-help{background:none;border:1px solid var(--border-soft);color:var(--text-faint);cursor:pointer;font-size:10.5px;font-weight:700;line-height:1;width:16px;height:16px;padding:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none;}
+  .widget-help:hover{color:var(--accent);border-color:var(--accent);}
+  .help-row{margin-bottom:11px;font-size:12.5px;line-height:1.5;color:var(--text-dim);}
+  .help-row:last-child{margin-bottom:0;}
+  .help-row strong{color:var(--text);}
   .widget[hidden]{display:none;}
 
   .widget-panel-btn{
@@ -436,11 +447,11 @@
   /* market sessions clock */
   .paris-clock{font-family:var(--mono);font-size:21px;font-weight:700;letter-spacing:0.02em;margin-bottom:10px;color:var(--text);}
   .sessions-list{display:flex;flex-direction:column;gap:6px;}
-  .session-pill{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;background:var(--bg-raised);border:1px solid var(--border-soft);}
+  .session-pill{display:flex;align-items:center;gap:6px 8px;padding:6px 8px;border-radius:6px;background:var(--bg-raised);border:1px solid var(--border-soft);flex-wrap:wrap;}
   .session-dot{width:7px;height:7px;border-radius:50%;flex:none;background:var(--text-faint);}
   .session-dot.open{background:var(--long);box-shadow:0 0 0 3px var(--long-dim);}
-  .session-name{font-family:var(--mono);font-size:11px;font-weight:600;flex:1;}
-  .session-time{font-family:var(--mono);font-size:9px;color:var(--text-faint);text-align:right;white-space:nowrap;}
+  .session-name{font-family:var(--mono);font-size:11px;font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .session-time{font-family:var(--mono);font-size:9px;color:var(--text-faint);text-align:right;white-space:normal;flex:0 1 auto;min-width:0;margin-left:auto;}
   .session-time.open-lbl{color:var(--long);}
 
   /* news */
@@ -630,6 +641,16 @@
   .modal-box{position:relative;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;max-width:480px;width:100%;max-height:85vh;overflow-y:auto;}
   .modal-close-x{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--text-faint);font-size:16px;cursor:pointer;padding:4px;line-height:1;}
   .modal-close-x:hover{color:var(--text);}
+
+  /* fullscreen photo viewer — reuses the already-loaded <img> src (no new
+     network/Storage fetch), just displays it larger; click-to-open on any
+     avatar/feed photo. */
+  .lightbox-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;z-index:60;padding:24px;cursor:zoom-out;}
+  .lightbox-overlay[hidden]{display:none;}
+  .lightbox-overlay img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;cursor:default;}
+  .lightbox-overlay .modal-close-x{color:#fff;font-size:20px;}
+  .lightbox-overlay .modal-close-x:hover{color:var(--accent);}
+  .feed-item img, .avatar-img{cursor:zoom-in;}
 </style>
 </head>
 <body>
@@ -764,7 +785,7 @@
           </div>
 
           <div class="card ticket widget" draggable="true" data-widget="ticket">
-            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Ticket d'ordre</h3><button type="button" class="widget-hide" data-widget-hide="ticket" title="Masquer ce widget">✕</button></div>
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Ticket d'ordre</h3><button type="button" class="widget-help" id="ticket-help-btn" title="Aide : comprendre le ticket d'ordre">?</button><button type="button" class="widget-hide" data-widget-hide="ticket" title="Masquer ce widget">✕</button></div>
             <div class="seg">
               <button id="side-long" class="on-long active">Long</button>
               <button id="side-short" class="on-short">Short</button>
@@ -821,7 +842,7 @@
               <div class="row"><span class="k">Valeur notionnelle</span><span class="v num" id="ro-notional">$0.00</span></div>
               <div class="row"><span class="k">Taille (unités)</span><span class="v num" id="ro-units">—</span></div>
               <div class="row"><span class="k">Spread (achat/vente)</span><span class="v num" id="ro-spread">—</span></div>
-              <div class="row"><span class="k">Commission entrée (0.05%)</span><span class="v num" id="ro-fee">$0.00</span></div>
+              <div class="row"><span class="k" id="ro-fee-label">Commission entrée (0.04% taker)</span><span class="v num" id="ro-fee">$0.00</span></div>
               <div class="row"><span class="k">Marge requise</span><span class="v num" id="ro-margin">$0.00</span></div>
               <div class="row"><span class="k">Prix de liquidation est.</span><span class="v num" id="ro-liq">—</span></div>
               <div class="row"><span class="k">Marge disponible</span><span class="v num" id="ro-free">$100,000.00</span></div>
@@ -1113,6 +1134,10 @@
   <div class="modal-overlay" id="modal-overlay" hidden>
     <div class="modal-box" id="modal-box"></div>
   </div>
+  <div class="lightbox-overlay" id="lightbox-overlay" hidden>
+    <button type="button" class="modal-close-x" id="lightbox-close-x" aria-label="Fermer" style="top:14px;right:14px;">✕</button>
+    <img id="lightbox-img" src="" alt="Photo en plein écran">
+  </div>
 </div>
 
 <!-- ============================================================
@@ -1173,7 +1198,13 @@ const CANDLE_TIMEFRAMES = ["1m","5m","15m","1h"];
 let currentTimeframe = "1m";
 let candleTimer = null;
 const MMR = 0.004;          // flat maintenance margin rate
-const TAKER_FEE_RATE = 0.0005;      // 0.05% commission on notional, charged on entry AND on a normal (non-liquidation) exit
+// Taker: market-order entries and every exit (SL/TP/liquidation-check/manual
+// close all fill at the current market price, i.e. taking liquidity).
+// Maker: limit-order entries — they rest in the book and only fill once the
+// market crosses the price you set, i.e. providing liquidity — hence the
+// lower rate, same as a real exchange's maker/taker schedule.
+const TAKER_FEE_RATE = 0.0004;      // 0.04% commission, charged on market-order entry AND on every exit (non-liquidation)
+const MAKER_FEE_RATE = 0.0002;      // 0.02% commission, charged only on a limit order's entry fill
 const LIQUIDATION_FEE_RATE = 0.005; // extra 0.5% of notional penalty charged only when a position is liquidated (replaces the normal exit fee)
 const START_CASH = 100000;
 const HIST_LEN = 220;
@@ -2217,7 +2248,7 @@ function renderTradingViewChart(){
   script.text = JSON.stringify({
     autosize: true, symbol: tvSymbol, interval: "1", timezone: "Etc/UTC",
     theme: "dark", style: "1", locale: "fr", enable_publishing: false,
-    hide_top_toolbar: false, allow_symbol_change: true, support_host: "https://www.tradingview.com",
+    hide_top_toolbar: false, hide_side_toolbar: false, allow_symbol_change: true, support_host: "https://www.tradingview.com",
   });
   wrap.querySelector(".tradingview-widget-container").appendChild(script);
 }
@@ -2401,10 +2432,11 @@ function updateOrderReadout(){
     : (side==="long"?"Ouvrir Long":"Ouvrir Short")+" · "+a.symbol;
 
   if (orderType==="limit"){
+    document.getElementById("ro-fee-label").textContent = "Commission entrée (0.02% maker)";
     const limitPrice = parseFloat(document.getElementById("limit-price-input").value)||0;
     const notional = currentSizeInputToNotional(limitPrice);
     const initMargin = leverage>0 ? notional/leverage : 0;
-    const entryFee = notional*TAKER_FEE_RATE;
+    const entryFee = notional*MAKER_FEE_RATE;
     const liq = (notional>0 && limitPrice>0) ? liqPriceFor(limitPrice, side, leverage) : null;
     const sizeUnits = limitPrice>0 ? notional/limitPrice : 0;
     const m = market[selectedSymbol];
@@ -2425,6 +2457,7 @@ function updateOrderReadout(){
     return;
   }
 
+  document.getElementById("ro-fee-label").textContent = "Commission entrée (0.04% taker)";
   if (!hasLive(selectedSymbol)){
     document.getElementById("ro-notional").textContent = "—";
     document.getElementById("ro-units").textContent = "—";
@@ -2757,7 +2790,7 @@ function submitLimitOrder(msg){
     if (!(notional>0)){ msg.textContent = "Entrez une taille de position valide."; return; }
     const initMargin = notional/leverage;
     if (!(initMargin>=0) || !isFinite(initMargin)){ msg.textContent = "Impossible de calculer la marge requise — vérifie le levier et la taille."; return; }
-    const entryFeeEst = notional*TAKER_FEE_RATE;
+    const entryFeeEst = notional*MAKER_FEE_RATE;
     if ((initMargin+entryFeeEst)>freeBalance()){
       msg.textContent = "Marge insuffisante pour réserver cet ordre — marge disponible "+fmtMoney(freeBalance())+", requis "+fmtMoney(initMargin+entryFeeEst)+".";
       return;
@@ -2815,7 +2848,7 @@ function modifyPendingOrder(id, newLimitPrice, newNotional){
   o.limitPrice = newLimitPrice;
   o.notional = newNotional;
   o.initMargin = newMargin;
-  o.entryFeeEst = newNotional*TAKER_FEE_RATE;
+  o.entryFeeEst = newNotional*MAKER_FEE_RATE;
   renderAll();
   persistAccount();
   return {ok:true};
@@ -2832,7 +2865,7 @@ function checkPendingOrders(){
     state.pendingOrders.splice(idx,1);
     // Fills at the limit price itself — the guaranteed price is the whole
     // point of a limit order. Margin was already reserved at placement, so
-    // only the (already-estimated, same-formula) commission is a new outflow.
+    // only the (already-estimated, maker-rate) commission is a new outflow.
     openPositionCore({symbol:o.symbol, side:o.side, mode:o.mode, leverage:o.leverage, entry:o.limitPrice, notional:o.notional, initMargin:o.initMargin, entryFee:o.entryFeeEst, tpVal:o.takeProfit, slVal:o.stopLoss});
     state.cash -= o.entryFeeEst;
     renderAll();
@@ -3059,6 +3092,28 @@ function openModal(html){
   document.getElementById("modal-overlay").hidden = false;
   document.getElementById("modal-close-x").addEventListener("click", closeModal);
 }
+// Fullscreen photo viewer for avatars + feed screenshots. Delegated on
+// document (rather than bound per-image) because feed/avatar <img> nodes are
+// re-created on every render — a direct listener would silently stop
+// working after the first refresh. Doesn't touch Firebase Storage at all:
+// the <img> is already loaded in the DOM, this just displays that same
+// element's src larger, so it costs zero extra bandwidth/reads.
+function openLightbox(src){
+  document.getElementById("lightbox-img").src = src;
+  document.getElementById("lightbox-overlay").hidden = false;
+}
+function closeLightbox(){
+  document.getElementById("lightbox-overlay").hidden = true;
+  document.getElementById("lightbox-img").src = "";
+}
+function initLightbox(){
+  document.addEventListener("click", (e)=>{
+    const img = e.target.closest(".feed-item img, .avatar-img");
+    if (img){ openLightbox(img.src); return; }
+    if (e.target.id==="lightbox-overlay") closeLightbox();
+  });
+  document.getElementById("lightbox-close-x").addEventListener("click", closeLightbox);
+}
 function closeModal(){
   document.getElementById("modal-overlay").hidden = true;
   document.getElementById("modal-box").innerHTML = "";
@@ -3148,6 +3203,30 @@ function openTradeCardModal(h){
 function openSessionCardModal(){
   openModal(renderSessionCardHtml());
   const btn = document.getElementById("modal-close-btn");
+  if (btn) btn.addEventListener("click", closeModal);
+}
+
+/* ============================= AIDE : EXÉCUTION D'ORDRE ============================= */
+// Plain-French glossary for the order ticket, aimed at beginners (EDB
+// members with zero market-microstructure background). Opened from the "?"
+// button in the Ticket d'ordre widget header — purely informational, no
+// state read/written.
+function openExecutionHelpModal(){
+  openModal(
+    '<h3 style="margin-bottom:4px;">Aide : comprendre le ticket d\'ordre</h3>'+
+    '<div class="chart-note" style="margin-bottom:14px;">Le vocabulaire d\'un carnet d\'ordres, en clair.</div>'+
+    '<div class="help-row"><strong>Marché</strong> — s\'exécute tout de suite, au meilleur prix disponible dans le carnet. Comme tu prends la liquidité déjà posée par d\'autres, ça coûte le tarif <strong>taker</strong> (0.04%).</div>'+
+    '<div class="help-row"><strong>Limite</strong> — tu fixes ton propre prix et l\'ordre attend dans le carnet ; il ne se déclenche que si le marché vient le toucher. Comme tu apportes de la liquidité (quelqu\'un d\'autre viendra la consommer), c\'est moins cher : tarif <strong>maker</strong> (0.02%).</div>'+
+    '<div class="help-row"><strong>Long / Short</strong> — Long = tu paries à la hausse (tu achètes maintenant pour revendre plus cher). Short = tu paries à la baisse (tu vends d\'abord pour racheter moins cher).</div>'+
+    '<div class="help-row"><strong>Levier (x1 à x200)</strong> — multiplie ta position par rapport à la marge que tu immobilises. x10 sur 1&nbsp;000$ de marge ouvre une position de 10&nbsp;000$ : les gains ET les pertes sont multipliés d\'autant, et un mouvement plus petit suffit à te liquider.</div>'+
+    '<div class="help-row"><strong>Marge Isolated / Cross</strong> — Isolated : seule la marge de cette position est en jeu si ça tourne mal, le reste de ton cash est protégé. Cross : tout ton solde libre peut servir de coussin pour éviter la liquidation, mais tu risques davantage à la fois.</div>'+
+    '<div class="help-row"><strong>Marge requise</strong> — le cash bloqué pour ouvrir la position (notionnel ÷ levier). Il redevient disponible quand tu fermes.</div>'+
+    '<div class="help-row"><strong>Prix de liquidation</strong> — le prix auquel, si le marché l\'atteint contre toi, ta position est fermée de force parce que ta marge ne couvre plus la perte. Plus le levier est élevé, plus ce prix est proche de ton entrée.</div>'+
+    '<div class="help-row"><strong>Take Profit / Stop Loss</strong> — des ordres de sortie automatiques : TP clôture en gains à un prix cible, SL clôture en pertes pour limiter la casse. Facultatifs mais fortement recommandés.</div>'+
+    '<div class="help-row"><strong>Spread (achat/vente)</strong> — l\'écart entre le meilleur prix d\'achat (bid) et de vente (ask) à l\'instant T. Plus il est large, plus un aller-retour immédiat coûte cher.</div>'+
+    '<div style="text-align:center;margin-top:16px;"><button class="btn-secondary" id="help-close-btn">Fermer</button></div>'
+  );
+  const btn = document.getElementById("help-close-btn");
   if (btn) btn.addEventListener("click", closeModal);
 }
 
@@ -5610,6 +5689,9 @@ function initEvents(){
     b.addEventListener("click", ()=>switchView(b.dataset.view));
   });
 
+  const ticketHelpBtn = document.getElementById("ticket-help-btn");
+  if (ticketHelpBtn) ticketHelpBtn.addEventListener("click", openExecutionHelpModal);
+
   document.getElementById("quiz-tab-play").addEventListener("click", ()=>{
     document.getElementById("quiz-tab-play").classList.add("active");
     document.getElementById("quiz-tab-lb").classList.remove("active");
@@ -5648,7 +5730,7 @@ function initEvents(){
     if (e.target.id==="modal-overlay") closeModal();
   });
   document.addEventListener("keydown", (e)=>{
-    if (e.key==="Escape") closeModal();
+    if (e.key==="Escape"){ closeModal(); closeLightbox(); }
   });
 
   document.getElementById("side-long").addEventListener("click", ()=>{ side="long"; setSideUI(); updateOrderReadout(); });
@@ -5845,7 +5927,7 @@ function initWidgets(){
     if (!head) return;
     head.style.touchAction = "none"; // don't let touch-scroll steal the gesture while dragging
     head.addEventListener("pointerdown", (e)=>{
-      if (e.target.closest && e.target.closest(".widget-hide")) return;
+      if (e.target.closest && e.target.closest(".widget-hide, .widget-help")) return;
       if (e.button !== 0 && e.pointerType==="mouse") return; // primary mouse button only
       dragWidget = el;
       dragPointerId = e.pointerId;
@@ -6288,6 +6370,7 @@ async function init(){
   initDom();
   buildWatchlist();
   initEvents();
+  initLightbox();
   renderSessions();
   setInterval(renderSessions, 1000);
   refreshNews();
