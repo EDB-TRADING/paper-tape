@@ -8,7 +8,7 @@
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 
   :root{
---bg:#0a0d12;
+    --bg:#0a0d12;
     --bg-raised:#10141b;
     --panel:#12161e;
     --panel-2:#171c26;
@@ -245,6 +245,30 @@
   .hist-row:last-child{border-bottom:none;}
   .hist-tag{font-family:var(--mono);font-size:8.5px;color:var(--text-faint);text-transform:uppercase;}
 
+  /* market sessions clock */
+  .paris-clock{font-family:var(--mono);font-size:21px;font-weight:700;letter-spacing:0.02em;margin-bottom:10px;color:var(--text);}
+  .sessions-list{display:flex;flex-direction:column;gap:6px;}
+  .session-pill{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;background:var(--bg-raised);border:1px solid var(--border-soft);}
+  .session-dot{width:7px;height:7px;border-radius:50%;flex:none;background:var(--text-faint);}
+  .session-dot.open{background:var(--long);box-shadow:0 0 0 3px var(--long-dim);}
+  .session-name{font-family:var(--mono);font-size:11px;font-weight:600;flex:1;}
+  .session-time{font-family:var(--mono);font-size:9px;color:var(--text-faint);text-align:right;white-space:nowrap;}
+  .session-time.open-lbl{color:var(--long);}
+
+  /* news */
+  .news-list{display:flex;flex-direction:column;gap:8px;}
+  .news-item{display:block;background:var(--bg-raised);border:1px solid var(--border-soft);border-radius:7px;padding:10px 12px;text-decoration:none;color:inherit;transition:border-color .15s;}
+  .news-item:hover{border-color:var(--accent);}
+  .news-item-top{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+  .news-tag{font-family:var(--mono);font-size:8.5px;letter-spacing:0.06em;text-transform:uppercase;padding:2px 6px;border-radius:4px;background:var(--panel-2);color:var(--accent);}
+  .news-source{font-family:var(--sans);font-size:10px;color:var(--text-dim);font-weight:600;}
+  .news-time{font-family:var(--mono);font-size:9.5px;color:var(--text-faint);margin-left:auto;}
+  .news-title{font-family:var(--sans);font-size:13px;color:var(--text);line-height:1.4;}
+
+  /* pending orders inline edit */
+  .pending-edit-row input{flex:1;background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;padding:8px 9px;font-family:var(--mono);font-size:12px;color:var(--text);}
+  .pending-edit-row input:focus-visible{outline:2px solid var(--accent);}
+
   /* leaderboard */
   .lb-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px;}
   .lb-table th{
@@ -404,6 +428,7 @@
     <div class="livewrap"><span class="livedot"></span>Live · Crypto.com</div>
     <nav class="tabs">
       <button data-view="terminal" class="active"><span class="tab-emoji">📟</span>Terminal</button>
+      <button data-view="news"><span class="tab-emoji">📰</span>News</button>
       <button data-view="leaderboard"><span class="tab-emoji">🏆</span>Classement</button>
       <button data-view="quiz"><span class="tab-emoji">🧠</span>Quiz</button>
       <button data-view="learn"><span class="tab-emoji">📚</span>Connaissances</button>
@@ -425,10 +450,17 @@
     <!-- ================= TERMINAL ================= -->
     <section class="view active" id="view-terminal">
       <div class="terminal-grid">
-        <div class="card">
-          <h3>Marchés</h3>
-          <div id="market-status" class="chart-note" style="margin-bottom:10px;">initialisation…</div>
-          <div class="watchlist" id="watchlist"></div>
+        <div>
+          <div class="card">
+            <h3>Sessions de marché</h3>
+            <div class="paris-clock num" id="paris-clock">--:--:--</div>
+            <div class="sessions-list" id="sessions-list"></div>
+          </div>
+          <div class="card" style="margin-top:14px;">
+            <h3>Marchés</h3>
+            <div id="market-status" class="chart-note" style="margin-bottom:10px;">initialisation…</div>
+            <div class="watchlist" id="watchlist"></div>
+          </div>
         </div>
 
         <div>
@@ -451,6 +483,17 @@
             <div class="seg">
               <button id="side-long" class="on-long active">Long</button>
               <button id="side-short" class="on-short">Short</button>
+            </div>
+            <div class="field-row">
+              <label>Type d'ordre</label>
+              <div class="seg">
+                <button id="otype-market" class="on-mode active">Marché</button>
+                <button id="otype-limit" class="on-mode">Limite</button>
+              </div>
+            </div>
+            <div class="field-row" id="limit-price-row" hidden>
+              <label>Prix limite</label>
+              <input type="number" step="any" id="limit-price-input" class="tpsl-input" placeholder="Prix de déclenchement">
             </div>
             <div class="field-row">
               <label>Mode de marge</label>
@@ -516,10 +559,32 @@
           </div>
 
           <div class="card" style="margin-top:14px;">
+            <h3>Ordres en attente</h3>
+            <div id="pending-orders-list"><div class="empty-note">Aucun ordre en attente</div></div>
+          </div>
+
+          <div class="card" style="margin-top:14px;">
             <h3>Historique récent</h3>
             <div id="history-list"><div class="empty-note">Pas encore de trade clôturé</div></div>
           </div>
+
+          <div class="card" style="margin-top:14px;">
+            <h3>Performance</h3>
+            <div id="perf-stats"></div>
+          </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ================= NEWS ================= -->
+    <section class="view" id="view-news">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <h3 style="margin:0;">Actualités marchés &amp; crypto en direct</h3>
+          <button class="pos-close" id="news-refresh">🔄 Actualiser</button>
+        </div>
+        <div id="news-status" class="chart-note" style="margin-bottom:10px;">Chargement des actualités…</div>
+        <div id="news-list" class="news-list"></div>
       </div>
     </section>
 
@@ -661,9 +726,9 @@ const FIREBASE_CONFIG = {
   apiKey: "AIzaSyCzAcrKDcw4yLT9pfrR1eskDrYv3HgqXoQ",
   authDomain: "paper-tape-edb.firebaseapp.com",
   projectId: "paper-tape-edb",
-      storageBucket: "paper-tape-edb.firebasestorage.app",
+  storageBucket: "paper-tape-edb.firebasestorage.app",
   messagingSenderId: "611656704909",
-      appId: "1:611656704909:web:096f1a7fcd3333fd2d93c4",
+  appId: "1:611656704909:web:096f1a7fcd3333fd2d93c4",
 };
 
 /* ============================= MARKET (live via Crypto.com MCP) ============================= */
@@ -804,15 +869,21 @@ const state = {
   cash: START_CASH,
   marginUsed: 0,
   positions: [],   // {id,symbol,side,sizeUnits,notional,entryPrice,leverage,mode,initMargin,maintMargin,liqPrice,openedAt}
+  pendingOrders: [], // {id,symbol,side,mode,leverage,limitPrice,notional,initMargin,entryFeeEst,takeProfit,stopLoss,createdAt}
   history: [],     // {id,symbol,side,pnl,reason,closedAt}
   quizProgress: {}, // {[deckId]: {attempts, solved:[bool], earned, perfectAttempt, inProgress}}
   badges: {},      // {[badgeId]: {earnedAt}}
   journal: [],     // [{id, text, symbol?, side?, pnl?, createdAt}]
   superflash: {bestScore:0, bestCorrect:0, attempts:0},
-  stats: {tradesOpened:0},
+  stats: {
+    tradesOpened:0, tradesClosed:0, wins:0, losses:0,
+    grossProfit:0, grossLoss:0, bestTrade:0, worstTrade:0,
+    currentStreak:0, streakType:null, bestWinStreak:0, bestLossStreak:0,
+  },
 };
 let selectedSymbol = "BTC";
 let side = "long";
+let orderType = "market";
 let marginMode = "isolated";
 let sizeUnit = "usd";
 let leverage = 10;
@@ -863,6 +934,7 @@ async function initDb(){
       state.cash = typeof d.cash==="number" ? d.cash : state.cash;
       state.marginUsed = typeof d.marginUsed==="number" ? d.marginUsed : 0;
       state.positions = Array.isArray(d.positions) ? d.positions : [];
+      state.pendingOrders = Array.isArray(d.pendingOrders) ? d.pendingOrders : [];
       state.history = Array.isArray(d.history) ? d.history : [];
       if (d.quizProgress && typeof d.quizProgress==="object"){
         state.quizProgress = d.quizProgress;
@@ -893,7 +965,7 @@ async function initDb(){
         bestCorrect: typeof d.superflashBestCorrect==="number" ? d.superflashBestCorrect : 0,
         attempts: typeof d.superflashAttempts==="number" ? d.superflashAttempts : 0,
       };
-      state.stats = (d.stats && typeof d.stats==="object") ? {tradesOpened:0, ...d.stats} : {tradesOpened:0};
+      state.stats = (d.stats && typeof d.stats==="object") ? {...state.stats, ...d.stats} : state.stats;
     } else {
       await persistAccount();
     }
@@ -915,6 +987,7 @@ function persistAccount(){
           marginUsed: state.marginUsed,
           equity: equity(),
           positions: state.positions.slice(0,20),
+          pendingOrders: state.pendingOrders.slice(0,20),
           history: state.history.slice(0,15),
           quizProgress: state.quizProgress,
           quizTotal: quizGrandTotal(),
@@ -998,6 +1071,7 @@ async function pollAsset(a){
     const payload = await fetchTickerRest(a.instrument);
     processTicker(a.symbol, payload);
     clearLiveBanner();
+    checkPendingOrders();
     checkTPSL();
     checkLiquidations();
   }catch(err){
@@ -1027,6 +1101,109 @@ function clearLiveBanner(){
   if (!liveGloballyDown) return;
   liveGloballyDown = false;
   document.getElementById("live-banner").hidden = true;
+}
+
+/* ============================= MARKET SESSIONS CLOCK ============================= */
+// Standard forex/market session hours in UTC (fixed approximation — the usual
+// simplification used by session-clock widgets; doesn't hand-track each
+// city's own DST rules, only Paris display time is DST-correct via Intl).
+const SESSIONS = [
+  {name:"Sydney",   open:22, close:7},
+  {name:"Tokyo",    open:0,  close:9},
+  {name:"Londres",  open:8,  close:17},
+  {name:"New York", open:13, close:22},
+];
+function sessionIsOpen(sess, now){
+  const h = now.getUTCHours() + now.getUTCMinutes()/60;
+  if (sess.open < sess.close) return h>=sess.open && h<sess.close;
+  return h>=sess.open || h<sess.close; // wraps past midnight UTC
+}
+function nextSessionBoundary(sess, isOpen, now){
+  const targetH = isOpen ? sess.close : sess.open;
+  let d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), targetH, 0, 0));
+  if (d <= now) d = new Date(d.getTime()+24*3600*1000);
+  return d;
+}
+function renderSessions(){
+  const now = new Date();
+  const clockEl = document.getElementById("paris-clock");
+  if (clockEl){
+    clockEl.textContent = now.toLocaleTimeString("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  }
+  const list = document.getElementById("sessions-list");
+  if (!list) return;
+  list.innerHTML = SESSIONS.map(sess=>{
+    const open = sessionIsOpen(sess, now);
+    const boundary = nextSessionBoundary(sess, open, now);
+    const timeStr = boundary.toLocaleTimeString("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit"});
+    const label = open ? ("ouvert · ferme à "+timeStr) : ("fermé · ouvre à "+timeStr);
+    return '<div class="session-pill">'+
+      '<span class="session-dot '+(open?"open":"")+'"></span>'+
+      '<span class="session-name">'+sess.name+'</span>'+
+      '<span class="session-time'+(open?" open-lbl":"")+'">'+label+'</span>'+
+    '</div>';
+  }).join("");
+}
+
+/* ============================= LIVE NEWS ============================= */
+const NEWS_FEEDS = [
+  {name:"CoinDesk",       url:"https://www.coindesk.com/arc/outboundfeeds/rss/", tag:"Crypto"},
+  {name:"Cointelegraph",  url:"https://cointelegraph.com/rss",                   tag:"Crypto"},
+  {name:"Yahoo Finance",  url:"https://finance.yahoo.com/news/rssindex",         tag:"Marchés"},
+];
+const RSS2JSON_BASE = "https://api.rss2json.com/v1/api.json?rss_url=";
+async function fetchNewsFeed(feed){
+  try{
+    const res = await fetch(RSS2JSON_BASE+encodeURIComponent(feed.url), {signal:AbortSignal.timeout(12000)});
+    if (!res.ok) throw new Error("http_"+res.status);
+    const json = await res.json();
+    if (json.status!=="ok" || !Array.isArray(json.items)) throw new Error("bad_payload");
+    return json.items.map(it=>({title:it.title, link:it.link, pubDate:it.pubDate, source:feed.name, tag:feed.tag}));
+  }catch(e){ return []; }
+}
+function relTime(d){
+  const diffMs = Date.now()-d.getTime();
+  const min = Math.floor(diffMs/60000);
+  if (min<1) return "à l'instant";
+  if (min<60) return "il y a "+min+" min";
+  const h = Math.floor(min/60);
+  if (h<24) return "il y a "+h+"h";
+  return "il y a "+Math.floor(h/24)+"j";
+}
+function newsItemHtml(it){
+  const d = new Date(it.pubDate);
+  const rel = isNaN(d.getTime()) ? "" : relTime(d);
+  return '<a class="news-item" href="'+escapeHtml(it.link||"#")+'" target="_blank" rel="noopener noreferrer">'+
+    '<div class="news-item-top"><span class="news-tag">'+it.tag+'</span><span class="news-source">'+escapeHtml(it.source)+'</span><span class="news-time">'+rel+'</span></div>'+
+    '<div class="news-title">'+escapeHtml(it.title)+'</div>'+
+  '</a>';
+}
+let newsLoading = false;
+async function refreshNews(){
+  if (newsLoading) return;
+  newsLoading = true;
+  const status = document.getElementById("news-status");
+  const list = document.getElementById("news-list");
+  if (status) status.textContent = "Actualisation…";
+  try{
+    const results = await Promise.all(NEWS_FEEDS.map(fetchNewsFeed));
+    let items = [].concat(...results);
+    if (items.length===0){
+      if (status) status.textContent = "Actualités indisponibles pour le moment — nouvelle tentative automatique dans quelques minutes.";
+      return;
+    }
+    items.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));
+    items = items.slice(0,30);
+    if (status){
+      const t = new Date().toLocaleTimeString("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit"});
+      status.textContent = "Mis à jour à "+t+" (heure de Paris) · "+items.length+" articles";
+    }
+    if (list) list.innerHTML = items.map(newsItemHtml).join("");
+  }catch(e){
+    if (status) status.textContent = "Actualités indisponibles pour le moment.";
+  }finally{
+    newsLoading = false;
+  }
 }
 
 /* ============================= RENDER: watchlist + chart ============================= */
@@ -1205,7 +1382,31 @@ function updateOrderReadout(){
   const btn = document.getElementById("submit-order");
   const msg = document.getElementById("ticket-msg");
   btn.className = "submit-btn "+side;
-  btn.textContent = (side==="long"?"Ouvrir Long":"Ouvrir Short")+" · "+a.symbol;
+  btn.textContent = orderType==="limit"
+    ? "Placer l'ordre limite · "+a.symbol
+    : (side==="long"?"Ouvrir Long":"Ouvrir Short")+" · "+a.symbol;
+
+  if (orderType==="limit"){
+    const limitPrice = parseFloat(document.getElementById("limit-price-input").value)||0;
+    const notional = currentSizeInputToNotional(limitPrice);
+    const initMargin = leverage>0 ? notional/leverage : 0;
+    const entryFee = notional*TAKER_FEE_RATE;
+    const liq = (notional>0 && limitPrice>0) ? liqPriceFor(limitPrice, side, leverage) : null;
+    const m = market[selectedSymbol];
+    document.getElementById("ro-notional").textContent = fmtMoney(notional);
+    document.getElementById("ro-spread").textContent = (m.bid && m.ask) ? (fmtPrice(m.bid,a.decimals)+" / "+fmtPrice(m.ask,a.decimals)) : "—";
+    document.getElementById("ro-fee").textContent = fmtMoney(entryFee);
+    document.getElementById("ro-margin").textContent = fmtMoney(initMargin);
+    document.getElementById("ro-liq").textContent = liq ? fmtPrice(liq,a.decimals) : "—";
+    document.getElementById("ro-free").textContent = fmtMoney(freeBalance());
+    let problem = "";
+    if (!(limitPrice>0)) problem = "Entrez un prix limite.";
+    else if (notional<=0) problem = "Entrez une taille de position.";
+    else if ((initMargin+entryFee)>freeBalance()) problem = "Marge insuffisante pour réserver cet ordre — marge disponible "+fmtMoney(freeBalance())+", requis "+fmtMoney(initMargin+entryFee)+".";
+    btn.disabled = !!problem;
+    msg.textContent = problem;
+    return;
+  }
 
   if (!hasLive(selectedSymbol)){
     document.getElementById("ro-notional").textContent = "—";
@@ -1333,10 +1534,125 @@ function renderHistory(){
     });
   });
 }
+function renderPendingOrders(){
+  const list = document.getElementById("pending-orders-list");
+  if (!list) return;
+  if (state.pendingOrders.length===0){ list.innerHTML = '<div class="empty-note">Aucun ordre en attente</div>'; return; }
+  list.innerHTML = state.pendingOrders.map(o=>{
+    const a = ASSETS.find(x=>x.symbol===o.symbol);
+    return '<div class="pos-card">'+
+      '<div class="pos-top">'+
+        '<div><span class="pos-sym">'+o.symbol+'</span>'+
+          '<span class="pos-badge '+o.side+'">'+(o.side==="long"?"Long":"Short")+'</span>'+
+          '<span class="pos-badge mode">Limite · x'+fmtLev(o.leverage)+'</span>'+
+        '</div>'+
+        '<span class="pos-actions">'+
+          '<button class="pos-tpsl" data-edit-pending="'+o.id+'">✏️ Modifier</button>'+
+          '<button class="pos-close" data-cancel-pending="'+o.id+'">Annuler</button>'+
+        '</span>'+
+      '</div>'+
+      '<div class="pos-grid">'+
+        '<div><div class="k">Prix limite</div><div class="v">'+fmtPrice(o.limitPrice,a.decimals)+'</div></div>'+
+        '<div><div class="k">Notionnel</div><div class="v">'+fmtMoney(o.notional)+'</div></div>'+
+        '<div><div class="k">Marge réservée</div><div class="v">'+fmtMoney(o.initMargin)+'</div></div>'+
+      '</div>'+
+      '<div class="pending-edit-row" id="pending-edit-'+o.id+'" hidden style="margin-top:8px;display:flex;gap:6px;align-items:center;">'+
+        '<input type="number" step="any" id="pending-edit-price-'+o.id+'" value="'+o.limitPrice+'" placeholder="Nouveau prix limite">'+
+        '<input type="number" step="any" id="pending-edit-notional-'+o.id+'" value="'+o.notional.toFixed(2)+'" placeholder="Nouveau notionnel $">'+
+        '<button class="pos-tpsl" data-save-pending="'+o.id+'">✅ Valider</button>'+
+      '</div>'+
+    '</div>';
+  }).join("");
+  list.querySelectorAll("[data-cancel-pending]").forEach(btn=>{
+    btn.addEventListener("click", ()=>cancelPendingOrder(btn.dataset.cancelPending));
+  });
+  list.querySelectorAll("[data-edit-pending]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const row = document.getElementById("pending-edit-"+btn.dataset.editPending);
+      if (row) row.hidden = !row.hidden;
+    });
+  });
+  list.querySelectorAll("[data-save-pending]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const id = btn.dataset.savePending;
+      const priceEl = document.getElementById("pending-edit-price-"+id);
+      const notionalEl = document.getElementById("pending-edit-notional-"+id);
+      const res = modifyPendingOrder(id, parseFloat(priceEl.value), parseFloat(notionalEl.value));
+      if (!res.ok){
+        const msg = document.getElementById("ticket-msg");
+        if (msg) msg.textContent = res.error;
+      }
+    });
+  });
+}
+function renderPerfStats(){
+  const el = document.getElementById("perf-stats");
+  if (!el) return;
+  const s = state.stats||{};
+  const wins = s.wins||0, losses = s.losses||0, closed = s.tradesClosed||0;
+  const grossProfit = s.grossProfit||0, grossLoss = s.grossLoss||0; // grossLoss kept negative
+  const net = grossProfit + grossLoss;
+  const winRate = closed>0 ? (wins/closed)*100 : 0;
+  const avgWin = wins>0 ? grossProfit/wins : 0;
+  const avgLoss = losses>0 ? grossLoss/losses : 0;
+  const profitFactor = grossLoss<0 ? (grossProfit/Math.abs(grossLoss)) : (grossProfit>0?Infinity:0);
+  const streakLabel = s.currentStreak ? (s.currentStreak+" "+(s.streakType==="win"?"gain(s)":"perte(s)")) : "—";
+  el.innerHTML =
+    '<div class="acct-summary">'+
+      '<div class="cell"><div class="lbl">Trades clôturés</div><div class="val num">'+closed+'</div></div>'+
+      '<div class="cell"><div class="lbl">Taux de réussite</div><div class="val num">'+winRate.toFixed(1)+'%</div></div>'+
+      '<div class="cell"><div class="lbl">Gain total</div><div class="val num up">'+fmtMoney(grossProfit)+'</div></div>'+
+      '<div class="cell"><div class="lbl">Perte totale</div><div class="val num down">'+fmtMoney(grossLoss)+'</div></div>'+
+      '<div class="cell"><div class="lbl">PnL cumulé net</div><div class="val num '+(net>=0?"up":"down")+'">'+fmtMoney(net)+'</div></div>'+
+      '<div class="cell"><div class="lbl">Profit factor</div><div class="val num">'+(isFinite(profitFactor)?profitFactor.toFixed(2):"∞")+'</div></div>'+
+      '<div class="cell"><div class="lbl">Gain moyen</div><div class="val num up">'+fmtMoney(avgWin)+'</div></div>'+
+      '<div class="cell"><div class="lbl">Perte moyenne</div><div class="val num down">'+fmtMoney(avgLoss)+'</div></div>'+
+      '<div class="cell"><div class="lbl">Meilleur trade</div><div class="val num up">'+fmtMoney(s.bestTrade||0)+'</div></div>'+
+      '<div class="cell"><div class="lbl">Pire trade</div><div class="val num down">'+fmtMoney(s.worstTrade||0)+'</div></div>'+
+      '<div class="cell"><div class="lbl">Série en cours</div><div class="val num '+(s.streakType==="win"?"up":s.streakType==="loss"?"down":"")+'">'+streakLabel+'</div></div>'+
+      '<div class="cell"><div class="lbl">Meilleure série (gains)</div><div class="val num up">'+(s.bestWinStreak||0)+'</div></div>'+
+    '</div>';
+}
 
 /* ============================= ORDER LOGIC ============================= */
+// Shared "open or merge into an existing position" core, used both by the
+// immediate market-order path and by a limit order filling later — takes
+// explicit symbol/side/mode/leverage rather than reading the ticket's
+// current selection, since a pending order can fill long after the trader
+// has moved on to a different symbol in the UI.
+function openPositionCore(o){ // o: {symbol,side,mode,leverage,entry,notional,initMargin,entryFee,tpVal,slVal}
+  const sizeUnits = o.notional/o.entry;
+  const existing = state.positions.find(p=>p.symbol===o.symbol && p.side===o.side && p.mode===o.mode);
+  if (existing){
+    const totalNotional = existing.notional + o.notional;
+    const totalSizeUnits = existing.sizeUnits + sizeUnits;
+    const totalMargin = existing.initMargin + o.initMargin;
+    existing.entryPrice = totalNotional/totalSizeUnits; // weighted-average fill price
+    existing.sizeUnits = totalSizeUnits;
+    existing.notional = totalNotional;
+    existing.initMargin = totalMargin;
+    existing.leverage = totalNotional/totalMargin; // blended effective leverage
+    existing.maintMargin = totalNotional*MMR;
+    existing.liqPrice = liqPriceFor(existing.entryPrice, o.side, existing.leverage);
+    existing.entryFee = (existing.entryFee||0) + o.entryFee;
+    existing.feesPaid = (existing.feesPaid||0) + o.entryFee;
+    if (o.tpVal!=null) existing.takeProfit = o.tpVal;
+    if (o.slVal!=null) existing.stopLoss = o.slVal;
+  } else {
+    const maintMargin = o.notional*MMR;
+    const liq = liqPriceFor(o.entry, o.side, o.leverage);
+    state.positions.push({
+      id: uid(), symbol:o.symbol, side:o.side, sizeUnits, notional:o.notional,
+      entryPrice:o.entry, leverage:o.leverage, mode:o.mode, initMargin:o.initMargin, maintMargin, liqPrice:liq,
+      entryFee:o.entryFee, feesPaid:o.entryFee, takeProfit:o.tpVal, stopLoss:o.slVal,
+      openedAt: new Date().toISOString(),
+    });
+  }
+  state.stats.tradesOpened = (state.stats.tradesOpened||0)+1;
+}
 function submitOrder(){
   const msg = document.getElementById("ticket-msg");
+  if (orderType==="limit"){ submitLimitOrder(msg); return; }
   try{
     if (!hasLive(selectedSymbol)){
       msg.textContent = "Flux de prix indisponible pour cet actif — impossible d'exécuter sans prix réel.";
@@ -1375,42 +1691,9 @@ function submitOrder(){
       if (tpVal!=null && tpVal>=entry){ msg.textContent = "Le Take Profit doit être en-dessous du prix d'entrée pour un short."; return; }
       if (slVal!=null && slVal<=entry){ msg.textContent = "Le Stop Loss doit être au-dessus du prix d'entrée pour un short."; return; }
     }
-    const sizeUnits = notional/entry;
-
-    // Opening again on a symbol/side/mode you already hold merges into that
-    // position (weighted-average entry, blended effective leverage) instead
-    // of stacking a separate row — one position per symbol+side+mode, size
-    // just grows, exactly like a real exchange's netted position.
-    const existing = state.positions.find(p=>p.symbol===selectedSymbol && p.side===side && p.mode===marginMode);
-    if (existing){
-      const totalNotional = existing.notional + notional;
-      const totalSizeUnits = existing.sizeUnits + sizeUnits;
-      const totalMargin = existing.initMargin + initMargin;
-      existing.entryPrice = totalNotional/totalSizeUnits; // weighted-average fill price
-      existing.sizeUnits = totalSizeUnits;
-      existing.notional = totalNotional;
-      existing.initMargin = totalMargin;
-      existing.leverage = totalNotional/totalMargin; // blended effective leverage
-      existing.maintMargin = totalNotional*MMR;
-      existing.liqPrice = liqPriceFor(existing.entryPrice, side, existing.leverage);
-      existing.entryFee = (existing.entryFee||0) + entryFee;
-      existing.feesPaid = (existing.feesPaid||0) + entryFee;
-      if (tpVal!=null) existing.takeProfit = tpVal;
-      if (slVal!=null) existing.stopLoss = slVal;
-    } else {
-      const maintMargin = notional*MMR;
-      const liq = liqPriceFor(entry, side, leverage);
-      const pos = {
-        id: uid(), symbol: selectedSymbol, side, sizeUnits, notional,
-        entryPrice: entry, leverage, mode: marginMode, initMargin, maintMargin, liqPrice: liq,
-        entryFee, feesPaid: entryFee, takeProfit: tpVal, stopLoss: slVal,
-        openedAt: new Date().toISOString(),
-      };
-      state.positions.push(pos);
-    }
+    openPositionCore({symbol:selectedSymbol, side, mode:marginMode, leverage, entry, notional, initMargin, entryFee, tpVal, slVal});
     state.marginUsed += initMargin;
     state.cash -= entryFee;
-    state.stats.tradesOpened = (state.stats.tradesOpened||0)+1;
     msg.textContent = "";
     document.getElementById("tp-input").value = "";
     document.getElementById("sl-input").value = "";
@@ -1422,6 +1705,103 @@ function submitOrder(){
     console.error("submitOrder failed", e);
     msg.textContent = "Erreur inattendue à l'ouverture de la position : "+((e&&e.message)||e)+" — réessaie, et préviens si ça persiste.";
   }
+}
+// Limit orders park in state.pendingOrders with their margin+fee estimate
+// reserved out of free balance immediately (so you can't over-commit across
+// several pending orders), and only actually open a position once the market
+// crosses the limit price (checkPendingOrders(), polled alongside TP/SL and
+// liquidation on every price tick).
+function submitLimitOrder(msg){
+  try{
+    const limitPrice = parseFloat(document.getElementById("limit-price-input").value);
+    if (!(limitPrice>0)){ msg.textContent = "Entrez un prix limite valide."; return; }
+    const notional = currentSizeInputToNotional(limitPrice);
+    if (!(notional>0)){ msg.textContent = "Entrez une taille de position valide."; return; }
+    const initMargin = notional/leverage;
+    if (!(initMargin>=0) || !isFinite(initMargin)){ msg.textContent = "Impossible de calculer la marge requise — vérifie le levier et la taille."; return; }
+    const entryFeeEst = notional*TAKER_FEE_RATE;
+    if ((initMargin+entryFeeEst)>freeBalance()){
+      msg.textContent = "Marge insuffisante pour réserver cet ordre — marge disponible "+fmtMoney(freeBalance())+", requis "+fmtMoney(initMargin+entryFeeEst)+".";
+      return;
+    }
+    const tpRaw = document.getElementById("tp-input").value;
+    const slRaw = document.getElementById("sl-input").value;
+    const tpVal = tpRaw!=="" ? parseFloat(tpRaw) : null;
+    const slVal = slRaw!=="" ? parseFloat(slRaw) : null;
+    if (tpVal!=null && !(tpVal>0)){ msg.textContent = "Take Profit invalide."; return; }
+    if (slVal!=null && !(slVal>0)){ msg.textContent = "Stop Loss invalide."; return; }
+    if (side==="long"){
+      if (tpVal!=null && tpVal<=limitPrice){ msg.textContent = "Le Take Profit doit être au-dessus du prix limite pour un long."; return; }
+      if (slVal!=null && slVal>=limitPrice){ msg.textContent = "Le Stop Loss doit être en-dessous du prix limite pour un long."; return; }
+    } else {
+      if (tpVal!=null && tpVal>=limitPrice){ msg.textContent = "Le Take Profit doit être en-dessous du prix limite pour un short."; return; }
+      if (slVal!=null && slVal<=limitPrice){ msg.textContent = "Le Stop Loss doit être au-dessus du prix limite pour un short."; return; }
+    }
+    state.pendingOrders.push({
+      id: uid(), symbol:selectedSymbol, side, mode:marginMode, leverage,
+      limitPrice, notional, initMargin, entryFeeEst,
+      takeProfit:tpVal, stopLoss:slVal, createdAt:new Date().toISOString(),
+    });
+    state.marginUsed += initMargin; // reserved until filled or cancelled
+    msg.textContent = "";
+    document.getElementById("limit-price-input").value = "";
+    document.getElementById("tp-input").value = "";
+    document.getElementById("sl-input").value = "";
+    renderAll();
+    persistAccount();
+  }catch(e){
+    console.error("submitLimitOrder failed", e);
+    msg.textContent = "Erreur inattendue lors de la création de l'ordre limite : "+((e&&e.message)||e)+" — réessaie, et préviens si ça persiste.";
+  }
+}
+function cancelPendingOrder(id){
+  const idx = state.pendingOrders.findIndex(o=>o.id===id);
+  if (idx<0) return;
+  const o = state.pendingOrders[idx];
+  state.marginUsed = Math.max(0, state.marginUsed - o.initMargin);
+  state.pendingOrders.splice(idx,1);
+  renderAll();
+  persistAccount();
+}
+function modifyPendingOrder(id, newLimitPrice, newNotional){
+  const o = state.pendingOrders.find(x=>x.id===id);
+  if (!o) return {ok:false, error:"Ordre introuvable."};
+  if (!(newLimitPrice>0)) return {ok:false, error:"Prix limite invalide."};
+  if (!(newNotional>0)) return {ok:false, error:"Taille invalide."};
+  const newMargin = newNotional/o.leverage;
+  const delta = newMargin - o.initMargin;
+  if (delta>0 && delta>freeBalance()){
+    return {ok:false, error:"Marge insuffisante pour cette modification — marge disponible "+fmtMoney(freeBalance())+"."};
+  }
+  state.marginUsed = Math.max(0, state.marginUsed + delta);
+  o.limitPrice = newLimitPrice;
+  o.notional = newNotional;
+  o.initMargin = newMargin;
+  o.entryFeeEst = newNotional*TAKER_FEE_RATE;
+  renderAll();
+  persistAccount();
+  return {ok:true};
+}
+function checkPendingOrders(){
+  [...state.pendingOrders].forEach(o=>{
+    if (!hasLive(o.symbol)) return;
+    const cross = o.side==="long" ? fillPrice(o.symbol,"buy") : fillPrice(o.symbol,"sell");
+    if (cross===null) return;
+    const triggered = o.side==="long" ? cross<=o.limitPrice : cross>=o.limitPrice;
+    if (!triggered) return;
+    const idx = state.pendingOrders.findIndex(x=>x.id===o.id);
+    if (idx<0) return;
+    state.pendingOrders.splice(idx,1);
+    // Fills at the limit price itself — the guaranteed price is the whole
+    // point of a limit order. Margin was already reserved at placement, so
+    // only the (already-estimated, same-formula) commission is a new outflow.
+    openPositionCore({symbol:o.symbol, side:o.side, mode:o.mode, leverage:o.leverage, entry:o.limitPrice, notional:o.notional, initMargin:o.initMargin, entryFee:o.entryFeeEst, tpVal:o.takeProfit, slVal:o.stopLoss});
+    state.cash -= o.entryFeeEst;
+    renderAll();
+    persistAccount();
+    awardBadge('first_trade');
+    if (state.stats.tradesOpened>=10) awardBadge('ten_trades');
+  });
 }
 function closePosition(id, reason){
   try{
@@ -1444,6 +1824,7 @@ function closePosition(id, reason){
     const feesPaid = (p.entryFee||0) + exitFee;
     state.history.unshift({id:p.id, symbol:p.symbol, side:p.side, pnl, reason, exitFee, feesPaid, closedAt:new Date().toISOString()});
     state.history = state.history.slice(0,15);
+    updatePerfStats(pnl);
     renderAll();
     persistAccount();
     if (reason==="liquidated") awardBadge('first_liquidation');
@@ -1452,6 +1833,28 @@ function closePosition(id, reason){
     console.error("closePosition failed", e);
     const msg = document.getElementById("ticket-msg");
     if (msg) msg.textContent = "Erreur inattendue à la fermeture de la position : "+((e&&e.message)||e)+" — réessaie, et préviens si ça persiste.";
+  }
+}
+// Running all-time performance counters — kept separate from state.history
+// (which is capped to the last 15 trades for display) so "total gain",
+// "total loss" and the other stats below reflect every trade ever closed.
+function updatePerfStats(pnl){
+  const s = state.stats;
+  s.tradesClosed = (s.tradesClosed||0)+1;
+  if (pnl>=0){
+    s.wins = (s.wins||0)+1;
+    s.grossProfit = (s.grossProfit||0)+pnl;
+    s.bestTrade = Math.max(s.bestTrade||0, pnl);
+    if (s.streakType==="win"){ s.currentStreak = (s.currentStreak||0)+1; }
+    else { s.streakType = "win"; s.currentStreak = 1; }
+    s.bestWinStreak = Math.max(s.bestWinStreak||0, s.currentStreak);
+  } else {
+    s.losses = (s.losses||0)+1;
+    s.grossLoss = (s.grossLoss||0)+pnl; // kept negative
+    s.worstTrade = Math.min(s.worstTrade||0, pnl);
+    if (s.streakType==="loss"){ s.currentStreak = (s.currentStreak||0)+1; }
+    else { s.streakType = "loss"; s.currentStreak = 1; }
+    s.bestLossStreak = Math.max(s.bestLossStreak||0, s.currentStreak);
   }
 }
 function checkLiquidations(){
@@ -3841,6 +4244,9 @@ function switchView(name){
     renderBadgesGrid();
     renderJournalList();
   }
+  if (name==="news" && !newsLoading && document.getElementById("news-list").innerHTML===""){
+    refreshNews();
+  }
 }
 
 /* ============================= RENDER ALL ============================= */
@@ -3850,7 +4256,9 @@ function renderAll(){
   updateOrderReadout();
   renderAccount();
   renderPositions();
+  renderPendingOrders();
   renderHistory();
+  renderPerfStats();
 }
 
 /* ============================= EVENTS ============================= */
@@ -3912,6 +4320,17 @@ function initEvents(){
     document.getElementById("mode-cross").classList.toggle("active", marginMode==="cross");
   }
 
+  document.getElementById("otype-market").addEventListener("click", ()=>{ orderType="market"; setOrderTypeUI(); updateOrderReadout(); });
+  document.getElementById("otype-limit").addEventListener("click", ()=>{ orderType="limit"; setOrderTypeUI(); updateOrderReadout(); });
+  function setOrderTypeUI(){
+    document.getElementById("otype-market").classList.toggle("active", orderType==="market");
+    document.getElementById("otype-limit").classList.toggle("active", orderType==="limit");
+    document.getElementById("limit-price-row").hidden = orderType!=="limit";
+  }
+  document.getElementById("limit-price-input").addEventListener("input", updateOrderReadout);
+
+  document.getElementById("news-refresh").addEventListener("click", refreshNews);
+
   const presets = [1,5,10,25,50,100,200];
   const presetsWrap = document.getElementById("lev-presets");
   presetsWrap.innerHTML = presets.map(p=>'<button data-lev="'+p+'" class="'+(p===leverage?"active":"")+'">x'+p+'</button>').join("");
@@ -3964,10 +4383,14 @@ function initEvents(){
 async function init(){
   buildWatchlist();
   initEvents();
+  renderSessions();
+  setInterval(renderSessions, 1000);
+  refreshNews();
+  setInterval(refreshNews, 5*60*1000);
   await Promise.all([initDb(), initPriceFeed()]);
   document.getElementById("username-input").value = state.username;
   renderAll();
-  setInterval(()=>{ if (state.positions.length>0) persistAccount(); }, 5000);
+  setInterval(()=>{ if (state.positions.length>0 || state.pendingOrders.length>0) persistAccount(); }, 5000);
 }
 init();
 
