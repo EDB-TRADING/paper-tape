@@ -7,18 +7,32 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 
+  /* ---------- theme palette ----------
+     3 selectable themes (Ember / Sage / Ink), swapped by [data-theme] on
+     <html>. Ink doubles as the shared dark base color of Ember & Sage (a
+     near-black "ink" backdrop) and, inverted, becomes Ink's own theme: dark
+     ink text on a cream Paper background — a nod to the app's name. --long/
+     --short (gain/loss) stay fixed across all three so P&L colour never
+     depends on the active theme. --accent-dim/--on-accent are computed from
+     --accent + --bg where a theme doesn't hardcode its own, so most of the
+     palette needs no per-theme override at all. */
   :root{
-    --bg:#0a0d12;
-    --bg-raised:#10141b;
-    --panel:#12161e;
-    --panel-2:#171c26;
-    --border:#232a37;
-    --border-soft:#1a212c;
-    --text:#e7ecf3;
-    --text-dim:#93a0b3;
-    --text-faint:#57667a;
-    --accent:#37c7db;
-    --accent-dim:#1f5c66;
+    /* Ember (default) */
+    --bg:#1c1a17;
+    --bg-raised:#262219;
+    --panel:#211d18;
+    --panel-2:#2b2620;
+    --border:#3a352b;
+    --border-soft:#2d2820;
+    --text:#fbf7f0;
+    --text-dim:#c9bfa9;
+    --text-faint:#8a8072;
+    --accent:#e8552b;
+    --accent-dark:#c0401d;
+    --accent-light:#f27a3d;
+    --on-accent:#1c1a17;
+    --accent-dim: color-mix(in srgb, var(--accent) 20%, var(--bg) 80%);
+
     --long:#31c882;
     --long-dim:#12362a;
     --short:#f0546a;
@@ -29,19 +43,75 @@
     --sans:'IBM Plex Sans',system-ui,sans-serif;
     --radius:8px;
   }
+  :root[data-theme="sage"]{
+    --bg:#1c1a17;
+    --bg-raised:#1f2420;
+    --panel:#1c211d;
+    --panel-2:#242a24;
+    --border:#333d35;
+    --border-soft:#242a24;
+    --text:#fbf7f0;
+    --text-dim:#b9c4bb;
+    --text-faint:#7c8a80;
+    --accent:#3e5c4b;
+    --accent-dark: color-mix(in srgb, #3e5c4b 75%, black);
+    --accent-light:#88a896;
+    --on-accent:#fbf7f0;
+  }
+  :root[data-theme="ink"]{
+    --bg:#fbf7f0;
+    --bg-raised:#f1e9da;
+    --panel:#fbf7f0;
+    --panel-2:#f3ecde;
+    --border:#d8c9ae;
+    --border-soft:#e4dacb;
+    --text:#1c1a17;
+    --text-dim:#5b5449;
+    --text-faint:#948c7c;
+    --accent:#1c1a17;
+    --accent-dark:#000000;
+    --accent-light:#4a443b;
+    --on-accent:#fbf7f0;
+  }
+  /* Noir: true-black, monochrome, no warm tint — the sober "OLED" theme. */
+  :root[data-theme="noir"]{
+    --bg:#050505;
+    --bg-raised:#0d0d0d;
+    --panel:#0a0a0a;
+    --panel-2:#131313;
+    --border:#262626;
+    --border-soft:#1a1a1a;
+    --text:#f2f2f2;
+    --text-dim:#a3a3a3;
+    --text-faint:#666666;
+    --accent:#e5e5e5;
+    --accent-dark:#b0b0b0;
+    --accent-light:#ffffff;
+    --on-accent:#050505;
+  }
 
   *{box-sizing:border-box;}
   body{
     background:
-      radial-gradient(1100px 620px at 12% -8%, rgba(55,199,219,0.10), transparent 60%),
+      radial-gradient(1100px 620px at 12% -8%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%),
       radial-gradient(900px 500px at 100% 0%, rgba(215,181,99,0.07), transparent 55%),
       var(--bg);
     color:var(--text);
     font-family:var(--sans);
     -webkit-font-smoothing:antialiased;
+    transition:background-color .25s ease, color .25s ease;
   }
+  /* Ink theme: literal "paper tape" treatment — faint paper grain, dashed
+     ticket-perforation borders instead of the other themes' solid lines. */
+  html[data-theme="ink"] body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    opacity:.05;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  html[data-theme="ink"] header.topbar{border-bottom-style:dashed;}
+  html[data-theme="ink"] .card{border-style:dashed;}
   h1,h2,h3,h4{font-family:var(--mono);margin:0;text-wrap:balance;}
-  ::selection{background:var(--accent-dim);color:#fff;}
+  ::selection{background:var(--accent-dim);color:var(--text);}
   button{font-family:var(--sans);}
   input,button{color:var(--text);}
   a{color:var(--accent);}
@@ -62,7 +132,7 @@
     position:sticky;top:0;z-index:20;
     display:flex;align-items:center;gap:20px;
     padding:10px 18px;
-    background:rgba(10,13,18,0.92);
+    background:color-mix(in srgb, var(--bg) 92%, transparent);
     backdrop-filter:blur(6px);
     border-bottom:1px solid var(--border);
     flex-wrap:wrap;
@@ -73,6 +143,17 @@
   .livedot{width:6px;height:6px;border-radius:50%;background:var(--long);box-shadow:0 0 0 3px var(--long-dim);flex:none;}
   .livewrap{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;letter-spacing:0.08em;color:var(--text-faint);text-transform:uppercase;}
 
+  .theme-switch{display:flex;align-items:center;gap:6px;margin-left:10px;padding-left:10px;border-left:1px solid var(--border);}
+  .candle-theme-switch{display:flex;align-items:center;gap:6px;}
+  .theme-dot,.candle-dot{
+    width:17px;height:17px;border-radius:50%;background:var(--dot);
+    border:2px solid var(--border-soft);padding:0;cursor:pointer;
+    transition:transform .15s ease,border-color .15s ease;flex:none;
+  }
+  .theme-dot:hover,.candle-dot:hover{transform:scale(1.15);}
+  .theme-dot.active,.candle-dot.active{border-color:var(--text);box-shadow:0 0 0 2px var(--bg),0 0 0 3px var(--dot);}
+  .theme-dot:focus-visible,.candle-dot:focus-visible{outline:2px solid var(--dot);outline-offset:2px;}
+
   nav.tabs{display:flex;gap:2px;background:var(--panel);border:1px solid var(--border);border-radius:999px;padding:3px;margin-left:8px;}
   nav.tabs button{
     background:transparent;border:none;color:var(--text-dim);
@@ -80,7 +161,7 @@
     padding:7px 16px;border-radius:999px;cursor:pointer;transition:background .15s,color .15s;
   }
   nav.tabs button:hover{color:var(--text);}
-  nav.tabs button.active{background:var(--accent);color:#04181c;font-weight:600;}
+  nav.tabs button.active{background:linear-gradient(135deg, var(--accent-light), var(--accent-dark));color:var(--on-accent);font-weight:600;}
   nav.tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
   nav.tabs .tab-emoji{margin-right:5px;filter:grayscale(0.15);}
 
@@ -147,7 +228,8 @@
   .chart-head .price-big{font-family:var(--mono);font-size:22px;font-weight:700;}
   svg.chart{width:100%;height:220px;display:block;}
   .chart-note{font-family:var(--mono);font-size:9.5px;color:var(--text-faint);margin-top:6px;}
-  .tf-seg{display:flex;gap:4px;margin-bottom:8px;}
+  .chart-controls{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
+  .tf-seg{display:flex;gap:4px;margin-bottom:0;}
   .tf-seg button{
     background:var(--bg-raised);border:1px solid var(--border);color:var(--text-faint);
     font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:0.03em;
@@ -210,13 +292,13 @@
   .acct-summary .cell .lbl{font-family:var(--mono);font-size:9px;color:var(--text-faint);letter-spacing:0.07em;text-transform:uppercase;}
   .acct-summary .cell .val{font-family:var(--mono);font-size:14px;font-weight:700;margin-top:2px;}
   .marginbar{height:5px;border-radius:3px;background:var(--bg-raised);overflow:hidden;margin:8px 0 14px;border:1px solid var(--border-soft);}
-  .marginbar > i{display:block;height:100%;background:var(--accent);}
+  .marginbar > i{display:block;height:100%;background:linear-gradient(90deg, var(--accent-dark), var(--accent-light));}
 
   .pos-card{
     background:var(--bg-raised);border:1px solid var(--border-soft);border-radius:7px;
     padding:9px 10px;margin-bottom:8px;
   }
-  .pos-top{display:flex;justify-content:space-between;align-items:center;}
+  .pos-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
   .pos-sym{font-family:var(--mono);font-size:12.5px;font-weight:700;}
   .pos-badge{font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase;margin-left:6px;}
   .pos-badge.long{background:var(--long-dim);color:var(--long);}
@@ -224,7 +306,7 @@
   .pos-badge.mode{background:var(--panel-2);color:var(--text-dim);}
   .pos-close{background:none;border:1px solid var(--border);color:var(--text-faint);border-radius:5px;font-family:var(--mono);font-size:10px;padding:3px 8px;cursor:pointer;}
   .pos-close:hover{border-color:var(--short);color:var(--short);}
-  .pos-actions{display:flex;gap:6px;}
+  .pos-actions{display:flex;gap:6px;flex-wrap:wrap;}
   .pos-tpsl{background:none;border:1px solid var(--border);color:var(--text-faint);border-radius:5px;font-family:var(--mono);font-size:10px;padding:3px 8px;cursor:pointer;}
   .pos-tpsl:hover{border-color:var(--accent);color:var(--accent);}
   .pos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 6px;margin-top:7px;font-size:10px;}
@@ -288,7 +370,7 @@
   .quiz-intro h2{font-size:20px;margin-bottom:10px;}
   .quiz-intro p{font-family:var(--sans);color:var(--text-dim);font-size:13.5px;line-height:1.6;max-width:480px;margin:0 auto 20px;}
   .btn-primary{
-    background:var(--accent);color:#04181c;border:none;font-family:var(--mono);font-weight:700;
+    background:var(--accent);color:var(--on-accent);border:none;font-family:var(--mono);font-weight:700;
     font-size:12.5px;letter-spacing:0.05em;text-transform:uppercase;padding:12px 24px;border-radius:7px;cursor:pointer;
   }
   .btn-primary:hover{filter:brightness(1.08);}
@@ -308,7 +390,7 @@
     border-radius:16px;font-size:28px;margin-bottom:14px;
   }
   .quiz-track{height:3px;background:var(--border);border-radius:2px;margin-bottom:18px;overflow:hidden;}
-  .quiz-track > i{display:block;height:100%;background:var(--accent);transition:background-color .3s ease;}
+  .quiz-track > i{display:block;height:100%;background:linear-gradient(90deg, var(--accent-dark), var(--accent-light));transition:background-color .3s ease;}
   .quiz-q{font-size:16.5px;line-height:1.5;margin-bottom:16px;text-wrap:balance;}
   .quiz-choices{display:flex;flex-direction:column;gap:8px;}
   .quiz-choice{
@@ -411,7 +493,7 @@
   .pnl-card-meta{font-family:var(--mono);font-size:10px;color:var(--text-faint);margin-top:4px;}
 
   /* feedback FAB + modal */
-  .feedback-fab{position:fixed;bottom:20px;right:20px;width:48px;height:48px;border-radius:50%;background:var(--accent);color:#04181c;border:none;font-size:20px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.4);z-index:40;}
+  .feedback-fab{position:fixed;bottom:20px;right:20px;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg, var(--accent-light), var(--accent-dark));color:var(--on-accent);border:none;font-size:20px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.4);z-index:40;}
   .feedback-fab:hover{filter:brightness(1.08);}
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;}
   .modal-overlay[hidden]{display:none;}
@@ -425,7 +507,13 @@
 <div id="app">
   <header class="topbar">
     <div class="wordmark"><span class="mark">PAPER <span>TAPE</span></span></div>
-    <div class="livewrap"><span class="livedot"></span>Live · Crypto.com</div>
+    <div class="livewrap"><span class="livedot"></span>Live · Binance + Crypto.com</div>
+    <div class="theme-switch" id="theme-switch" role="group" aria-label="Thème">
+      <button type="button" class="theme-dot" data-theme-choice="ember" title="Ember" style="--dot:#E8552B"></button>
+      <button type="button" class="theme-dot" data-theme-choice="sage"  title="Sage"  style="--dot:#3E5C4B"></button>
+      <button type="button" class="theme-dot" data-theme-choice="ink"   title="Ink"   style="--dot:#1C1A17"></button>
+      <button type="button" class="theme-dot" data-theme-choice="noir"  title="Noir"  style="--dot:conic-gradient(#000 0 50%, #fff 50% 100%)"></button>
+    </div>
     <nav class="tabs">
       <button data-view="terminal" class="active"><span class="tab-emoji">📟</span>Terminal</button>
       <button data-view="news"><span class="tab-emoji">📰</span>News</button>
@@ -469,11 +557,18 @@
               <div><span class="sym-big" id="chart-sym">BTC</span><span class="name-big" id="chart-name">Bitcoin</span></div>
               <span class="price-big num" id="chart-price">$0.00</span>
             </div>
-            <div class="tf-seg" id="tf-seg">
-              <button data-tf="1m" class="active">1m</button>
-              <button data-tf="5m">5m</button>
-              <button data-tf="15m">15m</button>
-              <button data-tf="1h">1h</button>
+            <div class="chart-controls">
+              <div class="tf-seg" id="tf-seg">
+                <button data-tf="1m" class="active">1m</button>
+                <button data-tf="5m">5m</button>
+                <button data-tf="15m">15m</button>
+                <button data-tf="1h">1h</button>
+              </div>
+              <div class="candle-theme-switch" id="candle-theme-seg">
+                <button type="button" class="candle-dot active" data-candle-theme="classic"  title="Classique"    style="--dot:conic-gradient(#31c882 0 50%, #f0546a 50% 100%)"></button>
+                <button type="button" class="candle-dot"        data-candle-theme="contrast" title="Contraste"    style="--dot:conic-gradient(#00e676 0 50%, #ff1744 50% 100%)"></button>
+                <button type="button" class="candle-dot"        data-candle-theme="mono"     title="Noir & Blanc" style="--dot:conic-gradient(#fff 0 50%, #000 50% 100%)"></button>
+              </div>
             </div>
             <svg class="chart" id="chart-svg" viewBox="0 0 640 220"></svg>
           </div>
@@ -633,6 +728,23 @@
     <section class="view" id="view-profile">
       <div class="learn-wrap">
         <div class="card">
+          <h3>Compte</h3>
+          <div id="account-logged-out">
+            <p class="chart-note" style="margin-bottom:10px;">Sans connexion, ta progression reste liée à ce navigateur. Connecte-toi (ou crée un compte) pour la retrouver depuis n'importe quel appareil.</p>
+            <div class="field-row"><label>Email</label><input type="email" id="auth-email-input" class="tpsl-input" placeholder="toi@exemple.com" autocomplete="email"></div>
+            <div class="field-row" style="margin-top:8px;"><label>Mot de passe</label><input type="password" id="auth-password-input" class="tpsl-input" placeholder="6 caractères minimum" autocomplete="current-password"></div>
+            <div class="chart-note" id="auth-msg" style="margin:8px 0;"></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn-primary" id="auth-login-btn">Se connecter</button>
+              <button class="btn-secondary" id="auth-signup-btn">Créer un compte</button>
+            </div>
+          </div>
+          <div id="account-logged-in" hidden>
+            <p class="chart-note">Connecté en tant que <strong id="auth-current-email"></strong> — ce compte est accessible depuis n'importe quel navigateur.</p>
+            <button class="btn-secondary" id="auth-logout-btn" style="margin-top:8px;">Se déconnecter</button>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px;">
           <h3>Mes badges</h3>
           <div class="badges-grid" id="badges-grid"></div>
         </div>
@@ -658,7 +770,7 @@
     </section>
   </main>
 
-  <div class="footnote">Capital virtuel, prix réels — compte de démonstration sans valeur réelle, exécuté sur des données de marché en direct (Crypto.com), à but pédagogique pour l'École de la Bourse.</div>
+  <div class="footnote">Capital virtuel, prix réels — compte de démonstration sans valeur réelle, exécuté sur des données de marché en direct (Binance, avec repli Crypto.com), à but pédagogique pour l'École de la Bourse.</div>
 
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬</button>
@@ -674,6 +786,7 @@
      See FIREBASE_SETUP.md for the 5-minute setup. ============ -->
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script>
 (function(){
 "use strict";
@@ -692,19 +805,26 @@
 // slowly over time (dividends, index rebalances) — an approximation, but the
 // number ON the price, not a separate one next to it.
 const ASSETS = [
-  {symbol:"BTC",  name:"Bitcoin",              instrument:"BTC_USD",     decimals:2, icon:"₿", color:"#f7931a"},
-  {symbol:"ETH",  name:"Ethereum",             instrument:"ETH_USD",     decimals:2, icon:"Ξ", color:"#8c9eff"},
-  {symbol:"SOL",  name:"Solana",               instrument:"SOL_USD",     decimals:2, icon:"◎", color:"#14f195"},
-  {symbol:"HYPE", name:"Hyperliquid",          instrument:"HYPE_USD",    decimals:3, icon:"🐡", color:"#37c7db"},
+  {symbol:"BTC",  name:"Bitcoin",              instrument:"BTC_USD",     binanceSymbol:"BTCUSDT",  decimals:2, icon:"₿", color:"#f7931a"},
+  {symbol:"ETH",  name:"Ethereum",             instrument:"ETH_USD",     binanceSymbol:"ETHUSDT",  decimals:2, icon:"Ξ", color:"#8c9eff"},
+  {symbol:"SOL",  name:"Solana",               instrument:"SOL_USD",     binanceSymbol:"SOLUSDT",  decimals:2, icon:"◎", color:"#14f195"},
+  {symbol:"HYPE", name:"Hyperliquid",          instrument:"HYPE_USD",    binanceSymbol:"HYPEUSDT", decimals:3, icon:"🐡", color:"#37c7db"},
   {symbol:"SPY",  name:"S&P 500 (indice, recalé sur perp. ETF SPY)",    instrument:"SPYUSD-PERP", decimals:2, indexRatio:10.08, icon:"📈", color:"#31c882"},
   {symbol:"QQQ",  name:"Nasdaq 100 (indice, recalé sur perp. ETF QQQ)", instrument:"QQQUSD-PERP",decimals:2, indexRatio:41.07, icon:"💻", color:"#d7b563"},
+  {symbol:"GOLD", name:"Or (spot, via PAXG — token adossé 1:1 à l'once d'or physique)", instrument:"PAXG_USD", binanceSymbol:"PAXGUSDT", decimals:2, icon:"🥇", color:"#d7b563"},
 ];
+// Assets with a `binanceSymbol` try Binance's public REST API first (deeper
+// liquidity, tighter spreads, generally more reliable uptime than Crypto.com)
+// and transparently fall back to Crypto.com on any error — network, CORS,
+// rate limit, or an unlisted pair. SPY/QQQ have no Binance equivalent (they're
+// synthetic index-perps unique to Crypto.com) so they always use Crypto.com.
 // Direct browser calls to Crypto.com Exchange's public (no-auth) REST API —
 // this is the standalone build, so there's no Claude `mcp` capability to
 // bridge through the platform's CSP. If prices never come online after
 // deploying, open devtools → Network/Console: a CORS or 4xx/5xx error here
 // means this endpoint shape needs a tweak (see FIREBASE_SETUP.md).
 const CRYPTO_API_BASE = "https://api.crypto.com/exchange/v1/public";
+const BINANCE_API_BASE = "https://api.binance.com/api/v3";
 const CANDLE_TIMEFRAMES = ["1m","5m","15m","1h"];
 let currentTimeframe = "1m";
 let candleTimer = null;
@@ -785,7 +905,7 @@ async function fetchCandles(symbol, tf){
   m.candles.loading = true;
   if (selectedSymbol===symbol) updateChart();
   try{
-    const raw = await fetchCandlesRest(a.instrument, tf);
+    const raw = await fetchCandlesRest(a, tf);
     const scale = a.indexRatio || 1;
     let parsed = raw.map(c=>({
       o: parseFloat(c.open)*scale, h: parseFloat(c.high)*scale,
@@ -841,7 +961,7 @@ function fmtLev(v){
   return Number.isInteger(v) ? String(v) : v.toFixed(1);
 }
 function reasonLabel(reason){
-  return {liquidated:"liquidé", tp:"TP atteint", sl:"SL atteint"}[reason] || "fermé";
+  return {liquidated:"liquidé", tp:"TP atteint", sl:"SL atteint", closed_partial:"clôture partielle"}[reason] || "fermé";
 }
 function fmtQty(v){
   const abs = Math.abs(v);
@@ -911,6 +1031,67 @@ function liqPriceFor(entry, side, lev){
 }
 
 /* ============================= DB (leaderboard + persistence) ============================= */
+// Hydrates `state` from a Firestore trader-doc snapshot. Pulled out of
+// initDb() so the auth flow below can reuse the exact same logic when it
+// switches `clientId` between the local anonymous id and a signed-in user's
+// uid (login, logout, and the one-time migration on first sign-up).
+function hydrateStateFromDoc(snap){
+  // The db capability can hand back frozen/non-extensible objects and
+  // arrays (e.g. "Cannot add property 0, object is not extensible" the
+  // moment we later push a position or a history entry) — deep-clone
+  // through JSON so everything we hydrate into `state` is a plain,
+  // fully mutable copy.
+  const d = deepClone(snap.data()) || {};
+  state.username = d.username || state.username;
+  state.cash = typeof d.cash==="number" ? d.cash : state.cash;
+  state.marginUsed = typeof d.marginUsed==="number" ? d.marginUsed : 0;
+  state.positions = Array.isArray(d.positions) ? d.positions : [];
+  state.pendingOrders = Array.isArray(d.pendingOrders) ? d.pendingOrders : [];
+  state.history = Array.isArray(d.history) ? d.history : [];
+  if (d.quizProgress && typeof d.quizProgress==="object"){
+    state.quizProgress = d.quizProgress;
+    // migrate any legacy per-deck shape {bonusPaid,best} into the new
+    // {attempts,solved,earned,perfectAttempt,inProgress} shape
+    Object.keys(state.quizProgress).forEach(id=>{
+      const p = state.quizProgress[id];
+      if (p && typeof p.bonusPaid==="number" && !Array.isArray(p.solved)){
+        const deckDef = (typeof QUIZ_DECKS!=="undefined") ? QUIZ_DECKS.find(dk=>dk.id===id) : null;
+        const n = deckDef ? deckDef.questions.length : (p.best||0);
+        state.quizProgress[id] = {
+          attempts: p.best>0 ? 1 : 0,
+          solved: new Array(n).fill(false),
+          earned: p.bonusPaid||0,
+          perfectAttempt: (deckDef && p.best>=deckDef.questions.length) ? 1 : null,
+          inProgress: null,
+        };
+      }
+    });
+  } else if (typeof d.quizBonusPaid==="number" || typeof d.quizBest==="number"){
+    // migrate legacy single flat fields into the general deck's progress
+    state.quizProgress = {general: {attempts: d.quizBest>0?1:0, solved:[], earned: d.quizBonusPaid||0, perfectAttempt: null, inProgress: null}};
+  }
+  state.badges = (d.badges && typeof d.badges==="object") ? d.badges : {};
+  state.journal = Array.isArray(d.journal) ? d.journal : [];
+  state.superflash = {
+    bestScore: typeof d.superflashBest==="number" ? d.superflashBest : 0,
+    bestCorrect: typeof d.superflashBestCorrect==="number" ? d.superflashBestCorrect : 0,
+    attempts: typeof d.superflashAttempts==="number" ? d.superflashAttempts : 0,
+  };
+  state.stats = (d.stats && typeof d.stats==="object") ? {...state.stats, ...d.stats} : state.stats;
+}
+// Loads (or creates) the trader doc for `id` into `state`. Used at boot for
+// the local anonymous id, and again by the auth flow whenever `clientId`
+// switches identity (login/logout/migration).
+async function loadAccountForClientId(id){
+  clientId = id; // persistAccount() always writes to the *current* clientId
+  const ref = db.collection("traders").doc(id);
+  const snap = await ref.get();
+  if (snap.exists){
+    hydrateStateFromDoc(snap);
+  } else {
+    await persistAccount();
+  }
+}
 async function initDb(){
   try{
     if (!FIREBASE_CONFIG || !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.indexOf("REMPLACE")===0){
@@ -921,57 +1102,11 @@ async function initDb(){
     db = firebase.firestore();
     if (!db) return;
     dbReady = true;
-    const ref = db.collection("traders").doc(clientId);
-    const snap = await ref.get();
-    if (snap.exists){
-      // The db capability can hand back frozen/non-extensible objects and
-      // arrays (e.g. "Cannot add property 0, object is not extensible" the
-      // moment we later push a position or a history entry) — deep-clone
-      // through JSON so everything we hydrate into `state` is a plain,
-      // fully mutable copy.
-      const d = deepClone(snap.data()) || {};
-      state.username = d.username || state.username;
-      state.cash = typeof d.cash==="number" ? d.cash : state.cash;
-      state.marginUsed = typeof d.marginUsed==="number" ? d.marginUsed : 0;
-      state.positions = Array.isArray(d.positions) ? d.positions : [];
-      state.pendingOrders = Array.isArray(d.pendingOrders) ? d.pendingOrders : [];
-      state.history = Array.isArray(d.history) ? d.history : [];
-      if (d.quizProgress && typeof d.quizProgress==="object"){
-        state.quizProgress = d.quizProgress;
-        // migrate any legacy per-deck shape {bonusPaid,best} into the new
-        // {attempts,solved,earned,perfectAttempt,inProgress} shape
-        Object.keys(state.quizProgress).forEach(id=>{
-          const p = state.quizProgress[id];
-          if (p && typeof p.bonusPaid==="number" && !Array.isArray(p.solved)){
-            const deckDef = (typeof QUIZ_DECKS!=="undefined") ? QUIZ_DECKS.find(dk=>dk.id===id) : null;
-            const n = deckDef ? deckDef.questions.length : (p.best||0);
-            state.quizProgress[id] = {
-              attempts: p.best>0 ? 1 : 0,
-              solved: new Array(n).fill(false),
-              earned: p.bonusPaid||0,
-              perfectAttempt: (deckDef && p.best>=deckDef.questions.length) ? 1 : null,
-              inProgress: null,
-            };
-          }
-        });
-      } else if (typeof d.quizBonusPaid==="number" || typeof d.quizBest==="number"){
-        // migrate legacy single flat fields into the general deck's progress
-        state.quizProgress = {general: {attempts: d.quizBest>0?1:0, solved:[], earned: d.quizBonusPaid||0, perfectAttempt: null, inProgress: null}};
-      }
-      state.badges = (d.badges && typeof d.badges==="object") ? d.badges : {};
-      state.journal = Array.isArray(d.journal) ? d.journal : [];
-      state.superflash = {
-        bestScore: typeof d.superflashBest==="number" ? d.superflashBest : 0,
-        bestCorrect: typeof d.superflashBestCorrect==="number" ? d.superflashBestCorrect : 0,
-        attempts: typeof d.superflashAttempts==="number" ? d.superflashAttempts : 0,
-      };
-      state.stats = (d.stats && typeof d.stats==="object") ? {...state.stats, ...d.stats} : state.stats;
-    } else {
-      await persistAccount();
-    }
+    await loadAccountForClientId(clientId);
     subscribeLeaderboard();
     subscribeQuizLeaderboard();
     subscribeSuperflashLeaderboard();
+    initAuth();
   }catch(e){ console.warn("db init failed", e); }
 }
 let persistTimer = null;
@@ -997,6 +1132,13 @@ function persistAccount(){
           superflashBestCorrect: state.superflash.bestCorrect,
           superflashAttempts: state.superflash.attempts,
           stats: state.stats,
+          // Heartbeat: the "paper-tape-mark" Cloud Function (see /functions)
+          // only touches a trader's pending orders / TP-SL / liquidations /
+          // mark-to-market equity once this goes stale (no write in the
+          // last ~60s) — i.e. once your own browser has actually gone
+          // idle/offline and stopped running the 5s live-persist loop below,
+          // so it never races the client that's already handling it.
+          lastActiveAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         });
       }catch(e){ console.warn("persist failed", e); }
@@ -1032,7 +1174,110 @@ function subscribeSuperflashLeaderboard(){
   }catch(e){}
 }
 
-/* ============================= LIVE PRICES (direct Crypto.com public REST API) ============================= */
+/* ============================= AUTH (optional email/password) ============================= */
+// Fully optional — a guest's random per-browser id (localStorage) keeps
+// working exactly as before. Signing in ties the SAME account (cash,
+// positions, history, badges) to an email so it follows you to any device:
+// the trader doc moves from being keyed by the random id to being keyed by
+// the Firebase Auth uid. Requires the "Email/Password" sign-in provider to
+// be turned on in the Firebase console (Authentication → Sign-in method) —
+// this is a one-time setup step outside the code, see FIREBASE_SETUP.md.
+let anonClientId = null; // the original per-browser id, restored on logout
+let authUser = null;
+function hasMeaningfulLocalProgress(){
+  return state.positions.length>0 || state.history.length>0 || state.cash!==START_CASH || (state.stats && state.stats.tradesOpened>0);
+}
+function initAuth(){
+  try{
+    if (typeof firebase.auth !== "function") return; // firebase-auth-compat.js not loaded
+    anonClientId = clientId;
+    firebase.auth().onAuthStateChanged(async (user)=>{
+      authUser = user;
+      renderAccountCard();
+      try{
+        if (user){
+          if (clientId === user.uid) return; // already on this identity (e.g. auth session restored on reload)
+          const targetSnap = await db.collection("traders").doc(user.uid).get();
+          if (!targetSnap.exists && hasMeaningfulLocalProgress()){
+            // First login on this browser with real progress already made as
+            // a guest, and no account yet on the server: carry it over once
+            // instead of silently losing it under the new identity.
+            clientId = user.uid;
+            await persistAccount();
+          } else {
+            await loadAccountForClientId(user.uid);
+          }
+        } else {
+          await loadAccountForClientId(anonClientId);
+        }
+        renderAll();
+      }catch(e){ console.warn("auth state sync failed", e); }
+    });
+  }catch(e){ console.warn("auth init failed", e); }
+}
+function renderAccountCard(){
+  const out = document.getElementById("account-logged-out");
+  const inn = document.getElementById("account-logged-in");
+  if (!out || !inn) return;
+  const loggedIn = !!authUser;
+  out.hidden = loggedIn;
+  inn.hidden = !loggedIn;
+  if (loggedIn){
+    const emailEl = document.getElementById("auth-current-email");
+    if (emailEl) emailEl.textContent = authUser.email;
+  }
+}
+function initAuthUI(){
+  const emailInput = document.getElementById("auth-email-input");
+  const passInput = document.getElementById("auth-password-input");
+  const msg = document.getElementById("auth-msg");
+  const loginBtn = document.getElementById("auth-login-btn");
+  const signupBtn = document.getElementById("auth-signup-btn");
+  const logoutBtn = document.getElementById("auth-logout-btn");
+  if (!loginBtn || !signupBtn || !logoutBtn) return; // auth UI not in the DOM (shouldn't happen, but stay defensive)
+  function readCreds(){
+    const email = (emailInput.value||"").trim();
+    const password = passInput.value||"";
+    if (!email || email.indexOf("@")<0){ msg.textContent = "Adresse email invalide."; return null; }
+    if (password.length<6){ msg.textContent = "Le mot de passe doit faire au moins 6 caractères."; return null; }
+    msg.textContent = "";
+    return {email, password};
+  }
+  function authErrorMsg(e){
+    const code = e && e.code || "";
+    if (code==="auth/email-already-in-use") return "Un compte existe déjà avec cet email — connecte-toi plutôt.";
+    if (code==="auth/invalid-credential" || code==="auth/wrong-password" || code==="auth/user-not-found") return "Email ou mot de passe incorrect.";
+    if (code==="auth/weak-password") return "Mot de passe trop faible (6 caractères minimum).";
+    if (code==="auth/operation-not-allowed") return "La connexion par email n'est pas encore activée côté serveur (Firebase → Authentication → Sign-in method).";
+    if (code==="auth/network-request-failed") return "Connexion réseau impossible pour le moment — réessaie.";
+    return "Erreur : "+((e&&e.message)||e);
+  }
+  loginBtn.addEventListener("click", async ()=>{
+    const creds = readCreds();
+    if (!creds) return;
+    loginBtn.disabled = true;
+    try{
+      await firebase.auth().signInWithEmailAndPassword(creds.email, creds.password);
+      msg.style.color = "var(--long)"; msg.textContent = "Connecté.";
+    }catch(e){ msg.style.color = "var(--warn)"; msg.textContent = authErrorMsg(e); }
+    finally{ loginBtn.disabled = false; }
+  });
+  signupBtn.addEventListener("click", async ()=>{
+    const creds = readCreds();
+    if (!creds) return;
+    signupBtn.disabled = true;
+    try{
+      await firebase.auth().createUserWithEmailAndPassword(creds.email, creds.password);
+      msg.style.color = "var(--long)"; msg.textContent = "Compte créé et connecté.";
+    }catch(e){ msg.style.color = "var(--warn)"; msg.textContent = authErrorMsg(e); }
+    finally{ signupBtn.disabled = false; }
+  });
+  logoutBtn.addEventListener("click", async ()=>{
+    try{ await firebase.auth().signOut(); }catch(e){ console.warn("signOut failed", e); }
+  });
+}
+
+/* ============================= LIVE PRICES (Binance primary, Crypto.com fallback — direct public REST APIs) ============================= */
 // Standalone build: no Claude `mcp` capability here, so this calls Crypto.com
 // Exchange's public (no-auth, no-key) REST endpoints directly from the
 // browser. If this never comes online, open devtools → Network tab: a CORS
@@ -1041,7 +1286,7 @@ function setMarketStatus(text){
   const el = document.getElementById("market-status");
   if (el) el.textContent = text;
 }
-async function fetchTickerRest(instrument){
+async function fetchTickerCryptoCom(instrument){
   const url = CRYPTO_API_BASE+"/get-tickers?instrument_name="+encodeURIComponent(instrument);
   const res = await fetch(url, {signal:AbortSignal.timeout(12000)});
   if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
@@ -1054,7 +1299,31 @@ async function fetchTickerRest(instrument){
     timestamp: raw.t ? new Date(Number(raw.t)).toISOString() : new Date().toISOString(),
   };
 }
-async function fetchCandlesRest(instrument, tf){
+async function fetchTickerBinance(binanceSymbol){
+  const url = BINANCE_API_BASE+"/ticker/24hr?symbol="+encodeURIComponent(binanceSymbol);
+  const res = await fetch(url, {signal:AbortSignal.timeout(8000)});
+  if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
+  const raw = await res.json();
+  if (!raw || raw.lastPrice==null){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
+  return {
+    last: raw.lastPrice, best_bid: raw.bidPrice, best_ask: raw.askPrice,
+    // Binance gives priceChangePercent already as a percentage (e.g. "1.23"
+    // meaning +1.23%); processTicker()'s `change` field is expected as a
+    // fraction (crypto.com convention) and gets *100'd downstream — so we
+    // divide by 100 here to land back on the same percentage either way.
+    change: (parseFloat(raw.priceChangePercent)||0)/100,
+    high: raw.highPrice, low: raw.lowPrice,
+    timestamp: raw.closeTime ? new Date(Number(raw.closeTime)).toISOString() : new Date().toISOString(),
+  };
+}
+async function fetchTickerRest(a){
+  if (a.binanceSymbol){
+    try{ return await fetchTickerBinance(a.binanceSymbol); }
+    catch(e){ /* fall through to Crypto.com below */ }
+  }
+  return fetchTickerCryptoCom(a.instrument);
+}
+async function fetchCandlesCryptoCom(instrument, tf){
   const url = CRYPTO_API_BASE+"/get-candlestick?instrument_name="+encodeURIComponent(instrument)+"&timeframe="+encodeURIComponent(tf);
   const res = await fetch(url, {signal:AbortSignal.timeout(12000)});
   if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
@@ -1066,9 +1335,29 @@ async function fetchCandlesRest(instrument, tf){
     timestamp: c.t ? new Date(Number(c.t)).toISOString() : null,
   }));
 }
+async function fetchCandlesBinance(binanceSymbol, tf){
+  // Binance's interval strings ("1m","5m","15m","1h") already match ours.
+  const url = BINANCE_API_BASE+"/klines?symbol="+encodeURIComponent(binanceSymbol)+"&interval="+encodeURIComponent(tf)+"&limit=50";
+  const res = await fetch(url, {signal:AbortSignal.timeout(8000)});
+  if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
+  const raw = await res.json();
+  if (!Array.isArray(raw)){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
+  // Each row: [openTime, open, high, low, close, volume, closeTime, ...]
+  return raw.map(row=>({
+    open:row[1], high:row[2], low:row[3], close:row[4],
+    timestamp: new Date(Number(row[0])).toISOString(),
+  }));
+}
+async function fetchCandlesRest(a, tf){
+  if (a.binanceSymbol){
+    try{ return await fetchCandlesBinance(a.binanceSymbol, tf); }
+    catch(e){ /* fall through to Crypto.com below */ }
+  }
+  return fetchCandlesCryptoCom(a.instrument, tf);
+}
 async function pollAsset(a){
   try{
-    const payload = await fetchTickerRest(a.instrument);
+    const payload = await fetchTickerRest(a);
     processTicker(a.symbol, payload);
     clearLiveBanner();
     checkPendingOrders();
@@ -1085,7 +1374,7 @@ function pollAllAssets(){
   ASSETS.forEach((a,i)=>{ setTimeout(()=>pollAsset(a), i*180); });
 }
 async function initPriceFeed(){
-  setMarketStatus("connexion à l'API publique Crypto.com…");
+  setMarketStatus("connexion aux API publiques (Binance / Crypto.com)…");
   pollAllAssets();
   setInterval(pollAllAssets, REFETCH_MS);
   scheduleCandleRefresh();
@@ -1097,32 +1386,66 @@ function setLiveBanner(code){
   banner.hidden = false;
 }
 function clearLiveBanner(){
-  setMarketStatus("connecté — flux en direct (Crypto.com, API publique)");
+  setMarketStatus("connecté — flux en direct (Binance + Crypto.com, API publiques)");
   if (!liveGloballyDown) return;
   liveGloballyDown = false;
   document.getElementById("live-banner").hidden = true;
 }
 
 /* ============================= MARKET SESSIONS CLOCK ============================= */
-// Standard forex/market session hours in UTC (fixed approximation — the usual
-// simplification used by session-clock widgets; doesn't hand-track each
-// city's own DST rules, only Paris display time is DST-correct via Intl).
+// Real cash-equity trading hours for each exchange, in that exchange's own
+// local timezone. Computed via Intl so each city's own DST rules (which
+// don't switch on the same dates as Paris) are always respected — no fixed
+// UTC-offset approximation.
 const SESSIONS = [
-  {name:"Sydney",   open:22, close:7},
-  {name:"Tokyo",    open:0,  close:9},
-  {name:"Londres",  open:8,  close:17},
-  {name:"New York", open:13, close:22},
+  {name:"Sydney",   timeZone:"Australia/Sydney",   openH:10, openM:0, closeH:16, closeM:0},   // ASX
+  {name:"Tokyo",    timeZone:"Asia/Tokyo",         openH:9,  openM:0, closeH:15, closeM:0},   // TSE
+  {name:"Londres",  timeZone:"Europe/London",      openH:8,  openM:0, closeH:16, closeM:30},  // LSE
+  {name:"New York", timeZone:"America/New_York",   openH:9,  openM:30,closeH:16, closeM:0},   // NYSE
 ];
+// Offset (minutes) of `timeZone`'s local wall-clock vs UTC, at instant `date`.
+function tzOffsetMinutes(date, timeZone){
+  const dtf = new Intl.DateTimeFormat("en-US", {
+    timeZone, hour12:false, year:"numeric", month:"2-digit", day:"2-digit",
+    hour:"2-digit", minute:"2-digit", second:"2-digit"
+  });
+  const p = dtf.formatToParts(date).reduce((acc,x)=>{ acc[x.type]=x.value; return acc; },{});
+  const asUTC = Date.UTC(+p.year, +p.month-1, +p.day, p.hour==="24"?0:+p.hour, +p.minute, +p.second);
+  return (asUTC - date.getTime())/60000;
+}
+// The UTC instant corresponding to local wall-clock y/m/d hh:mm in `timeZone`.
+function zonedTimeToUtc(y, m, d, hh, mm, timeZone){
+  const guess = new Date(Date.UTC(y, m, d, hh, mm, 0));
+  const offset = tzOffsetMinutes(guess, timeZone);
+  return new Date(guess.getTime() - offset*60000);
+}
+// {y,m,d} (0-indexed month) of `date` as seen in `timeZone`'s local calendar.
+function zonedYMD(date, timeZone){
+  const dtf = new Intl.DateTimeFormat("en-US", {timeZone, year:"numeric", month:"2-digit", day:"2-digit"});
+  const p = dtf.formatToParts(date).reduce((acc,x)=>{ acc[x.type]=x.value; return acc; },{});
+  return {y:+p.year, m:+p.month-1, d:+p.day};
+}
+function sessionBoundaryOnLocalDate(sess, ymd, which){
+  const h = which==="open" ? sess.openH : sess.closeH;
+  const m = which==="open" ? sess.openM : sess.closeM;
+  return zonedTimeToUtc(ymd.y, ymd.m, ymd.d, h, m, sess.timeZone);
+}
 function sessionIsOpen(sess, now){
-  const h = now.getUTCHours() + now.getUTCMinutes()/60;
-  if (sess.open < sess.close) return h>=sess.open && h<sess.close;
-  return h>=sess.open || h<sess.close; // wraps past midnight UTC
+  const ymd = zonedYMD(now, sess.timeZone);
+  const openAt = sessionBoundaryOnLocalDate(sess, ymd, "open");
+  const closeAt = sessionBoundaryOnLocalDate(sess, ymd, "close");
+  return now>=openAt && now<closeAt;
 }
 function nextSessionBoundary(sess, isOpen, now){
-  const targetH = isOpen ? sess.close : sess.open;
-  let d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), targetH, 0, 0));
-  if (d <= now) d = new Date(d.getTime()+24*3600*1000);
-  return d;
+  let ymd = zonedYMD(now, sess.timeZone);
+  let boundary = sessionBoundaryOnLocalDate(sess, ymd, isOpen ? "close" : "open");
+  if (boundary <= now){
+    // advance one local calendar day in the exchange's own timezone
+    const probe = new Date(boundary.getTime() + 20*3600*1000); // safely into the next local day
+    ymd = zonedYMD(probe, sess.timeZone);
+    boundary = sessionBoundaryOnLocalDate(sess, ymd, isOpen ? "close" : "open");
+  }
+  return boundary;
 }
 function renderSessions(){
   const now = new Date();
@@ -1274,6 +1597,46 @@ function updateWatchlist(){
     drawSpark(sparkCanvases[sym], m.history, m.changePct>=0);
   });
 }
+/* ============================= CANDLE COLOR THEME ============================= */
+// Independent of the global UI theme (Ember/Sage/Ink/Noir) — this only
+// recolors candles/line on the chart. "mono" resolves against the *current*
+// UI theme's own --text/--bg at draw time (via getComputedStyle) instead of
+// fixed hex, so the sober black & white look stays correct whichever UI
+// theme (light Ink included) happens to be active.
+const CANDLE_THEME_KEY = "paperTapeCandleTheme";
+const CANDLE_THEMES = {
+  classic:  {up:"#31c882", down:"#f0546a"},
+  contrast: {up:"#00e676", down:"#ff1744"},
+  mono:     null, // resolved live, see candleColors()
+};
+let candleTheme = "classic";
+function candleColors(){
+  if (candleTheme==="mono"){
+    const cs = getComputedStyle(document.documentElement);
+    const text = (cs.getPropertyValue("--text")||"#e7ecf3").trim();
+    const bg = (cs.getPropertyValue("--bg")||"#0a0d12").trim();
+    // up candles hollow (outline only, bg-filled), down candles solid — the
+    // classic paper-ticker convention, no hue at all.
+    return {up:text, down:text, upFill:bg, downFill:text};
+  }
+  const t = CANDLE_THEMES[candleTheme] || CANDLE_THEMES.classic;
+  return {up:t.up, down:t.down, upFill:t.up, downFill:t.down};
+}
+function initCandleTheme(){
+  let saved = "classic";
+  try{ saved = localStorage.getItem(CANDLE_THEME_KEY) || "classic"; }catch(e){}
+  if (!CANDLE_THEMES.hasOwnProperty(saved)) saved = "classic";
+  candleTheme = saved;
+  document.querySelectorAll("#candle-theme-seg button").forEach(b=>{
+    b.classList.toggle("active", b.dataset.candleTheme===candleTheme);
+    b.addEventListener("click", ()=>{
+      candleTheme = b.dataset.candleTheme;
+      try{ localStorage.setItem(CANDLE_THEME_KEY, candleTheme); }catch(e){}
+      document.querySelectorAll("#candle-theme-seg button").forEach(x=>x.classList.toggle("active", x===b));
+      updateChart();
+    });
+  });
+}
 function updateChart(){
   const a = ASSETS.find(x=>x.symbol===selectedSymbol);
   const m = market[selectedSymbol];
@@ -1317,18 +1680,20 @@ function updateChart(){
     const slotW = (W-padL-padR)/n;
     const bodyW = Math.max(2, Math.min(14, slotW*0.62));
     const y = v => padT + (1-((v-min)/range))*(H-padT-padB);
+    const cc = candleColors();
     let bars = "";
     candles.forEach((c,i)=>{
       const cx = padL + slotW*i + slotW/2;
       const up = c.c>=c.o;
-      const color = up ? "#31c882" : "#f0546a";
+      const stroke = up ? cc.up : cc.down;
+      const fill = up ? cc.upFill : cc.downFill;
       const yO=y(c.o), yC=y(c.c), yH=y(c.h), yL=y(c.l);
       const bodyTop = Math.min(yO,yC), bodyH = Math.max(1, Math.abs(yC-yO));
-      bars += '<line x1="'+cx.toFixed(1)+'" y1="'+yH.toFixed(1)+'" x2="'+cx.toFixed(1)+'" y2="'+yL.toFixed(1)+'" stroke="'+color+'" stroke-width="1"/>'+
-              '<rect x="'+(cx-bodyW/2).toFixed(1)+'" y="'+bodyTop.toFixed(1)+'" width="'+bodyW.toFixed(1)+'" height="'+bodyH.toFixed(1)+'" fill="'+color+'" opacity="0.95"/>';
+      bars += '<line x1="'+cx.toFixed(1)+'" y1="'+yH.toFixed(1)+'" x2="'+cx.toFixed(1)+'" y2="'+yL.toFixed(1)+'" stroke="'+stroke+'" stroke-width="1"/>'+
+              '<rect x="'+(cx-bodyW/2).toFixed(1)+'" y="'+bodyTop.toFixed(1)+'" width="'+bodyW.toFixed(1)+'" height="'+bodyH.toFixed(1)+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="1" opacity="0.95"/>';
     });
     const lastY = y(m.last);
-    const lineColor = m.changePct>=0 ? "#31c882" : "#f0546a";
+    const lineColor = m.changePct>=0 ? cc.up : cc.down;
     svg.innerHTML =
       gridLines()+
       '<text x="'+(W-padR+8)+'" y="'+(padT+4)+'" fill="'+textColor+'" font-size="10" font-family="IBM Plex Mono,monospace">'+fmtPrice(max,a.decimals)+'</text>'+
@@ -1359,7 +1724,8 @@ function updateChart(){
   let d = "";
   hist.forEach((p,i)=>{ d += (i===0?"M":"L")+x(i).toFixed(1)+","+y(p).toFixed(1)+" "; });
   const up = m.changePct>=0;
-  const color = up ? "#31c882" : "#f0546a";
+  const cc = candleColors();
+  const color = up ? cc.up : cc.down;
   const lastX = x(hist.length-1), lastY = y(m.last);
   svg.innerHTML =
     gridLines()+
@@ -1478,6 +1844,7 @@ function renderPositions(){
         '</div>'+
         '<span class="pos-actions">'+
           '<button class="pos-tpsl" data-tpsl="'+p.id+'">🎯 TP/SL</button>'+
+          '<button class="pos-tpsl" data-partial="'+p.id+'">✂️ Partiel</button>'+
           '<button class="pos-close" data-close="'+p.id+'">Fermer</button>'+
         '</span>'+
       '</div>'+
@@ -1507,14 +1874,21 @@ function renderPositions(){
       if (p) openTPSLModal(p);
     });
   });
+  list.querySelectorAll("[data-partial]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const p = state.positions.find(x=>x.id===btn.dataset.partial);
+      if (p) openPartialCloseModal(p);
+    });
+  });
 }
 function renderHistory(){
   const list = document.getElementById("history-list");
   if (state.history.length===0){ list.innerHTML = '<div class="empty-note">Pas encore de trade clôturé</div>'; return; }
   list.innerHTML = state.history.slice(0,15).map(h=>{
     const feeNote = h.feesPaid ? ' <span style="font-size:9.5px;color:var(--text-faint);font-weight:400;">(frais '+fmtMoney(h.feesPaid)+')</span>' : '';
+    const partialNote = h.partial ? ' <span class="hist-tag">'+h.closedPct+'% partiel</span>' : '';
     return '<div class="hist-row"><span>'+h.symbol+' · '+(h.side==="long"?"Long":"Short")+
-      ' <span class="hist-tag">'+reasonLabel(h.reason)+'</span></span>'+
+      ' <span class="hist-tag">'+reasonLabel(h.reason)+'</span>'+partialNote+'</span>'+
       '<span class="hist-row-right">'+
         '<span class="num '+(h.pnl>=0?"up":"down")+'">'+fmtMoney(h.pnl)+feeNote+'</span>'+
         '<button class="hist-icon-btn" data-card-hist="'+h.id+'" title="Carte PnL">🪪</button>'+
@@ -1835,6 +2209,52 @@ function closePosition(id, reason){
     if (msg) msg.textContent = "Erreur inattendue à la fermeture de la position : "+((e&&e.message)||e)+" — réessaie, et préviens si ça persiste.";
   }
 }
+// Close only a fraction (0<f<1) of a position: realises PnL + a taker fee
+// on the closed slice only, and shrinks the remainder in place. entryPrice,
+// leverage and liqPrice don't depend on size, so they're untouched — only
+// sizeUnits/notional/initMargin/maintMargin/entryFee scale down. f>=~1 just
+// delegates to the normal full closePosition() (same history/stat path).
+function closePositionPartial(id, fraction, reason){
+  try{
+    const idx = state.positions.findIndex(p=>p.id===id);
+    if (idx<0) return;
+    const p = state.positions[idx];
+    const f = Math.min(1, Math.max(0.0001, fraction));
+    if (f>=0.9999){ closePosition(id, reason); return; }
+
+    const closedSizeUnits = p.sizeUnits*f;
+    const closedNotional = p.notional*f;
+    const closedMargin = p.initMargin*f;
+    const closedEntryFee = (p.entryFee||0)*f;
+
+    const exit = exitFill(p.symbol, p.side);
+    if (exit===null) return;
+    const grossPnl = p.side==="long" ? (exit-p.entryPrice)*closedSizeUnits : (p.entryPrice-exit)*closedSizeUnits;
+    const exitFee = closedNotional*TAKER_FEE_RATE;
+    const pnl = grossPnl - exitFee;
+
+    state.cash = Math.max(0, state.cash + pnl);
+    state.marginUsed = Math.max(0, state.marginUsed - closedMargin);
+
+    p.sizeUnits -= closedSizeUnits;
+    p.notional -= closedNotional;
+    p.initMargin -= closedMargin;
+    p.maintMargin = p.notional*MMR;
+    p.entryFee = (p.entryFee||0) - closedEntryFee;
+
+    const feesPaid = closedEntryFee + exitFee;
+    state.history.unshift({id:uid(), symbol:p.symbol, side:p.side, pnl, reason, exitFee, feesPaid, closedAt:new Date().toISOString(), partial:true, closedPct:Math.round(f*100)});
+    state.history = state.history.slice(0,15);
+    updatePerfStats(pnl);
+    renderAll();
+    persistAccount();
+    if (pnl>=500) awardBadge('big_win');
+  }catch(e){
+    console.error("closePositionPartial failed", e);
+    const msg = document.getElementById("ticket-msg");
+    if (msg) msg.textContent = "Erreur inattendue à la clôture partielle : "+((e&&e.message)||e)+" — réessaie, et préviens si ça persiste.";
+  }
+}
 // Running all-time performance counters — kept separate from state.history
 // (which is capped to the last 15 trades for display) so "total gain",
 // "total loss" and the other stats below reflect every trade ever closed.
@@ -1876,6 +2296,22 @@ function checkLiquidations(){
     }
   }
 }
+// Fires a TP or SL leg. Each leg carries its own optional "% de la position
+// à clôturer" (p.takeProfitPct / p.stopLossPct, set in the TP/SL modal,
+// default 100 = full close — unchanged behaviour for anyone who doesn't
+// touch the new field). A partial trigger closes that slice and clears only
+// the leg that fired, so it doesn't re-fire every tick on the remainder,
+// while the other leg (and the rest of the position) stays live.
+function triggerTpSl(p, which){
+  const pct = which==="tp" ? (p.takeProfitPct!=null?p.takeProfitPct:100) : (p.stopLossPct!=null?p.stopLossPct:100);
+  const frac = Math.min(100, Math.max(1, pct))/100;
+  if (frac>=0.9999){
+    closePosition(p.id, which);
+  } else {
+    closePositionPartial(p.id, frac, which);
+    if (which==="tp") p.takeProfit = null; else p.stopLoss = null;
+  }
+}
 function checkTPSL(){
   [...state.positions].forEach(p=>{
     if (p.takeProfit==null && p.stopLoss==null) return;
@@ -1883,11 +2319,11 @@ function checkTPSL(){
     const exit = exitFill(p.symbol, p.side);
     if (exit===null) return;
     if (p.side==="long"){
-      if (p.takeProfit!=null && exit>=p.takeProfit){ closePosition(p.id,"tp"); return; }
-      if (p.stopLoss!=null && exit<=p.stopLoss){ closePosition(p.id,"sl"); return; }
+      if (p.takeProfit!=null && exit>=p.takeProfit){ triggerTpSl(p,"tp"); return; }
+      if (p.stopLoss!=null && exit<=p.stopLoss){ triggerTpSl(p,"sl"); return; }
     } else {
-      if (p.takeProfit!=null && exit<=p.takeProfit){ closePosition(p.id,"tp"); return; }
-      if (p.stopLoss!=null && exit>=p.stopLoss){ closePosition(p.id,"sl"); return; }
+      if (p.takeProfit!=null && exit<=p.takeProfit){ triggerTpSl(p,"tp"); return; }
+      if (p.stopLoss!=null && exit>=p.stopLoss){ triggerTpSl(p,"sl"); return; }
     }
   });
 }
@@ -2015,9 +2451,12 @@ function openSessionCardModal(){
 function openTPSLModal(p){
   openModal(
     '<h3 style="margin-bottom:14px;">Take Profit / Stop Loss</h3>'+
-    '<div class="chart-note" style="margin-bottom:12px;">'+p.symbol+' · '+(p.side==="long"?"Long":"Short")+' · Entrée '+fmtMoney(p.entryPrice)+'</div>'+
+    '<div class="chart-note" style="margin-bottom:12px;">'+p.symbol+' · '+(p.side==="long"?"Long":"Short")+' · Entrée '+fmtMoney(p.entryPrice)+' · Taille '+fmtQty(p.sizeUnits)+' '+p.symbol+'</div>'+
     '<div class="field-row"><label>Take Profit</label><input type="number" step="any" class="tpsl-input" id="tpsl-tp-input" placeholder="Optionnel" value="'+(p.takeProfit!=null?p.takeProfit:"")+'"></div>'+
-    '<div class="field-row"><label>Stop Loss</label><input type="number" step="any" class="tpsl-input" id="tpsl-sl-input" placeholder="Optionnel" value="'+(p.stopLoss!=null?p.stopLoss:"")+'"></div>'+
+    '<div class="field-row"><label>TP — % de la position à clôturer</label><input type="number" step="1" min="1" max="100" class="tpsl-input" id="tpsl-tp-pct-input" placeholder="100" value="'+(p.takeProfitPct!=null?p.takeProfitPct:"")+'"></div>'+
+    '<div class="field-row" style="margin-top:10px;"><label>Stop Loss</label><input type="number" step="any" class="tpsl-input" id="tpsl-sl-input" placeholder="Optionnel" value="'+(p.stopLoss!=null?p.stopLoss:"")+'"></div>'+
+    '<div class="field-row"><label>SL — % de la position à clôturer</label><input type="number" step="1" min="1" max="100" class="tpsl-input" id="tpsl-sl-pct-input" placeholder="100" value="'+(p.stopLossPct!=null?p.stopLossPct:"")+'"></div>'+
+    '<div class="chart-note" style="margin-top:6px;">Laisse le % vide (ou 100) pour une clôture complète au déclenchement — sinon seule cette part se ferme, le reste de la position continue à tourner.</div>'+
     '<div class="chart-note" id="tpsl-msg" style="margin:10px 0;color:var(--warn);"></div>'+
     '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px;">'+
       '<button class="btn-secondary" id="tpsl-clear">Tout retirer</button>'+
@@ -2027,11 +2466,17 @@ function openTPSLModal(p){
   function readAndValidate(){
     const tpRaw = document.getElementById("tpsl-tp-input").value;
     const slRaw = document.getElementById("tpsl-sl-input").value;
+    const tpPctRaw = document.getElementById("tpsl-tp-pct-input").value;
+    const slPctRaw = document.getElementById("tpsl-sl-pct-input").value;
     const tpVal = tpRaw!=="" ? parseFloat(tpRaw) : null;
     const slVal = slRaw!=="" ? parseFloat(slRaw) : null;
+    const tpPct = tpPctRaw!=="" ? parseFloat(tpPctRaw) : 100;
+    const slPct = slPctRaw!=="" ? parseFloat(slPctRaw) : 100;
     const msg = document.getElementById("tpsl-msg");
     if (tpVal!=null && !(tpVal>0)){ msg.textContent = "Take Profit invalide."; return null; }
     if (slVal!=null && !(slVal>0)){ msg.textContent = "Stop Loss invalide."; return null; }
+    if (!(tpPct>0 && tpPct<=100)){ msg.textContent = "Le % TP doit être entre 1 et 100."; return null; }
+    if (!(slPct>0 && slPct<=100)){ msg.textContent = "Le % SL doit être entre 1 et 100."; return null; }
     if (p.side==="long"){
       if (tpVal!=null && tpVal<=p.entryPrice){ msg.textContent = "Le Take Profit doit être au-dessus du prix d'entrée pour un long."; return null; }
       if (slVal!=null && slVal>=p.entryPrice){ msg.textContent = "Le Stop Loss doit être en-dessous du prix d'entrée pour un long."; return null; }
@@ -2040,13 +2485,15 @@ function openTPSLModal(p){
       if (slVal!=null && slVal<=p.entryPrice){ msg.textContent = "Le Stop Loss doit être au-dessus du prix d'entrée pour un short."; return null; }
     }
     msg.textContent = "";
-    return {tpVal, slVal};
+    return {tpVal, slVal, tpPct, slPct};
   }
   document.getElementById("tpsl-save").addEventListener("click", ()=>{
     const r = readAndValidate();
     if (!r) return;
     p.takeProfit = r.tpVal;
     p.stopLoss = r.slVal;
+    p.takeProfitPct = r.tpPct;
+    p.stopLossPct = r.slPct;
     persistAccount();
     renderPositions();
     closeModal();
@@ -2054,8 +2501,44 @@ function openTPSLModal(p){
   document.getElementById("tpsl-clear").addEventListener("click", ()=>{
     p.takeProfit = null;
     p.stopLoss = null;
+    p.takeProfitPct = null;
+    p.stopLossPct = null;
     persistAccount();
     renderPositions();
+    closeModal();
+  });
+}
+
+/* ============================= PARTIAL CLOSE ============================= */
+function openPartialCloseModal(p){
+  const a = ASSETS.find(x=>x.symbol===p.symbol);
+  openModal(
+    '<h3 style="margin-bottom:14px;">Clôture partielle</h3>'+
+    '<div class="chart-note" style="margin-bottom:12px;">'+p.symbol+' · '+(p.side==="long"?"Long":"Short")+' · Taille actuelle '+fmtQty(p.sizeUnits)+' '+p.symbol+' ('+fmtMoney(p.notional)+')</div>'+
+    '<div class="field-row"><label>% de la position à fermer</label><input type="number" step="1" min="1" max="100" class="tpsl-input" id="partial-pct-input" value="50"></div>'+
+    '<div class="lev-presets" id="partial-pct-presets">'+
+      [25,50,75,100].map(v=>'<button type="button" data-pct="'+v+'">'+v+'%</button>').join("")+
+    '</div>'+
+    '<div class="chart-note" id="partial-msg" style="margin:10px 0;color:var(--warn);"></div>'+
+    '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;">'+
+      '<button class="btn-secondary" id="partial-cancel">Annuler</button>'+
+      '<button class="btn-primary" id="partial-confirm">Fermer cette part</button>'+
+    '</div>'
+  );
+  const input = document.getElementById("partial-pct-input");
+  document.querySelectorAll("#partial-pct-presets button").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      input.value = btn.dataset.pct;
+      document.querySelectorAll("#partial-pct-presets button").forEach(b=>b.classList.toggle("active", b===btn));
+    });
+  });
+  document.getElementById("partial-cancel").addEventListener("click", closeModal);
+  document.getElementById("partial-confirm").addEventListener("click", ()=>{
+    const pct = parseFloat(input.value);
+    const msg = document.getElementById("partial-msg");
+    if (!(pct>0 && pct<=100)){ msg.textContent = "Entre un pourcentage entre 1 et 100."; return; }
+    if (!hasLive(p.symbol)){ msg.textContent = "Prix indisponible pour le moment — réessaie dans quelques secondes."; return; }
+    closePositionPartial(p.id, pct/100, "closed_partial");
     closeModal();
   });
 }
@@ -4379,8 +4862,34 @@ function initEvents(){
   });
 }
 
+/* ============================= THEME ============================= */
+const THEME_KEY = "paperTapeTheme";
+const THEMES = ["ember","sage","ink","noir"];
+function applyTheme(name){
+  if (THEMES.indexOf(name)===-1) name = "ember";
+  document.documentElement.setAttribute("data-theme", name);
+  document.querySelectorAll(".theme-dot").forEach(b=>{
+    b.classList.toggle("active", b.dataset.themeChoice===name);
+  });
+  try{ localStorage.setItem(THEME_KEY, name); }catch(e){}
+  // "Noir & Blanc" candles resolve against --text/--bg live, so a UI theme
+  // switch needs to repaint the chart too (harmless no-op otherwise).
+  if (typeof updateChart==="function" && typeof selectedSymbol!=="undefined") updateChart();
+}
+function initTheme(){
+  let saved = "ember";
+  try{ saved = localStorage.getItem(THEME_KEY) || "ember"; }catch(e){}
+  applyTheme(saved);
+  document.querySelectorAll(".theme-dot").forEach(b=>{
+    b.addEventListener("click", ()=>applyTheme(b.dataset.themeChoice));
+  });
+}
+
 /* ============================= INIT ============================= */
 async function init(){
+  initTheme();
+  initCandleTheme();
+  initAuthUI();
   buildWatchlist();
   initEvents();
   renderSessions();
