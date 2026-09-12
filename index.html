@@ -145,6 +145,7 @@
 
   .theme-switch{display:flex;align-items:center;gap:6px;margin-left:10px;padding-left:10px;border-left:1px solid var(--border);}
   .candle-theme-switch{display:flex;align-items:center;gap:6px;}
+  .candle-theme-switch[hidden]{display:none;}
   .theme-dot,.candle-dot{
     width:17px;height:17px;border-radius:50%;background:var(--dot);
     border:2px solid var(--border-soft);padding:0;cursor:pointer;
@@ -202,6 +203,95 @@
   }
   .card > h3{font-size:11px;letter-spacing:0.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px;font-weight:600;}
 
+  /* ---------- draggable / removable widgets ---------- */
+  .widget-col{display:flex;flex-direction:column;min-height:24px;}
+  .widget{transition:opacity .15s, transform .15s;}
+  .widget.dragging{opacity:.35;}
+  .widget-col.drag-over{outline:1px dashed var(--accent);outline-offset:4px;border-radius:var(--radius);}
+  .widget-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;cursor:grab;user-select:none;}
+  .widget-head:active{cursor:grabbing;}
+  .widget-head h3{margin:0;flex:1;}
+  .widget-grip{cursor:grab;color:var(--text-faint);font-size:13px;line-height:1;user-select:none;}
+  .widget-grip:active{cursor:grabbing;}
+  .widget-hide{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;line-height:1;padding:2px 4px;border-radius:4px;}
+  .widget-hide:hover{color:var(--warn);background:var(--bg-raised);}
+  .widget[hidden]{display:none;}
+
+  .widget-panel-btn{
+    background:none;border:1px solid var(--border);border-radius:8px;width:30px;height:30px;
+    color:var(--text-dim);cursor:pointer;font-size:14px;margin-left:10px;
+  }
+  .widget-panel-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .widget-panel{
+    position:absolute;top:56px;right:18px;background:var(--panel);border:1px solid var(--border);
+    border-radius:var(--radius);padding:14px;width:220px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.35);
+  }
+  .widget-panel-title{font-size:11px;letter-spacing:0.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px;font-weight:600;}
+  .widget-panel-row{display:flex;align-items:center;gap:8px;font-size:12px;padding:4px 0;cursor:pointer;}
+
+  /* ---------- mandatory login gate ---------- */
+  .auth-gate{
+    position:fixed;inset:0;z-index:1000;overflow:auto;
+    display:flex;align-items:center;justify-content:center;padding:40px 20px;
+    background:
+      radial-gradient(ellipse 900px 560px at 30% 30%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 65%),
+      radial-gradient(ellipse 700px 500px at 85% 80%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 60%),
+      repeating-linear-gradient(0deg, color-mix(in srgb, var(--border) 55%, transparent) 0, color-mix(in srgb, var(--border) 55%, transparent) 1px, transparent 1px, transparent 46px),
+      repeating-linear-gradient(90deg, color-mix(in srgb, var(--border) 55%, transparent) 0, color-mix(in srgb, var(--border) 55%, transparent) 1px, transparent 1px, transparent 46px),
+      var(--bg);
+  }
+  .auth-gate[hidden]{display:none;}
+  .auth-gate-inner{
+    width:100%;max-width:920px;display:flex;gap:54px;align-items:center;
+  }
+  @media (max-width:820px){
+    .auth-gate-inner{flex-direction:column;gap:32px;}
+  }
+
+  .auth-gate-pitch{flex:1;min-width:0;width:100%;max-width:100%;box-sizing:border-box;}
+  .auth-gate-pitch .wordmark{justify-content:flex-start;margin-bottom:6px;}
+  @media (max-width:820px){ .auth-gate-pitch{text-align:center;} .auth-gate-pitch .wordmark{justify-content:center;} }
+  .auth-gate-tagline{font-family:var(--sans);font-size:15px;color:var(--text-dim);line-height:1.5;margin-bottom:26px;max-width:440px;}
+  @media (max-width:820px){ .auth-gate-tagline{margin-left:auto;margin-right:auto;} }
+  .auth-gate-features{list-style:none;padding:0;margin:0 0 26px;display:flex;flex-direction:column;gap:14px;min-width:0;width:100%;box-sizing:border-box;}
+  .auth-gate-feature{display:flex;gap:12px;align-items:flex-start;min-width:0;width:100%;box-sizing:border-box;}
+  .auth-gate-feature-icon{
+    flex:none;width:34px;height:34px;border-radius:9px;background:var(--panel);border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;font-size:16px;
+  }
+  .auth-gate-feature-text{font-family:var(--sans);font-size:12.5px;color:var(--text-dim);line-height:1.45;padding-top:4px;min-width:0;flex:1;}
+  .auth-gate-feature-text strong{color:var(--text);font-weight:600;}
+
+  .auth-gate-ticker{
+    border:1px solid var(--border);border-radius:10px;background:var(--panel);
+    overflow:hidden;padding:10px 0;width:100%;max-width:100%;min-width:0;box-sizing:border-box;
+  }
+  .auth-gate-ticker-track{display:flex;gap:28px;width:max-content;animation:auth-gate-marquee 22s linear infinite;}
+  .auth-gate-ticker-item{
+    font-family:var(--mono);font-size:11px;letter-spacing:0.03em;color:var(--text-faint);
+    display:flex;align-items:center;gap:6px;white-space:nowrap;padding:0 4px;
+  }
+  .auth-gate-ticker-item b{color:var(--text);}
+  @keyframes auth-gate-marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+  .auth-gate-card{
+    flex:none;width:100%;max-width:360px;background:var(--panel);border:1px solid var(--border);
+    border-radius:var(--radius);padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.35);
+  }
+
+  /* ---------- admin panel ---------- */
+  #admin-body td, #admin-body th{vertical-align:top;}
+  .admin-detail{font-size:11.5px;color:var(--text-dim);background:var(--bg-raised);padding:10px 14px;border-radius:6px;margin-top:6px;max-height:340px;overflow:auto;}
+  .admin-detail-section{padding:8px 0;border-bottom:1px solid var(--border-soft);}
+  .admin-detail-section:last-child{border-bottom:none;}
+  .admin-detail-title{font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em;font-size:10px;color:var(--text-faint);margin-bottom:6px;}
+  .admin-detail-row{display:flex;justify-content:space-between;gap:12px;padding:2px 0;}
+  .admin-detail-row .k{color:var(--text-faint);}
+  .admin-detail-row .v{font-family:var(--mono);text-align:right;}
+  .admin-detail-empty{color:var(--text-faint);font-style:italic;}
+  .admin-detail-journal{padding:3px 0;color:var(--text-dim);}
+  .admin-actions{display:flex;gap:6px;flex-wrap:wrap;}
+
   /* watchlist */
   .watchlist{display:flex;flex-direction:column;gap:4px;}
   .wl-row{
@@ -227,9 +317,24 @@
   .chart-head .name-big{font-family:var(--sans);font-size:11px;color:var(--text-faint);margin-left:8px;}
   .chart-head .price-big{font-family:var(--mono);font-size:22px;font-weight:700;}
   svg.chart{width:100%;height:220px;display:block;}
+  svg.chart[hidden]{display:none;}
+  .tv-chart-wrap{width:100%;max-width:100%;min-width:0;box-sizing:border-box;height:420px;border-radius:8px;overflow:hidden;}
+  .tv-chart-wrap[hidden]{display:none;}
+  .dom-sym{margin-bottom:6px;}
+  .dom-body{font-family:var(--mono);font-size:11.5px;}
+  .dom-row{position:relative;display:flex;justify-content:space-between;padding:2.5px 6px;border-radius:3px;overflow:hidden;}
+  .dom-bar{position:absolute;top:0;bottom:0;right:0;z-index:0;opacity:.18;}
+  .dom-ask .dom-bar{background:var(--dom-down-color, var(--short));}
+  .dom-bid .dom-bar{background:var(--dom-up-color, var(--long));}
+  .dom-row .dom-price{position:relative;z-index:1;}
+  .dom-row .dom-size{position:relative;z-index:1;color:var(--text-dim);}
+  .dom-ask .dom-price{color:var(--dom-down-color, var(--short));}
+  .dom-bid .dom-price{color:var(--dom-up-color, var(--long));}
+  .dom-spread{text-align:center;font-family:var(--sans);font-size:10.5px;color:var(--text-faint);padding:5px 0;border-top:1px dashed var(--border-soft);border-bottom:1px dashed var(--border-soft);margin:2px 0;}
   .chart-note{font-family:var(--mono);font-size:9.5px;color:var(--text-faint);margin-top:6px;}
   .chart-controls{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
   .tf-seg{display:flex;gap:4px;margin-bottom:0;}
+  .tf-seg[hidden]{display:none;}
   .tf-seg button{
     background:var(--bg-raised);border:1px solid var(--border);color:var(--text-faint);
     font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:0.03em;
@@ -318,6 +423,7 @@
   .tpsl-input{width:100%;background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;padding:9px 10px;font-family:var(--mono);font-size:13px;color:var(--text);}
   .tpsl-input:focus-visible{outline:2px solid var(--accent);}
   .tpsl-row{display:flex;gap:6px;}
+  .tpsl-preview{flex:1;min-width:0;font-size:10.5px;min-height:14px;}
   .tpsl-row input{flex:1;background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;padding:9px 10px;font-family:var(--mono);font-size:12.5px;color:var(--text);}
   .tpsl-row input:focus-visible{outline:2px solid var(--accent);}
   .liq-warn{color:var(--warn);}
@@ -432,6 +538,19 @@
 
   .learn-wrap{max-width:760px;margin:0 auto;}
   .learn-deck-item-desc{font-family:var(--sans);font-size:12px;color:var(--text-dim);line-height:1.5;}
+  .resource-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+  .resource-card{
+    text-align:left;text-decoration:none;background:var(--bg-raised);border:1px solid var(--border);border-left-width:4px;color:var(--text);
+    font-family:var(--sans);padding:14px 16px;border-radius:8px;cursor:pointer;display:flex;flex-direction:column;gap:6px;
+    transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .resource-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.28);}
+  .resource-card-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+  .resource-card-title{font-size:14.5px;font-weight:600;}
+  .resource-card-open{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);white-space:nowrap;}
+  .resource-card-desc{font-family:var(--sans);font-size:12px;color:var(--text-dim);line-height:1.5;}
+  .resource-card-tag{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);}
+  .resource-card-warn{font-family:var(--sans);font-size:11px;color:var(--warn);border-top:1px solid var(--border-soft);padding-top:7px;margin-top:1px;line-height:1.5;}
   .learn-doc-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px;}
   .learn-doc-head{display:flex;align-items:center;gap:14px;margin-bottom:8px;}
   .learn-doc-head-icon{
@@ -504,6 +623,46 @@
 </head>
 <body>
 
+<div id="auth-gate" class="auth-gate">
+  <div class="auth-gate-inner">
+    <div class="auth-gate-pitch">
+      <div class="wordmark"><span class="mark">PAPER <span>TAPE</span></span></div>
+      <p class="auth-gate-tagline">La plateforme de trading simulé de l'École de la Bourse — ouvre des positions sur crypto, or et indices avec de l'argent fictif, grimpe dans le classement de l'asso, et apprends en pratiquant.</p>
+      <ul class="auth-gate-features">
+        <li class="auth-gate-feature">
+          <div class="auth-gate-feature-icon">📟</div>
+          <div class="auth-gate-feature-text"><strong>Terminal de trading en temps réel</strong> — long/short avec levier sur BTC, ETH, SOL, Or (PAXG), SPY, QQQ, prix en direct via Binance.</div>
+        </li>
+        <li class="auth-gate-feature">
+          <div class="auth-gate-feature-icon">🏆</div>
+          <div class="auth-gate-feature-text"><strong>Classement EDB</strong> — ton équité comparée en direct à celle de tous les autres traders de l'association.</div>
+        </li>
+        <li class="auth-gate-feature">
+          <div class="auth-gate-feature-icon">🧠</div>
+          <div class="auth-gate-feature-text"><strong>Quiz &amp; Superflash</strong> — teste tes connaissances marchés et débloque des bonus de capital.</div>
+        </li>
+        <li class="auth-gate-feature">
+          <div class="auth-gate-feature-icon">📚</div>
+          <div class="auth-gate-feature-text"><strong>Connaissances</strong> — les bases pour comprendre ce que tu trades, directement dans l'appli.</div>
+        </li>
+      </ul>
+      <div class="auth-gate-ticker">
+        <div class="auth-gate-ticker-track" id="gate-ticker-track"></div>
+      </div>
+    </div>
+    <div class="auth-gate-card">
+      <div class="chart-note" style="text-align:center;margin-bottom:18px;">Connecte-toi ou crée un compte pour entrer.</div>
+      <div class="field-row"><label>Email</label><input type="email" id="gate-email-input" class="tpsl-input" placeholder="toi@exemple.com" autocomplete="email"></div>
+      <div class="field-row" style="margin-top:8px;"><label>Mot de passe</label><input type="password" id="gate-password-input" class="tpsl-input" placeholder="6 caractères minimum" autocomplete="current-password"></div>
+      <div class="chart-note" id="gate-msg" style="margin:8px 0;min-height:14px;"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn-primary" id="gate-login-btn" style="flex:1;">Se connecter</button>
+        <button class="btn-secondary" id="gate-signup-btn" style="flex:1;">Créer un compte</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="app">
   <header class="topbar">
     <div class="wordmark"><span class="mark">PAPER <span>TAPE</span></span></div>
@@ -514,13 +673,21 @@
       <button type="button" class="theme-dot" data-theme-choice="ink"   title="Ink"   style="--dot:#1C1A17"></button>
       <button type="button" class="theme-dot" data-theme-choice="noir"  title="Noir"  style="--dot:conic-gradient(#000 0 50%, #fff 50% 100%)"></button>
     </div>
+    <button type="button" id="widget-panel-btn" class="widget-panel-btn" title="Gérer les widgets">🧩</button>
+    <div id="widget-panel" class="widget-panel" hidden>
+      <div class="widget-panel-title">Widgets affichés</div>
+      <div id="widget-panel-list"></div>
+      <button type="button" class="btn-secondary" id="widget-panel-reset" style="margin-top:8px;width:100%;">Réinitialiser la disposition</button>
+    </div>
     <nav class="tabs">
       <button data-view="terminal" class="active"><span class="tab-emoji">📟</span>Terminal</button>
       <button data-view="news"><span class="tab-emoji">📰</span>News</button>
       <button data-view="leaderboard"><span class="tab-emoji">🏆</span>Classement</button>
       <button data-view="quiz"><span class="tab-emoji">🧠</span>Quiz</button>
       <button data-view="learn"><span class="tab-emoji">📚</span>Connaissances</button>
+      <button data-view="resources"><span class="tab-emoji">🔗</span>Ressources</button>
       <button data-view="profile"><span class="tab-emoji">👤</span>Profil</button>
+      <button data-view="admin" id="nav-admin-btn" hidden><span class="tab-emoji">🛡️</span>Admin</button>
     </nav>
     <div class="acct-strip">
       <div class="uname-edit">
@@ -538,21 +705,22 @@
     <!-- ================= TERMINAL ================= -->
     <section class="view active" id="view-terminal">
       <div class="terminal-grid">
-        <div>
-          <div class="card">
-            <h3>Sessions de marché</h3>
+        <div class="widget-col" data-col="0">
+          <div class="card widget" draggable="true" data-widget="sessions">
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Sessions de marché</h3><button type="button" class="widget-hide" data-widget-hide="sessions" title="Masquer ce widget">✕</button></div>
             <div class="paris-clock num" id="paris-clock">--:--:--</div>
             <div class="sessions-list" id="sessions-list"></div>
           </div>
-          <div class="card" style="margin-top:14px;">
-            <h3>Marchés</h3>
+          <div class="card widget" draggable="true" data-widget="watchlist" style="margin-top:14px;">
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Marchés</h3><button type="button" class="widget-hide" data-widget-hide="watchlist" title="Masquer ce widget">✕</button></div>
             <div id="market-status" class="chart-note" style="margin-bottom:10px;">initialisation…</div>
             <div class="watchlist" id="watchlist"></div>
           </div>
         </div>
 
-        <div>
-          <div class="card">
+        <div class="widget-col" data-col="1">
+          <div class="card widget" draggable="true" data-widget="chart">
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Graphique</h3><button type="button" class="widget-hide" data-widget-hide="chart" title="Masquer ce widget">✕</button></div>
             <div class="chart-head">
               <div><span class="sym-big" id="chart-sym">BTC</span><span class="name-big" id="chart-name">Bitcoin</span></div>
               <span class="price-big num" id="chart-price">$0.00</span>
@@ -569,12 +737,23 @@
                 <button type="button" class="candle-dot"        data-candle-theme="contrast" title="Contraste"    style="--dot:conic-gradient(#00e676 0 50%, #ff1744 50% 100%)"></button>
                 <button type="button" class="candle-dot"        data-candle-theme="mono"     title="Noir & Blanc" style="--dot:conic-gradient(#fff 0 50%, #000 50% 100%)"></button>
               </div>
+              <div class="seg" id="chart-source-seg" style="margin-left:auto;">
+                <button type="button" id="chart-src-internal" class="on-mode active">Interne</button>
+                <button type="button" id="chart-src-tv" class="on-mode">TradingView</button>
+              </div>
             </div>
             <svg class="chart" id="chart-svg" viewBox="0 0 640 220"></svg>
+            <div class="tv-chart-wrap" id="tv-chart-wrap" hidden></div>
           </div>
 
-          <div class="card ticket">
-            <h3>Ticket d'ordre</h3>
+          <div class="card widget" draggable="true" data-widget="dom">
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Carnet d'ordres</h3><button type="button" class="widget-hide" data-widget-hide="dom" title="Masquer ce widget">✕</button></div>
+            <div class="dom-sym chart-note" id="dom-sym">BTC</div>
+            <div id="dom-body" class="dom-body"><div class="empty-note">Chargement du carnet…</div></div>
+          </div>
+
+          <div class="card ticket widget" draggable="true" data-widget="ticket">
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Ticket d'ordre</h3><button type="button" class="widget-hide" data-widget-hide="ticket" title="Masquer ce widget">✕</button></div>
             <div class="seg">
               <button id="side-long" class="on-long active">Long</button>
               <button id="side-short" class="on-short">Short</button>
@@ -622,9 +801,14 @@
                 <input type="number" step="any" id="tp-input" placeholder="Take Profit">
                 <input type="number" step="any" id="sl-input" placeholder="Stop Loss">
               </div>
+              <div class="tpsl-row" style="margin-top:4px;">
+                <div class="chart-note tpsl-preview" id="tp-preview"></div>
+                <div class="chart-note tpsl-preview" id="sl-preview"></div>
+              </div>
             </div>
             <div class="readout">
               <div class="row"><span class="k">Valeur notionnelle</span><span class="v num" id="ro-notional">$0.00</span></div>
+              <div class="row"><span class="k">Taille (unités)</span><span class="v num" id="ro-units">—</span></div>
               <div class="row"><span class="k">Spread (achat/vente)</span><span class="v num" id="ro-spread">—</span></div>
               <div class="row"><span class="k">Commission entrée (0.05%)</span><span class="v num" id="ro-fee">$0.00</span></div>
               <div class="row"><span class="k">Marge requise</span><span class="v num" id="ro-margin">$0.00</span></div>
@@ -636,9 +820,9 @@
           </div>
         </div>
 
-        <div>
-          <div class="card">
-            <h3>Compte</h3>
+        <div class="widget-col" data-col="2">
+          <div class="card widget" draggable="true" data-widget="account">
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Compte</h3><button type="button" class="widget-hide" data-widget-hide="account" title="Masquer ce widget">✕</button></div>
             <div class="acct-summary">
               <div class="cell"><div class="lbl">Cash</div><div class="val num" id="acc-cash">$100,000.00</div></div>
               <div class="cell"><div class="lbl">Équité</div><div class="val num" id="acc-equity">$100,000.00</div></div>
@@ -648,23 +832,23 @@
             <div class="marginbar"><i id="marginbar-fill" style="width:0%"></i></div>
           </div>
 
-          <div class="card" style="margin-top:14px;">
-            <h3>Positions ouvertes</h3>
+          <div class="card widget" draggable="true" data-widget="positions" style="margin-top:14px;">
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Positions ouvertes</h3><button type="button" class="widget-hide" data-widget-hide="positions" title="Masquer ce widget">✕</button></div>
             <div id="positions-list"><div class="empty-note">Aucune position ouverte</div></div>
           </div>
 
-          <div class="card" style="margin-top:14px;">
-            <h3>Ordres en attente</h3>
+          <div class="card widget" draggable="true" data-widget="pending" style="margin-top:14px;">
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Ordres en attente</h3><button type="button" class="widget-hide" data-widget-hide="pending" title="Masquer ce widget">✕</button></div>
             <div id="pending-orders-list"><div class="empty-note">Aucun ordre en attente</div></div>
           </div>
 
-          <div class="card" style="margin-top:14px;">
-            <h3>Historique récent</h3>
+          <div class="card widget" draggable="true" data-widget="history" style="margin-top:14px;">
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Historique récent</h3><button type="button" class="widget-hide" data-widget-hide="history" title="Masquer ce widget">✕</button></div>
             <div id="history-list"><div class="empty-note">Pas encore de trade clôturé</div></div>
           </div>
 
-          <div class="card" style="margin-top:14px;">
-            <h3>Performance</h3>
+          <div class="card widget" draggable="true" data-widget="performance" style="margin-top:14px;">
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Performance</h3><button type="button" class="widget-hide" data-widget-hide="performance" title="Masquer ce widget">✕</button></div>
             <div id="perf-stats"></div>
           </div>
         </div>
@@ -693,7 +877,6 @@
             <tbody id="lb-body"><tr><td colspan="4" class="empty-note">Chargement du classement…</td></tr></tbody>
           </table>
         </div>
-        <div class="chart-note" style="margin-top:12px;">Classement partagé en direct entre tous les visiteurs de cette page, basé sur l'équité du compte démo (solde + PnL latent).</div>
       </div>
     </section>
 
@@ -744,6 +927,20 @@
             <button class="btn-secondary" id="auth-logout-btn" style="margin-top:8px;">Se déconnecter</button>
           </div>
         </div>
+        <div class="card" style="margin-top:14px;" id="admin-unlock-card">
+          <h3>Mode admin</h3>
+          <div id="admin-unlock-form">
+            <p class="chart-note" style="margin-bottom:10px;">Réservé au bureau EDB : accès à tous les comptes, réinitialisation et ajustement de solde.</p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <input type="password" id="admin-code-input" class="tpsl-input" placeholder="Code admin" style="flex:1;min-width:140px;">
+              <button class="btn-primary" id="admin-code-btn">Activer</button>
+            </div>
+            <div class="chart-note" id="admin-code-msg" style="margin-top:8px;"></div>
+          </div>
+          <div id="admin-unlock-active" hidden>
+            <p class="chart-note" style="color:var(--long);">✅ Mode admin activé sur ce compte — onglet "Admin" disponible dans la barre du haut.</p>
+          </div>
+        </div>
         <div class="card" style="margin-top:14px;">
           <h3>Mes badges</h3>
           <div class="badges-grid" id="badges-grid"></div>
@@ -762,15 +959,119 @@
       </div>
     </section>
 
+    <!-- ================= ADMIN ================= -->
+    <section class="view" id="view-admin">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+          <h3 style="margin:0;">Panneau admin — tous les traders</h3>
+          <button class="pos-close" id="admin-refresh">🔄 Actualiser</button>
+        </div>
+        <div class="chart-note" style="margin-bottom:10px;">Vue et contrôle de tous les comptes EDB. Réinitialiser et ajuster un solde sont irréversibles — une confirmation est demandée à chaque fois.</div>
+        <div id="admin-status" class="chart-note"></div>
+        <div style="overflow-x:auto;">
+          <table class="lb-table">
+            <thead><tr><th>Trader</th><th>Email</th><th>Équité</th><th>Cash</th><th>PnL ouvert</th><th>Positions</th><th>Dernière activité</th><th>Temps passé</th><th>Actions</th></tr></thead>
+            <tbody id="admin-body"><tr><td colspan="9" class="empty-note">Clique sur Actualiser pour charger la liste.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+          <h3 style="margin:0;">Retours — bugs &amp; idées</h3>
+          <button class="pos-close" id="admin-feedback-refresh">🔄 Actualiser</button>
+        </div>
+        <div class="chart-note" style="margin-bottom:10px;">Chaque élève choisit d'envoyer son retour en anonyme ou publiquement (💬). Un retour anonyme n'apparaît nulle part avec son nom sauf ici — toi seul le vois. Un retour public apparaît avec le pseudo dans la liste que voient tous les élèves. Tu peux supprimer un retour traité ou indésirable.</div>
+        <div id="admin-feedback-status" class="chart-note"></div>
+        <div style="overflow-x:auto;">
+          <table class="lb-table">
+            <thead><tr><th>Type</th><th>Trader</th><th>Visibilité</th><th>Message</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody id="admin-feedback-body"><tr><td colspan="6" class="empty-note">Clique sur Actualiser pour charger les retours.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
     <!-- ================= CONNAISSANCES ================= -->
     <section class="view" id="view-learn">
       <div class="learn-wrap" id="learn-wrap">
         <div class="card" id="learn-card"></div>
       </div>
     </section>
-  </main>
 
-  <div class="footnote">Capital virtuel, prix réels — compte de démonstration sans valeur réelle, exécuté sur des données de marché en direct (Binance, avec repli Crypto.com), à but pédagogique pour l'École de la Bourse.</div>
+    <!-- ================= RESOURCES ================= -->
+    <section class="view" id="view-resources">
+      <div class="learn-wrap">
+        <div class="card">
+          <div class="quiz-intro" style="padding:20px 10px 24px;">
+            <div class="quiz-cat">Liens externes</div>
+            <h2>Ressources trading</h2>
+            <p>Une sélection d'outils externes utiles pour l'order flow, la fondamentale et la data crypto — recommandés par EDB. Ces sites ne sont pas gérés par Paper Tape, ouvre-les avec ton propre jugement.</p>
+          </div>
+          <div class="resource-grid">
+            <a class="resource-card" style="border-left-color:#e8874a;" href="https://app.mmt.gg/w/45e66204-8c9f-49b7-b9dd-03bea2451777" target="_blank" rel="noopener noreferrer">
+              <div class="resource-card-tag">Order flow</div>
+              <div class="resource-card-head"><span class="resource-card-title">MMT Terminal</span><span class="resource-card-open">Ouvrir ↗</span></div>
+              <div class="resource-card-desc">Layout order flow prêt à l'emploi (Smart Money Concepts / ICT) sur MMT.</div>
+            </a>
+            <a class="resource-card" style="border-left-color:#e8874a;" href="https://cryexc.josedonato.com/app" target="_blank" rel="noopener noreferrer">
+              <div class="resource-card-tag">Order flow</div>
+              <div class="resource-card-head"><span class="resource-card-title">CryExc Terminal</span><span class="resource-card-open">Ouvrir ↗</span></div>
+              <div class="resource-card-desc">Terminal order flow complet, entièrement gratuit.</div>
+            </a>
+            <a class="resource-card" style="border-left-color:#e8874a;" href="https://app.godelterminal.com/?page=register" target="_blank" rel="noopener noreferrer">
+              <div class="resource-card-tag">Order flow · Fondamentale</div>
+              <div class="resource-card-head"><span class="resource-card-title">Godel Terminal</span><span class="resource-card-open">Ouvrir ↗</span></div>
+              <div class="resource-card-desc">Terminal complet : bon à la fois pour l'analyse fondamentale et pour l'order flow.</div>
+            </a>
+            <a class="resource-card" style="border-left-color:#e8874a;" href="https://openmarket.xyz/chart/" target="_blank" rel="noopener noreferrer">
+              <div class="resource-card-tag">Order flow</div>
+              <div class="resource-card-head"><span class="resource-card-title">OpenMarket</span><span class="resource-card-open">Ouvrir ↗</span></div>
+              <div class="resource-card-desc">Terminal de graphiques / order flow, dans le même esprit que les autres ci-dessus.</div>
+            </a>
+            <a class="resource-card" style="border-left-color:#4a9de8;" href="https://www.coinglass.com" target="_blank" rel="noopener noreferrer">
+              <div class="resource-card-tag">Data</div>
+              <div class="resource-card-head"><span class="resource-card-title">Coinglass</span><span class="resource-card-open">Ouvrir ↗</span></div>
+              <div class="resource-card-desc">Hub centralisé de data crypto : funding, open interest, liquidations…</div>
+            </a>
+            <a class="resource-card" style="border-left-color:#4a9de8;" href="https://www.coinglass.com/pro/futures/LiquidationHeatMap" target="_blank" rel="noopener noreferrer">
+              <div class="resource-card-tag">Data</div>
+              <div class="resource-card-head"><span class="resource-card-title">Coinglass — Liquidation Heat Map</span><span class="resource-card-open">Ouvrir ↗</span></div>
+              <div class="resource-card-desc">Carte de chaleur des zones de liquidation en direct.</div>
+            </a>
+            <a class="resource-card" style="border-left-color:var(--accent);" href="https://www.tradingview.com" target="_blank" rel="noopener noreferrer">
+              <div class="resource-card-tag">Graphiques</div>
+              <div class="resource-card-head"><span class="resource-card-title">TradingView</span><span class="resource-card-open">Ouvrir ↗</span></div>
+              <div class="resource-card-desc">La référence pour l'analyse technique et les graphiques.</div>
+            </a>
+            <a class="resource-card" style="border-left-color:var(--warn);" href="https://lighter.xyz" target="_blank" rel="noopener noreferrer">
+              <div class="resource-card-tag">DEX · Argent réel</div>
+              <div class="resource-card-head"><span class="resource-card-title">Lighter</span><span class="resource-card-open">Ouvrir ↗</span></div>
+              <div class="resource-card-desc">DEX perpétuels sans aucun frais ni commission.</div>
+              <div class="resource-card-warn">⚠️ Argent réel en jeu — ne commence pas à trader ici avant d'être opérationnel sur le compte démo Paper Tape.</div>
+            </a>
+            <a class="resource-card" style="border-left-color:var(--warn);" href="https://www.breakoutprop.com" target="_blank" rel="noopener noreferrer">
+              <div class="resource-card-tag">Prop firm · Argent réel</div>
+              <div class="resource-card-head"><span class="resource-card-title">Breakout</span><span class="resource-card-open">Ouvrir ↗</span></div>
+              <div class="resource-card-desc">Prop firm 100% crypto (Bybit) — jusqu'à $200K. Les challenges 1-Step ont un drawdown statique (pas suiveur) ; le 2-Step reste en trailing 8%.</div>
+              <div class="resource-card-warn">⚠️ Argent réel en jeu — ne commence pas à trader ici avant d'être opérationnel sur le compte démo Paper Tape.</div>
+            </a>
+            <a class="resource-card" style="border-left-color:var(--warn);" href="https://ftmo.com" target="_blank" rel="noopener noreferrer">
+              <div class="resource-card-tag">Prop firm · Argent réel</div>
+              <div class="resource-card-head"><span class="resource-card-title">FTMO</span><span class="resource-card-open">Ouvrir ↗</span></div>
+              <div class="resource-card-desc">Une des prop firms les plus connues — challenge pour obtenir un compte financé.</div>
+              <div class="resource-card-warn">⚠️ Argent réel en jeu — ne commence pas à trader ici avant d'être opérationnel sur le compte démo Paper Tape.</div>
+            </a>
+            <a class="resource-card" style="border-left-color:var(--warn);" href="https://fundednext.com" target="_blank" rel="noopener noreferrer">
+              <div class="resource-card-tag">Prop firm · Argent réel</div>
+              <div class="resource-card-head"><span class="resource-card-title">FundedNext</span><span class="resource-card-open">Ouvrir ↗</span></div>
+              <div class="resource-card-desc">Prop firm — challenge pour obtenir un compte financé.</div>
+              <div class="resource-card-warn">⚠️ Argent réel en jeu — ne commence pas à trader ici avant d'être opérationnel sur le compte démo Paper Tape.</div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬</button>
@@ -980,9 +1281,10 @@ function randHandle(){
 }
 
 /* ============================= STATE ============================= */
+// Login is now mandatory (see AUTH GATE below) — clientId stays null until
+// Firebase Auth resolves a signed-in uid, so there is no more anonymous
+// per-browser account.
 let clientId = null;
-try{ clientId = localStorage.getItem(TRADER_ID_KEY); }catch(e){}
-if (!clientId){ clientId = uid(); try{ localStorage.setItem(TRADER_ID_KEY, clientId); }catch(e){} }
 
 const state = {
   username: randHandle(),
@@ -1000,13 +1302,27 @@ const state = {
     grossProfit:0, grossLoss:0, bestTrade:0, worstTrade:0,
     currentStreak:0, streakType:null, bestWinStreak:0, bestLossStreak:0,
   },
+  email: null,     // set from Firebase Auth once signed in — persisted so admins can identify traders
+  isAdmin: false,  // durable "ADMIN321" unlock — see ADMIN PANEL below
+  totalTimeSpent: 0, // cumulative seconds with the tab open & visible — see initSessionTimeTracking()
 };
 let selectedSymbol = "BTC";
 let side = "long";
 let orderType = "market";
 let marginMode = "isolated";
 let sizeUnit = "usd";
-let leverage = 10;
+const LEVERAGE_KEY = "paperTapeLeverage";
+function loadLeverage(){
+  try{
+    const raw = localStorage.getItem(LEVERAGE_KEY);
+    const n = raw!=null ? parseInt(raw,10) : NaN;
+    return (Number.isFinite(n) && n>=1 && n<=200) ? n : 10;
+  }catch(e){ return 10; }
+}
+function saveLeverage(n){
+  try{ localStorage.setItem(LEVERAGE_KEY, String(n)); }catch(e){}
+}
+let leverage = loadLeverage(); // remembered per-browser across reloads, like the theme/widget layout
 let db = null;
 let dbReady = false;
 let liveGloballyDown = false;
@@ -1078,6 +1394,9 @@ function hydrateStateFromDoc(snap){
     attempts: typeof d.superflashAttempts==="number" ? d.superflashAttempts : 0,
   };
   state.stats = (d.stats && typeof d.stats==="object") ? {...state.stats, ...d.stats} : state.stats;
+  state.email = d.email || state.email || null;
+  state.isAdmin = !!d.isAdmin;
+  state.totalTimeSpent = typeof d.totalTimeSpent==="number" ? d.totalTimeSpent : 0;
 }
 // Loads (or creates) the trader doc for `id` into `state`. Used at boot for
 // the local anonymous id, and again by the auth flow whenever `clientId`
@@ -1095,19 +1414,19 @@ async function loadAccountForClientId(id){
 async function initDb(){
   try{
     if (!FIREBASE_CONFIG || !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.indexOf("REMPLACE")===0){
-      console.warn("Firebase non configuré : colle ta config dans FIREBASE_CONFIG (voir FIREBASE_SETUP.md). Classement, feedback et sync inter-appareils désactivés — le compte reste utilisable localement.");
+      console.warn("Firebase non configuré : colle ta config dans FIREBASE_CONFIG (voir FIREBASE_SETUP.md). Classement, feedback, sync inter-appareils et la connexion obligatoire sont désactivés — le compte reste utilisable localement, sans porte de connexion.");
+      hideAuthGate();
       return;
     }
     if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.firestore();
     if (!db) return;
     dbReady = true;
-    await loadAccountForClientId(clientId);
     subscribeLeaderboard();
     subscribeQuizLeaderboard();
     subscribeSuperflashLeaderboard();
     initAuth();
-  }catch(e){ console.warn("db init failed", e); }
+  }catch(e){ console.warn("db init failed", e); hideAuthGate(); }
 }
 let persistTimer = null;
 function persistAccount(){
@@ -1132,11 +1451,18 @@ function persistAccount(){
           superflashBestCorrect: state.superflash.bestCorrect,
           superflashAttempts: state.superflash.attempts,
           stats: state.stats,
+          // Keeps the admin unlock (and the trader's email, for the admin
+          // panel to display) from being wiped by this .set() overwrite —
+          // persistAccount() replaces the whole doc, so anything not
+          // re-included here every time would otherwise be lost.
+          email: state.email || null,
+          isAdmin: !!state.isAdmin,
+          totalTimeSpent: state.totalTimeSpent||0,
           // Heartbeat: the "paper-tape-mark" Cloud Function (see /functions)
           // only touches a trader's pending orders / TP-SL / liquidations /
           // mark-to-market equity once this goes stale (no write in the
           // last ~60s) — i.e. once your own browser has actually gone
-          // idle/offline and stopped running the 5s live-persist loop below,
+          // idle/offline and stopped running the 10s live-persist loop below,
           // so it never races the client that's already handling it.
           lastActiveAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
@@ -1145,6 +1471,18 @@ function persistAccount(){
       resolve();
     }, 150);
   });
+}
+// Counts only time the tab is actually open & visible (paused when the
+// browser tab is backgrounded/minimized) — persisted to the trader's own
+// doc so admins can see time spent per trader (Admin panel).
+function initSessionTimeTracking(){
+  setInterval(()=>{
+    const gate = document.getElementById("auth-gate");
+    if (document.visibilityState==="visible" && gate && gate.hidden){
+      state.totalTimeSpent = (state.totalTimeSpent||0) + 30;
+      persistAccount();
+    }
+  }, 30000);
 }
 function quizGrandTotal(){
   return Object.values(state.quizProgress).reduce((s,p)=>s+(p&&p.earned||0),0);
@@ -1174,46 +1512,61 @@ function subscribeSuperflashLeaderboard(){
   }catch(e){}
 }
 
-/* ============================= AUTH (optional email/password) ============================= */
-// Fully optional — a guest's random per-browser id (localStorage) keeps
-// working exactly as before. Signing in ties the SAME account (cash,
-// positions, history, badges) to an email so it follows you to any device:
-// the trader doc moves from being keyed by the random id to being keyed by
-// the Firebase Auth uid. Requires the "Email/Password" sign-in provider to
-// be turned on in the Firebase console (Authentication → Sign-in method) —
-// this is a one-time setup step outside the code, see FIREBASE_SETUP.md.
-let anonClientId = null; // the original per-browser id, restored on logout
+/* ============================= AUTH (mandatory email/password) ============================= */
+// Login is now required before anything else loads: on arrival the
+// full-screen #auth-gate covers the app and nothing (prices aside) is
+// usable until Firebase Auth resolves a signed-in user. The trader doc is
+// always keyed by the Firebase Auth uid — there is no more anonymous
+// per-browser account. Requires the "Email/Password" sign-in provider to be
+// turned on in the Firebase console (Authentication → Sign-in method) — a
+// one-time setup step outside the code, see SERVER_SETUP.md.
 let authUser = null;
-function hasMeaningfulLocalProgress(){
-  return state.positions.length>0 || state.history.length>0 || state.cash!==START_CASH || (state.stats && state.stats.tradesOpened>0);
+function authErrorMsg(e){
+  const code = e && e.code || "";
+  if (code==="auth/email-already-in-use") return "Un compte existe déjà avec cet email — connecte-toi plutôt.";
+  if (code==="auth/invalid-credential" || code==="auth/wrong-password" || code==="auth/user-not-found") return "Email ou mot de passe incorrect.";
+  if (code==="auth/weak-password") return "Mot de passe trop faible (6 caractères minimum).";
+  if (code==="auth/operation-not-allowed") return "La connexion par email n'est pas encore activée côté serveur (Firebase → Authentication → Sign-in method).";
+  if (code==="auth/network-request-failed") return "Connexion réseau impossible pour le moment — réessaie.";
+  return "Erreur : "+((e&&e.message)||e);
+}
+function showAuthGate(){
+  const gate = document.getElementById("auth-gate");
+  if (gate) gate.hidden = false;
+}
+// Purely decorative — a static list of what's tradable, scrolling behind the
+// login card so the gate doesn't feel like an empty void. No live prices
+// here on purpose: nothing personal or fetched loads before login.
+function initGateTicker(){
+  const track = document.getElementById("gate-ticker-track");
+  if (!track || typeof ASSETS==="undefined") return;
+  const chips = ASSETS.map(a=>'<span class="auth-gate-ticker-item">'+a.icon+' <b>'+a.symbol+'</b> '+escapeHtml(a.name.split(" (")[0].split(" —")[0])+'</span>').join("");
+  track.innerHTML = chips + chips; // duplicated once for a seamless loop
+}
+function hideAuthGate(){
+  const gate = document.getElementById("auth-gate");
+  if (gate) gate.hidden = true;
 }
 function initAuth(){
   try{
-    if (typeof firebase.auth !== "function") return; // firebase-auth-compat.js not loaded
-    anonClientId = clientId;
+    if (typeof firebase.auth !== "function"){ hideAuthGate(); return; } // firebase-auth-compat.js not loaded
     firebase.auth().onAuthStateChanged(async (user)=>{
       authUser = user;
       renderAccountCard();
       try{
         if (user){
-          if (clientId === user.uid) return; // already on this identity (e.g. auth session restored on reload)
-          const targetSnap = await db.collection("traders").doc(user.uid).get();
-          if (!targetSnap.exists && hasMeaningfulLocalProgress()){
-            // First login on this browser with real progress already made as
-            // a guest, and no account yet on the server: carry it over once
-            // instead of silently losing it under the new identity.
-            clientId = user.uid;
-            await persistAccount();
-          } else {
-            await loadAccountForClientId(user.uid);
-          }
+          state.email = user.email; // seeds a brand-new doc with the right email; hydrateStateFromDoc reconfirms it for existing ones
+          await loadAccountForClientId(user.uid);
+          hideAuthGate();
+          updateAdminNavVisibility();
+          renderAll();
         } else {
-          await loadAccountForClientId(anonClientId);
+          clientId = null;
+          showAuthGate();
         }
-        renderAll();
       }catch(e){ console.warn("auth state sync failed", e); }
     });
-  }catch(e){ console.warn("auth init failed", e); }
+  }catch(e){ console.warn("auth init failed", e); hideAuthGate(); }
 }
 function renderAccountCard(){
   const out = document.getElementById("account-logged-out");
@@ -1228,29 +1581,27 @@ function renderAccountCard(){
   }
 }
 function initAuthUI(){
-  const emailInput = document.getElementById("auth-email-input");
-  const passInput = document.getElementById("auth-password-input");
-  const msg = document.getElementById("auth-msg");
-  const loginBtn = document.getElementById("auth-login-btn");
-  const signupBtn = document.getElementById("auth-signup-btn");
   const logoutBtn = document.getElementById("auth-logout-btn");
-  if (!loginBtn || !signupBtn || !logoutBtn) return; // auth UI not in the DOM (shouldn't happen, but stay defensive)
+  if (logoutBtn){
+    logoutBtn.addEventListener("click", async ()=>{
+      try{ await firebase.auth().signOut(); }catch(e){ console.warn("signOut failed", e); }
+    });
+  }
+}
+function initGateUI(){
+  const emailInput = document.getElementById("gate-email-input");
+  const passInput = document.getElementById("gate-password-input");
+  const msg = document.getElementById("gate-msg");
+  const loginBtn = document.getElementById("gate-login-btn");
+  const signupBtn = document.getElementById("gate-signup-btn");
+  if (!loginBtn || !signupBtn) return;
   function readCreds(){
     const email = (emailInput.value||"").trim();
     const password = passInput.value||"";
-    if (!email || email.indexOf("@")<0){ msg.textContent = "Adresse email invalide."; return null; }
-    if (password.length<6){ msg.textContent = "Le mot de passe doit faire au moins 6 caractères."; return null; }
+    if (!email || email.indexOf("@")<0){ msg.style.color="var(--warn)"; msg.textContent = "Adresse email invalide."; return null; }
+    if (password.length<6){ msg.style.color="var(--warn)"; msg.textContent = "Le mot de passe doit faire au moins 6 caractères."; return null; }
     msg.textContent = "";
     return {email, password};
-  }
-  function authErrorMsg(e){
-    const code = e && e.code || "";
-    if (code==="auth/email-already-in-use") return "Un compte existe déjà avec cet email — connecte-toi plutôt.";
-    if (code==="auth/invalid-credential" || code==="auth/wrong-password" || code==="auth/user-not-found") return "Email ou mot de passe incorrect.";
-    if (code==="auth/weak-password") return "Mot de passe trop faible (6 caractères minimum).";
-    if (code==="auth/operation-not-allowed") return "La connexion par email n'est pas encore activée côté serveur (Firebase → Authentication → Sign-in method).";
-    if (code==="auth/network-request-failed") return "Connexion réseau impossible pour le moment — réessaie.";
-    return "Erreur : "+((e&&e.message)||e);
   }
   loginBtn.addEventListener("click", async ()=>{
     const creds = readCreds();
@@ -1258,7 +1609,6 @@ function initAuthUI(){
     loginBtn.disabled = true;
     try{
       await firebase.auth().signInWithEmailAndPassword(creds.email, creds.password);
-      msg.style.color = "var(--long)"; msg.textContent = "Connecté.";
     }catch(e){ msg.style.color = "var(--warn)"; msg.textContent = authErrorMsg(e); }
     finally{ loginBtn.disabled = false; }
   });
@@ -1268,12 +1618,12 @@ function initAuthUI(){
     signupBtn.disabled = true;
     try{
       await firebase.auth().createUserWithEmailAndPassword(creds.email, creds.password);
-      msg.style.color = "var(--long)"; msg.textContent = "Compte créé et connecté.";
     }catch(e){ msg.style.color = "var(--warn)"; msg.textContent = authErrorMsg(e); }
     finally{ signupBtn.disabled = false; }
   });
-  logoutBtn.addEventListener("click", async ()=>{
-    try{ await firebase.auth().signOut(); }catch(e){ console.warn("signOut failed", e); }
+  [emailInput, passInput].forEach(inp=>{
+    if (!inp) return;
+    inp.addEventListener("keydown", (e)=>{ if (e.key==="Enter") loginBtn.click(); });
   });
 }
 
@@ -1355,6 +1705,90 @@ async function fetchCandlesRest(a, tf){
   }
   return fetchCandlesCryptoCom(a.instrument, tf);
 }
+/* ---- DOM (order book depth) — same Binance-first, Crypto.com-fallback pattern as tickers ---- */
+async function fetchDepthBinance(binanceSymbol, limit){
+  const url = BINANCE_API_BASE+"/depth?symbol="+encodeURIComponent(binanceSymbol)+"&limit="+limit;
+  const res = await fetch(url, {signal:AbortSignal.timeout(8000)});
+  if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
+  const raw = await res.json();
+  if (!raw || !Array.isArray(raw.bids) || !Array.isArray(raw.asks)){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
+  return {
+    bids: raw.bids.map(l=>({price:parseFloat(l[0]), size:parseFloat(l[1])})),
+    asks: raw.asks.map(l=>({price:parseFloat(l[0]), size:parseFloat(l[1])})),
+  };
+}
+async function fetchDepthCryptoCom(instrument, depth){
+  const url = CRYPTO_API_BASE+"/get-book?instrument_name="+encodeURIComponent(instrument)+"&depth="+depth;
+  const res = await fetch(url, {signal:AbortSignal.timeout(8000)});
+  if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
+  const json = await res.json();
+  const raw = (json && json.result && Array.isArray(json.result.data)) ? json.result.data[0]
+    : (json && Array.isArray(json.data)) ? json.data[0] : null;
+  if (!raw || !Array.isArray(raw.bids) || !Array.isArray(raw.asks)){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
+  // Crypto.com book levels are [price, size, numOrders]
+  return {
+    bids: raw.bids.map(l=>({price:parseFloat(l[0]), size:parseFloat(l[1])})),
+    asks: raw.asks.map(l=>({price:parseFloat(l[0]), size:parseFloat(l[1])})),
+  };
+}
+async function fetchDepthRest(a, limit){
+  if (a.binanceSymbol){
+    try{ return await fetchDepthBinance(a.binanceSymbol, limit); }
+    catch(e){ /* fall through to Crypto.com below */ }
+  }
+  return fetchDepthCryptoCom(a.instrument, limit);
+}
+let domData = {bids:[], asks:[], error:null};
+let domTimer = null;
+async function refreshDom(){
+  const el = widgetEl("dom");
+  if (!el || el.hidden) return; // no point spending a request on a hidden widget
+  const a = ASSETS.find(x=>x.symbol===selectedSymbol);
+  if (!a) return;
+  const symEl = document.getElementById("dom-sym");
+  if (symEl) symEl.textContent = a.symbol+" — "+a.name;
+  try{
+    const depth = await fetchDepthRest(a, 12);
+    domData = {bids: depth.bids.slice(0,12), asks: depth.asks.slice(0,12).reverse(), error:null};
+  }catch(e){
+    domData = {bids:[], asks:[], error: (e&&e.code)||"upstream_error"};
+  }
+  renderDom();
+}
+function renderDom(){
+  const body = document.getElementById("dom-body");
+  if (!body) return;
+  // Bid/ask colors follow the same up/down palette as the candlestick chart
+  // (classic/contrast/mono, picked via the candle-theme dots) instead of a
+  // fixed red/green, so the DOM matches whatever look the trader has chosen.
+  const colors = candleColors();
+  body.style.setProperty("--dom-up-color", colors.up);
+  body.style.setProperty("--dom-down-color", colors.down);
+  const a = ASSETS.find(x=>x.symbol===selectedSymbol);
+  if (!a) return;
+  if (domData.error && domData.asks.length===0 && domData.bids.length===0){
+    body.innerHTML = '<div class="empty-note">Carnet indisponible pour '+a.symbol+'.</div>';
+    return;
+  }
+  const maxSize = Math.max(1, ...domData.bids.map(l=>l.size), ...domData.asks.map(l=>l.size));
+  function row(l, side){
+    const pct = Math.min(100, (l.size/maxSize)*100);
+    return '<div class="dom-row dom-'+side+'">'+
+      '<div class="dom-bar" style="width:'+pct.toFixed(1)+'%;"></div>'+
+      '<span class="dom-price">'+fmtPrice(l.price, a.decimals)+'</span>'+
+      '<span class="dom-size">'+fmtUnits(l.size)+'</span>'+
+    '</div>';
+  }
+  const spread = (domData.asks.length && domData.bids.length) ? (domData.asks[domData.asks.length-1].price - domData.bids[0].price) : null;
+  body.innerHTML =
+    '<div class="dom-asks">'+domData.asks.map(l=>row(l,"ask")).join("")+'</div>'+
+    '<div class="dom-spread">'+(spread!==null ? "Spread "+fmtPrice(spread, a.decimals) : "—")+'</div>'+
+    '<div class="dom-bids">'+domData.bids.map(l=>row(l,"bid")).join("")+'</div>';
+}
+function initDom(){
+  refreshDom();
+  domTimer = setInterval(refreshDom, 3000);
+}
 async function pollAsset(a){
   try{
     const payload = await fetchTickerRest(a);
@@ -1386,7 +1820,7 @@ function setLiveBanner(code){
   banner.hidden = false;
 }
 function clearLiveBanner(){
-  setMarketStatus("connecté — flux en direct (Binance + Crypto.com, API publiques)");
+  setMarketStatus("");
   if (!liveGloballyDown) return;
   liveGloballyDown = false;
   document.getElementById("live-banner").hidden = true;
@@ -1556,6 +1990,7 @@ function selectSymbol(sym){
   updateChart();
   updateOrderReadout();
   scheduleCandleRefresh();
+  refreshDom();
 }
 function drawSpark(canvas, hist, up){
   const ctx = canvas.getContext("2d");
@@ -1634,10 +2069,92 @@ function initCandleTheme(){
       try{ localStorage.setItem(CANDLE_THEME_KEY, candleTheme); }catch(e){}
       document.querySelectorAll("#candle-theme-seg button").forEach(x=>x.classList.toggle("active", x===b));
       updateChart();
+      renderDom();
     });
   });
 }
+// ---- Chart source: internal SVG candles vs. embedded TradingView widget ----
+// TradingView's free "Advanced Chart" embed needs no API key — it's the
+// standard copy/paste widget script from tradingview.com, injected here so
+// the symbol follows whichever asset is selected in the watchlist. Mapped
+// per-asset to the closest TradingView symbol that matches what this app
+// actually prices off (same Binance pairs where we have one).
+// HYPE uses Binance's USDⓈ-M perpetual (Mark Price) rather than the spot
+// pair for a steadier, harder-to-wick chart line.
+// SPY/QQQ/GOLD use Hyperliquid's HIP-3 "Trade[XYZ]" perpetuals (24/7,
+// no exchange-hours gaps) instead of the real AMEX/NASDAQ equities, which
+// only chart live during NYSE hours and otherwise show "market closed" —
+// a problem since the app itself trades these round the clock. Trade[XYZ]'s
+// SP500/XYZ100/GOLD perps are S&P Dow Jones Indices-licensed (SP500,
+// Nasdaq-100 tracker, gold), confirmed live on TradingView under the
+// HIP3XYZ: exchange prefix. The actual trading price (ticket, P&L,
+// liquidation) still comes from Crypto.com's SPYUSD-PERP/QQQUSD-PERP/PAXG
+// feed exactly as before — only the chart's data source changes here.
+const TV_SYMBOL_MAP = {
+  BTC:"BINANCE:BTCUSDT", ETH:"BINANCE:ETHUSDT", SOL:"BINANCE:SOLUSDT", HYPE:"BINANCE:HYPEUSDT.P",
+  SPY:"HIP3XYZ:SP500USDC.P", QQQ:"HIP3XYZ:XYZ100USDC.P", GOLD:"HIP3XYZ:GOLDUSDC.P",
+};
+let chartSource = "internal"; // "internal" | "tv"
+let tvLoadedSymbol = null;
+function renderTradingViewChart(){
+  const wrap = document.getElementById("tv-chart-wrap");
+  if (!wrap) return;
+  const tvSymbol = TV_SYMBOL_MAP[selectedSymbol] || ("BINANCE:"+selectedSymbol+"USDT");
+  if (tvLoadedSymbol===tvSymbol && wrap.childElementCount>0) return; // already showing this symbol, avoid reloading the widget
+  tvLoadedSymbol = tvSymbol;
+  wrap.innerHTML = '<div class="tradingview-widget-container" style="height:100%;width:100%;"><div class="tradingview-widget-container__widget"></div></div>';
+  const script = document.createElement("script");
+  script.type = "text/javascript";
+  script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
+  script.async = true;
+  script.text = JSON.stringify({
+    autosize: true, symbol: tvSymbol, interval: "1", timezone: "Etc/UTC",
+    theme: "dark", style: "1", locale: "fr", enable_publishing: false,
+    hide_top_toolbar: false, allow_symbol_change: true, support_host: "https://www.tradingview.com",
+  });
+  wrap.querySelector(".tradingview-widget-container").appendChild(script);
+}
+function setChartSource(src){
+  chartSource = src;
+  const svg = document.getElementById("chart-svg");
+  const tvWrap = document.getElementById("tv-chart-wrap");
+  const tfSeg = document.getElementById("tf-seg");
+  const themeSeg = document.getElementById("candle-theme-seg");
+  document.getElementById("chart-src-internal").classList.toggle("active", src==="internal");
+  document.getElementById("chart-src-tv").classList.toggle("active", src==="tv");
+  // Belt-and-suspenders: some browsers don't apply the UA [hidden]{display:none}
+  // rule to <svg> reliably (it's an SVG-namespaced element, and support for the
+  // HTML `hidden` presentational hint on it is inconsistent), and this is the
+  // one toggle where "both visible at once" is a real, visible-to-users bug
+  // (reported live: TradingView loaded on top of, not instead of, the internal
+  // chart). Setting hidden AND an inline display style together makes this
+  // 100% deterministic across browsers regardless of any CSS cascade/namespace
+  // quirk, since an inline style always wins over any class/attribute selector.
+  tfSeg.hidden = src==="tv"; tfSeg.style.display = src==="tv" ? "none" : "";
+  themeSeg.hidden = src==="tv"; themeSeg.style.display = src==="tv" ? "none" : "";
+  if (src==="tv"){
+    svg.hidden = true; svg.style.display = "none";
+    tvWrap.hidden = false; tvWrap.style.display = "";
+    renderTradingViewChart();
+  } else {
+    svg.hidden = false; svg.style.display = "";
+    tvWrap.hidden = true; tvWrap.style.display = "none";
+  }
+}
+function initChartSourceToggle(){
+  document.getElementById("chart-src-internal").addEventListener("click", ()=>setChartSource("internal"));
+  document.getElementById("chart-src-tv").addEventListener("click", ()=>setChartSource("tv"));
+}
 function updateChart(){
+  if (chartSource==="tv"){
+    document.getElementById("chart-sym").innerHTML = '<span style="color:'+((ASSETS.find(x=>x.symbol===selectedSymbol)||{}).color||"inherit")+';">'+((ASSETS.find(x=>x.symbol===selectedSymbol)||{}).icon||"")+'</span> '+selectedSymbol;
+    document.getElementById("chart-name").textContent = (ASSETS.find(x=>x.symbol===selectedSymbol)||{}).name||"";
+    const m = market[selectedSymbol];
+    const priceEl = document.getElementById("chart-price");
+    if (m && m.last!==null){ priceEl.textContent = fmtPrice(m.last, (ASSETS.find(x=>x.symbol===selectedSymbol)||{}).decimals); priceEl.className = "price-big num flat"; }
+    renderTradingViewChart();
+    return;
+  }
   const a = ASSETS.find(x=>x.symbol===selectedSymbol);
   const m = market[selectedSymbol];
   document.getElementById("chart-sym").innerHTML = '<span style="color:'+(a.color||"inherit")+';">'+(a.icon||"")+'</span> '+a.symbol;
@@ -1743,6 +2260,30 @@ function currentSizeInputToNotional(entry){
   if (sizeUnit==="margin") return val*leverage; // you set the margin, notional follows the leverage
   return val*(entry||0); // units
 }
+function fmtUnits(n){
+  if (!isFinite(n) || n===0) return "0";
+  const abs = Math.abs(n);
+  const decimals = abs>=100 ? 2 : abs>=1 ? 4 : 6;
+  return n.toFixed(decimals).replace(/(\.\d*?)0+$/,"$1").replace(/\.$/,"");
+}
+// Projected $ / % result if TP or SL fills at the price currently typed in
+// the ticket — before any position exists. Mirrors posUnrealized()'s formula
+// exactly (fees ignored here, same as the rest of the readout preview).
+function updateTpSlPreview(entry, sizeUnits, initMargin){
+  const tpEl = document.getElementById("tp-preview");
+  const slEl = document.getElementById("sl-preview");
+  function preview(el, raw, label){
+    if (!el) return;
+    const px = parseFloat(raw);
+    if (!(px>0) || !(sizeUnits>0) || !(entry>0)){ el.textContent = ""; return; }
+    const pnl = side==="long" ? (px-entry)*sizeUnits : (entry-px)*sizeUnits;
+    const pct = initMargin>0 ? (pnl/initMargin)*100 : null;
+    el.textContent = label+" : "+(pnl>=0?"+":"")+fmtMoney(pnl)+(pct!==null?" ("+(pct>=0?"+":"")+pct.toFixed(1)+"% marge)":"");
+    el.style.color = pnl>=0 ? "var(--long)" : "var(--short)";
+  }
+  preview(tpEl, document.getElementById("tp-input").value, "Si TP touché");
+  preview(slEl, document.getElementById("sl-input").value, "Si SL touché");
+}
 function updateOrderReadout(){
   const a = ASSETS.find(x=>x.symbol===selectedSymbol);
   const btn = document.getElementById("submit-order");
@@ -1758,13 +2299,16 @@ function updateOrderReadout(){
     const initMargin = leverage>0 ? notional/leverage : 0;
     const entryFee = notional*TAKER_FEE_RATE;
     const liq = (notional>0 && limitPrice>0) ? liqPriceFor(limitPrice, side, leverage) : null;
+    const sizeUnits = limitPrice>0 ? notional/limitPrice : 0;
     const m = market[selectedSymbol];
     document.getElementById("ro-notional").textContent = fmtMoney(notional);
+    document.getElementById("ro-units").textContent = sizeUnits>0 ? (fmtUnits(sizeUnits)+" "+a.symbol) : "—";
     document.getElementById("ro-spread").textContent = (m.bid && m.ask) ? (fmtPrice(m.bid,a.decimals)+" / "+fmtPrice(m.ask,a.decimals)) : "—";
     document.getElementById("ro-fee").textContent = fmtMoney(entryFee);
     document.getElementById("ro-margin").textContent = fmtMoney(initMargin);
     document.getElementById("ro-liq").textContent = liq ? fmtPrice(liq,a.decimals) : "—";
     document.getElementById("ro-free").textContent = fmtMoney(freeBalance());
+    updateTpSlPreview(limitPrice, sizeUnits, initMargin);
     let problem = "";
     if (!(limitPrice>0)) problem = "Entrez un prix limite.";
     else if (notional<=0) problem = "Entrez une taille de position.";
@@ -1776,11 +2320,14 @@ function updateOrderReadout(){
 
   if (!hasLive(selectedSymbol)){
     document.getElementById("ro-notional").textContent = "—";
+    document.getElementById("ro-units").textContent = "—";
     document.getElementById("ro-spread").textContent = "—";
     document.getElementById("ro-fee").textContent = "—";
     document.getElementById("ro-margin").textContent = "—";
     document.getElementById("ro-liq").textContent = "—";
     document.getElementById("ro-free").textContent = fmtMoney(freeBalance());
+    document.getElementById("tp-preview").textContent = "";
+    document.getElementById("sl-preview").textContent = "";
     btn.disabled = true;
     msg.textContent = market[selectedSymbol].error
       ? "Flux Crypto.com indisponible pour "+a.symbol+" — impossible d'exécuter sans prix réel."
@@ -1793,15 +2340,18 @@ function updateOrderReadout(){
   const initMargin = leverage>0 ? notional/leverage : 0;
   const entryFee = notional*TAKER_FEE_RATE;
   const liq = notional>0 ? liqPriceFor(entry, side, leverage) : null;
+  const sizeUnits = entry>0 ? notional/entry : 0;
   const m = market[selectedSymbol];
   const spreadPct = (m.bid && m.ask && m.ask>0) ? ((m.ask-m.bid)/m.ask)*100 : null;
 
   document.getElementById("ro-notional").textContent = fmtMoney(notional);
+  document.getElementById("ro-units").textContent = sizeUnits>0 ? (fmtUnits(sizeUnits)+" "+a.symbol) : "—";
   document.getElementById("ro-spread").textContent = (m.bid && m.ask) ? (fmtPrice(m.bid,a.decimals)+" / "+fmtPrice(m.ask,a.decimals)+(spreadPct!==null?" ("+spreadPct.toFixed(3)+"%)":"")) : "—";
   document.getElementById("ro-fee").textContent = fmtMoney(entryFee);
   document.getElementById("ro-margin").textContent = fmtMoney(initMargin);
   document.getElementById("ro-liq").textContent = liq ? fmtPrice(liq,a.decimals) : "—";
   document.getElementById("ro-free").textContent = fmtMoney(freeBalance());
+  updateTpSlPreview(entry, sizeUnits, initMargin);
 
   let problem = "";
   if (notional<=0) problem = "Entrez une taille de position.";
@@ -1844,6 +2394,7 @@ function renderPositions(){
         '</div>'+
         '<span class="pos-actions">'+
           '<button class="pos-tpsl" data-tpsl="'+p.id+'">🎯 TP/SL</button>'+
+          '<button class="pos-tpsl" data-be="'+p.id+'">⚖️ BE</button>'+
           '<button class="pos-tpsl" data-partial="'+p.id+'">✂️ Partiel</button>'+
           '<button class="pos-close" data-close="'+p.id+'">Fermer</button>'+
         '</span>'+
@@ -1872,6 +2423,12 @@ function renderPositions(){
     btn.addEventListener("click", ()=>{
       const p = state.positions.find(x=>x.id===btn.dataset.tpsl);
       if (p) openTPSLModal(p);
+    });
+  });
+  list.querySelectorAll("[data-be]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const p = state.positions.find(x=>x.id===btn.dataset.be);
+      if (p) openBreakevenModal(p);
     });
   });
   list.querySelectorAll("[data-partial]").forEach(btn=>{
@@ -2448,6 +3005,47 @@ function openSessionCardModal(){
 }
 
 /* ============================= TP / SL EDIT ============================= */
+// Solves for the exact exit price at which closing right now would net
+// exactly $0 after BOTH the entry commission already paid and the exit
+// commission the close itself will trigger — not just an approximation off
+// the entry price. Exact because exitFee depends on the trigger price
+// itself, so it's folded directly into the algebra rather than estimated.
+function computeBreakevenPlusFees(p){
+  const entryFee = (typeof p.entryFee==="number") ? p.entryFee : p.notional*TAKER_FEE_RATE;
+  if (p.side==="long"){
+    return (entryFee + p.entryPrice*p.sizeUnits) / (p.sizeUnits*(1-TAKER_FEE_RATE));
+  }
+  return (p.entryPrice*p.sizeUnits - entryFee) / (p.sizeUnits*(1+TAKER_FEE_RATE));
+}
+function openBreakevenModal(p){
+  const a = ASSETS.find(x=>x.symbol===p.symbol);
+  const mp = markPrice(p.symbol);
+  const bePlain = p.entryPrice;
+  const beFees = computeBreakevenPlusFees(p);
+  openModal(
+    '<h3 style="margin-bottom:14px;">Stop Loss → Breakeven</h3>'+
+    '<div class="chart-note" style="margin-bottom:14px;">'+p.symbol+' · '+(p.side==="long"?"Long":"Short")+' · Entrée '+fmtPrice(p.entryPrice,a.decimals)+(mp!=null?' · Mark '+fmtPrice(mp,a.decimals):'')+'</div>'+
+    '<button class="btn-secondary" id="be-plain-btn" style="width:100%;margin-bottom:8px;text-align:left;padding:12px;">'+
+      '<div style="font-weight:600;">Breakeven (prix d\'entrée)</div>'+
+      '<div class="chart-note" style="margin-top:4px;">SL à '+fmtPrice(bePlain,a.decimals)+' — annule le gain/perte brut ; les commissions déjà payées restent une petite perte nette au déclenchement.</div>'+
+    '</button>'+
+    '<button class="btn-secondary" id="be-fees-btn" style="width:100%;text-align:left;padding:12px;">'+
+      '<div style="font-weight:600;">Breakeven + commissions remboursées</div>'+
+      '<div class="chart-note" style="margin-top:4px;">SL à '+fmtPrice(beFees,a.decimals)+' — couvre aussi la commission d\'entrée et de sortie, net exactement $0 au déclenchement.</div>'+
+    '</button>'+
+    '<div class="chart-note" id="be-msg" style="margin-top:10px;color:var(--warn);"></div>'
+  );
+  function apply(slVal){
+    const wouldTriggerNow = mp!=null && (p.side==="long" ? mp<=slVal : mp>=slVal);
+    if (wouldTriggerNow && !confirm("Le prix actuel a déjà atteint ce niveau — la position va se fermer immédiatement au marché. Continuer ?")) return;
+    p.stopLoss = slVal;
+    persistAccount();
+    renderPositions();
+    closeModal();
+  }
+  document.getElementById("be-plain-btn").addEventListener("click", ()=>apply(bePlain));
+  document.getElementById("be-fees-btn").addEventListener("click", ()=>apply(beFees));
+}
 function openTPSLModal(p){
   openModal(
     '<h3 style="margin-bottom:14px;">Take Profit / Stop Loss</h3>'+
@@ -2596,6 +3194,10 @@ function renderFeedbackModalHtml(){
       '<button id="fb-type-idea" class="on-mode">💡 Idée</button>'+
     '</div>'+
     '<textarea class="journal-textarea" id="fb-input" rows="4" maxlength="500" placeholder="Décris le bug ou ton idée…"></textarea>'+
+    '<label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12.5px;color:var(--text-dim);cursor:pointer;">'+
+      '<input type="checkbox" id="fb-anon-input" checked style="width:auto;"> '+
+      'Envoyer en anonyme <span class="chart-note" style="display:inline;">(décoché, ton pseudo apparaît publiquement dans la liste ci-dessous)</span>'+
+    '</label>'+
     '<div style="text-align:right;margin-top:10px;"><button class="btn-primary" id="fb-submit">Envoyer</button></div>'+
     '<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border-soft);">'+
       '<div class="quiz-cat" style="margin-bottom:8px;">Retours récents de tous les élèves</div>'+
@@ -2622,12 +3224,15 @@ async function submitFeedback(){
   const ta = document.getElementById("fb-input");
   const text = ta.value.trim();
   if (!text) return;
+  const anonBox = document.getElementById("fb-anon-input");
+  const anonymous = !anonBox || anonBox.checked; // default anonymous if the box is somehow missing
   const btn = document.getElementById("fb-submit");
   btn.disabled = true;
   try{
     if (dbReady && db){
       await db.collection("feedback").doc(uid()).set({
-        username: state.username, type: fbType, message: text.slice(0,500), createdAt: new Date().toISOString(),
+        username: state.username, type: fbType, message: text.slice(0,500),
+        anonymous: anonymous, createdAt: new Date().toISOString(),
       });
     }
     awardBadge('feedback_sent');
@@ -2639,11 +3244,18 @@ function renderFeedbackList(docs){
   const el = document.getElementById("fb-list");
   if (!el) return;
   if (!docs.length){ el.innerHTML = '<div class="empty-note">Aucun retour pour le moment.</div>'; return; }
+  // Each trader chooses anonymous vs. public when they submit (checkbox in
+  // the feedback form). Anonymous entries (the default, and any legacy
+  // entry with no "anonymous" field) show as "anonyme" here; entries the
+  // sender opted to make public show their pseudo. Admins always see who
+  // sent what regardless, in Admin → Retours.
   el.innerHTML = docs.map(doc=>{
     const d = doc.data();
     const dt = new Date(d.createdAt);
+    const isAnon = d.anonymous!==false;
+    const who = isAnon ? "anonyme" : escapeHtml(d.username||"anonyme");
     return '<div class="journal-entry">'+
-      '<div class="journal-entry-meta"><span>'+(d.type==="bug"?"🐛 Bug":"💡 Idée")+' · '+escapeHtml(d.username||"Trader")+' · '+dt.toLocaleDateString('fr-FR')+'</span></div>'+
+      '<div class="journal-entry-meta"><span>'+(d.type==="bug"?"🐛 Bug":"💡 Idée")+' · '+who+' · '+dt.toLocaleDateString('fr-FR')+'</span></div>'+
       '<div class="journal-entry-text">'+escapeHtml(d.message||"")+'</div>'+
     '</div>';
   }).join("");
@@ -4734,6 +5346,8 @@ function switchView(name){
 
 /* ============================= RENDER ALL ============================= */
 function renderAll(){
+  const unameEl = document.getElementById("username-input");
+  if (unameEl && document.activeElement!==unameEl) unameEl.value = state.username;
   updateWatchlist();
   updateChart();
   updateOrderReadout();
@@ -4822,9 +5436,10 @@ function initEvents(){
     document.getElementById("lev-badge").textContent = "x"+leverage;
     presetsWrap.querySelectorAll("button").forEach(b=>b.classList.toggle("active", parseInt(b.dataset.lev,10)===leverage));
   }
-  document.getElementById("lev-slider").addEventListener("input", (e)=>{ leverage=parseInt(e.target.value,10); setLevUI(); updateOrderReadout(); });
+  setLevUI(); // sync the slider/badge to the leverage restored from localStorage on load
+  document.getElementById("lev-slider").addEventListener("input", (e)=>{ leverage=parseInt(e.target.value,10); saveLeverage(leverage); setLevUI(); updateOrderReadout(); });
   presetsWrap.querySelectorAll("button").forEach(b=>{
-    b.addEventListener("click", ()=>{ leverage=parseInt(b.dataset.lev,10); setLevUI(); updateOrderReadout(); });
+    b.addEventListener("click", ()=>{ leverage=parseInt(b.dataset.lev,10); saveLeverage(leverage); setLevUI(); updateOrderReadout(); });
   });
 
   document.getElementById("unit-usd").addEventListener("click", ()=>{ sizeUnit="usd"; setUnitUI(); updateOrderReadout(); });
@@ -4840,6 +5455,8 @@ function initEvents(){
       : "Montant en dollars de la marge que tu engages — le notionnel est calculé automatiquement (marge × levier).";
   }
   document.getElementById("size-input").addEventListener("input", updateOrderReadout);
+  document.getElementById("tp-input").addEventListener("input", updateOrderReadout);
+  document.getElementById("sl-input").addEventListener("input", updateOrderReadout);
 
   document.getElementById("submit-order").addEventListener("click", submitOrder);
 
@@ -4885,11 +5502,541 @@ function initTheme(){
   });
 }
 
+/* ============================= WIDGETS (drag to reorder, show/hide) ============================= */
+// Purely a local UI preference (like the theme), so it lives in
+// localStorage rather than the Firestore trader doc — one layout per
+// browser, same as the theme picker.
+const WIDGET_DEFS = [
+  {id:"sessions",    label:"Sessions de marché"},
+  {id:"watchlist",   label:"Marchés"},
+  {id:"chart",       label:"Graphique"},
+  {id:"dom",         label:"Carnet d'ordres"},
+  {id:"ticket",      label:"Ticket d'ordre"},
+  {id:"account",     label:"Compte"},
+  {id:"positions",   label:"Positions ouvertes"},
+  {id:"pending",     label:"Ordres en attente"},
+  {id:"history",     label:"Historique récent"},
+  {id:"performance", label:"Performance"},
+];
+const WIDGET_LAYOUT_KEY = "paperTapeWidgetLayout";
+function defaultWidgetLayout(){
+  return {
+    // "dom" (Carnet d'ordres) ships hidden by default — it's opt-in only,
+    // available from the widget panel (🧩), not part of the default view.
+    cols: [["sessions","watchlist"], ["chart","ticket"], ["account","positions","pending","history","performance"]],
+    hidden: ["dom"],
+  };
+}
+function loadWidgetLayout(){
+  try{
+    const raw = localStorage.getItem(WIDGET_LAYOUT_KEY);
+    if (!raw) return defaultWidgetLayout();
+    const parsed = JSON.parse(raw);
+    const allIds = WIDGET_DEFS.map(w=>w.id);
+    const present = [].concat(...(parsed.cols||[]), (parsed.hidden||[]));
+    const ok = Array.isArray(parsed.cols) && parsed.cols.length===3 &&
+      allIds.every(id=>present.indexOf(id)!==-1) && present.length===allIds.length;
+    return ok ? parsed : defaultWidgetLayout();
+  }catch(e){ return defaultWidgetLayout(); }
+}
+function saveWidgetLayout(layout){
+  try{ localStorage.setItem(WIDGET_LAYOUT_KEY, JSON.stringify(layout)); }catch(e){}
+}
+function widgetEl(id){ return document.querySelector('.widget[data-widget="'+id+'"]'); }
+function applyWidgetLayout(layout){
+  const cols = document.querySelectorAll(".widget-col");
+  layout.cols.forEach((ids, i)=>{
+    const col = cols[i];
+    if (!col) return;
+    ids.forEach(id=>{ const el = widgetEl(id); if (el) col.appendChild(el); });
+  });
+  WIDGET_DEFS.forEach(w=>{ const el = widgetEl(w.id); if (el) el.hidden = layout.hidden.indexOf(w.id)!==-1; });
+  renderWidgetPanel();
+}
+function currentLayoutFromDom(){
+  const cols = Array.from(document.querySelectorAll(".widget-col"));
+  const layoutCols = cols.map(col => Array.from(col.querySelectorAll(".widget")).map(el=>el.dataset.widget));
+  const hidden = WIDGET_DEFS.filter(w=>{ const el = widgetEl(w.id); return el && el.hidden; }).map(w=>w.id);
+  return {cols: layoutCols, hidden};
+}
+function persistCurrentLayout(){
+  saveWidgetLayout(currentLayoutFromDom());
+}
+function getDragAfterElement(col, y){
+  const els = Array.from(col.querySelectorAll(".widget:not(.dragging)"));
+  let closest = {offset:-Infinity, element:null};
+  els.forEach(child=>{
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height/2;
+    if (offset<0 && offset>closest.offset) closest = {offset, element:child};
+  });
+  return closest.element;
+}
+function renderWidgetPanel(){
+  const list = document.getElementById("widget-panel-list");
+  if (!list) return;
+  list.innerHTML = WIDGET_DEFS.map(w=>{
+    const el = widgetEl(w.id);
+    const shown = !(el && el.hidden);
+    return '<label class="widget-panel-row"><input type="checkbox" data-widget-toggle="'+w.id+'" '+(shown?"checked":"")+'> '+w.label+'</label>';
+  }).join("");
+}
+function initWidgets(){
+  applyWidgetLayout(loadWidgetLayout());
+
+  // Widget reordering uses the Pointer Events API (not native HTML5
+  // drag-and-drop): native DnD frequently fails to even start with a plain
+  // click-and-hold in some browsers/trackpad setups, and it doesn't work at
+  // all on touch (phone/tablet) — Pointer Events cover mouse, pen and touch
+  // with one code path and let us reflow the layout live as you drag.
+  let dragWidget = null;
+  let dragPointerId = null;
+  document.querySelectorAll(".widget").forEach(el=>{
+    el.draggable = false; // fully disable native HTML5 DnD to avoid it fighting with pointer events
+    const head = el.querySelector(".widget-head");
+    if (!head) return;
+    head.style.touchAction = "none"; // don't let touch-scroll steal the gesture while dragging
+    head.addEventListener("pointerdown", (e)=>{
+      if (e.target.closest && e.target.closest(".widget-hide")) return;
+      if (e.button !== 0 && e.pointerType==="mouse") return; // primary mouse button only
+      dragWidget = el;
+      dragPointerId = e.pointerId;
+      try{ head.setPointerCapture(dragPointerId); }catch(err){}
+      el.classList.add("dragging");
+      e.preventDefault();
+    });
+  });
+  function widgetPointerMove(e){
+    if (!dragWidget || e.pointerId!==dragPointerId) return;
+    e.preventDefault();
+    const under = document.elementFromPoint(e.clientX, e.clientY);
+    const overCol = (under && under.closest && under.closest(".widget-col")) || dragWidget.closest(".widget-col");
+    if (!overCol) return;
+    document.querySelectorAll(".widget-col").forEach(c=>c.classList.toggle("drag-over", c===overCol));
+    const after = getDragAfterElement(overCol, e.clientY);
+    if (after==null) overCol.appendChild(dragWidget); else overCol.insertBefore(dragWidget, after);
+  }
+  function widgetPointerUp(e){
+    if (!dragWidget || e.pointerId!==dragPointerId) return;
+    dragWidget.classList.remove("dragging");
+    document.querySelectorAll(".widget-col.drag-over").forEach(c=>c.classList.remove("drag-over"));
+    persistCurrentLayout();
+    dragWidget = null;
+    dragPointerId = null;
+  }
+  document.addEventListener("pointermove", widgetPointerMove);
+  document.addEventListener("pointerup", widgetPointerUp);
+  document.addEventListener("pointercancel", widgetPointerUp);
+
+  document.querySelectorAll(".widget-hide").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const el = widgetEl(btn.dataset.widgetHide);
+      if (el){ el.hidden = true; persistCurrentLayout(); renderWidgetPanel(); }
+    });
+  });
+
+  const panelBtn = document.getElementById("widget-panel-btn");
+  const panel = document.getElementById("widget-panel");
+  if (panelBtn && panel){
+    panelBtn.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      panel.hidden = !panel.hidden;
+      if (!panel.hidden) renderWidgetPanel();
+    });
+    document.addEventListener("click", (e)=>{
+      if (!panel.hidden && !panel.contains(e.target) && e.target!==panelBtn) panel.hidden = true;
+    });
+    panel.addEventListener("change", (e)=>{
+      const id = e.target && e.target.dataset ? e.target.dataset.widgetToggle : null;
+      if (!id) return;
+      const el = widgetEl(id);
+      if (el){
+        el.hidden = !e.target.checked;
+        persistCurrentLayout();
+        // Widgets that only fetch/render while visible (e.g. the DOM's
+        // 3s poll skips itself when hidden) need a manual kick the moment
+        // they're switched on, instead of waiting for the next timer tick.
+        if (id==="dom" && e.target.checked) refreshDom();
+      }
+    });
+  }
+  const resetBtn = document.getElementById("widget-panel-reset");
+  if (resetBtn){
+    resetBtn.addEventListener("click", ()=>{
+      const layout = defaultWidgetLayout();
+      saveWidgetLayout(layout);
+      applyWidgetLayout(layout);
+    });
+  }
+}
+
+/* ============================= ADMIN PANEL ============================= */
+// "isAdmin" on a trader's own doc is set by that trader entering the
+// ADMIN321 code below — a UI convenience gate only, not real security: the
+// code lives in this public JS file, so anyone can read it. Actual
+// protection has to come from Firestore rules: a self-write (isAdmin:true
+// on YOUR OWN doc) is allowed under the same rule that already lets you
+// save your own trades, but writing to *another* trader's doc (reset,
+// balance edit) additionally needs the security-rules snippet in
+// SERVER_SETUP.md deployed in the Firebase console — until that's done,
+// reading everyone's data works immediately (the leaderboard proves read
+// access is already open) but reset/edit actions on OTHER traders will
+// fail with a permission error.
+function updateAdminNavVisibility(){
+  const btn = document.getElementById("nav-admin-btn");
+  if (btn) btn.hidden = !state.isAdmin;
+  const form = document.getElementById("admin-unlock-form");
+  const active = document.getElementById("admin-unlock-active");
+  if (form) form.hidden = !!state.isAdmin;
+  if (active) active.hidden = !state.isAdmin;
+}
+async function unlockAdmin(code){
+  const msg = document.getElementById("admin-code-msg");
+  if (code!=="ADMIN321"){
+    if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Code invalide."; }
+    return;
+  }
+  if (!dbReady || !clientId){
+    if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Connecte-toi d'abord."; }
+    return;
+  }
+  state.isAdmin = true;
+  updateAdminNavVisibility();
+  try{
+    await db.collection("traders").doc(clientId).update({isAdmin:true});
+    if (msg){ msg.style.color = "var(--long)"; msg.textContent = "Mode admin activé."; }
+  }catch(e){ console.warn("admin unlock write failed", e); }
+}
+function fmtMoney(n){ return typeof n==="number" ? "$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}) : "—"; }
+function fmtWhen(iso){
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "—";
+  const diffMin = Math.round((Date.now()-d.getTime())/60000);
+  if (diffMin<1) return "à l'instant";
+  if (diffMin<60) return "il y a "+diffMin+" min";
+  if (diffMin<24*60) return "il y a "+Math.round(diffMin/60)+" h";
+  return d.toLocaleDateString("fr-FR")+" "+d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+}
+function escapeHtml(s){
+  return String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function fmtDuration(seconds){
+  const s = typeof seconds==="number" && seconds>0 ? Math.round(seconds) : 0;
+  if (s<60) return s+"s";
+  const h = Math.floor(s/3600);
+  const m = Math.floor((s%3600)/60);
+  if (h>0) return h+"h "+m+"min";
+  return m+"min";
+}
+let adminDocs = [];
+async function loadAdminTraders(){
+  const status = document.getElementById("admin-status");
+  const body = document.getElementById("admin-body");
+  if (!dbReady || !db){ if (status) status.textContent = "Base de données indisponible."; return; }
+  if (status) status.textContent = "Chargement…";
+  try{
+    const snap = await db.collection("traders").orderBy("equity","desc").limit(200).get();
+    adminDocs = snap.docs;
+    if (status) status.textContent = adminDocs.length+(adminDocs.length>1?" traders":" trader")+" — dernière actualisation "+new Date().toLocaleTimeString("fr-FR");
+    renderAdminTable();
+  }catch(e){
+    console.warn("admin load failed", e);
+    if (status) status.textContent = "Erreur de chargement (vérifie les règles Firestore — voir SERVER_SETUP.md).";
+    if (body) body.innerHTML = '<tr><td colspan="9" class="empty-note">Impossible de charger la liste.</td></tr>';
+  }
+}
+function renderAdminTable(){
+  const body = document.getElementById("admin-body");
+  if (!body) return;
+  if (adminDocs.length===0){ body.innerHTML = '<tr><td colspan="9" class="empty-note">Aucun trader.</td></tr>'; return; }
+  body.innerHTML = adminDocs.map(doc=>{
+    const d = doc.data();
+    const id = doc.id;
+    const eq = typeof d.equity==="number" ? d.equity : (typeof d.cash==="number" ? d.cash : null);
+    const cash = typeof d.cash==="number" ? d.cash : null;
+    const openPnl = (eq!=null && cash!=null) ? eq-cash : null;
+    const nPos = Array.isArray(d.positions) ? d.positions.length : 0;
+    return ''+
+      '<tr>'+
+        '<td>'+escapeHtml(d.username||"—")+(id===clientId?' <span class="chart-note" style="display:inline;">(toi)</span>':'')+'</td>'+
+        '<td>'+escapeHtml(d.email||"invité")+'</td>'+
+        '<td class="num">'+fmtMoney(eq)+'</td>'+
+        '<td class="num">'+fmtMoney(cash)+'</td>'+
+        '<td class="num '+(openPnl>0?"up":openPnl<0?"down":"")+'">'+(openPnl!=null?fmtMoney(openPnl):"—")+'</td>'+
+        '<td>'+nPos+'</td>'+
+        '<td>'+fmtWhen(d.lastActiveAt)+'</td>'+
+        '<td class="num">'+fmtDuration(d.totalTimeSpent)+'</td>'+
+        '<td class="admin-actions">'+
+          '<button class="pos-close" data-admin-view="'+id+'">Détails</button>'+
+          '<button class="pos-close" data-admin-adjust="'+id+'">Solde</button>'+
+          '<button class="pos-close" data-admin-reset="'+id+'" style="color:var(--warn);">Reset</button>'+
+          '<button class="pos-close" data-admin-delete="'+id+'" style="color:var(--short);">Supprimer</button>'+
+        '</td>'+
+      '</tr>'+
+      '<tr class="admin-detail-toggle-row" id="admin-detail-'+id+'" hidden><td colspan="9"><div class="admin-detail"></div></td></tr>';
+  }).join("");
+}
+function adminFindDoc(id){ return adminDocs.find(d=>d.id===id); }
+async function adminResetTrader(id){
+  const doc = adminFindDoc(id);
+  const label = doc ? (doc.data().username||id) : id;
+  if (!confirm('Réinitialiser intégralement le compte de "'+label+'" ? Cash, positions, ordres, historique, badges, journal et scores quiz/superflash repartent à zéro. Irréversible.')) return;
+  try{
+    await db.collection("traders").doc(id).update({
+      cash: START_CASH, marginUsed: 0, equity: START_CASH,
+      positions: [], pendingOrders: [], history: [],
+      badges: {}, journal: [],
+      quizProgress: {}, quizTotal: 0,
+      superflashBest: 0, superflashBestCorrect: 0, superflashAttempts: 0,
+      stats: {tradesOpened:0,tradesClosed:0,wins:0,losses:0,grossProfit:0,grossLoss:0,bestTrade:0,worstTrade:0,currentStreak:0,streakType:null,bestWinStreak:0,bestLossStreak:0},
+      updatedAt: new Date().toISOString(), lastActiveAt: new Date().toISOString(),
+    });
+    if (id===clientId){ hydrateStateFromDoc(await db.collection("traders").doc(id).get()); renderAll(); }
+    loadAdminTraders();
+  }catch(e){
+    console.warn("admin reset failed", e);
+    alert("Échec de la réinitialisation — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).");
+  }
+}
+function adminAdjustCash(id){
+  const doc = adminFindDoc(id);
+  if (!doc) return;
+  const d = doc.data();
+  const current = typeof d.cash==="number" ? d.cash : START_CASH;
+  const hasOpenPositions = Array.isArray(d.positions) && d.positions.length>0;
+  openModal(
+    '<h3 style="margin-bottom:14px;">Ajuster le solde — '+escapeHtml(d.username||id)+'</h3>'+
+    '<div class="chart-note" style="margin-bottom:12px;">Solde actuel : <strong>'+fmtMoney(current)+'</strong>. Ce montant remplace le cash du compte.'+
+      (hasOpenPositions ? ' Ce compte a des positions ouvertes : l\'équité affichée se recalculera au prochain rafraîchissement.' : '')+
+    '</div>'+
+    '<div class="field-row"><label>Nouveau solde ($)</label><input type="number" step="any" id="admin-adjust-input" class="tpsl-input" value="'+current.toFixed(2)+'"></div>'+
+    '<div class="chart-note" id="admin-adjust-msg" style="margin:8px 0;min-height:14px;"></div>'+
+    '<button class="btn-primary" id="admin-adjust-confirm" style="width:100%;margin-top:6px;">Enregistrer</button>'
+  );
+  const input = document.getElementById("admin-adjust-input");
+  const msg = document.getElementById("admin-adjust-msg");
+  const confirmBtn = document.getElementById("admin-adjust-confirm");
+  async function submit(){
+    const val = parseFloat(input.value);
+    if (!isFinite(val)){ msg.style.color="var(--warn)"; msg.textContent="Montant invalide."; return; }
+    confirmBtn.disabled = true;
+    try{
+      const patch = {cash: val, updatedAt: new Date().toISOString()};
+      if (!hasOpenPositions) patch.equity = val; // no open positions: equity == cash immediately
+      await db.collection("traders").doc(id).update(patch);
+      if (id===clientId){ hydrateStateFromDoc(await db.collection("traders").doc(id).get()); renderAll(); }
+      closeModal();
+      loadAdminTraders();
+    }catch(e){
+      console.warn("admin adjust failed", e);
+      msg.style.color="var(--warn)"; msg.textContent="Échec — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).";
+      confirmBtn.disabled = false;
+    }
+  }
+  confirmBtn.addEventListener("click", submit);
+  input.addEventListener("keydown", (e)=>{ if (e.key==="Enter") submit(); });
+  input.focus();
+  input.select();
+}
+async function adminDeleteTrader(id){
+  const doc = adminFindDoc(id);
+  const label = doc ? (doc.data().username||id) : id;
+  const isSelf = id===clientId;
+  const warn = isSelf
+    ? "\n\n⚠️ C'est TON PROPRE compte. Si tu as une position ou un ordre en cours, ton navigateur va le recréer automatiquement dans les secondes qui suivent — pour un vrai reset de ton compte, utilise plutôt \"Reset\"."
+    : "";
+  if (!confirm('Supprimer DÉFINITIVEMENT le profil de "'+label+'" ? Tout son compte (cash, positions, historique, badges, journal, scores) est effacé. Le trader peut se reconnecter ensuite, mais repart avec un compte tout neuf — sa progression actuelle est perdue. Irréversible.'+warn)) return;
+  try{
+    await db.collection("traders").doc(id).delete();
+    loadAdminTraders();
+  }catch(e){
+    console.warn("admin delete failed", e);
+    alert("Échec de la suppression — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).");
+  }
+}
+function adminDetailRow(k, v){
+  return '<div class="admin-detail-row"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>';
+}
+function adminDetailSection(title, inner){
+  return '<div class="admin-detail-section"><div class="admin-detail-title">'+title+'</div>'+inner+'</div>';
+}
+// Human-readable admin account breakdown — replaces the raw JSON dump that
+// used to show here (which read like an error/bug to non-technical admins).
+function adminDetailHtml(d){
+  const eq = typeof d.equity==="number" ? d.equity : (typeof d.cash==="number" ? d.cash : null);
+  const pos = Array.isArray(d.positions) ? d.positions : [];
+  const pending = Array.isArray(d.pendingOrders) ? d.pendingOrders : [];
+  const hist = Array.isArray(d.history) ? d.history : [];
+  const badges = (d.badges && typeof d.badges==="object") ? Object.keys(d.badges) : [];
+  const journal = Array.isArray(d.journal) ? d.journal : [];
+  const stats = d.stats || {};
+
+  let html = adminDetailSection("Compte",
+    adminDetailRow("Pseudo", escapeHtml(d.username||"—")) +
+    adminDetailRow("Email", escapeHtml(d.email||"invité")) +
+    adminDetailRow("Statut", d.isAdmin ? "Admin" : "Trader") +
+    adminDetailRow("Cash", fmtMoney(typeof d.cash==="number"?d.cash:null)) +
+    adminDetailRow("Équité", fmtMoney(eq)) +
+    adminDetailRow("Marge utilisée", fmtMoney(typeof d.marginUsed==="number"?d.marginUsed:0)) +
+    adminDetailRow("Temps passé", fmtDuration(d.totalTimeSpent)) +
+    adminDetailRow("Dernière activité", fmtWhen(d.lastActiveAt))
+  );
+
+  html += adminDetailSection("Positions ouvertes ("+pos.length+")",
+    pos.length ? pos.map(p=>adminDetailRow(
+      (p.side==="long"?"▲ Long":"▼ Short")+" "+escapeHtml(p.symbol||"—"),
+      fmtMoney(p.notional)+" · x"+(p.leverage||"—")+" · entrée "+(p.entryPrice!=null?p.entryPrice:"—")
+    )).join("") : '<div class="admin-detail-empty">Aucune</div>'
+  );
+
+  html += adminDetailSection("Ordres en attente ("+pending.length+")",
+    pending.length ? pending.map(o=>adminDetailRow(
+      (o.side==="long"?"▲ Long":"▼ Short")+" "+escapeHtml(o.symbol||"—"),
+      "Limite "+(o.limitPrice!=null?o.limitPrice:"—")+" · "+fmtMoney(o.notional)
+    )).join("") : '<div class="admin-detail-empty">Aucun</div>'
+  );
+
+  html += adminDetailSection("Historique récent ("+hist.length+")",
+    hist.length ? hist.slice(0,10).map(h=>adminDetailRow(
+      (h.side==="long"?"▲":"▼")+" "+escapeHtml(h.symbol||"—")+(h.reason?" · "+escapeHtml(h.reason):""),
+      '<span class="'+(h.pnl>0?"up":h.pnl<0?"down":"")+'">'+fmtMoney(h.pnl)+"</span> · "+fmtWhen(h.closedAt)
+    )).join("") : '<div class="admin-detail-empty">Pas encore de trade clôturé</div>'
+  );
+
+  html += adminDetailSection("Performance",
+    adminDetailRow("Trades clôturés", stats.tradesClosed||0) +
+    adminDetailRow("Gagnants / perdants", (stats.wins||0)+" / "+(stats.losses||0)) +
+    adminDetailRow("Gain total", fmtMoney(stats.grossProfit||0)) +
+    adminDetailRow("Perte totale", fmtMoney(stats.grossLoss||0)) +
+    adminDetailRow("Meilleur trade", fmtMoney(stats.bestTrade||0)) +
+    adminDetailRow("Pire trade", fmtMoney(stats.worstTrade||0))
+  );
+
+  html += adminDetailSection("Quiz & Superflash",
+    adminDetailRow("Total gagné (quiz)", fmtMoney(d.quizTotal||0)) +
+    adminDetailRow("Meilleur score Superflash", d.superflashBest||0) +
+    adminDetailRow("Tentatives Superflash", d.superflashAttempts||0)
+  );
+
+  html += adminDetailSection("Badges ("+badges.length+")",
+    badges.length ? escapeHtml(badges.join(", ")) : '<div class="admin-detail-empty">Aucun</div>'
+  );
+
+  if (journal.length){
+    html += adminDetailSection("Journal ("+journal.length+")",
+      journal.slice(0,5).map(j=>'<div class="admin-detail-journal">'+escapeHtml((j.text||"").slice(0,160))+'</div>').join("")
+    );
+  }
+
+  return html;
+}
+function adminToggleDetail(id){
+  const row = document.getElementById("admin-detail-"+id);
+  if (!row) return;
+  row.hidden = !row.hidden;
+  if (!row.hidden){
+    const doc = adminFindDoc(id);
+    const box = row.querySelector(".admin-detail");
+    if (doc && box) box.innerHTML = adminDetailHtml(doc.data());
+  }
+}
+let adminFeedbackDocs = [];
+async function loadAdminFeedback(){
+  const status = document.getElementById("admin-feedback-status");
+  const body = document.getElementById("admin-feedback-body");
+  if (!dbReady || !db){ if (status) status.textContent = "Base de données indisponible."; return; }
+  if (status) status.textContent = "Chargement…";
+  try{
+    const snap = await db.collection("feedback").orderBy("createdAt","desc").limit(100).get();
+    adminFeedbackDocs = snap.docs;
+    if (status) status.textContent = adminFeedbackDocs.length+(adminFeedbackDocs.length>1?" retours":" retour")+" — dernière actualisation "+new Date().toLocaleTimeString("fr-FR");
+    renderAdminFeedback();
+  }catch(e){
+    console.warn("admin feedback load failed", e);
+    if (status) status.textContent = "Erreur de chargement.";
+    if (body) body.innerHTML = '<tr><td colspan="6" class="empty-note">Impossible de charger les retours.</td></tr>';
+  }
+}
+function renderAdminFeedback(){
+  const body = document.getElementById("admin-feedback-body");
+  if (!body) return;
+  if (adminFeedbackDocs.length===0){ body.innerHTML = '<tr><td colspan="6" class="empty-note">Aucun retour.</td></tr>'; return; }
+  body.innerHTML = adminFeedbackDocs.map(doc=>{
+    const d = doc.data();
+    const dt = d.createdAt ? new Date(d.createdAt) : null;
+    const isAnon = d.anonymous!==false;
+    return '<tr>'+
+      '<td>'+(d.type==="bug"?"🐛 Bug":"💡 Idée")+'</td>'+
+      '<td>'+escapeHtml(d.username||"—")+'</td>'+
+      '<td>'+(isAnon ? '<span class="chart-note" style="display:inline;">🔒 Anonyme</span>' : '<span style="color:var(--long);">🌐 Public</span>')+'</td>'+
+      '<td style="max-width:360px;white-space:pre-wrap;">'+escapeHtml(d.message||"")+'</td>'+
+      '<td>'+(dt?fmtWhen(d.createdAt):"—")+'</td>'+
+      '<td><button class="pos-close" data-admin-fb-delete="'+doc.id+'" style="color:var(--short);">Supprimer</button></td>'+
+    '</tr>';
+  }).join("");
+}
+async function adminDeleteFeedback(id){
+  if (!confirm("Supprimer ce retour ? Irréversible.")) return;
+  try{
+    await db.collection("feedback").doc(id).delete();
+    adminFeedbackDocs = adminFeedbackDocs.filter(d=>d.id!==id);
+    renderAdminFeedback();
+  }catch(e){
+    console.warn("admin feedback delete failed", e);
+    alert("Échec de la suppression.");
+  }
+}
+function initAdminUI(){
+  updateAdminNavVisibility();
+  const codeBtn = document.getElementById("admin-code-btn");
+  const codeInput = document.getElementById("admin-code-input");
+  if (codeBtn && codeInput){
+    codeBtn.addEventListener("click", ()=>unlockAdmin(codeInput.value.trim()));
+    codeInput.addEventListener("keydown", (e)=>{ if (e.key==="Enter") codeBtn.click(); });
+  }
+  const refreshBtn = document.getElementById("admin-refresh");
+  if (refreshBtn) refreshBtn.addEventListener("click", loadAdminTraders);
+  const body = document.getElementById("admin-body");
+  if (body){
+    body.addEventListener("click", (e)=>{
+      const t = e.target;
+      if (!t || !t.dataset) return;
+      if (t.dataset.adminView) adminToggleDetail(t.dataset.adminView);
+      else if (t.dataset.adminAdjust) adminAdjustCash(t.dataset.adminAdjust);
+      else if (t.dataset.adminReset) adminResetTrader(t.dataset.adminReset);
+      else if (t.dataset.adminDelete) adminDeleteTrader(t.dataset.adminDelete);
+    });
+  }
+  const fbRefreshBtn = document.getElementById("admin-feedback-refresh");
+  if (fbRefreshBtn) fbRefreshBtn.addEventListener("click", loadAdminFeedback);
+  const fbBody = document.getElementById("admin-feedback-body");
+  if (fbBody){
+    fbBody.addEventListener("click", (e)=>{
+      const t = e.target;
+      if (t && t.dataset && t.dataset.adminFbDelete) adminDeleteFeedback(t.dataset.adminFbDelete);
+    });
+  }
+  document.querySelectorAll('nav.tabs button[data-view="admin"]').forEach(b=>{
+    b.addEventListener("click", ()=>{
+      if (adminDocs.length===0) loadAdminTraders();
+      if (adminFeedbackDocs.length===0) loadAdminFeedback();
+    });
+  });
+}
+
 /* ============================= INIT ============================= */
 async function init(){
   initTheme();
   initCandleTheme();
+  initChartSourceToggle();
   initAuthUI();
+  initGateUI();
+  initGateTicker();
+  initAdminUI();
+  initWidgets();
+  initSessionTimeTracking();
+  initDom();
   buildWatchlist();
   initEvents();
   renderSessions();
@@ -4897,9 +6044,8 @@ async function init(){
   refreshNews();
   setInterval(refreshNews, 5*60*1000);
   await Promise.all([initDb(), initPriceFeed()]);
-  document.getElementById("username-input").value = state.username;
   renderAll();
-  setInterval(()=>{ if (state.positions.length>0 || state.pendingOrders.length>0) persistAccount(); }, 5000);
+  setInterval(()=>{ if (state.positions.length>0 || state.pendingOrders.length>0) persistAccount(); }, 10000);
 }
 init();
 
