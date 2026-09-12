@@ -598,6 +598,17 @@
   .journal-entry-meta{font-family:var(--mono);font-size:10px;color:var(--text-faint);display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
   .journal-entry-text{font-family:var(--sans);font-size:13px;line-height:1.5;white-space:pre-wrap;}
 
+  /* Avatars (profile photo, fallback initial) + trader feed (screenshots) */
+  .avatar-img{border-radius:50%;object-fit:cover;vertical-align:middle;flex-shrink:0;}
+  .avatar-fallback{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:var(--accent-dim);color:var(--accent);font-weight:700;font-family:var(--mono);vertical-align:middle;flex-shrink:0;}
+  .lb-row-clickable{cursor:pointer;}
+  .lb-row-clickable:hover{background:var(--panel-2);}
+  .feed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+  .feed-item{position:relative;border:1px solid var(--border-soft);border-radius:var(--radius);overflow:hidden;background:var(--panel-2);}
+  .feed-item img{width:100%;height:140px;object-fit:cover;display:block;}
+  .feed-caption{padding:6px 8px;font-size:12px;color:var(--text-dim);font-family:var(--sans);line-height:1.4;}
+  .feed-delete{position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.65);color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:12px;line-height:1;}
+
   /* PnL cards */
   .pnl-card{background:linear-gradient(160deg,var(--panel-2),var(--bg-raised));border:1px solid var(--border);border-radius:14px;padding:26px 24px;text-align:center;}
   .pnl-card-top{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;letter-spacing:0.08em;color:var(--text-faint);text-transform:uppercase;margin-bottom:20px;}
@@ -631,7 +642,7 @@
       <ul class="auth-gate-features">
         <li class="auth-gate-feature">
           <div class="auth-gate-feature-icon">📟</div>
-          <div class="auth-gate-feature-text"><strong>Terminal de trading en temps réel</strong> — long/short avec levier sur BTC, ETH, SOL, Or (PAXG), SPY, QQQ, prix en direct via Binance.</div>
+          <div class="auth-gate-feature-text"><strong>Terminal de trading en temps réel</strong> — long/short avec levier sur BTC, ETH, SOL, EUR/USD, Or, Argent, SPY, Nasdaq, prix en direct via Binance.</div>
         </li>
         <li class="auth-gate-feature">
           <div class="auth-gate-feature-icon">🏆</div>
@@ -942,6 +953,17 @@
           </div>
         </div>
         <div class="card" style="margin-top:14px;">
+          <h3>Photo de profil</h3>
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+            <div id="profile-avatar-preview"></div>
+            <div>
+              <input type="file" id="profile-photo-input" accept="image/*" hidden>
+              <button class="btn-secondary" id="profile-photo-btn">Changer la photo</button>
+              <div class="chart-note" id="profile-photo-msg" style="margin-top:6px;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px;">
           <h3>Mes badges</h3>
           <div class="badges-grid" id="badges-grid"></div>
         </div>
@@ -955,6 +977,19 @@
           <textarea class="journal-textarea" id="journal-input" rows="3" maxlength="500" placeholder="Qu'as-tu appris sur ce trade ou cette session ?"></textarea>
           <button class="btn-primary" id="journal-submit" style="margin-top:8px;">Ajouter au journal</button>
           <div id="journal-list" style="margin-top:14px;"></div>
+        </div>
+        <div class="card" style="margin-top:14px;">
+          <h3>Mon feed</h3>
+          <p class="chart-note" style="margin-bottom:10px;">Partage une capture d'écran (trade, graphique…) — visible par les autres traders en cliquant sur ton nom dans le classement.</p>
+          <input type="file" id="feed-photo-input" accept="image/*" hidden>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <button class="btn-secondary" id="feed-photo-btn">Choisir une image</button>
+            <span class="chart-note" id="feed-photo-filename"></span>
+          </div>
+          <input type="text" id="feed-caption-input" class="tpsl-input" maxlength="140" placeholder="Légende (optionnel)" style="margin-top:8px;">
+          <button class="btn-primary" id="feed-submit" style="margin-top:8px;">Publier</button>
+          <div class="chart-note" id="feed-msg" style="margin-top:6px;"></div>
+          <div id="feed-list" style="margin-top:14px;"></div>
         </div>
       </div>
     </section>
@@ -1088,6 +1123,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-storage-compat.js"></script>
 <script>
 (function(){
 "use strict";
@@ -1110,9 +1146,16 @@ const ASSETS = [
   {symbol:"ETH",  name:"Ethereum",             instrument:"ETH_USD",     binanceSymbol:"ETHUSDT",  decimals:2, icon:"Ξ", color:"#8c9eff"},
   {symbol:"SOL",  name:"Solana",               instrument:"SOL_USD",     binanceSymbol:"SOLUSDT",  decimals:2, icon:"◎", color:"#14f195"},
   {symbol:"HYPE", name:"Hyperliquid",          instrument:"HYPE_USD",    binanceSymbol:"HYPEUSDT", decimals:3, icon:"🐡", color:"#37c7db"},
+  // EURUSD: real spot forex, priced off Binance's own EURUSDT pair (confirmed
+  // live on Binance Spot) — no rescaling needed, it already trades in $ per €.
+  {symbol:"EURUSD", name:"Euro / Dollar",      instrument:"EUR_USDT",    binanceSymbol:"EURUSDT",  decimals:4, icon:"💶", color:"#5b8def"},
   {symbol:"SPY",  name:"S&P 500 (indice, recalé sur perp. ETF SPY)",    instrument:"SPYUSD-PERP", decimals:2, indexRatio:10.08, icon:"📈", color:"#31c882"},
-  {symbol:"QQQ",  name:"Nasdaq 100 (indice, recalé sur perp. ETF QQQ)", instrument:"QQQUSD-PERP",decimals:2, indexRatio:41.07, icon:"💻", color:"#d7b563"},
+  {symbol:"QQQ",  name:"Nasdaq",               instrument:"QQQUSD-PERP",decimals:2, indexRatio:41.07, icon:"💻", color:"#d7b563"},
   {symbol:"GOLD", name:"Or (spot, via PAXG — token adossé 1:1 à l'once d'or physique)", instrument:"PAXG_USD", binanceSymbol:"PAXGUSDT", decimals:2, icon:"🥇", color:"#d7b563"},
+  // SILVER: Crypto.com's own XAGUSD perpetual (real spot-silver-tracking
+  // instrument, same family as the SPY/QQQ perps above) — no Binance
+  // equivalent, no rescaling needed (already 1:1 on the troy ounce spot price).
+  {symbol:"SILVER", name:"Argent (indice, perp. XAGUSD — once troy)", instrument:"XAGUSD-PERP", decimals:2, icon:"🥈", color:"#c7cdd6"},
 ];
 // Assets with a `binanceSymbol` try Binance's public REST API first (deeper
 // liquidity, tighter spreads, generally more reliable uptime than Crypto.com)
@@ -1305,6 +1348,8 @@ const state = {
   email: null,     // set from Firebase Auth once signed in — persisted so admins can identify traders
   isAdmin: false,  // durable "ADMIN321" unlock — see ADMIN PANEL below
   totalTimeSpent: 0, // cumulative seconds with the tab open & visible — see initSessionTimeTracking()
+  photoURL: null,  // profile picture (Firebase Storage download URL) — see initProfilePhoto()
+  feed: [],        // [{id, imageURL, caption, createdAt}] — public screenshot feed, visible to others by clicking this trader in the classement
 };
 let selectedSymbol = "BTC";
 let side = "long";
@@ -1325,6 +1370,7 @@ function saveLeverage(n){
 let leverage = loadLeverage(); // remembered per-browser across reloads, like the theme/widget layout
 let db = null;
 let dbReady = false;
+let storage = null; // Firebase Storage — profile photo + feed screenshots (see initDb)
 let liveGloballyDown = false;
 
 /* ---- derived helpers ---- */
@@ -1397,6 +1443,8 @@ function hydrateStateFromDoc(snap){
   state.email = d.email || state.email || null;
   state.isAdmin = !!d.isAdmin;
   state.totalTimeSpent = typeof d.totalTimeSpent==="number" ? d.totalTimeSpent : 0;
+  state.photoURL = d.photoURL || null;
+  state.feed = Array.isArray(d.feed) ? d.feed : [];
 }
 // Loads (or creates) the trader doc for `id` into `state`. Used at boot for
 // the local anonymous id, and again by the auth flow whenever `clientId`
@@ -1422,11 +1470,25 @@ async function initDb(){
     db = firebase.firestore();
     if (!db) return;
     dbReady = true;
+    // Storage is optional on top of Firestore — a project that hasn't set it
+    // up yet (or whose bucket/rules aren't ready) just falls back to no
+    // photo/feed uploads (storage stays null, upload buttons show a message)
+    // rather than breaking the rest of the app.
+    try{ if (typeof firebase.storage==="function") storage = firebase.storage(); }catch(e){ storage = null; }
     subscribeLeaderboard();
     subscribeQuizLeaderboard();
     subscribeSuperflashLeaderboard();
     initAuth();
   }catch(e){ console.warn("db init failed", e); hideAuthGate(); }
+}
+// Uploads `file` to Storage at `path` (overwriting anything already there)
+// and resolves to its public download URL. Used for profile photos and feed
+// screenshots — see initProfilePhoto()/initFeedPosting() below.
+async function uploadToStorage(file, path){
+  if (!storage) { const e = new Error("storage_unavailable"); e.code = "storage_unavailable"; throw e; }
+  const ref = storage.ref().child(path);
+  const snap = await ref.put(file);
+  return await snap.ref.getDownloadURL();
 }
 let persistTimer = null;
 function persistAccount(){
@@ -1458,6 +1520,8 @@ function persistAccount(){
           email: state.email || null,
           isAdmin: !!state.isAdmin,
           totalTimeSpent: state.totalTimeSpent||0,
+          photoURL: state.photoURL || null,
+          feed: (state.feed||[]).slice(0,30),
           // Heartbeat: the "paper-tape-mark" Cloud Function (see /functions)
           // only touches a trader's pending orders / TP-SL / liquidations /
           // mark-to-market equity once this goes stale (no write in the
@@ -1864,22 +1928,53 @@ function sessionBoundaryOnLocalDate(sess, ymd, which){
   const m = which==="open" ? sess.openM : sess.closeM;
   return zonedTimeToUtc(ymd.y, ymd.m, ymd.d, h, m, sess.timeZone);
 }
+// True when `ymd` (a local calendar date, already resolved in the session's
+// own timezone) falls on a Saturday or Sunday. Day-of-week only depends on
+// the calendar date itself, not the time of day, so treating y/m/d as a UTC
+// instant here is safe and avoids re-doing the timezone conversion.
+function isWeekendYMD(ymd){
+  const wd = new Date(Date.UTC(ymd.y, ymd.m, ymd.d)).getUTCDay();
+  return wd===0 || wd===6; // Sun=0, Sat=6
+}
+// Advance `ymd` by `days` local calendar days in `timeZone`, DST-safe (anchors
+// on local noon so a ±1h DST shift never lands on the wrong side of midnight).
+function addLocalDays(ymd, timeZone, days){
+  const anchorUtc = zonedTimeToUtc(ymd.y, ymd.m, ymd.d, 12, 0, timeZone);
+  return zonedYMD(new Date(anchorUtc.getTime() + days*24*3600*1000), timeZone);
+}
 function sessionIsOpen(sess, now){
   const ymd = zonedYMD(now, sess.timeZone);
+  // Real exchanges (and this app's own weekday-only sessions) don't trade
+  // the weekend — without this check, a Saturday/Sunday whose local
+  // wall-clock time happens to fall inside the daily open/close window would
+  // otherwise get reported as "open".
+  if (isWeekendYMD(ymd)) return false;
   const openAt = sessionBoundaryOnLocalDate(sess, ymd, "open");
   const closeAt = sessionBoundaryOnLocalDate(sess, ymd, "close");
   return now>=openAt && now<closeAt;
 }
 function nextSessionBoundary(sess, isOpen, now){
   let ymd = zonedYMD(now, sess.timeZone);
-  let boundary = sessionBoundaryOnLocalDate(sess, ymd, isOpen ? "close" : "open");
-  if (boundary <= now){
-    // advance one local calendar day in the exchange's own timezone
-    const probe = new Date(boundary.getTime() + 20*3600*1000); // safely into the next local day
-    ymd = zonedYMD(probe, sess.timeZone);
-    boundary = sessionBoundaryOnLocalDate(sess, ymd, isOpen ? "close" : "open");
+  if (isOpen){
+    // Can only be true on a weekday (see sessionIsOpen), so the next
+    // boundary is simply today's close — no weekend to skip over.
+    return sessionBoundaryOnLocalDate(sess, ymd, "close");
   }
-  return boundary;
+  // Closed: the next boundary is an "open" instant. If today's a weekday and
+  // its open hasn't happened yet, that's it. Otherwise walk forward one local
+  // calendar day at a time, skipping Saturday/Sunday, to the next weekday's
+  // open — so Friday evening (and all of Saturday/Sunday) correctly shows
+  // "ouvre à" Monday's time instead of a same-day Saturday time that will
+  // never actually open.
+  if (!isWeekendYMD(ymd)){
+    const todaysOpen = sessionBoundaryOnLocalDate(sess, ymd, "open");
+    if (todaysOpen > now) return todaysOpen;
+  }
+  for (let i=0;i<8;i++){
+    ymd = addLocalDays(ymd, sess.timeZone, 1);
+    if (!isWeekendYMD(ymd)) return sessionBoundaryOnLocalDate(sess, ymd, "open");
+  }
+  return now; // unreachable (at most 2 weekend days between weekdays) — safe fallback
 }
 function renderSessions(){
   const now = new Date();
@@ -1893,7 +1988,13 @@ function renderSessions(){
     const open = sessionIsOpen(sess, now);
     const boundary = nextSessionBoundary(sess, open, now);
     const timeStr = boundary.toLocaleTimeString("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit"});
-    const label = open ? ("ouvert · ferme à "+timeStr) : ("fermé · ouvre à "+timeStr);
+    // When the next boundary isn't today (Paris calendar date) — typically a
+    // weekend closure resuming Monday — prefix the day name so "fermé · ouvre
+    // à 09:30" can't be misread as "later today" when it's really in 2 days.
+    const todayYMD = zonedYMD(now, "Europe/Paris"), boundaryYMD = zonedYMD(boundary, "Europe/Paris");
+    const sameDay = todayYMD.y===boundaryYMD.y && todayYMD.m===boundaryYMD.m && todayYMD.d===boundaryYMD.d;
+    const dayPrefix = sameDay ? "" : "le "+boundary.toLocaleDateString("fr-FR",{timeZone:"Europe/Paris",weekday:"short"})+" ";
+    const label = open ? ("ouvert · ferme à "+timeStr) : ("fermé · ouvre "+dayPrefix+"à "+timeStr);
     return '<div class="session-pill">'+
       '<span class="session-dot '+(open?"open":"")+'"></span>'+
       '<span class="session-name">'+sess.name+'</span>'+
@@ -2081,20 +2182,26 @@ function initCandleTheme(){
 // actually prices off (same Binance pairs where we have one).
 // HYPE uses Binance's USDⓈ-M perpetual (Mark Price) rather than the spot
 // pair for a steadier, harder-to-wick chart line.
-// SPY/QQQ/GOLD use Hyperliquid's HIP-3 "Trade[XYZ]" perpetuals (24/7,
+// SPY/QQQ/GOLD/SILVER use Hyperliquid's HIP-3 "Trade[XYZ]" perpetuals (24/7,
 // no exchange-hours gaps) instead of the real AMEX/NASDAQ equities, which
 // only chart live during NYSE hours and otherwise show "market closed" —
 // a problem since the app itself trades these round the clock. Trade[XYZ]'s
-// SP500/XYZ100/GOLD perps are S&P Dow Jones Indices-licensed (SP500,
-// Nasdaq-100 tracker, gold), confirmed live on TradingView under the
-// HIP3XYZ: exchange prefix. The actual trading price (ticket, P&L,
-// liquidation) still comes from Crypto.com's SPYUSD-PERP/QQQUSD-PERP/PAXG
-// feed exactly as before — only the chart's data source changes here.
+// SP500/XYZ100/GOLD/SILVER perps are S&P Dow Jones Indices-licensed (SP500,
+// Nasdaq-100 tracker) or commodity-tracking, confirmed live on TradingView
+// under the HIP3XYZ: exchange prefix. EURUSD uses the standard OANDA forex
+// feed (real, 24/5 like the actual FX market — no synthetic proxy needed).
+// The actual trading price (ticket, P&L, liquidation) still comes from
+// Crypto.com/Binance exactly as before — only the chart's data source
+// changes here.
 const TV_SYMBOL_MAP = {
   BTC:"BINANCE:BTCUSDT", ETH:"BINANCE:ETHUSDT", SOL:"BINANCE:SOLUSDT", HYPE:"BINANCE:HYPEUSDT.P",
-  SPY:"HIP3XYZ:SP500USDC.P", QQQ:"HIP3XYZ:XYZ100USDC.P", GOLD:"HIP3XYZ:GOLDUSDC.P",
+  EURUSD:"OANDA:EURUSD",
+  SPY:"HIP3XYZ:SP500USDC.P", QQQ:"HIP3XYZ:XYZ100USDC.P", GOLD:"HIP3XYZ:GOLDUSDC.P", SILVER:"HIP3XYZ:SILVERUSDC.P",
 };
-let chartSource = "internal"; // "internal" | "tv"
+// TradingView is the default view — it's the more capable charting tool and
+// solves the market-hours-gap problem for SPY/QQQ/GOLD/SILVER above; the
+// internal candlestick chart stays one click away via the toggle.
+let chartSource = "tv"; // "internal" | "tv"
 let tvLoadedSymbol = null;
 function renderTradingViewChart(){
   const wrap = document.getElementById("tv-chart-wrap");
@@ -2885,24 +2992,64 @@ function checkTPSL(){
   });
 }
 /* ============================= LEADERBOARD RENDER ============================= */
+// Cache of the docs behind the last equity-leaderboard render, keyed by
+// trader id — lets a row click open a profile modal (photo + public feed)
+// straight from data we already have, no extra Firestore read needed.
+let leaderboardDocsCache = {};
+function avatarHtml(photoURL, username, size){
+  size = size || 26;
+  if (photoURL) return '<img class="avatar-img" src="'+escapeHtml(photoURL)+'" alt="" style="width:'+size+'px;height:'+size+'px;">';
+  const initial = (username||"?").trim().charAt(0).toUpperCase() || "?";
+  return '<span class="avatar-fallback" style="width:'+size+'px;height:'+size+'px;font-size:'+Math.round(size*0.48)+'px;">'+escapeHtml(initial)+'</span>';
+}
 function renderLeaderboard(docs){
   const body = document.getElementById("lb-body");
   if (!docs.length){ body.innerHTML = '<tr><td colspan="4" class="empty-note">Aucun trader pour le moment — sois le premier.</td></tr>'; return; }
+  leaderboardDocsCache = {};
+  docs.forEach(doc=>{ leaderboardDocsCache[doc.id] = doc; });
   body.innerHTML = docs.map((doc,i)=>{
     const d = doc.data();
     const rank = i+1;
     const ret = ((d.equity-START_CASH)/START_CASH)*100;
     const rankClass = rank===1?"rank-1":rank===2?"rank-2":rank===3?"rank-3":"";
-    return '<tr class="'+(doc.id===clientId?"me":"")+'">'+
+    return '<tr class="lb-row-clickable '+(doc.id===clientId?"me":"")+'" data-trader-id="'+doc.id+'" title="Voir le profil">'+
       '<td class="num '+rankClass+'">#'+rank+'</td>'+
-      '<td>'+escapeHtml(d.username||"Trader")+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
+      '<td>'+avatarHtml(d.photoURL, d.username)+' '+escapeHtml(d.username||"Trader")+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
       '<td class="num">'+fmtMoney(d.equity||0)+'</td>'+
       '<td class="num '+(ret>=0?"up":"down")+'">'+fmtPct(ret)+'</td>'+
     '</tr>';
   }).join("");
+  body.querySelectorAll("tr[data-trader-id]").forEach(tr=>{
+    tr.addEventListener("click", ()=>openTraderProfileModal(tr.dataset.traderId));
+  });
 }
 function renderLeaderboardError(){
   document.getElementById("lb-body").innerHTML = '<tr><td colspan="4" class="empty-note">Classement indisponible pour le moment.</td></tr>';
+}
+// Read-only public profile — photo + username + shared screenshot feed —
+// for any trader in the cached equity leaderboard. Posting to your OWN feed
+// happens from the Profil tab (initFeedPosting), not from here.
+function openTraderProfileModal(id){
+  const doc = leaderboardDocsCache[id];
+  const d = doc && doc.data();
+  if (!d) return;
+  const feed = Array.isArray(d.feed) ? d.feed : [];
+  openModal(
+    '<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">'+
+      avatarHtml(d.photoURL, d.username, 56)+
+      '<div><h3 style="margin:0;">'+escapeHtml(d.username||"Trader")+'</h3>'+
+      '<div class="chart-note">Équité '+fmtMoney(d.equity||0)+'</div></div>'+
+    '</div>'+
+    '<h4 style="margin:0 0 10px;font-size:13px;color:var(--text-dim);">Feed</h4>'+
+    (feed.length
+      ? '<div class="feed-grid">'+feed.map(p=>
+          '<div class="feed-item">'+
+            '<img src="'+escapeHtml(p.imageURL)+'" alt="capture" loading="lazy">'+
+            (p.caption ? '<div class="feed-caption">'+escapeHtml(p.caption)+'</div>' : '')+
+          '</div>'
+        ).join("")+'</div>'
+      : '<div class="empty-note">Aucune capture partagée pour l\'instant.</div>')
+  );
 }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
@@ -3182,6 +3329,103 @@ function openJournalNoteModal(h){
   document.getElementById("modal-journal-submit").addEventListener("click", ()=>{
     const ta = document.getElementById("modal-journal-input");
     if (addJournalEntry(ta.value, {symbol:h.symbol, side:h.side, pnl:h.pnl})) closeModal();
+  });
+}
+
+/* ============================= PROFILE PHOTO ============================= */
+function renderProfileAvatar(){
+  const el = document.getElementById("profile-avatar-preview");
+  if (!el) return;
+  el.innerHTML = avatarHtml(state.photoURL, state.username, 64);
+}
+function initProfilePhoto(){
+  const input = document.getElementById("profile-photo-input");
+  const btn = document.getElementById("profile-photo-btn");
+  const msg = document.getElementById("profile-photo-msg");
+  if (!input || !btn) return;
+  btn.addEventListener("click", ()=>input.click());
+  input.addEventListener("change", async ()=>{
+    const file = input.files && input.files[0];
+    input.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")){ msg.textContent = "Choisis une image."; return; }
+    if (file.size > 4*1024*1024){ msg.textContent = "Image trop lourde (max 4 Mo)."; return; }
+    if (!storage){ msg.textContent = "Stockage indisponible pour le moment — réessaie plus tard."; return; }
+    btn.disabled = true;
+    msg.textContent = "Envoi en cours…";
+    try{
+      // Same path every time (no per-upload id) — a new photo simply
+      // overwrites the last one, so a trader only ever has one avatar file.
+      const url = await uploadToStorage(file, "avatars/"+clientId);
+      state.photoURL = url;
+      await persistAccount();
+      renderProfileAvatar();
+      msg.textContent = "Photo mise à jour.";
+    }catch(e){
+      msg.textContent = (e && e.code==="storage_unavailable") ? "Stockage indisponible pour le moment." : "Échec de l'envoi — réessaie.";
+      console.warn("profile photo upload failed", e);
+    } finally { btn.disabled = false; }
+  });
+}
+
+/* ============================= FEED (public screenshots) ============================= */
+let feedSelectedFile = null;
+function renderFeedList(){
+  const list = document.getElementById("feed-list");
+  if (!list) return;
+  const feed = state.feed || [];
+  if (!feed.length){ list.innerHTML = '<div class="empty-note">Aucune capture publiée pour l\'instant.</div>'; return; }
+  list.innerHTML = '<div class="feed-grid">'+feed.map(p=>
+    '<div class="feed-item">'+
+      '<img src="'+escapeHtml(p.imageURL)+'" alt="capture" loading="lazy">'+
+      (p.caption ? '<div class="feed-caption">'+escapeHtml(p.caption)+'</div>' : '')+
+      '<button class="feed-delete" data-feed-delete="'+p.id+'" title="Supprimer">✕</button>'+
+    '</div>'
+  ).join("")+'</div>';
+  list.querySelectorAll("[data-feed-delete]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      state.feed = (state.feed||[]).filter(p=>p.id!==b.dataset.feedDelete);
+      renderFeedList();
+      persistAccount();
+    });
+  });
+}
+function initFeedPosting(){
+  const input = document.getElementById("feed-photo-input");
+  const btn = document.getElementById("feed-photo-btn");
+  const fname = document.getElementById("feed-photo-filename");
+  const submitBtn = document.getElementById("feed-submit");
+  const msg = document.getElementById("feed-msg");
+  if (!input || !btn || !submitBtn) return;
+  btn.addEventListener("click", ()=>input.click());
+  input.addEventListener("change", ()=>{
+    feedSelectedFile = (input.files && input.files[0]) || null;
+    fname.textContent = feedSelectedFile ? feedSelectedFile.name : "";
+  });
+  submitBtn.addEventListener("click", async ()=>{
+    if (!feedSelectedFile){ msg.textContent = "Choisis d'abord une image."; return; }
+    if (!feedSelectedFile.type.startsWith("image/")){ msg.textContent = "Choisis une image."; return; }
+    if (feedSelectedFile.size > 6*1024*1024){ msg.textContent = "Image trop lourde (max 6 Mo)."; return; }
+    if (!storage){ msg.textContent = "Stockage indisponible pour le moment — réessaie plus tard."; return; }
+    submitBtn.disabled = true;
+    msg.textContent = "Envoi en cours…";
+    try{
+      const id = uid();
+      const url = await uploadToStorage(feedSelectedFile, "feed/"+clientId+"/"+id);
+      const caption = document.getElementById("feed-caption-input").value.trim().slice(0,140);
+      state.feed = state.feed || [];
+      state.feed.unshift({id, imageURL:url, caption, createdAt:new Date().toISOString()});
+      state.feed = state.feed.slice(0,30);
+      await persistAccount();
+      renderFeedList();
+      document.getElementById("feed-caption-input").value = "";
+      feedSelectedFile = null;
+      fname.textContent = "";
+      msg.textContent = "Publié !";
+    }catch(e){
+      msg.textContent = (e && e.code==="storage_unavailable") ? "Stockage indisponible pour le moment." : "Échec de l'envoi — réessaie.";
+      console.warn("feed upload failed", e);
+    } finally { submitBtn.disabled = false; }
   });
 }
 
@@ -5338,6 +5582,8 @@ function switchView(name){
   if (name==="profile"){
     renderBadgesGrid();
     renderJournalList();
+    renderProfileAvatar();
+    renderFeedList();
   }
   if (name==="news" && !newsLoading && document.getElementById("news-list").innerHTML===""){
     refreshNews();
@@ -5396,6 +5642,8 @@ function initEvents(){
     const ta = document.getElementById("journal-input");
     if (addJournalEntry(ta.value)) ta.value = "";
   });
+  initProfilePhoto();
+  initFeedPosting();
   document.getElementById("modal-overlay").addEventListener("click", (e)=>{
     if (e.target.id==="modal-overlay") closeModal();
   });
@@ -6030,6 +6278,7 @@ async function init(){
   initTheme();
   initCandleTheme();
   initChartSourceToggle();
+  setChartSource(chartSource); // sync the static markup (buttons/svg/tv-wrap) to the "tv" default above
   initAuthUI();
   initGateUI();
   initGateTicker();
