@@ -727,7 +727,6 @@ async function fetchCandles(symbol, tf){
       l: parseFloat(c.low)*scale, c: parseFloat(c.close)*scale,
       t: c.timestamp,
     })).filter(c=>isFinite(c.o)&&isFinite(c.h)&&isFinite(c.l)&&isFinite(c.c));
-    parsed.reverse(); // API returns newest-first; chart wants chronological order
     m.candles = {tf, data:parsed, loading:false, error: parsed.length?null:"empty"};
   }catch(err){
     m.candles = {tf, data:(m.candles&&m.candles.data)||[], loading:false, error:(err&&err.code)||"upstream_error"};
