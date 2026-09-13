@@ -182,6 +182,31 @@
     font-family:var(--mono);font-size:11.5px;text-align:center;padding:9px 14px;
   }
 
+  .challenge-banner{
+    background:var(--bg-raised);border-bottom:1px solid var(--border-soft);
+    padding:9px 18px;font-family:var(--mono);
+  }
+  .challenge-banner-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .challenge-tier{font-size:11.5px;font-weight:700;}
+  .challenge-status{font-size:10.5px;color:var(--text-dim);}
+  .challenge-status.up{color:var(--long);}
+  .challenge-status.down{color:var(--short);}
+  .challenge-manage-btn{
+    margin-left:auto;background:none;border:1px solid var(--border-soft);color:var(--text-dim);
+    border-radius:5px;padding:3px 9px;font-size:10.5px;font-family:var(--mono);cursor:pointer;
+  }
+  .challenge-manage-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .challenge-meters{display:flex;gap:16px;flex-wrap:wrap;margin-top:7px;}
+  .challenge-meter{display:flex;align-items:center;gap:7px;font-size:9.5px;color:var(--text-faint);}
+  .challenge-meter-lbl{white-space:nowrap;}
+  .challenge-meter-bar{width:70px;height:5px;border-radius:3px;background:var(--panel-2);overflow:hidden;}
+  .challenge-meter-fill{height:100%;border-radius:3px;}
+  .challenge-meter-fill.up{background:var(--long);}
+  .challenge-meter-fill.down{background:var(--short);}
+  .challenge-days{color:var(--text-dim);}
+  .challenge-tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px;}
+  .challenge-tier-btn{padding:12px 6px;font-family:var(--mono);font-weight:700;}
+
   main{flex:1;padding:18px;max-width:1400px;width:100%;margin:0 auto;}
   .view{display:none;}
   .view.active{display:block;}
@@ -306,18 +331,21 @@
   /* watchlist */
   .watchlist{display:flex;flex-direction:column;gap:4px;}
   .wl-row{
-    display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;
+    display:grid;grid-template-columns:14px 1fr auto;align-items:center;gap:8px;
     padding:8px 8px;border-radius:6px;cursor:pointer;border:1px solid transparent;
     background:var(--bg-raised);
   }
   .wl-row:hover{border-color:var(--border);}
   .wl-row.selected{border-color:var(--accent);background:var(--panel-2);}
+  .wl-row.dragging{opacity:.35;}
+  .wl-grip{cursor:grab;color:var(--text-faint);font-size:12px;text-align:center;line-height:1;user-select:none;}
+  .wl-grip:active{cursor:grabbing;}
   .wl-row .sym{font-family:var(--mono);font-size:12px;font-weight:600;}
   .wl-icon{font-size:14px;}
   .wl-row .name{font-family:var(--sans);font-size:9.5px;color:var(--text-faint);}
   .wl-row .price{font-family:var(--mono);font-size:12px;text-align:right;white-space:nowrap;transition:color .3s;}
   .wl-row .chg{font-family:var(--mono);font-size:9.5px;text-align:right;}
-  .wl-row canvas{grid-column:1 / span 2;width:100%;height:22px;display:block;margin-top:2px;}
+  .wl-row canvas{grid-column:1 / span 3;width:100%;height:22px;display:block;margin-top:2px;}
   .up{color:var(--long);}
   .down{color:var(--short);}
   .flat{color:var(--text-dim);}
@@ -376,6 +404,8 @@
     font-family:var(--mono);font-size:10px;padding:4px 7px;border-radius:5px;cursor:pointer;
   }
   .lev-presets button.active{border-color:var(--accent);color:var(--accent);}
+  .size-slider-row{display:flex;align-items:center;gap:10px;margin-top:8px;}
+  .size-slider-badge{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);}
   .size-row{display:flex;gap:6px;}
   .size-row input[type=number]{
     flex:1;background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;
@@ -599,6 +629,8 @@
   .badge-tile-icon{font-size:26px;margin-bottom:6px;}
   .badge-tile-title{font-family:var(--sans);font-size:10.5px;color:var(--text-dim);line-height:1.3;}
   .badge-tile.earned .badge-tile-title{color:var(--text);}
+  .badge-tile-sub{font-family:var(--mono);font-size:8.5px;color:var(--text-faint);margin-top:3px;}
+  .badge-tile.earned .badge-tile-sub{color:var(--accent);}
 
   /* badge unlock toast */
   .badge-toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-20px);opacity:0;transition:transform .3s,opacity .3s;z-index:60;background:var(--panel-2);border:1px solid var(--gold);border-radius:10px;padding:10px 16px;box-shadow:0 8px 24px rgba(0,0,0,0.4);pointer-events:none;}
@@ -649,6 +681,17 @@
   .modal-close-x{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--text-faint);font-size:16px;cursor:pointer;padding:4px;line-height:1;}
   .modal-close-x:hover{color:var(--text);}
 
+  /* share-card modal */
+  .share-style-picker{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+  .share-style-picker button{
+    flex:1;min-width:80px;background:var(--bg-raised);border:1px solid var(--border);color:var(--text-dim);
+    font-family:var(--mono);font-size:10.5px;padding:8px 6px;border-radius:6px;cursor:pointer;
+  }
+  .share-style-picker button.active{border-color:var(--accent);color:var(--accent);background:var(--panel-2);}
+  .share-card-preview-wrap{display:flex;justify-content:center;background:var(--bg-raised);border-radius:8px;padding:12px;}
+  #share-card-canvas{width:100%;max-width:300px;height:auto;border-radius:10px;display:block;}
+  .share-msg{font-family:var(--sans);font-size:11px;color:var(--text-faint);text-align:center;margin-top:8px;min-height:14px;}
+
   /* fullscreen photo viewer — reuses the already-loaded <img> src (no new
      network/Storage fetch), just displays it larger; click-to-open on any
      avatar/feed photo. */
@@ -658,6 +701,22 @@
   .lightbox-overlay .modal-close-x{color:#fff;font-size:20px;}
   .lightbox-overlay .modal-close-x:hover{color:var(--accent);}
   .feed-item img, .avatar-img{cursor:zoom-in;}
+
+  /* onboarding tour — a spotlight overlay that highlights one widget at a
+     time. The huge box-shadow on .tour-highlight is the "cutout" trick: a
+     transparent box whose shadow spreads 9999px darkens the entire rest of
+     the screen, leaving only the highlighted rect visibly lit. */
+  .tour-overlay{position:fixed;inset:0;z-index:70;}
+  .tour-overlay[hidden]{display:none;}
+  .tour-highlight{position:absolute;border-radius:10px;border:2px solid var(--accent);box-shadow:0 0 0 9999px rgba(0,0,0,0.78);pointer-events:none;transition:top .25s ease,left .25s ease,width .25s ease,height .25s ease;}
+  .tour-card{position:absolute;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:0 10px 32px rgba(0,0,0,0.5);transition:top .25s ease,left .25s ease;}
+  .tour-card-step{font-family:var(--mono);font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;}
+  .tour-card h4{margin:0 0 8px;font-size:14px;color:var(--text);}
+  .tour-card p{margin:0 0 14px;font-size:12.5px;line-height:1.5;color:var(--text-dim);}
+  .tour-card-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .tour-skip{background:none;border:none;color:var(--text-faint);font-size:11.5px;cursor:pointer;padding:4px 0;}
+  .tour-skip:hover{color:var(--text);}
+  .tour-nav{display:flex;gap:8px;}
 </style>
 </head>
 <body>
@@ -739,6 +798,7 @@
   </header>
 
   <div class="live-banner" id="live-banner" hidden></div>
+  <div class="challenge-banner" id="challenge-banner" hidden></div>
 
   <main>
     <!-- ================= TERMINAL ================= -->
@@ -823,16 +883,20 @@
               <div class="lev-presets" id="lev-presets"></div>
             </div>
             <div class="field-row">
-              <label>Taille de position</label>
+              <label>Taille de position <span class="size-slider-badge" id="size-slider-badge">0%</span></label>
               <div class="size-row">
                 <input type="number" id="size-input" value="1000" min="0" step="any">
                 <div class="unit-toggle">
-                  <button id="unit-usd" class="active">USD</button>
+                  <button id="unit-margin" class="active">Marge</button>
                   <button id="unit-units">Unités</button>
-                  <button id="unit-margin">Marge</button>
+                  <button id="unit-usd">USD</button>
                 </div>
               </div>
-              <div class="chart-note" id="size-input-hint" style="margin-top:4px;">Montant en dollars du notionnel de la position.</div>
+              <div class="size-slider-row">
+                <input type="range" id="size-slider" min="0" max="100" value="0" step="1">
+              </div>
+              <div class="lev-presets" id="size-slider-presets"></div>
+              <div class="chart-note" id="size-input-hint" style="margin-top:4px;">Montant en dollars de la marge que tu engages — le notionnel est calculé automatiquement (marge × levier).</div>
             </div>
             <div class="field-row">
               <label>Take Profit / Stop Loss <span style="text-transform:none;letter-spacing:0;font-weight:400;">(optionnel)</span></label>
@@ -861,7 +925,7 @@
 
         <div class="widget-col" data-col="2">
           <div class="card widget" draggable="true" data-widget="account">
-            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Compte</h3><button type="button" class="widget-hide" data-widget-hide="account" title="Masquer ce widget">✕</button></div>
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3 id="account-widget-title">Compte</h3><button type="button" class="widget-hide" data-widget-hide="account" title="Masquer ce widget">✕</button></div>
             <div class="acct-summary">
               <div class="cell"><div class="lbl">Cash</div><div class="val num" id="acc-cash">$100,000.00</div></div>
               <div class="cell"><div class="lbl">Équité</div><div class="val num" id="acc-equity">$100,000.00</div></div>
@@ -909,12 +973,28 @@
     <!-- ================= LEADERBOARD ================= -->
     <section class="view" id="view-leaderboard">
       <div class="card">
-        <h3>Classement des traders</h3>
-        <div style="overflow-x:auto;">
-          <table class="lb-table">
-            <thead><tr><th>Rang</th><th>Trader</th><th>Équité</th><th>Performance</th></tr></thead>
-            <tbody id="lb-body"><tr><td colspan="4" class="empty-note">Chargement du classement…</td></tr></tbody>
-          </table>
+        <div class="seg" style="margin-bottom:14px;">
+          <button type="button" id="lb-tab-normal" class="on-mode active">Compte normal</button>
+          <button type="button" id="lb-tab-prop" class="on-mode">Prop Firm</button>
+        </div>
+        <div id="lb-wrap-normal">
+          <h3>Classement des traders</h3>
+          <div style="overflow-x:auto;">
+            <table class="lb-table">
+              <thead><tr><th>Rang</th><th>Trader</th><th>Équité</th><th>Performance</th></tr></thead>
+              <tbody id="lb-body"><tr><td colspan="4" class="empty-note">Chargement du classement…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="lb-wrap-prop" hidden>
+          <h3>Classement Prop Firm</h3>
+          <p class="chart-note" style="margin-bottom:10px;">Classement séparé, réservé aux comptes challenge prop firm — indépendant du compte démo normal ci-dessus.</p>
+          <div style="overflow-x:auto;">
+            <table class="lb-table">
+              <thead><tr><th>Rang</th><th>Trader</th><th>Compte</th><th>Étape</th><th>Équité</th></tr></thead>
+              <tbody id="prop-lb-body"><tr><td colspan="5" class="empty-note">Chargement du classement…</td></tr></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>
@@ -965,6 +1045,15 @@
             <p class="chart-note">Connecté en tant que <strong id="auth-current-email"></strong> — ce compte est accessible depuis n'importe quel navigateur.</p>
             <button class="btn-secondary" id="auth-logout-btn" style="margin-top:8px;">Se déconnecter</button>
           </div>
+        </div>
+        <div class="card" style="margin-top:14px;">
+          <h3>Aide</h3>
+          <p class="chart-note" style="margin-bottom:10px;">La visite guidée s'affiche automatiquement une seule fois, à la toute première connexion d'un compte. Tu peux la revoir ici à tout moment.</p>
+          <button class="btn-secondary" id="tour-replay-btn">Revoir le tutoriel</button>
+        </div>
+        <div class="card" style="margin-top:14px;" id="challenge-profile-card">
+          <h3>Challenge Prop Firm</h3>
+          <div id="challenge-card-body"></div>
         </div>
         <div class="card" style="margin-top:14px;" id="admin-unlock-card">
           <h3>Mode admin</h3>
@@ -1145,6 +1234,21 @@
     <button type="button" class="modal-close-x" id="lightbox-close-x" aria-label="Fermer" style="top:14px;right:14px;">✕</button>
     <img id="lightbox-img" src="" alt="Photo en plein écran">
   </div>
+  <div class="tour-overlay" id="tour-overlay" hidden>
+    <div class="tour-highlight" id="tour-highlight"></div>
+    <div class="tour-card" id="tour-card">
+      <div class="tour-card-step" id="tour-step-count">Étape 1/4</div>
+      <h4 id="tour-title"></h4>
+      <p id="tour-text"></p>
+      <div class="tour-card-actions">
+        <button type="button" class="tour-skip" id="tour-skip-btn">Passer</button>
+        <div class="tour-nav">
+          <button type="button" class="btn-secondary" id="tour-prev-btn" style="padding:7px 12px;">Précédent</button>
+          <button type="button" class="btn-primary" id="tour-next-btn" style="padding:7px 14px;">Suivant</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ============================================================
@@ -1182,13 +1286,40 @@ const ASSETS = [
   // live on Binance Spot) — no rescaling needed, it already trades in $ per €.
   {symbol:"EURUSD", name:"Euro / Dollar",      instrument:"EUR_USDT",    binanceSymbol:"EURUSDT",  decimals:4, icon:"💶", color:"#5b8def"},
   {symbol:"SPY",  name:"S&P 500 (indice, recalé sur perp. ETF SPY)",    instrument:"SPYUSD-PERP", decimals:2, indexRatio:10.08, icon:"📈", color:"#31c882"},
-  {symbol:"QQQ",  name:"Nasdaq",               instrument:"QQQUSD-PERP",decimals:2, indexRatio:41.07, icon:"💻", color:"#d7b563"},
+  // delisted: kept in ASSETS (so any pre-existing open QQQ position from
+  // before this change still marks-to-market/renders/can be closed
+  // correctly) but excluded from the watchlist, the gate ticker and the
+  // order ticket's symbol picker — see visibleAssets().
+  {symbol:"QQQ",  name:"Nasdaq",               instrument:"QQQUSD-PERP",decimals:2, indexRatio:41.07, icon:"💻", color:"#d7b563", delisted:true},
   {symbol:"GOLD", name:"Or (spot, via PAXG — token adossé 1:1 à l'once d'or physique)", instrument:"PAXG_USD", binanceSymbol:"PAXGUSDT", decimals:2, icon:"🥇", color:"#d7b563"},
   // SILVER: Crypto.com's own XAGUSD perpetual (real spot-silver-tracking
   // instrument, same family as the SPY/QQQ perps above) — no Binance
   // equivalent, no rescaling needed (already 1:1 on the troy ounce spot price).
   {symbol:"SILVER", name:"Argent (indice, perp. XAGUSD — once troy)", instrument:"XAGUSD-PERP", decimals:2, icon:"🥈", color:"#c7cdd6"},
 ];
+// Assets flagged `delisted` stay in ASSETS (price polling, mark-to-market,
+// liquidation checks and closing an existing position all still need to
+// find them) but are hidden from anywhere a trader picks/browses symbols.
+function visibleAssets(){ return ASSETS.filter(a=>!a.delisted); }
+// Custom watchlist ORDER (drag-to-reorder) — a per-browser UI preference,
+// same rationale as the widget layout below: lives in localStorage, not the
+// Firestore trader doc. Stores an array of symbols; anything missing from a
+// saved order (a newly added asset, or one that got un-delisted) is appended
+// at the end, and anything in a saved order that's no longer visible
+// (delisted, or removed from ASSETS entirely) is dropped.
+const WATCHLIST_ORDER_KEY = "paperTapeWatchlistOrder";
+function loadWatchlistOrder(){
+  const visibleSymbols = visibleAssets().map(a=>a.symbol);
+  let saved = null;
+  try{ saved = JSON.parse(localStorage.getItem(WATCHLIST_ORDER_KEY)||"null"); }catch(e){}
+  if (!Array.isArray(saved)) return visibleSymbols;
+  const ordered = saved.filter(sym=>visibleSymbols.indexOf(sym)!==-1);
+  visibleSymbols.forEach(sym=>{ if (ordered.indexOf(sym)===-1) ordered.push(sym); });
+  return ordered;
+}
+function saveWatchlistOrder(order){
+  try{ localStorage.setItem(WATCHLIST_ORDER_KEY, JSON.stringify(order)); }catch(e){}
+}
 // Assets with a `binanceSymbol` try Binance's public REST API first (deeper
 // liquidity, tighter spreads, generally more reliable uptime than Crypto.com)
 // and transparently fall back to Crypto.com on any error — network, CORS,
@@ -1320,6 +1451,7 @@ function exitFill(symbol, side){ return fillPrice(symbol, side==="long"?"sell":"
 
 /* ============================= FORMAT ============================= */
 function fmtMoney(v){
+  if (typeof v!=="number" || !isFinite(v)) return "—";
   const neg = v<0;
   const s = Math.abs(v).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
   return (neg?"-$":"$")+s;
@@ -1388,12 +1520,25 @@ const state = {
   totalTimeSpent: 0, // cumulative seconds with the tab open & visible — see initSessionTimeTracking()
   photoURL: null,  // profile picture (Firebase Storage download URL) — see initProfilePhoto()
   feed: [],        // [{id, imageURL, caption, createdAt}] — public screenshot feed, visible to others by clicking this trader in the classement
+  challenge: null, // {tier, phase:"step1"|"step2"|"funded"|"failed", startCash, stepStartEquity, startedAt, dayKey, dailyStartEquity, tradedDates:[iso-date...], failReason, failedAt, step1PassedAt, step2PassedAt, fundedAt, fundedValue} — see CHALLENGE PROP FIRM below
+  // --- Dual-book trading (Normal demo account + Prop Firm challenge account) ---
+  // Exactly one of "normal"/"prop" is ever "active": its cash/marginUsed/
+  // positions/pendingOrders/history/stats live directly on `state.*` above
+  // (cash, marginUsed, positions, pendingOrders, history, stats) — untouched
+  // by any of this — while the OTHER book's full snapshot sits parked here.
+  // See "DUAL BOOK ENGINE" below for the swap mechanics that keep both books
+  // live (marked-to-market, liquidated, TP/SL'd) every price tick regardless
+  // of which one is currently displayed.
+  activeBookName: "normal", // "normal" | "prop" — which book state.* currently holds
+  parked: null,             // the OTHER book's full snapshot, or null if no prop book exists yet
+  copyNormalToProp: false,  // mirror new orders opened on Normal onto Prop too
+  copyPropToNormal: false,  // mirror new orders opened on Prop onto Normal too
 };
 let selectedSymbol = "BTC";
 let side = "long";
 let orderType = "market";
 let marginMode = "isolated";
-let sizeUnit = "usd";
+let sizeUnit = "margin"; // default unit: Marge (see the order-ticket unit-toggle)
 const LEVERAGE_KEY = "paperTapeLeverage";
 function loadLeverage(){
   try{
@@ -1406,6 +1551,7 @@ function saveLeverage(n){
   try{ localStorage.setItem(LEVERAGE_KEY, String(n)); }catch(e){}
 }
 let leverage = loadLeverage(); // remembered per-browser across reloads, like the theme/widget layout
+let isFreshAccount = false; // set true exactly once, by loadAccountForClientId(), when a brand-new trader doc had to be created — drives the onboarding tour auto-trigger in initAuth()
 let db = null;
 let dbReady = false;
 let storage = null; // Firebase Storage — profile photo + feed screenshots (see initDb)
@@ -1428,6 +1574,104 @@ function freeBalance(){ return state.cash - state.marginUsed; }
 function liqPriceFor(entry, side, lev){
   const buf = (1/lev) - MMR;
   return side==="long" ? entry*(1-buf) : entry*(1+buf);
+}
+
+/* ============================= DUAL BOOK ENGINE ============================= */
+// Two independent trading books can exist per trader: the always-present
+// "normal" $100k demo account, and an optional "prop" account created by
+// startChallenge() (see CHALLENGE PROP FIRM below). Only ONE book's data
+// lives on state.{cash,marginUsed,positions,pendingOrders,history,stats} at
+// any instant — that's what every order/liquidation/TP-SL/render function
+// already reads and writes, completely unchanged. The OTHER book's full
+// snapshot sits in state.parked. Switching which book is "active" (see
+// switchActiveBook()) swaps the two. withParkedBook() below does the same
+// swap TEMPORARILY so the exact same order-engine functions can also run
+// once per tick against the backgrounded book — giving it the same live
+// mark-to-market/liquidation/TP-SL treatment as the visible one — without
+// duplicating a single line of that logic.
+function freshBookStats(){
+  return {tradesOpened:0, tradesClosed:0, wins:0, losses:0, grossProfit:0, grossLoss:0, bestTrade:0, worstTrade:0, currentStreak:0, streakType:null, bestWinStreak:0, bestLossStreak:0};
+}
+function freshBookObj(cash){
+  return {cash, marginUsed:0, positions:[], pendingOrders:[], history:[], stats:freshBookStats()};
+}
+function bookSnapshot(){
+  return {cash:state.cash, marginUsed:state.marginUsed, positions:state.positions, pendingOrders:state.pendingOrders, history:state.history, stats:state.stats};
+}
+function loadBookSnapshot(b){
+  state.cash = b.cash; state.marginUsed = b.marginUsed;
+  state.positions = b.positions; state.pendingOrders = b.pendingOrders;
+  state.history = b.history; state.stats = b.stats;
+}
+// Which book state.* is holding RIGHT NOW — normally state.activeBookName,
+// but flipped while inside withParkedBook()'s callback.
+let __liveBookNameOverride = null;
+function currentBookName(){ return __liveBookNameOverride || state.activeBookName; }
+// True while a withParkedBook() callback is running — renderAll() no-ops
+// during this window so the visible book's DOM is never painted with the
+// backgrounded book's data.
+let inBackgroundBookCheck = false;
+// Temporarily makes the parked book "live" (on state.*), runs `fn` against
+// it using the ordinary order-engine functions, then swaps back. No-ops if
+// there's no parked book (i.e. no prop account exists yet).
+function withParkedBook(fn){
+  if (!state.parked) return;
+  const outgoing = bookSnapshot();
+  const outgoingName = currentBookName();
+  loadBookSnapshot(state.parked);
+  state.parked = outgoing; // at every instant state.parked == "whichever book ISN'T live right now"
+  __liveBookNameOverride = outgoingName==="normal" ? "prop" : "normal";
+  const prevFlag = inBackgroundBookCheck;
+  inBackgroundBookCheck = true;
+  try{ fn(); }
+  finally{
+    inBackgroundBookCheck = prevFlag;
+    const mutated = bookSnapshot();
+    state.parked = mutated;
+    loadBookSnapshot(outgoing);
+    __liveBookNameOverride = null;
+  }
+}
+// Returns the named book's current data regardless of which is active —
+// live from state.* if it's the active one, from state.parked otherwise.
+// Never call while inside withParkedBook() (its notion of "active" is
+// transient); it's meant for challenge tracking, which always runs outside
+// any swap (see pollAsset()).
+function bookDataFor(name){
+  if (name===state.activeBookName) return bookSnapshot();
+  return state.parked;
+}
+function propBookData(){ return bookDataFor("prop"); }
+// Equity for a raw book snapshot (cash + unrealized PnL) — posUnrealized(p)
+// only reads market data + the position itself, never `state`, so this
+// works on a parked/backgrounded book's positions just as well as a live
+// one's.
+function bookEquity(b){
+  if (!b) return null;
+  return b.cash + b.positions.reduce((s,p)=>s+posUnrealized(p),0);
+}
+function propEquity(){ return bookEquity(propBookData()); }
+// Builds the {normal, prop} pair persistAccount() writes to Firestore,
+// correct whether called normally or (harmlessly) from inside a
+// withParkedBook() swap — see currentBookName()/withParkedBook() above.
+function booksForPersist(){
+  const liveName = currentBookName();
+  const live = bookSnapshot();
+  return liveName==="prop" ? {normal:state.parked, prop:live} : {normal:live, prop:state.parked};
+}
+// Permanently switches which book is active (unlike withParkedBook(), this
+// does not swap back) — used by the account switcher in the challenge
+// banner. No-ops if there's no prop book to switch to/from yet.
+function switchActiveBook(name){
+  if (name===state.activeBookName) return;
+  if (!state.parked) return; // no second book exists yet
+  const outgoing = bookSnapshot();
+  loadBookSnapshot(state.parked);
+  state.parked = outgoing;
+  state.activeBookName = name;
+  persistAccount();
+  renderAll();
+  renderChallengeBanner();
 }
 
 /* ============================= DB (leaderboard + persistence) ============================= */
@@ -1483,6 +1727,23 @@ function hydrateStateFromDoc(snap){
   state.totalTimeSpent = typeof d.totalTimeSpent==="number" ? d.totalTimeSpent : 0;
   state.photoURL = d.photoURL || null;
   state.feed = Array.isArray(d.feed) ? d.feed : [];
+  state.challenge = (d.challenge && typeof d.challenge==="object") ? d.challenge : null;
+  // The fields hydrated above (cash/marginUsed/positions/pendingOrders/
+  // history/stats) are always treated as the NORMAL book, and we always
+  // boot back into it regardless of which was active when last saved — a
+  // simple, predictable default. The prop book (if any) is restored parked,
+  // one switch away.
+  state.activeBookName = "normal";
+  state.parked = (d.propBook && typeof d.propBook==="object") ? {
+    cash: typeof d.propBook.cash==="number" ? d.propBook.cash : 0,
+    marginUsed: typeof d.propBook.marginUsed==="number" ? d.propBook.marginUsed : 0,
+    positions: Array.isArray(d.propBook.positions) ? d.propBook.positions : [],
+    pendingOrders: Array.isArray(d.propBook.pendingOrders) ? d.propBook.pendingOrders : [],
+    history: Array.isArray(d.propBook.history) ? d.propBook.history : [],
+    stats: (d.propBook.stats && typeof d.propBook.stats==="object") ? d.propBook.stats : freshBookStats(),
+  } : null;
+  state.copyNormalToProp = !!d.copyNormalToProp;
+  state.copyPropToNormal = !!d.copyPropToNormal;
 }
 // Loads (or creates) the trader doc for `id` into `state`. Used at boot for
 // the local anonymous id, and again by the auth flow whenever `clientId`
@@ -1494,6 +1755,11 @@ async function loadAccountForClientId(id){
   if (snap.exists){
     hydrateStateFromDoc(snap);
   } else {
+    // No doc yet == this is the very first time this account has ever
+    // logged in. That's the one-shot signal the onboarding tour hooks into
+    // (see initAuth()'s onAuthStateChanged) — it fires exactly once per
+    // account, ever, regardless of how many devices/browsers they use after.
+    isFreshAccount = true;
     await persistAccount();
   }
 }
@@ -1514,6 +1780,7 @@ async function initDb(){
     // rather than breaking the rest of the app.
     try{ if (typeof firebase.storage==="function") storage = firebase.storage(); }catch(e){ storage = null; }
     subscribeLeaderboard();
+    subscribePropLeaderboard();
     subscribeQuizLeaderboard();
     subscribeSuperflashLeaderboard();
     initAuth();
@@ -1535,14 +1802,37 @@ function persistAccount(){
   return new Promise((resolve)=>{
     persistTimer = setTimeout(async ()=>{
       try{
+        // The "normal" book keeps writing to the SAME top-level fields the
+        // doc has always used (cash/marginUsed/positions/.../equity), so the
+        // normal-account leaderboard and the "paper-tape-mark" Cloud
+        // Function (which only knows about these top-level fields, and
+        // marks pending orders/TP-SL/liquidations/equity server-side once a
+        // trader goes idle) both keep working unchanged. The "prop" book is
+        // new: it round-trips under propBook/propEquity below, but the
+        // idle-marking Cloud Function doesn't know about it yet — a prop
+        // account left open while idle only catches back up (liquidations,
+        // TP/SL, mark-to-market) the next time this client runs a price
+        // tick, not server-side in the meantime.
+        const books = booksForPersist();
+        const normal = books.normal || freshBookObj(START_CASH);
+        const prop = books.prop || null;
         await db.collection("traders").doc(clientId).set({
           username: state.username,
-          cash: state.cash,
-          marginUsed: state.marginUsed,
-          equity: equity(),
-          positions: state.positions.slice(0,20),
-          pendingOrders: state.pendingOrders.slice(0,20),
-          history: state.history.slice(0,15),
+          cash: normal.cash,
+          marginUsed: normal.marginUsed,
+          equity: bookEquity(normal),
+          positions: normal.positions.slice(0,20),
+          pendingOrders: normal.pendingOrders.slice(0,20),
+          history: normal.history.slice(0,15),
+          stats: normal.stats,
+          propBook: prop ? {
+            cash: prop.cash, marginUsed: prop.marginUsed,
+            positions: prop.positions.slice(0,20), pendingOrders: prop.pendingOrders.slice(0,20),
+            history: prop.history.slice(0,15), stats: prop.stats,
+          } : null,
+          propEquity: prop ? bookEquity(prop) : null,
+          copyNormalToProp: !!state.copyNormalToProp,
+          copyPropToNormal: !!state.copyPropToNormal,
           quizProgress: state.quizProgress,
           quizTotal: quizGrandTotal(),
           badges: state.badges,
@@ -1550,7 +1840,6 @@ function persistAccount(){
           superflashBest: state.superflash.bestScore,
           superflashBestCorrect: state.superflash.bestCorrect,
           superflashAttempts: state.superflash.attempts,
-          stats: state.stats,
           // Keeps the admin unlock (and the trader's email, for the admin
           // panel to display) from being wiped by this .set() overwrite —
           // persistAccount() replaces the whole doc, so anything not
@@ -1560,6 +1849,7 @@ function persistAccount(){
           totalTimeSpent: state.totalTimeSpent||0,
           photoURL: state.photoURL || null,
           feed: (state.feed||[]).slice(0,30),
+          challenge: state.challenge || null,
           // Heartbeat: the "paper-tape-mark" Cloud Function (see /functions)
           // only touches a trader's pending orders / TP-SL / liquidations /
           // mark-to-market equity once this goes stale (no write in the
@@ -1596,6 +1886,18 @@ function subscribeLeaderboard(){
       (err)=>{ console.warn("lb error", err); renderLeaderboardError(); }
     );
   }catch(e){ renderLeaderboardError(); }
+}
+// Separate ranking for Prop Firm challenge accounts — a real Firestore
+// orderBy("propEquity") already excludes docs missing that field, but
+// renderPropLeaderboard() also filters/sorts client-side (propEquity==null)
+// so this stays correct against any backend, real or stubbed for tests.
+function subscribePropLeaderboard(){
+  try{
+    db.collection("traders").orderBy("propEquity","desc").limit(50).onSnapshot(
+      (snap)=>renderPropLeaderboard(snap.docs),
+      (err)=>{ console.warn("prop lb error", err); renderPropLeaderboardError(); }
+    );
+  }catch(e){ renderPropLeaderboardError(); }
 }
 function subscribeQuizLeaderboard(){
   try{
@@ -1642,7 +1944,7 @@ function showAuthGate(){
 function initGateTicker(){
   const track = document.getElementById("gate-ticker-track");
   if (!track || typeof ASSETS==="undefined") return;
-  const chips = ASSETS.map(a=>'<span class="auth-gate-ticker-item">'+a.icon+' <b>'+a.symbol+'</b> '+escapeHtml(a.name.split(" (")[0].split(" —")[0])+'</span>').join("");
+  const chips = visibleAssets().map(a=>'<span class="auth-gate-ticker-item">'+a.icon+' <b>'+a.symbol+'</b> '+escapeHtml(a.name.split(" (")[0].split(" —")[0])+'</span>').join("");
   track.innerHTML = chips + chips; // duplicated once for a seamless loop
 }
 function hideAuthGate(){
@@ -1662,6 +1964,14 @@ function initAuth(){
           hideAuthGate();
           updateAdminNavVisibility();
           renderAll();
+          if (isFreshAccount){
+            isFreshAccount = false;
+            switchView("terminal");
+            // Small delay so the terminal's widgets are actually laid out
+            // (post-view-switch reflow) before the tour measures their
+            // positions on screen.
+            setTimeout(startOnboardingTour, 400);
+          }
         } else {
           clientId = null;
           showAuthGate();
@@ -1899,11 +2209,19 @@ async function pollAsset(a){
     checkPendingOrders();
     checkTPSL();
     checkLiquidations();
+    // Gives the backgrounded book (whichever of normal/prop ISN'T on
+    // screen) the exact same live treatment — same tick, same functions,
+    // just temporarily swapped in. No-ops if there's no second book yet.
+    withParkedBook(()=>{ checkPendingOrders(); checkTPSL(); checkLiquidations(); });
   }catch(err){
     const code = (err && err.code) || "upstream_error";
     market[a.symbol].error = code;
     if (!hasLive(a.symbol)) setLiveBanner(code);
   }
+  // Book-independent — reads the prop book directly wherever it lives, so
+  // this stays correct regardless of which book is currently on screen.
+  updateChallengeStatus();
+  renderChallengeBanner();
   renderAll();
 }
 function pollAllAssets(){
@@ -2138,21 +2456,85 @@ const sparkCanvases = {};
 function buildWatchlist(){
   const wl = document.getElementById("watchlist");
   wl.innerHTML = "";
-  ASSETS.forEach(a=>{
+  const order = loadWatchlistOrder();
+  order.forEach(sym=>{
+    const a = visibleAssets().find(x=>x.symbol===sym);
+    if (!a) return;
     const row = document.createElement("div");
     row.className = "wl-row"+(a.symbol===selectedSymbol?" selected":"");
     row.dataset.symbol = a.symbol;
     row.style.borderLeft = "3px solid "+(a.color||"transparent");
     row.innerHTML =
+      '<span class="wl-grip" title="Glisser pour réordonner">⠿</span>'+
       '<div class="sym"><span class="wl-icon" style="color:'+(a.color||"inherit")+';">'+(a.icon||"")+'</span> '+a.symbol+'<div class="name">'+a.name+'</div></div>'+
       '<div class="price num flat" data-price>—</div>'+
       '<canvas width="180" height="22"></canvas>'+
-      '<div class="chg num flat" data-chg style="grid-column:1/span 2;">en attente du flux…</div>';
-    row.addEventListener("click", ()=>selectSymbol(a.symbol));
+      '<div class="chg num flat" data-chg style="grid-column:1/span 3;">en attente du flux…</div>';
+    row.addEventListener("click", (e)=>{ if (e.target.closest(".wl-grip")) return; selectSymbol(a.symbol); });
     wl.appendChild(row);
     sparkCanvases[a.symbol] = row.querySelector("canvas");
   });
   updateWatchlist();
+  initWatchlistDrag();
+}
+// Pointer-based drag reordering for the watchlist rows — same technique as
+// the widget-layout drag system (initWidgets(), below): Pointer Events
+// instead of native HTML5 DnD so it works consistently with mouse, pen and
+// touch, dragging by a dedicated grip handle so it doesn't fight with the
+// row's own click-to-select behavior. Order persists to localStorage (a
+// per-browser UI preference, same as the widget layout and theme).
+let wlDragRow = null;
+let wlDragPointerId = null;
+function getWlDragAfterElement(y){
+  const wl = document.getElementById("watchlist");
+  const els = Array.from(wl.querySelectorAll(".wl-row:not(.dragging)"));
+  let closest = {offset:-Infinity, element:null};
+  els.forEach(child=>{
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height/2;
+    if (offset<0 && offset>closest.offset) closest = {offset, element:child};
+  });
+  return closest.element;
+}
+function persistWatchlistOrderFromDom(){
+  const order = Array.from(document.querySelectorAll(".wl-row")).map(r=>r.dataset.symbol);
+  saveWatchlistOrder(order);
+}
+function wlPointerMove(e){
+  if (!wlDragRow || e.pointerId!==wlDragPointerId) return;
+  e.preventDefault();
+  const wl = document.getElementById("watchlist");
+  const after = getWlDragAfterElement(e.clientY);
+  if (after==null) wl.appendChild(wlDragRow); else wl.insertBefore(wlDragRow, after);
+}
+function wlPointerUp(e){
+  if (!wlDragRow || e.pointerId!==wlDragPointerId) return;
+  wlDragRow.classList.remove("dragging");
+  persistWatchlistOrderFromDom();
+  wlDragRow = null;
+  wlDragPointerId = null;
+}
+let wlDragListenersBound = false;
+function initWatchlistDrag(){
+  document.querySelectorAll(".wl-grip").forEach(grip=>{
+    grip.style.touchAction = "none";
+    grip.addEventListener("pointerdown", (e)=>{
+      if (e.button !== 0 && e.pointerType==="mouse") return;
+      const row = grip.closest(".wl-row");
+      if (!row) return;
+      wlDragRow = row;
+      wlDragPointerId = e.pointerId;
+      try{ grip.setPointerCapture(wlDragPointerId); }catch(err){}
+      row.classList.add("dragging");
+      e.preventDefault();
+    });
+  });
+  if (!wlDragListenersBound){
+    document.addEventListener("pointermove", wlPointerMove);
+    document.addEventListener("pointerup", wlPointerUp);
+    document.addEventListener("pointercancel", wlPointerUp);
+    wlDragListenersBound = true;
+  }
 }
 function selectSymbol(sym){
   selectedSymbol = sym;
@@ -2311,11 +2693,20 @@ function setChartSource(src){
   if (src==="tv"){
     svg.hidden = true; svg.style.display = "none";
     tvWrap.hidden = false; tvWrap.style.display = "";
-    renderTradingViewChart();
   } else {
     svg.hidden = false; svg.style.display = "";
     tvWrap.hidden = true; tvWrap.style.display = "none";
   }
+  // Actually draw whichever source is now active. Without this, switching
+  // to "Interne" just unhid an empty/stale <svg> — updateChart() is what
+  // draws the candles into it from market[selectedSymbol].candles, and
+  // nothing else was calling it on this toggle. It only "worked" before if
+  // something unrelated (a timeframe click, a fresh price tick) happened to
+  // call updateChart() afterwards, which is exactly the reported bug: you
+  // had to switch timeframe to get candles to appear. (For "tv" this also
+  // covers what the old direct renderTradingViewChart() call here used to
+  // do, since updateChart()'s tv branch calls it too.)
+  updateChart();
 }
 function initChartSourceToggle(){
   document.getElementById("chart-src-internal").addEventListener("click", ()=>setChartSource("internal"));
@@ -2436,6 +2827,59 @@ function currentSizeInputToNotional(entry){
   if (sizeUnit==="margin") return val*leverage; // you set the margin, notional follows the leverage
   return val*(entry||0); // units
 }
+// --- Position-size slider (drag to set a % of buying power, like an
+// exchange's size slider) — one slider serves all three units, only what
+// "100%" MEANS changes per unit:
+//  - Marge: kept deliberately simple per spec — 100% = 100% of the account's
+//    total cash balance in dollars, full stop (not netted against margin
+//    already in use elsewhere; going over just trips the normal "marge
+//    insuffisante" validation like any manually-typed value would).
+//  - USD / Unités: 100% = the full notional buying power current free
+//    margin unlocks at the selected leverage (freeBalance()*leverage),
+//    expressed in dollars or converted to units at the live/limit price.
+function sizeSliderEntryPrice(){
+  if (orderType==="limit") return parseFloat(document.getElementById("limit-price-input").value)||0;
+  const m = market[selectedSymbol];
+  return (m && m.last) ? m.last : 0;
+}
+function sizeSliderMax(){
+  if (sizeUnit==="margin") return Math.max(0, state.cash);
+  const buyingPower = Math.max(0, freeBalance())*Math.max(1, leverage);
+  if (sizeUnit==="usd") return buyingPower;
+  const entry = sizeSliderEntryPrice();
+  return entry>0 ? buyingPower/entry : 0;
+}
+function roundSizeInputValue(val){
+  if (!isFinite(val) || val<0) return 0;
+  if (sizeUnit==="units"){
+    const abs = Math.abs(val);
+    const decimals = abs>=100 ? 2 : abs>=1 ? 4 : 6;
+    return parseFloat(val.toFixed(decimals));
+  }
+  return Math.round(val*100)/100; // usd/margin: whole cents
+}
+// Called whenever the ticket's inputs change (see updateOrderReadout()) so
+// the slider handle + % badge always reflect the CURRENT size-input value —
+// derived live rather than stored, so it can never drift out of sync with
+// what's actually typed in the box.
+function syncSizeSliderFromInput(){
+  const slider = document.getElementById("size-slider");
+  const badge = document.getElementById("size-slider-badge");
+  if (!slider || !badge) return;
+  const max = sizeSliderMax();
+  const val = parseFloat(document.getElementById("size-input").value)||0;
+  const pct = max>0 ? (val/max)*100 : 0;
+  slider.value = String(Math.max(0, Math.min(100, Math.round(pct))));
+  badge.textContent = (pct>=0 ? pct.toFixed(pct<10?1:0) : "0")+"%";
+  document.querySelectorAll("#size-slider-presets button").forEach(b=>{
+    b.classList.toggle("active", Math.abs(parseInt(b.dataset.sizePct,10)-pct)<0.5);
+  });
+}
+function applySizeSliderPct(pct){
+  const max = sizeSliderMax();
+  document.getElementById("size-input").value = roundSizeInputValue((pct/100)*max);
+  updateOrderReadout();
+}
 function fmtUnits(n){
   if (!isFinite(n) || n===0) return "0";
   const abs = Math.abs(n);
@@ -2492,6 +2936,7 @@ function updateOrderReadout(){
     else if ((initMargin+entryFee)>freeBalance()) problem = "Marge insuffisante pour réserver cet ordre — marge disponible "+fmtMoney(freeBalance())+", requis "+fmtMoney(initMargin+entryFee)+".";
     btn.disabled = !!problem;
     msg.textContent = problem;
+    syncSizeSliderFromInput();
     return;
   }
 
@@ -2510,6 +2955,7 @@ function updateOrderReadout(){
     msg.textContent = market[selectedSymbol].error
       ? "Flux Crypto.com indisponible pour "+a.symbol+" — impossible d'exécuter sans prix réel."
       : "En attente du prix live (Crypto.com)…";
+    syncSizeSliderFromInput();
     return;
   }
 
@@ -2536,10 +2982,18 @@ function updateOrderReadout(){
   else if ((initMargin+entryFee)>freeBalance()) problem = "Marge insuffisante (marge + commission) — marge disponible "+fmtMoney(freeBalance())+", requis "+fmtMoney(initMargin+entryFee)+".";
   btn.disabled = !!problem;
   msg.textContent = problem;
+  syncSizeSliderFromInput();
 }
 
 /* ============================= RENDER: account / positions / history ============================= */
 function renderAccount(){
+  // updateChallengeStatus()/renderChallengeBanner() are book-independent
+  // (they read the prop book directly via propBookData()/propEquity(),
+  // wherever it currently lives) and run once per price tick from
+  // pollAsset() regardless of which book is on screen — not from here,
+  // since renderAccount() only runs for whichever book IS on screen.
+  const titleEl = document.getElementById("account-widget-title");
+  if (titleEl) titleEl.textContent = state.activeBookName==="prop" ? "Compte — Prop Firm" : "Compte — Normal";
   document.getElementById("acc-cash").textContent = fmtMoney(state.cash);
   const eq = equity();
   document.getElementById("acc-equity").textContent = fmtMoney(eq);
@@ -2574,6 +3028,7 @@ function renderPositions(){
           '<button class="pos-tpsl" data-tpsl="'+p.id+'">🎯 TP/SL</button>'+
           '<button class="pos-tpsl" data-be="'+p.id+'">⚖️ BE</button>'+
           '<button class="pos-tpsl" data-partial="'+p.id+'">✂️ Partiel</button>'+
+          '<button class="pos-tpsl" data-share="'+p.id+'">📤 Partager</button>'+
           '<button class="pos-close" data-close="'+p.id+'">Fermer</button>'+
         '</span>'+
       '</div>'+
@@ -2615,7 +3070,313 @@ function renderPositions(){
       if (p) openPartialCloseModal(p);
     });
   });
+  list.querySelectorAll("[data-share]").forEach(btn=>{
+    btn.addEventListener("click", ()=>openShareCardModal(btn.dataset.share));
+  });
 }
+
+/* ============================= SHARE CARD (position PnL flex card) ============================= */
+// Renders a shareable PnL image for an open position onto an offscreen
+// canvas, in one of 4 visual styles the trader can pick between. Pure
+// client-side (canvas 2D, no server round-trip): download always works via
+// canvas.toBlob()+<a download>, and on devices/browsers that support the
+// Web Share API (mostly mobile) a native share sheet is offered too so the
+// image can go straight to Discord/Instagram/etc. Purely cosmetic/social —
+// no wallet, no real money, no PII beyond the trader's own chosen username.
+const SHARE_CARD_STYLES = ["classic","neon","minimal","terminal"];
+const SHARE_CARD_LABELS = {classic:"Classique", neon:"Néon", minimal:"Minimal", terminal:"Terminal"};
+let shareCardPositionId = null;
+let shareCardStyle = "classic";
+function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || null; }
+function openShareCardModal(posId){
+  const p = state.positions.find(x=>x.id===posId);
+  if (!p) return;
+  shareCardPositionId = posId;
+  shareCardStyle = "classic";
+  openModal(
+    '<h3 style="margin:0 0 14px;">Partager cette position</h3>'+
+    '<div class="share-style-picker" id="share-style-picker">'+
+      SHARE_CARD_STYLES.map(s=>'<button type="button" data-style="'+s+'" class="'+(s==="classic"?"active":"")+'">'+SHARE_CARD_LABELS[s]+'</button>').join("")+
+    '</div>'+
+    '<div class="share-card-preview-wrap"><canvas id="share-card-canvas" width="1080" height="1350"></canvas></div>'+
+    '<div style="display:flex;gap:8px;margin-top:14px;">'+
+      '<button class="btn-secondary" id="share-download-btn" style="flex:1;">⬇️ Télécharger l\'image</button>'+
+      '<button class="btn-secondary" id="share-native-btn" style="flex:1;" hidden>📤 Partager</button>'+
+    '</div>'+
+    '<div class="share-msg" id="share-msg"></div>'
+  );
+  document.getElementById("share-style-picker").querySelectorAll("button").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      shareCardStyle = b.dataset.style;
+      document.getElementById("share-style-picker").querySelectorAll("button").forEach(x=>x.classList.toggle("active", x===b));
+      renderShareCard();
+    });
+  });
+  document.getElementById("share-download-btn").addEventListener("click", downloadShareCard);
+  if (navigator.share){
+    const nativeBtn = document.getElementById("share-native-btn");
+    nativeBtn.hidden = false;
+    nativeBtn.addEventListener("click", nativeShareCard);
+  }
+  renderShareCard();
+}
+function shareCardData(){
+  const p = state.positions.find(x=>x.id===shareCardPositionId);
+  if (!p) return null;
+  const a = ASSETS.find(x=>x.symbol===p.symbol) || {};
+  const mp = markPrice(p.symbol);
+  const pnl = posUnrealized(p);
+  const pnlPct = (pnl/p.initMargin)*100;
+  return {
+    symbol:p.symbol, name:(a.name||p.symbol).split(" (")[0].split(" —")[0], icon:a.icon||"", side:p.side,
+    leverage:p.leverage, mode:p.mode, entry:p.entryPrice, mark:mp, pnl, pnlPct,
+    notional:p.notional, decimals:a.decimals!=null?a.decimals:2,
+  };
+}
+function renderShareCard(){
+  const d = shareCardData();
+  const canvas = document.getElementById("share-card-canvas");
+  if (!d || !canvas) return;
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const drawFn = {classic:drawShareCardClassic, neon:drawShareCardNeon, minimal:drawShareCardMinimal, terminal:drawShareCardTerminal}[shareCardStyle];
+  (drawFn||drawShareCardClassic)(ctx, W, H, d);
+}
+function roundRectPath(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+function drawStatRow(ctx, x, y, w, label, value, labelColor, valueColor, font){
+  ctx.textAlign = "left";
+  ctx.fillStyle = labelColor;
+  ctx.font = "500 22px "+(font||"IBM Plex Mono, monospace");
+  ctx.fillText(label, x, y);
+  ctx.textAlign = "right";
+  ctx.fillStyle = valueColor;
+  ctx.font = "700 26px "+(font||"IBM Plex Mono, monospace");
+  ctx.fillText(value, x+w, y);
+}
+// Style 1 — "Classique": mirrors the app's own dark palette (reads the
+// LIVE CSS theme variables, so it automatically matches whatever theme —
+// Ember/Sage/Ink/Mono — the trader currently has selected).
+function drawShareCardClassic(ctx, W, H, d){
+  const bg = cssVar("--panel")||"#211d18", bgRaised = cssVar("--bg-raised")||"#262219";
+  const text = cssVar("--text")||"#fbf7f0", dim = cssVar("--text-dim")||"#c9bfa9", faint = cssVar("--text-faint")||"#8a8072";
+  const accent = cssVar("--accent")||"#e8552b", border = cssVar("--border")||"#3a352b";
+  const up = cssVar("--long")||"#31c882", down = cssVar("--short")||"#f0546a";
+  const pnlColor = d.pnl>=0 ? up : down;
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+  ctx.textAlign = "left";
+  ctx.fillStyle = accent; ctx.font = "700 30px IBM Plex Mono, monospace";
+  ctx.fillText("📟 PAPER TAPE", 64, 100);
+  ctx.fillStyle = faint; ctx.font = "500 22px IBM Plex Mono, monospace";
+  ctx.textAlign = "right";
+  ctx.fillText("École de la Bourse", W-64, 100);
+  ctx.textAlign = "center";
+  ctx.fillStyle = text; ctx.font = "700 56px IBM Plex Sans, sans-serif";
+  ctx.fillText(d.icon+"  "+d.symbol, W/2, 250);
+  ctx.font = "600 26px IBM Plex Mono, monospace";
+  ctx.fillStyle = d.side==="long" ? up : down;
+  ctx.fillText((d.side==="long"?"▲ LONG":"▼ SHORT")+"  ·  x"+fmtLev(d.leverage)+"  ·  "+(d.mode==="cross"?"CROSS":"ISOLATED"), W/2, 300);
+  ctx.font = "700 110px IBM Plex Mono, monospace";
+  ctx.fillStyle = pnlColor;
+  ctx.fillText((d.pnl>=0?"+":"")+fmtMoney(d.pnl), W/2, 460);
+  ctx.font = "600 40px IBM Plex Mono, monospace";
+  ctx.fillText("("+fmtPct(d.pnlPct)+" marge)", W/2, 520);
+  const cardX = 64, cardY = 610, cardW = W-128, cardH = 480;
+  ctx.fillStyle = bgRaised;
+  roundRectPath(ctx, cardX, cardY, cardW, cardH, 20); ctx.fill();
+  ctx.strokeStyle = border; ctx.lineWidth = 2; roundRectPath(ctx, cardX, cardY, cardW, cardH, 20); ctx.stroke();
+  const rows = [
+    ["Entrée", fmtPrice(d.entry, d.decimals)],
+    ["Mark", fmtPrice(d.mark, d.decimals)],
+    ["Notionnel", fmtMoney(d.notional)],
+    ["Levier", "x"+fmtLev(d.leverage)],
+  ];
+  rows.forEach((r,i)=>{ drawStatRow(ctx, cardX+40, cardY+90+i*95, cardW-80, r[0], r[1], faint, text); });
+  ctx.textAlign = "center";
+  ctx.fillStyle = faint; ctx.font = "500 22px IBM Plex Mono, monospace";
+  ctx.fillText("Trading simulé — aucun argent réel", W/2, H-70);
+}
+// Style 2 — "Néon": bold gradient flex-card look, big glowing PnL hero.
+function drawShareCardNeon(ctx, W, H, d){
+  const up = "#39ff9f", down = "#ff3d6e";
+  const pnlColor = d.pnl>=0 ? up : down;
+  const grad = ctx.createLinearGradient(0,0,W,H);
+  grad.addColorStop(0,"#1a0b2e"); grad.addColorStop(0.5,"#2d0f45"); grad.addColorStop(1,"#0b1a3a");
+  ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
+  // subtle diagonal glow lines
+  ctx.globalAlpha = 0.08;
+  for(let i=-2;i<10;i++){
+    ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(i*160,0); ctx.lineTo(i*160-300,H); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#ffffff"; ctx.font = "700 30px IBM Plex Mono, monospace";
+  ctx.fillText("⚡ PAPER TAPE", 64, 100);
+  ctx.textAlign = "right";
+  ctx.fillStyle = "rgba(255,255,255,0.6)"; ctx.font = "500 22px IBM Plex Mono, monospace";
+  ctx.fillText("EDB · simulation", W-64, 100);
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#ffffff"; ctx.font = "800 60px IBM Plex Sans, sans-serif";
+  ctx.fillText(d.icon+"  "+d.symbol+" "+(d.side==="long"?"▲":"▼"), W/2, 250);
+  ctx.font = "700 26px IBM Plex Mono, monospace";
+  ctx.fillStyle = pnlColor;
+  ctx.fillText((d.side==="long"?"LONG":"SHORT")+"  x"+fmtLev(d.leverage), W/2, 300);
+  ctx.shadowColor = pnlColor; ctx.shadowBlur = 40;
+  ctx.font = "800 118px IBM Plex Mono, monospace";
+  ctx.fillStyle = pnlColor;
+  ctx.fillText((d.pnl>=0?"+":"")+fmtMoney(d.pnl), W/2, 470);
+  ctx.shadowBlur = 0;
+  ctx.font = "700 44px IBM Plex Mono, monospace";
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(fmtPct(d.pnlPct), W/2, 530);
+  const cardX = 64, cardY = 620, cardW = W-128, cardH = 470;
+  ctx.fillStyle = "rgba(255,255,255,0.06)";
+  roundRectPath(ctx, cardX, cardY, cardW, cardH, 24); ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.25)"; ctx.lineWidth = 2; roundRectPath(ctx, cardX, cardY, cardW, cardH, 24); ctx.stroke();
+  const rows = [
+    ["Entrée", fmtPrice(d.entry, d.decimals)],
+    ["Mark", fmtPrice(d.mark, d.decimals)],
+    ["Notionnel", fmtMoney(d.notional)],
+  ];
+  rows.forEach((r,i)=>{ drawStatRow(ctx, cardX+40, cardY+90+i*110, cardW-80, r[0], r[1], "rgba(255,255,255,0.55)", "#ffffff"); });
+  ctx.textAlign = "center";
+  ctx.fillStyle = "rgba(255,255,255,0.45)"; ctx.font = "500 22px IBM Plex Mono, monospace";
+  ctx.fillText("Trading simulé — aucun argent réel", W/2, H-60);
+}
+// Style 3 — "Minimal": clean light card, understated, fintech-export look.
+function drawShareCardMinimal(ctx, W, H, d){
+  const bg = "#fbfaf8", text = "#1a1a1a", dim = "#6b6b6b", faint = "#9c9c9c", line = "#e4e1da";
+  // Side (long/short) only decorates the top bar and the side label — the
+  // PnL figure itself is colored by WIN/LOSS, never by side, so a losing
+  // long doesn't render its loss in "gain" green.
+  const accentLine = d.side==="long" ? "#1f9d5c" : "#d3384f";
+  const pnlColor = d.pnl>=0 ? "#1f9d5c" : "#d3384f";
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = accentLine; ctx.fillRect(0,0,W,10);
+  ctx.textAlign = "left";
+  ctx.fillStyle = text; ctx.font = "700 26px IBM Plex Mono, monospace";
+  ctx.fillText("PAPER TAPE", 64, 100);
+  ctx.textAlign = "right";
+  ctx.fillStyle = faint; ctx.font = "500 20px IBM Plex Mono, monospace";
+  ctx.fillText("École de la Bourse · ISG", W-64, 100);
+  ctx.strokeStyle = line; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(64,130); ctx.lineTo(W-64,130); ctx.stroke();
+  ctx.textAlign = "left";
+  ctx.fillStyle = text; ctx.font = "700 48px IBM Plex Sans, sans-serif";
+  ctx.fillText(d.icon+" "+d.symbol, 64, 230);
+  ctx.font = "600 22px IBM Plex Mono, monospace";
+  ctx.fillStyle = dim;
+  ctx.fillText((d.side==="long"?"Long":"Short")+" · x"+fmtLev(d.leverage)+" · "+d.name, 64, 268);
+  ctx.textAlign = "left";
+  ctx.fillStyle = faint; ctx.font = "600 24px IBM Plex Mono, monospace";
+  ctx.fillText("RÉSULTAT NON RÉALISÉ", 64, 380);
+  ctx.fillStyle = pnlColor; ctx.font = "800 100px IBM Plex Mono, monospace";
+  ctx.fillText((d.pnl>=0?"+":"")+fmtMoney(d.pnl), 64, 480);
+  ctx.fillStyle = dim; ctx.font = "600 34px IBM Plex Mono, monospace";
+  ctx.fillText(fmtPct(d.pnlPct)+" de la marge engagée", 64, 530);
+  const rows = [
+    ["Prix d'entrée", fmtPrice(d.entry, d.decimals)],
+    ["Prix mark", fmtPrice(d.mark, d.decimals)],
+    ["Valeur notionnelle", fmtMoney(d.notional)],
+    ["Levier", "x"+fmtLev(d.leverage)],
+  ];
+  let ry = 640;
+  rows.forEach(r=>{
+    ctx.strokeStyle = line; ctx.beginPath(); ctx.moveTo(64,ry); ctx.lineTo(W-64,ry); ctx.stroke();
+    ry += 70;
+    drawStatRow(ctx, 64, ry-25, W-128, r[0], r[1], faint, text);
+  });
+  ctx.textAlign = "left";
+  ctx.fillStyle = faint; ctx.font = "500 20px IBM Plex Mono, monospace";
+  ctx.fillText("Compte de trading simulé — à but pédagogique, aucun argent réel.", 64, H-60);
+}
+// Style 4 — "Terminal": monospace green-on-black CLI look.
+function drawShareCardTerminal(ctx, W, H, d){
+  const bg = "#05080a", green = "#39ff9f", dimGreen = "#1c8a5c", red = "#ff5566", white = "#d8ffe8";
+  const pnlColor = d.pnl>=0 ? green : red;
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle = green; ctx.lineWidth = 3;
+  ctx.strokeRect(40,40,W-80,H-80);
+  ctx.font = "700 24px IBM Plex Mono, monospace";
+  ctx.textAlign = "left";
+  ctx.fillStyle = green;
+  const lines = [
+    "$ papertape --position "+d.symbol,
+    "> instrument ......... "+d.name,
+    "> side ................ "+(d.side==="long"?"LONG":"SHORT"),
+    "> leverage ............ x"+fmtLev(d.leverage),
+    "> entry ............... "+fmtPrice(d.entry, d.decimals),
+    "> mark ................ "+fmtPrice(d.mark, d.decimals),
+    "> notional ............ "+fmtMoney(d.notional),
+  ];
+  let ly = 130;
+  lines.forEach(l=>{ ctx.fillStyle = l.startsWith("$")?white:dimGreen; ctx.fillText(l, 80, ly); ly += 48; });
+  ctx.fillStyle = green;
+  ctx.fillText("> unrealized_pnl ......", 80, ly); ly += 70;
+  ctx.font = "800 96px IBM Plex Mono, monospace";
+  ctx.fillStyle = pnlColor;
+  ctx.fillText((d.pnl>=0?"+":"")+fmtMoney(d.pnl), 80, ly+30);
+  ly += 130;
+  ctx.font = "700 34px IBM Plex Mono, monospace";
+  const pctLine = "("+fmtPct(d.pnlPct)+" margin) "+(pnlColor===green?"▲":"▼");
+  ctx.fillText(pctLine, 80, ly);
+  const pctLineWidth = ctx.measureText(pctLine).width; // measured in the SAME font it was just drawn with
+  ctx.font = "600 24px IBM Plex Mono, monospace";
+  ctx.fillStyle = dimGreen;
+  ctx.fillText("_", 80+pctLineWidth+20, ly);
+  ctx.textAlign = "center";
+  ctx.font = "500 22px IBM Plex Mono, monospace";
+  ctx.fillStyle = dimGreen;
+  ctx.fillText("paper-tape // École de la Bourse // simulation only", W/2, H-70);
+}
+function shareCardFilename(d){
+  return "papertape-"+(d?d.symbol:"position")+"-"+Date.now()+".png";
+}
+function downloadShareCard(){
+  const canvas = document.getElementById("share-card-canvas");
+  const msg = document.getElementById("share-msg");
+  if (!canvas) return;
+  canvas.toBlob((blob)=>{
+    if (!blob){ if (msg) msg.textContent = "Impossible de générer l'image."; return; }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = shareCardFilename(shareCardData());
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 4000);
+    if (msg) msg.textContent = "Image téléchargée.";
+  }, "image/png");
+}
+async function nativeShareCard(){
+  const canvas = document.getElementById("share-card-canvas");
+  const msg = document.getElementById("share-msg");
+  if (!canvas || !navigator.share) return;
+  canvas.toBlob(async (blob)=>{
+    if (!blob) return;
+    const file = new File([blob], shareCardFilename(shareCardData()), {type:"image/png"});
+    try{
+      if (navigator.canShare && !navigator.canShare({files:[file]})){
+        if (msg) msg.textContent = "Le partage direct n'est pas supporté ici — utilise le téléchargement.";
+        return;
+      }
+      await navigator.share({files:[file], title:"Ma position sur Paper Tape"});
+    }catch(e){
+      // AbortError = the user just cancelled the native share sheet, not a real error
+      if (e && e.name!=="AbortError" && msg) msg.textContent = "Partage annulé ou indisponible.";
+    }
+  }, "image/png");
+}
+
 function renderHistory(){
   const list = document.getElementById("history-list");
   if (state.history.length===0){ list.innerHTML = '<div class="empty-note">Pas encore de trade clôturé</div>'; return; }
@@ -2723,6 +3484,235 @@ function renderPerfStats(){
     '</div>';
 }
 
+/* ============================= CHALLENGE PROP FIRM ============================= */
+// A lightweight demo "prop firm challenge" layered on top of the normal demo
+// account — no separate parallel account/order-execution path. Starting one
+// resets state.cash to the chosen tier and tracks a two-step FTMO-style
+// evaluation (Étape 1 → Étape 2 → compte financé) against the exact same
+// positions/orders/history the trader already trades with.
+const CHALLENGE_TIERS = [5000, 10000, 25000, 50000, 100000, 200000];
+// Each step's profit target is measured from THAT step's own starting
+// equity (not compounded from the original tier) — same convention real
+// two-step evaluations use: Étape 2 starts wherever Étape 1 left off.
+const CHALLENGE_STEPS = {
+  step1: {profitTargetPct: 10, label: "Étape 1 — Challenge"},
+  step2: {profitTargetPct: 5,  label: "Étape 2 — Vérification"},
+};
+const CHALLENGE_RULES = {
+  maxDailyLossPct: 5,   // equity can't drop more than this % below the day's starting equity
+  maxDrawdownPct: 10,   // equity can't drop more than this % below the challenge's ORIGINAL balance, for its whole life (incl. once funded)
+  minTradingDays: 4,    // distinct days with >=1 trade opened, required per step before passing it
+};
+function todayKey(){ return new Date().toISOString().slice(0,10); } // YYYY-MM-DD (UTC)
+// Creates a brand-new Prop book (replacing any existing one) sized to
+// `tier`, parks whichever book is currently live, and makes the fresh prop
+// book the active one — your Normal book is never touched or lost, it's
+// just one switch (or "Gérer" → Abandonner) away the whole time.
+function startChallenge(tier){
+  const normalData = bookDataFor("normal") || freshBookObj(START_CASH);
+  state.challenge = {
+    tier, phase:"step1", // "step1" -> "step2" -> "funded" (passed) or "failed" at any point
+    startCash: tier,          // fixed for the challenge's whole life — basis for the overall drawdown floor
+    stepStartEquity: tier,    // baseline for the CURRENT step's profit target — reset when step1 passes into step2
+    startedAt: new Date().toISOString(),
+    dayKey: todayKey(), dailyStartEquity: tier,
+    tradedDates: [], failReason: null, failedAt: null,
+    step1PassedAt: null, step2PassedAt: null, fundedAt: null, fundedValue: null,
+  };
+  state.parked = normalData;
+  state.activeBookName = "prop";
+  loadBookSnapshot(freshBookObj(tier));
+  persistAccount();
+  renderAll();
+  renderChallengeBanner();
+}
+// Called from openPositionCore() whenever a position is opened/added to on
+// the PROP book specifically — marks today toward the current step's
+// minimum-trading-days rule (never for the Normal book).
+function recordChallengeTradingDay(){
+  const c = state.challenge;
+  if (!c || c.phase==="failed") return;
+  const key = todayKey();
+  if (c.tradedDates.indexOf(key)===-1) c.tradedDates.push(key);
+}
+// Re-evaluates the active challenge against the PROP book's current equity
+// (via propEquity() — correct wherever that book currently lives) — called
+// once per price tick from pollAsset(), same cadence as the app's other
+// live checks (liquidations, TP/SL), so a breach is caught as soon as it
+// happens regardless of which book is on screen. Daily loss + drawdown keep
+// being enforced even once funded (only the profit target and
+// min-trading-days gate go away); only "failed" freezes it.
+function updateChallengeStatus(){
+  const c = state.challenge;
+  if (!c || c.phase==="failed") return;
+  const eq = propEquity();
+  if (eq==null) return; // prop book data not loaded yet (e.g. right after boot, before hydrate)
+  const key = todayKey();
+  if (c.dayKey !== key){ c.dayKey = key; c.dailyStartEquity = eq; }
+  const dailyFloor = c.dailyStartEquity * (1 - CHALLENGE_RULES.maxDailyLossPct/100);
+  const overallFloor = c.startCash * (1 - CHALLENGE_RULES.maxDrawdownPct/100);
+  if (eq <= dailyFloor || eq <= overallFloor){
+    c.phase = "failed";
+    c.failReason = eq<=overallFloor ? "drawdown" : "daily";
+    c.failedAt = new Date().toISOString();
+    persistAccount();
+    return;
+  }
+  if (c.phase==="step1" || c.phase==="step2"){
+    const stepCfg = CHALLENGE_STEPS[c.phase];
+    const target = c.stepStartEquity * (1 + stepCfg.profitTargetPct/100);
+    if (eq >= target && c.tradedDates.length >= CHALLENGE_RULES.minTradingDays){
+      if (c.phase==="step1"){
+        c.step1PassedAt = new Date().toISOString();
+        awardBadge('prop_step1_passed', {tier:c.tier, value:eq});
+        c.phase = "step2";
+        // Étape 2 gets its own fresh baseline + trading-day/day counters,
+        // starting from wherever Étape 1 left the account.
+        c.stepStartEquity = eq;
+        c.tradedDates = [];
+        c.dayKey = todayKey();
+        c.dailyStartEquity = eq;
+      } else {
+        c.step2PassedAt = new Date().toISOString();
+        c.fundedAt = new Date().toISOString();
+        c.fundedValue = eq;
+        awardBadge('prop_step2_passed', {tier:c.tier, value:eq});
+        awardBadge('prop_funded', {tier:c.tier, value:eq});
+        c.phase = "funded";
+      }
+      persistAccount();
+    }
+  }
+}
+function challengeStatusLabel(c){
+  if (c.phase==="failed") return c.failReason==="daily" ? "Échec — perte journalière dépassée" : "Échec — drawdown maximal dépassé";
+  if (c.phase==="funded") return "Compte financé (simulation)";
+  return CHALLENGE_STEPS[c.phase] ? CHALLENGE_STEPS[c.phase].label : "Challenge en cours";
+}
+function renderChallengeBanner(){
+  const wrap = document.getElementById("challenge-banner");
+  if (!wrap) return;
+  const c = state.challenge;
+  if (!c){ wrap.hidden = true; return; }
+  wrap.hidden = false;
+  const eq = propEquity();
+  const monitoring = c.phase!=="failed"; // step1/step2/funded all still enforce daily-loss + drawdown
+  const inStep = c.phase==="step1" || c.phase==="step2";
+  const stepCfg = inStep ? CHALLENGE_STEPS[c.phase] : null;
+  const target = inStep ? c.stepStartEquity * (1 + stepCfg.profitTargetPct/100) : null;
+  const progressPct = inStep ? Math.max(0, Math.min(100, ((eq-c.stepStartEquity)/(target-c.stepStartEquity))*100)) : 100;
+  const dailyFloor = c.dailyStartEquity * (1 - CHALLENGE_RULES.maxDailyLossPct/100);
+  const dailyUsedPct = Math.max(0, Math.min(100, ((c.dailyStartEquity-eq)/(c.dailyStartEquity-dailyFloor))*100));
+  const overallFloor = c.startCash * (1 - CHALLENGE_RULES.maxDrawdownPct/100);
+  const ddUsedPct = Math.max(0, Math.min(100, ((c.startCash-eq)/(c.startCash-overallFloor))*100));
+  const statusClass = c.phase==="failed" ? "down" : (c.phase==="funded" ? "up" : "");
+  wrap.innerHTML =
+    '<div class="challenge-banner-top">'+
+      '<span class="challenge-tier">🏆 Challenge '+fmtMoney(c.tier)+'</span>'+
+      '<span class="challenge-status '+statusClass+'">'+challengeStatusLabel(c)+'</span>'+
+      (c.phase==="funded" ? '<span class="challenge-status up">Valeur financée '+fmtMoney(c.fundedValue)+'</span>' : '')+
+      '<div class="challenge-book-switch seg" id="challenge-book-switch">'+
+        '<button type="button" class="on-mode '+(state.activeBookName==="normal"?"active":"")+'" data-book="normal">Compte normal</button>'+
+        '<button type="button" class="on-mode '+(state.activeBookName==="prop"?"active":"")+'" data-book="prop">Compte prop firm</button>'+
+      '</div>'+
+      '<button type="button" class="challenge-manage-btn" id="challenge-manage-btn">Gérer</button>'+
+    '</div>'+
+    (monitoring ?
+      '<div class="challenge-meters">'+
+        (inStep ? '<div class="challenge-meter"><span class="challenge-meter-lbl">Objectif +'+stepCfg.profitTargetPct+'%</span><div class="challenge-meter-bar"><div class="challenge-meter-fill up" style="width:'+progressPct.toFixed(1)+'%;"></div></div></div>' : '')+
+        '<div class="challenge-meter"><span class="challenge-meter-lbl">Perte journ. (max '+CHALLENGE_RULES.maxDailyLossPct+'%)</span><div class="challenge-meter-bar"><div class="challenge-meter-fill down" style="width:'+dailyUsedPct.toFixed(1)+'%;"></div></div></div>'+
+        '<div class="challenge-meter"><span class="challenge-meter-lbl">Drawdown (max '+CHALLENGE_RULES.maxDrawdownPct+'%)</span><div class="challenge-meter-bar"><div class="challenge-meter-fill down" style="width:'+ddUsedPct.toFixed(1)+'%;"></div></div></div>'+
+        (inStep ? '<div class="challenge-meter"><span class="challenge-meter-lbl">Jours de trading</span><span class="challenge-days">'+c.tradedDates.length+' / '+CHALLENGE_RULES.minTradingDays+'</span></div>' : '')+
+      '</div>' : ''
+    );
+  const btn = document.getElementById("challenge-manage-btn");
+  if (btn) btn.addEventListener("click", openChallengeManageModal);
+  wrap.querySelectorAll("#challenge-book-switch button").forEach(b=>{
+    b.addEventListener("click", ()=>switchActiveBook(b.dataset.book));
+  });
+}
+function renderChallengeProfileCard(){
+  const body = document.getElementById("challenge-card-body");
+  if (!body) return;
+  const c = state.challenge;
+  if (!c){
+    body.innerHTML =
+      '<p class="chart-note" style="margin-bottom:10px;">Trade un compte démo calqué sur les règles d\'une prop firm en 2 étapes (challenge puis vérification, avant le compte financé) — comptes de '+fmtMoney(CHALLENGE_TIERS[0])+' à '+fmtMoney(CHALLENGE_TIERS[CHALLENGE_TIERS.length-1])+'. Ton compte normal reste actif à côté — tu peux trader les deux et basculer entre eux à tout moment.</p>'+
+      '<button class="btn-primary" id="challenge-start-btn">Commencer un challenge</button>';
+    const btn = document.getElementById("challenge-start-btn");
+    if (btn) btn.addEventListener("click", openStartChallengeModal);
+  } else {
+    body.innerHTML =
+      '<p class="chart-note" style="margin-bottom:10px;">'+challengeStatusLabel(c)+' · '+fmtMoney(c.tier)+' · Équité '+fmtMoney(propEquity()||0)+(c.phase==="funded"?' · Valeur financée '+fmtMoney(c.fundedValue):'')+'</p>'+
+      '<button class="btn-secondary" id="challenge-manage-btn-2">Gérer ce challenge</button>';
+    const btn = document.getElementById("challenge-manage-btn-2");
+    if (btn) btn.addEventListener("click", openChallengeManageModal);
+  }
+}
+function openStartChallengeModal(){
+  openModal(
+    '<h3 style="margin-bottom:4px;">Commencer un challenge prop firm</h3>'+
+    '<div class="chart-note" style="margin-bottom:14px;">Choisis la taille de compte : ton solde démo est remis à ce montant et les règles ci-dessous s\'appliquent, comme sur une vraie évaluation de prop trading en 2 étapes (type FTMO).</div>'+
+    '<div class="help-row"><strong>Étape 1 — Challenge</strong> — atteindre +'+CHALLENGE_STEPS.step1.profitTargetPct+'% d\'équité pour passer à l\'étape 2.</div>'+
+    '<div class="help-row"><strong>Étape 2 — Vérification</strong> — atteindre encore +'+CHALLENGE_STEPS.step2.profitTargetPct+'% (à partir du solde de fin d\'étape 1) pour décrocher le compte financé.</div>'+
+    '<div class="help-row"><strong>Perte journalière max</strong> — l\'équité ne doit jamais descendre de plus de '+CHALLENGE_RULES.maxDailyLossPct+'% sous l\'équité de début de journée, à chaque étape et une fois financé.</div>'+
+    '<div class="help-row"><strong>Drawdown max</strong> — l\'équité ne doit jamais descendre de plus de '+CHALLENGE_RULES.maxDrawdownPct+'% sous le capital de départ, pour toute la durée du challenge.</div>'+
+    '<div class="help-row"><strong>Jours de trading min.</strong> — au moins '+CHALLENGE_RULES.minTradingDays+' jours différents avec au moins un trade ouvert, à chaque étape.</div>'+
+    '<div class="chart-note" style="margin:12px 0 8px;">Démarrer un challenge réinitialise ton solde, tes positions et tes ordres en attente sur ce compte.</div>'+
+    '<div class="challenge-tier-grid" id="challenge-tier-grid">'+
+      CHALLENGE_TIERS.map(t=>'<button type="button" class="btn-secondary challenge-tier-btn" data-tier="'+t+'">'+fmtMoney(t)+'</button>').join("")+
+    '</div>'
+  );
+  document.querySelectorAll(".challenge-tier-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const tier = parseInt(btn.dataset.tier,10);
+      const warnExtra = (state.positions.length || state.pendingOrders.length) ? " Tes positions ouvertes et ordres en attente seront aussi effacés." : "";
+      if (!confirm("Démarrer un challenge à "+fmtMoney(tier)+" ? Ton solde démo actuel sera remplacé par ce montant."+warnExtra)) return;
+      startChallenge(tier);
+      closeModal();
+    });
+  });
+}
+function openChallengeManageModal(){
+  const c = state.challenge;
+  if (!c) return;
+  const eq = propEquity();
+  openModal(
+    '<h3 style="margin-bottom:4px;">Challenge '+fmtMoney(c.tier)+'</h3>'+
+    '<div class="chart-note" style="margin-bottom:14px;">'+challengeStatusLabel(c)+' · Équité actuelle '+fmtMoney(eq||0)+'</div>'+
+    (c.phase==="failed" ? '<div class="help-row">Ce challenge a échoué. Tu peux en recommencer un nouveau (même taille ou une autre) quand tu veux, ou revenir à ton compte démo normal.</div>' : '') +
+    (c.phase==="step2" ? '<div class="help-row">Étape 1 validée'+(c.step1PassedAt?(' le '+new Date(c.step1PassedAt).toLocaleDateString('fr-FR')):'')+'. Encore +'+CHALLENGE_STEPS.step2.profitTargetPct+'% à réaliser à partir de '+fmtMoney(c.stepStartEquity)+' pour décrocher le compte financé.</div>' : '') +
+    (c.phase==="funded" ? '<div class="help-row">Bravo — compte financé (simulation) décroché à '+fmtMoney(c.fundedValue)+'. Ce compte reste soumis aux règles de perte journalière et de drawdown ; il n\'y a plus d\'objectif de profit à atteindre.</div>' : '') +
+    '<div class="help-row">Ton compte normal reste intact à côté — utilise les boutons « Compte normal / Compte prop firm » au-dessus pour basculer entre les deux, à tout moment.</div>'+
+    '<h4 style="margin:14px 0 6px;font-size:12.5px;color:var(--text-dim);">Copier les ordres entre comptes</h4>'+
+    '<label class="chart-note" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:6px;"><input type="checkbox" id="copy-normal-to-prop" '+(state.copyNormalToProp?"checked":"")+'> Copier les ordres ouverts sur le compte normal vers le prop firm</label>'+
+    '<label class="chart-note" style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="copy-prop-to-normal" '+(state.copyPropToNormal?"checked":"")+'> Copier les ordres ouverts sur le prop firm vers le compte normal</label>'+
+    '<div class="chart-note" style="margin-top:6px;">Seules les <strong>ouvertures</strong> de position sont copiées (pas les clôtures, TP/SL ni modifications) — la taille copiée est automatiquement plafonnée à la marge disponible sur le compte de destination.</div>'+
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">'+
+      '<button class="btn-secondary" id="challenge-restart-btn">Recommencer un challenge</button>'+
+      '<button class="btn-secondary" id="challenge-abandon-btn">Abandonner le prop firm</button>'+
+    '</div>'
+  );
+  document.getElementById("copy-normal-to-prop").addEventListener("change", (e)=>{ state.copyNormalToProp = e.target.checked; persistAccount(); });
+  document.getElementById("copy-prop-to-normal").addEventListener("change", (e)=>{ state.copyPropToNormal = e.target.checked; persistAccount(); });
+  document.getElementById("challenge-restart-btn").addEventListener("click", ()=>{ closeModal(); openStartChallengeModal(); });
+  document.getElementById("challenge-abandon-btn").addEventListener("click", ()=>{
+    if (!confirm("Abandonner ce challenge ? Le compte prop firm sera définitivement supprimé (positions, ordres et historique compris) — ton compte normal n'est pas affecté.")) return;
+    if (state.activeBookName==="prop"){
+      loadBookSnapshot(state.parked || freshBookObj(START_CASH));
+      state.activeBookName = "normal";
+    }
+    state.parked = null;
+    state.challenge = null;
+    state.copyNormalToProp = false;
+    state.copyPropToNormal = false;
+    persistAccount();
+    renderAll();
+    renderChallengeBanner();
+    closeModal();
+  });
+}
+
 /* ============================= ORDER LOGIC ============================= */
 // Shared "open or merge into an existing position" core, used both by the
 // immediate market-order path and by a limit order filling later — takes
@@ -2758,6 +3748,47 @@ function openPositionCore(o){ // o: {symbol,side,mode,leverage,entry,notional,in
     });
   }
   state.stats.tradesOpened = (state.stats.tradesOpened||0)+1;
+  if (currentBookName()==="prop") recordChallengeTradingDay();
+}
+// Copy-trading: after an order opens (market) or queues (limit) on the
+// ACTIVE book, optionally mirrors an equivalent one onto the OTHER book —
+// same symbol/side/mode/leverage/TP-SL and the same dollar notional,
+// capped to whatever free margin the destination book actually has
+// (skipped silently under $10 — not worth opening a dust position). Reuses
+// withParkedBook() and the ordinary order-engine functions, exactly like
+// the background liquidation/TP-SL checks do, so there's no separate copy
+// of the execution math to keep in sync. Only ENTRIES mirror — closes,
+// TP/SL edits, partial closes and cancellations never do (see the note in
+// the challenge manage modal), so the two books can drift apart in size
+// over time; that's a known, intentional scope limit for v1.
+function mirrorOrderToOtherBook(kind, params){
+  const sourceName = currentBookName();
+  const flag = sourceName==="normal" ? state.copyNormalToProp : (sourceName==="prop" ? state.copyPropToNormal : false);
+  if (!flag || !state.parked) return;
+  withParkedBook(()=>{
+    if (!hasLive(params.symbol)) return;
+    const feeRate = kind==="limit" ? MAKER_FEE_RATE : TAKER_FEE_RATE;
+    const destFree = freeBalance();
+    const maxNotional = destFree>0 ? (destFree/((1/params.leverage)+feeRate))*0.999 : 0;
+    const destNotional = Math.min(params.notional, Math.max(0, maxNotional));
+    if (!(destNotional>=10)) return; // destination can't afford a meaningful mirror — skip quietly
+    const destInitMargin = destNotional/params.leverage;
+    if (kind==="market"){
+      const destFee = destNotional*TAKER_FEE_RATE;
+      openPositionCore({symbol:params.symbol, side:params.side, mode:params.mode, leverage:params.leverage, entry:params.entry, notional:destNotional, initMargin:destInitMargin, entryFee:destFee, tpVal:params.tpVal, slVal:params.slVal});
+      state.marginUsed += destInitMargin;
+      state.cash -= destFee;
+    } else {
+      const destFeeEst = destNotional*MAKER_FEE_RATE;
+      state.pendingOrders.push({
+        id: uid(), symbol:params.symbol, side:params.side, mode:params.mode, leverage:params.leverage,
+        limitPrice:params.entry, notional:destNotional, initMargin:destInitMargin, entryFeeEst:destFeeEst,
+        takeProfit:params.tpVal, stopLoss:params.slVal, createdAt:new Date().toISOString(),
+      });
+      state.marginUsed += destInitMargin;
+    }
+    persistAccount();
+  });
 }
 function submitOrder(){
   const msg = document.getElementById("ticket-msg");
@@ -2803,6 +3834,7 @@ function submitOrder(){
     openPositionCore({symbol:selectedSymbol, side, mode:marginMode, leverage, entry, notional, initMargin, entryFee, tpVal, slVal});
     state.marginUsed += initMargin;
     state.cash -= entryFee;
+    mirrorOrderToOtherBook("market", {symbol:selectedSymbol, side, mode:marginMode, leverage, entry, notional, tpVal, slVal});
     msg.textContent = "";
     document.getElementById("tp-input").value = "";
     document.getElementById("sl-input").value = "";
@@ -2852,6 +3884,7 @@ function submitLimitOrder(msg){
       takeProfit:tpVal, stopLoss:slVal, createdAt:new Date().toISOString(),
     });
     state.marginUsed += initMargin; // reserved until filled or cancelled
+    mirrorOrderToOtherBook("limit", {symbol:selectedSymbol, side, mode:marginMode, leverage, entry:limitPrice, notional, tpVal, slVal});
     msg.textContent = "";
     document.getElementById("limit-price-input").value = "";
     document.getElementById("tp-input").value = "";
@@ -3094,6 +4127,42 @@ function renderLeaderboard(docs){
     tr.addEventListener("click", ()=>openTraderProfileModal(tr.dataset.traderId));
   });
 }
+let propLeaderboardDocsCache = {};
+function renderPropLeaderboard(docs){
+  const body = document.getElementById("prop-lb-body");
+  if (!body) return;
+  // Defensive client-side filter/sort (propEquity==null docs excluded, ties
+  // broken consistently) — correct against a real Firestore orderBy AND
+  // against test stubs that don't actually implement orderBy/where.
+  const rows = docs.filter(doc=>{ const d = doc.data(); return d.propEquity!=null && d.challenge; })
+    .sort((a,b)=> (b.data().propEquity||0) - (a.data().propEquity||0));
+  if (!rows.length){ body.innerHTML = '<tr><td colspan="5" class="empty-note">Aucun challenge prop firm en cours pour le moment — sois le premier.</td></tr>'; return; }
+  propLeaderboardDocsCache = {};
+  rows.forEach(doc=>{ propLeaderboardDocsCache[doc.id] = doc; });
+  body.innerHTML = rows.map((doc,i)=>{
+    const d = doc.data();
+    const c = d.challenge || {};
+    const rank = i+1;
+    const ret = c.tier ? ((d.propEquity-c.tier)/c.tier)*100 : 0;
+    const rankClass = rank===1?"rank-1":rank===2?"rank-2":rank===3?"rank-3":"";
+    const phaseLabel = c.phase==="failed" ? "Échec" : c.phase==="funded" ? "Financé" : c.phase==="step2" ? "Étape 2" : "Étape 1";
+    const phaseClass = c.phase==="failed" ? "down" : c.phase==="funded" ? "up" : "";
+    return '<tr class="lb-row-clickable '+(doc.id===clientId?"me":"")+'" data-trader-id="'+doc.id+'" title="Voir le profil">'+
+      '<td class="num '+rankClass+'">#'+rank+'</td>'+
+      '<td>'+avatarHtml(d.photoURL, d.username)+' '+escapeHtml(d.username||"Trader")+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
+      '<td class="num">'+fmtMoney(c.tier||0)+'</td>'+
+      '<td class="num '+phaseClass+'">'+phaseLabel+'</td>'+
+      '<td class="num '+(ret>=0?"up":"down")+'">'+fmtMoney(d.propEquity||0)+' <span style="font-weight:400;">('+fmtPct(ret)+')</span></td>'+
+    '</tr>';
+  }).join("");
+  body.querySelectorAll("tr[data-trader-id]").forEach(tr=>{
+    tr.addEventListener("click", ()=>openTraderProfileModal(tr.dataset.traderId));
+  });
+}
+function renderPropLeaderboardError(){
+  const body = document.getElementById("prop-lb-body");
+  if (body) body.innerHTML = '<tr><td colspan="5" class="empty-note">Classement indisponible pour le moment.</td></tr>';
+}
 function renderLeaderboardError(){
   document.getElementById("lb-body").innerHTML = '<tr><td colspan="4" class="empty-note">Classement indisponible pour le moment.</td></tr>';
 }
@@ -3101,7 +4170,7 @@ function renderLeaderboardError(){
 // for any trader in the cached equity leaderboard. Posting to your OWN feed
 // happens from the Profil tab (initFeedPosting), not from here.
 function openTraderProfileModal(id){
-  const doc = leaderboardDocsCache[id];
+  const doc = leaderboardDocsCache[id] || propLeaderboardDocsCache[id];
   const d = doc && doc.data();
   if (!d) return;
   const feed = Array.isArray(d.feed) ? d.feed : [];
@@ -3152,6 +4221,123 @@ function initLightbox(){
   });
   document.getElementById("lightbox-close-x").addEventListener("click", closeLightbox);
 }
+
+/* ============================= ONBOARDING TOUR ============================= */
+// A short spotlight tour over the key terminal widgets. Auto-triggered
+// exactly once, right after a brand-new account's very first login (see
+// isFreshAccount / initAuth()'s onAuthStateChanged) — never again after
+// that automatically, on any device. Anyone can replay it manually from
+// Profil → "Revoir le tutoriel" (#tour-replay-btn).
+const TOUR_STEPS = [
+  { selector:'.widget[data-widget="watchlist"]',
+    title:"Les marchés",
+    text:"Cette liste, c'est tout ce qui se trade ici : crypto, EUR/USD, indices, métaux. Clique sur une ligne pour l'envoyer dans le graphique et le ticket d'ordre." },
+  { selector:'.widget[data-widget="chart"]',
+    title:"Le graphique",
+    text:"TradingView est affiché par défaut (bouton « Interne » pour basculer sur le chart maison). Juste au-dessus dans la colonne de gauche, le widget Sessions te dit en direct quels marchés (Asie, Londres, New York) sont ouverts." },
+  { selector:'.widget[data-widget="ticket"]',
+    title:"Passer un ordre",
+    text:"Long ou Short, Marché (exécution immédiate, frais taker) ou Limite (tu fixes ton prix, frais maker moins chers), ton levier, ta marge Isolated/Cross, et en option un Take Profit / Stop Loss dès l'ouverture. Un terme n'est pas clair ? Clique sur le bouton « ? » juste au-dessus, en jaune." },
+  { selector:'.widget[data-widget="positions"]',
+    title:"Gérer tes positions et tes ordres",
+    text:"Une fois une position ouverte, retrouve-la ici : modifie son Take Profit / Stop Loss, utilise le raccourci Breakeven pour sécuriser ton entrée une fois en gain, ou clôture-la en partie seulement. Un ordre Limite pas encore exécuté attend juste en dessous dans Ordres en attente — modifiable ou annulable tant qu'il n'a pas rempli." },
+  { selector:'.widget[data-widget="account"]',
+    title:"Ton compte",
+    text:"Cash, équité, marge utilisée et marge libre — tout est suivi en direct ici." },
+];
+let tourStepIndex = 0;
+function positionTourStep(){
+  const overlay = document.getElementById("tour-overlay");
+  if (!overlay || overlay.hidden) return;
+  const highlight = document.getElementById("tour-highlight");
+  const card = document.getElementById("tour-card");
+  const step = TOUR_STEPS[tourStepIndex];
+  const target = step.selector ? document.querySelector(step.selector) : null;
+  // offsetParent is null both for display:none and for [hidden] elements —
+  // a cheap "is this actually on screen" check without extra bookkeeping.
+  const visible = target && target.offsetParent !== null;
+  const pad = 6;
+  const cardWidth = Math.min(300, window.innerWidth - 32);
+  card.style.width = cardWidth + "px";
+  if (visible){
+    // Instant (not smooth) on purpose: a smooth scroll is still animating
+    // when the very next line reads getBoundingClientRect(), so the
+    // highlight would be computed against the pre-scroll position and could
+    // land over the wrong widget entirely for a widget that needed real
+    // scrolling (e.g. "center" trying to center a widget taller than the
+    // viewport). Instant scroll is synchronous, so the rect below is always
+    // correct for the final, settled position. "nearest" (not "center")
+    // also means it usually doesn't scroll at all when the widget is
+    // already fully visible, which is the common case on a normal desktop
+    // viewport.
+    target.scrollIntoView({behavior:"auto", block:"nearest", inline:"nearest"});
+    const r = target.getBoundingClientRect();
+    highlight.style.display = "";
+    highlight.style.top = (r.top - pad) + "px";
+    highlight.style.left = (r.left - pad) + "px";
+    highlight.style.width = (r.width + pad*2) + "px";
+    highlight.style.height = (r.height + pad*2) + "px";
+    let top = r.bottom + pad + 12;
+    const cardEstHeight = 180;
+    if (top + cardEstHeight > window.innerHeight) top = Math.max(16, r.top - pad - 12 - cardEstHeight);
+    const left = Math.min(Math.max(16, r.left), Math.max(16, window.innerWidth - cardWidth - 16));
+    card.style.top = top + "px";
+    card.style.left = left + "px";
+  } else {
+    // Target widget missing or hidden (e.g. someone rearranged/hid it before
+    // the tour ran) — fall back to a centered card with no spotlight rather
+    // than breaking the tour.
+    highlight.style.display = "none";
+    card.style.top = (window.innerHeight/2 - 90) + "px";
+    card.style.left = ((window.innerWidth - cardWidth)/2) + "px";
+  }
+  document.getElementById("tour-step-count").textContent = "Étape "+(tourStepIndex+1)+"/"+TOUR_STEPS.length;
+  document.getElementById("tour-title").textContent = step.title;
+  document.getElementById("tour-text").textContent = step.text;
+  document.getElementById("tour-prev-btn").hidden = tourStepIndex===0;
+  document.getElementById("tour-next-btn").textContent = (tourStepIndex===TOUR_STEPS.length-1) ? "Terminé" : "Suivant";
+}
+function startOnboardingTour(){
+  tourStepIndex = 0;
+  const overlay = document.getElementById("tour-overlay");
+  if (!overlay) return;
+  // All 5 targets live on the Terminal view — switch there first (this used
+  // to only happen on the auto-trigger path; the manual "Revoir le
+  // tutoriel" button in Profil called this directly and left you on the
+  // Profil view, where every target is hidden and the tour effectively
+  // couldn't highlight anything).
+  switchView("terminal");
+  overlay.hidden = false;
+  positionTourStep();
+}
+function endOnboardingTour(){
+  const overlay = document.getElementById("tour-overlay");
+  if (overlay) overlay.hidden = true;
+}
+function initOnboardingTour(){
+  const nextBtn = document.getElementById("tour-next-btn");
+  const prevBtn = document.getElementById("tour-prev-btn");
+  const skipBtn = document.getElementById("tour-skip-btn");
+  const replayBtn = document.getElementById("tour-replay-btn");
+  if (nextBtn) nextBtn.addEventListener("click", ()=>{
+    if (tourStepIndex>=TOUR_STEPS.length-1){ endOnboardingTour(); return; }
+    tourStepIndex++;
+    positionTourStep();
+  });
+  if (prevBtn) prevBtn.addEventListener("click", ()=>{
+    if (tourStepIndex>0){ tourStepIndex--; positionTourStep(); }
+  });
+  if (skipBtn) skipBtn.addEventListener("click", endOnboardingTour);
+  if (replayBtn) replayBtn.addEventListener("click", startOnboardingTour);
+  window.addEventListener("resize", ()=>{ if (!document.getElementById("tour-overlay").hidden) positionTourStep(); });
+  window.addEventListener("scroll", ()=>{ if (!document.getElementById("tour-overlay").hidden) positionTourStep(); }, {passive:true, capture:true});
+  document.addEventListener("keydown", (e)=>{
+    if (document.getElementById("tour-overlay").hidden) return;
+    if (e.key==="Escape") endOnboardingTour();
+    if (e.key==="ArrowRight") nextBtn.click();
+    if (e.key==="ArrowLeft" && !prevBtn.hidden) prevBtn.click();
+  });
+}
 function closeModal(){
   document.getElementById("modal-overlay").hidden = true;
   document.getElementById("modal-box").innerHTML = "";
@@ -3169,10 +4355,16 @@ const BADGES = [
  {id:"first_superflash", icon:"⚡", title:"Speedrunner", desc:"Terminer un run Superflash."},
  {id:"journal_first", icon:"✍️", title:"Journaliste", desc:"Écrire ta première note de journal."},
  {id:"feedback_sent", icon:"💬", title:"Voix de la communauté", desc:"Envoyer un premier retour (bug ou idée)."},
+ {id:"prop_step1_passed", icon:"🥉", title:"Prop Firm — Étape 1", desc:"Valider l'étape 1 (challenge) d'un compte prop firm démo."},
+ {id:"prop_step2_passed", icon:"🥈", title:"Prop Firm — Étape 2", desc:"Valider l'étape 2 (vérification) d'un compte prop firm démo."},
+ {id:"prop_funded", icon:"🥇", title:"Prop Firm — Financé", desc:"Décrocher un compte financé (simulation) sur un challenge prop firm."},
 ];
-function awardBadge(id){
+// `extra` (optional) is merged into the stored badge entry — used by the
+// prop firm challenge to keep the account tier + the equity value at the
+// moment the badge was earned (shown on the tile and in the toast).
+function awardBadge(id, extra){
   if (state.badges[id]) return;
-  state.badges[id] = {earnedAt:new Date().toISOString()};
+  state.badges[id] = Object.assign({earnedAt:new Date().toISOString()}, extra||{});
   persistAccount();
   showBadgeToast(id);
   renderBadgesGrid();
@@ -3181,10 +4373,12 @@ function showBadgeToast(id){
   const b = BADGES.find(x=>x.id===id);
   const el = document.getElementById("badge-toast");
   if (!b || !el) return;
+  const entry = state.badges[id];
+  const valueNote = (entry && entry.value!=null) ? ' <span style="opacity:.75;">('+fmtMoney(entry.value)+')</span>' : '';
   el.innerHTML =
     '<div class="badge-toast-inner">'+
       '<span class="badge-toast-icon">'+b.icon+'</span>'+
-      '<div><div class="badge-toast-title">Badge débloqué</div><div class="badge-toast-name">'+escapeHtml(b.title)+'</div></div>'+
+      '<div><div class="badge-toast-title">Badge débloqué</div><div class="badge-toast-name">'+escapeHtml(b.title)+valueNote+'</div></div>'+
     '</div>';
   el.hidden = false;
   requestAnimationFrame(()=>el.classList.add("show"));
@@ -3198,10 +4392,13 @@ function renderBadgesGrid(){
   const el = document.getElementById("badges-grid");
   if (!el) return;
   el.innerHTML = BADGES.map(b=>{
-    const earned = !!state.badges[b.id];
+    const entry = state.badges[b.id];
+    const earned = !!entry;
+    const sub = (earned && entry.value!=null) ? '<div class="badge-tile-sub">'+fmtMoney(entry.value)+'</div>' : '';
     return '<div class="badge-tile'+(earned?" earned":"")+'" title="'+escapeHtml(b.desc)+'">'+
       '<div class="badge-tile-icon">'+(earned?b.icon:"🔒")+'</div>'+
       '<div class="badge-tile-title">'+escapeHtml(b.title)+'</div>'+
+      sub+
     '</div>';
   }).join("");
 }
@@ -3311,34 +4508,74 @@ function openBreakevenModal(p){
   document.getElementById("be-fees-btn").addEventListener("click", ()=>apply(beFees));
 }
 function openTPSLModal(p){
+  // Each leg (TP/SL) can be sized either by % of the position or by a raw
+  // quantity of the asset — stored internally as a % either way (that's
+  // what triggerTpSl()/closePositionPartial() already expect), converted
+  // from quantity at save time. Per-leg unit state lives inside
+  // wireUnitToggle() below (one instance per leg).
   openModal(
     '<h3 style="margin-bottom:14px;">Take Profit / Stop Loss</h3>'+
     '<div class="chart-note" style="margin-bottom:12px;">'+p.symbol+' · '+(p.side==="long"?"Long":"Short")+' · Entrée '+fmtMoney(p.entryPrice)+' · Taille '+fmtQty(p.sizeUnits)+' '+p.symbol+'</div>'+
     '<div class="field-row"><label>Take Profit</label><input type="number" step="any" class="tpsl-input" id="tpsl-tp-input" placeholder="Optionnel" value="'+(p.takeProfit!=null?p.takeProfit:"")+'"></div>'+
-    '<div class="field-row"><label>TP — % de la position à clôturer</label><input type="number" step="1" min="1" max="100" class="tpsl-input" id="tpsl-tp-pct-input" placeholder="100" value="'+(p.takeProfitPct!=null?p.takeProfitPct:"")+'"></div>'+
+    '<div class="field-row"><label>TP — clôturer par</label><div class="seg"><button type="button" class="on-mode active" id="tpsl-tp-unit-pct">%</button><button type="button" class="on-mode" id="tpsl-tp-unit-qty">Quantité ('+p.symbol+')</button></div></div>'+
+    '<div class="field-row"><label id="tpsl-tp-pct-label">TP — % de la position à clôturer</label><input type="number" step="any" min="0" class="tpsl-input" id="tpsl-tp-pct-input" placeholder="100" value="'+(p.takeProfitPct!=null?p.takeProfitPct:"")+'"></div>'+
     '<div class="field-row" style="margin-top:10px;"><label>Stop Loss</label><input type="number" step="any" class="tpsl-input" id="tpsl-sl-input" placeholder="Optionnel" value="'+(p.stopLoss!=null?p.stopLoss:"")+'"></div>'+
-    '<div class="field-row"><label>SL — % de la position à clôturer</label><input type="number" step="1" min="1" max="100" class="tpsl-input" id="tpsl-sl-pct-input" placeholder="100" value="'+(p.stopLossPct!=null?p.stopLossPct:"")+'"></div>'+
-    '<div class="chart-note" style="margin-top:6px;">Laisse le % vide (ou 100) pour une clôture complète au déclenchement — sinon seule cette part se ferme, le reste de la position continue à tourner.</div>'+
+    '<div class="field-row"><label>SL — clôturer par</label><div class="seg"><button type="button" class="on-mode active" id="tpsl-sl-unit-pct">%</button><button type="button" class="on-mode" id="tpsl-sl-unit-qty">Quantité ('+p.symbol+')</button></div></div>'+
+    '<div class="field-row"><label id="tpsl-sl-pct-label">SL — % de la position à clôturer</label><input type="number" step="any" min="0" class="tpsl-input" id="tpsl-sl-pct-input" placeholder="100" value="'+(p.stopLossPct!=null?p.stopLossPct:"")+'"></div>'+
+    '<div class="chart-note" style="margin-top:6px;">Laisse ce champ vide (ou 100%) pour une clôture complète au déclenchement — sinon seule cette part se ferme, le reste de la position continue à tourner.</div>'+
     '<div class="chart-note" id="tpsl-msg" style="margin:10px 0;color:var(--warn);"></div>'+
     '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px;">'+
       '<button class="btn-secondary" id="tpsl-clear">Tout retirer</button>'+
       '<button class="btn-primary" id="tpsl-save">Enregistrer</button>'+
     '</div>'
   );
+  // Wires the %/quantity toggle for one leg (tp or sl): converts whatever's
+  // typed when the unit switches, and returns a getter that always resolves
+  // the input back to a 0-100 percentage, regardless of which unit is shown.
+  function wireUnitToggle(leg){
+    const btnPct = document.getElementById("tpsl-"+leg+"-unit-pct");
+    const btnQty = document.getElementById("tpsl-"+leg+"-unit-qty");
+    const label = document.getElementById("tpsl-"+leg+"-pct-label");
+    const input = document.getElementById("tpsl-"+leg+"-pct-input");
+    let unit = "pct";
+    btnPct.addEventListener("click", ()=>{
+      if (unit==="pct") return;
+      const raw = parseFloat(input.value);
+      unit = "pct";
+      btnPct.classList.add("active"); btnQty.classList.remove("active");
+      label.textContent = (leg==="tp"?"TP":"SL")+" — % de la position à clôturer";
+      if (raw>=0 && p.sizeUnits>0) input.value = trimNum(raw/p.sizeUnits*100, 2);
+    });
+    btnQty.addEventListener("click", ()=>{
+      if (unit==="qty") return;
+      const raw = parseFloat(input.value);
+      unit = "qty";
+      btnQty.classList.add("active"); btnPct.classList.remove("active");
+      label.textContent = (leg==="tp"?"TP":"SL")+" — quantité à clôturer ("+p.symbol+")";
+      if (raw>=0) input.value = trimNum(raw/100*p.sizeUnits, 6);
+    });
+    return function toPct(){
+      const raw = input.value;
+      if (raw==="") return 100; // unchanged default: empty = full close
+      const n = parseFloat(raw);
+      if (!(n>=0)) return NaN;
+      return unit==="pct" ? n : (p.sizeUnits>0 ? (n/p.sizeUnits)*100 : NaN);
+    };
+  }
+  const tpToPct = wireUnitToggle("tp");
+  const slToPct = wireUnitToggle("sl");
   function readAndValidate(){
     const tpRaw = document.getElementById("tpsl-tp-input").value;
     const slRaw = document.getElementById("tpsl-sl-input").value;
-    const tpPctRaw = document.getElementById("tpsl-tp-pct-input").value;
-    const slPctRaw = document.getElementById("tpsl-sl-pct-input").value;
     const tpVal = tpRaw!=="" ? parseFloat(tpRaw) : null;
     const slVal = slRaw!=="" ? parseFloat(slRaw) : null;
-    const tpPct = tpPctRaw!=="" ? parseFloat(tpPctRaw) : 100;
-    const slPct = slPctRaw!=="" ? parseFloat(slPctRaw) : 100;
+    const tpPct = tpToPct();
+    const slPct = slToPct();
     const msg = document.getElementById("tpsl-msg");
     if (tpVal!=null && !(tpVal>0)){ msg.textContent = "Take Profit invalide."; return null; }
     if (slVal!=null && !(slVal>0)){ msg.textContent = "Stop Loss invalide."; return null; }
-    if (!(tpPct>0 && tpPct<=100)){ msg.textContent = "Le % TP doit être entre 1 et 100."; return null; }
-    if (!(slPct>0 && slPct<=100)){ msg.textContent = "Le % SL doit être entre 1 et 100."; return null; }
+    if (!(tpPct>0 && tpPct<=100)){ msg.textContent = "La taille du TP dépasse la position ou est invalide."; return null; }
+    if (!(slPct>0 && slPct<=100)){ msg.textContent = "La taille du SL dépasse la position ou est invalide."; return null; }
     if (p.side==="long"){
       if (tpVal!=null && tpVal<=p.entryPrice){ msg.textContent = "Le Take Profit doit être au-dessus du prix d'entrée pour un long."; return null; }
       if (slVal!=null && slVal>=p.entryPrice){ msg.textContent = "Le Stop Loss doit être en-dessous du prix d'entrée pour un long."; return null; }
@@ -3372,12 +4609,23 @@ function openTPSLModal(p){
 }
 
 /* ============================= PARTIAL CLOSE ============================= */
+// Rounds a number to a reasonable number of decimals and strips trailing
+// zeros, so switching between % and quantity doesn't fill the input with
+// long floating-point tails (e.g. 0.30000000000000004 BTC).
+function trimNum(n, decimals){
+  if (!isFinite(n)) return "";
+  return n.toFixed(decimals==null?6:decimals).replace(/\.?0+$/,"");
+}
 function openPartialCloseModal(p){
   const a = ASSETS.find(x=>x.symbol===p.symbol);
+  let unit = "pct"; // "pct" | "qty" — which unit the input box currently represents
   openModal(
     '<h3 style="margin-bottom:14px;">Clôture partielle</h3>'+
     '<div class="chart-note" style="margin-bottom:12px;">'+p.symbol+' · '+(p.side==="long"?"Long":"Short")+' · Taille actuelle '+fmtQty(p.sizeUnits)+' '+p.symbol+' ('+fmtMoney(p.notional)+')</div>'+
-    '<div class="field-row"><label>% de la position à fermer</label><input type="number" step="1" min="1" max="100" class="tpsl-input" id="partial-pct-input" value="50"></div>'+
+    '<div class="field-row"><label>Fermer par</label>'+
+      '<div class="seg"><button type="button" class="on-mode active" id="partial-unit-pct">%</button><button type="button" class="on-mode" id="partial-unit-qty">Quantité ('+p.symbol+')</button></div>'+
+    '</div>'+
+    '<div class="field-row"><label id="partial-input-label">% de la position à fermer</label><input type="number" step="any" min="0" class="tpsl-input" id="partial-pct-input" value="50"></div>'+
     '<div class="lev-presets" id="partial-pct-presets">'+
       [25,50,75,100].map(v=>'<button type="button" data-pct="'+v+'">'+v+'%</button>').join("")+
     '</div>'+
@@ -3388,19 +4636,42 @@ function openPartialCloseModal(p){
     '</div>'
   );
   const input = document.getElementById("partial-pct-input");
+  const label = document.getElementById("partial-input-label");
+  const btnPct = document.getElementById("partial-unit-pct");
+  const btnQty = document.getElementById("partial-unit-qty");
+  // Reads whatever's currently typed, interpreted under the CURRENTLY
+  // active unit, and returns it as a 0..1 fraction of the position.
+  function currentFraction(){
+    const raw = parseFloat(input.value);
+    if (!(raw>=0)) return null;
+    return unit==="pct" ? raw/100 : (p.sizeUnits>0 ? raw/p.sizeUnits : null);
+  }
+  function setUnit(next){
+    if (next===unit) return;
+    const frac = currentFraction();
+    unit = next;
+    btnPct.classList.toggle("active", unit==="pct");
+    btnQty.classList.toggle("active", unit==="qty");
+    label.textContent = unit==="pct" ? "% de la position à fermer" : "Quantité à fermer ("+p.symbol+")";
+    if (frac!=null) input.value = unit==="pct" ? trimNum(frac*100, 2) : trimNum(frac*p.sizeUnits, 6);
+  }
+  btnPct.addEventListener("click", ()=>setUnit("pct"));
+  btnQty.addEventListener("click", ()=>setUnit("qty"));
   document.querySelectorAll("#partial-pct-presets button").forEach(btn=>{
     btn.addEventListener("click", ()=>{
-      input.value = btn.dataset.pct;
+      const pctVal = parseFloat(btn.dataset.pct);
+      input.value = unit==="pct" ? pctVal : trimNum(pctVal/100*p.sizeUnits, 6);
       document.querySelectorAll("#partial-pct-presets button").forEach(b=>b.classList.toggle("active", b===btn));
     });
   });
   document.getElementById("partial-cancel").addEventListener("click", closeModal);
   document.getElementById("partial-confirm").addEventListener("click", ()=>{
-    const pct = parseFloat(input.value);
     const msg = document.getElementById("partial-msg");
-    if (!(pct>0 && pct<=100)){ msg.textContent = "Entre un pourcentage entre 1 et 100."; return; }
+    const frac = currentFraction();
+    if (frac==null || !(frac>0)){ msg.textContent = unit==="pct" ? "Entre un pourcentage entre 1 et 100." : "Entre une quantité valide."; return; }
+    if (frac>1.0001){ msg.textContent = "Tu ne peux pas fermer plus que la taille actuelle de la position."; return; }
     if (!hasLive(p.symbol)){ msg.textContent = "Prix indisponible pour le moment — réessaie dans quelques secondes."; return; }
-    closePositionPartial(p.id, pct/100, "closed_partial");
+    closePositionPartial(p.id, frac, "closed_partial");
     closeModal();
   });
 }
@@ -5701,6 +6972,7 @@ function switchView(name){
     renderJournalList();
     renderProfileAvatar();
     renderFeedList();
+    renderChallengeProfileCard();
   }
   if (name==="news" && !newsLoading && document.getElementById("news-list").innerHTML===""){
     refreshNews();
@@ -5709,6 +6981,11 @@ function switchView(name){
 
 /* ============================= RENDER ALL ============================= */
 function renderAll(){
+  // We're mid-swap, background-checking the PARKED book (see
+  // withParkedBook()) — state.* momentarily holds that book's data, not the
+  // one actually on screen, so painting it here would show the wrong
+  // account. Nothing to render; the swap unwinds right after.
+  if (inBackgroundBookCheck) return;
   const unameEl = document.getElementById("username-input");
   if (unameEl && document.activeElement!==unameEl) unameEl.value = state.username;
   updateWatchlist();
@@ -5729,6 +7006,19 @@ function initEvents(){
 
   const ticketHelpBtn = document.getElementById("ticket-help-btn");
   if (ticketHelpBtn) ticketHelpBtn.addEventListener("click", openExecutionHelpModal);
+
+  document.getElementById("lb-tab-normal").addEventListener("click", ()=>{
+    document.getElementById("lb-tab-normal").classList.add("active");
+    document.getElementById("lb-tab-prop").classList.remove("active");
+    document.getElementById("lb-wrap-normal").hidden = false;
+    document.getElementById("lb-wrap-prop").hidden = true;
+  });
+  document.getElementById("lb-tab-prop").addEventListener("click", ()=>{
+    document.getElementById("lb-tab-prop").classList.add("active");
+    document.getElementById("lb-tab-normal").classList.remove("active");
+    document.getElementById("lb-wrap-prop").hidden = false;
+    document.getElementById("lb-wrap-normal").hidden = true;
+  });
 
   document.getElementById("quiz-tab-play").addEventListener("click", ()=>{
     document.getElementById("quiz-tab-play").classList.add("active");
@@ -5825,6 +7115,14 @@ function initEvents(){
   document.getElementById("size-input").addEventListener("input", updateOrderReadout);
   document.getElementById("tp-input").addEventListener("input", updateOrderReadout);
   document.getElementById("sl-input").addEventListener("input", updateOrderReadout);
+
+  const sizePctPresets = [10,25,50,75,100];
+  const sizePresetsWrap = document.getElementById("size-slider-presets");
+  sizePresetsWrap.innerHTML = sizePctPresets.map(p=>'<button type="button" data-size-pct="'+p+'">'+p+'%</button>').join("");
+  sizePresetsWrap.querySelectorAll("button").forEach(b=>{
+    b.addEventListener("click", ()=>applySizeSliderPct(parseInt(b.dataset.sizePct,10)));
+  });
+  document.getElementById("size-slider").addEventListener("input", (e)=>{ applySizeSliderPct(parseInt(e.target.value,10)); });
 
   document.getElementById("submit-order").addEventListener("click", submitOrder);
 
@@ -6075,7 +7373,6 @@ async function unlockAdmin(code){
     if (msg){ msg.style.color = "var(--long)"; msg.textContent = "Mode admin activé."; }
   }catch(e){ console.warn("admin unlock write failed", e); }
 }
-function fmtMoney(n){ return typeof n==="number" ? "$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}) : "—"; }
 function fmtWhen(iso){
   if (!iso) return "—";
   const d = new Date(iso);
@@ -6409,6 +7706,7 @@ async function init(){
   buildWatchlist();
   initEvents();
   initLightbox();
+  initOnboardingTour();
   renderSessions();
   setInterval(renderSessions, 1000);
   refreshNews();
