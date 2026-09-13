@@ -221,8 +221,8 @@
   .widget-grip:active{cursor:grabbing;}
   .widget-hide{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;line-height:1;padding:2px 4px;border-radius:4px;}
   .widget-hide:hover{color:var(--warn);background:var(--bg-raised);}
-  .widget-help{background:none;border:1px solid var(--border-soft);color:var(--text-faint);cursor:pointer;font-size:10.5px;font-weight:700;line-height:1;width:16px;height:16px;padding:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none;}
-  .widget-help:hover{color:var(--accent);border-color:var(--accent);}
+  .widget-help{background:none;border:1px solid var(--warn);color:var(--warn);cursor:pointer;font-size:10.5px;font-weight:700;line-height:1;width:16px;height:16px;padding:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none;}
+  .widget-help:hover{color:var(--bg);background:var(--warn);}
   .help-row{margin-bottom:11px;font-size:12.5px;line-height:1.5;color:var(--text-dim);}
   .help-row:last-child{margin-bottom:0;}
   .help-row strong{color:var(--text);}
@@ -447,11 +447,18 @@
   /* market sessions clock */
   .paris-clock{font-family:var(--mono);font-size:21px;font-weight:700;letter-spacing:0.02em;margin-bottom:10px;color:var(--text);}
   .sessions-list{display:flex;flex-direction:column;gap:6px;}
-  .session-pill{display:flex;align-items:center;gap:6px 8px;padding:6px 8px;border-radius:6px;background:var(--bg-raised);border:1px solid var(--border-soft);flex-wrap:wrap;}
+  /* Two-row pill on purpose: name and time used to share one flex row, and
+     since the time text ("fermé · ouvre le lun. à 15:30") doesn't shrink,
+     flexbox crushed the name down to near-zero width to keep both on one
+     line (visible bug: only a sliver of the name's first letter showed).
+     Giving the name its own full-width row guarantees it never competes
+     with the time text for space again. */
+  .session-pill{display:flex;flex-direction:column;gap:4px;padding:7px 9px;border-radius:6px;background:var(--bg-raised);border:1px solid var(--border-soft);}
+  .session-pill-top{display:flex;align-items:center;gap:8px;}
   .session-dot{width:7px;height:7px;border-radius:50%;flex:none;background:var(--text-faint);}
   .session-dot.open{background:var(--long);box-shadow:0 0 0 3px var(--long-dim);}
   .session-name{font-family:var(--mono);font-size:11px;font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .session-time{font-family:var(--mono);font-size:9px;color:var(--text-faint);text-align:right;white-space:normal;flex:0 1 auto;min-width:0;margin-left:auto;}
+  .session-time{font-family:var(--mono);font-size:9px;color:var(--text-faint);white-space:normal;padding-left:15px;}
   .session-time.open-lbl{color:var(--long);}
 
   /* news */
@@ -1932,6 +1939,36 @@ const SESSIONS = [
   {name:"Londres",  timeZone:"Europe/London",      openH:8,  openM:0, closeH:16, closeM:30},  // LSE
   {name:"New York", timeZone:"America/New_York",   openH:9,  openM:30,closeH:16, closeM:0},   // NYSE
 ];
+// Display-only grouping for the widget: Sydney+Tokyo collapse into one
+// "Session asiatique" pill (the two markets' hours overlap enough in
+// practice that showing them separately was just noise for beginners).
+// The underlying per-market sessionIsOpen/nextSessionBoundary logic below
+// is untouched — this only decides how the 4 raw sessions are folded into
+// 3 displayed pills.
+const SESSION_GROUPS = [
+  {label:"Session asiatique",  members:["Sydney","Tokyo"]},
+  {label:"Session de Londres", members:["Londres"]},
+  {label:"Session de New York",members:["New York"]},
+];
+// A group is "open" as soon as any member is open, and stays open until the
+// LAST open member closes (so "Session asiatique" only flips to closed once
+// both Sydney and Tokyo are done). While fully closed, the group's next
+// boundary is the soonest opening among its members.
+function sessionGroupStatus(members, now){
+  const infos = members.map(name=>{
+    const sess = SESSIONS.find(s=>s.name===name);
+    const open = sessionIsOpen(sess, now);
+    const boundary = nextSessionBoundary(sess, open, now);
+    return {open, boundary};
+  });
+  const openOnes = infos.filter(i=>i.open);
+  if (openOnes.length){
+    const latestClose = openOnes.reduce((max,i)=> i.boundary>max ? i.boundary : max, openOnes[0].boundary);
+    return {open:true, boundary:latestClose};
+  }
+  const soonest = infos.reduce((min,i)=> i.boundary<min ? i.boundary : min, infos[0].boundary);
+  return {open:false, boundary:soonest};
+}
 // Offset (minutes) of `timeZone`'s local wall-clock vs UTC, at instant `date`.
 function tzOffsetMinutes(date, timeZone){
   const dtf = new Intl.DateTimeFormat("en-US", {
@@ -2015,9 +2052,8 @@ function renderSessions(){
   }
   const list = document.getElementById("sessions-list");
   if (!list) return;
-  list.innerHTML = SESSIONS.map(sess=>{
-    const open = sessionIsOpen(sess, now);
-    const boundary = nextSessionBoundary(sess, open, now);
+  list.innerHTML = SESSION_GROUPS.map(group=>{
+    const {open, boundary} = sessionGroupStatus(group.members, now);
     const timeStr = boundary.toLocaleTimeString("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit"});
     // When the next boundary isn't today (Paris calendar date) — typically a
     // weekend closure resuming Monday — prefix the day name so "fermé · ouvre
@@ -2027,8 +2063,10 @@ function renderSessions(){
     const dayPrefix = sameDay ? "" : "le "+boundary.toLocaleDateString("fr-FR",{timeZone:"Europe/Paris",weekday:"short"})+" ";
     const label = open ? ("ouvert · ferme à "+timeStr) : ("fermé · ouvre "+dayPrefix+"à "+timeStr);
     return '<div class="session-pill">'+
-      '<span class="session-dot '+(open?"open":"")+'"></span>'+
-      '<span class="session-name">'+sess.name+'</span>'+
+      '<div class="session-pill-top">'+
+        '<span class="session-dot '+(open?"open":"")+'"></span>'+
+        '<span class="session-name">'+group.label+'</span>'+
+      '</div>'+
       '<span class="session-time'+(open?" open-lbl":"")+'">'+label+'</span>'+
     '</div>';
   }).join("");
