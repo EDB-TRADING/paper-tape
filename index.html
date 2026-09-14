@@ -576,6 +576,8 @@
   .pos-badge.mode{background:var(--panel-2);color:var(--text-dim);}
   .pos-close{background:none;border:1px solid var(--border);color:var(--text-faint);border-radius:5px;font-family:var(--mono);font-size:10px;padding:3px 8px;cursor:pointer;}
   .pos-close:hover{border-color:var(--short);color:var(--short);}
+  .pos-close-main{background:var(--short);border:1px solid var(--short);color:#fff;border-radius:5px;font-family:var(--mono);font-size:11px;font-weight:700;padding:5px 12px;cursor:pointer;letter-spacing:.02em;}
+  .pos-close-main:hover{filter:brightness(1.12);}
   .pos-actions{display:flex;gap:6px;flex-wrap:wrap;}
   .pos-tpsl{background:none;border:1px solid var(--border);color:var(--text-faint);border-radius:5px;font-family:var(--mono);font-size:10px;padding:3px 8px;cursor:pointer;}
   .pos-tpsl:hover{border-color:var(--accent);color:var(--accent);}
@@ -1675,7 +1677,7 @@ const MMR = 0.004;          // flat maintenance margin rate
 // lower rate, same as a real exchange's maker/taker schedule.
 const TAKER_FEE_RATE = 0.0004;      // 0.04% commission, charged on market-order entry AND on every exit (non-liquidation)
 const MAKER_FEE_RATE = 0.0002;      // 0.02% commission, charged only on a limit order's entry fill
-const LIQUIDATION_FEE_RATE = 0.005; // extra 0.5% of notional penalty charged only when a position is liquidated (replaces the normal exit fee)
+const LIQUIDATION_FEE_RATE = 0.001; // extra 0.1% of notional penalty charged only when a position is liquidated (replaces the normal exit fee) — lowered from 0.5%, still ~2.5x the normal 0.04% taker fee so liquidation stays meaningfully worse than a normal close
 const START_CASH = 100000;
 // How many closed-trade entries state.history/persistAccount() retain. Used
 // to be capped at 15 (just enough for the terminal's compact "Historique
@@ -3676,7 +3678,7 @@ function renderPositions(){
           '<button class="pos-tpsl" data-be="'+p.id+'">⚖️ BE</button>'+
           '<button class="pos-tpsl" data-partial="'+p.id+'">✂️ Partiel</button>'+
           '<button class="pos-tpsl" data-share="'+p.id+'">📤 Partager</button>'+
-          '<button class="pos-close" data-close="'+p.id+'">Fermer</button>'+
+          '<button class="pos-close-main" data-close="'+p.id+'">✕ Fermer</button>'+
         '</span>'+
       '</div>'+
       '<div class="pos-grid">'+
