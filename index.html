@@ -246,6 +246,71 @@
   .challenge-tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px;}
   .challenge-tier-btn{padding:12px 6px;font-family:var(--mono);font-weight:700;}
 
+  /* ---------- Challenge page: flashy rules + inline tier picker ---------- */
+  .challenge-hero-badge{
+    display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;font-weight:700;
+    letter-spacing:0.08em;color:var(--gold);background:color-mix(in srgb, var(--gold) 16%, var(--bg) 84%);
+    border:1px solid color-mix(in srgb, var(--gold) 55%, transparent 45%);border-radius:999px;padding:6px 14px;
+  }
+  .challenge-rules-flashy{
+    display:grid;grid-template-columns:repeat(auto-fit, minmax(140px,1fr));gap:10px;margin:16px 0 4px;
+  }
+  .challenge-rule-tile{
+    position:relative;overflow:hidden;border-radius:var(--radius);padding:14px 12px;
+    background:var(--bg-raised);border:1px solid var(--border-soft);text-align:center;
+    transition:transform .15s, border-color .15s;
+  }
+  .challenge-rule-tile:hover{transform:translateY(-2px);}
+  .challenge-rule-tile .rule-icon{font-size:20px;margin-bottom:6px;}
+  .challenge-rule-tile .rule-value{font-family:var(--mono);font-size:20px;font-weight:800;letter-spacing:-0.01em;}
+  .challenge-rule-tile .rule-label{font-size:10.5px;color:var(--text-dim);margin-top:4px;line-height:1.3;}
+  .challenge-rule-tile.rule-up{border-color:color-mix(in srgb, var(--long) 45%, transparent 55%);}
+  .challenge-rule-tile.rule-up .rule-value{color:var(--long);}
+  .challenge-rule-tile.rule-up::before{content:"";position:absolute;inset:0;background:linear-gradient(160deg, color-mix(in srgb, var(--long) 14%, transparent 86%), transparent 60%);pointer-events:none;}
+  .challenge-rule-tile.rule-down{border-color:color-mix(in srgb, var(--short) 45%, transparent 55%);}
+  .challenge-rule-tile.rule-down .rule-value{color:var(--short);}
+  .challenge-rule-tile.rule-down::before{content:"";position:absolute;inset:0;background:linear-gradient(160deg, color-mix(in srgb, var(--short) 14%, transparent 86%), transparent 60%);pointer-events:none;}
+  .challenge-rule-tile.rule-neutral{border-color:color-mix(in srgb, var(--gold) 45%, transparent 55%);}
+  .challenge-rule-tile.rule-neutral .rule-value{color:var(--gold);}
+  .challenge-rule-tile.rule-neutral::before{content:"";position:absolute;inset:0;background:linear-gradient(160deg, color-mix(in srgb, var(--gold) 14%, transparent 86%), transparent 60%);pointer-events:none;}
+  .challenge-tier-select-grid{
+    display:grid;grid-template-columns:repeat(auto-fit, minmax(150px,1fr));gap:12px;margin-top:10px;
+  }
+  .challenge-tier-card{
+    position:relative;cursor:pointer;text-align:center;padding:20px 14px;border-radius:var(--radius);
+    background:linear-gradient(150deg, var(--bg-raised), var(--panel-2));border:1px solid var(--border-soft);
+    display:flex;flex-direction:column;align-items:center;gap:8px;transition:transform .15s, border-color .15s, box-shadow .15s;
+  }
+  .challenge-tier-card:hover{
+    transform:translateY(-3px);border-color:var(--accent);
+    box-shadow:0 8px 24px -8px color-mix(in srgb, var(--accent) 55%, transparent 45%);
+  }
+  .challenge-tier-card .tier-amount{font-family:var(--mono);font-size:19px;font-weight:800;color:var(--text);}
+  .challenge-tier-card .tier-cta{
+    font-family:var(--mono);font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--accent);
+  }
+  .challenge-tier-card .tier-badge{
+    position:absolute;top:-9px;right:10px;background:var(--gold);color:#1a1408;font-size:9px;font-weight:800;
+    letter-spacing:0.05em;text-transform:uppercase;padding:3px 8px;border-radius:999px;
+  }
+
+  /* ---------- EDB+ chat: automatic payment-info message ---------- */
+  .edbplus-payment-rows{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
+  .edbplus-payment-row{
+    display:flex;align-items:center;gap:8px;background:var(--bg-raised);border:1px solid var(--border-soft);
+    border-radius:6px;padding:6px 8px;flex-wrap:wrap;
+  }
+  .edbplus-payment-label{
+    font-family:var(--mono);font-size:9.5px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-faint);
+    min-width:38px;
+  }
+  .edbplus-payment-value{font-family:var(--mono);font-size:12px;font-weight:600;flex:1;word-break:break-all;}
+  .edbplus-copy-btn{
+    background:none;border:1px solid var(--border-soft);color:var(--text-dim);border-radius:5px;
+    padding:3px 9px;font-size:10.5px;font-family:var(--mono);cursor:pointer;white-space:nowrap;
+  }
+  .edbplus-copy-btn:hover{border-color:var(--accent);color:var(--accent);}
+
   main{flex:1;padding:18px;max-width:1400px;width:100%;margin:0 auto;}
   .view{display:none;}
   .view.active{display:block;}
@@ -1500,6 +1565,14 @@ const REFETCH_MS = 30000;
    holds the shared helpers: the access check, the reusable "paywall" card,
    and the label map used to word it per-feature. */
 function isEdbPlus(){ return !!state.edbPlus; }
+// Payment details shown to a trader the instant their EDB+ request lands
+// (see sendEdbPlusPaymentInfoMessage below) — update these two values if
+// the bureau's Wero number or IBAN ever changes; nothing else references
+// them.
+const EDB_PLUS_PAYMENT = {
+  wero: "0781745884",
+  rib: "FR7640618804780004016157531",
+};
 const EDB_PLUS_FEATURES = {
   quiz:      {label:"Les quiz",                 detail:"tester tes connaissances et grimper au classement des quiz"},
   learn:     {label:"Les fiches Connaissances",  detail:"réviser chaque sujet avant de faire le quiz correspondant"},
@@ -1575,33 +1648,72 @@ function renderEdbPlusProfileCard(){
   if (state.edbPlusRequested){
     el.innerHTML =
       '<h3>EDB+</h3>'+
-      '<p class="chart-note" style="margin-bottom:10px;">⏳ Demande envoyée — en attente de validation par un admin du bureau EDB une fois le paiement reçu. Le bureau répond directement dans la conversation ci-dessous, reviens y vérifier.</p>'+
-      '<button class="btn-primary" id="edbplus-chat-open-btn">💬 Voir la conversation</button>';
+      '<p class="chart-note" style="margin-bottom:10px;">⏳ Demande envoyée — les infos de paiement (Wero / RIB) t\'ont été envoyées dans la conversation ci-dessous. Une fois le paiement reçu, le bureau active ton compte et te le confirme ici.</p>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;">'+
+        '<button class="btn-primary" id="edbplus-chat-open-btn">💬 Voir la conversation</button>'+
+        '<button class="btn-secondary" id="edbplus-cancel-request-btn">🗑️ Annuler ma demande</button>'+
+      '</div>';
     const btn = document.getElementById("edbplus-chat-open-btn");
     if (btn) btn.addEventListener("click", ()=>openEdbPlusChatModal(clientId, "trader"));
+    const cancelBtn = document.getElementById("edbplus-cancel-request-btn");
+    if (cancelBtn) cancelBtn.addEventListener("click", cancelMyEdbPlusRequest);
     return;
   }
   el.innerHTML =
     '<h3>EDB+ <span class="quiz-cat gold-badge" style="margin-left:6px;">20€/an</span></h3>'+
     '<p class="chart-note" style="margin-bottom:10px;">L\'abonnement association qui débloque : le challenge prop firm démo, les quiz, les fiches Connaissances, les actualités marché, et les 6 thèmes d\'interface (Ember, Sage, Ink, Noir, Gold, Azure).</p>'+
-    '<p class="chart-note" style="margin-bottom:10px;">Paiement à régler auprès du bureau EDB (espèces, virement ou HelloAsso — <em>modalité exacte à préciser par le bureau</em>). Clique ci-dessous pour ouvrir une conversation avec le bureau et signaler ta demande — il te répondra directement ici au plus vite pour activer ton compte.</p>'+
+    '<p class="chart-note" style="margin-bottom:10px;">Paiement à régler auprès du bureau EDB par Wero ou virement. Clique ci-dessous pour envoyer ta demande — tu reçois aussitôt les coordonnées de paiement, et le bureau active ton compte dès réception.</p>'+
     '<button class="btn-primary" id="edbplus-request-btn">Je souhaite m\'abonner à EDB+</button>'+
     '<div class="chart-note" id="edbplus-request-msg" style="margin-top:8px;"></div>';
   const btn = document.getElementById("edbplus-request-btn");
-  if (btn) btn.addEventListener("click", startEdbPlusRequest);
+  if (btn) btn.addEventListener("click", openEdbPlusRequestConfirmModal);
 }
-// Fires when a trader hits the primary EDB+ CTA: flags the request (same
-// signal the admin table's ⏳ Demande badge already reads), opens a 1:1
-// chat thread with the bureau (Firestore doc "edbplusChats/<traderId>"),
-// and auto-sends the canned first message so the bureau sees it land
-// without the trader having to type anything.
+// A quick confirmation step before firing off the request — explains what
+// happens (an automatic message to the bureau + an automatic reply with the
+// payment details) so nothing fires silently on a stray click.
+function openEdbPlusRequestConfirmModal(){
+  openModal(
+    '<h3 style="margin-bottom:8px;">Confirmer ta demande EDB+</h3>'+
+    '<p class="chart-note" style="margin-bottom:14px;">En confirmant : un message est envoyé automatiquement au bureau ("Je veux devenir membre de EDB+"), et tu reçois aussitôt après les coordonnées de paiement (Wero et RIB) dans la même conversation. Le bureau active ton compte dès réception du paiement.</p>'+
+    '<button class="btn-primary" id="edbplus-confirm-request-btn" style="width:100%;">Confirmer ma demande</button>'+
+    '<button class="btn-secondary" id="edbplus-cancel-confirm-btn" style="width:100%;margin-top:8px;">Annuler</button>'
+  );
+  const confirmBtn = document.getElementById("edbplus-confirm-request-btn");
+  const cancelBtn = document.getElementById("edbplus-cancel-confirm-btn");
+  if (confirmBtn) confirmBtn.addEventListener("click", ()=>{ closeModal(); startEdbPlusRequest(); });
+  if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
+}
+// Fires once the trader confirms in the modal above: flags the request
+// (same signal the admin table's ⏳ Demande badge already reads), opens the
+// 1:1 chat thread with the bureau (Firestore doc "edbplusChats/<traderId>"),
+// auto-sends the canned first message, then — once that write lands — an
+// automatic reply with the payment details, so the trader isn't stuck
+// waiting on a human just to find out how to pay.
 function startEdbPlusRequest(){
   state.edbPlusRequested = true;
   state.edbPlusRequestedAt = new Date().toISOString();
   persistAccount();
   renderEdbPlusProfileCard();
-  sendEdbPlusChatMessage(clientId, "trader", "Je veux devenir membre de EDB+");
+  if (typeof renderEdbPlusTeaser==="function") renderEdbPlusTeaser();
+  sendEdbPlusChatMessage(clientId, "trader", "Je veux devenir membre de EDB+")
+    .then(()=>sendEdbPlusPaymentInfoMessage(clientId));
   openEdbPlusChatModal(clientId, "trader");
+}
+// Lets the trader themselves back out of a pending request — clears the
+// pending flag and deletes the chat thread (existing edbplusChats rule
+// already lets a trader write/delete their own thread doc, and "allow
+// write" covers delete — no Firestore rules change needed for this).
+async function cancelMyEdbPlusRequest(){
+  if (!clientId) return;
+  if (!confirm("Annuler ta demande EDB+ ? La conversation avec le bureau sera supprimée. Tu pourras refaire une demande à tout moment.")) return;
+  state.edbPlusRequested = false;
+  state.edbPlusRequestedAt = null;
+  persistAccount();
+  renderEdbPlusProfileCard();
+  if (typeof renderEdbPlusTeaser==="function") renderEdbPlusTeaser();
+  try{
+    if (dbReady && db) await db.collection("edbplusChats").doc(clientId).delete();
+  }catch(e){ console.warn("cancel edbplus request: chat delete failed", e); }
 }
 
 // ---- Firebase (Firestore) config -----------------------------------------
@@ -3952,10 +4064,27 @@ function renderChallengeProfileCard(){
   const c = state.challenge;
   if (!c){
     body.innerHTML =
-      '<p class="chart-note" style="margin-bottom:10px;">Trade un compte démo calqué sur les règles d\'une prop firm en 2 étapes (challenge puis vérification, avant le compte financé) — comptes de '+fmtMoney(CHALLENGE_TIERS[0])+' à '+fmtMoney(CHALLENGE_TIERS[CHALLENGE_TIERS.length-1])+'. Ton compte normal reste actif à côté — tu peux trader les deux et basculer entre eux à tout moment.</p>'+
-      '<button class="btn-primary" id="challenge-start-btn">Commencer un challenge</button>';
-    const btn = document.getElementById("challenge-start-btn");
-    if (btn) btn.addEventListener("click", openStartChallengeModal);
+      '<div class="challenge-hero-badge">🏆 PROP FIRM CHALLENGE</div>'+
+      '<p class="chart-note" style="margin:12px 0 4px;">Trade un compte démo calqué sur une vraie évaluation prop firm en 2 étapes (challenge puis vérification, avant le compte financé) — comptes de '+fmtMoney(CHALLENGE_TIERS[0])+' à '+fmtMoney(CHALLENGE_TIERS[CHALLENGE_TIERS.length-1])+'. Ton compte normal reste actif à côté — tu peux trader les deux et basculer entre eux à tout moment.</p>'+
+      '<div class="challenge-rules-flashy">'+
+        '<div class="challenge-rule-tile rule-up"><div class="rule-icon">🎯</div><div class="rule-value">+'+CHALLENGE_STEPS.step1.profitTargetPct+'%</div><div class="rule-label">Étape 1 — Challenge</div></div>'+
+        '<div class="challenge-rule-tile rule-up"><div class="rule-icon">🏁</div><div class="rule-value">+'+CHALLENGE_STEPS.step2.profitTargetPct+'%</div><div class="rule-label">Étape 2 — Vérification</div></div>'+
+        '<div class="challenge-rule-tile rule-down"><div class="rule-icon">📉</div><div class="rule-value">-'+CHALLENGE_RULES.maxDailyLossPct+'%</div><div class="rule-label">Perte journalière max</div></div>'+
+        '<div class="challenge-rule-tile rule-down"><div class="rule-icon">⚠️</div><div class="rule-value">-'+CHALLENGE_RULES.maxDrawdownPct+'%</div><div class="rule-label">Drawdown max</div></div>'+
+        '<div class="challenge-rule-tile rule-neutral"><div class="rule-icon">📅</div><div class="rule-value">'+CHALLENGE_RULES.minTradingDays+'j</div><div class="rule-label">Jours de trading min.</div></div>'+
+      '</div>'+
+      '<p class="chart-note" style="margin:18px 0 8px;">Démarrer un challenge réinitialise ton solde, tes positions et tes ordres en attente sur le compte prop firm. Choisis une taille de compte :</p>'+
+      '<div class="challenge-tier-select-grid" id="challenge-tier-select-grid">'+
+        CHALLENGE_TIERS.map((t,i)=>'<button type="button" class="challenge-tier-card" data-tier="'+t+'">'+
+          (i===2 ? '<span class="tier-badge">Populaire</span>' : '')+
+          '<span class="tier-amount">'+fmtMoney(t)+'</span>'+
+          '<span class="tier-cta">Commencer →</span>'+
+        '</button>').join("")+
+      '</div>';
+    const grid = document.getElementById("challenge-tier-select-grid");
+    if (grid) grid.querySelectorAll("[data-tier]").forEach(btn=>{
+      btn.addEventListener("click", ()=>confirmStartChallenge(parseInt(btn.dataset.tier,10)));
+    });
   } else {
     body.innerHTML =
       '<p class="chart-note" style="margin-bottom:10px;">'+challengeStatusLabel(c)+' · '+fmtMoney(c.tier)+' · Équité '+fmtMoney(propEquity()||0)+(c.phase==="funded"?' · Valeur financée '+fmtMoney(c.fundedValue):'')+'</p>'+
@@ -3964,30 +4093,44 @@ function renderChallengeProfileCard(){
     if (btn) btn.addEventListener("click", openChallengeManageModal);
   }
 }
-function openStartChallengeModal(){
-  if (!isEdbPlus()){ goToEdbPlus(); return; } // belt-and-suspenders — the button that calls this isn't even rendered for a non-member
-  openModal(
-    '<h3 style="margin-bottom:4px;">Commencer un challenge prop firm</h3>'+
-    '<div class="chart-note" style="margin-bottom:14px;">Choisis la taille de compte : ton solde démo est remis à ce montant et les règles ci-dessous s\'appliquent, comme sur une vraie évaluation de prop trading en 2 étapes (type FTMO).</div>'+
-    '<div class="help-row"><strong>Étape 1 — Challenge</strong> — atteindre +'+CHALLENGE_STEPS.step1.profitTargetPct+'% d\'équité pour passer à l\'étape 2.</div>'+
-    '<div class="help-row"><strong>Étape 2 — Vérification</strong> — atteindre encore +'+CHALLENGE_STEPS.step2.profitTargetPct+'% (à partir du solde de fin d\'étape 1) pour décrocher le compte financé.</div>'+
-    '<div class="help-row"><strong>Perte journalière max</strong> — l\'équité ne doit jamais descendre de plus de '+CHALLENGE_RULES.maxDailyLossPct+'% sous l\'équité de début de journée, à chaque étape et une fois financé.</div>'+
-    '<div class="help-row"><strong>Drawdown max</strong> — l\'équité ne doit jamais descendre de plus de '+CHALLENGE_RULES.maxDrawdownPct+'% sous le capital de départ, pour toute la durée du challenge.</div>'+
-    '<div class="help-row"><strong>Jours de trading min.</strong> — au moins '+CHALLENGE_RULES.minTradingDays+' jours différents avec au moins un trade ouvert, à chaque étape.</div>'+
-    '<div class="chart-note" style="margin:12px 0 8px;">Démarrer un challenge réinitialise ton solde, tes positions et tes ordres en attente sur ce compte.</div>'+
-    '<div class="challenge-tier-grid" id="challenge-tier-grid">'+
-      CHALLENGE_TIERS.map(t=>'<button type="button" class="btn-secondary challenge-tier-btn" data-tier="'+t+'">'+fmtMoney(t)+'</button>').join("")+
-    '</div>'
-  );
-  document.querySelectorAll(".challenge-tier-btn").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      const tier = parseInt(btn.dataset.tier,10);
-      const warnExtra = (state.positions.length || state.pendingOrders.length) ? " Tes positions ouvertes et ordres en attente seront aussi effacés." : "";
-      if (!confirm("Démarrer un challenge à "+fmtMoney(tier)+" ? Ton solde démo actuel sera remplacé par ce montant."+warnExtra)) return;
-      startChallenge(tier);
-      closeModal();
-    });
-  });
+// Called from the flashy tier-select grid on the dedicated Challenge page —
+// starting a challenge is destructive (wipes the prop book), so a plain
+// confirm() gates it, same pattern as the admin reset / message-delete
+// actions elsewhere in the app.
+function confirmStartChallenge(tier){
+  if (!isEdbPlus()){ goToEdbPlus(); return; } // belt-and-suspenders — the grid isn't even rendered for a non-member
+  const warnExtra = (state.positions.length || state.pendingOrders.length) ? " Tes positions ouvertes et ordres en attente seront aussi effacés." : "";
+  if (!confirm("Démarrer un challenge à "+fmtMoney(tier)+" ? Ton solde démo actuel sera remplacé par ce montant."+warnExtra)) return;
+  startChallenge(tier);
+  // startChallenge() itself only repaints the terminal (renderAll) and the
+  // top banner — this page's own body still needs a manual refresh so the
+  // tier-picker swaps over to the "challenge in progress" status view
+  // immediately, instead of only on the next visit to this tab.
+  renderChallengeProfileCard();
+  if (typeof renderChallengeTeaser==="function") renderChallengeTeaser();
+}
+// "Recommencer un challenge" from the Gérer modal: abandons whatever
+// challenge is currently running (same effect as the "Abandonner" button
+// just below it) and drops the trader back on the Challenge page, where
+// state.challenge being null now shows the flashy tier-picker again — one
+// single place to pick a challenge size, instead of a second copy of the
+// tier grid living inside this modal.
+function restartChallengeFlow(){
+  if (!state.challenge) return;
+  if (!confirm("Recommencer un challenge ? Le challenge actuel ("+fmtMoney(state.challenge.tier)+") sera abandonné — positions, ordres et historique du compte prop firm actuel seront supprimés. Choisis la nouvelle taille sur la page Challenge.")) return;
+  if (state.activeBookName==="prop"){
+    loadBookSnapshot(state.parked || freshBookObj(START_CASH));
+    state.activeBookName = "normal";
+  }
+  state.parked = null;
+  state.challenge = null;
+  state.copyNormalToProp = false;
+  state.copyPropToNormal = false;
+  persistAccount();
+  renderAll();
+  renderChallengeBanner();
+  closeModal();
+  switchView("challenge");
 }
 function openChallengeManageModal(){
   const c = state.challenge;
@@ -4011,7 +4154,7 @@ function openChallengeManageModal(){
   );
   document.getElementById("copy-normal-to-prop").addEventListener("change", (e)=>{ state.copyNormalToProp = e.target.checked; persistAccount(); });
   document.getElementById("copy-prop-to-normal").addEventListener("change", (e)=>{ state.copyPropToNormal = e.target.checked; persistAccount(); });
-  document.getElementById("challenge-restart-btn").addEventListener("click", ()=>{ closeModal(); openStartChallengeModal(); });
+  document.getElementById("challenge-restart-btn").addEventListener("click", restartChallengeFlow);
   document.getElementById("challenge-abandon-btn").addEventListener("click", ()=>{
     if (!confirm("Abandonner ce challenge ? Le compte prop firm sera définitivement supprimé (positions, ordres et historique compris) — ton compte normal n'est pas affecté.")) return;
     if (state.activeBookName==="prop"){
@@ -5365,12 +5508,59 @@ function renderEdbPlusChatMessages(data){
     const mine = m.from===myRole;
     const label = m.from==="admin" ? "Bureau EDB"+(m.by?" · "+escapeHtml(m.by):"") : escapeHtml(m.by||"Trader");
     const t = m.at ? new Date(m.at).toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}) : "";
+    if (m.kind==="payment_info"){
+      return '<div class="chat-bubble '+(mine?"mine":"theirs")+'">'+
+        '<div class="chat-bubble-meta">'+label+' · '+t+'</div>'+
+        '<div class="chat-bubble-text">'+escapeHtml(m.text||"")+'</div>'+
+        '<div class="edbplus-payment-rows">'+
+          '<div class="edbplus-payment-row"><span class="edbplus-payment-label">Wero</span><span class="edbplus-payment-value">'+escapeHtml(m.wero||"")+'</span><button type="button" class="edbplus-copy-btn" data-copy-value="'+escapeHtml(m.wero||"")+'">📋 Copier</button></div>'+
+          '<div class="edbplus-payment-row"><span class="edbplus-payment-label">RIB</span><span class="edbplus-payment-value">'+escapeHtml(formatIban(m.rib||""))+'</span><button type="button" class="edbplus-copy-btn" data-copy-value="'+escapeHtml(m.rib||"")+'">📋 Copier</button></div>'+
+        '</div>'+
+      '</div>';
+    }
     return '<div class="chat-bubble '+(mine?"mine":"theirs")+'">'+
       '<div class="chat-bubble-meta">'+label+' · '+t+'</div>'+
       '<div class="chat-bubble-text">'+escapeHtml(m.text||"")+'</div>'+
     '</div>';
   }).join("");
+  el.querySelectorAll("[data-copy-value]").forEach(btn=>{
+    btn.addEventListener("click", ()=>copyToClipboardBtn(btn));
+  });
   el.scrollTop = el.scrollHeight;
+}
+// Inserts a space every 4 characters, purely for on-screen readability — the
+// value actually copied to the clipboard (see the button's data-copy-value
+// above) is always the raw, unspaced IBAN.
+function formatIban(v){
+  return String(v||"").replace(/\s+/g,"").replace(/(.{4})/g,"$1 ").trim();
+}
+// Shared copy-to-clipboard for the payment-info bubble's "Copier" buttons —
+// tries the modern Clipboard API first (needs a secure context, which
+// GitHub Pages is), falls back to a hidden-textarea + execCommand for older/
+// unusual webviews, and gives brief visual feedback either way.
+function copyToClipboardBtn(btn){
+  const value = btn.dataset.copyValue || "";
+  const done = ()=>{
+    const old = btn.textContent;
+    btn.textContent = "✅ Copié";
+    btn.disabled = true;
+    setTimeout(()=>{ btn.textContent = old; btn.disabled = false; }, 1500);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(value).then(done).catch(()=>fallbackCopyText(value, done));
+  } else {
+    fallbackCopyText(value, done);
+  }
+}
+function fallbackCopyText(value, done){
+  try{
+    const ta = document.createElement("textarea");
+    ta.value = value; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+    done();
+  }catch(e){ console.warn("copy fallback failed", e); }
 }
 function sendEdbPlusChatFromInput(){
   const input = document.getElementById("edbplus-chat-input");
@@ -5394,6 +5584,31 @@ async function sendEdbPlusChatMessage(traderId, from, text){
   try{
     await db.collection("edbplusChats").doc(traderId).set(payload, {merge:true});
   }catch(e){ console.warn("edbplus chat send failed", e); }
+}
+// Sent automatically right after a trader's initial "Je veux devenir
+// membre de EDB+" message (see startEdbPlusRequest) — a canned "from admin"
+// reply carrying the payment details, so the trader gets them immediately
+// instead of waiting on a human. Rendered specially (with copy buttons) by
+// renderEdbPlusChatMessages above via msg.kind==="payment_info". Marks
+// lastMessageBy "admin" on purpose, so the admin table's "⏳ À répondre"
+// flag doesn't fire for something that's already been auto-answered — a
+// human only needs to actually reply once the payment has come in.
+async function sendEdbPlusPaymentInfoMessage(traderId){
+  if (!dbReady || !db || !traderId) return;
+  const msg = {
+    from: "admin", by: "Réponse automatique", kind: "payment_info",
+    text: "Merci pour ta demande ! Pour activer ton compte EDB+ (20€/an), règle le paiement par Wero ou par virement (RIB ci-dessous), puis précise-le ici si besoin — le bureau active ton compte dès réception et te le confirme dans cette conversation.",
+    wero: EDB_PLUS_PAYMENT.wero, rib: EDB_PLUS_PAYMENT.rib,
+    at: new Date().toISOString(),
+  };
+  const payload = {
+    traderId, status: "open",
+    updatedAt: msg.at, lastMessageBy: "admin",
+    messages: firebase.firestore.FieldValue.arrayUnion(msg),
+  };
+  try{
+    await db.collection("edbplusChats").doc(traderId).set(payload, {merge:true});
+  }catch(e){ console.warn("edbplus payment info send failed", e); }
 }
 
 /* ============================= GLOBAL CHAT ============================= */
@@ -8280,7 +8495,7 @@ function adminFindDoc(id){ return adminDocs.find(d=>d.id===id); }
 async function adminResetTrader(id){
   const doc = adminFindDoc(id);
   const label = doc ? (doc.data().username||id) : id;
-  if (!confirm('Réinitialiser intégralement le compte de "'+label+'" ? Cash, positions, ordres, historique, badges, journal et scores quiz/superflash repartent à zéro. Irréversible.')) return;
+  if (!confirm('Réinitialiser intégralement le compte de "'+label+'" ? Cash, positions, ordres, historique (+ calendrier PnL), badges, journal, scores quiz/superflash ET le challenge prop firm (compte, historique, statut) repartent à zéro. Irréversible.')) return;
   try{
     await db.collection("traders").doc(id).update({
       cash: START_CASH, marginUsed: 0, equity: START_CASH,
@@ -8289,9 +8504,25 @@ async function adminResetTrader(id){
       quizProgress: {}, quizTotal: 0,
       superflashBest: 0, superflashBestCorrect: 0, superflashAttempts: 0,
       stats: {tradesOpened:0,tradesClosed:0,wins:0,losses:0,grossProfit:0,grossLoss:0,bestTrade:0,worstTrade:0,currentStreak:0,streakType:null,bestWinStreak:0,bestLossStreak:0},
+      // Full reset also wipes the prop-firm challenge book — otherwise a
+      // reset trader would keep an old challenge running (or a pass/fail
+      // status) alongside a brand-new normal account, which is confusing
+      // and lets someone dodge a failed challenge by asking for a "reset".
+      propBook: null, propEquity: null, challenge: null,
+      copyNormalToProp: false, copyPropToNormal: false,
       updatedAt: new Date().toISOString(), lastActiveAt: new Date().toISOString(),
     });
-    if (id===clientId){ hydrateStateFromDoc(await db.collection("traders").doc(id).get()); renderAll(); }
+    if (id===clientId){
+      hydrateStateFromDoc(await db.collection("traders").doc(id).get());
+      renderAll();
+      // The PnL calendar isn't part of renderAll() (it only normally
+      // re-renders on navigating into Profil) — refresh it explicitly so a
+      // self-reset while already sitting on Profil clears it immediately.
+      // renderPnlCalendar() itself is a no-op if its DOM isn't mounted.
+      if (typeof renderPnlCalendar==="function") renderPnlCalendar();
+      if (typeof renderEdbPlusTeaser==="function") renderEdbPlusTeaser();
+      if (typeof renderChallengeTeaser==="function") renderChallengeTeaser();
+    }
     loadAdminTraders();
   }catch(e){
     console.warn("admin reset failed", e);
@@ -8507,9 +8738,31 @@ function renderAdminEdbPlusChats(){
       '<td style="max-width:320px;white-space:pre-wrap;">'+(last?escapeHtml(last.text||""):"—")+'</td>'+
       '<td>'+(last ? (last.from==="admin"?"Bureau":"Trader") : "—")+'</td>'+
       '<td>'+statusCell+'</td>'+
-      '<td><button class="pos-close" data-admin-chat-open="'+doc.id+'">Ouvrir</button></td>'+
+      '<td><button class="pos-close" data-admin-chat-open="'+doc.id+'">Ouvrir</button> <button class="pos-close" data-admin-chat-delete="'+doc.id+'" style="color:var(--short);">Supprimer</button></td>'+
     '</tr>';
   }).join("");
+}
+// Admin-side counterpart to cancelMyEdbPlusRequest() above — lets the
+// bureau clear out a stale/duplicate/joke request without waiting for the
+// trader to do it themselves. Deletes the whole thread (not just the
+// pending flag): existing edbplusChats rule already lets an admin write
+// (which covers delete) to any thread, so no Firestore rules change needed.
+async function adminDeleteEdbPlusRequest(traderId){
+  if (!confirm("Supprimer cette discussion EDB+ ? Le statut \"Demande\" de ce trader sera aussi effacé. Irréversible.")) return;
+  try{
+    await db.collection("edbplusChats").doc(traderId).delete();
+    await db.collection("traders").doc(traderId).update({edbPlusRequested:false, edbPlusRequestedAt:null});
+    adminEdbPlusChatDocs = adminEdbPlusChatDocs.filter(d=>d.id!==traderId);
+    renderAdminEdbPlusChats();
+    if (traderId===clientId){
+      state.edbPlusRequested = false; state.edbPlusRequestedAt = null;
+      renderEdbPlusProfileCard();
+      if (typeof renderEdbPlusTeaser==="function") renderEdbPlusTeaser();
+    }
+  }catch(e){
+    console.warn("admin delete edbplus request failed", e);
+    alert("Échec de la suppression.");
+  }
 }
 let adminFeedbackDocs = [];
 async function loadAdminFeedback(){
@@ -8586,6 +8839,7 @@ function initAdminUI(){
     chatBody.addEventListener("click", (e)=>{
       const t = e.target;
       if (t && t.dataset && t.dataset.adminChatOpen) openEdbPlusChatModal(t.dataset.adminChatOpen, "admin");
+      else if (t && t.dataset && t.dataset.adminChatDelete) adminDeleteEdbPlusRequest(t.dataset.adminChatDelete);
     });
   }
   const fbRefreshBtn = document.getElementById("admin-feedback-refresh");
