@@ -765,7 +765,7 @@
   .quiz-deck-list-intro{grid-column:1/-1;}
   .quiz-deck-item{
     text-align:left;background:var(--bg-raised);border:1px solid var(--border);border-left-width:4px;color:var(--text);
-    font-family:var(--sans);padding:16px 16px 14px;border-radius:10px;cursor:pointer;display:flex;flex-direction:column;gap:6px;
+    font-family:var(--sans);padding:16px 16px 14px;border-radius:10px;display:flex;flex-direction:column;gap:6px;
     transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
   }
   .quiz-deck-item:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,0.3);}
@@ -773,6 +773,11 @@
   .quiz-deck-title{font-size:14.5px;font-weight:600;display:flex;align-items:center;gap:0;}
   .quiz-deck-count{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);white-space:nowrap;}
   .quiz-deck-item-bonus{font-family:var(--mono);font-size:11.5px;color:var(--gold);margin-top:auto;padding-top:6px;}
+  /* Merged Connaissances+Quiz card (renderQuizDeckList()) — two independent
+     actions per card (open the fiche vs. start the quiz), so the card
+     itself is a plain div now, not a whole clickable button like before. */
+  .quiz-deck-item-actions{display:flex;gap:8px;padding-top:4px;}
+  .quiz-deck-item-actions button{flex:1;padding:8px 6px;font-size:11.5px;white-space:nowrap;}
   .quiz-lb-wrap{max-width:960px;margin:0 auto;}
   .quiz-lb-cell{font-family:var(--mono);font-size:11px;text-align:center;white-space:nowrap;}
   .quiz-lb-cell.empty{color:var(--text-faint);}
@@ -786,18 +791,21 @@
   .footnote{font-family:var(--mono);font-size:10px;color:var(--text-faint);text-align:center;padding:22px 10px 6px;}
 
   .learn-wrap{max-width:760px;margin:0 auto;}
-  /* Wider variant for grid-of-cards views (quiz deck picker, Connaissances
+  /* Wider variant for grid-of-cards views (the merged Connaissances+Quiz
      deck picker, Ressources) so the grid actually spreads across the
      screen instead of being squeezed into the narrow reading-width column
      used for the quiz question flow / Connaissances article / Profil. */
   .quiz-wrap.wrap-wide, .learn-wrap.wrap-wide{max-width:1280px;}
   .learn-deck-item-desc{font-family:var(--sans);font-size:12px;color:var(--text-dim);line-height:1.5;}
-  /* Illustrative photo at the top of a Connaissances deck card — bleeds to
-     the card's edges despite .quiz-deck-item's own padding (negative margin
-     matching that padding), rounded to match the card's top corners only.
-     Quiz picker cards reuse .quiz-deck-item too but never get this class —
-     KNOWLEDGE_SHOTS is Connaissances-only. */
+  /* Illustrative photo at the top of a merged Connaissances+Quiz deck card
+     (renderQuizDeckList()) — bleeds to the card's edges despite
+     .quiz-deck-item's own padding (negative margin matching that padding),
+     rounded to match the card's top corners only. */
   .learn-deck-item-img{width:calc(100% + 32px);margin:-16px -16px 10px -16px;aspect-ratio:16/9;object-fit:cover;display:block;border-radius:9px 9px 0 0;border-bottom:1px solid var(--border-soft);background:#0a0d13;}
+  /* Same photo again at the top of the opened fiche (renderLearnDoc()) —
+     most fiches have no hand-drawn learnDiagram() SVG, so this is what
+     keeps the article itself from feeling like a bare wall of text. */
+  .learn-doc-hero-img{width:100%;max-width:720px;display:block;margin:0 auto 20px;aspect-ratio:16/9;object-fit:cover;border-radius:12px;border:1px solid var(--border-soft);box-shadow:0 10px 26px rgba(0,0,0,0.3);}
   .resource-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
   .resource-card{
     text-align:left;text-decoration:none;background:var(--bg-raised);border:1px solid var(--border);border-left-width:4px;color:var(--text);
@@ -1000,12 +1008,8 @@
           <div class="auth-gate-feature-text"><strong>Classement EDB</strong> — ton équité comparée en direct à celle de tous les autres traders de l'association.</div>
         </li>
         <li class="auth-gate-feature">
-          <div class="auth-gate-feature-icon">🧠</div>
-          <div class="auth-gate-feature-text"><strong>Quiz &amp; Superflash</strong> — teste tes connaissances marchés et débloque des bonus de capital.</div>
-        </li>
-        <li class="auth-gate-feature">
           <div class="auth-gate-feature-icon">📚</div>
-          <div class="auth-gate-feature-text"><strong>Connaissances</strong> — les bases pour comprendre ce que tu trades, directement dans l'appli.</div>
+          <div class="auth-gate-feature-text"><strong>Connaissances &amp; Quiz</strong> — les bases pour comprendre ce que tu trades, un quiz par sujet pour tester ce que tu as retenu, et Superflash pour des bonus de capital.</div>
         </li>
       </ul>
       <div class="auth-gate-ticker">
@@ -1052,8 +1056,7 @@
       <button data-view="contest"><span class="tab-emoji">🎁</span>Concours</button>
       <button data-view="concoursedbplus"><span class="tab-emoji">💎</span>Concours EDB+</button>
       <button data-view="challenge"><span class="tab-emoji">🏅</span>Challenge</button>
-      <button data-view="quiz"><span class="tab-emoji">🧠</span>Quiz</button>
-      <button data-view="learn"><span class="tab-emoji">📚</span>Connaissances</button>
+      <button data-view="quiz"><span class="tab-emoji">📚</span>Connaissances</button>
       <button data-view="resources"><span class="tab-emoji">🔗</span>Ressources</button>
       <button data-view="edbplus"><span class="tab-emoji">💎</span>EDB+</button>
       <button data-view="tradesedb"><span class="tab-emoji">📈</span>Trades EDB+</button>
@@ -1402,10 +1405,10 @@
       </div>
     </section>
 
-    <!-- ================= QUIZ ================= -->
+    <!-- ================= CONNAISSANCES + QUIZ (fusionnés) ================= -->
     <section class="view" id="view-quiz">
       <div class="seg" id="quiz-toplevel-seg" style="max-width:640px;margin:0 auto 14px;">
-        <button id="quiz-tab-play" class="on-mode active">Jouer</button>
+        <button id="quiz-tab-play" class="on-mode active">Cours &amp; Quiz</button>
         <button id="quiz-tab-lb" class="on-mode">Classement quiz</button>
         <button id="quiz-tab-flash" class="on-mode">Superflash</button>
       </div>
@@ -1632,13 +1635,6 @@
       </div>
     </section>
 
-    <!-- ================= CONNAISSANCES ================= -->
-    <section class="view" id="view-learn">
-      <div class="learn-wrap" id="learn-wrap">
-        <div class="card" id="learn-card"></div>
-      </div>
-    </section>
-
     <!-- ================= RESOURCES ================= -->
     <section class="view" id="view-resources">
       <div class="learn-wrap wrap-wide">
@@ -1847,7 +1843,7 @@ const REFETCH_MS_VISIBLE = 5000;  // faster refresh while the tab is actually vi
    nothing — only an admin write to `edbPlus` does. See SERVER_SETUP.md for
    the Firestore-rules note on why a trader can't just self-write
    edbPlus:true from devtools in a hardened deployment.
-   Gated behind EDB+: the prop-firm challenge, Quiz, Connaissances, News,
+   Gated behind EDB+: the prop-firm challenge, Connaissances & Quiz, News,
    and switching the UI theme (all 6 themes, not just the 2 new ones) — see
    each feature's own render function for the actual gate. This block only
    holds the shared helpers: the access check, the reusable "paywall" card,
@@ -1862,8 +1858,11 @@ const EDB_PLUS_PAYMENT = {
   rib: "FR7640618804780004016157531",
 };
 const EDB_PLUS_FEATURES = {
-  quiz:      {label:"Les quiz",                 detail:"tester tes connaissances et grimper au classement des quiz"},
-  learn:     {label:"Les fiches Connaissances",  detail:"réviser chaque sujet avant de faire le quiz correspondant"},
+  // Quiz et fiches Connaissances vivent maintenant sur une seule page/onglet
+  // (fusion demandée par l'EDB — voir renderQuizDeckList()), donc un seul
+  // paywall/une seule clé pour les deux — l'ancienne clé "learn" séparée a
+  // disparu.
+  quiz:      {label:"Connaissances & Quiz",     detail:"réviser chaque sujet puis tester tes connaissances et grimper au classement des quiz"},
   news:      {label:"Les actualités marché",     detail:"suivre l'actualité macro/crypto en direct depuis le terminal"},
   challenge: {label:"Le challenge prop firm",    detail:"trader un compte démo calqué sur une vraie évaluation prop firm en 2 étapes"},
   theme:     {label:"Le changement de thème",    detail:"personnaliser l'interface (Ember, Sage, Ink, Noir, Gold, Azure)"},
@@ -1871,7 +1870,7 @@ const EDB_PLUS_FEATURES = {
   resources: {label:"Ressources trading",        detail:"accéder à la sélection d'outils externes recommandés par EDB"},
   concoursedbplus: {label:"Le Concours EDB+ (Challenge Hardcore)", detail:"tenter le Challenge 200 000 $ et gagner une vraie Prop Firm 100 000 $"},
 };
-const EDB_PLUS_FEATURE_ICONS = {quiz:"🧠", learn:"📚", news:"📰", challenge:"🏅", theme:"🎨", tradesedb:"📈", resources:"🔗", concoursedbplus:"💎"};
+const EDB_PLUS_FEATURE_ICONS = {quiz:"📚", news:"📰", challenge:"🏅", theme:"🎨", tradesedb:"📈", resources:"🔗", concoursedbplus:"💎"};
 // Reusable "EDB+ requise" card — dropped into a feature's own container in
 // place of its real content. `key` picks the wording from EDB_PLUS_FEATURES
 // above; the CTA button is wired by wireEdbPlusCta(key) right after this
@@ -1902,7 +1901,7 @@ function goToEdbPlus(){
 // this badge is just a heads-up before clicking).
 function updateEdbPlusNavBadges(){
   const locked = !isEdbPlus();
-  [["quiz","🧠"],["learn","📚"],["news","📰"],["challenge","🏅"],["tradesedb","📈"],["resources","🔗"],["concoursedbplus","💎"]].forEach(([view,emoji])=>{
+  [["quiz","📚"],["news","📰"],["challenge","🏅"],["tradesedb","📈"],["resources","🔗"],["concoursedbplus","💎"]].forEach(([view,emoji])=>{
     const btn = document.querySelector('nav.tabs button[data-view="'+view+'"]');
     if (!btn) return;
     let badge = btn.querySelector(".nav-lock-badge");
@@ -8398,7 +8397,7 @@ const QUIZ_DECKS = [
 ];
 
 /* ============================= CONNAISSANCES ============================= */
-// Illustrative photo for each Connaissances deck card (renderLearnDeckList()
+// Illustrative photo for each Connaissances/Quiz deck card (renderQuizDeckList()
 // below) — same inline-base64-webp pattern as RESOURCE_SHOTS above, keyed by
 // KNOWLEDGE deck id. Resized/compressed client-side before embedding (max
 // 640px wide, ~6-27KB each) to keep the single-file app from ballooning.
@@ -8908,6 +8907,14 @@ function renderQuizIntro(deck){
     document.getElementById("quiz-start").addEventListener("click", ()=>startAttempt(deck));
   }
 }
+// Connaissances (fiches) et Quiz used to be two separate nav tabs with two
+// near-identical 8-card grids (same 8 categories, same layout) — merged per
+// EDB's request into one tab/one grid: each card carries its photo, its
+// fiche status AND its quiz status, with two independent actions
+// ("📖 Réviser" opens the fiche via renderLearnDoc(), "▶️ Jouer" opens the
+// quiz via renderQuizIntro()) rather than one whole-card click doing one
+// thing. Still named renderQuizDeckList() (not renamed) since that's what
+// switchView("quiz")/quiz-deck-back/quiz-tab-play already call.
 function renderQuizDeckList(){
   document.getElementById("quiz-play-wrap").classList.add("wrap-wide");
   currentDeck = null;
@@ -8915,79 +8922,70 @@ function renderQuizDeckList(){
   card.innerHTML =
     '<div class="quiz-deck-list">'+
       '<div class="quiz-intro quiz-deck-list-intro" style="padding:20px 10px 24px;">'+
-        '<div class="quiz-cat">'+QUIZ_DECKS.length+' quiz disponibles</div>'+
-        '<h2>Choisis un quiz</h2>'+
-      '</div>'+
-      QUIZ_DECKS.map(deck=>{
-        const progress = deckProgress(deck);
-        const maxScore = deckMaxScore(deck);
-        const meta = deckMeta(deck.id);
-        let statusLine;
-        if (progress.perfectAttempt!=null) statusLine = 'Sans-faute à l\'essai n°'+progress.perfectAttempt+' · '+fmtMoney(progress.earned)+' / '+fmtMoney(maxScore);
-        else if (progress.inProgress) statusLine = 'En cours — reprendre à la question '+(progress.inProgress.idx+1)+'/'+deck.questions.length;
-        else if (progress.attempts>0) statusLine = fmtMoney(progress.earned)+' / '+fmtMoney(maxScore)+' · '+deckSolvedCount(progress)+'/'+deck.questions.length+' maîtrisées · essai n°'+progress.attempts;
-        else statusLine = 'Jusqu\'à '+fmtMoney(maxScore)+' à gagner';
-        return '<button class="quiz-deck-item" data-deck="'+deck.id+'" style="border-left-color:'+meta.color+';">'+
-          '<div class="deck-card-icon" style="background:'+meta.color+'22;border:1px solid '+meta.color+'55;">'+meta.icon+'</div>'+
-          '<div class="quiz-deck-item-head">'+
-            '<span class="quiz-deck-title">'+escapeHtml(deck.title)+'</span>'+
-            '<span class="quiz-deck-count">'+deck.questions.length+' questions</span>'+
-          '</div>'+
-          '<div class="quiz-deck-item-bonus">'+statusLine+'</div>'+
-        '</button>';
-      }).join("")+
-    '</div>';
-  card.querySelectorAll(".quiz-deck-item").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      const deck = QUIZ_DECKS.find(d=>d.id===btn.dataset.deck);
-      if (deck) renderQuizIntro(deck);
-    });
-  });
-}
-
-/* ============================= CONNAISSANCES (RENDER) ============================= */
-function renderLearnDeckList(){
-  document.getElementById("learn-wrap").classList.add("wrap-wide");
-  const card = document.getElementById("learn-card");
-  card.innerHTML =
-    '<div class="quiz-deck-list">'+
-      '<div class="quiz-intro quiz-deck-list-intro" style="padding:20px 10px 24px;">'+
-        '<div class="quiz-cat">'+KNOWLEDGE.length+' fiches disponibles</div>'+
-        '<h2>Réviser avant de jouer</h2>'+
-        '<p>Une fiche de connaissances par quiz — tout ce qu\'il faut savoir pour faire un sans-faute.</p>'+
+        '<div class="quiz-cat">'+KNOWLEDGE.length+' cours disponibles</div>'+
+        '<h2>Connaissances &amp; Quiz</h2>'+
+        '<p>Une fiche de connaissances par sujet, plus le quiz correspondant pour tester ce que tu as retenu — révise, joue, ou les deux, dans l\'ordre que tu veux.</p>'+
       '</div>'+
       KNOWLEDGE.map(k=>{
         const deck = QUIZ_DECKS.find(d=>d.id===k.id);
         const meta = deckMeta(k.id);
         const shot = (typeof KNOWLEDGE_SHOTS!=="undefined") ? KNOWLEDGE_SHOTS[k.id] : null;
         const img = shot ? '<img class="learn-deck-item-img" src="'+shot+'" alt="'+escapeHtml(k.title)+'" loading="lazy">' : '';
-        return '<button class="quiz-deck-item" data-learn="'+k.id+'" style="border-left-color:'+meta.color+';">'+
+        let statusLine = "";
+        if (deck){
+          const progress = deckProgress(deck);
+          const maxScore = deckMaxScore(deck);
+          if (progress.perfectAttempt!=null) statusLine = 'Quiz : sans-faute à l\'essai n°'+progress.perfectAttempt+' · '+fmtMoney(progress.earned)+' / '+fmtMoney(maxScore);
+          else if (progress.inProgress) statusLine = 'Quiz en cours — reprendre à la question '+(progress.inProgress.idx+1)+'/'+deck.questions.length;
+          else if (progress.attempts>0) statusLine = 'Quiz : '+fmtMoney(progress.earned)+' / '+fmtMoney(maxScore)+' · '+deckSolvedCount(progress)+'/'+deck.questions.length+' maîtrisées';
+          else statusLine = 'Quiz : jusqu\'à '+fmtMoney(maxScore)+' à gagner';
+        }
+        return '<div class="quiz-deck-item" style="border-left-color:'+meta.color+';">'+
           img+
           '<div class="deck-card-icon" style="background:'+meta.color+'22;border:1px solid '+meta.color+'55;">'+meta.icon+'</div>'+
           '<div class="quiz-deck-item-head">'+
             '<span class="quiz-deck-title">'+escapeHtml(k.title)+'</span>'+
-            '<span class="quiz-deck-count">'+k.sections.length+' sections</span>'+
+            '<span class="quiz-deck-count">'+k.sections.length+' sections'+(deck?' · '+deck.questions.length+' questions':'')+'</span>'+
           '</div>'+
           '<div class="learn-deck-item-desc">'+escapeHtml(deck?deck.intro:"")+'</div>'+
-        '</button>';
+          (statusLine ? '<div class="quiz-deck-item-bonus">'+statusLine+'</div>' : '')+
+          '<div class="quiz-deck-item-actions">'+
+            '<button class="btn-secondary" data-review="'+k.id+'">📖 Réviser</button>'+
+            (deck ? '<button class="btn-primary" data-play="'+k.id+'">▶️ Jouer</button>' : '')+
+          '</div>'+
+        '</div>';
       }).join("")+
     '</div>';
-  card.querySelectorAll("[data-learn]").forEach(btn=>{
+  card.querySelectorAll("[data-review]").forEach(btn=>{
     btn.addEventListener("click", ()=>{
-      const k = KNOWLEDGE.find(x=>x.id===btn.dataset.learn);
+      const k = KNOWLEDGE.find(x=>x.id===btn.dataset.review);
       if (k) renderLearnDoc(k);
     });
   });
+  card.querySelectorAll("[data-play]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const deck = QUIZ_DECKS.find(d=>d.id===btn.dataset.play);
+      if (deck) renderQuizIntro(deck);
+    });
+  });
 }
+/* ============================= CONNAISSANCES (RENDER) ============================= */
 function renderLearnDoc(k){
-  document.getElementById("learn-wrap").classList.remove("wrap-wide");
-  const card = document.getElementById("learn-card");
+  document.getElementById("quiz-play-wrap").classList.remove("wrap-wide");
+  const card = document.getElementById("quiz-card");
   const meta = deckMeta(k.id);
+  const shot = (typeof KNOWLEDGE_SHOTS!=="undefined") ? KNOWLEDGE_SHOTS[k.id] : null;
   card.innerHTML =
     '<div class="learn-doc">'+
       '<div class="learn-doc-top">'+
         '<button class="btn-secondary" id="learn-back">◀ Toutes les fiches</button>'+
       '</div>'+
+      // Same photo as the deck-picker card, shown again here — most fiches
+      // don't have a hand-drawn learnDiagram() SVG (only 4 of the 8 do), so
+      // without this the article opened to a plain color-less wall of text
+      // right under the title. This guarantees every fiche has an
+      // illustration once opened, not just on the picker card.
+      (shot ? '<img class="learn-doc-hero-img" src="'+shot+'" alt="'+escapeHtml(k.title)+'" loading="lazy">' : '')+
       '<div class="learn-doc-head">'+
         '<div class="learn-doc-head-icon" style="background:'+meta.color+'22;border:1px solid '+meta.color+'55;">'+meta.icon+'</div>'+
         '<h2>'+escapeHtml(k.title)+'</h2>'+
@@ -9000,13 +8998,17 @@ function renderLearnDoc(k){
           s.p.map(par=>'<p>'+par+'</p>').join("")+
         '</div>'
       ).join("")+
-      '<div class="learn-doc-actions">'+
-        '<button class="btn-primary" id="learn-to-quiz">Faire le quiz →</button>'+
-      '</div>'+
+      (QUIZ_DECKS.some(d=>d.id===k.id) ?
+        '<div class="learn-doc-actions">'+
+          '<button class="btn-primary" id="learn-to-quiz">Faire le quiz →</button>'+
+        '</div>' : ''
+      )+
     '</div>';
-  document.getElementById("learn-back").addEventListener("click", renderLearnDeckList);
-  document.getElementById("learn-to-quiz").addEventListener("click", ()=>{
-    switchView("quiz");
+  document.getElementById("learn-back").addEventListener("click", renderQuizDeckList);
+  const toQuizBtn = document.getElementById("learn-to-quiz");
+  if (toQuizBtn) toQuizBtn.addEventListener("click", ()=>{
+    // Same page/tab now (no switchView — Connaissances and Quiz are one
+    // merged view), so this just swaps quiz-card's content in place.
     const deck = QUIZ_DECKS.find(d=>d.id===k.id);
     if (deck) renderQuizIntro(deck);
   });
@@ -9304,15 +9306,6 @@ function switchView(name){
       document.getElementById("quiz-lb-wrap").hidden = true;
       document.getElementById("flash-wrap").hidden = true;
       renderQuizDeckList();
-    }
-  }
-  if (name==="learn"){
-    if (!isEdbPlus()){
-      document.getElementById("learn-wrap").classList.remove("wrap-wide");
-      document.getElementById("learn-card").innerHTML = edbPlusPaywallHtml("learn");
-      wireEdbPlusCta("learn");
-    } else {
-      renderLearnDeckList();
     }
   }
   if (name==="resources"){
