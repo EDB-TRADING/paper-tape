@@ -89,6 +89,41 @@
     --accent-light:#ffffff;
     --on-accent:#050505;
   }
+  /* Gold: the two EDB+-exclusive themes below. Gold reuses the app's own
+     --gold accent (badges, EDB+ paywall) as its primary color — a black/gold
+     "membre" look. */
+  :root[data-theme="gold"]{
+    --bg:#100d05;
+    --bg-raised:#1a150a;
+    --panel:#140f07;
+    --panel-2:#1f180c;
+    --border:#3d3115;
+    --border-soft:#2a2210;
+    --text:#faf3e0;
+    --text-dim:#cbb98a;
+    --text-faint:#8f7f56;
+    --accent:#d7b563;
+    --accent-dark:#a8873f;
+    --accent-light:#f0d590;
+    --on-accent:#100d05;
+  }
+  /* Azure: a cool institutional blue, evoking a pro market-data terminal —
+     the second EDB+-exclusive theme. */
+  :root[data-theme="azure"]{
+    --bg:#070d14;
+    --bg-raised:#0c1620;
+    --panel:#0a121b;
+    --panel-2:#101c29;
+    --border:#1f3347;
+    --border-soft:#152535;
+    --text:#eaf3fb;
+    --text-dim:#9fb8cc;
+    --text-faint:#5f7d92;
+    --accent:#37c7db;
+    --accent-dark:#1f96a8;
+    --accent-light:#7fe0ee;
+    --on-accent:#070d14;
+  }
 
   *{box-sizing:border-box;}
   body{
@@ -154,8 +189,12 @@
   .theme-dot:hover,.candle-dot:hover{transform:scale(1.15);}
   .theme-dot.active,.candle-dot.active{border-color:var(--text);box-shadow:0 0 0 2px var(--bg),0 0 0 3px var(--dot);}
   .theme-dot:focus-visible,.candle-dot:focus-visible{outline:2px solid var(--dot);outline-offset:2px;}
+  .theme-switch.locked .theme-dot{opacity:.35;}
+  .theme-lock-badge{font-size:10px;margin-left:1px;}
 
-  nav.tabs{display:flex;gap:2px;background:var(--panel);border:1px solid var(--border);border-radius:999px;padding:3px;margin-left:8px;}
+  nav.tabs{display:flex;gap:2px;background:var(--panel);border:1px solid var(--border);border-radius:999px;padding:3px;margin-left:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;max-width:100%;}
+  nav.tabs::-webkit-scrollbar{display:none;}
+  nav.tabs button{flex:none;}
   nav.tabs button{
     background:transparent;border:none;color:var(--text-dim);
     font-family:var(--mono);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;
@@ -233,6 +272,8 @@
     min-width:0; box-sizing:border-box;
   }
   .card > h3{font-size:11px;letter-spacing:0.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px;font-weight:600;}
+  .profile-teaser-card{cursor:pointer;transition:border-color .15s,transform .15s;}
+  .profile-teaser-card:hover{border-color:var(--accent);transform:translateY(-1px);}
 
   /* ---------- draggable / removable widgets ---------- */
   .widget-col{display:flex;flex-direction:column;min-height:24px;min-width:0;}
@@ -470,9 +511,10 @@
   .liq-warn{color:var(--warn);}
   .empty-note{font-family:var(--mono);font-size:11px;color:var(--text-faint);padding:14px 4px;text-align:center;}
 
-  .hist-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-soft);font-size:10.5px;}
+  .hist-row{display:flex;flex-direction:column;gap:2px;padding:5px 0;border-bottom:1px solid var(--border-soft);font-size:10.5px;}
   .hist-row:last-child{border-bottom:none;}
   .hist-tag{font-family:var(--mono);font-size:8.5px;color:var(--text-faint);text-transform:uppercase;}
+  .hist-row-sub{font-family:var(--mono);font-size:9px;color:var(--text-faint);}
 
   /* market sessions clock */
   .paris-clock{font-family:var(--mono);font-size:21px;font-weight:700;letter-spacing:0.02em;margin-bottom:10px;color:var(--text);}
@@ -538,6 +580,20 @@
     background:var(--accent-dim);border:1px solid var(--accent);border-radius:999px;
     padding:3px 11px;font-family:var(--mono);font-size:10.5px;
   }
+  /* EDB+ paywall — reuses .quiz-intro/.quiz-cat/.deck-big-icon but in gold,
+     so a locked feature reads as "premium", not "broken". */
+  .quiz-cat.gold-badge{color:var(--gold);background:color-mix(in srgb, var(--gold) 18%, var(--bg) 82%);border-color:var(--gold);}
+  .edbplus-paywall{padding:40px 16px;}
+  .nav-lock-badge{font-size:9px;margin-left:3px;opacity:.8;vertical-align:2px;}
+  /* EDB+ chat modal — reused for both the trader's own thread (Profil) and
+     an admin replying from the panneau admin; "mine" flips meaning per
+     viewer via edbPlusChatContext.viewerRole, not per author. */
+  .edbplus-chat-messages{max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:2px 2px 4px;}
+  .chat-bubble{max-width:82%;padding:8px 12px;border-radius:12px;background:var(--panel);border:1px solid var(--border-soft);}
+  .chat-bubble.mine{align-self:flex-end;background:color-mix(in srgb, var(--gold) 16%, var(--panel) 84%);border-color:var(--gold);}
+  .chat-bubble.theirs{align-self:flex-start;}
+  .chat-bubble-meta{font-size:10px;color:var(--text-dim);margin-bottom:3px;font-family:var(--mono);}
+  .chat-bubble-text{font-size:13px;white-space:pre-wrap;word-break:break-word;}
   .deck-icon{font-size:15px;margin-right:2px;}
   .deck-big-icon{
     display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;
@@ -590,6 +646,11 @@
   .footnote{font-family:var(--mono);font-size:10px;color:var(--text-faint);text-align:center;padding:22px 10px 6px;}
 
   .learn-wrap{max-width:760px;margin:0 auto;}
+  /* Wider variant for grid-of-cards views (quiz deck picker, Connaissances
+     deck picker, Ressources) so the grid actually spreads across the
+     screen instead of being squeezed into the narrow reading-width column
+     used for the quiz question flow / Connaissances article / Profil. */
+  .quiz-wrap.wrap-wide, .learn-wrap.wrap-wide{max-width:1280px;}
   .learn-deck-item-desc{font-family:var(--sans);font-size:12px;color:var(--text-dim);line-height:1.5;}
   .resource-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
   .resource-card{
@@ -623,10 +684,28 @@
   .learn-diagram svg{width:100%;height:auto;display:block;}
 
   /* history row action buttons */
-  .hist-row{align-items:center;}
+  .hist-row-main{display:flex;justify-content:space-between;align-items:center;}
   .hist-row-right{display:flex;align-items:center;gap:6px;}
   .hist-icon-btn{background:none;border:none;cursor:pointer;font-size:12px;padding:2px;opacity:0.6;line-height:1;}
   .hist-icon-btn:hover{opacity:1;}
+
+  /* PNL calendar (Profil) */
+  .pnl-cal-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:10px;}
+  .pnl-cal-month{font-family:var(--sans);font-weight:600;font-size:14px;min-width:150px;text-align:center;}
+  .pnl-cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px;font-family:var(--mono);font-size:9.5px;color:var(--text-faint);text-align:center;}
+  .pnl-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .pnl-cal-cell{aspect-ratio:1/1;border-radius:6px;background:var(--bg-raised);border:1px solid var(--border-soft);padding:4px;display:flex;flex-direction:column;font-family:var(--mono);overflow:hidden;}
+  .pnl-cal-cell.empty{background:none;border:none;}
+  .pnl-cal-cell.pos{background:color-mix(in srgb, var(--long) 22%, var(--bg-raised) 78%);border-color:color-mix(in srgb, var(--long) 45%, var(--border-soft) 55%);cursor:pointer;}
+  .pnl-cal-cell.neg{background:color-mix(in srgb, var(--short) 22%, var(--bg-raised) 78%);border-color:color-mix(in srgb, var(--short) 45%, var(--border-soft) 55%);cursor:pointer;}
+  .pnl-cal-cell.flat{cursor:pointer;}
+  .pnl-cal-cell.pos:hover,.pnl-cal-cell.neg:hover,.pnl-cal-cell.flat:hover{filter:brightness(1.15);}
+  .pnl-cal-daynum{font-size:9.5px;color:var(--text-faint);}
+  .pnl-cal-amt{font-size:9.5px;font-weight:700;margin-top:auto;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .pnl-cal-cell.pos .pnl-cal-amt{color:var(--long);}
+  .pnl-cal-cell.neg .pnl-cal-amt{color:var(--short);}
+  .pnl-cal-count{font-size:8px;color:var(--text-faint);}
+  @media (max-width:520px){ .pnl-cal-amt,.pnl-cal-count{display:none;} }
 
   /* badges */
   .badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;}
@@ -678,6 +757,29 @@
   .pnl-card-pnl.up{color:var(--long);}
   .pnl-card-pnl.down{color:var(--short);}
   .pnl-card-meta{font-family:var(--mono);font-size:10px;color:var(--text-faint);margin-top:4px;}
+  /* Compact PnL card embedded inside a chat bubble — same modifier classes
+     (.up/.down/.long/.short) as the full-size .pnl-card, smaller metrics. */
+  .mini-pnl-card{background:linear-gradient(160deg,var(--panel-2),var(--bg-raised));border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center;min-width:180px;}
+  .mini-pnl-card-top{display:flex;justify-content:space-between;font-family:var(--mono);font-size:8px;letter-spacing:0.06em;color:var(--text-faint);text-transform:uppercase;margin-bottom:8px;}
+  .mini-pnl-card-brand{color:var(--accent);font-weight:700;}
+  .mini-pnl-card-sym{font-family:var(--mono);font-size:14px;font-weight:700;margin-bottom:4px;}
+  .mini-pnl-card-side{font-size:9px;padding:1px 5px;border-radius:4px;margin-left:5px;vertical-align:middle;}
+  .mini-pnl-card-pnl{font-family:var(--mono);font-size:20px;font-weight:700;margin-bottom:2px;}
+  .mini-pnl-card-meta{font-family:var(--mono);font-size:8.5px;color:var(--text-faint);margin-top:2px;}
+
+  /* Global chat */
+  .global-chat-messages{max-height:60vh;min-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 4px 8px;}
+  .chat-bubble-author{font-weight:700;color:var(--text);}
+  .chat-bubble-img{max-width:220px;max-height:220px;border-radius:8px;display:block;margin-top:4px;cursor:zoom-in;}
+  .chat-bubble-actions{display:flex;gap:8px;margin-top:4px;}
+  .chat-bubble-actions button{background:none;border:none;cursor:pointer;font-size:10px;color:var(--text-faint);padding:0;}
+  .chat-bubble-actions button:hover{color:var(--text);}
+  .chat-bubble-edited{font-style:italic;opacity:.7;}
+  .global-chat-image-preview{display:flex;align-items:center;gap:8px;margin-top:8px;padding:6px 10px;background:var(--bg-raised);border:1px solid var(--border-soft);border-radius:8px;}
+  .global-chat-image-preview img{width:40px;height:40px;object-fit:cover;border-radius:6px;}
+  .global-chat-image-preview button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:14px;margin-left:auto;}
+  .chat-edit-box textarea{width:100%;background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-family:var(--sans);font-size:13px;color:var(--text);resize:vertical;}
+  .chat-edit-box .chat-edit-actions{display:flex;gap:8px;margin-top:4px;justify-content:flex-end;}
 
   /* feedback FAB + modal */
   .feedback-fab{position:fixed;bottom:20px;right:20px;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg, var(--accent-light), var(--accent-dark));color:var(--on-accent);border:none;font-size:20px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.4);z-index:40;}
@@ -777,6 +879,9 @@
       <button type="button" class="theme-dot" data-theme-choice="sage"  title="Sage"  style="--dot:#3E5C4B"></button>
       <button type="button" class="theme-dot" data-theme-choice="ink"   title="Ink"   style="--dot:#1C1A17"></button>
       <button type="button" class="theme-dot" data-theme-choice="noir"  title="Noir"  style="--dot:conic-gradient(#000 0 50%, #fff 50% 100%)"></button>
+      <button type="button" class="theme-dot" data-theme-choice="gold"  title="Gold — EDB+"  style="--dot:#D7B563"></button>
+      <button type="button" class="theme-dot" data-theme-choice="azure" title="Azure — EDB+" style="--dot:#37C7DB"></button>
+      <span class="theme-lock-badge" id="theme-lock-badge" title="Réservé aux membres EDB+" hidden>🔒</span>
     </div>
     <button type="button" id="widget-panel-btn" class="widget-panel-btn" title="Gérer les widgets">🧩</button>
     <div id="widget-panel" class="widget-panel" hidden>
@@ -787,10 +892,13 @@
     <nav class="tabs">
       <button data-view="terminal" class="active"><span class="tab-emoji">📟</span>Terminal</button>
       <button data-view="news"><span class="tab-emoji">📰</span>News</button>
+      <button data-view="chat"><span class="tab-emoji">💬</span>Chat</button>
       <button data-view="leaderboard"><span class="tab-emoji">🏆</span>Classement</button>
+      <button data-view="challenge"><span class="tab-emoji">🏅</span>Challenge</button>
       <button data-view="quiz"><span class="tab-emoji">🧠</span>Quiz</button>
       <button data-view="learn"><span class="tab-emoji">📚</span>Connaissances</button>
       <button data-view="resources"><span class="tab-emoji">🔗</span>Ressources</button>
+      <button data-view="edbplus"><span class="tab-emoji">💎</span>EDB+</button>
       <button data-view="profile"><span class="tab-emoji">👤</span>Profil</button>
       <button data-view="admin" id="nav-admin-btn" hidden><span class="tab-emoji">🛡️</span>Admin</button>
     </nav>
@@ -1053,14 +1161,18 @@
             <button class="btn-secondary" id="auth-logout-btn" style="margin-top:8px;">Se déconnecter</button>
           </div>
         </div>
+        <div class="card profile-teaser-card" style="margin-top:14px;" data-goto-view="edbplus">
+          <h3>EDB+</h3>
+          <div id="edbplus-teaser-body" class="chart-note">Abonnement, avantages et discussion avec le bureau →</div>
+        </div>
+        <div class="card profile-teaser-card" style="margin-top:14px;" data-goto-view="challenge">
+          <h3>Challenge Prop Firm</h3>
+          <div id="challenge-teaser-body" class="chart-note">Trade un compte démo calqué sur une évaluation prop firm →</div>
+        </div>
         <div class="card" style="margin-top:14px;">
           <h3>Aide</h3>
           <p class="chart-note" style="margin-bottom:10px;">La visite guidée s'affiche automatiquement une seule fois, à la toute première connexion d'un compte. Tu peux la revoir ici à tout moment.</p>
           <button class="btn-secondary" id="tour-replay-btn">Revoir le tutoriel</button>
-        </div>
-        <div class="card" style="margin-top:14px;" id="challenge-profile-card">
-          <h3>Challenge Prop Firm</h3>
-          <div id="challenge-card-body"></div>
         </div>
         <div class="card" style="margin-top:14px;" id="admin-unlock-card">
           <h3>Mode admin</h3>
@@ -1091,10 +1203,11 @@
           <h3>Mes badges</h3>
           <div class="badges-grid" id="badges-grid"></div>
         </div>
-        <div class="card" style="margin-top:14px;text-align:center;">
-          <h3>Ma carte</h3>
-          <p class="chart-note" style="margin-bottom:10px;">Un récap de ta session à partager (capture d'écran).</p>
-          <button class="btn-primary" id="open-session-card">Voir ma carte</button>
+        <div class="card" style="margin-top:14px;" id="pnl-calendar-card">
+          <h3>Calendrier PnL</h3>
+          <p class="chart-note" style="margin-bottom:10px;">PnL réalisé par jour — clique un jour pour voir ses trades et générer une carte PnL.</p>
+          <div id="pnl-calendar-header"></div>
+          <div id="pnl-calendar-grid"></div>
         </div>
         <div class="card" style="margin-top:14px;">
           <h3>Journal de trading</h3>
@@ -1129,8 +1242,22 @@
         <div id="admin-status" class="chart-note"></div>
         <div style="overflow-x:auto;">
           <table class="lb-table">
-            <thead><tr><th>Trader</th><th>Email</th><th>Équité</th><th>Cash</th><th>PnL ouvert</th><th>Positions</th><th>Dernière activité</th><th>Temps passé</th><th>Actions</th></tr></thead>
-            <tbody id="admin-body"><tr><td colspan="9" class="empty-note">Clique sur Actualiser pour charger la liste.</td></tr></tbody>
+            <thead><tr><th>Trader</th><th>Email</th><th>Équité</th><th>Cash</th><th>PnL ouvert</th><th>Positions</th><th>Dernière activité</th><th>Temps passé</th><th>EDB+</th><th>Actions</th></tr></thead>
+            <tbody id="admin-body"><tr><td colspan="10" class="empty-note">Clique sur Actualiser pour charger la liste.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+          <h3 style="margin:0;">Discussions EDB+</h3>
+          <button class="pos-close" id="admin-edbplus-chat-refresh">🔄 Actualiser</button>
+        </div>
+        <div class="chart-note" style="margin-bottom:10px;">Un fil par trader, ouvert automatiquement dès qu'il clique sur "Je souhaite m'abonner à EDB+" dans Profil. Les lignes en orange attendent encore ta réponse.</div>
+        <div id="admin-edbplus-chat-status" class="chart-note"></div>
+        <div style="overflow-x:auto;">
+          <table class="lb-table">
+            <thead><tr><th>Trader</th><th>Dernier message</th><th>De</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody id="admin-edbplus-chat-body"><tr><td colspan="5" class="empty-note">Clique sur Actualiser pour charger les discussions.</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -1159,7 +1286,7 @@
 
     <!-- ================= RESOURCES ================= -->
     <section class="view" id="view-resources">
-      <div class="learn-wrap">
+      <div class="learn-wrap wrap-wide">
         <div class="card">
           <div class="quiz-intro" style="padding:20px 10px 24px;">
             <div class="quiz-cat">Liens externes</div>
@@ -1167,6 +1294,43 @@
             <p>Une sélection d'outils externes utiles pour l'order flow, la fondamentale et la data crypto — recommandés par EDB. Ces sites ne sont pas gérés par Paper Tape, ouvre-les avec ton propre jugement. La capture d'écran de chaque carte donne un aperçu réel de l'outil avant de cliquer.</p>
           </div>
           <div class="resource-grid" id="resource-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= EDB+ (dedicated page) ================= -->
+    <section class="view" id="view-edbplus">
+      <div class="learn-wrap">
+        <div class="card" id="edbplus-card"></div>
+      </div>
+    </section>
+
+    <!-- ================= CHALLENGE PROP FIRM (dedicated page) ================= -->
+    <section class="view" id="view-challenge">
+      <div class="learn-wrap">
+        <div class="card" id="challenge-profile-card">
+          <h3>Challenge Prop Firm</h3>
+          <div id="challenge-card-body"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CHAT GLOBAL ================= -->
+    <section class="view" id="view-chat">
+      <div class="learn-wrap wrap-wide">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+            <h3 style="margin:0;">Chat global EDB</h3>
+          </div>
+          <div class="chart-note" style="margin-bottom:10px;">Discussion ouverte à tous les traders. Sois sympa — les messages et images sont visibles par tout le monde, y compris le bureau.</div>
+          <div id="global-chat-messages" class="global-chat-messages"><div class="empty-note">Chargement…</div></div>
+          <div id="global-chat-image-preview" class="global-chat-image-preview" hidden></div>
+          <div style="display:flex;gap:8px;margin-top:10px;align-items:flex-end;">
+            <input type="file" id="global-chat-image-input" accept="image/*" hidden>
+            <button class="btn-secondary" id="global-chat-image-btn" title="Joindre une image">🖼️</button>
+            <input type="text" id="global-chat-input" class="tpsl-input" maxlength="500" placeholder="Écris un message…" style="flex:1;">
+            <button class="btn-primary" id="global-chat-send-btn">Envoyer</button>
+          </div>
         </div>
       </div>
     </section>
@@ -1310,9 +1474,135 @@ const TAKER_FEE_RATE = 0.0004;      // 0.04% commission, charged on market-order
 const MAKER_FEE_RATE = 0.0002;      // 0.02% commission, charged only on a limit order's entry fill
 const LIQUIDATION_FEE_RATE = 0.005; // extra 0.5% of notional penalty charged only when a position is liquidated (replaces the normal exit fee)
 const START_CASH = 100000;
+// How many closed-trade entries state.history/persistAccount() retain. Used
+// to be capped at 15 (just enough for the terminal's compact "Historique
+// récent" widget, which still only DISPLAYS its most recent 15) — raised so
+// the Profil "PNL calendar" has enough closed-trade depth to paint a real
+// month, not just the last few trades.
+const TRADE_HISTORY_RETAIN = 200;
 const HIST_LEN = 220;
 const TRADER_ID_KEY = "paperTapeTraderId";
 const REFETCH_MS = 30000;
+
+/* ============================= EDB+ (MEMBERSHIP GATE) =============================
+   EDB+ is a paid association membership (20€/an) — NOT a Paper Tape feature
+   flag. There's no payment processor wired in: EDB+ is granted the same way
+   "isAdmin" is (see ADMIN PANEL) — a trader pays 20€ outside the app (cash,
+   virement, HelloAsso...), and an admin flips their status from the Admin
+   panel. A trader can self-flag "j'ai payé" (edbPlusRequested) from Profil
+   so admins see them in the pending list, but that flag alone unlocks
+   nothing — only an admin write to `edbPlus` does. See SERVER_SETUP.md for
+   the Firestore-rules note on why a trader can't just self-write
+   edbPlus:true from devtools in a hardened deployment.
+   Gated behind EDB+: the prop-firm challenge, Quiz, Connaissances, News,
+   and switching the UI theme (all 6 themes, not just the 2 new ones) — see
+   each feature's own render function for the actual gate. This block only
+   holds the shared helpers: the access check, the reusable "paywall" card,
+   and the label map used to word it per-feature. */
+function isEdbPlus(){ return !!state.edbPlus; }
+const EDB_PLUS_FEATURES = {
+  quiz:      {label:"Les quiz",                 detail:"tester tes connaissances et grimper au classement des quiz"},
+  learn:     {label:"Les fiches Connaissances",  detail:"réviser chaque sujet avant de faire le quiz correspondant"},
+  news:      {label:"Les actualités marché",     detail:"suivre l'actualité macro/crypto en direct depuis le terminal"},
+  challenge: {label:"Le challenge prop firm",    detail:"trader un compte démo calqué sur une vraie évaluation prop firm en 2 étapes"},
+  theme:     {label:"Le changement de thème",    detail:"personnaliser l'interface (Ember, Sage, Ink, Noir, Gold, Azure)"},
+};
+// Reusable "EDB+ requise" card — dropped into a feature's own container in
+// place of its real content. `key` picks the wording from EDB_PLUS_FEATURES
+// above; the CTA button is wired by wireEdbPlusCta(key) right after this
+// HTML is inserted into the DOM (event listeners don't survive innerHTML).
+function edbPlusPaywallHtml(key){
+  const f = EDB_PLUS_FEATURES[key] || {label:"Cette fonctionnalité", detail:"débloquer cette fonctionnalité"};
+  return '<div class="quiz-intro edbplus-paywall">'+
+    '<div class="deck-big-icon" style="background:var(--gold)22;border:1px solid var(--gold)55;">🔒</div>'+
+    '<div class="quiz-cat gold-badge">EDB+ requis</div>'+
+    '<h2>'+escapeHtml(f.label)+'</h2>'+
+    '<p>Réservé aux membres EDB+ — 20€/an pour '+escapeHtml(f.detail)+', et soutenir l\'association au passage.</p>'+
+    '<div class="quiz-intro-actions">'+
+      '<button class="btn-primary" id="edbplus-cta-'+key+'">Découvrir EDB+</button>'+
+    '</div>'+
+  '</div>';
+}
+function wireEdbPlusCta(key){
+  const btn = document.getElementById("edbplus-cta-"+key);
+  if (btn) btn.addEventListener("click", goToEdbPlus);
+}
+// Jumps to the dedicated EDB+ page — the single destination every paywall
+// CTA and locked theme-dot click leads to.
+function goToEdbPlus(){
+  switchView("edbplus");
+}
+// Adds/removes a small lock badge on the nav tabs whose content is fully
+// gated (they aren't hidden — they stay clickable and show the paywall —
+// this badge is just a heads-up before clicking).
+function updateEdbPlusNavBadges(){
+  const locked = !isEdbPlus();
+  [["quiz","🧠"],["learn","📚"],["news","📰"],["challenge","🏅"]].forEach(([view,emoji])=>{
+    const btn = document.querySelector('nav.tabs button[data-view="'+view+'"]');
+    if (!btn) return;
+    let badge = btn.querySelector(".nav-lock-badge");
+    if (locked){
+      if (!badge){
+        badge = document.createElement("span");
+        badge.className = "nav-lock-badge";
+        badge.textContent = "🔒";
+        btn.appendChild(badge);
+      }
+    } else if (badge){
+      badge.remove();
+    }
+  });
+}
+// Renders the "#edbplus-card" in Profil into one of 3 states: active member,
+// request pending (awaiting an admin's manual toggle), or the pitch+CTA.
+// No payment processor is wired up here on purpose — see AskUserQuestion
+// answers in SERVER_SETUP.md: a trader pays the 20€/an outside the app
+// (espèces/virement/HelloAsso) and an admin flips edbPlus from the panneau
+// admin. Clicking the button below only records a request, it never charges
+// anything or grants access by itself.
+function renderEdbPlusProfileCard(){
+  const el = document.getElementById("edbplus-card");
+  if (!el) return;
+  if (isEdbPlus()){
+    el.innerHTML =
+      '<h3>EDB+ <span class="quiz-cat gold-badge" style="margin-left:6px;">Actif</span></h3>'+
+      '<p class="chart-note" style="margin-bottom:10px;">Tu es membre EDB+ — challenge prop, quiz, connaissances, news et les 6 thèmes sont débloqués. Merci de soutenir l\'association !</p>'+
+      '<button class="btn-secondary" id="edbplus-chat-open-btn">💬 Contacter le bureau EDB</button>';
+    const btn = document.getElementById("edbplus-chat-open-btn");
+    if (btn) btn.addEventListener("click", ()=>openEdbPlusChatModal(clientId, "trader"));
+    return;
+  }
+  if (state.edbPlusRequested){
+    el.innerHTML =
+      '<h3>EDB+</h3>'+
+      '<p class="chart-note" style="margin-bottom:10px;">⏳ Demande envoyée — en attente de validation par un admin du bureau EDB une fois le paiement reçu. Le bureau répond directement dans la conversation ci-dessous, reviens y vérifier.</p>'+
+      '<button class="btn-primary" id="edbplus-chat-open-btn">💬 Voir la conversation</button>';
+    const btn = document.getElementById("edbplus-chat-open-btn");
+    if (btn) btn.addEventListener("click", ()=>openEdbPlusChatModal(clientId, "trader"));
+    return;
+  }
+  el.innerHTML =
+    '<h3>EDB+ <span class="quiz-cat gold-badge" style="margin-left:6px;">20€/an</span></h3>'+
+    '<p class="chart-note" style="margin-bottom:10px;">L\'abonnement association qui débloque : le challenge prop firm démo, les quiz, les fiches Connaissances, les actualités marché, et les 6 thèmes d\'interface (Ember, Sage, Ink, Noir, Gold, Azure).</p>'+
+    '<p class="chart-note" style="margin-bottom:10px;">Paiement à régler auprès du bureau EDB (espèces, virement ou HelloAsso — <em>modalité exacte à préciser par le bureau</em>). Clique ci-dessous pour ouvrir une conversation avec le bureau et signaler ta demande — il te répondra directement ici au plus vite pour activer ton compte.</p>'+
+    '<button class="btn-primary" id="edbplus-request-btn">Je souhaite m\'abonner à EDB+</button>'+
+    '<div class="chart-note" id="edbplus-request-msg" style="margin-top:8px;"></div>';
+  const btn = document.getElementById("edbplus-request-btn");
+  if (btn) btn.addEventListener("click", startEdbPlusRequest);
+}
+// Fires when a trader hits the primary EDB+ CTA: flags the request (same
+// signal the admin table's ⏳ Demande badge already reads), opens a 1:1
+// chat thread with the bureau (Firestore doc "edbplusChats/<traderId>"),
+// and auto-sends the canned first message so the bureau sees it land
+// without the trader having to type anything.
+function startEdbPlusRequest(){
+  state.edbPlusRequested = true;
+  state.edbPlusRequestedAt = new Date().toISOString();
+  persistAccount();
+  renderEdbPlusProfileCard();
+  sendEdbPlusChatMessage(clientId, "trader", "Je veux devenir membre de EDB+");
+  openEdbPlusChatModal(clientId, "trader");
+}
 
 // ---- Firebase (Firestore) config -----------------------------------------
 // Paste the config object from your Firebase project (Project settings →
@@ -1482,6 +1772,9 @@ const state = {
   },
   email: null,     // set from Firebase Auth once signed in — persisted so admins can identify traders
   isAdmin: false,  // durable "ADMIN321" unlock — see ADMIN PANEL below
+  edbPlus: false,           // paid membership (20€/an) — see EDB+ below; granted manually by an admin, never self-writable in good faith
+  edbPlusRequested: false,  // trader self-flags "j'ai payé" so an admin sees them in the admin panel's pending list
+  edbPlusRequestedAt: null, // ISO timestamp of that self-flag, for admin sorting
   totalTimeSpent: 0, // cumulative seconds with the tab open & visible — see initSessionTimeTracking()
   photoURL: null,  // profile picture (Firebase Storage download URL) — see initProfilePhoto()
   feed: [],        // [{id, imageURL, caption, createdAt}] — public screenshot feed, visible to others by clicking this trader in the classement
@@ -1629,6 +1922,7 @@ function booksForPersist(){
 // banner. No-ops if there's no prop book to switch to/from yet.
 function switchActiveBook(name){
   if (name===state.activeBookName) return;
+  if (name==="prop" && !isEdbPlus()) return; // the UI path to this (challenge banner) is already hidden for non-members; this is just insurance
   if (!state.parked) return; // no second book exists yet
   const outgoing = bookSnapshot();
   loadBookSnapshot(state.parked);
@@ -1689,6 +1983,9 @@ function hydrateStateFromDoc(snap){
   state.stats = (d.stats && typeof d.stats==="object") ? {...state.stats, ...d.stats} : state.stats;
   state.email = d.email || state.email || null;
   state.isAdmin = !!d.isAdmin;
+  state.edbPlus = !!d.edbPlus;
+  state.edbPlusRequested = !!d.edbPlusRequested;
+  state.edbPlusRequestedAt = d.edbPlusRequestedAt || null;
   state.totalTimeSpent = typeof d.totalTimeSpent==="number" ? d.totalTimeSpent : 0;
   state.photoURL = d.photoURL || null;
   state.feed = Array.isArray(d.feed) ? d.feed : [];
@@ -1709,6 +2006,13 @@ function hydrateStateFromDoc(snap){
   } : null;
   state.copyNormalToProp = !!d.copyNormalToProp;
   state.copyPropToNormal = !!d.copyPropToNormal;
+  // Now that we actually know this trader's EDB+ status, re-check anything
+  // gated by it: the display theme (may need to snap back to Ember, or be
+  // restored from the saved preference) and the small lock badges on the
+  // Quiz/Connaissances/News tabs.
+  if (typeof enforceThemeAccess==="function") enforceThemeAccess();
+  if (typeof updateEdbPlusNavBadges==="function") updateEdbPlusNavBadges();
+  if (typeof refreshNews==="function") refreshNews(); // no-op if not EDB+; gets a freshly-granted member their first news load without waiting on the 5-min interval
 }
 // Loads (or creates) the trader doc for `id` into `state`. Used at boot for
 // the local anonymous id, and again by the auth flow whenever `clientId`
@@ -1788,12 +2092,12 @@ function persistAccount(){
           equity: bookEquity(normal),
           positions: normal.positions.slice(0,20),
           pendingOrders: normal.pendingOrders.slice(0,20),
-          history: normal.history.slice(0,15),
+          history: normal.history.slice(0,TRADE_HISTORY_RETAIN),
           stats: normal.stats,
           propBook: prop ? {
             cash: prop.cash, marginUsed: prop.marginUsed,
             positions: prop.positions.slice(0,20), pendingOrders: prop.pendingOrders.slice(0,20),
-            history: prop.history.slice(0,15), stats: prop.stats,
+            history: prop.history.slice(0,TRADE_HISTORY_RETAIN), stats: prop.stats,
           } : null,
           propEquity: prop ? bookEquity(prop) : null,
           copyNormalToProp: !!state.copyNormalToProp,
@@ -1811,6 +2115,9 @@ function persistAccount(){
           // re-included here every time would otherwise be lost.
           email: state.email || null,
           isAdmin: !!state.isAdmin,
+          edbPlus: !!state.edbPlus,
+          edbPlusRequested: !!state.edbPlusRequested,
+          edbPlusRequestedAt: state.edbPlusRequestedAt || null,
           totalTimeSpent: state.totalTimeSpent||0,
           photoURL: state.photoURL || null,
           feed: (state.feed||[]).slice(0,30),
@@ -2390,6 +2697,7 @@ function newsItemHtml(it){
 }
 let newsLoading = false;
 async function refreshNews(){
+  if (!isEdbPlus()) return; // EDB+ gate — also protects the 5-minute setInterval below, not just the tab click
   if (newsLoading) return;
   newsLoading = true;
   const status = document.getElementById("news-status");
@@ -3342,19 +3650,35 @@ async function nativeShareCard(){
   }, "image/png");
 }
 
+// Second line under each history row — units/levier/mode/heure. Older
+// history entries persisted before these fields existed simply omit the
+// missing pieces rather than showing "undefined".
+function histSubLine(h){
+  const parts = [];
+  if (typeof h.sizeUnits==="number") parts.push(fmtQty(h.sizeUnits)+" unités");
+  if (typeof h.leverage==="number") parts.push("x"+fmtLev(h.leverage));
+  if (h.mode) parts.push(h.mode==="cross"?"Cross":"Isolated");
+  if (typeof h.entryPrice==="number") parts.push("entrée "+fmtPrice(h.entryPrice));
+  const dt = h.closedAt ? new Date(h.closedAt) : null;
+  if (dt) parts.push(dt.toLocaleDateString('fr-FR')+" "+dt.toLocaleTimeString('fr-FR',{hour:"2-digit",minute:"2-digit"}));
+  return parts.length ? parts.join(" · ") : "—";
+}
 function renderHistory(){
   const list = document.getElementById("history-list");
   if (state.history.length===0){ list.innerHTML = '<div class="empty-note">Pas encore de trade clôturé</div>'; return; }
   list.innerHTML = state.history.slice(0,15).map(h=>{
     const feeNote = h.feesPaid ? ' <span style="font-size:9.5px;color:var(--text-faint);font-weight:400;">(frais '+fmtMoney(h.feesPaid)+')</span>' : '';
     const partialNote = h.partial ? ' <span class="hist-tag">'+h.closedPct+'% partiel</span>' : '';
-    return '<div class="hist-row"><span>'+h.symbol+' · '+(h.side==="long"?"Long":"Short")+
-      ' <span class="hist-tag">'+reasonLabel(h.reason)+'</span>'+partialNote+'</span>'+
-      '<span class="hist-row-right">'+
-        '<span class="num '+(h.pnl>=0?"up":"down")+'">'+fmtMoney(h.pnl)+feeNote+'</span>'+
-        '<button class="hist-icon-btn" data-card-hist="'+h.id+'" title="Carte PnL">🪪</button>'+
-        '<button class="hist-icon-btn" data-note-hist="'+h.id+'" title="Ajouter une note">✍️</button>'+
-      '</span></div>';
+    return '<div class="hist-row">'+
+      '<div class="hist-row-main"><span>'+h.symbol+' · '+(h.side==="long"?"Long":"Short")+
+        ' <span class="hist-tag">'+reasonLabel(h.reason)+'</span>'+partialNote+'</span>'+
+        '<span class="hist-row-right">'+
+          '<span class="num '+(h.pnl>=0?"up":"down")+'">'+fmtMoney(h.pnl)+feeNote+'</span>'+
+          '<button class="hist-icon-btn" data-card-hist="'+h.id+'" title="Carte PnL">🪪</button>'+
+          '<button class="hist-icon-btn" data-note-hist="'+h.id+'" title="Ajouter une note">✍️</button>'+
+        '</span></div>'+
+      '<div class="hist-row-sub">'+histSubLine(h)+'</div>'+
+    '</div>';
   }).join("");
   list.querySelectorAll("[data-card-hist]").forEach(btn=>{
     btn.addEventListener("click", ()=>{
@@ -3557,6 +3881,7 @@ function challengeStatusLabel(c){
 function renderChallengeBanner(){
   const wrap = document.getElementById("challenge-banner");
   if (!wrap) return;
+  if (!isEdbPlus()){ wrap.hidden = true; return; } // no grandfathering — a legacy challenge stays parked, just not shown
   const c = state.challenge;
   if (!c){ wrap.hidden = true; return; }
   wrap.hidden = false;
@@ -3596,9 +3921,34 @@ function renderChallengeBanner(){
     b.addEventListener("click", ()=>switchActiveBook(b.dataset.book));
   });
 }
+// Small status-glance blurbs on the Profil teaser cards for the EDB+ and
+// Challenge pages, which now live on their own dedicated views (nav tabs)
+// instead of scrolling the whole Profil card inline.
+function renderEdbPlusTeaser(){
+  const el = document.getElementById("edbplus-teaser-body");
+  if (!el) return;
+  if (isEdbPlus()) el.textContent = "✅ Membre actif — voir les avantages et contacter le bureau →";
+  else if (state.edbPlusRequested) el.textContent = "⏳ Demande envoyée — voir la conversation →";
+  else el.textContent = "Abonnement, avantages et discussion avec le bureau →";
+}
+function renderChallengeTeaser(){
+  const el = document.getElementById("challenge-teaser-body");
+  if (!el) return;
+  if (!isEdbPlus()){ el.textContent = "🔒 Réservé aux membres EDB+ →"; return; }
+  const c = state.challenge;
+  el.textContent = c ? challengeStatusLabel(c)+" · "+fmtMoney(c.tier)+" →" : "Trade un compte démo calqué sur une évaluation prop firm →";
+}
 function renderChallengeProfileCard(){
   const body = document.getElementById("challenge-card-body");
   if (!body) return;
+  if (!isEdbPlus()){
+    // No grandfathering: even a trader with an existing challenge from
+    // before EDB+ shipped sees the paywall here — see renderChallengeBanner()
+    // for why the top banner also disappears for them.
+    body.innerHTML = edbPlusPaywallHtml("challenge");
+    wireEdbPlusCta("challenge");
+    return;
+  }
   const c = state.challenge;
   if (!c){
     body.innerHTML =
@@ -3615,6 +3965,7 @@ function renderChallengeProfileCard(){
   }
 }
 function openStartChallengeModal(){
+  if (!isEdbPlus()){ goToEdbPlus(); return; } // belt-and-suspenders — the button that calls this isn't even rendered for a non-member
   openModal(
     '<h3 style="margin-bottom:4px;">Commencer un challenge prop firm</h3>'+
     '<div class="chart-note" style="margin-bottom:14px;">Choisis la taille de compte : ton solde démo est remis à ce montant et les règles ci-dessous s\'appliquent, comme sur une vraie évaluation de prop trading en 2 étapes (type FTMO).</div>'+
@@ -3929,8 +4280,9 @@ function closePosition(id, reason){
     state.marginUsed = Math.max(0, state.marginUsed - p.initMargin);
     state.positions.splice(idx,1);
     const feesPaid = (p.entryFee||0) + exitFee;
-    state.history.unshift({id:p.id, symbol:p.symbol, side:p.side, pnl, reason, exitFee, feesPaid, closedAt:new Date().toISOString()});
-    state.history = state.history.slice(0,15);
+    state.history.unshift({id:p.id, symbol:p.symbol, side:p.side, pnl, reason, exitFee, feesPaid, closedAt:new Date().toISOString(),
+      sizeUnits:p.sizeUnits, leverage:p.leverage, mode:p.mode, entryPrice:p.entryPrice, notional:p.notional, openedAt:p.openedAt});
+    state.history = state.history.slice(0,TRADE_HISTORY_RETAIN);
     updatePerfStats(pnl);
     renderAll();
     persistAccount();
@@ -3976,8 +4328,9 @@ function closePositionPartial(id, fraction, reason){
     p.entryFee = (p.entryFee||0) - closedEntryFee;
 
     const feesPaid = closedEntryFee + exitFee;
-    state.history.unshift({id:uid(), symbol:p.symbol, side:p.side, pnl, reason, exitFee, feesPaid, closedAt:new Date().toISOString(), partial:true, closedPct:Math.round(f*100)});
-    state.history = state.history.slice(0,15);
+    state.history.unshift({id:uid(), symbol:p.symbol, side:p.side, pnl, reason, exitFee, feesPaid, closedAt:new Date().toISOString(), partial:true, closedPct:Math.round(f*100),
+      sizeUnits:closedSizeUnits, leverage:p.leverage, mode:p.mode, entryPrice:p.entryPrice, notional:closedNotional, openedAt:p.openedAt});
+    state.history = state.history.slice(0,TRADE_HISTORY_RETAIN);
     updatePerfStats(pnl);
     renderAll();
     persistAccount();
@@ -4180,7 +4533,7 @@ function closeLightbox(){
 }
 function initLightbox(){
   document.addEventListener("click", (e)=>{
-    const img = e.target.closest(".feed-item img, .avatar-img");
+    const img = e.target.closest(".feed-item img, .avatar-img, .chat-bubble-img");
     if (img){ openLightbox(img.src); return; }
     if (e.target.id==="lightbox-overlay") closeLightbox();
   });
@@ -4306,6 +4659,7 @@ function initOnboardingTour(){
 function closeModal(){
   document.getElementById("modal-overlay").hidden = true;
   document.getElementById("modal-box").innerHTML = "";
+  if (typeof teardownEdbPlusChatModal === "function") teardownEdbPlusChatModal();
 }
 
 /* ============================= BADGES ============================= */
@@ -4372,38 +4726,118 @@ function renderBadgesGrid(){
 function renderTradeCardHtml(h){
   const pnlClass = h.pnl>=0?"up":"down";
   const dt = new Date(h.closedAt);
+  const detailBits = [];
+  if (typeof h.leverage==="number") detailBits.push("x"+fmtLev(h.leverage));
+  if (h.mode) detailBits.push(h.mode==="cross"?"Cross":"Isolated");
+  if (typeof h.sizeUnits==="number") detailBits.push(fmtQty(h.sizeUnits)+" unités");
+  const detailLine = detailBits.length ? '<div class="pnl-card-meta">'+detailBits.join(" · ")+'</div>' : "";
   return '<div class="pnl-card">'+
       '<div class="pnl-card-top"><span class="pnl-card-brand">PAPER TAPE</span><span class="pnl-card-tag">'+(h.reason==="liquidated"?"LIQUIDÉ":"CLÔTURÉ")+'</span></div>'+
       '<div class="pnl-card-sym">'+escapeHtml(h.symbol)+' <span class="pnl-card-side '+h.side+'">'+(h.side==="long"?"LONG":"SHORT")+'</span></div>'+
       '<div class="pnl-card-pnl '+pnlClass+'">'+fmtMoney(h.pnl)+'</div>'+
-      '<div class="pnl-card-meta">'+dt.toLocaleDateString('fr-FR')+' · École de la Bourse</div>'+
+      detailLine+
+      '<div class="pnl-card-meta">'+dt.toLocaleDateString('fr-FR')+' '+dt.toLocaleTimeString('fr-FR',{hour:"2-digit",minute:"2-digit"})+' · École de la Bourse</div>'+
     '</div>'+
-    '<div class="chart-note" style="text-align:center;margin-top:10px;">📸 Fais une capture d\'écran pour la partager.</div>'+
-    '<div style="text-align:center;margin-top:14px;"><button class="btn-secondary" id="modal-close-btn">Fermer</button></div>';
-}
-function renderSessionCardHtml(){
-  const realized = state.cash - START_CASH;
-  const pnlClass = realized>=0?"up":"down";
-  const badgeCount = Object.keys(state.badges).length;
-  return '<div class="pnl-card">'+
-      '<div class="pnl-card-top"><span class="pnl-card-brand">PAPER TAPE</span><span class="pnl-card-tag">'+escapeHtml(state.username||"Trader")+'</span></div>'+
-      '<div class="pnl-card-sym">Équité <span style="font-size:16px;color:var(--text-dim);">'+fmtMoney(equity())+'</span></div>'+
-      '<div class="pnl-card-pnl '+pnlClass+'">'+fmtMoney(realized)+'</div>'+
-      '<div class="pnl-card-meta">PnL réalisé total · '+(state.stats.tradesOpened||0)+' trades ouverts · '+badgeCount+'/'+BADGES.length+' badges</div>'+
-      '<div class="pnl-card-meta">'+new Date().toLocaleDateString('fr-FR')+' · École de la Bourse</div>'+
-    '</div>'+
-    '<div class="chart-note" style="text-align:center;margin-top:10px;">📸 Fais une capture d\'écran pour la partager.</div>'+
-    '<div style="text-align:center;margin-top:14px;"><button class="btn-secondary" id="modal-close-btn">Fermer</button></div>';
+    '<div class="chart-note" style="text-align:center;margin-top:10px;">📸 Fais une capture d\'écran pour la partager, ou envoie-la directement dans le Chat.</div>'+
+    '<div style="text-align:center;margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;"><button class="btn-primary" id="pnlcard-share-chat-btn" data-hist-id="'+escapeHtml(h.id||"")+'">💬 Partager dans le Chat</button><button class="btn-secondary" id="modal-close-btn">Fermer</button></div>';
 }
 function openTradeCardModal(h){
   openModal(renderTradeCardHtml(h));
-  const btn = document.getElementById("modal-close-btn");
-  if (btn) btn.addEventListener("click", closeModal);
+  const closeBtn = document.getElementById("modal-close-btn");
+  if (closeBtn) closeBtn.addEventListener("click", closeModal);
+  const shareBtn = document.getElementById("pnlcard-share-chat-btn");
+  if (shareBtn) shareBtn.addEventListener("click", ()=>{ closeModal(); openGlobalChatWithPnlCard(h); });
 }
-function openSessionCardModal(){
-  openModal(renderSessionCardHtml());
-  const btn = document.getElementById("modal-close-btn");
-  if (btn) btn.addEventListener("click", closeModal);
+
+/* ============================= PNL CALENDAR ============================= */
+// Replaces the old "Ma carte" single session-summary card in Profil — a
+// month grid of realized PnL by day, built straight from state.history (now
+// retained up to TRADE_HISTORY_RETAIN entries instead of just 15, so the
+// calendar actually has enough depth to paint a real month). Clicking a day
+// with trades lists them, each with the same 🪪 "Carte PnL" action already
+// used in the terminal's Historique récent widget.
+let pnlCalendarMonth = new Date();
+function pnlDayKey(iso){
+  const d = new Date(iso);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function pnlCalendarDayTotals(){
+  const map = {};
+  (state.history||[]).forEach(h=>{
+    if (!h.closedAt) return;
+    const key = pnlDayKey(h.closedAt);
+    if (!map[key]) map[key] = {pnl:0, count:0};
+    map[key].pnl += h.pnl;
+    map[key].count++;
+  });
+  return map;
+}
+function renderPnlCalendar(){
+  const headerEl = document.getElementById("pnl-calendar-header");
+  const gridEl = document.getElementById("pnl-calendar-grid");
+  if (!headerEl || !gridEl) return;
+  const totals = pnlCalendarDayTotals();
+  const y = pnlCalendarMonth.getFullYear(), m = pnlCalendarMonth.getMonth();
+  const monthLabel = pnlCalendarMonth.toLocaleDateString('fr-FR',{month:"long", year:"numeric"});
+  headerEl.innerHTML = '<div class="pnl-cal-nav">'+
+    '<button class="pos-close" id="pnl-cal-prev">‹</button>'+
+    '<span class="pnl-cal-month">'+monthLabel.charAt(0).toUpperCase()+monthLabel.slice(1)+'</span>'+
+    '<button class="pos-close" id="pnl-cal-next">›</button>'+
+  '</div>';
+  const first = new Date(y, m, 1);
+  const startWeekday = (first.getDay()+6)%7; // Monday-first grid
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  let monthPnl = 0, monthDays = 0;
+  const cells = [];
+  for (let i=0;i<startWeekday;i++) cells.push('<div class="pnl-cal-cell empty"></div>');
+  for (let day=1; day<=daysInMonth; day++){
+    const key = y+"-"+String(m+1).padStart(2,"0")+"-"+String(day).padStart(2,"0");
+    const t = totals[key];
+    let cls = "pnl-cal-cell";
+    let inner = "";
+    if (t){
+      monthPnl += t.pnl; monthDays++;
+      cls += t.pnl>0?" pos":(t.pnl<0?" neg":" flat");
+      inner = '<div class="pnl-cal-amt">'+fmtMoney(t.pnl)+'</div><div class="pnl-cal-count">'+t.count+' trade'+(t.count>1?"s":"")+'</div>';
+    }
+    cells.push('<div class="'+cls+'" data-cal-day="'+key+'"><div class="pnl-cal-daynum">'+day+'</div>'+inner+'</div>');
+  }
+  gridEl.innerHTML = '<div class="pnl-cal-weekdays"><span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span></div>'+
+    '<div class="pnl-cal-grid">'+cells.join("")+'</div>'+
+    '<div class="chart-note" style="margin-top:10px;">'+(monthDays>0 ? monthDays+' jour'+(monthDays>1?"s":"")+' tradé'+(monthDays>1?"s":"")+' · PnL du mois : '+fmtMoney(monthPnl) : 'Aucun trade clôturé ce mois-ci.')+'</div>';
+  const prevBtn = document.getElementById("pnl-cal-prev");
+  const nextBtn = document.getElementById("pnl-cal-next");
+  if (prevBtn) prevBtn.addEventListener("click", ()=>{ pnlCalendarMonth = new Date(y, m-1, 1); renderPnlCalendar(); });
+  if (nextBtn) nextBtn.addEventListener("click", ()=>{ pnlCalendarMonth = new Date(y, m+1, 1); renderPnlCalendar(); });
+  gridEl.querySelectorAll("[data-cal-day]").forEach(cell=>{
+    cell.addEventListener("click", ()=>{ if (totals[cell.dataset.calDay]) openPnlCalendarDayModal(cell.dataset.calDay); });
+  });
+}
+function openPnlCalendarDayModal(key){
+  const trades = (state.history||[]).filter(h=>h.closedAt && pnlDayKey(h.closedAt)===key);
+  const dayLabel = new Date(key+"T00:00:00").toLocaleDateString('fr-FR',{weekday:"long", day:"numeric", month:"long"});
+  const totalPnl = trades.reduce((s,h)=>s+h.pnl,0);
+  openModal(
+    '<h3 style="margin-bottom:4px;">'+dayLabel.charAt(0).toUpperCase()+dayLabel.slice(1)+'</h3>'+
+    '<p class="chart-note" style="margin-bottom:12px;">'+trades.length+' trade'+(trades.length>1?"s":"")+' · PnL du jour : <strong class="'+(totalPnl>=0?"up":"down")+'">'+fmtMoney(totalPnl)+'</strong></p>'+
+    '<div id="pnl-cal-day-list">'+trades.map(h=>{
+      const feeNote = h.feesPaid ? ' <span style="font-size:9.5px;color:var(--text-faint);font-weight:400;">(frais '+fmtMoney(h.feesPaid)+')</span>' : '';
+      return '<div class="hist-row">'+
+        '<div class="hist-row-main"><span>'+h.symbol+' · '+(h.side==="long"?"Long":"Short")+' <span class="hist-tag">'+reasonLabel(h.reason)+'</span></span>'+
+          '<span class="hist-row-right">'+
+            '<span class="num '+(h.pnl>=0?"up":"down")+'">'+fmtMoney(h.pnl)+feeNote+'</span>'+
+            '<button class="hist-icon-btn" data-cal-card-hist="'+h.id+'" title="Carte PnL">🪪</button>'+
+          '</span></div>'+
+        '<div class="hist-row-sub">'+histSubLine(h)+'</div>'+
+      '</div>';
+    }).join("")+'</div>'
+  );
+  document.querySelectorAll("[data-cal-card-hist]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const h = state.history.find(x=>x.id===btn.dataset.calCardHist);
+      if (h) openTradeCardModal(h);
+    });
+  });
 }
 
 /* ============================= AIDE : EXÉCUTION D'ORDRE ============================= */
@@ -4865,6 +5299,299 @@ function subscribeFeedback(){
       (err)=>{ const el=document.getElementById("fb-list"); if (el) el.innerHTML='<div class="empty-note">Retours indisponibles.</div>'; }
     );
   }catch(e){}
+}
+
+/* ============================= EDB+ CHAT ============================= */
+// One thread per trader, doc id === traderId, collection "edbplusChats".
+// { traderId, username (trader's, set on their first message), status:
+//   "open"|"closed", lastMessageBy: "trader"|"admin", updatedAt,
+//   messages: [{from:"trader"|"admin", by, text, at}] }
+// Opened both from Profil (trader, on their own thread) and from the Admin
+// panel's "Discussions EDB+" table (admin, on any trader's thread) — same
+// modal markup/ids either way, disambiguated by edbPlusChatContext.viewerRole
+// so each side's own messages align right and the other's align left.
+let edbPlusChatUnsub = null;
+let edbPlusChatContext = null; // {traderId, viewerRole}
+function edbPlusChatModalHtml(){
+  return '<h3 style="margin-bottom:4px;">Discussion EDB+ avec le bureau</h3>'+
+    '<p class="chart-note" style="margin-bottom:12px;">Le bureau EDB répond ici directement, au plus vite.</p>'+
+    '<div id="edbplus-chat-messages" class="edbplus-chat-messages"><div class="empty-note">Chargement…</div></div>'+
+    '<div style="display:flex;gap:8px;margin-top:10px;">'+
+      '<input type="text" id="edbplus-chat-input" class="tpsl-input" maxlength="500" placeholder="Écris un message…" style="flex:1;">'+
+      '<button class="btn-primary" id="edbplus-chat-send-btn">Envoyer</button>'+
+    '</div>';
+}
+function openEdbPlusChatModal(traderId, viewerRole){
+  if (!traderId) return;
+  edbPlusChatContext = {traderId, viewerRole};
+  openModal(edbPlusChatModalHtml());
+  const btn = document.getElementById("edbplus-chat-send-btn");
+  const input = document.getElementById("edbplus-chat-input");
+  if (btn) btn.addEventListener("click", sendEdbPlusChatFromInput);
+  if (input){
+    input.addEventListener("keydown", (e)=>{ if (e.key==="Enter") sendEdbPlusChatFromInput(); });
+    input.focus();
+  }
+  subscribeEdbPlusChat(traderId);
+}
+// closeModal() (shared with every other modal in the app) calls this via the
+// hook below so a chat listener never keeps running once the modal is gone.
+function teardownEdbPlusChatModal(){
+  if (typeof edbPlusChatUnsub === "function") edbPlusChatUnsub();
+  edbPlusChatUnsub = null;
+  edbPlusChatContext = null;
+}
+function subscribeEdbPlusChat(traderId){
+  if (typeof edbPlusChatUnsub === "function") edbPlusChatUnsub();
+  edbPlusChatUnsub = null;
+  if (!dbReady || !db) return;
+  try{
+    edbPlusChatUnsub = db.collection("edbplusChats").doc(traderId).onSnapshot(
+      (snap)=>renderEdbPlusChatMessages(snap.exists ? snap.data() : null),
+      (err)=>{ const el=document.getElementById("edbplus-chat-messages"); if (el) el.innerHTML='<div class="empty-note">Conversation indisponible — vérifie que les règles Firestore edbplusChats sont bien déployées (SERVER_SETUP.md).</div>'; }
+    );
+  }catch(e){}
+}
+function renderEdbPlusChatMessages(data){
+  const el = document.getElementById("edbplus-chat-messages");
+  if (!el || !edbPlusChatContext) return;
+  const msgs = (data && Array.isArray(data.messages)) ? data.messages : [];
+  if (!msgs.length){
+    el.innerHTML = '<div class="empty-note">Aucun message pour l\'instant — écris ci-dessous.</div>';
+    return;
+  }
+  const myRole = edbPlusChatContext.viewerRole;
+  el.innerHTML = msgs.map(m=>{
+    const mine = m.from===myRole;
+    const label = m.from==="admin" ? "Bureau EDB"+(m.by?" · "+escapeHtml(m.by):"") : escapeHtml(m.by||"Trader");
+    const t = m.at ? new Date(m.at).toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}) : "";
+    return '<div class="chat-bubble '+(mine?"mine":"theirs")+'">'+
+      '<div class="chat-bubble-meta">'+label+' · '+t+'</div>'+
+      '<div class="chat-bubble-text">'+escapeHtml(m.text||"")+'</div>'+
+    '</div>';
+  }).join("");
+  el.scrollTop = el.scrollHeight;
+}
+function sendEdbPlusChatFromInput(){
+  const input = document.getElementById("edbplus-chat-input");
+  if (!input || !edbPlusChatContext) return;
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = "";
+  sendEdbPlusChatMessage(edbPlusChatContext.traderId, edbPlusChatContext.viewerRole, text);
+}
+async function sendEdbPlusChatMessage(traderId, from, text){
+  if (!dbReady || !db || !traderId) return;
+  const trimmed = String(text||"").trim().slice(0,500);
+  if (!trimmed) return;
+  const msg = {from, by: state.username, text: trimmed, at: new Date().toISOString()};
+  const payload = {
+    traderId, status: "open",
+    updatedAt: msg.at, lastMessageBy: from,
+    messages: firebase.firestore.FieldValue.arrayUnion(msg),
+  };
+  if (from==="trader") payload.username = state.username; // denormalized for the admin inbox list
+  try{
+    await db.collection("edbplusChats").doc(traderId).set(payload, {merge:true});
+  }catch(e){ console.warn("edbplus chat send failed", e); }
+}
+
+/* ============================= GLOBAL CHAT ============================= */
+// One document per message in "globalChat" — open to every signed-in
+// trader (not an EDB+ perk), unlike the 1:1 edbplusChats thread above.
+// type: "text" | "image" | "pnlcard". Own messages can be edited/deleted;
+// admins can additionally delete anyone's (moderation), mirroring the
+// existing feedback-deletion admin power.
+let globalChatUnsub = null;
+let globalChatDocsCache = [];
+let globalChatEditingId = null;
+let globalChatSelectedImage = null;
+function subscribeGlobalChat(){
+  if (globalChatUnsub) return; // already listening
+  if (!dbReady || !db) return;
+  try{
+    globalChatUnsub = db.collection("globalChat").orderBy("createdAt","desc").limit(150).onSnapshot(
+      (snap)=>{ globalChatDocsCache = snap.docs; renderGlobalChatMessages(); },
+      (err)=>{ const el=document.getElementById("global-chat-messages"); if (el) el.innerHTML='<div class="empty-note">Chat indisponible — vérifie que les règles Firestore globalChat sont bien déployées (SERVER_SETUP.md).</div>'; }
+    );
+  }catch(e){}
+}
+function teardownGlobalChat(){
+  if (typeof globalChatUnsub === "function") globalChatUnsub();
+  globalChatUnsub = null;
+  globalChatEditingId = null;
+}
+function renderMiniPnlCardHtml(card){
+  const pnlClass = card.pnl>=0?"up":"down";
+  const dt = card.closedAt ? new Date(card.closedAt) : null;
+  const detailBits = [];
+  if (typeof card.leverage==="number") detailBits.push("x"+fmtLev(card.leverage));
+  if (card.mode) detailBits.push(card.mode==="cross"?"Cross":"Isolated");
+  if (typeof card.sizeUnits==="number") detailBits.push(fmtQty(card.sizeUnits)+" unités");
+  return '<div class="mini-pnl-card">'+
+      '<div class="mini-pnl-card-top"><span class="mini-pnl-card-brand">PAPER TAPE</span><span>'+(card.reason==="liquidated"?"LIQUIDÉ":"CLÔTURÉ")+'</span></div>'+
+      '<div class="mini-pnl-card-sym">'+escapeHtml(card.symbol||"")+' <span class="mini-pnl-card-side pnl-card-side '+card.side+'">'+(card.side==="long"?"LONG":"SHORT")+'</span></div>'+
+      '<div class="mini-pnl-card-pnl '+pnlClass+'">'+fmtMoney(card.pnl)+'</div>'+
+      (detailBits.length ? '<div class="mini-pnl-card-meta">'+detailBits.join(" · ")+'</div>' : "")+
+      (dt ? '<div class="mini-pnl-card-meta">'+dt.toLocaleDateString('fr-FR')+' '+dt.toLocaleTimeString('fr-FR',{hour:"2-digit",minute:"2-digit"})+'</div>' : "")+
+    '</div>';
+}
+function renderGlobalChatMessages(){
+  const el = document.getElementById("global-chat-messages");
+  if (!el) return;
+  if (globalChatDocsCache.length===0){ el.innerHTML = '<div class="empty-note">Aucun message — sois le premier à écrire !</div>'; return; }
+  const wasAtBottom = (el.scrollHeight - el.scrollTop - el.clientHeight) < 40;
+  const docs = globalChatDocsCache.slice().reverse(); // oldest first for a natural reading order
+  el.innerHTML = docs.map(doc=>{
+    const d = doc.data();
+    const mine = d.authorId===clientId;
+    const canDelete = mine || state.isAdmin;
+    const t = d.createdAt ? new Date(d.createdAt).toLocaleString('fr-FR',{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}) : "";
+    if (globalChatEditingId===doc.id){
+      return '<div class="chat-bubble '+(mine?"mine":"theirs")+' chat-edit-box">'+
+        '<div class="chat-bubble-meta"><span class="chat-bubble-author">'+escapeHtml(d.authorName||"Trader")+'</span> · '+t+'</div>'+
+        '<textarea rows="2" maxlength="500" id="chat-edit-input-'+doc.id+'">'+escapeHtml(d.text||"")+'</textarea>'+
+        '<div class="chat-edit-actions"><button class="btn-secondary" data-chat-cancel-edit="1" style="padding:4px 10px;font-size:11px;">Annuler</button><button class="btn-primary" data-chat-save-edit="'+doc.id+'" style="padding:4px 10px;font-size:11px;">Enregistrer</button></div>'+
+      '</div>';
+    }
+    let body = "";
+    if (d.type==="image"){
+      body = (d.imageUrl ? '<img class="chat-bubble-img" src="'+escapeHtml(d.imageUrl)+'" alt="Image partagée">' : "")+
+        (d.text ? '<div class="chat-bubble-text" style="margin-top:4px;">'+escapeHtml(d.text)+'</div>' : "");
+    } else if (d.type==="pnlcard" && d.pnlCard){
+      body = renderMiniPnlCardHtml(d.pnlCard)+(d.text ? '<div class="chat-bubble-text" style="margin-top:6px;">'+escapeHtml(d.text)+'</div>' : "");
+    } else {
+      body = '<div class="chat-bubble-text">'+escapeHtml(d.text||"")+'</div>';
+    }
+    const actions = [];
+    if (mine) actions.push('<button data-chat-edit="'+doc.id+'">Modifier</button>');
+    if (canDelete) actions.push('<button data-chat-delete="'+doc.id+'">Supprimer</button>');
+    return '<div class="chat-bubble '+(mine?"mine":"theirs")+'">'+
+      '<div class="chat-bubble-meta"><span class="chat-bubble-author">'+escapeHtml(d.authorName||"Trader")+'</span> · '+t+(d.editedAt?' · <span class="chat-bubble-edited">modifié</span>':'')+'</div>'+
+      body+
+      (actions.length ? '<div class="chat-bubble-actions">'+actions.join("")+'</div>' : "")+
+    '</div>';
+  }).join("");
+  el.querySelectorAll("[data-chat-edit]").forEach(btn=>btn.addEventListener("click", ()=>startEditGlobalChatMessage(btn.dataset.chatEdit)));
+  el.querySelectorAll("[data-chat-delete]").forEach(btn=>btn.addEventListener("click", ()=>deleteGlobalChatMessage(btn.dataset.chatDelete)));
+  el.querySelectorAll("[data-chat-save-edit]").forEach(btn=>btn.addEventListener("click", ()=>saveEditGlobalChatMessage(btn.dataset.chatSaveEdit)));
+  el.querySelectorAll("[data-chat-cancel-edit]").forEach(btn=>btn.addEventListener("click", cancelEditGlobalChatMessage));
+  if (wasAtBottom) el.scrollTop = el.scrollHeight;
+}
+function startEditGlobalChatMessage(id){
+  globalChatEditingId = id;
+  renderGlobalChatMessages();
+  const ta = document.getElementById("chat-edit-input-"+id);
+  if (ta){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+}
+function cancelEditGlobalChatMessage(){
+  globalChatEditingId = null;
+  renderGlobalChatMessages();
+}
+async function saveEditGlobalChatMessage(id){
+  const ta = document.getElementById("chat-edit-input-"+id);
+  if (!ta) return;
+  const text = ta.value.trim().slice(0,500);
+  if (!text) return;
+  try{
+    await db.collection("globalChat").doc(id).update({text, editedAt:new Date().toISOString()});
+  }catch(e){ console.warn("global chat edit failed", e); }
+  globalChatEditingId = null;
+}
+async function deleteGlobalChatMessage(id){
+  if (!confirm("Supprimer ce message ? Irréversible.")) return;
+  try{
+    const doc = globalChatDocsCache.find(x=>x.id===id);
+    await db.collection("globalChat").doc(id).delete();
+    const imagePath = doc && doc.data().imagePath;
+    if (imagePath && storage){ try{ await storage.ref().child(imagePath).delete(); }catch(e2){} }
+  }catch(e){
+    console.warn("global chat delete failed", e);
+    alert("Échec de la suppression — réessaie.");
+  }
+}
+function clearGlobalChatImage(){
+  globalChatSelectedImage = null;
+  const input = document.getElementById("global-chat-image-input");
+  if (input) input.value = "";
+  const preview = document.getElementById("global-chat-image-preview");
+  if (preview){ preview.hidden = true; preview.innerHTML = ""; }
+}
+function initGlobalChat(){
+  const sendBtn = document.getElementById("global-chat-send-btn");
+  const input = document.getElementById("global-chat-input");
+  const imgBtn = document.getElementById("global-chat-image-btn");
+  const imgInput = document.getElementById("global-chat-image-input");
+  if (sendBtn) sendBtn.addEventListener("click", sendGlobalChatFromInput);
+  if (input) input.addEventListener("keydown", (e)=>{ if (e.key==="Enter") sendGlobalChatFromInput(); });
+  if (imgBtn && imgInput) imgBtn.addEventListener("click", ()=>imgInput.click());
+  if (imgInput){
+    imgInput.addEventListener("change", ()=>{
+      const file = imgInput.files && imgInput.files[0];
+      if (!file) return;
+      if (!file.type.startsWith("image/")){ alert("Choisis une image."); clearGlobalChatImage(); return; }
+      if (file.size > 6*1024*1024){ alert("Image trop lourde (max 6 Mo)."); clearGlobalChatImage(); return; }
+      globalChatSelectedImage = file;
+      const preview = document.getElementById("global-chat-image-preview");
+      if (preview){
+        preview.hidden = false;
+        preview.innerHTML = '<img src="'+URL.createObjectURL(file)+'" alt=""><span class="chart-note" style="display:inline;">'+escapeHtml(file.name)+'</span><button type="button" id="global-chat-image-remove">✕</button>';
+        const rmBtn = document.getElementById("global-chat-image-remove");
+        if (rmBtn) rmBtn.addEventListener("click", clearGlobalChatImage);
+      }
+    });
+  }
+}
+async function sendGlobalChatFromInput(){
+  const input = document.getElementById("global-chat-input");
+  const sendBtn = document.getElementById("global-chat-send-btn");
+  if (!clientId){ alert("Connecte-toi pour écrire dans le chat."); return; }
+  const text = input ? input.value.trim().slice(0,500) : "";
+  if (!text && !globalChatSelectedImage) return;
+  if (sendBtn) sendBtn.disabled = true;
+  try{
+    const id = uid();
+    const payload = {
+      authorId: clientId, authorName: state.username,
+      createdAt: new Date().toISOString(), editedAt: null,
+    };
+    if (globalChatSelectedImage){
+      if (!storage){ alert("Stockage indisponible pour le moment — réessaie plus tard."); return; }
+      const imagePath = "chat/"+clientId+"/"+id;
+      const imageUrl = await uploadToStorage(globalChatSelectedImage, imagePath);
+      payload.type = "image"; payload.imageUrl = imageUrl; payload.imagePath = imagePath; payload.text = text;
+    } else {
+      payload.type = "text"; payload.text = text;
+    }
+    await db.collection("globalChat").doc(id).set(payload);
+    if (input) input.value = "";
+    clearGlobalChatImage();
+  }catch(e){
+    console.warn("global chat send failed", e);
+    alert("Échec de l'envoi — réessaie.");
+  } finally { if (sendBtn) sendBtn.disabled = false; }
+}
+// Posts a closed trade as a "pnlcard" message — the 💬 button inside the
+// trade-card modal (openTradeCardModal) calls this, so any historical trade
+// works, not only one just closed. Only the fields needed to redraw the
+// mini card are copied — never the full history entry.
+async function sendGlobalChatPnlCard(h){
+  if (!clientId){ alert("Connecte-toi pour écrire dans le chat."); return; }
+  if (!dbReady || !db) return;
+  const id = uid();
+  const payload = {
+    authorId: clientId, authorName: state.username,
+    type: "pnlcard",
+    pnlCard: {symbol:h.symbol, side:h.side, pnl:h.pnl, reason:h.reason, leverage:h.leverage, mode:h.mode, sizeUnits:h.sizeUnits, closedAt:h.closedAt},
+    text: "",
+    createdAt: new Date().toISOString(), editedAt: null,
+  };
+  try{ await db.collection("globalChat").doc(id).set(payload); }
+  catch(e){ console.warn("global chat pnlcard send failed", e); }
+}
+function openGlobalChatWithPnlCard(h){
+  switchView("chat");
+  sendGlobalChatPnlCard(h);
 }
 
 /* ============================= QUIZ ============================= */
@@ -6497,6 +7224,7 @@ let quizIdx = 0, quizCorrect = 0, quizAnswered = false;
 let attemptStartEarned = 0; // progress.earned snapshot when this attempt/resume began
 
 function renderQuiz(){
+  document.getElementById("quiz-play-wrap").classList.remove("wrap-wide");
   const card = document.getElementById("quiz-card");
   const deck = currentDeck;
   const progress = deckProgress(deck);
@@ -6592,6 +7320,7 @@ function resumeAttempt(deck){
   renderQuiz();
 }
 function renderQuizIntro(deck){
+  document.getElementById("quiz-play-wrap").classList.remove("wrap-wide");
   currentDeck = deck;
   const progress = deckProgress(deck);
   const maxScore = deckMaxScore(deck);
@@ -6627,6 +7356,7 @@ function renderQuizIntro(deck){
   }
 }
 function renderQuizDeckList(){
+  document.getElementById("quiz-play-wrap").classList.add("wrap-wide");
   currentDeck = null;
   const card = document.getElementById("quiz-card");
   card.innerHTML =
@@ -6664,6 +7394,7 @@ function renderQuizDeckList(){
 
 /* ============================= CONNAISSANCES (RENDER) ============================= */
 function renderLearnDeckList(){
+  document.getElementById("learn-wrap").classList.add("wrap-wide");
   const card = document.getElementById("learn-card");
   card.innerHTML =
     '<div class="quiz-deck-list">'+
@@ -6693,6 +7424,7 @@ function renderLearnDeckList(){
   });
 }
 function renderLearnDoc(k){
+  document.getElementById("learn-wrap").classList.remove("wrap-wide");
   const card = document.getElementById("learn-card");
   const meta = deckMeta(k.id);
   card.innerHTML =
@@ -6970,17 +7702,40 @@ function switchView(name){
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
   document.getElementById("view-"+name).classList.add("active");
   document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("active", b.dataset.view===name));
+  if (name==="chat"){
+    subscribeGlobalChat();
+  } else {
+    teardownGlobalChat();
+  }
   if (name==="quiz"){
-    document.getElementById("quiz-tab-play").classList.add("active");
-    document.getElementById("quiz-tab-lb").classList.remove("active");
-    document.getElementById("quiz-tab-flash").classList.remove("active");
-    document.getElementById("quiz-play-wrap").hidden = false;
-    document.getElementById("quiz-lb-wrap").hidden = true;
-    document.getElementById("flash-wrap").hidden = true;
-    renderQuizDeckList();
+    const seg = document.getElementById("quiz-toplevel-seg");
+    if (!isEdbPlus()){
+      if (seg) seg.hidden = true;
+      document.getElementById("quiz-play-wrap").hidden = false;
+      document.getElementById("quiz-lb-wrap").hidden = true;
+      document.getElementById("flash-wrap").hidden = true;
+      document.getElementById("quiz-play-wrap").classList.remove("wrap-wide");
+      document.getElementById("quiz-card").innerHTML = edbPlusPaywallHtml("quiz");
+      wireEdbPlusCta("quiz");
+    } else {
+      if (seg) seg.hidden = false;
+      document.getElementById("quiz-tab-play").classList.add("active");
+      document.getElementById("quiz-tab-lb").classList.remove("active");
+      document.getElementById("quiz-tab-flash").classList.remove("active");
+      document.getElementById("quiz-play-wrap").hidden = false;
+      document.getElementById("quiz-lb-wrap").hidden = true;
+      document.getElementById("flash-wrap").hidden = true;
+      renderQuizDeckList();
+    }
   }
   if (name==="learn"){
-    renderLearnDeckList();
+    if (!isEdbPlus()){
+      document.getElementById("learn-wrap").classList.remove("wrap-wide");
+      document.getElementById("learn-card").innerHTML = edbPlusPaywallHtml("learn");
+      wireEdbPlusCta("learn");
+    } else {
+      renderLearnDeckList();
+    }
   }
   if (name==="resources"){
     renderResources();
@@ -6990,10 +7745,29 @@ function switchView(name){
     renderJournalList();
     renderProfileAvatar();
     renderFeedList();
+    renderPnlCalendar();
+    renderEdbPlusTeaser();
+    renderChallengeTeaser();
+  }
+  if (name==="edbplus"){
+    renderEdbPlusProfileCard();
+  }
+  if (name==="challenge"){
     renderChallengeProfileCard();
   }
-  if (name==="news" && !newsLoading && document.getElementById("news-list").innerHTML===""){
-    refreshNews();
+  if (name==="news"){
+    const list = document.getElementById("news-list");
+    const status = document.getElementById("news-status");
+    if (!isEdbPlus()){
+      if (status) status.hidden = true;
+      list.innerHTML = edbPlusPaywallHtml("news");
+      wireEdbPlusCta("news");
+    } else {
+      if (status) status.hidden = false;
+      if (!newsLoading && (list.innerHTML==="" || list.querySelector(".edbplus-paywall"))){
+        refreshNews();
+      }
+    }
   }
 }
 
@@ -7020,6 +7794,9 @@ function renderAll(){
 function initEvents(){
   document.querySelectorAll("nav.tabs button").forEach(b=>{
     b.addEventListener("click", ()=>switchView(b.dataset.view));
+  });
+  document.querySelectorAll(".profile-teaser-card[data-goto-view]").forEach(card=>{
+    card.addEventListener("click", ()=>switchView(card.dataset.gotoView));
   });
 
   const ticketHelpBtn = document.getElementById("ticket-help-btn");
@@ -7065,7 +7842,6 @@ function initEvents(){
   });
 
   document.getElementById("feedback-fab").addEventListener("click", openFeedbackModal);
-  document.getElementById("open-session-card").addEventListener("click", openSessionCardModal);
   document.getElementById("journal-submit").addEventListener("click", ()=>{
     const ta = document.getElementById("journal-input");
     if (addJournalEntry(ta.value)) ta.value = "";
@@ -7164,25 +7940,60 @@ function initEvents(){
 }
 
 /* ============================= THEME ============================= */
+// Choosing a theme (ANY of the 6, not just the 2 new ones — see the EDB+
+// answer this was built against) is an EDB+ perk. A non-member is held on
+// "ember" regardless of what's saved in localStorage, but that saved choice
+// is never overwritten while locked — see paintTheme() vs applyTheme().
 const THEME_KEY = "paperTapeTheme";
-const THEMES = ["ember","sage","ink","noir"];
-function applyTheme(name){
+const THEMES = ["ember","sage","ink","noir","gold","azure"];
+// Paints a theme WITHOUT persisting it — used to enforce the EDB+ lock
+// (snap to "ember" for a non-member) without clobbering the trader's real
+// saved preference, so it comes right back the moment they're upgraded.
+function paintTheme(name){
   if (THEMES.indexOf(name)===-1) name = "ember";
   document.documentElement.setAttribute("data-theme", name);
   document.querySelectorAll(".theme-dot").forEach(b=>{
     b.classList.toggle("active", b.dataset.themeChoice===name);
   });
-  try{ localStorage.setItem(THEME_KEY, name); }catch(e){}
   // "Noir & Blanc" candles resolve against --text/--bg live, so a UI theme
   // switch needs to repaint the chart too (harmless no-op otherwise).
   if (typeof updateChart==="function" && typeof selectedSymbol!=="undefined") updateChart();
 }
+// The user-facing action (theme-dot click): paints AND persists. Only ever
+// called once isEdbPlus() has already been checked by the caller.
+function applyTheme(name){
+  paintTheme(name);
+  try{ localStorage.setItem(THEME_KEY, name); }catch(e){}
+}
+// Re-checks the EDB+ lock — called once at boot (always locks to Ember,
+// since state.edbPlus is unknown/false until Firestore hydrates) and again
+// every time hydrateStateFromDoc() runs (login, logout, admin grant/revoke
+// on your own account), which is when we actually learn the real status.
+function enforceThemeAccess(){
+  if (isEdbPlus()){
+    let saved = "ember";
+    try{ saved = localStorage.getItem(THEME_KEY) || "ember"; }catch(e){}
+    paintTheme(saved); // restore the real preference now that it's allowed
+  } else {
+    paintTheme("ember"); // display-only lock — localStorage is untouched
+  }
+  updateThemeLockUI();
+}
+function updateThemeLockUI(){
+  const wrap = document.getElementById("theme-switch");
+  const badge = document.getElementById("theme-lock-badge");
+  const locked = !isEdbPlus();
+  if (wrap) wrap.classList.toggle("locked", locked);
+  if (badge) badge.hidden = !locked;
+}
 function initTheme(){
-  let saved = "ember";
-  try{ saved = localStorage.getItem(THEME_KEY) || "ember"; }catch(e){}
-  applyTheme(saved);
+  paintTheme("ember"); // safe default before we know EDB+ status; enforceThemeAccess() corrects it post-hydration
+  updateThemeLockUI();
   document.querySelectorAll(".theme-dot").forEach(b=>{
-    b.addEventListener("click", ()=>applyTheme(b.dataset.themeChoice));
+    b.addEventListener("click", ()=>{
+      if (!isEdbPlus()){ goToEdbPlus(); return; }
+      applyTheme(b.dataset.themeChoice);
+    });
   });
 }
 
@@ -7426,13 +8237,13 @@ async function loadAdminTraders(){
   }catch(e){
     console.warn("admin load failed", e);
     if (status) status.textContent = "Erreur de chargement (vérifie les règles Firestore — voir SERVER_SETUP.md).";
-    if (body) body.innerHTML = '<tr><td colspan="9" class="empty-note">Impossible de charger la liste.</td></tr>';
+    if (body) body.innerHTML = '<tr><td colspan="10" class="empty-note">Impossible de charger la liste.</td></tr>';
   }
 }
 function renderAdminTable(){
   const body = document.getElementById("admin-body");
   if (!body) return;
-  if (adminDocs.length===0){ body.innerHTML = '<tr><td colspan="9" class="empty-note">Aucun trader.</td></tr>'; return; }
+  if (adminDocs.length===0){ body.innerHTML = '<tr><td colspan="10" class="empty-note">Aucun trader.</td></tr>'; return; }
   body.innerHTML = adminDocs.map(doc=>{
     const d = doc.data();
     const id = doc.id;
@@ -7440,6 +8251,9 @@ function renderAdminTable(){
     const cash = typeof d.cash==="number" ? d.cash : null;
     const openPnl = (eq!=null && cash!=null) ? eq-cash : null;
     const nPos = Array.isArray(d.positions) ? d.positions.length : 0;
+    const edbPlusCell = d.edbPlus
+      ? '<span style="color:var(--gold);">✅ Actif</span>'
+      : (d.edbPlusRequested ? '<span style="color:var(--warn);">⏳ Demande</span>' : '<span class="chart-note" style="display:inline;">—</span>');
     return ''+
       '<tr>'+
         '<td>'+escapeHtml(d.username||"—")+(id===clientId?' <span class="chart-note" style="display:inline;">(toi)</span>':'')+'</td>'+
@@ -7450,14 +8264,16 @@ function renderAdminTable(){
         '<td>'+nPos+'</td>'+
         '<td>'+fmtWhen(d.lastActiveAt)+'</td>'+
         '<td class="num">'+fmtDuration(d.totalTimeSpent)+'</td>'+
+        '<td>'+edbPlusCell+'</td>'+
         '<td class="admin-actions">'+
           '<button class="pos-close" data-admin-view="'+id+'">Détails</button>'+
           '<button class="pos-close" data-admin-adjust="'+id+'">Solde</button>'+
+          '<button class="pos-close" data-admin-edbplus="'+id+'" style="color:var(--gold);">'+(d.edbPlus?"Retirer EDB+":"Activer EDB+")+'</button>'+
           '<button class="pos-close" data-admin-reset="'+id+'" style="color:var(--warn);">Reset</button>'+
           '<button class="pos-close" data-admin-delete="'+id+'" style="color:var(--short);">Supprimer</button>'+
         '</td>'+
       '</tr>'+
-      '<tr class="admin-detail-toggle-row" id="admin-detail-'+id+'" hidden><td colspan="9"><div class="admin-detail"></div></td></tr>';
+      '<tr class="admin-detail-toggle-row" id="admin-detail-'+id+'" hidden><td colspan="10"><div class="admin-detail"></div></td></tr>';
   }).join("");
 }
 function adminFindDoc(id){ return adminDocs.find(d=>d.id===id); }
@@ -7521,6 +8337,38 @@ function adminAdjustCash(id){
   input.addEventListener("keydown", (e)=>{ if (e.key==="Enter") submit(); });
   input.focus();
   input.select();
+}
+async function adminToggleEdbPlus(id){
+  const doc = adminFindDoc(id);
+  const label = doc ? (doc.data().username||id) : id;
+  const d = doc ? doc.data() : {};
+  const next = !d.edbPlus;
+  const question = next
+    ? 'Activer EDB+ pour "'+label+'" ? À faire uniquement après réception des 20€ (espèces/virement/HelloAsso). Débloque challenge prop, quiz, connaissances, news et tous les thèmes.'
+    : 'Retirer EDB+ à "'+label+'" ? Le trader perd l\'accès au challenge prop, au quiz, aux connaissances, aux news et au changement de thème (retour au thème par défaut).';
+  if (!confirm(question)) return;
+  adminSetEdbPlus(id, next);
+}
+async function adminSetEdbPlus(id, value){
+  try{
+    await db.collection("traders").doc(id).update({
+      edbPlus: !!value, edbPlusRequested: false,
+      updatedAt: new Date().toISOString(),
+    });
+    if (value){
+      // Close the loop in the trader's own chat thread — this is the "je
+      // répondrai au plus vite" moment landing, whether or not they ever
+      // opened the conversation themselves.
+      await sendEdbPlusChatMessage(id, "admin", "🎉 Ton abonnement EDB+ est activé ! Challenge prop, quiz, connaissances, news et tous les thèmes sont débloqués. Merci d'avoir rejoint EDB+.");
+      try{ await db.collection("edbplusChats").doc(id).set({status:"closed"}, {merge:true}); }catch(e2){}
+    }
+    if (id===clientId){ hydrateStateFromDoc(await db.collection("traders").doc(id).get()); renderAll(); }
+    loadAdminTraders();
+    if (adminEdbPlusChatDocs.length>0) loadAdminEdbPlusChats();
+  }catch(e){
+    console.warn("admin edbPlus toggle failed", e);
+    alert("Échec de la mise à jour EDB+ — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).");
+  }
 }
 async function adminDeleteTrader(id){
   const doc = adminFindDoc(id);
@@ -7624,6 +8472,45 @@ function adminToggleDetail(id){
     if (doc && box) box.innerHTML = adminDetailHtml(doc.data());
   }
 }
+let adminEdbPlusChatDocs = [];
+async function loadAdminEdbPlusChats(){
+  const status = document.getElementById("admin-edbplus-chat-status");
+  const body = document.getElementById("admin-edbplus-chat-body");
+  if (!dbReady || !db){ if (status) status.textContent = "Base de données indisponible."; return; }
+  if (status) status.textContent = "Chargement…";
+  try{
+    const snap = await db.collection("edbplusChats").orderBy("updatedAt","desc").limit(100).get();
+    adminEdbPlusChatDocs = snap.docs;
+    const pending = adminEdbPlusChatDocs.filter(d=>d.data().lastMessageBy==="trader" && d.data().status!=="closed").length;
+    if (status) status.textContent = adminEdbPlusChatDocs.length+(adminEdbPlusChatDocs.length>1?" discussions":" discussion")+(pending>0?" — "+pending+" en attente de réponse":"")+" — dernière actualisation "+new Date().toLocaleTimeString("fr-FR");
+    renderAdminEdbPlusChats();
+  }catch(e){
+    console.warn("admin edbplus chats load failed", e);
+    if (status) status.textContent = "Erreur de chargement — vérifie que les règles Firestore edbplusChats sont bien déployées (SERVER_SETUP.md).";
+    if (body) body.innerHTML = '<tr><td colspan="5" class="empty-note">Impossible de charger les discussions.</td></tr>';
+  }
+}
+function renderAdminEdbPlusChats(){
+  const body = document.getElementById("admin-edbplus-chat-body");
+  if (!body) return;
+  if (adminEdbPlusChatDocs.length===0){ body.innerHTML = '<tr><td colspan="5" class="empty-note">Aucune discussion.</td></tr>'; return; }
+  body.innerHTML = adminEdbPlusChatDocs.map(doc=>{
+    const d = doc.data();
+    const msgs = Array.isArray(d.messages) ? d.messages : [];
+    const last = msgs.length ? msgs[msgs.length-1] : null;
+    const needsReply = d.lastMessageBy==="trader" && d.status!=="closed";
+    const statusCell = d.status==="closed"
+      ? '<span class="chart-note" style="display:inline;">Fermée</span>'
+      : (needsReply ? '<span style="color:var(--warn);">⏳ À répondre</span>' : '<span style="color:var(--long);">Ouverte</span>');
+    return '<tr'+(needsReply?' style="background:color-mix(in srgb, var(--warn) 10%, transparent 90%);"':'')+'>'+
+      '<td>'+escapeHtml(d.username||doc.id)+'</td>'+
+      '<td style="max-width:320px;white-space:pre-wrap;">'+(last?escapeHtml(last.text||""):"—")+'</td>'+
+      '<td>'+(last ? (last.from==="admin"?"Bureau":"Trader") : "—")+'</td>'+
+      '<td>'+statusCell+'</td>'+
+      '<td><button class="pos-close" data-admin-chat-open="'+doc.id+'">Ouvrir</button></td>'+
+    '</tr>';
+  }).join("");
+}
 let adminFeedbackDocs = [];
 async function loadAdminFeedback(){
   const status = document.getElementById("admin-feedback-status");
@@ -7687,8 +8574,18 @@ function initAdminUI(){
       if (!t || !t.dataset) return;
       if (t.dataset.adminView) adminToggleDetail(t.dataset.adminView);
       else if (t.dataset.adminAdjust) adminAdjustCash(t.dataset.adminAdjust);
+      else if (t.dataset.adminEdbplus) adminToggleEdbPlus(t.dataset.adminEdbplus);
       else if (t.dataset.adminReset) adminResetTrader(t.dataset.adminReset);
       else if (t.dataset.adminDelete) adminDeleteTrader(t.dataset.adminDelete);
+    });
+  }
+  const chatRefreshBtn = document.getElementById("admin-edbplus-chat-refresh");
+  if (chatRefreshBtn) chatRefreshBtn.addEventListener("click", loadAdminEdbPlusChats);
+  const chatBody = document.getElementById("admin-edbplus-chat-body");
+  if (chatBody){
+    chatBody.addEventListener("click", (e)=>{
+      const t = e.target;
+      if (t && t.dataset && t.dataset.adminChatOpen) openEdbPlusChatModal(t.dataset.adminChatOpen, "admin");
     });
   }
   const fbRefreshBtn = document.getElementById("admin-feedback-refresh");
@@ -7703,6 +8600,7 @@ function initAdminUI(){
   document.querySelectorAll('nav.tabs button[data-view="admin"]').forEach(b=>{
     b.addEventListener("click", ()=>{
       if (adminDocs.length===0) loadAdminTraders();
+      if (adminEdbPlusChatDocs.length===0) loadAdminEdbPlusChats();
       if (adminFeedbackDocs.length===0) loadAdminFeedback();
     });
   });
@@ -7711,6 +8609,7 @@ function initAdminUI(){
 /* ============================= INIT ============================= */
 async function init(){
   initTheme();
+  updateEdbPlusNavBadges();
   initCandleTheme();
   initChartSourceToggle();
   setChartSource(chartSource); // sync the static markup (buttons/svg/tv-wrap) to the "tv" default above
@@ -7720,6 +8619,7 @@ async function init(){
   initAdminUI();
   initWidgets();
   initSessionTimeTracking();
+  initGlobalChat();
   initDom();
   buildWatchlist();
   initEvents();
