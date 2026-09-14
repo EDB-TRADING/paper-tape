@@ -1239,11 +1239,11 @@
         </div>
         <div id="lb-wrap-prop" hidden>
           <h3>Classement Prop Firm</h3>
-          <p class="chart-note" style="margin-bottom:10px;">Classement séparé, réservé aux comptes challenge prop firm — indépendant du compte démo normal ci-dessus.</p>
+          <p class="chart-note" style="margin-bottom:10px;">Classement séparé, réservé aux comptes challenge prop firm — indépendant du compte démo normal ci-dessus. Classé par <strong>performance (%)</strong> sur la taille du compte choisi, pas par équité brute — un 25k qui fait +8% passe devant un 200k qui fait +2%.</p>
           <div style="overflow-x:auto;">
             <table class="lb-table">
-              <thead><tr><th>Rang</th><th>Trader</th><th>Compte</th><th>Étape</th><th>Équité</th></tr></thead>
-              <tbody id="prop-lb-body"><tr><td colspan="5" class="empty-note">Chargement du classement…</td></tr></tbody>
+              <thead><tr><th>Rang</th><th>Trader</th><th>Compte</th><th>Étape</th><th>Équité</th><th>Performance</th></tr></thead>
+              <tbody id="prop-lb-body"><tr><td colspan="6" class="empty-note">Chargement du classement…</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -3479,10 +3479,11 @@ function currentSizeInputToNotional(entry){
 // --- Position-size slider (drag to set a % of buying power, like an
 // exchange's size slider) — one slider serves all three units, only what
 // "100%" MEANS changes per unit:
-//  - Marge: kept deliberately simple per spec — 100% = 100% of the account's
-//    total cash balance in dollars, full stop (not netted against margin
-//    already in use elsewhere; going over just trips the normal "marge
-//    insuffisante" validation like any manually-typed value would).
+//  - Marge: 100% = 100% of the account's current FREE margin (cash minus
+//    margin already tied up in other open positions) — so the slider always
+//    tracks what's actually still available to commit, same "marge libre"
+//    figure shown on the account card, rather than the account's total cash
+//    regardless of what else is already open.
 //  - USD / Unités: 100% = the full notional buying power current free
 //    margin unlocks at the selected leverage (freeBalance()*leverage),
 //    expressed in dollars or converted to units at the live/limit price.
@@ -3492,7 +3493,7 @@ function sizeSliderEntryPrice(){
   return (m && m.last) ? m.last : 0;
 }
 function sizeSliderMax(){
-  if (sizeUnit==="margin") return Math.max(0, state.cash);
+  if (sizeUnit==="margin") return Math.max(0, freeBalance());
   const buyingPower = Math.max(0, freeBalance())*Math.max(1, leverage);
   if (sizeUnit==="usd") return buyingPower;
   const entry = sizeSliderEntryPrice();
@@ -4856,12 +4857,19 @@ let propLeaderboardDocsCache = {};
 function renderPropLeaderboard(docs){
   const body = document.getElementById("prop-lb-body");
   if (!body) return;
-  // Defensive client-side filter/sort (propEquity==null docs excluded, ties
-  // broken consistently) — correct against a real Firestore orderBy AND
-  // against test stubs that don't actually implement orderBy/where.
+  // Ranked by RETURN % on the challenge's own tier size, not raw propEquity
+  // — otherwise a trader on a bigger account (e.g. 200k) would always rank
+  // above someone doing much better proportionally on a smaller one (e.g.
+  // 25k). The Firestore orderBy("propEquity") above is only there to bound
+  // the query to a sane page size; the actual ranking happens here.
+  function retPct(doc){
+    const d = doc.data();
+    const tier = d.challenge && d.challenge.tier;
+    return tier ? ((d.propEquity-tier)/tier)*100 : -Infinity;
+  }
   const rows = docs.filter(doc=>{ const d = doc.data(); return d.propEquity!=null && d.challenge; })
-    .sort((a,b)=> (b.data().propEquity||0) - (a.data().propEquity||0));
-  if (!rows.length){ body.innerHTML = '<tr><td colspan="5" class="empty-note">Aucun challenge prop firm en cours pour le moment — sois le premier.</td></tr>'; return; }
+    .sort((a,b)=> retPct(b) - retPct(a));
+  if (!rows.length){ body.innerHTML = '<tr><td colspan="6" class="empty-note">Aucun challenge prop firm en cours pour le moment — sois le premier.</td></tr>'; return; }
   propLeaderboardDocsCache = {};
   rows.forEach(doc=>{ propLeaderboardDocsCache[doc.id] = doc; });
   body.innerHTML = rows.map((doc,i)=>{
@@ -4877,7 +4885,8 @@ function renderPropLeaderboard(docs){
       '<td>'+avatarHtml(d.photoURL, d.username)+' '+escapeHtml(d.username||"Trader")+traderBadgesHtml(d)+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
       '<td class="num">'+fmtMoney(c.tier||0)+'</td>'+
       '<td class="num '+phaseClass+'">'+phaseLabel+'</td>'+
-      '<td class="num '+(ret>=0?"up":"down")+'">'+fmtMoney(d.propEquity||0)+' <span style="font-weight:400;">('+fmtPct(ret)+')</span></td>'+
+      '<td class="num">'+fmtMoney(d.propEquity||0)+'</td>'+
+      '<td class="num '+(ret>=0?"up":"down")+'">'+fmtPct(ret)+'</td>'+
     '</tr>';
   }).join("");
   body.querySelectorAll("tr[data-trader-id]").forEach(tr=>{
@@ -4886,7 +4895,7 @@ function renderPropLeaderboard(docs){
 }
 function renderPropLeaderboardError(){
   const body = document.getElementById("prop-lb-body");
-  if (body) body.innerHTML = '<tr><td colspan="5" class="empty-note">Classement indisponible pour le moment.</td></tr>';
+  if (body) body.innerHTML = '<tr><td colspan="6" class="empty-note">Classement indisponible pour le moment.</td></tr>';
 }
 function renderLeaderboardError(){
   document.getElementById("lb-body").innerHTML = '<tr><td colspan="4" class="empty-note">Classement indisponible pour le moment.</td></tr>';
