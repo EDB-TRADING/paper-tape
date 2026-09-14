@@ -662,6 +662,8 @@
     background:transparent;color:var(--text-dim);border:1px solid var(--border);font-family:var(--mono);
     font-size:11.5px;padding:10px 18px;border-radius:7px;cursor:pointer;
   }
+  .btn-secondary:disabled{opacity:.45;cursor:not-allowed;}
+  .btn-secondary:disabled:hover{filter:none;}
   .quiz-progress{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:10.5px;color:var(--text-faint);margin-bottom:10px;}
   .quiz-cat{
     display:inline-block;color:var(--accent);letter-spacing:0.06em;text-transform:uppercase;
@@ -1687,7 +1689,8 @@ const START_CASH = 100000;
 const TRADE_HISTORY_RETAIN = 200;
 const HIST_LEN = 220;
 const TRADER_ID_KEY = "paperTapeTraderId";
-const REFETCH_MS = 30000;
+const REFETCH_MS = 30000;         // price refresh interval while the tab is backgrounded/hidden
+const REFETCH_MS_VISIBLE = 5000;  // faster refresh while the tab is actually visible/focused
 
 /* ============================= EDB+ (MEMBERSHIP GATE) =============================
    EDB+ is a paid association membership (20€/an) — NOT a Paper Tape feature
@@ -2856,16 +2859,27 @@ async function pollAsset(a){
 function pollAllAssets(){
   ASSETS.forEach((a,i)=>{ setTimeout(()=>pollAsset(a), i*180); });
 }
+// Self-rescheduling (setTimeout, not setInterval) so the delay can be
+// re-read fresh before every single cycle: fast (REFETCH_MS_VISIBLE) while
+// the tab is actually visible/focused, falls back to the slower REFETCH_MS
+// the instant it's backgrounded — no separate visibilitychange listener
+// needed, the check just happens right before each re-schedule.
+let priceFeedTimer = null;
+function schedulePriceRefresh(){
+  if (priceFeedTimer) clearTimeout(priceFeedTimer);
+  const delay = (typeof document!=="undefined" && document.visibilityState==="hidden") ? REFETCH_MS : REFETCH_MS_VISIBLE;
+  priceFeedTimer = setTimeout(()=>{ pollAllAssets(); schedulePriceRefresh(); }, delay);
+}
 async function initPriceFeed(){
   setMarketStatus("connexion aux API publiques (Binance / Crypto.com)…");
   pollAllAssets();
-  setInterval(pollAllAssets, REFETCH_MS);
+  schedulePriceRefresh();
   scheduleCandleRefresh();
 }
 function setLiveBanner(code){
   liveGloballyDown = true;
   const banner = document.getElementById("live-banner");
-  banner.textContent = "Impossible de récupérer les prix réels pour le moment (" + code + ") — connexion réseau, CORS, ou API Crypto.com temporairement indisponible. Nouvelle tentative automatique toutes les ~30s.";
+  banner.textContent = "Impossible de récupérer les prix réels pour le moment (" + code + ") — connexion réseau, CORS, ou API Crypto.com temporairement indisponible. Nouvelle tentative automatique en continu.";
   banner.hidden = false;
 }
 function clearLiveBanner(){
@@ -5319,29 +5333,43 @@ function openBreakevenModal(p){
   const mp = markPrice(p.symbol);
   const bePlain = p.entryPrice;
   const beFees = computeBreakevenPlusFees(p);
+  // A breakeven SL only makes sense as a "lock in what I've already gained"
+  // move: the mark price needs to actually be past the level first, or
+  // setting the stop there wouldn't protect a gain — it would just close the
+  // position immediately at a loss (the position hasn't earned its way to
+  // that level yet). So rather than a confirm() escape hatch, the button is
+  // simply disabled until the price gets there. Unknown mark price (no live
+  // feed yet) leaves it enabled — we just can't tell either way.
+  function notYetReached(level){
+    if (mp==null) return false;
+    return p.side==="long" ? mp<=level : mp>=level;
+  }
+  const plainBlocked = notYetReached(bePlain);
+  const feesBlocked = notYetReached(beFees);
+  const blockedNote = '<div class="chart-note" style="margin-top:4px;color:var(--warn);">Pas encore atteint — le prix doit d\'abord dépasser ce niveau pour que ce soit un vrai breakeven (sinon la position se fermerait tout de suite en perte).</div>';
   openModal(
     '<h3 style="margin-bottom:14px;">Stop Loss → Breakeven</h3>'+
     '<div class="chart-note" style="margin-bottom:14px;">'+p.symbol+' · '+(p.side==="long"?"Long":"Short")+' · Entrée '+fmtPrice(p.entryPrice,a.decimals)+(mp!=null?' · Mark '+fmtPrice(mp,a.decimals):'')+'</div>'+
-    '<button class="btn-secondary" id="be-plain-btn" style="width:100%;margin-bottom:8px;text-align:left;padding:12px;">'+
+    '<button class="btn-secondary" id="be-plain-btn" style="width:100%;margin-bottom:8px;text-align:left;padding:12px;"'+(plainBlocked?' disabled':'')+'>'+
       '<div style="font-weight:600;">Breakeven (prix d\'entrée)</div>'+
       '<div class="chart-note" style="margin-top:4px;">SL à '+fmtPrice(bePlain,a.decimals)+' — annule le gain/perte brut ; les commissions déjà payées restent une petite perte nette au déclenchement.</div>'+
+      (plainBlocked?blockedNote:'')+
     '</button>'+
-    '<button class="btn-secondary" id="be-fees-btn" style="width:100%;text-align:left;padding:12px;">'+
+    '<button class="btn-secondary" id="be-fees-btn" style="width:100%;text-align:left;padding:12px;"'+(feesBlocked?' disabled':'')+'>'+
       '<div style="font-weight:600;">Breakeven + commissions remboursées</div>'+
       '<div class="chart-note" style="margin-top:4px;">SL à '+fmtPrice(beFees,a.decimals)+' — couvre aussi la commission d\'entrée et de sortie, net exactement $0 au déclenchement.</div>'+
+      (feesBlocked?blockedNote:'')+
     '</button>'+
     '<div class="chart-note" id="be-msg" style="margin-top:10px;color:var(--warn);"></div>'
   );
   function apply(slVal){
-    const wouldTriggerNow = mp!=null && (p.side==="long" ? mp<=slVal : mp>=slVal);
-    if (wouldTriggerNow && !confirm("Le prix actuel a déjà atteint ce niveau — la position va se fermer immédiatement au marché. Continuer ?")) return;
     p.stopLoss = slVal;
     persistAccount();
     renderPositions();
     closeModal();
   }
-  document.getElementById("be-plain-btn").addEventListener("click", ()=>apply(bePlain));
-  document.getElementById("be-fees-btn").addEventListener("click", ()=>apply(beFees));
+  if (!plainBlocked) document.getElementById("be-plain-btn").addEventListener("click", ()=>apply(bePlain));
+  if (!feesBlocked) document.getElementById("be-fees-btn").addEventListener("click", ()=>apply(beFees));
 }
 function openTPSLModal(p){
   // Each leg (TP/SL) can be sized either by % of the position or by a raw
