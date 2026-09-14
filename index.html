@@ -329,6 +329,18 @@
   .edbplus-feature-detail{font-size:10.5px;color:var(--text-dim);margin-top:3px;line-height:1.35;}
   .edbplus-cta-btn{width:100%;max-width:420px;padding:16px;font-size:13px;font-weight:700;letter-spacing:.02em;}
 
+  /* ---------- Concours podium ---------- */
+  .contest-podium{display:grid;grid-template-columns:repeat(auto-fit, minmax(190px,1fr));gap:12px;margin-top:6px;}
+  .contest-podium-card{
+    text-align:center;padding:18px 14px;border-radius:var(--radius);
+    background:var(--bg-raised);border:1px solid var(--border-soft);
+  }
+  .contest-podium-card.filled{border-color:color-mix(in srgb, var(--gold) 55%, transparent 45%);}
+  .contest-podium-icon{font-size:30px;line-height:1;}
+  .contest-podium-rank{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);margin-top:8px;}
+  .contest-podium-name{font-weight:700;font-size:14px;color:var(--text);margin-top:4px;}
+  .contest-podium-prize{font-size:10.5px;color:var(--text-dim);margin-top:6px;line-height:1.4;}
+
   /* ---------- EDB+ chat: automatic payment-info message ---------- */
   .edbplus-payment-rows{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
   .edbplus-payment-row{
@@ -1031,6 +1043,7 @@
       <button data-view="news"><span class="tab-emoji">📰</span>News</button>
       <button data-view="chat"><span class="tab-emoji">💬</span>Chat</button>
       <button data-view="leaderboard"><span class="tab-emoji">🏆</span>Classement</button>
+      <button data-view="contest"><span class="tab-emoji">🎁</span>Concours</button>
       <button data-view="challenge"><span class="tab-emoji">🏅</span>Challenge</button>
       <button data-view="quiz"><span class="tab-emoji">🧠</span>Quiz</button>
       <button data-view="learn"><span class="tab-emoji">📚</span>Connaissances</button>
@@ -1280,6 +1293,7 @@
       <div class="card">
         <div class="seg" style="margin-bottom:14px;">
           <button type="button" id="lb-tab-normal" class="on-mode active">Compte normal</button>
+          <button type="button" id="lb-tab-week" class="on-mode">Cette semaine</button>
           <button type="button" id="lb-tab-prop" class="on-mode">Prop Firm</button>
         </div>
         <div id="lb-wrap-normal">
@@ -1288,6 +1302,16 @@
             <table class="lb-table">
               <thead><tr><th>Rang</th><th>Trader</th><th>Équité</th><th>Performance</th></tr></thead>
               <tbody id="lb-body"><tr><td colspan="4" class="empty-note">Chargement du classement…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="lb-wrap-week" hidden>
+          <h3>Classement de la semaine</h3>
+          <p class="chart-note" style="margin-bottom:10px;">PnL réalisé sur le compte normal depuis le début de la semaine (repart à zéro chaque lundi) — une chance de repartir de zéro même après une mauvaise semaine.</p>
+          <div style="overflow-x:auto;">
+            <table class="lb-table">
+              <thead><tr><th>Rang</th><th>Trader</th><th>PnL semaine</th><th>Équité</th></tr></thead>
+              <tbody id="lb-week-body"><tr><td colspan="4" class="empty-note">Chargement du classement…</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -1300,6 +1324,35 @@
               <tbody id="prop-lb-body"><tr><td colspan="6" class="empty-note">Chargement du classement…</td></tr></tbody>
             </table>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CONCOURS ================= -->
+    <section class="view" id="view-contest">
+      <div class="card">
+        <div class="quiz-cat gold-badge">🎁 Concours EDB</div>
+        <h2 style="margin:10px 0 6px;">Concours Trading — comptes Prop Firm à la clé</h2>
+        <p class="chart-note" style="max-width:680px;margin-bottom:14px;">Ouvert à tous, sur le compte normal Paper Tape. Même classement que l'onglet Classement — seuls les 3 premiers qui remplissent les conditions ci-dessous remportent un prix.</p>
+        <div class="contest-podium" id="contest-podium"></div>
+        <div class="card" style="margin-top:16px;background:var(--bg-raised);">
+          <h3 style="margin-top:0;">Règlement</h3>
+          <ul style="margin:0;padding-left:20px;font-size:12.5px;color:var(--text-dim);line-height:1.7;">
+            <li>Minimum <strong>30 positions clôturées « qualifiées »</strong> sur ton compte normal.</li>
+            <li>Une position est « qualifiée » si son PnL — gain <strong>ou</strong> perte — dépasse <strong>1 000 $</strong> (1% du capital de départ) en valeur absolue. Les micro-trades ne comptent pas.</li>
+            <li>Classement = équité du compte normal, identique à l'onglet Classement.</li>
+            <li>Ajouter à une position déjà ouverte (même sens, même actif) ne crée pas une position qualifiée supplémentaire — seule sa clôture finale compte comme UNE position.</li>
+            <li><strong>Le hedging est interdit</strong> : pas de Long et de Short ouverts en même temps sur un même actif, ni sur des actifs crypto corrélés entre eux (BTC/ETH/SOL/HYPE) — ça permet de sécuriser artificiellement les 1 000 $ ci-dessus sans vrai risque de marché. Vérifié manuellement par le bureau (panneau Admin) avant de valider le podium ; un compte détecté peut être disqualifié.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <h3>Classement du concours</h3>
+        <div style="overflow-x:auto;">
+          <table class="lb-table">
+            <thead><tr><th>Rang</th><th>Trader</th><th>Équité</th><th>Statut</th></tr></thead>
+            <tbody id="contest-body"><tr><td colspan="4" class="empty-note">Chargement…</td></tr></tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -1382,7 +1435,10 @@
           </div>
         </div>
         <div class="card" style="margin-top:14px;">
-          <h3>Mes badges</h3>
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+            <h3 style="margin:0;">Mes badges</h3>
+            <div class="chart-note" id="streak-display" style="margin:0;"></div>
+          </div>
           <div class="badges-grid" id="badges-grid"></div>
         </div>
         <div class="card" style="margin-top:14px;" id="pnl-calendar-card">
@@ -2421,6 +2477,13 @@ function hydrateStateFromDoc(snap){
   } : null;
   state.copyNormalToProp = !!d.copyNormalToProp;
   state.copyPropToNormal = !!d.copyPropToNormal;
+  // Weekly leaderboard snapshot (see persistAccount()'s weekStartEquity
+  // comment) and the daily-streak counters — both just hydrated as-is here,
+  // checkDailyStreak() below is what actually advances/resets the streak.
+  state.weekStartEquity = typeof d.weekStartEquity==="number" ? d.weekStartEquity : null;
+  state.weekKey = d.weekKey || null;
+  state.streakDays = typeof d.streakDays==="number" ? d.streakDays : 0;
+  state.lastActiveDateKey = d.lastActiveDateKey || null;
   // Now that we actually know this trader's EDB+ status, re-check anything
   // gated by it: the display theme (may need to snap back to Ember, or be
   // restored from the saved preference) and the small lock badges on the
@@ -2430,6 +2493,7 @@ function hydrateStateFromDoc(snap){
   if (typeof enforceLeverageAccess==="function") enforceLeverageAccess();
   if (typeof updateEdbPlusNavBadges==="function") updateEdbPlusNavBadges();
   if (typeof refreshNews==="function") refreshNews(); // no-op if not EDB+; gets a freshly-granted member their first news load without waiting on the 5-min interval
+  if (typeof checkDailyStreak==="function") checkDailyStreak();
 }
 // Loads (or creates) the trader doc for `id` into `state`. Used at boot for
 // the local anonymous id, and again by the auth flow whenever `clientId`
@@ -2466,6 +2530,7 @@ async function initDb(){
     // rather than breaking the rest of the app.
     try{ if (typeof firebase.storage==="function") storage = firebase.storage(); }catch(e){ storage = null; }
     subscribeLeaderboard();
+    subscribeWeeklyLeaderboard();
     subscribePropLeaderboard();
     subscribeQuizLeaderboard();
     subscribeSuperflashLeaderboard();
@@ -2511,11 +2576,28 @@ function persistAccount(){
         // whenever it processes an idle trader, so it self-heals there too).
         const hasOpenActivity = normal.positions.length>0 || normal.pendingOrders.length>0 ||
           !!(prop && (prop.positions.length>0 || prop.pendingOrders.length>0));
+        const normalEquity = bookEquity(normal);
+        // Weekly leaderboard (Classement → "Cette semaine"): weekStartEquity
+        // is the equity snapshot taken by the weeklyLeaderboardReset Cloud
+        // Function at the start of the current ISO week (Europe/Paris,
+        // Monday) — see /functions/index.js. This client never resets it
+        // itself (that has to happen for everyone at once, offline accounts
+        // included, or the reset wouldn't be fair) — it just keeps
+        // recomputing weeklyPnl = current equity - that snapshot, and passes
+        // weekStartEquity/weekKey straight through unchanged. Falls back to
+        // the current equity the very first time (pre-first-reset), which
+        // correctly starts everyone at a 0 weekly PnL rather than a bogus one.
+        const weekStartEquity = typeof state.weekStartEquity==="number" ? state.weekStartEquity : normalEquity;
         await db.collection("traders").doc(clientId).set({
           username: state.username,
           cash: normal.cash,
           marginUsed: normal.marginUsed,
-          equity: bookEquity(normal),
+          equity: normalEquity,
+          weekStartEquity,
+          weekKey: state.weekKey || null,
+          weeklyPnl: normalEquity - weekStartEquity,
+          streakDays: state.streakDays||0,
+          lastActiveDateKey: state.lastActiveDateKey || null,
           positions: normal.positions.slice(0,20),
           pendingOrders: normal.pendingOrders.slice(0,20),
           history: normal.history.slice(0,TRADE_HISTORY_RETAIN),
@@ -2581,10 +2663,15 @@ function quizGrandTotal(){
 function subscribeLeaderboard(){
   try{
     db.collection("traders").orderBy("equity","desc").limit(50).onSnapshot(
-      (snap)=>renderLeaderboard(snap.docs),
-      (err)=>{ console.warn("lb error", err); renderLeaderboardError(); }
+      (snap)=>{
+        renderLeaderboard(snap.docs);
+        // Concours page reuses this exact same query/snapshot (see
+        // renderContestPage() below) instead of opening a second listener.
+        if (typeof renderContestPage==="function") renderContestPage(snap.docs);
+      },
+      (err)=>{ console.warn("lb error", err); renderLeaderboardError(); if (typeof renderContestPageError==="function") renderContestPageError(); }
     );
-  }catch(e){ renderLeaderboardError(); }
+  }catch(e){ renderLeaderboardError(); if (typeof renderContestPageError==="function") renderContestPageError(); }
 }
 // Separate ranking for Prop Firm challenge accounts — a real Firestore
 // orderBy("propEquity") already excludes docs missing that field, but
@@ -2597,6 +2684,20 @@ function subscribePropLeaderboard(){
       (err)=>{ console.warn("prop lb error", err); renderPropLeaderboardError(); }
     );
   }catch(e){ renderPropLeaderboardError(); }
+}
+// Weekly leaderboard — same top-50 pattern as the others, ordered by
+// weeklyPnl (maintained by persistAccount()/paperTapeMark, reset to 0 for
+// everyone every Monday by the weeklyLeaderboardReset Cloud Function — see
+// /functions/index.js). A trader who hasn't persisted since this field was
+// introduced simply has no weeklyPnl yet, so orderBy() naturally excludes
+// them until their next persist, same transition behavior as hasOpenActivity.
+function subscribeWeeklyLeaderboard(){
+  try{
+    db.collection("traders").orderBy("weeklyPnl","desc").limit(50).onSnapshot(
+      (snap)=>renderWeeklyLeaderboard(snap.docs),
+      (err)=>{ console.warn("week lb error", err); renderWeeklyLeaderboardError(); }
+    );
+  }catch(e){ renderWeeklyLeaderboardError(); }
 }
 function subscribeQuizLeaderboard(){
   try{
@@ -4984,6 +5085,33 @@ function renderLeaderboard(docs){
     tr.addEventListener("click", ()=>openTraderProfileModal(tr.dataset.traderId));
   });
 }
+let weeklyLeaderboardDocsCache = {};
+function renderWeeklyLeaderboard(docs){
+  const body = document.getElementById("lb-week-body");
+  if (!body) return;
+  const rows = docs.filter(doc=>typeof doc.data().weeklyPnl==="number");
+  if (!rows.length){ body.innerHTML = '<tr><td colspan="4" class="empty-note">Classement de la semaine pas encore disponible — repasse un peu plus tard.</td></tr>'; return; }
+  weeklyLeaderboardDocsCache = {};
+  rows.forEach(doc=>{ weeklyLeaderboardDocsCache[doc.id] = doc; });
+  body.innerHTML = rows.map((doc,i)=>{
+    const d = doc.data();
+    const rank = i+1;
+    const rankClass = rank===1?"rank-1":rank===2?"rank-2":rank===3?"rank-3":"";
+    return '<tr class="lb-row-clickable '+(doc.id===clientId?"me":"")+'" data-trader-id="'+doc.id+'" title="Voir le profil">'+
+      '<td class="num '+rankClass+'">#'+rank+'</td>'+
+      '<td>'+avatarHtml(d.photoURL, d.username)+' '+escapeHtml(d.username||"Trader")+traderBadgesHtml(d)+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
+      '<td class="num '+(d.weeklyPnl>=0?"up":"down")+'">'+fmtMoney(d.weeklyPnl)+'</td>'+
+      '<td class="num">'+fmtMoney(d.equity||0)+'</td>'+
+    '</tr>';
+  }).join("");
+  body.querySelectorAll("tr[data-trader-id]").forEach(tr=>{
+    tr.addEventListener("click", ()=>openTraderProfileModal(tr.dataset.traderId));
+  });
+}
+function renderWeeklyLeaderboardError(){
+  const body = document.getElementById("lb-week-body");
+  if (body) body.innerHTML = '<tr><td colspan="4" class="empty-note">Classement indisponible pour le moment.</td></tr>';
+}
 let propLeaderboardDocsCache = {};
 function renderPropLeaderboard(docs){
   const body = document.getElementById("prop-lb-body");
@@ -5049,6 +5177,8 @@ function traderBadgesHtml(d){
 // in any cached ranking yet.
 function traderStatusFromCaches(id){
   const doc = (typeof leaderboardDocsCache!=="undefined" && leaderboardDocsCache[id]) ||
+              (typeof weeklyLeaderboardDocsCache!=="undefined" && weeklyLeaderboardDocsCache[id]) ||
+              (typeof contestLeaderboardDocsCache!=="undefined" && contestLeaderboardDocsCache[id]) ||
               (typeof propLeaderboardDocsCache!=="undefined" && propLeaderboardDocsCache[id]) || null;
   return doc ? doc.data() : null;
 }
@@ -5056,7 +5186,7 @@ function traderStatusFromCaches(id){
 // for any trader in the cached equity leaderboard. Posting to your OWN feed
 // happens from the Profil tab (initFeedPosting), not from here.
 function openTraderProfileModal(id){
-  const doc = leaderboardDocsCache[id] || propLeaderboardDocsCache[id];
+  const doc = leaderboardDocsCache[id] || weeklyLeaderboardDocsCache[id] || contestLeaderboardDocsCache[id] || propLeaderboardDocsCache[id];
   const d = doc && doc.data();
   if (!d) return;
   const feed = Array.isArray(d.feed) ? d.feed : [];
@@ -5245,6 +5375,9 @@ const BADGES = [
  {id:"prop_step1_passed", icon:"🥉", title:"Prop Firm — Étape 1", desc:"Valider l'étape 1 (challenge) d'un compte prop firm démo."},
  {id:"prop_step2_passed", icon:"🥈", title:"Prop Firm — Étape 2", desc:"Valider l'étape 2 (vérification) d'un compte prop firm démo."},
  {id:"prop_funded", icon:"🥇", title:"Prop Firm — Financé", desc:"Décrocher un compte financé (simulation) sur un challenge prop firm."},
+ {id:"streak_3", icon:"🔥", title:"Série — 3 jours", desc:"Revenir sur Paper Tape 3 jours de suite."},
+ {id:"streak_7", icon:"🔥", title:"Série — 7 jours", desc:"Revenir sur Paper Tape 7 jours de suite."},
+ {id:"streak_30", icon:"🔥", title:"Série — 30 jours", desc:"Revenir sur Paper Tape 30 jours de suite."},
 ];
 // `extra` (optional) is merged into the stored badge entry — used by the
 // prop firm challenge to keep the account tier + the equity value at the
@@ -5288,6 +5421,225 @@ function renderBadgesGrid(){
       sub+
     '</div>';
   }).join("");
+}
+
+/* ============================= DAILY STREAK ============================= */
+// "Combien de jours de suite je suis revenu" — deliberately separate from
+// state.stats.currentStreak above (that one tracks consecutive WINNING/
+// LOSING trades, not consecutive days). Rewards just showing up, not
+// trading volume, so it can't be gamed by spamming trades in one sitting.
+function parisDateKey(date){
+  const p = zonedYMD(date, "Europe/Paris");
+  return p.y+"-"+String(p.m+1).padStart(2,"0")+"-"+String(p.d).padStart(2,"0");
+}
+// Called once per hydrate (i.e. once per login/reconnect — see
+// hydrateStateFromDoc()), not on every persist/heartbeat: it only needs to
+// notice a NEW calendar day, so running it more often would be wasted work.
+// awardBadge() is itself idempotent, so re-crossing an already-earned
+// threshold on a later day is a harmless no-op.
+function checkDailyStreak(){
+  const now = new Date();
+  const todayKeyParis = parisDateKey(now);
+  if (state.lastActiveDateKey === todayKeyParis) return; // already counted today
+  const yesterdayKeyParis = parisDateKey(new Date(now.getTime()-24*3600*1000));
+  state.streakDays = (state.lastActiveDateKey===yesterdayKeyParis) ? (state.streakDays||0)+1 : 1;
+  state.lastActiveDateKey = todayKeyParis;
+  if (state.streakDays>=3) awardBadge("streak_3");
+  if (state.streakDays>=7) awardBadge("streak_7");
+  if (state.streakDays>=30) awardBadge("streak_30");
+  persistAccount();
+  if (typeof renderStreakDisplay==="function") renderStreakDisplay();
+}
+function renderStreakDisplay(){
+  const el = document.getElementById("streak-display");
+  if (!el) return;
+  const n = state.streakDays||0;
+  el.textContent = n>0 ? "🔥 "+n+" jour"+(n>1?"s":"")+" de suite" : "Reviens demain pour démarrer une série 🔥";
+}
+
+/* ============================= CONCOURS (Prop Firm) =============================
+ * Deliberately NOT a new trading mode or a new leaderboard metric — it's the
+ * existing "compte normal" equity leaderboard (same query, same order),
+ * re-rendered with an eligibility filter on top: a trader needs at least
+ * CONTEST_MIN_QUALIFYING_TRADES CLOSED positions whose PnL (win OR loss)
+ * clears CONTEST_QUALIFY_PNL in absolute value. That threshold does double
+ * duty: it screens out throwaway micro-trades, AND it closes the "click
+ * Long 30 times at 0.01 lot" loophole — as long as those clicks share the
+ * same symbol/side/mode, openPositionCore() already merges them into ONE
+ * open position (see that function above), so closing it writes exactly ONE
+ * history entry, never 30. Getting 30 qualifying entries requires 30
+ * genuinely separate round-trips of real size.
+ */
+const CONTEST_MIN_QUALIFYING_TRADES = 30;
+const CONTEST_QUALIFY_PNL = START_CASH * 0.01; // 1 000 $ (1% de 100 000 $)
+// Trades clôturés avant cette date ne comptent pas pour le concours — à
+// ajuster ici si la date de lancement réelle est différente (mets `null`
+// pour ne filtrer sur aucune date, c-à-d compter tout l'historique existant).
+const CONTEST_START_AT = new Date("2026-09-15T00:00:00+02:00");
+const CONTEST_PRIZES = [
+  {rank:1, icon:"🥇", label:"1ère place", prize:"Challenge Prop Firm 25 000 $ offert par l'EDB"},
+  {rank:2, icon:"🥈", label:"2ème place", prize:"Challenge Prop Firm 10 000 $ offert par l'EDB"},
+  {rank:3, icon:"🥉", label:"3ème place", prize:"Challenge Prop Firm 5 000 $ offert par l'EDB"},
+];
+function countQualifyingTrades(d){
+  const hist = Array.isArray(d.history) ? d.history : [];
+  return hist.filter(h=>{
+    if (typeof h.pnl!=="number" || Math.abs(h.pnl) < CONTEST_QUALIFY_PNL) return false;
+    if (CONTEST_START_AT && h.closedAt && new Date(h.closedAt) < CONTEST_START_AT) return false;
+    return true;
+  }).length;
+}
+let contestLeaderboardDocsCache = {};
+// Fed the SAME docs as the main equity leaderboard (see subscribeLeaderboard()
+// below) rather than opening a second Firestore listener on the same query —
+// no extra reads, and the two views can never drift out of sync.
+function renderContestPage(docs){
+  const body = document.getElementById("contest-body");
+  const podium = document.getElementById("contest-podium");
+  if (!body) return;
+  const rows = docs.map(doc=>{
+    const d = doc.data();
+    const qualifying = countQualifyingTrades(d);
+    return {doc, d, qualifying, eligible: qualifying>=CONTEST_MIN_QUALIFYING_TRADES};
+  });
+  // `rows` inherits the query's own equity-desc order — filtering down to
+  // eligible traders preserves that relative order, so indexOf()+1 below is
+  // already the correct contest rank.
+  const eligibleRows = rows.filter(r=>r.eligible);
+  contestLeaderboardDocsCache = {};
+  rows.forEach(r=>{ contestLeaderboardDocsCache[r.doc.id] = r.doc; });
+  if (podium){
+    podium.innerHTML = CONTEST_PRIZES.map(p=>{
+      const r = eligibleRows[p.rank-1];
+      const name = r ? escapeHtml(r.d.username||"Trader") : "—";
+      return '<div class="contest-podium-card'+(r?" filled":"")+'">'+
+        '<div class="contest-podium-icon">'+p.icon+'</div>'+
+        '<div class="contest-podium-rank">'+p.label+'</div>'+
+        '<div class="contest-podium-name">'+name+'</div>'+
+        '<div class="contest-podium-prize">'+escapeHtml(p.prize)+'</div>'+
+      '</div>';
+    }).join("");
+  }
+  if (!rows.length){ body.innerHTML = '<tr><td colspan="4" class="empty-note">Aucun trader pour le moment.</td></tr>'; return; }
+  body.innerHTML = rows.map(r=>{
+    const rank = r.eligible ? (eligibleRows.indexOf(r)+1) : null;
+    const rankClass = rank===1?"rank-1":rank===2?"rank-2":rank===3?"rank-3":"";
+    const progress = Math.min(r.qualifying, CONTEST_MIN_QUALIFYING_TRADES)+"/"+CONTEST_MIN_QUALIFYING_TRADES;
+    const statusHtml = r.eligible
+      ? '<span class="up">✅ Éligible</span>'
+      : '<span class="chart-note">'+progress+' trades qualifiés</span>';
+    return '<tr class="lb-row-clickable '+(r.doc.id===clientId?"me":"")+'" data-trader-id="'+r.doc.id+'" title="Voir le profil">'+
+      '<td class="num '+rankClass+'">'+(rank?("#"+rank):"—")+'</td>'+
+      '<td>'+avatarHtml(r.d.photoURL, r.d.username)+' '+escapeHtml(r.d.username||"Trader")+traderBadgesHtml(r.d)+(r.doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
+      '<td class="num">'+fmtMoney(r.d.equity||0)+'</td>'+
+      '<td>'+statusHtml+'</td>'+
+    '</tr>';
+  }).join("");
+  body.querySelectorAll("tr[data-trader-id]").forEach(tr=>{
+    tr.addEventListener("click", ()=>openTraderProfileModal(tr.dataset.traderId));
+  });
+}
+function renderContestPageError(){
+  const body = document.getElementById("contest-body");
+  if (body) body.innerHTML = '<tr><td colspan="4" class="empty-note">Classement indisponible pour le moment.</td></tr>';
+}
+
+/* ============================= ANTI-TRICHE — HEDGING (concours) =============================
+ * Interdit par le règlement du concours (voir #view-contest) : ouvrir Long ET
+ * Short en même temps sur le même actif, ou sur deux actifs crypto corrélés
+ * — ça permet de "farmer" le seuil des 1 000 $ (CONTEST_QUALIFY_PNL) avec un
+ * risque de marché quasi nul, puisqu'une jambe absorbe la perte de l'autre.
+ * Détection : deux positions/trades du même trader, sens opposés, sur des
+ * actifs liés, dont les fenêtres [ouverture, clôture-ou-maintenant] se
+ * chevauchent dans le temps. C'est un outil de suspicion pour l'admin, pas
+ * un juge automatique — le panneau Admin affiche les preuves, la décision
+ * finale (disqualifier ou non) reste humaine.
+ */
+const HEDGE_GROUPS = [
+  ["BTC","ETH","SOL","HYPE"], // crypto majors/alts — fortement corrélés entre eux
+];
+function hedgeGroupOf(symbol){
+  return HEDGE_GROUPS.find(g=>g.includes(symbol)) || null;
+}
+function areRelatedSymbols(symA, symB){
+  if (symA===symB) return true;
+  const g = hedgeGroupOf(symA);
+  return !!(g && g.includes(symB));
+}
+// One interval per trade: closed trades come from `history` (end=closedAt),
+// still-open ones from `positions` (end=now, since an open position can
+// still be hedging something else right now or a trade closed earlier).
+// Requires `openedAt` on the entry — always present on trades closed by the
+// CLIENT (closePosition()/closePositionPartial() above), and now also on
+// ones closed server-side by paperTapeMark (see functions/index.js) since
+// that file's history entries were extended to match; older entries from
+// before that fix simply can't be checked and are skipped, not miscounted.
+function traderIntervals(d){
+  const hist = Array.isArray(d.history) ? d.history : [];
+  const pos = Array.isArray(d.positions) ? d.positions : [];
+  const nowIso = new Date().toISOString();
+  const fromHist = hist.filter(h=>h.openedAt && h.symbol && h.side).map(h=>({
+    symbol:h.symbol, side:h.side, start:h.openedAt, end:h.closedAt||nowIso,
+    notional:h.notional, pnl:(typeof h.pnl==="number"?h.pnl:null), open:false,
+  }));
+  const fromPos = pos.filter(p=>p.openedAt && p.symbol && p.side).map(p=>({
+    symbol:p.symbol, side:p.side, start:p.openedAt, end:nowIso,
+    notional:p.notional, pnl:null, open:true,
+  }));
+  return fromHist.concat(fromPos);
+}
+function detectHedgePairs(d){
+  const intervals = traderIntervals(d);
+  const pairs = [];
+  for (let i=0;i<intervals.length;i++){
+    for (let j=i+1;j<intervals.length;j++){
+      const a = intervals[i], b = intervals[j];
+      if (a.side===b.side) continue; // same direction is just two trades, not a hedge
+      if (!areRelatedSymbols(a.symbol, b.symbol)) continue;
+      const aStart=new Date(a.start).getTime(), aEnd=new Date(a.end).getTime();
+      const bStart=new Date(b.start).getTime(), bEnd=new Date(b.end).getTime();
+      if (!(aStart<=bEnd && bStart<=aEnd)) continue; // no time overlap -> not simultaneous (inclusive: a position opened this instant still counts)
+      pairs.push({a, b, sameSymbol:a.symbol===b.symbol});
+    }
+  }
+  return pairs;
+}
+// Rendered into the admin trader detail view (adminDetailHtml() below) —
+// this is the "click on a trader in Admin, get told legit or hedged" the
+// bureau asked for.
+function adminHedgeReportHtml(d){
+  const pairs = detectHedgePairs(d);
+  const qualifying = typeof countQualifyingTrades==="function" ? countQualifyingTrades(d) : 0;
+  if (!pairs.length){
+    return adminDetailSection("Analyse anti-triche (concours)",
+      '<div class="admin-detail-empty" style="color:var(--long);">🟢 Légitime — aucun Long+Short simultané détecté sur un même actif ou un groupe corrélé (BTC/ETH/SOL/HYPE). '+qualifying+' trade(s) actuellement qualifié(s) pour le concours.</div>'
+    );
+  }
+  // Which qualifying (>=1000$) closed trades are themselves one leg of a
+  // detected pair — the number that actually matters for "should this count".
+  const taintedKeys = new Set();
+  pairs.forEach(({a,b})=>{
+    if (!a.open) taintedKeys.add(a.start+"|"+a.symbol+"|"+a.side);
+    if (!b.open) taintedKeys.add(b.start+"|"+b.symbol+"|"+b.side);
+  });
+  const hist = Array.isArray(d.history) ? d.history : [];
+  let taintedQualifying = 0;
+  hist.forEach(h=>{
+    if (typeof h.pnl!=="number" || Math.abs(h.pnl) < CONTEST_QUALIFY_PNL) return;
+    if (taintedKeys.has((h.openedAt||"")+"|"+h.symbol+"|"+h.side)) taintedQualifying++;
+  });
+  const legHtml = (leg)=> (leg.side==="long"?"▲ Long ":"▼ Short ")+escapeHtml(leg.symbol)+" · "+fmtMoney(leg.notional)+
+    (leg.open ? " (encore ouverte)" : " · "+fmtMoney(leg.pnl));
+  const rows = pairs.map(({a,b,sameSymbol})=>{
+    const label = sameSymbol ? "Hedge direct sur "+escapeHtml(a.symbol) : "Hedge croisé "+escapeHtml(a.symbol)+" / "+escapeHtml(b.symbol)+" (corrélés)";
+    return adminDetailRow(label, legHtml(a)+"<br>"+legHtml(b));
+  }).join("");
+  const verdict = taintedQualifying>0
+    ? '🔴 Hedging détecté — '+taintedQualifying+' des '+qualifying+' trade(s) qualifié(s) pour le concours chevauchent une position opposée sur un actif corrélé. À vérifier avant de valider son classement.'
+    : '🟠 Chevauchement Long+Short détecté ('+pairs.length+' paire(s)), mais aucun ne touche un trade actuellement compté comme qualifié pour le concours.';
+  return adminDetailSection("Analyse anti-triche (concours)",
+    '<div class="admin-detail-empty" style="color:var(--warn);">'+verdict+'</div>'+rows
+  );
 }
 
 /* ============================= PNL CARDS ============================= */
@@ -8541,6 +8893,7 @@ function switchView(name){
   }
   if (name==="profile"){
     renderBadgesGrid();
+    renderStreakDisplay();
     renderJournalList();
     renderProfileAvatar();
     renderFeedList();
@@ -8608,18 +8961,15 @@ function initEvents(){
   const ticketHelpBtn = document.getElementById("ticket-help-btn");
   if (ticketHelpBtn) ticketHelpBtn.addEventListener("click", openExecutionHelpModal);
 
-  document.getElementById("lb-tab-normal").addEventListener("click", ()=>{
-    document.getElementById("lb-tab-normal").classList.add("active");
-    document.getElementById("lb-tab-prop").classList.remove("active");
-    document.getElementById("lb-wrap-normal").hidden = false;
-    document.getElementById("lb-wrap-prop").hidden = true;
-  });
-  document.getElementById("lb-tab-prop").addEventListener("click", ()=>{
-    document.getElementById("lb-tab-prop").classList.add("active");
-    document.getElementById("lb-tab-normal").classList.remove("active");
-    document.getElementById("lb-wrap-prop").hidden = false;
-    document.getElementById("lb-wrap-normal").hidden = true;
-  });
+  function setLbTab(tab){
+    ["normal","week","prop"].forEach(t=>{
+      document.getElementById("lb-tab-"+t).classList.toggle("active", t===tab);
+      document.getElementById("lb-wrap-"+t).hidden = t!==tab;
+    });
+  }
+  document.getElementById("lb-tab-normal").addEventListener("click", ()=>setLbTab("normal"));
+  document.getElementById("lb-tab-week").addEventListener("click", ()=>setLbTab("week"));
+  document.getElementById("lb-tab-prop").addEventListener("click", ()=>setLbTab("prop"));
 
   document.getElementById("quiz-tab-play").addEventListener("click", ()=>{
     document.getElementById("quiz-tab-play").classList.add("active");
@@ -9395,6 +9745,8 @@ function adminDetailHtml(d){
     adminDetailRow("Dernière activité", fmtWhen(d.lastActiveAt))
   );
 
+  html += (typeof adminHedgeReportHtml==="function" ? adminHedgeReportHtml(d) : "");
+
   html += adminDetailSection("Positions ouvertes ("+pos.length+")",
     pos.length ? pos.map(p=>adminDetailRow(
       (p.side==="long"?"▲ Long":"▼ Short")+" "+escapeHtml(p.symbol||"—"),
@@ -9660,24 +10012,30 @@ async function adminPublishTrade(){
     return;
   }
   if (btn) btn.disabled = true;
-  try{
-    const id = uid();
-    const payload = {
-      symbol: symbolSel.value,
-      side: adminTradeSide,
-      kind: adminTradeKind,
-      entryPrice: entry,
-      exitPrice: null,
-      stopLoss: isFinite(sl) ? sl : null,
-      takeProfit: isFinite(tp) ? tp : null,
-      status: "open",
-      comment: (commentInput ? commentInput.value.trim() : "").slice(0,500),
-      postedBy: state.username,
-      createdAt: new Date().toISOString(),
-      closedAt: null,
-    };
-    if (adminTradeSelectedImages.length>0){
-      if (!storage){ if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Stockage indisponible pour le moment — réessaie plus tard."; } if (btn) btn.disabled = false; return; }
+  const id = uid();
+  const payload = {
+    symbol: symbolSel.value,
+    side: adminTradeSide,
+    kind: adminTradeKind,
+    entryPrice: entry,
+    exitPrice: null,
+    stopLoss: isFinite(sl) ? sl : null,
+    takeProfit: isFinite(tp) ? tp : null,
+    status: "open",
+    comment: (commentInput ? commentInput.value.trim() : "").slice(0,500),
+    postedBy: state.username,
+    createdAt: new Date().toISOString(),
+    closedAt: null,
+  };
+  // Split into two try/catch blocks — Storage and Firestore are two
+  // different services with two different rule files, so a failure needs
+  // to say WHICH one to go check rather than always blaming Firestore (the
+  // old single try/catch here did that, which sent an admin hunting through
+  // the wrong rules file whenever it was actually the Storage upload that
+  // failed — e.g. the edbtrades/{tradeId} Storage rule not deployed yet).
+  if (adminTradeSelectedImages.length>0){
+    if (!storage){ if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Stockage indisponible pour le moment — réessaie plus tard."; } if (btn) btn.disabled = false; return; }
+    try{
       const imageUrls = [];
       const imagePaths = [];
       for (let i=0; i<adminTradeSelectedImages.length; i++){
@@ -9686,7 +10044,14 @@ async function adminPublishTrade(){
         imageUrls.push(imageUrl); imagePaths.push(imagePath);
       }
       payload.imageUrls = imageUrls; payload.imagePaths = imagePaths;
+    }catch(e){
+      console.warn("admin trade image upload failed", e);
+      if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Échec de l'envoi des images ("+(e.code||e.message||"erreur inconnue")+") — vérifie que la règle Storage edbtrades/{tradeId} est bien déployée (SERVER_SETUP.md § 5)."; }
+      if (btn) btn.disabled = false;
+      return;
     }
+  }
+  try{
     await db.collection("edbTrades").doc(id).set(payload);
     if (msg){ msg.style.color = "var(--long)"; msg.textContent = "Trade publié."; }
     entryInput.value = ""; slInput.value = ""; tpInput.value = ""; if (commentInput) commentInput.value = "";
@@ -9694,7 +10059,7 @@ async function adminPublishTrade(){
     loadAdminTrades();
   }catch(e){
     console.warn("admin trade publish failed", e);
-    if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Échec de la publication — vérifie que la règle Firestore edbTrades est bien déployée (SERVER_SETUP.md)."; }
+    if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Échec de la publication ("+(e.code||e.message||"erreur inconnue")+") — vérifie que la règle Firestore edbTrades est bien déployée (SERVER_SETUP.md § 2)."; }
   }
   if (btn) btn.disabled = false;
 }
