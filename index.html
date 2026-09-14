@@ -305,6 +305,30 @@
     white-space:nowrap;
   }
 
+  /* ---------- EDB+ pitch page (not-yet-member state) ---------- */
+  .edbplus-pitch{max-width:620px;margin:0 auto;text-align:center;padding:6px 0 4px;}
+  .edbplus-pitch h2{font-size:24px;}
+  .edbplus-price-box{
+    margin:0 auto 26px;max-width:200px;padding:20px 20px 16px;border-radius:var(--radius);
+    background:linear-gradient(150deg, color-mix(in srgb, var(--gold) 18%, var(--bg-raised) 82%), var(--bg-raised));
+    border:1px solid color-mix(in srgb, var(--gold) 55%, transparent 45%);
+  }
+  .edbplus-price-amount{font-family:var(--mono);font-size:40px;font-weight:800;color:var(--gold);line-height:1;}
+  .edbplus-price-period{font-family:var(--mono);font-size:11.5px;color:var(--text-dim);margin-top:4px;text-transform:uppercase;letter-spacing:.05em;}
+  .edbplus-price-sub{font-size:10px;color:var(--text-faint);margin-top:8px;}
+  .edbplus-feature-grid{
+    display:grid;grid-template-columns:repeat(auto-fit, minmax(230px,1fr));gap:10px;margin-bottom:6px;text-align:left;
+  }
+  .edbplus-feature-row{
+    display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:8px;
+    background:var(--bg-raised);border:1px solid var(--border-soft);transition:border-color .15s,transform .15s;
+  }
+  .edbplus-feature-row:hover{border-color:var(--gold);transform:translateY(-1px);}
+  .edbplus-feature-icon{font-size:18px;flex:none;margin-top:1px;}
+  .edbplus-feature-label{font-weight:700;font-size:12.5px;color:var(--text);}
+  .edbplus-feature-detail{font-size:10.5px;color:var(--text-dim);margin-top:3px;line-height:1.35;}
+  .edbplus-cta-btn{width:100%;max-width:420px;padding:16px;font-size:13px;font-weight:700;letter-spacing:.02em;}
+
   /* ---------- EDB+ chat: automatic payment-info message ---------- */
   .edbplus-payment-rows{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
   .edbplus-payment-row{
@@ -539,6 +563,8 @@
     font-family:var(--mono);font-size:10px;padding:4px 7px;border-radius:5px;cursor:pointer;
   }
   .lev-presets button.active{border-color:var(--accent);color:var(--accent);}
+  .lev-presets button.locked{opacity:.45;cursor:pointer;}
+  .lev-presets button.locked:hover{opacity:.7;border-color:var(--gold);color:var(--gold);}
   .size-slider-row{display:flex;align-items:center;gap:10px;margin-top:8px;}
   .size-slider-badge{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);}
   .size-row{display:flex;gap:6px;}
@@ -874,6 +900,8 @@
   .chat-bubble-author{font-weight:700;color:var(--text);}
   .chat-bubble-img{max-width:220px;max-height:220px;border-radius:8px;display:block;margin-top:4px;cursor:zoom-in;}
   .edbtrade-img{max-width:100%;max-height:340px;border-radius:8px;display:block;margin-top:10px;cursor:zoom-in;border:1px solid var(--border-soft);}
+  .edbtrade-imgs{display:grid;grid-template-columns:repeat(auto-fill, minmax(140px,1fr));gap:8px;margin-top:10px;}
+  .edbtrade-imgs .edbtrade-img{margin-top:0;max-height:160px;width:100%;height:160px;object-fit:cover;}
   .chat-bubble-actions{display:flex;gap:8px;margin-top:4px;}
   .chat-bubble-actions button{background:none;border:none;cursor:pointer;font-size:10px;color:var(--text-faint);padding:0;}
   .chat-bubble-actions button:hover{color:var(--text);}
@@ -881,6 +909,12 @@
   .global-chat-image-preview{display:flex;align-items:center;gap:8px;margin-top:8px;padding:6px 10px;background:var(--bg-raised);border:1px solid var(--border-soft);border-radius:8px;}
   .global-chat-image-preview img{width:40px;height:40px;object-fit:cover;border-radius:6px;}
   .global-chat-image-preview button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:14px;margin-left:auto;}
+  .admin-trade-image-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+  .admin-trade-image-chip{display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--bg-raised);border:1px solid var(--border-soft);border-radius:8px;max-width:220px;}
+  .admin-trade-image-chip img{width:32px;height:32px;object-fit:cover;border-radius:5px;flex:none;}
+  .admin-trade-image-chip span{font-size:9.5px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .admin-trade-image-chip button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:13px;margin-left:auto;flex:none;}
+  .admin-trade-image-chip button:hover{color:var(--short);}
   .chat-edit-box textarea{width:100%;background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-family:var(--sans);font-size:13px;color:var(--text);resize:vertical;}
   .chat-edit-box .chat-edit-actions{display:flex;gap:8px;margin-top:4px;justify-content:flex-end;}
 
@@ -1226,9 +1260,15 @@
     <!-- ================= NEWS ================= -->
     <section class="view" id="view-news">
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:10px;">
           <h3 style="margin:0;">Actualités marchés &amp; crypto en direct</h3>
-          <button class="pos-close" id="news-refresh">🔄 Actualiser</button>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <div class="seg" id="news-lang-seg">
+              <button id="news-lang-intl" class="on-mode active" type="button">International</button>
+              <button id="news-lang-fr" class="on-mode" type="button">En français</button>
+            </div>
+            <button class="pos-close" id="news-refresh">🔄 Actualiser</button>
+          </div>
         </div>
         <div id="news-status" class="chart-note" style="margin-bottom:10px;">Chargement des actualités…</div>
         <div id="news-list" class="news-list"></div>
@@ -1310,14 +1350,6 @@
             <p class="chart-note">Connecté en tant que <strong id="auth-current-email"></strong> — ce compte est accessible depuis n'importe quel navigateur.</p>
             <button class="btn-secondary" id="auth-logout-btn" style="margin-top:8px;">Se déconnecter</button>
           </div>
-        </div>
-        <div class="card profile-teaser-card" style="margin-top:14px;" data-goto-view="edbplus">
-          <h3>EDB+</h3>
-          <div id="edbplus-teaser-body" class="chart-note">Abonnement, avantages et discussion avec le bureau →</div>
-        </div>
-        <div class="card profile-teaser-card" style="margin-top:14px;" data-goto-view="challenge">
-          <h3>Challenge Prop Firm</h3>
-          <div id="challenge-teaser-body" class="chart-note">Trade un compte démo calqué sur une évaluation prop firm →</div>
         </div>
         <div class="card" style="margin-top:14px;">
           <h3>Aide</h3>
@@ -1432,14 +1464,14 @@
           <div class="field-row" style="flex:1;min-width:110px;margin-top:0;">
             <label>Type</label>
             <div class="seg">
-              <button type="button" id="admin-trade-kind-bde" class="on-mode active">Trade BDE</button>
+              <button type="button" id="admin-trade-kind-bde" class="on-mode active">Trade EDB</button>
               <button type="button" id="admin-trade-kind-swing" class="on-mode">Swing hebdo</button>
             </div>
           </div>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;">
           <div class="field-row" style="flex:1;min-width:110px;margin-top:0;">
-            <label>Prix d'entrée</label>
+            <label>Prix d'entrée <span style="text-transform:none;letter-spacing:0;font-weight:400;">(optionnel)</span></label>
             <input type="number" step="any" id="admin-trade-entry" class="tpsl-input" placeholder="Prix d'entrée">
           </div>
           <div class="field-row" style="flex:1;min-width:110px;margin-top:0;">
@@ -1456,12 +1488,12 @@
           <textarea id="admin-trade-comment" class="tpsl-input" rows="2" style="resize:vertical;font-family:inherit;" placeholder="Contexte, raisonnement, invalidation…"></textarea>
         </div>
         <div class="field-row" style="margin-top:12px;">
-          <label>Capture d'écran <span style="text-transform:none;letter-spacing:0;font-weight:400;">(optionnel)</span></label>
+          <label>Captures d'écran <span style="text-transform:none;letter-spacing:0;font-weight:400;">(optionnel, plusieurs possibles)</span></label>
           <div>
-            <input type="file" id="admin-trade-image-input" accept="image/*" hidden>
-            <button type="button" class="btn-secondary" id="admin-trade-image-btn">🖼️ Joindre une image</button>
+            <input type="file" id="admin-trade-image-input" accept="image/*" multiple hidden>
+            <button type="button" class="btn-secondary" id="admin-trade-image-btn">🖼️ Joindre des images</button>
           </div>
-          <div id="admin-trade-image-preview" class="global-chat-image-preview" hidden></div>
+          <div id="admin-trade-image-preview" class="admin-trade-image-list" hidden></div>
         </div>
         <div class="chart-note" id="admin-trade-publish-msg" style="margin:8px 0;min-height:14px;"></div>
         <button class="btn-primary" id="admin-trade-publish">Publier le trade</button>
@@ -1499,14 +1531,7 @@
     <!-- ================= RESOURCES ================= -->
     <section class="view" id="view-resources">
       <div class="learn-wrap wrap-wide">
-        <div class="card">
-          <div class="quiz-intro" style="padding:20px 10px 24px;">
-            <div class="quiz-cat">Liens externes</div>
-            <h2>Ressources trading</h2>
-            <p>Une sélection d'outils externes utiles pour l'order flow, la fondamentale et la data crypto — recommandés par EDB. Ces sites ne sont pas gérés par Paper Tape, ouvre-les avec ton propre jugement. La capture d'écran de chaque carte donne un aperçu réel de l'outil avant de cliquer.</p>
-          </div>
-          <div class="resource-grid" id="resource-grid"></div>
-        </div>
+        <div class="card" id="resources-card"></div>
       </div>
     </section>
 
@@ -1702,9 +1727,9 @@ const REFETCH_MS = 30000;         // price refresh interval while the tab is bac
 const REFETCH_MS_VISIBLE = 5000;  // faster refresh while the tab is actually visible/focused
 
 /* ============================= EDB+ (MEMBERSHIP GATE) =============================
-   EDB+ is a paid association membership (20€/an) — NOT a Paper Tape feature
+   EDB+ is a paid association membership (25€/an) — NOT a Paper Tape feature
    flag. There's no payment processor wired in: EDB+ is granted the same way
-   "isAdmin" is (see ADMIN PANEL) — a trader pays 20€ outside the app (cash,
+   "isAdmin" is (see ADMIN PANEL) — a trader pays 25€ outside the app (cash,
    virement, HelloAsso...), and an admin flips their status from the Admin
    panel. A trader can self-flag "j'ai payé" (edbPlusRequested) from Profil
    so admins see them in the pending list, but that flag alone unlocks
@@ -1732,7 +1757,9 @@ const EDB_PLUS_FEATURES = {
   challenge: {label:"Le challenge prop firm",    detail:"trader un compte démo calqué sur une vraie évaluation prop firm en 2 étapes"},
   theme:     {label:"Le changement de thème",    detail:"personnaliser l'interface (Ember, Sage, Ink, Noir, Gold, Azure)"},
   tradesedb: {label:"Trades EDB+",               detail:"suivre les trades partagés par le bureau et le trade swing hebdomadaire"},
+  resources: {label:"Ressources trading",        detail:"accéder à la sélection d'outils externes recommandés par EDB"},
 };
+const EDB_PLUS_FEATURE_ICONS = {quiz:"🧠", learn:"📚", news:"📰", challenge:"🏅", theme:"🎨", tradesedb:"📈", resources:"🔗"};
 // Reusable "EDB+ requise" card — dropped into a feature's own container in
 // place of its real content. `key` picks the wording from EDB_PLUS_FEATURES
 // above; the CTA button is wired by wireEdbPlusCta(key) right after this
@@ -1743,7 +1770,7 @@ function edbPlusPaywallHtml(key){
     '<div class="deck-big-icon" style="background:var(--gold)22;border:1px solid var(--gold)55;">🔒</div>'+
     '<div class="quiz-cat gold-badge">EDB+ requis</div>'+
     '<h2>'+escapeHtml(f.label)+'</h2>'+
-    '<p>Réservé aux membres EDB+ — 20€/an pour '+escapeHtml(f.detail)+', et soutenir l\'association au passage.</p>'+
+    '<p>Réservé aux membres EDB+ — 25€/an pour '+escapeHtml(f.detail)+', et soutenir l\'association au passage.</p>'+
     '<div class="quiz-intro-actions">'+
       '<button class="btn-primary" id="edbplus-cta-'+key+'">Découvrir EDB+</button>'+
     '</div>'+
@@ -1763,7 +1790,7 @@ function goToEdbPlus(){
 // this badge is just a heads-up before clicking).
 function updateEdbPlusNavBadges(){
   const locked = !isEdbPlus();
-  [["quiz","🧠"],["learn","📚"],["news","📰"],["challenge","🏅"],["tradesedb","📈"]].forEach(([view,emoji])=>{
+  [["quiz","🧠"],["learn","📚"],["news","📰"],["challenge","🏅"],["tradesedb","📈"],["resources","🔗"]].forEach(([view,emoji])=>{
     const btn = document.querySelector('nav.tabs button[data-view="'+view+'"]');
     if (!btn) return;
     let badge = btn.querySelector(".nav-lock-badge");
@@ -1782,7 +1809,7 @@ function updateEdbPlusNavBadges(){
 // Renders the "#edbplus-card" in Profil into one of 3 states: active member,
 // request pending (awaiting an admin's manual toggle), or the pitch+CTA.
 // No payment processor is wired up here on purpose — see AskUserQuestion
-// answers in SERVER_SETUP.md: a trader pays the 20€/an outside the app
+// answers in SERVER_SETUP.md: a trader pays the 25€/an outside the app
 // (espèces/virement/HelloAsso) and an admin flips edbPlus from the panneau
 // admin. Clicking the button below only records a request, it never charges
 // anything or grants access by itself.
@@ -1813,11 +1840,27 @@ function renderEdbPlusProfileCard(){
     return;
   }
   el.innerHTML =
-    '<h3>EDB+ <span class="quiz-cat gold-badge" style="margin-left:6px;">20€/an</span></h3>'+
-    '<p class="chart-note" style="margin-bottom:10px;">L\'abonnement association qui débloque : le challenge prop firm démo, les quiz, les fiches Connaissances, les actualités marché, et les 6 thèmes d\'interface (Ember, Sage, Ink, Noir, Gold, Azure).</p>'+
-    '<p class="chart-note" style="margin-bottom:10px;">Paiement à régler auprès du bureau EDB par Wero ou virement. Clique ci-dessous pour envoyer ta demande — tu reçois aussitôt les coordonnées de paiement, et le bureau active ton compte dès réception.</p>'+
-    '<button class="btn-primary" id="edbplus-request-btn">Je souhaite m\'abonner à EDB+</button>'+
-    '<div class="chart-note" id="edbplus-request-msg" style="margin-top:8px;"></div>';
+    '<div class="edbplus-pitch">'+
+      '<div class="quiz-cat gold-badge">🏛️ ÉCOLE DE LA BOURSE</div>'+
+      '<h2 style="margin:12px 0 8px;">Débloque le terminal complet</h2>'+
+      '<p class="chart-note" style="max-width:520px;margin:0 auto 22px;">L\'abonnement association qui te donne accès au challenge prop firm, aux quiz, aux fiches de révision et aux actus marché en direct — et qui finance les projets du bureau.</p>'+
+      '<div class="edbplus-price-box">'+
+        '<div class="edbplus-price-amount">25€</div>'+
+        '<div class="edbplus-price-period">par an</div>'+
+        '<div class="edbplus-price-sub">soit un peu plus de 2€ / mois</div>'+
+      '</div>'+
+      '<div class="edbplus-feature-grid">'+
+        Object.entries(EDB_PLUS_FEATURES).map(([k,f])=>
+          '<div class="edbplus-feature-row">'+
+            '<span class="edbplus-feature-icon">'+(EDB_PLUS_FEATURE_ICONS[k]||"✅")+'</span>'+
+            '<div><div class="edbplus-feature-label">'+escapeHtml(f.label)+'</div><div class="edbplus-feature-detail">'+escapeHtml(f.detail)+'</div></div>'+
+          '</div>'
+        ).join("")+
+      '</div>'+
+      '<p class="chart-note" style="max-width:520px;margin:18px auto 14px;">Paiement à régler auprès du bureau EDB par Wero ou virement. Clique ci-dessous pour envoyer ta demande — tu reçois aussitôt les coordonnées de paiement, et le bureau active ton compte dès réception.</p>'+
+      '<button class="btn-primary edbplus-cta-btn" id="edbplus-request-btn">🚀 Je souhaite m\'abonner à EDB+</button>'+
+      '<div class="chart-note" id="edbplus-request-msg" style="margin-top:10px;"></div>'+
+    '</div>';
   const btn = document.getElementById("edbplus-request-btn");
   if (btn) btn.addEventListener("click", openEdbPlusRequestConfirmModal);
 }
@@ -2037,7 +2080,7 @@ const state = {
   },
   email: null,     // set from Firebase Auth once signed in — persisted so admins can identify traders
   isAdmin: false,  // durable "ADMIN321" unlock — see ADMIN PANEL below
-  edbPlus: false,           // paid membership (20€/an) — see EDB+ below; granted manually by an admin, never self-writable in good faith
+  edbPlus: false,           // paid membership (25€/an) — see EDB+ below; granted manually by an admin, never self-writable in good faith
   edbPlusRequested: false,  // trader self-flags "j'ai payé" so an admin sees them in the admin panel's pending list
   edbPlusRequestedAt: null, // ISO timestamp of that self-flag, for admin sorting
   totalTimeSpent: 0, // cumulative seconds with the tab open & visible — see initSessionTimeTracking()
@@ -2073,6 +2116,10 @@ function loadLeverage(){
 function saveLeverage(n){
   try{ localStorage.setItem(LEVERAGE_KEY, String(n)); }catch(e){}
 }
+// Above x20, leverage sharply shrinks the price move needed to get
+// liquidated — an EDB+ perk, same as the other risk/analysis tools gated
+// behind isEdbPlus() (see WIDGET_DEFS' edbPlusOnly + enforceWidgetAccess()).
+const LEVERAGE_CAP_FREE = 20;
 let leverage = loadLeverage(); // remembered per-browser across reloads, like the theme/widget layout
 let isFreshAccount = false; // set true exactly once, by loadAccountForClientId(), when a brand-new trader doc had to be created — drives the onboarding tour auto-trigger in initAuth()
 let db = null;
@@ -2380,6 +2427,7 @@ function hydrateStateFromDoc(snap){
   // Quiz/Connaissances/News tabs.
   if (typeof enforceThemeAccess==="function") enforceThemeAccess();
   if (typeof enforceWidgetAccess==="function") enforceWidgetAccess();
+  if (typeof enforceLeverageAccess==="function") enforceLeverageAccess();
   if (typeof updateEdbPlusNavBadges==="function") updateEdbPlusNavBadges();
   if (typeof refreshNews==="function") refreshNews(); // no-op if not EDB+; gets a freshly-granted member their first news load without waiting on the 5-min interval
 }
@@ -2454,6 +2502,15 @@ function persistAccount(){
         const books = booksForPersist();
         const normal = books.normal || freshBookObj(START_CASH);
         const prop = books.prop || null;
+        // Cheap boolean the "paper-tape-mark" Cloud Function filters its
+        // query on (`.where("hasOpenActivity","==",true)`) instead of
+        // scanning every trader doc every minute — see /functions/index.js.
+        // Kept in lockstep with the actual books on every persist, so it
+        // flips back to false the moment the last open position/order here
+        // closes (the function also re-derives and writes it server-side
+        // whenever it processes an idle trader, so it self-heals there too).
+        const hasOpenActivity = normal.positions.length>0 || normal.pendingOrders.length>0 ||
+          !!(prop && (prop.positions.length>0 || prop.pendingOrders.length>0));
         await db.collection("traders").doc(clientId).set({
           username: state.username,
           cash: normal.cash,
@@ -2499,6 +2556,7 @@ function persistAccount(){
           // so it never races the client that's already handling it.
           lastActiveAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
+          hasOpenActivity,
         });
       }catch(e){ console.warn("persist failed", e); }
       resolve();
@@ -3048,6 +3106,15 @@ const NEWS_FEEDS = [
   {name:"Cointelegraph",  url:"https://cointelegraph.com/rss",                   tag:"Crypto"},
   {name:"Yahoo Finance",  url:"https://finance.yahoo.com/news/rssindex",         tag:"Marchés"},
 ];
+// Second "part" of the News tab, added on request: same kind of global
+// markets/crypto coverage as NEWS_FEEDS above, just in French — these
+// outlets aren't France-specific, they're French-LANGUAGE sources covering
+// the same worldwide macro/crypto news (Fed, Bitcoin, Clarity Act, etc.).
+const NEWS_FEEDS_FR = [
+  {name:"Cryptoast",     url:"https://cryptoast.fr/feed/",     tag:"Crypto"},
+  {name:"Cointribune",   url:"https://www.cointribune.com/feed/", tag:"Crypto"},
+  {name:"Coin Academy",  url:"https://coinacademy.fr/feed/",   tag:"Marchés"},
+];
 const RSS2JSON_BASE = "https://api.rss2json.com/v1/api.json?rss_url=";
 async function fetchNewsFeed(feed){
   try{
@@ -3075,32 +3142,62 @@ function newsItemHtml(it){
     '<div class="news-title">'+escapeHtml(it.title)+'</div>'+
   '</a>';
 }
+// Which of the two "parts" (International / En français) is on screen —
+// a plain UI toggle, not persisted. Each language keeps its own cached
+// items+status so switching tabs is instant and doesn't need a re-fetch;
+// refreshNews() below always fetches both in parallel so both stay current.
+let newsLang = "intl";
 let newsLoading = false;
+const newsCache = {
+  intl: {items:[], status:"Chargement des actualités…"},
+  fr:   {items:[], status:"Chargement des actualités…"},
+};
+function paintNewsTab(){
+  const status = document.getElementById("news-status");
+  const list = document.getElementById("news-list");
+  const c = newsCache[newsLang];
+  if (status) status.textContent = c.status;
+  if (list) list.innerHTML = c.items.map(newsItemHtml).join("");
+}
+function setNewsLang(lang){
+  if (lang===newsLang) return;
+  newsLang = lang;
+  const btnIntl = document.getElementById("news-lang-intl");
+  const btnFr = document.getElementById("news-lang-fr");
+  if (btnIntl) btnIntl.classList.toggle("active", lang==="intl");
+  if (btnFr) btnFr.classList.toggle("active", lang==="fr");
+  paintNewsTab();
+}
+async function fetchNewsSet(feeds){
+  const results = await Promise.all(feeds.map(fetchNewsFeed));
+  let items = [].concat(...results);
+  items.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));
+  return items.slice(0,30);
+}
 async function refreshNews(){
   if (!isEdbPlus()) return; // EDB+ gate — also protects the 5-minute setInterval below, not just the tab click
   if (newsLoading) return;
   newsLoading = true;
-  const status = document.getElementById("news-status");
-  const list = document.getElementById("news-list");
-  if (status) status.textContent = "Actualisation…";
+  newsCache.intl.status = "Actualisation…";
+  newsCache.fr.status = "Actualisation…";
+  paintNewsTab();
   try{
-    const results = await Promise.all(NEWS_FEEDS.map(fetchNewsFeed));
-    let items = [].concat(...results);
-    if (items.length===0){
-      if (status) status.textContent = "Actualités indisponibles pour le moment — nouvelle tentative automatique dans quelques minutes.";
-      return;
-    }
-    items.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));
-    items = items.slice(0,30);
-    if (status){
-      const t = new Date().toLocaleTimeString("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit"});
-      status.textContent = "Mis à jour à "+t+" (heure de Paris) · "+items.length+" articles";
-    }
-    if (list) list.innerHTML = items.map(newsItemHtml).join("");
+    const [itemsIntl, itemsFr] = await Promise.all([fetchNewsSet(NEWS_FEEDS), fetchNewsSet(NEWS_FEEDS_FR)]);
+    const t = new Date().toLocaleTimeString("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit"});
+    newsCache.intl.items = itemsIntl;
+    newsCache.intl.status = itemsIntl.length>0
+      ? "Mis à jour à "+t+" (heure de Paris) · "+itemsIntl.length+" articles"
+      : "Actualités indisponibles pour le moment — nouvelle tentative automatique dans quelques minutes.";
+    newsCache.fr.items = itemsFr;
+    newsCache.fr.status = itemsFr.length>0
+      ? "Mis à jour à "+t+" (heure de Paris) · "+itemsFr.length+" articles"
+      : "Actualités indisponibles pour le moment — nouvelle tentative automatique dans quelques minutes.";
   }catch(e){
-    if (status) status.textContent = "Actualités indisponibles pour le moment.";
+    if (newsCache.intl.items.length===0) newsCache.intl.status = "Actualités indisponibles pour le moment.";
+    if (newsCache.fr.items.length===0) newsCache.fr.status = "Actualités indisponibles pour le moment.";
   }finally{
     newsLoading = false;
+    paintNewsTab();
   }
 }
 
@@ -5939,7 +6036,7 @@ async function sendEdbPlusPaymentInfoMessage(traderId){
   if (!dbReady || !db || !traderId) return;
   const msg = {
     from: "admin", by: "Réponse automatique", kind: "payment_info",
-    text: "Merci pour ta demande ! Pour activer ton compte EDB+ (20€/an), règle le paiement par Wero ou par virement (RIB ci-dessous), puis précise-le ici si besoin — le bureau active ton compte dès réception et te le confirme dans cette conversation.",
+    text: "Merci pour ta demande ! Pour activer ton compte EDB+ (25€/an), règle le paiement par Wero ou par virement (RIB ci-dessous), puis précise-le ici si besoin — le bureau active ton compte dès réception et te le confirme dans cette conversation.",
     wero: EDB_PLUS_PAYMENT.wero, rib: EDB_PLUS_PAYMENT.rib,
     at: new Date().toISOString(),
   };
@@ -5996,6 +6093,17 @@ function edbTradePnlPct(d){
   const raw = d.side==="short" ? (d.entryPrice-d.exitPrice)/d.entryPrice : (d.exitPrice-d.entryPrice)/d.entryPrice;
   return raw*100;
 }
+// Entrée is optional (an admin can post a trade idea without a firm entry
+// yet) — build the meta line from whichever price fields are actually set
+// so there's never a stray leading/double " · " separator.
+function edbTradeMetaLine(d,a){
+  const parts = [];
+  if (typeof d.entryPrice==="number") parts.push("Entrée "+fmtPrice(d.entryPrice, a.decimals));
+  if (typeof d.exitPrice==="number") parts.push("Sortie "+fmtPrice(d.exitPrice, a.decimals));
+  if (typeof d.stopLoss==="number") parts.push("SL "+fmtPrice(d.stopLoss, a.decimals));
+  if (typeof d.takeProfit==="number") parts.push("TP "+fmtPrice(d.takeProfit, a.decimals));
+  return parts.join(" · ");
+}
 function edbTradeCardHtml(doc){
   const d = doc.data();
   const a = edbTradeAssetMeta(d.symbol);
@@ -6011,16 +6119,20 @@ function edbTradeCardHtml(doc){
       (pnlPct!==null ? '<span class="edbtrade-pnl '+(pnlPct>=0?"up":"down")+'">'+fmtPct(pnlPct)+'</span>'
         : '<span class="chart-note" style="display:inline;">'+(d.status==="closed"?"Clôturé":"En cours")+'</span>')+
     '</div>'+
-    '<div class="edbtrade-meta">'+
-      'Entrée '+fmtPrice(d.entryPrice, a.decimals)+
-      (typeof d.exitPrice==="number" ? ' · Sortie '+fmtPrice(d.exitPrice, a.decimals) : '')+
-      (typeof d.stopLoss==="number" ? ' · SL '+fmtPrice(d.stopLoss, a.decimals) : '')+
-      (typeof d.takeProfit==="number" ? ' · TP '+fmtPrice(d.takeProfit, a.decimals) : '')+
-    '</div>'+
+    '<div class="edbtrade-meta">'+edbTradeMetaLine(d,a)+'</div>'+
     (d.comment ? '<div class="edbtrade-comment">'+escapeHtml(d.comment)+'</div>' : '')+
-    (d.imageUrl ? '<img class="edbtrade-img" src="'+escapeHtml(d.imageUrl)+'" alt="Capture du trade">' : '')+
+    edbTradeImagesHtml(d)+
     '<div class="chart-note" style="margin-top:8px;">'+escapeHtml(d.postedBy||"Bureau EDB")+' · '+fmtWhen(d.createdAt)+'</div>'+
   '</div>';
+}
+// Renders 0+ screenshots for a trade. Newer docs carry imageUrls (array,
+// possibly just one long entry); older ones published before multi-image
+// support carry a single imageUrl — both are handled the same way here.
+function edbTradeImagesHtml(d){
+  const urls = Array.isArray(d.imageUrls) ? d.imageUrls : (d.imageUrl ? [d.imageUrl] : []);
+  if (urls.length===0) return "";
+  if (urls.length===1) return '<img class="edbtrade-img" src="'+escapeHtml(urls[0])+'" alt="Capture du trade">';
+  return '<div class="edbtrade-imgs">'+urls.map(u=>'<img class="edbtrade-img" src="'+escapeHtml(u)+'" alt="Capture du trade">').join("")+'</div>';
 }
 function renderTradesEdbFeed(){
   const swingWrap = document.getElementById("tradesedb-swing-wrap");
@@ -8150,10 +8262,27 @@ const RESOURCES = [
   {id:"fundednext", tag:"Prop firm · Argent réel", title:"FundedNext", url:"https://fundednext.com", color:"var(--warn)", warn:true,
     desc:"Prop firm — challenge pour obtenir un compte financé."},
 ];
+// Called from switchView("resources") — paywall for a non-member (same
+// pattern as News/Quiz/Connaissances/Challenge/Trades EDB+), otherwise
+// builds the intro + link grid (static content, no live data).
 function renderResources(){
+  const el = document.getElementById("resources-card");
+  if (!el) return;
+  if (!isEdbPlus()){
+    el.innerHTML = edbPlusPaywallHtml("resources");
+    wireEdbPlusCta("resources");
+    return;
+  }
+  if (el.dataset.built) return;
+  el.dataset.built = "1";
+  el.innerHTML =
+    '<div class="quiz-intro" style="padding:20px 10px 24px;">'+
+      '<div class="quiz-cat">Liens externes</div>'+
+      '<h2>Ressources trading</h2>'+
+      '<p>Une sélection d\'outils externes utiles pour l\'order flow, la fondamentale et la data crypto — recommandés par EDB. Ces sites ne sont pas gérés par Paper Tape, ouvre-les avec ton propre jugement. La capture d\'écran de chaque carte donne un aperçu réel de l\'outil avant de cliquer.</p>'+
+    '</div>'+
+    '<div class="resource-grid" id="resource-grid"></div>';
   const grid = document.getElementById("resource-grid");
-  if (!grid || grid.dataset.built) return; // static content, no live data — build once
-  grid.dataset.built = "1";
   grid.innerHTML = RESOURCES.map(r=>{
     const shot = RESOURCE_SHOTS[r.id];
     const img = shot ? '<img class="resource-card-img" src="'+shot+'" alt="Aperçu de '+escapeHtml(r.title)+'" loading="lazy">' : '';
@@ -8429,14 +8558,20 @@ function switchView(name){
   if (name==="news"){
     const list = document.getElementById("news-list");
     const status = document.getElementById("news-status");
+    const langSeg = document.getElementById("news-lang-seg");
     if (!isEdbPlus()){
       if (status) status.hidden = true;
+      if (langSeg) langSeg.hidden = true;
       list.innerHTML = edbPlusPaywallHtml("news");
       wireEdbPlusCta("news");
     } else {
       if (status) status.hidden = false;
-      if (!newsLoading && (list.innerHTML==="" || list.querySelector(".edbplus-paywall"))){
+      if (langSeg) langSeg.hidden = false;
+      if (list.querySelector(".edbplus-paywall")) list.innerHTML = "";
+      if (!newsLoading && newsCache.intl.items.length===0 && newsCache.fr.items.length===0){
         refreshNews();
+      } else {
+        paintNewsTab();
       }
     }
   }
@@ -8550,6 +8685,8 @@ function initEvents(){
   document.getElementById("limit-price-input").addEventListener("input", updateOrderReadout);
 
   document.getElementById("news-refresh").addEventListener("click", refreshNews);
+  document.getElementById("news-lang-intl").addEventListener("click", ()=>setNewsLang("intl"));
+  document.getElementById("news-lang-fr").addEventListener("click", ()=>setNewsLang("fr"));
 
   const presets = [1,5,10,25,50,100,200];
   const presetsWrap = document.getElementById("lev-presets");
@@ -8560,9 +8697,16 @@ function initEvents(){
     presetsWrap.querySelectorAll("button").forEach(b=>b.classList.toggle("active", parseInt(b.dataset.lev,10)===leverage));
   }
   setLevUI(); // sync the slider/badge to the leverage restored from localStorage on load
-  document.getElementById("lev-slider").addEventListener("input", (e)=>{ leverage=parseInt(e.target.value,10); saveLeverage(leverage); setLevUI(); updateOrderReadout(); });
+  if (typeof enforceLeverageAccess==="function") enforceLeverageAccess(); // apply the EDB+ x20 cap right away (locked by default until Firestore hydrates)
+  document.getElementById("lev-slider").addEventListener("input", (e)=>{
+    leverage=parseInt(e.target.value,10); saveLeverage(leverage); setLevUI(); updateOrderReadout();
+  });
   presetsWrap.querySelectorAll("button").forEach(b=>{
-    b.addEventListener("click", ()=>{ leverage=parseInt(b.dataset.lev,10); saveLeverage(leverage); setLevUI(); updateOrderReadout(); });
+    b.addEventListener("click", ()=>{
+      const v = parseInt(b.dataset.lev,10);
+      if (v>LEVERAGE_CAP_FREE && !isEdbPlus()){ goToEdbPlus(); return; }
+      leverage=v; saveLeverage(leverage); setLevUI(); updateOrderReadout();
+    });
   });
 
   document.getElementById("unit-usd").addEventListener("click", ()=>{ sizeUnit="usd"; setUnitUI(); updateOrderReadout(); });
@@ -8758,6 +8902,34 @@ function currentLayoutFromDom(){
 function enforceWidgetAccess(){
   if (typeof loadWidgetLayout!=="function") return;
   applyWidgetLayout(loadWidgetLayout());
+}
+// Re-checks the EDB+ leverage cap on the real order ticket (the position-size
+// calculator widget doesn't need this — it's edbPlusOnly outright, see
+// WIDGET_DEFS). Same two call sites as enforceWidgetAccess(): once at boot
+// (defaults locked to x20 until Firestore hydrates) and again whenever
+// hydrateStateFromDoc() learns the real EDB+ status.
+function enforceLeverageAccess(){
+  const slider = document.getElementById("lev-slider");
+  const badge = document.getElementById("lev-badge");
+  const presetsWrap = document.getElementById("lev-presets");
+  if (!slider) return; // order ticket not wired yet
+  const locked = !isEdbPlus();
+  const cap = locked ? LEVERAGE_CAP_FREE : 200;
+  slider.max = cap;
+  if (leverage > cap){
+    leverage = cap;
+    saveLeverage(leverage);
+  }
+  slider.value = leverage;
+  if (badge) badge.textContent = "x"+leverage;
+  if (presetsWrap) presetsWrap.querySelectorAll("[data-lev]").forEach(b=>{
+    const v = parseInt(b.dataset.lev,10);
+    const isLocked = locked && v>LEVERAGE_CAP_FREE;
+    b.classList.toggle("locked", isLocked);
+    b.classList.toggle("active", v===leverage);
+    b.title = isLocked ? "Réservé aux membres EDB+" : "";
+  });
+  if (typeof updateOrderReadout==="function") updateOrderReadout();
 }
 function persistCurrentLayout(){
   saveWidgetLayout(currentLayoutFromDom());
@@ -9153,7 +9325,7 @@ async function adminToggleEdbPlus(id){
   const d = doc ? doc.data() : {};
   const next = !d.edbPlus;
   const question = next
-    ? 'Activer EDB+ pour "'+label+'" ? À faire uniquement après réception des 20€ (espèces/virement/HelloAsso). Débloque challenge prop, quiz, connaissances, news et tous les thèmes.'
+    ? 'Activer EDB+ pour "'+label+'" ? À faire uniquement après réception des 25€ (espèces/virement/HelloAsso). Débloque challenge prop, quiz, connaissances, news et tous les thèmes.'
     : 'Retirer EDB+ à "'+label+'" ? Le trader perd l\'accès au challenge prop, au quiz, aux connaissances, aux news et au changement de thème (retour au thème par défaut).';
   if (!confirm(question)) return;
   adminSetEdbPlus(id, next);
@@ -9393,14 +9565,33 @@ async function adminDeleteFeedback(id){
 let adminTradesDocs = [];
 let adminTradeSide = "long";
 let adminTradeKind = "bde";
-let adminTradeSelectedImage = null;
+let adminTradeSelectedImages = []; // multiple screenshots per trade — see admin-trade-image-input (multiple) below
+const ADMIN_TRADE_MAX_IMAGES = 6;
 function adminFindTradeDoc(id){ return adminTradesDocs.find(d=>d.id===id) || null; }
 function clearAdminTradeImage(){
-  adminTradeSelectedImage = null;
+  adminTradeSelectedImages = [];
   const input = document.getElementById("admin-trade-image-input");
   if (input) input.value = "";
+  renderAdminTradeImagePreview();
+}
+function renderAdminTradeImagePreview(){
   const preview = document.getElementById("admin-trade-image-preview");
-  if (preview){ preview.hidden = true; preview.innerHTML = ""; }
+  if (!preview) return;
+  if (adminTradeSelectedImages.length===0){ preview.hidden = true; preview.innerHTML = ""; return; }
+  preview.hidden = false;
+  preview.innerHTML = adminTradeSelectedImages.map((file,i)=>
+    '<div class="admin-trade-image-chip">'+
+      '<img src="'+URL.createObjectURL(file)+'" alt="">'+
+      '<span>'+escapeHtml(file.name)+'</span>'+
+      '<button type="button" data-admin-trade-img-remove="'+i+'">✕</button>'+
+    '</div>'
+  ).join("");
+  preview.querySelectorAll("[data-admin-trade-img-remove]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      adminTradeSelectedImages.splice(parseInt(btn.dataset.adminTradeImgRemove,10), 1);
+      renderAdminTradeImagePreview();
+    });
+  });
 }
 async function loadAdminTrades(){
   const status = document.getElementById("admin-trades-status");
@@ -9429,10 +9620,10 @@ function renderAdminTrades(){
     return '<tr>'+
       '<td>'+a.icon+' '+escapeHtml(d.symbol)+'</td>'+
       '<td><span class="pos-badge '+(d.side==="short"?"short":"long")+'">'+(d.side==="short"?"Short":"Long")+'</span></td>'+
-      '<td>'+fmtPrice(d.entryPrice, a.decimals)+'</td>'+
+      '<td>'+(typeof d.entryPrice==="number" ? fmtPrice(d.entryPrice, a.decimals) : '—')+'</td>'+
       '<td>'+(typeof d.exitPrice==="number" ? fmtPrice(d.exitPrice, a.decimals)+(pnlPct!==null?' ('+fmtPct(pnlPct)+')':'') : '—')+'</td>'+
       '<td>'+(d.status==="closed"?"Clôturé":"En cours")+'</td>'+
-      '<td>'+(d.kind==="swing"?"🌊 Swing":"Trade BDE")+'</td>'+
+      '<td>'+(d.kind==="swing"?"🌊 Swing":"Trade EDB")+'</td>'+
       '<td>'+fmtWhen(d.createdAt)+'</td>'+
       '<td style="display:flex;gap:6px;flex-wrap:wrap;">'+
         (d.status!=="closed" ? '<button class="pos-close" data-admin-trade-close="'+doc.id+'">Clôturer</button>' : '')+
@@ -9450,10 +9641,17 @@ async function adminPublishTrade(){
   const msg = document.getElementById("admin-trade-publish-msg");
   const btn = document.getElementById("admin-trade-publish");
   if (!symbolSel || !entryInput) return;
-  const entry = parseFloat(entryInput.value);
-  if (!isFinite(entry) || entry<=0){
-    if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Renseigne un prix d'entrée valide."; }
-    return;
+  // Prix d'entrée is optional — an admin can post a trade idea/setup before
+  // committing to a firm entry. Only a non-empty-but-invalid value blocks
+  // publishing; a blank field just means entryPrice stays null.
+  const entryRaw = entryInput.value.trim();
+  let entry = null;
+  if (entryRaw!==""){
+    entry = parseFloat(entryRaw);
+    if (!isFinite(entry) || entry<=0){
+      if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Prix d'entrée invalide."; }
+      return;
+    }
   }
   const sl = parseFloat(slInput.value);
   const tp = parseFloat(tpInput.value);
@@ -9478,11 +9676,16 @@ async function adminPublishTrade(){
       createdAt: new Date().toISOString(),
       closedAt: null,
     };
-    if (adminTradeSelectedImage){
+    if (adminTradeSelectedImages.length>0){
       if (!storage){ if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Stockage indisponible pour le moment — réessaie plus tard."; } if (btn) btn.disabled = false; return; }
-      const imagePath = "edbtrades/"+id;
-      const imageUrl = await uploadToStorage(adminTradeSelectedImage, imagePath);
-      payload.imageUrl = imageUrl; payload.imagePath = imagePath;
+      const imageUrls = [];
+      const imagePaths = [];
+      for (let i=0; i<adminTradeSelectedImages.length; i++){
+        const imagePath = "edbtrades/"+id+"_"+i;
+        const imageUrl = await uploadToStorage(adminTradeSelectedImages[i], imagePath);
+        imageUrls.push(imageUrl); imagePaths.push(imagePath);
+      }
+      payload.imageUrls = imageUrls; payload.imagePaths = imagePaths;
     }
     await db.collection("edbTrades").doc(id).set(payload);
     if (msg){ msg.style.color = "var(--long)"; msg.textContent = "Trade publié."; }
@@ -9502,7 +9705,7 @@ function adminCloseTrade(id){
   const a = edbTradeAssetMeta(d.symbol);
   openModal(
     '<h3 style="margin-bottom:14px;">Clôturer le trade — '+a.icon+' '+escapeHtml(d.symbol)+'</h3>'+
-    '<div class="chart-note" style="margin-bottom:12px;">Entrée : <strong>'+fmtPrice(d.entryPrice, a.decimals)+'</strong> ('+(d.side==="short"?"Short":"Long")+')</div>'+
+    '<div class="chart-note" style="margin-bottom:12px;">'+(typeof d.entryPrice==="number" ? 'Entrée : <strong>'+fmtPrice(d.entryPrice, a.decimals)+'</strong> ' : '')+'('+(d.side==="short"?"Short":"Long")+')</div>'+
     '<div class="field-row"><label>Prix de sortie</label><input type="number" step="any" id="admin-trade-exit-input" class="tpsl-input" placeholder="Prix de sortie"></div>'+
     '<div class="chart-note" id="admin-trade-exit-msg" style="margin:8px 0;min-height:14px;"></div>'+
     '<button class="btn-primary" id="admin-trade-exit-confirm" style="width:100%;margin-top:6px;">Clôturer</button>'
@@ -9533,9 +9736,10 @@ async function adminDeleteTrade(id){
   if (!confirm("Supprimer ce trade ? Irréversible.")) return;
   try{
     const doc = adminFindTradeDoc(id);
-    const imagePath = doc && doc.data().imagePath;
+    const d = doc ? doc.data() : null;
+    const imagePaths = d ? (Array.isArray(d.imagePaths) ? d.imagePaths : (d.imagePath ? [d.imagePath] : [])) : [];
     await db.collection("edbTrades").doc(id).delete();
-    if (imagePath && storage){ try{ await storage.ref().child(imagePath).delete(); }catch(e2){} }
+    if (storage){ for (const p of imagePaths){ try{ await storage.ref().child(p).delete(); }catch(e2){} } }
     adminTradesDocs = adminTradesDocs.filter(d=>d.id!==id);
     renderAdminTrades();
   }catch(e){
@@ -9610,18 +9814,15 @@ function initAdminUI(){
   if (tradeImgBtn && tradeImgInput) tradeImgBtn.addEventListener("click", ()=>tradeImgInput.click());
   if (tradeImgInput){
     tradeImgInput.addEventListener("change", ()=>{
-      const file = tradeImgInput.files && tradeImgInput.files[0];
-      if (!file) return;
-      if (!file.type.startsWith("image/")){ alert("Choisis une image."); clearAdminTradeImage(); return; }
-      if (file.size > 6*1024*1024){ alert("Image trop lourde (max 6 Mo)."); clearAdminTradeImage(); return; }
-      adminTradeSelectedImage = file;
-      const preview = document.getElementById("admin-trade-image-preview");
-      if (preview){
-        preview.hidden = false;
-        preview.innerHTML = '<img src="'+URL.createObjectURL(file)+'" alt=""><span class="chart-note" style="display:inline;">'+escapeHtml(file.name)+'</span><button type="button" id="admin-trade-image-remove">✕</button>';
-        const rmBtn = document.getElementById("admin-trade-image-remove");
-        if (rmBtn) rmBtn.addEventListener("click", clearAdminTradeImage);
+      const files = tradeImgInput.files ? Array.from(tradeImgInput.files) : [];
+      tradeImgInput.value = ""; // reset so picking again (to add more) always fires change, even for the same file(s)
+      for (const file of files){
+        if (adminTradeSelectedImages.length >= ADMIN_TRADE_MAX_IMAGES){ alert("Maximum "+ADMIN_TRADE_MAX_IMAGES+" images par trade."); break; }
+        if (!file.type.startsWith("image/")){ alert("'"+file.name+"' n'est pas une image, ignorée."); continue; }
+        if (file.size > 6*1024*1024){ alert("'"+file.name+"' est trop lourde (max 6 Mo), ignorée."); continue; }
+        adminTradeSelectedImages.push(file);
       }
+      renderAdminTradeImagePreview();
     });
   }
   const tradePublishBtn = document.getElementById("admin-trade-publish");
