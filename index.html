@@ -370,6 +370,8 @@
   }
   .widget-panel-title{font-size:11px;letter-spacing:0.09em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px;font-weight:600;}
   .widget-panel-row{display:flex;align-items:center;gap:8px;font-size:12px;padding:4px 0;cursor:pointer;}
+  .widget-panel-row-locked{opacity:.55;}
+  .widget-panel-row-locked:hover{opacity:.85;}
 
   /* ---------- mandatory login gate ---------- */
   .auth-gate{
@@ -465,6 +467,22 @@
   svg.chart[hidden]{display:none;}
   .tv-chart-wrap{width:100%;max-width:100%;min-width:0;box-sizing:border-box;height:420px;border-radius:8px;overflow:hidden;}
   .tv-chart-wrap[hidden]{display:none;}
+  .econcal-wrap{width:100%;max-width:100%;min-width:0;box-sizing:border-box;height:420px;border-radius:8px;overflow:hidden;}
+  .edbtrade-card{background:var(--bg-raised);border:1px solid var(--border-soft);border-radius:8px;padding:12px 14px;margin-bottom:10px;}
+  .edbtrade-card.swing{border-color:var(--gold);background:linear-gradient(135deg, var(--gold)1a, var(--bg-raised) 65%);}
+  .edbtrade-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .edbtrade-sym{font-family:var(--mono);font-weight:700;font-size:14px;}
+  .edbtrade-meta{font-family:var(--mono);font-size:11px;color:var(--text-faint);margin-top:6px;}
+  .edbtrade-comment{margin-top:8px;font-size:12.5px;line-height:1.4;white-space:pre-wrap;}
+  .edbtrade-pnl{font-family:var(--mono);font-weight:700;font-size:13px;}
+  .edbtrade-pnl.up{color:var(--long);}
+  .edbtrade-pnl.down{color:var(--short);}
+  .poscalc-sync-btn{
+    background:var(--bg-raised);border:1px solid var(--border);color:var(--text-dim);
+    font-family:var(--mono);font-size:9.5px;letter-spacing:0;text-transform:none;font-weight:600;
+    padding:2px 7px;border-radius:5px;cursor:pointer;
+  }
+  .poscalc-sync-btn:hover{border-color:var(--accent);color:var(--accent);}
   .dom-sym{margin-bottom:6px;}
   .dom-body{font-family:var(--mono);font-size:11.5px;}
   .dom-row{position:relative;display:flex;justify-content:space-between;padding:2.5px 6px;border-radius:3px;overflow:hidden;}
@@ -579,6 +597,9 @@
   .hist-row{display:flex;flex-direction:column;gap:2px;padding:5px 0;border-bottom:1px solid var(--border-soft);font-size:10.5px;}
   .hist-row:last-child{border-bottom:none;}
   .hist-tag{font-family:var(--mono);font-size:8.5px;color:var(--text-faint);text-transform:uppercase;}
+  .user-badge{font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:4px;letter-spacing:.02em;margin-left:5px;white-space:nowrap;display:inline-block;vertical-align:1px;}
+  .user-badge.admin-badge{background:color-mix(in srgb, var(--warn) 20%, var(--bg) 80%);color:var(--warn);border:1px solid var(--warn);}
+  .user-badge.edbplus-badge{background:color-mix(in srgb, var(--gold) 18%, var(--bg) 82%);color:var(--gold);border:1px solid var(--gold);}
   .hist-row-sub{font-family:var(--mono);font-size:9px;color:var(--text-faint);}
 
   /* market sessions clock */
@@ -836,6 +857,7 @@
   .global-chat-messages{max-height:60vh;min-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 4px 8px;}
   .chat-bubble-author{font-weight:700;color:var(--text);}
   .chat-bubble-img{max-width:220px;max-height:220px;border-radius:8px;display:block;margin-top:4px;cursor:zoom-in;}
+  .edbtrade-img{max-width:100%;max-height:340px;border-radius:8px;display:block;margin-top:10px;cursor:zoom-in;border:1px solid var(--border-soft);}
   .chat-bubble-actions{display:flex;gap:8px;margin-top:4px;}
   .chat-bubble-actions button{background:none;border:none;cursor:pointer;font-size:10px;color:var(--text-faint);padding:0;}
   .chat-bubble-actions button:hover{color:var(--text);}
@@ -964,6 +986,7 @@
       <button data-view="learn"><span class="tab-emoji">📚</span>Connaissances</button>
       <button data-view="resources"><span class="tab-emoji">🔗</span>Ressources</button>
       <button data-view="edbplus"><span class="tab-emoji">💎</span>EDB+</button>
+      <button data-view="tradesedb"><span class="tab-emoji">📈</span>Trades EDB+</button>
       <button data-view="profile"><span class="tab-emoji">👤</span>Profil</button>
       <button data-view="admin" id="nav-admin-btn" hidden><span class="tab-emoji">🛡️</span>Admin</button>
     </nav>
@@ -994,6 +1017,11 @@
             <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Marchés</h3><button type="button" class="widget-hide" data-widget-hide="watchlist" title="Masquer ce widget">✕</button></div>
             <div id="market-status" class="chart-note" style="margin-bottom:10px;">initialisation…</div>
             <div class="watchlist" id="watchlist"></div>
+          </div>
+
+          <div class="card widget" draggable="true" data-widget="econcal" style="margin-top:14px;">
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Calendrier économique</h3><button type="button" class="widget-hide" data-widget-hide="econcal" title="Masquer ce widget">✕</button></div>
+            <div class="econcal-wrap" id="econcal-wrap"></div>
           </div>
         </div>
 
@@ -1100,6 +1128,47 @@
             </div>
             <button class="submit-btn long" id="submit-order">Ouvrir Long</button>
             <div class="ticket-msg" id="ticket-msg"></div>
+          </div>
+
+          <div class="card widget" draggable="true" data-widget="poscalc" style="margin-top:14px;">
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Calculateur de taille</h3><button type="button" class="widget-hide" data-widget-hide="poscalc" title="Masquer ce widget">✕</button></div>
+            <div class="field-row">
+              <label>Actif</label>
+              <select id="poscalc-asset" class="tpsl-input"></select>
+            </div>
+            <div class="field-row">
+              <label>Risque du compte</label>
+              <div class="size-row">
+                <input type="number" id="poscalc-risk-pct" value="1" min="0" step="any">
+                <div class="unit-toggle">
+                  <button id="poscalc-risk-unit-pct" class="active">%</button>
+                  <button id="poscalc-risk-unit-usd">USD</button>
+                </div>
+              </div>
+              <div class="chart-note" id="poscalc-risk-amount-note" style="margin-top:4px;">Montant risqué : $0.00</div>
+            </div>
+            <div class="field-row">
+              <label>Prix d'entrée <button type="button" class="poscalc-sync-btn" id="poscalc-sync-entry" title="Utiliser le prix actuel du marché">↺ Marché</button></label>
+              <input type="number" step="any" id="poscalc-entry" class="tpsl-input" placeholder="Prix d'entrée">
+            </div>
+            <div class="field-row">
+              <label>Stop Loss</label>
+              <input type="number" step="any" id="poscalc-stop" class="tpsl-input" placeholder="Prix du stop">
+            </div>
+            <div class="field-row">
+              <label>Levier <span class="lev-badge" id="poscalc-lev-badge">x10</span></label>
+              <div class="lev-row">
+                <input type="range" id="poscalc-lev-slider" min="1" max="200" value="10">
+              </div>
+            </div>
+            <div class="readout">
+              <div class="row"><span class="k">Distance au stop</span><span class="v num" id="poscalc-ro-distance">—</span></div>
+              <div class="row"><span class="k">Taille recommandée (unités)</span><span class="v num" id="poscalc-ro-units">—</span></div>
+              <div class="row"><span class="k">Valeur notionnelle</span><span class="v num" id="poscalc-ro-notional">—</span></div>
+              <div class="row"><span class="k">Marge requise (levier choisi)</span><span class="v num" id="poscalc-ro-margin">—</span></div>
+              <div class="row"><span class="k">Marge disponible</span><span class="v num" id="poscalc-ro-free">—</span></div>
+            </div>
+            <div class="ticket-msg" id="poscalc-warning"></div>
           </div>
         </div>
 
@@ -1328,6 +1397,68 @@
       </div>
       <div class="card" style="margin-top:14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+          <h3 style="margin:0;">Trades EDB+ — publier un trade</h3>
+          <button class="pos-close" id="admin-trades-refresh">🔄 Actualiser</button>
+        </div>
+        <div class="chart-note" style="margin-bottom:10px;">Partagé avec tous les membres EDB+ dans l'onglet "Trades EDB+". Coche "Swing hebdo" pour le mettre en avant en haut de la page — le trade précédent reste visible dans la liste en dessous.</div>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;">
+          <div class="field-row" style="flex:1;min-width:130px;margin-top:0;">
+            <label>Actif</label>
+            <select id="admin-trade-symbol" class="tpsl-input"></select>
+          </div>
+          <div class="field-row" style="flex:1;min-width:110px;margin-top:0;">
+            <label>Sens</label>
+            <div class="seg">
+              <button type="button" id="admin-trade-side-long" class="on-long active">Long</button>
+              <button type="button" id="admin-trade-side-short" class="on-short">Short</button>
+            </div>
+          </div>
+          <div class="field-row" style="flex:1;min-width:110px;margin-top:0;">
+            <label>Type</label>
+            <div class="seg">
+              <button type="button" id="admin-trade-kind-bde" class="on-mode active">Trade BDE</button>
+              <button type="button" id="admin-trade-kind-swing" class="on-mode">Swing hebdo</button>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;">
+          <div class="field-row" style="flex:1;min-width:110px;margin-top:0;">
+            <label>Prix d'entrée</label>
+            <input type="number" step="any" id="admin-trade-entry" class="tpsl-input" placeholder="Prix d'entrée">
+          </div>
+          <div class="field-row" style="flex:1;min-width:110px;margin-top:0;">
+            <label>Stop Loss <span style="text-transform:none;letter-spacing:0;font-weight:400;">(optionnel)</span></label>
+            <input type="number" step="any" id="admin-trade-sl" class="tpsl-input" placeholder="Stop Loss">
+          </div>
+          <div class="field-row" style="flex:1;min-width:110px;margin-top:0;">
+            <label>Take Profit <span style="text-transform:none;letter-spacing:0;font-weight:400;">(optionnel)</span></label>
+            <input type="number" step="any" id="admin-trade-tp" class="tpsl-input" placeholder="Take Profit">
+          </div>
+        </div>
+        <div class="field-row" style="margin-top:12px;">
+          <label>Commentaire <span style="text-transform:none;letter-spacing:0;font-weight:400;">(optionnel)</span></label>
+          <textarea id="admin-trade-comment" class="tpsl-input" rows="2" style="resize:vertical;font-family:inherit;" placeholder="Contexte, raisonnement, invalidation…"></textarea>
+        </div>
+        <div class="field-row" style="margin-top:12px;">
+          <label>Capture d'écran <span style="text-transform:none;letter-spacing:0;font-weight:400;">(optionnel)</span></label>
+          <div>
+            <input type="file" id="admin-trade-image-input" accept="image/*" hidden>
+            <button type="button" class="btn-secondary" id="admin-trade-image-btn">🖼️ Joindre une image</button>
+          </div>
+          <div id="admin-trade-image-preview" class="global-chat-image-preview" hidden></div>
+        </div>
+        <div class="chart-note" id="admin-trade-publish-msg" style="margin:8px 0;min-height:14px;"></div>
+        <button class="btn-primary" id="admin-trade-publish">Publier le trade</button>
+        <div class="chart-note" id="admin-trades-status" style="margin-top:16px;"></div>
+        <div style="overflow-x:auto;">
+          <table class="lb-table">
+            <thead><tr><th>Actif</th><th>Sens</th><th>Entrée</th><th>Sortie</th><th>Statut</th><th>Type</th><th>Publié</th><th>Actions</th></tr></thead>
+            <tbody id="admin-trades-body"><tr><td colspan="8" class="empty-note">Clique sur Actualiser pour charger les trades.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
           <h3 style="margin:0;">Retours — bugs &amp; idées</h3>
           <button class="pos-close" id="admin-feedback-refresh">🔄 Actualiser</button>
         </div>
@@ -1367,6 +1498,13 @@
     <section class="view" id="view-edbplus">
       <div class="learn-wrap">
         <div class="card" id="edbplus-card"></div>
+      </div>
+    </section>
+
+    <!-- ================= TRADES EDB+ (dedicated page) ================= -->
+    <section class="view" id="view-tradesedb">
+      <div class="learn-wrap wrap-wide">
+        <div class="card" id="tradesedb-card"></div>
       </div>
     </section>
 
@@ -1579,6 +1717,7 @@ const EDB_PLUS_FEATURES = {
   news:      {label:"Les actualités marché",     detail:"suivre l'actualité macro/crypto en direct depuis le terminal"},
   challenge: {label:"Le challenge prop firm",    detail:"trader un compte démo calqué sur une vraie évaluation prop firm en 2 étapes"},
   theme:     {label:"Le changement de thème",    detail:"personnaliser l'interface (Ember, Sage, Ink, Noir, Gold, Azure)"},
+  tradesedb: {label:"Trades EDB+",               detail:"suivre les trades partagés par le bureau et le trade swing hebdomadaire"},
 };
 // Reusable "EDB+ requise" card — dropped into a feature's own container in
 // place of its real content. `key` picks the wording from EDB_PLUS_FEATURES
@@ -1610,7 +1749,7 @@ function goToEdbPlus(){
 // this badge is just a heads-up before clicking).
 function updateEdbPlusNavBadges(){
   const locked = !isEdbPlus();
-  [["quiz","🧠"],["learn","📚"],["news","📰"],["challenge","🏅"]].forEach(([view,emoji])=>{
+  [["quiz","🧠"],["learn","📚"],["news","📰"],["challenge","🏅"],["tradesedb","📈"]].forEach(([view,emoji])=>{
     const btn = document.querySelector('nav.tabs button[data-view="'+view+'"]');
     if (!btn) return;
     let badge = btn.querySelector(".nav-lock-badge");
@@ -1941,6 +2080,109 @@ function totalUnrealized(){
 function equity(){ return state.cash + totalUnrealized(); }
 function freeBalance(){ return state.cash - state.marginUsed; }
 
+/* ============================= POSITION SIZE CALCULATOR (standalone widget) ============================= */
+// Deliberately independent from the live order ticket's selectedSymbol/leverage/
+// sizeUnit state (it has its own symbol + leverage below) — this is a scratch
+// tool for working out "what size should I take" math, even away from an
+// actual order, so playing with numbers here must never risk nudging a real
+// position or order-ticket field.
+let poscalcSymbol = "BTC";
+let poscalcLeverage = 10;
+let poscalcRiskUnit = "pct"; // "pct" | "usd"
+function poscalcAsset(){ return visibleAssets().find(a=>a.symbol===poscalcSymbol) || visibleAssets()[0]; }
+function syncPoscalcEntryToMarket(){
+  const a = poscalcAsset();
+  const entryInput = document.getElementById("poscalc-entry");
+  if (!a || !entryInput || !hasLive(a.symbol)) return;
+  entryInput.value = markPrice(a.symbol);
+  renderPositionCalc();
+}
+function initPositionCalc(){
+  const sel = document.getElementById("poscalc-asset");
+  if (!sel) return; // widget not present in this build/view
+  sel.innerHTML = visibleAssets().map(a=>'<option value="'+a.symbol+'">'+a.icon+' '+a.symbol+' — '+escapeHtml(a.name)+'</option>').join("");
+  sel.value = poscalcSymbol;
+  sel.addEventListener("change", ()=>{ poscalcSymbol = sel.value; syncPoscalcEntryToMarket(); });
+
+  ["poscalc-risk-pct","poscalc-entry","poscalc-stop"].forEach(id=>{
+    document.getElementById(id).addEventListener("input", renderPositionCalc);
+  });
+
+  const riskUnitPct = document.getElementById("poscalc-risk-unit-pct");
+  const riskUnitUsd = document.getElementById("poscalc-risk-unit-usd");
+  function setRiskUnitUI(){
+    riskUnitPct.classList.toggle("active", poscalcRiskUnit==="pct");
+    riskUnitUsd.classList.toggle("active", poscalcRiskUnit==="usd");
+  }
+  riskUnitPct.addEventListener("click", ()=>{ poscalcRiskUnit="pct"; setRiskUnitUI(); renderPositionCalc(); });
+  riskUnitUsd.addEventListener("click", ()=>{ poscalcRiskUnit="usd"; setRiskUnitUI(); renderPositionCalc(); });
+  setRiskUnitUI();
+
+  const levSlider = document.getElementById("poscalc-lev-slider");
+  const levBadge = document.getElementById("poscalc-lev-badge");
+  levSlider.value = poscalcLeverage;
+  levBadge.textContent = "x"+poscalcLeverage;
+  levSlider.addEventListener("input", (e)=>{
+    poscalcLeverage = parseInt(e.target.value,10);
+    levBadge.textContent = "x"+poscalcLeverage;
+    renderPositionCalc();
+  });
+
+  document.getElementById("poscalc-sync-entry").addEventListener("click", syncPoscalcEntryToMarket);
+
+  syncPoscalcEntryToMarket(); // pre-fill the entry field with the current market price
+  renderPositionCalc();
+}
+function renderPositionCalc(){
+  const a = poscalcAsset();
+  if (!a) return;
+  const riskPctEl = document.getElementById("poscalc-risk-pct");
+  const entryEl = document.getElementById("poscalc-entry");
+  const stopEl = document.getElementById("poscalc-stop");
+  const riskAmountNote = document.getElementById("poscalc-risk-amount-note");
+  const warning = document.getElementById("poscalc-warning");
+  if (!riskPctEl || !entryEl || !stopEl || !riskAmountNote || !warning) return;
+  const setRO = (id,val)=>{ const el=document.getElementById(id); if (el) el.textContent = val; };
+
+  const acctEquity = equity();
+  const riskInput = parseFloat(riskPctEl.value);
+  const riskAmount = (!isFinite(riskInput) || riskInput<=0) ? 0
+    : (poscalcRiskUnit==="pct" ? acctEquity*(riskInput/100) : riskInput);
+  riskAmountNote.textContent = "Montant risqué : "+fmtMoney(riskAmount)+
+    (poscalcRiskUnit==="pct" && riskAmount>0 ? " ("+riskInput.toFixed(2)+"% de l'équité "+fmtMoney(acctEquity)+")" : "");
+
+  const entry = parseFloat(entryEl.value);
+  const stop = parseFloat(stopEl.value);
+  const validPrices = isFinite(entry) && entry>0 && isFinite(stop) && stop>0 && entry!==stop;
+
+  if (!validPrices || riskAmount<=0){
+    setRO("poscalc-ro-distance","—");
+    setRO("poscalc-ro-units","—");
+    setRO("poscalc-ro-notional","—");
+    setRO("poscalc-ro-margin","—");
+    setRO("poscalc-ro-free", fmtMoney(freeBalance()));
+    warning.textContent = (validPrices || (!entryEl.value && !stopEl.value)) ? "" : "Renseigne un prix d'entrée et un stop loss différents pour calculer une taille.";
+    return;
+  }
+
+  const distance = Math.abs(entry-stop);
+  const distancePct = (distance/entry)*100;
+  const units = riskAmount/distance;
+  const notional = units*entry;
+  const margin = notional/poscalcLeverage;
+  const free = freeBalance();
+
+  setRO("poscalc-ro-distance", fmtPrice(distance, a.decimals)+" ("+distancePct.toFixed(2)+"%)");
+  setRO("poscalc-ro-units", fmtQty(units)+" "+a.symbol);
+  setRO("poscalc-ro-notional", fmtMoney(notional));
+  setRO("poscalc-ro-margin", fmtMoney(margin));
+  setRO("poscalc-ro-free", fmtMoney(free));
+
+  warning.textContent = margin > free
+    ? "⚠️ La marge requise ("+fmtMoney(margin)+") dépasse ta marge disponible ("+fmtMoney(free)+") — réduis le risque, le levier, ou élargis le stop."
+    : "";
+}
+
 function liqPriceFor(entry, side, lev){
   const buf = (1/lev) - MMR;
   return side==="long" ? entry*(1-buf) : entry*(1+buf);
@@ -2123,6 +2365,7 @@ function hydrateStateFromDoc(snap){
   // restored from the saved preference) and the small lock badges on the
   // Quiz/Connaissances/News tabs.
   if (typeof enforceThemeAccess==="function") enforceThemeAccess();
+  if (typeof enforceWidgetAccess==="function") enforceWidgetAccess();
   if (typeof updateEdbPlusNavBadges==="function") updateEdbPlusNavBadges();
   if (typeof refreshNews==="function") refreshNews(); // no-op if not EDB+; gets a freshly-granted member their first news load without waiting on the 5-min interval
 }
@@ -3054,6 +3297,25 @@ function renderTradingViewChart(){
     autosize: true, symbol: tvSymbol, interval: "1", timezone: "Etc/UTC",
     theme: "dark", style: "1", locale: "fr", enable_publishing: false,
     hide_top_toolbar: false, hide_side_toolbar: false, allow_symbol_change: true, support_host: "https://www.tradingview.com",
+  });
+  wrap.querySelector(".tradingview-widget-container").appendChild(script);
+}
+// Same no-API-key TradingView embed pattern as the chart widget above, using
+// their free "Economic Calendar" widget — loads once on init() and stays live
+// on its own (TradingView refreshes it internally), no re-render needed.
+let econCalLoaded = false;
+function renderEconCalendar(){
+  const wrap = document.getElementById("econcal-wrap");
+  if (!wrap || econCalLoaded) return;
+  econCalLoaded = true;
+  wrap.innerHTML = '<div class="tradingview-widget-container" style="height:100%;width:100%;"><div class="tradingview-widget-container__widget"></div></div>';
+  const script = document.createElement("script");
+  script.type = "text/javascript";
+  script.src = "https://s3.tradingview.com/external-embedding/embed-widget-events.js";
+  script.async = true;
+  script.text = JSON.stringify({
+    colorTheme: "dark", isTransparent: false, width: "100%", height: "100%",
+    locale: "fr", importanceFilter: "-1,0,1", countryFilter: "us,eu,gb,jp,fr,de,cn",
   });
   wrap.querySelector(".tradingview-widget-container").appendChild(script);
 }
@@ -4579,7 +4841,7 @@ function renderLeaderboard(docs){
     const rankClass = rank===1?"rank-1":rank===2?"rank-2":rank===3?"rank-3":"";
     return '<tr class="lb-row-clickable '+(doc.id===clientId?"me":"")+'" data-trader-id="'+doc.id+'" title="Voir le profil">'+
       '<td class="num '+rankClass+'">#'+rank+'</td>'+
-      '<td>'+avatarHtml(d.photoURL, d.username)+' '+escapeHtml(d.username||"Trader")+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
+      '<td>'+avatarHtml(d.photoURL, d.username)+' '+escapeHtml(d.username||"Trader")+traderBadgesHtml(d)+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
       '<td class="num">'+fmtMoney(d.equity||0)+'</td>'+
       '<td class="num '+(ret>=0?"up":"down")+'">'+fmtPct(ret)+'</td>'+
     '</tr>';
@@ -4610,7 +4872,7 @@ function renderPropLeaderboard(docs){
     const phaseClass = c.phase==="failed" ? "down" : c.phase==="funded" ? "up" : "";
     return '<tr class="lb-row-clickable '+(doc.id===clientId?"me":"")+'" data-trader-id="'+doc.id+'" title="Voir le profil">'+
       '<td class="num '+rankClass+'">#'+rank+'</td>'+
-      '<td>'+avatarHtml(d.photoURL, d.username)+' '+escapeHtml(d.username||"Trader")+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
+      '<td>'+avatarHtml(d.photoURL, d.username)+' '+escapeHtml(d.username||"Trader")+traderBadgesHtml(d)+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
       '<td class="num">'+fmtMoney(c.tier||0)+'</td>'+
       '<td class="num '+phaseClass+'">'+phaseLabel+'</td>'+
       '<td class="num '+(ret>=0?"up":"down")+'">'+fmtMoney(d.propEquity||0)+' <span style="font-weight:400;">('+fmtPct(ret)+')</span></td>'+
@@ -4627,6 +4889,27 @@ function renderPropLeaderboardError(){
 function renderLeaderboardError(){
   document.getElementById("lb-body").innerHTML = '<tr><td colspan="4" class="empty-note">Classement indisponible pour le moment.</td></tr>';
 }
+// Small "who is this" badges shown next to a username anywhere a trader is
+// publicly identified (classements, profile modal, chat) — `d` is a trader
+// doc's data(). Purely informational, reads directly off isAdmin/edbPlus.
+function traderBadgesHtml(d){
+  if (!d) return "";
+  let out = "";
+  if (d.isAdmin) out += ' <span class="user-badge admin-badge" title="Membre du bureau EDB">🛡️ Admin</span>';
+  if (d.edbPlus) out += ' <span class="user-badge edbplus-badge" title="Membre EDB+">💎 EDB+</span>';
+  return out;
+}
+// Best-effort admin/EDB+ lookup by trader id for places that only have an id
+// (global chat messages store authorId, not a live status snapshot) — reuses
+// whichever leaderboard caches happen to already be populated (they're kept
+// live for the whole session once logged in, see subscribeLeaderboard() and
+// friends). Falls back to null (badge simply omitted) if that trader isn't
+// in any cached ranking yet.
+function traderStatusFromCaches(id){
+  const doc = (typeof leaderboardDocsCache!=="undefined" && leaderboardDocsCache[id]) ||
+              (typeof propLeaderboardDocsCache!=="undefined" && propLeaderboardDocsCache[id]) || null;
+  return doc ? doc.data() : null;
+}
 // Read-only public profile — photo + username + shared screenshot feed —
 // for any trader in the cached equity leaderboard. Posting to your OWN feed
 // happens from the Profil tab (initFeedPosting), not from here.
@@ -4638,7 +4921,7 @@ function openTraderProfileModal(id){
   openModal(
     '<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">'+
       avatarHtml(d.photoURL, d.username, 56)+
-      '<div><h3 style="margin:0;">'+escapeHtml(d.username||"Trader")+'</h3>'+
+      '<div><h3 style="margin:0;">'+escapeHtml(d.username||"Trader")+traderBadgesHtml(d)+'</h3>'+
       '<div class="chart-note">Équité '+fmtMoney(d.equity||0)+'</div></div>'+
     '</div>'+
     '<h4 style="margin:0 0 10px;font-size:13px;color:var(--text-dim);">Feed</h4>'+
@@ -4676,7 +4959,7 @@ function closeLightbox(){
 }
 function initLightbox(){
   document.addEventListener("click", (e)=>{
-    const img = e.target.closest(".feed-item img, .avatar-img, .chat-bubble-img");
+    const img = e.target.closest(".feed-item img, .avatar-img, .chat-bubble-img, .edbtrade-img");
     if (img){ openLightbox(img.src); return; }
     if (e.target.id==="lightbox-overlay") closeLightbox();
   });
@@ -5636,6 +5919,109 @@ function teardownGlobalChat(){
   globalChatUnsub = null;
   globalChatEditingId = null;
 }
+
+/* ============================= TRADES EDB+ (dedicated page) ============================= */
+// One collection, "edbTrades" — a doc per trade the bureau shares with EDB+
+// members. Only an admin can write (see SERVER_SETUP.md for the rule);
+// members just get a live read-only feed, same subscribe/teardown-on-leave
+// pattern as the global chat above. `kind:"swing"` marks the current
+// featured weekly swing trade — the most recent one is pinned at the top of
+// the page; older ones (swing or not) stay visible in the regular feed below.
+let tradesEdbUnsub = null;
+let tradesEdbDocsCache = [];
+function edbTradeAssetMeta(symbol){
+  return (typeof ASSETS!=="undefined" && ASSETS.find(a=>a.symbol===symbol)) || {decimals:2, icon:"📈"};
+}
+function edbTradePnlPct(d){
+  if (d.status!=="closed" || typeof d.exitPrice!=="number" || typeof d.entryPrice!=="number" || !d.entryPrice) return null;
+  const raw = d.side==="short" ? (d.entryPrice-d.exitPrice)/d.entryPrice : (d.exitPrice-d.entryPrice)/d.entryPrice;
+  return raw*100;
+}
+function edbTradeCardHtml(doc){
+  const d = doc.data();
+  const a = edbTradeAssetMeta(d.symbol);
+  const pnlPct = edbTradePnlPct(d);
+  const isSwing = d.kind==="swing";
+  return '<div class="edbtrade-card'+(isSwing?" swing":"")+'">'+
+    '<div class="edbtrade-head">'+
+      '<div>'+
+        (isSwing ? '<span class="quiz-cat gold-badge" style="margin-right:8px;">🌊 Swing hebdo</span>' : '')+
+        '<span class="edbtrade-sym">'+a.icon+' '+escapeHtml(d.symbol)+'</span> '+
+        '<span class="pos-badge '+(d.side==="short"?"short":"long")+'">'+(d.side==="short"?"Short":"Long")+'</span>'+
+      '</div>'+
+      (pnlPct!==null ? '<span class="edbtrade-pnl '+(pnlPct>=0?"up":"down")+'">'+fmtPct(pnlPct)+'</span>'
+        : '<span class="chart-note" style="display:inline;">'+(d.status==="closed"?"Clôturé":"En cours")+'</span>')+
+    '</div>'+
+    '<div class="edbtrade-meta">'+
+      'Entrée '+fmtPrice(d.entryPrice, a.decimals)+
+      (typeof d.exitPrice==="number" ? ' · Sortie '+fmtPrice(d.exitPrice, a.decimals) : '')+
+      (typeof d.stopLoss==="number" ? ' · SL '+fmtPrice(d.stopLoss, a.decimals) : '')+
+      (typeof d.takeProfit==="number" ? ' · TP '+fmtPrice(d.takeProfit, a.decimals) : '')+
+    '</div>'+
+    (d.comment ? '<div class="edbtrade-comment">'+escapeHtml(d.comment)+'</div>' : '')+
+    (d.imageUrl ? '<img class="edbtrade-img" src="'+escapeHtml(d.imageUrl)+'" alt="Capture du trade">' : '')+
+    '<div class="chart-note" style="margin-top:8px;">'+escapeHtml(d.postedBy||"Bureau EDB")+' · '+fmtWhen(d.createdAt)+'</div>'+
+  '</div>';
+}
+function renderTradesEdbFeed(){
+  const swingWrap = document.getElementById("tradesedb-swing-wrap");
+  const feedWrap = document.getElementById("tradesedb-feed-wrap");
+  if (!feedWrap) return;
+  const swingDoc = tradesEdbDocsCache.find(doc=>doc.data().kind==="swing") || null;
+  if (swingWrap){
+    swingWrap.innerHTML = swingDoc
+      ? '<div class="chart-note" style="margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em;font-size:10px;">Trade swing de la semaine</div>'+edbTradeCardHtml(swingDoc)
+      : '';
+  }
+  const rest = tradesEdbDocsCache.filter(doc=>!swingDoc || doc.id!==swingDoc.id);
+  if (rest.length===0 && !swingDoc){
+    feedWrap.innerHTML = '<div class="empty-note">Aucun trade partagé pour le moment.</div>';
+    return;
+  }
+  feedWrap.innerHTML =
+    '<div class="chart-note" style="margin:14px 0 8px;text-transform:uppercase;letter-spacing:0.06em;font-size:10px;">Trades du bureau</div>'+
+    (rest.length ? rest.map(doc=>edbTradeCardHtml(doc)).join("") : '<div class="empty-note">Aucun autre trade partagé pour le moment.</div>');
+}
+function subscribeTradesEdb(){
+  if (tradesEdbUnsub) return; // already listening
+  const feedWrap = document.getElementById("tradesedb-feed-wrap");
+  if (!dbReady || !db){
+    if (feedWrap) feedWrap.innerHTML = '<div class="empty-note">Trades indisponibles pour le moment.</div>';
+    return;
+  }
+  try{
+    tradesEdbUnsub = db.collection("edbTrades").orderBy("createdAt","desc").limit(50).onSnapshot(
+      (snap)=>{ tradesEdbDocsCache = snap.docs; renderTradesEdbFeed(); },
+      (err)=>{ console.warn("edbTrades subscribe failed", err); if (feedWrap) feedWrap.innerHTML = '<div class="empty-note">Trades indisponibles — vérifie que la règle Firestore edbTrades est bien déployée (SERVER_SETUP.md).</div>'; }
+    );
+  }catch(e){}
+}
+function teardownTradesEdb(){
+  if (typeof tradesEdbUnsub === "function") tradesEdbUnsub();
+  tradesEdbUnsub = null;
+}
+// Called from switchView("tradesedb") — paywall for a non-member (same
+// pattern as News/Quiz/Connaissances/Challenge), otherwise builds the page
+// shell and starts the live feed subscription above.
+function renderTradesEdbPage(){
+  const el = document.getElementById("tradesedb-card");
+  if (!el) return;
+  if (!isEdbPlus()){
+    teardownTradesEdb();
+    el.innerHTML = edbPlusPaywallHtml("tradesedb");
+    wireEdbPlusCta("tradesedb");
+    return;
+  }
+  el.innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">'+
+      '<h3 style="margin:0;">Trades EDB+</h3>'+
+    '</div>'+
+    '<div class="chart-note" style="margin-bottom:14px;">Les trades partagés ici sont ceux du bureau EDB, à titre pédagogique — ce ne sont pas des conseils en investissement. Le trade swing hebdomadaire est mis à jour chaque semaine par le bureau.</div>'+
+    '<div id="tradesedb-swing-wrap"></div>'+
+    '<div id="tradesedb-feed-wrap"><div class="empty-note">Chargement…</div></div>';
+  subscribeTradesEdb();
+}
+
 function renderMiniPnlCardHtml(card){
   const pnlClass = card.pnl>=0?"up":"down";
   const dt = card.closedAt ? new Date(card.closedAt) : null;
@@ -5661,10 +6047,15 @@ function renderGlobalChatMessages(){
     const d = doc.data();
     const mine = d.authorId===clientId;
     const canDelete = mine || state.isAdmin;
+    // "mine" reads the live, always-accurate state.isAdmin/edbPlus; anyone
+    // else falls back to a best-effort lookup in the leaderboard caches (see
+    // traderStatusFromCaches) — the message doc itself doesn't store a status
+    // snapshot, so this can miss a trader who isn't in any cached ranking yet.
+    const authorBadges = traderBadgesHtml(mine ? state : traderStatusFromCaches(d.authorId));
     const t = d.createdAt ? new Date(d.createdAt).toLocaleString('fr-FR',{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}) : "";
     if (globalChatEditingId===doc.id){
       return '<div class="chat-bubble '+(mine?"mine":"theirs")+' chat-edit-box">'+
-        '<div class="chat-bubble-meta"><span class="chat-bubble-author">'+escapeHtml(d.authorName||"Trader")+'</span> · '+t+'</div>'+
+        '<div class="chat-bubble-meta"><span class="chat-bubble-author">'+escapeHtml(d.authorName||"Trader")+authorBadges+'</span> · '+t+'</div>'+
         '<textarea rows="2" maxlength="500" id="chat-edit-input-'+doc.id+'">'+escapeHtml(d.text||"")+'</textarea>'+
         '<div class="chat-edit-actions"><button class="btn-secondary" data-chat-cancel-edit="1" style="padding:4px 10px;font-size:11px;">Annuler</button><button class="btn-primary" data-chat-save-edit="'+doc.id+'" style="padding:4px 10px;font-size:11px;">Enregistrer</button></div>'+
       '</div>';
@@ -5682,7 +6073,7 @@ function renderGlobalChatMessages(){
     if (mine) actions.push('<button data-chat-edit="'+doc.id+'">Modifier</button>');
     if (canDelete) actions.push('<button data-chat-delete="'+doc.id+'">Supprimer</button>');
     return '<div class="chat-bubble '+(mine?"mine":"theirs")+'">'+
-      '<div class="chat-bubble-meta"><span class="chat-bubble-author">'+escapeHtml(d.authorName||"Trader")+'</span> · '+t+(d.editedAt?' · <span class="chat-bubble-edited">modifié</span>':'')+'</div>'+
+      '<div class="chat-bubble-meta"><span class="chat-bubble-author">'+escapeHtml(d.authorName||"Trader")+authorBadges+'</span> · '+t+(d.editedAt?' · <span class="chat-bubble-edited">modifié</span>':'')+'</div>'+
       body+
       (actions.length ? '<div class="chat-bubble-actions">'+actions.join("")+'</div>' : "")+
     '</div>';
@@ -7746,7 +8137,7 @@ function renderQuizLeaderboard(docs){
     }).join("");
     return '<tr class="'+(doc.id===clientId?"me":"")+'">'+
       '<td class="num '+rankClass+'">#'+rank+'</td>'+
-      '<td>'+escapeHtml(d.username||"Trader")+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
+      '<td>'+escapeHtml(d.username||"Trader")+traderBadgesHtml(d)+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
       '<td class="num">'+fmtMoney(d.quizTotal||0)+'</td>'+
       deckCells+
     '</tr>';
@@ -7922,6 +8313,11 @@ function switchView(name){
   } else {
     teardownGlobalChat();
   }
+  if (name==="tradesedb"){
+    renderTradesEdbPage();
+  } else {
+    teardownTradesEdb();
+  }
   if (name==="quiz"){
     const seg = document.getElementById("quiz-toplevel-seg");
     if (!isEdbPlus()){
@@ -7963,6 +8359,7 @@ function switchView(name){
     renderPnlCalendar();
     renderEdbPlusTeaser();
     renderChallengeTeaser();
+    if (typeof updateAdminCodeLockUI==="function") updateAdminCodeLockUI();
   }
   if (name==="edbplus"){
     renderEdbPlusProfileCard();
@@ -8219,9 +8616,11 @@ function initTheme(){
 const WIDGET_DEFS = [
   {id:"sessions",    label:"Sessions de marché"},
   {id:"watchlist",   label:"Marchés"},
+  {id:"econcal",     label:"Calendrier économique", edbPlusOnly:true},
   {id:"chart",       label:"Graphique"},
-  {id:"dom",         label:"Carnet d'ordres"},
+  {id:"dom",         label:"Carnet d'ordres",       edbPlusOnly:true},
   {id:"ticket",      label:"Ticket d'ordre"},
+  {id:"poscalc",     label:"Calculateur de taille", edbPlusOnly:true},
   {id:"account",     label:"Compte"},
   {id:"positions",   label:"Positions ouvertes"},
   {id:"pending",     label:"Ordres en attente"},
@@ -8231,10 +8630,13 @@ const WIDGET_DEFS = [
 const WIDGET_LAYOUT_KEY = "paperTapeWidgetLayout";
 function defaultWidgetLayout(){
   return {
-    // "dom" (Carnet d'ordres) ships hidden by default — it's opt-in only,
-    // available from the widget panel (🧩), not part of the default view.
-    cols: [["sessions","watchlist"], ["chart","ticket"], ["account","positions","pending","history","performance"]],
-    hidden: ["dom"],
+    // "dom" (Carnet d'ordres), "econcal" (Calendrier économique) and
+    // "poscalc" (Calculateur de taille) all ship hidden by default — each is
+    // opt-in only, available from the widget panel (🧩), and each is also an
+    // EDB+ perk (see the edbPlusOnly flags above + enforceWidgetAccess()
+    // below) — a non-member can't turn them on even from the panel.
+    cols: [["sessions","watchlist","econcal"], ["chart","ticket","poscalc"], ["account","positions","pending","history","performance"]],
+    hidden: ["dom","econcal","poscalc"],
   };
 }
 function loadWidgetLayout(){
@@ -8253,6 +8655,12 @@ function saveWidgetLayout(layout){
   try{ localStorage.setItem(WIDGET_LAYOUT_KEY, JSON.stringify(layout)); }catch(e){}
 }
 function widgetEl(id){ return document.querySelector('.widget[data-widget="'+id+'"]'); }
+// Some widgets (see edbPlusOnly in WIDGET_DEFS) are an EDB+ perk on top of
+// being hidden-by-default — force them hidden regardless of what the saved
+// layout says whenever the current trader isn't a member. This mirrors
+// paintTheme()'s "display-only lock" approach: it never touches localStorage,
+// so the trader's real show/hide choice comes right back the moment they're
+// upgraded (see currentLayoutFromDom() below for the other half of that).
 function applyWidgetLayout(layout){
   const cols = document.querySelectorAll(".widget-col");
   layout.cols.forEach((ids, i)=>{
@@ -8260,14 +8668,37 @@ function applyWidgetLayout(layout){
     if (!col) return;
     ids.forEach(id=>{ const el = widgetEl(id); if (el) col.appendChild(el); });
   });
-  WIDGET_DEFS.forEach(w=>{ const el = widgetEl(w.id); if (el) el.hidden = layout.hidden.indexOf(w.id)!==-1; });
+  const locked = !isEdbPlus();
+  WIDGET_DEFS.forEach(w=>{
+    const el = widgetEl(w.id);
+    if (!el) return;
+    el.hidden = (w.edbPlusOnly && locked) ? true : layout.hidden.indexOf(w.id)!==-1;
+  });
   renderWidgetPanel();
 }
 function currentLayoutFromDom(){
   const cols = Array.from(document.querySelectorAll(".widget-col"));
   const layoutCols = cols.map(col => Array.from(col.querySelectorAll(".widget")).map(el=>el.dataset.widget));
-  const hidden = WIDGET_DEFS.filter(w=>{ const el = widgetEl(w.id); return el && el.hidden; }).map(w=>w.id);
+  // While an edbPlusOnly widget is forced hidden by the lock above, its live
+  // DOM state isn't the trader's real preference — fall back to whatever was
+  // last actually saved for it, so a drag/hide elsewhere while locked can't
+  // silently overwrite a real "shown" choice made back when they were EDB+.
+  const locked = !isEdbPlus();
+  const prevHidden = locked ? loadWidgetLayout().hidden : null;
+  const hidden = WIDGET_DEFS.filter(w=>{
+    if (w.edbPlusOnly && locked) return prevHidden.indexOf(w.id)!==-1;
+    const el = widgetEl(w.id);
+    return el && el.hidden;
+  }).map(w=>w.id);
   return {cols: layoutCols, hidden};
+}
+// Re-checks the EDB+ lock on gated widgets — called once at boot (before
+// Firestore hydrates, state.edbPlus is false so everything gated stays
+// hidden, same as the theme defaulting to Ember) and again every time
+// hydrateStateFromDoc() runs, once the real status is known.
+function enforceWidgetAccess(){
+  if (typeof loadWidgetLayout!=="function") return;
+  applyWidgetLayout(loadWidgetLayout());
 }
 function persistCurrentLayout(){
   saveWidgetLayout(currentLayoutFromDom());
@@ -8285,11 +8716,24 @@ function getDragAfterElement(col, y){
 function renderWidgetPanel(){
   const list = document.getElementById("widget-panel-list");
   if (!list) return;
+  const locked = !isEdbPlus();
   list.innerHTML = WIDGET_DEFS.map(w=>{
+    if (w.edbPlusOnly && locked){
+      return '<label class="widget-panel-row widget-panel-row-locked" data-widget-locked-row="'+w.id+'" title="Réservé aux membres EDB+"><input type="checkbox" disabled> 🔒 '+w.label+'</label>';
+    }
     const el = widgetEl(w.id);
     const shown = !(el && el.hidden);
-    return '<label class="widget-panel-row"><input type="checkbox" data-widget-toggle="'+w.id+'" '+(shown?"checked":"")+'> '+w.label+'</label>';
+    const badge = w.edbPlusOnly ? ' <span class="quiz-cat gold-badge" style="margin-left:2px;font-size:8px;padding:1px 5px;">EDB+</span>' : '';
+    return '<label class="widget-panel-row"><input type="checkbox" data-widget-toggle="'+w.id+'" '+(shown?"checked":"")+'> '+w.label+badge+'</label>';
   }).join("");
+  list.querySelectorAll("[data-widget-locked-row]").forEach(row=>{
+    row.addEventListener("click", (e)=>{
+      e.preventDefault();
+      const panel = document.getElementById("widget-panel");
+      if (panel) panel.hidden = true;
+      goToEdbPlus();
+    });
+  });
 }
 function initWidgets(){
   applyWidgetLayout(loadWidgetLayout());
@@ -8400,12 +8844,87 @@ function updateAdminNavVisibility(){
   if (form) form.hidden = !!state.isAdmin;
   if (active) active.hidden = !state.isAdmin;
 }
+// Brute-force cooldown on the ADMIN321 code: 3 wrong tries in a row locks
+// the form for 24h. Same "UI convenience, not real security" caveat as the
+// code itself (see the comment above) — this is a per-browser localStorage
+// counter, not a server-enforced rule, so it stops someone idly guessing in
+// the UI, not someone motivated enough to clear their storage. Mirrors the
+// theme/widget-layout localStorage pattern used elsewhere in the app.
+const ADMIN_CODE_LOCK_KEY = "paperTapeAdminCodeLock";
+const ADMIN_CODE_MAX_ATTEMPTS = 3;
+const ADMIN_CODE_LOCK_MS = 24*60*60*1000;
+function loadAdminCodeLockState(){
+  try{
+    const raw = localStorage.getItem(ADMIN_CODE_LOCK_KEY);
+    if (!raw) return {attempts:0, lockedUntil:null};
+    const parsed = JSON.parse(raw);
+    return {
+      attempts: typeof parsed.attempts==="number" ? parsed.attempts : 0,
+      lockedUntil: typeof parsed.lockedUntil==="number" ? parsed.lockedUntil : null,
+    };
+  }catch(e){ return {attempts:0, lockedUntil:null}; }
+}
+function saveAdminCodeLockState(s){
+  try{ localStorage.setItem(ADMIN_CODE_LOCK_KEY, JSON.stringify(s)); }catch(e){}
+}
+function adminCodeLockRemainingMs(){
+  const s = loadAdminCodeLockState();
+  if (!s.lockedUntil) return 0;
+  const remaining = s.lockedUntil - Date.now();
+  return remaining>0 ? remaining : 0;
+}
+function fmtLockDuration(ms){
+  const totalMin = Math.max(1, Math.ceil(ms/60000));
+  const h = Math.floor(totalMin/60);
+  const m = totalMin%60;
+  if (h>0) return h+"h"+(m>0?" "+m+"min":"");
+  return m+"min";
+}
+// Reflects the current lock state on the admin-code form — called on init
+// and every time Profil is (re)rendered, so a stale "réessaie dans Xh"
+// message doesn't linger past its expiry the next time the trader looks.
+function updateAdminCodeLockUI(){
+  const input = document.getElementById("admin-code-input");
+  const btn = document.getElementById("admin-code-btn");
+  const msg = document.getElementById("admin-code-msg");
+  if (!input || !btn) return;
+  const remaining = adminCodeLockRemainingMs();
+  const locked = remaining>0;
+  input.disabled = locked;
+  btn.disabled = locked;
+  if (msg && locked){
+    msg.style.color = "var(--warn)";
+    msg.textContent = "Trop d'essais incorrects — réessaie dans "+fmtLockDuration(remaining)+".";
+  } else if (msg && msg.dataset.lockMsg){
+    // the lock just lifted — clear the message we ourselves put there, but
+    // leave anything else (e.g. "Mode admin activé.") untouched
+    msg.textContent = "";
+    delete msg.dataset.lockMsg;
+  }
+}
 async function unlockAdmin(code){
   const msg = document.getElementById("admin-code-msg");
-  if (code!=="ADMIN321"){
-    if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Code invalide."; }
+  const remaining = adminCodeLockRemainingMs();
+  if (remaining>0){
+    if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Trop d'essais incorrects — réessaie dans "+fmtLockDuration(remaining)+"."; msg.dataset.lockMsg = "1"; }
+    updateAdminCodeLockUI();
     return;
   }
+  if (code!=="ADMIN321"){
+    const s = loadAdminCodeLockState();
+    s.attempts = (s.attempts||0) + 1;
+    if (s.attempts>=ADMIN_CODE_MAX_ATTEMPTS){
+      saveAdminCodeLockState({attempts:0, lockedUntil: Date.now()+ADMIN_CODE_LOCK_MS});
+      if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Trop d'essais incorrects — réessaie dans "+fmtLockDuration(ADMIN_CODE_LOCK_MS)+"."; msg.dataset.lockMsg = "1"; }
+      updateAdminCodeLockUI();
+    } else {
+      saveAdminCodeLockState(s);
+      const left = ADMIN_CODE_MAX_ATTEMPTS - s.attempts;
+      if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Code invalide ("+left+" essai"+(left>1?"s":"")+" restant"+(left>1?"s":"")+" avant blocage 24h)."; }
+    }
+    return;
+  }
+  saveAdminCodeLockState({attempts:0, lockedUntil:null}); // correct code: clear any partial attempt count
   if (!dbReady || !clientId){
     if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Connecte-toi d'abord."; }
     return;
@@ -8810,6 +9329,161 @@ async function adminDeleteFeedback(id){
     alert("Échec de la suppression.");
   }
 }
+
+/* ============================= ADMIN — TRADES EDB+ ============================= */
+let adminTradesDocs = [];
+let adminTradeSide = "long";
+let adminTradeKind = "bde";
+let adminTradeSelectedImage = null;
+function adminFindTradeDoc(id){ return adminTradesDocs.find(d=>d.id===id) || null; }
+function clearAdminTradeImage(){
+  adminTradeSelectedImage = null;
+  const input = document.getElementById("admin-trade-image-input");
+  if (input) input.value = "";
+  const preview = document.getElementById("admin-trade-image-preview");
+  if (preview){ preview.hidden = true; preview.innerHTML = ""; }
+}
+async function loadAdminTrades(){
+  const status = document.getElementById("admin-trades-status");
+  const body = document.getElementById("admin-trades-body");
+  if (!dbReady || !db){ if (status) status.textContent = "Base de données indisponible."; return; }
+  if (status) status.textContent = "Chargement…";
+  try{
+    const snap = await db.collection("edbTrades").orderBy("createdAt","desc").limit(100).get();
+    adminTradesDocs = snap.docs;
+    if (status) status.textContent = adminTradesDocs.length+(adminTradesDocs.length>1?" trades":" trade")+" — dernière actualisation "+new Date().toLocaleTimeString("fr-FR");
+    renderAdminTrades();
+  }catch(e){
+    console.warn("admin trades load failed", e);
+    if (status) status.textContent = "Erreur de chargement — vérifie que la règle Firestore edbTrades est bien déployée (SERVER_SETUP.md).";
+    if (body) body.innerHTML = '<tr><td colspan="8" class="empty-note">Impossible de charger les trades.</td></tr>';
+  }
+}
+function renderAdminTrades(){
+  const body = document.getElementById("admin-trades-body");
+  if (!body) return;
+  if (adminTradesDocs.length===0){ body.innerHTML = '<tr><td colspan="8" class="empty-note">Aucun trade publié.</td></tr>'; return; }
+  body.innerHTML = adminTradesDocs.map(doc=>{
+    const d = doc.data();
+    const a = edbTradeAssetMeta(d.symbol);
+    const pnlPct = edbTradePnlPct(d);
+    return '<tr>'+
+      '<td>'+a.icon+' '+escapeHtml(d.symbol)+'</td>'+
+      '<td><span class="pos-badge '+(d.side==="short"?"short":"long")+'">'+(d.side==="short"?"Short":"Long")+'</span></td>'+
+      '<td>'+fmtPrice(d.entryPrice, a.decimals)+'</td>'+
+      '<td>'+(typeof d.exitPrice==="number" ? fmtPrice(d.exitPrice, a.decimals)+(pnlPct!==null?' ('+fmtPct(pnlPct)+')':'') : '—')+'</td>'+
+      '<td>'+(d.status==="closed"?"Clôturé":"En cours")+'</td>'+
+      '<td>'+(d.kind==="swing"?"🌊 Swing":"Trade BDE")+'</td>'+
+      '<td>'+fmtWhen(d.createdAt)+'</td>'+
+      '<td style="display:flex;gap:6px;flex-wrap:wrap;">'+
+        (d.status!=="closed" ? '<button class="pos-close" data-admin-trade-close="'+doc.id+'">Clôturer</button>' : '')+
+        '<button class="pos-close" data-admin-trade-delete="'+doc.id+'" style="color:var(--short);">Supprimer</button>'+
+      '</td>'+
+    '</tr>';
+  }).join("");
+}
+async function adminPublishTrade(){
+  const symbolSel = document.getElementById("admin-trade-symbol");
+  const entryInput = document.getElementById("admin-trade-entry");
+  const slInput = document.getElementById("admin-trade-sl");
+  const tpInput = document.getElementById("admin-trade-tp");
+  const commentInput = document.getElementById("admin-trade-comment");
+  const msg = document.getElementById("admin-trade-publish-msg");
+  const btn = document.getElementById("admin-trade-publish");
+  if (!symbolSel || !entryInput) return;
+  const entry = parseFloat(entryInput.value);
+  if (!isFinite(entry) || entry<=0){
+    if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Renseigne un prix d'entrée valide."; }
+    return;
+  }
+  const sl = parseFloat(slInput.value);
+  const tp = parseFloat(tpInput.value);
+  if (!dbReady || !db){
+    if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Base de données indisponible."; }
+    return;
+  }
+  if (btn) btn.disabled = true;
+  try{
+    const id = uid();
+    const payload = {
+      symbol: symbolSel.value,
+      side: adminTradeSide,
+      kind: adminTradeKind,
+      entryPrice: entry,
+      exitPrice: null,
+      stopLoss: isFinite(sl) ? sl : null,
+      takeProfit: isFinite(tp) ? tp : null,
+      status: "open",
+      comment: (commentInput ? commentInput.value.trim() : "").slice(0,500),
+      postedBy: state.username,
+      createdAt: new Date().toISOString(),
+      closedAt: null,
+    };
+    if (adminTradeSelectedImage){
+      if (!storage){ if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Stockage indisponible pour le moment — réessaie plus tard."; } if (btn) btn.disabled = false; return; }
+      const imagePath = "edbtrades/"+id;
+      const imageUrl = await uploadToStorage(adminTradeSelectedImage, imagePath);
+      payload.imageUrl = imageUrl; payload.imagePath = imagePath;
+    }
+    await db.collection("edbTrades").doc(id).set(payload);
+    if (msg){ msg.style.color = "var(--long)"; msg.textContent = "Trade publié."; }
+    entryInput.value = ""; slInput.value = ""; tpInput.value = ""; if (commentInput) commentInput.value = "";
+    clearAdminTradeImage();
+    loadAdminTrades();
+  }catch(e){
+    console.warn("admin trade publish failed", e);
+    if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Échec de la publication — vérifie que la règle Firestore edbTrades est bien déployée (SERVER_SETUP.md)."; }
+  }
+  if (btn) btn.disabled = false;
+}
+function adminCloseTrade(id){
+  const doc = adminFindTradeDoc(id);
+  if (!doc) return;
+  const d = doc.data();
+  const a = edbTradeAssetMeta(d.symbol);
+  openModal(
+    '<h3 style="margin-bottom:14px;">Clôturer le trade — '+a.icon+' '+escapeHtml(d.symbol)+'</h3>'+
+    '<div class="chart-note" style="margin-bottom:12px;">Entrée : <strong>'+fmtPrice(d.entryPrice, a.decimals)+'</strong> ('+(d.side==="short"?"Short":"Long")+')</div>'+
+    '<div class="field-row"><label>Prix de sortie</label><input type="number" step="any" id="admin-trade-exit-input" class="tpsl-input" placeholder="Prix de sortie"></div>'+
+    '<div class="chart-note" id="admin-trade-exit-msg" style="margin:8px 0;min-height:14px;"></div>'+
+    '<button class="btn-primary" id="admin-trade-exit-confirm" style="width:100%;margin-top:6px;">Clôturer</button>'
+  );
+  const input = document.getElementById("admin-trade-exit-input");
+  const msg = document.getElementById("admin-trade-exit-msg");
+  const confirmBtn = document.getElementById("admin-trade-exit-confirm");
+  async function submit(){
+    const exit = parseFloat(input.value);
+    if (!isFinite(exit) || exit<=0){ msg.style.color="var(--warn)"; msg.textContent="Prix invalide."; return; }
+    confirmBtn.disabled = true;
+    try{
+      await db.collection("edbTrades").doc(id).update({
+        exitPrice: exit, status: "closed", closedAt: new Date().toISOString(),
+      });
+      closeModal();
+      loadAdminTrades();
+    }catch(e){
+      console.warn("admin trade close failed", e);
+      msg.style.color="var(--warn)"; msg.textContent="Échec de la clôture.";
+      confirmBtn.disabled = false;
+    }
+  }
+  if (confirmBtn) confirmBtn.addEventListener("click", submit);
+  if (input) input.addEventListener("keydown", (e)=>{ if (e.key==="Enter") submit(); });
+}
+async function adminDeleteTrade(id){
+  if (!confirm("Supprimer ce trade ? Irréversible.")) return;
+  try{
+    const doc = adminFindTradeDoc(id);
+    const imagePath = doc && doc.data().imagePath;
+    await db.collection("edbTrades").doc(id).delete();
+    if (imagePath && storage){ try{ await storage.ref().child(imagePath).delete(); }catch(e2){} }
+    adminTradesDocs = adminTradesDocs.filter(d=>d.id!==id);
+    renderAdminTrades();
+  }catch(e){
+    console.warn("admin trade delete failed", e);
+    alert("Échec de la suppression.");
+  }
+}
 function initAdminUI(){
   updateAdminNavVisibility();
   const codeBtn = document.getElementById("admin-code-btn");
@@ -8818,6 +9492,7 @@ function initAdminUI(){
     codeBtn.addEventListener("click", ()=>unlockAdmin(codeInput.value.trim()));
     codeInput.addEventListener("keydown", (e)=>{ if (e.key==="Enter") codeBtn.click(); });
   }
+  updateAdminCodeLockUI(); // reflect an already-running 24h lock immediately, e.g. after a page reload
   const refreshBtn = document.getElementById("admin-refresh");
   if (refreshBtn) refreshBtn.addEventListener("click", loadAdminTraders);
   const body = document.getElementById("admin-body");
@@ -8851,11 +9526,63 @@ function initAdminUI(){
       if (t && t.dataset && t.dataset.adminFbDelete) adminDeleteFeedback(t.dataset.adminFbDelete);
     });
   }
+  const tradeSymbolSel = document.getElementById("admin-trade-symbol");
+  if (tradeSymbolSel && typeof visibleAssets==="function"){
+    tradeSymbolSel.innerHTML = visibleAssets().map(a=>'<option value="'+a.symbol+'">'+a.icon+' '+a.symbol+' — '+escapeHtml(a.name)+'</option>').join("");
+  }
+  const tradeSideLongBtn = document.getElementById("admin-trade-side-long");
+  const tradeSideShortBtn = document.getElementById("admin-trade-side-short");
+  function setAdminTradeSideUI(){
+    if (tradeSideLongBtn) tradeSideLongBtn.classList.toggle("active", adminTradeSide==="long");
+    if (tradeSideShortBtn) tradeSideShortBtn.classList.toggle("active", adminTradeSide==="short");
+  }
+  if (tradeSideLongBtn) tradeSideLongBtn.addEventListener("click", ()=>{ adminTradeSide="long"; setAdminTradeSideUI(); });
+  if (tradeSideShortBtn) tradeSideShortBtn.addEventListener("click", ()=>{ adminTradeSide="short"; setAdminTradeSideUI(); });
+  const tradeKindBdeBtn = document.getElementById("admin-trade-kind-bde");
+  const tradeKindSwingBtn = document.getElementById("admin-trade-kind-swing");
+  function setAdminTradeKindUI(){
+    if (tradeKindBdeBtn) tradeKindBdeBtn.classList.toggle("active", adminTradeKind==="bde");
+    if (tradeKindSwingBtn) tradeKindSwingBtn.classList.toggle("active", adminTradeKind==="swing");
+  }
+  if (tradeKindBdeBtn) tradeKindBdeBtn.addEventListener("click", ()=>{ adminTradeKind="bde"; setAdminTradeKindUI(); });
+  if (tradeKindSwingBtn) tradeKindSwingBtn.addEventListener("click", ()=>{ adminTradeKind="swing"; setAdminTradeKindUI(); });
+  const tradeImgBtn = document.getElementById("admin-trade-image-btn");
+  const tradeImgInput = document.getElementById("admin-trade-image-input");
+  if (tradeImgBtn && tradeImgInput) tradeImgBtn.addEventListener("click", ()=>tradeImgInput.click());
+  if (tradeImgInput){
+    tradeImgInput.addEventListener("change", ()=>{
+      const file = tradeImgInput.files && tradeImgInput.files[0];
+      if (!file) return;
+      if (!file.type.startsWith("image/")){ alert("Choisis une image."); clearAdminTradeImage(); return; }
+      if (file.size > 6*1024*1024){ alert("Image trop lourde (max 6 Mo)."); clearAdminTradeImage(); return; }
+      adminTradeSelectedImage = file;
+      const preview = document.getElementById("admin-trade-image-preview");
+      if (preview){
+        preview.hidden = false;
+        preview.innerHTML = '<img src="'+URL.createObjectURL(file)+'" alt=""><span class="chart-note" style="display:inline;">'+escapeHtml(file.name)+'</span><button type="button" id="admin-trade-image-remove">✕</button>';
+        const rmBtn = document.getElementById("admin-trade-image-remove");
+        if (rmBtn) rmBtn.addEventListener("click", clearAdminTradeImage);
+      }
+    });
+  }
+  const tradePublishBtn = document.getElementById("admin-trade-publish");
+  if (tradePublishBtn) tradePublishBtn.addEventListener("click", adminPublishTrade);
+  const tradesRefreshBtn = document.getElementById("admin-trades-refresh");
+  if (tradesRefreshBtn) tradesRefreshBtn.addEventListener("click", loadAdminTrades);
+  const tradesBody = document.getElementById("admin-trades-body");
+  if (tradesBody){
+    tradesBody.addEventListener("click", (e)=>{
+      const t = e.target;
+      if (t && t.dataset && t.dataset.adminTradeClose) adminCloseTrade(t.dataset.adminTradeClose);
+      else if (t && t.dataset && t.dataset.adminTradeDelete) adminDeleteTrade(t.dataset.adminTradeDelete);
+    });
+  }
   document.querySelectorAll('nav.tabs button[data-view="admin"]').forEach(b=>{
     b.addEventListener("click", ()=>{
       if (adminDocs.length===0) loadAdminTraders();
       if (adminEdbPlusChatDocs.length===0) loadAdminEdbPlusChats();
       if (adminFeedbackDocs.length===0) loadAdminFeedback();
+      if (adminTradesDocs.length===0) loadAdminTrades();
     });
   });
 }
@@ -8872,6 +9599,8 @@ async function init(){
   initGateTicker();
   initAdminUI();
   initWidgets();
+  renderEconCalendar();
+  initPositionCalc();
   initSessionTimeTracking();
   initGlobalChat();
   initDom();
