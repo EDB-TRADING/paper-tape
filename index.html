@@ -1044,6 +1044,7 @@
       <button data-view="chat"><span class="tab-emoji">💬</span>Chat</button>
       <button data-view="leaderboard"><span class="tab-emoji">🏆</span>Classement</button>
       <button data-view="contest"><span class="tab-emoji">🎁</span>Concours</button>
+      <button data-view="concoursedbplus"><span class="tab-emoji">💎</span>Concours EDB+</button>
       <button data-view="challenge"><span class="tab-emoji">🏅</span>Challenge</button>
       <button data-view="quiz"><span class="tab-emoji">🧠</span>Quiz</button>
       <button data-view="learn"><span class="tab-emoji">📚</span>Connaissances</button>
@@ -1343,6 +1344,7 @@
             <li>Classement = équité du compte normal, identique à l'onglet Classement.</li>
             <li>Ajouter à une position déjà ouverte (même sens, même actif) ne crée pas une position qualifiée supplémentaire — seule sa clôture finale compte comme UNE position.</li>
             <li><strong>Le hedging est interdit</strong> : pas de Long et de Short ouverts en même temps sur un même actif, ni sur des actifs crypto corrélés entre eux (BTC/ETH/SOL/HYPE) — ça permet de sécuriser artificiellement les 1 000 $ ci-dessus sans vrai risque de marché. Vérifié manuellement par le bureau (panneau Admin) avant de valider le podium ; un compte détecté peut être disqualifié.</li>
+            <li><strong>Une performance régulière, pas 1 à 5 paris démesurés</strong> : si tes 5 plus grosses positions qualifiées représentent 60% ou plus du PnL cumulé de tes 30 trades qualifiés, ton compte est signalé pour vérification manuelle — le concours récompense une régularité sur la durée, pas un ou deux coups de chance (ou de folie) noyés dans des trades de complément. Vérifié dans le panneau Admin avant de valider le podium.</li>
           </ul>
         </div>
       </div>
@@ -1353,6 +1355,42 @@
             <thead><tr><th>Rang</th><th>Trader</th><th>Équité</th><th>Statut</th></tr></thead>
             <tbody id="contest-body"><tr><td colspan="4" class="empty-note">Chargement…</td></tr></tbody>
           </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CONCOURS EDB+ (Challenge Hardcore) =================
+         Visible to every EDB member (tab is never hidden, same pattern as
+         Quiz/Connaissances/Challenge) but the real rules/progress only ever
+         render for EDB+ — non-members get a sales pitch for the reward
+         instead, wired up by renderHardcoreChallenge() below. -->
+    <section class="view" id="view-concoursedbplus">
+      <div class="card" id="concoursedbplus-locked" hidden>
+        <div class="quiz-intro edbplus-paywall" style="text-align:center;">
+          <div class="deck-big-icon" style="background:var(--gold)22;border:1px solid var(--gold)55;">💎</div>
+          <div class="quiz-cat gold-badge">Concours EDB+</div>
+          <h2 style="margin:10px 0 4px;">Challenge 200 000 $ — une vraie Prop Firm 100 000 $ à la clé</h2>
+          <p style="max-width:520px;margin:0 auto 14px;">Réservé aux membres EDB+ : enchaîne les Challenges Prop Firm sur le palier 200 000 $ et décroche un vrai compte prop firm financé, en argent réel, offert par l'association. Les règles complètes (conditions à remplir, nombre de réussites requis) se débloquent avec l'abonnement.</p>
+          <div class="quiz-intro-actions">
+            <button class="btn-primary" id="edbplus-cta-concoursedbplus">Découvrir EDB+</button>
+          </div>
+        </div>
+      </div>
+      <div class="card" id="concoursedbplus-unlocked" hidden>
+        <div class="quiz-cat gold-badge">💎 Concours EDB+ — Challenge Hardcore</div>
+        <h2 style="margin:10px 0 6px;">5x le Challenge 200 000 $ → une vraie Prop Firm 100 000 $</h2>
+        <p class="chart-note" style="max-width:680px;margin-bottom:10px;">Valide le Challenge Prop Firm complet (Étape 1 + Étape 2 → compte financé, voir l'onglet Challenge) sur le palier 200 000 $, cinq fois — les autres paliers et les étapes ratées ne comptent pas. Une fois les 5 réussites cumulées, l'EDB t'offre un vrai challenge prop firm à 100 000 $.</p>
+        <div class="challenge-meter"><span class="challenge-meter-lbl" id="hardcore-progress-lbl">0 / 5 challenges 200k réussis</span><div class="challenge-meter-bar"><div class="challenge-meter-fill up" id="hardcore-progress-fill" style="width:0%;"></div></div></div>
+        <div class="chart-note" id="hardcore-status-note" style="margin-top:8px;"></div>
+        <div class="chart-note" id="hardcore-opens-note" style="margin-top:6px;"></div>
+        <div class="card" style="margin-top:16px;background:var(--bg-raised);">
+          <h3 style="margin-top:0;">Règlement</h3>
+          <ul style="margin:0;padding-left:20px;font-size:12.5px;color:var(--text-dim);line-height:1.7;">
+            <li>Palier <strong>200 000 $</strong> uniquement — les autres tailles de challenge ne comptent pas pour ce concours (elles restent valables pour les badges Prop Firm normaux).</li>
+            <li>Passer les <strong>2 étapes</strong> du Challenge Prop Firm — mêmes règles que le Challenge classique (objectifs +10%/+5%, perte journalière -5%, drawdown -10%, levier max x20).</li>
+            <li>Au moins <strong>5 positions clôturées « qualifiées »</strong> sur ce passage précis (PnL — gain ou perte — d'au moins 1 000 $), même définition que pour le Concours normal. Un passage financé avec moins de 5 trades qualifiés ne compte pas pour les 5 réussites requises ici — les badges Prop Firm restent acquis, mais la progression vers la Prop 100k n'avance pas.</li>
+            <li>Maximum <strong>15 ouvertures</strong> du Challenge 200 000 $ au total, à vie — choisis tes tentatives, ce n'est pas illimité.</li>
+          </ul>
         </div>
       </div>
     </section>
@@ -1504,7 +1542,7 @@
           <h3 style="margin:0;">Trades EDB+ — publier un trade</h3>
           <button class="pos-close" id="admin-trades-refresh">🔄 Actualiser</button>
         </div>
-        <div class="chart-note" style="margin-bottom:10px;">Partagé avec tous les membres EDB+ dans l'onglet "Trades EDB+". Coche "Swing hebdo" pour le mettre en avant en haut de la page — le trade précédent reste visible dans la liste en dessous.</div>
+        <div class="chart-note" style="margin-bottom:10px;">Partagé avec tous les membres EDB+ dans l'onglet "Trades EDB+". "Trade EDB" est publié directement en récap (pas de suivi live, pas de bouton Clôturer) — renseigne un prix de sortie si tu veux en montrer le résultat, sinon laisse vide pour un partage d'idée/analyse. "Swing hebdo" reste suivi en direct (mis en avant en haut de la page, à clôturer toi-même plus tard) — le trade swing précédent reste visible dans la liste en dessous.</div>
         <div style="display:flex;flex-wrap:wrap;gap:14px;">
           <div class="field-row" style="flex:1;min-width:130px;margin-top:0;">
             <label>Actif</label>
@@ -1529,6 +1567,10 @@
           <div class="field-row" style="flex:1;min-width:110px;margin-top:0;">
             <label>Prix d'entrée <span style="text-transform:none;letter-spacing:0;font-weight:400;">(optionnel)</span></label>
             <input type="number" step="any" id="admin-trade-entry" class="tpsl-input" placeholder="Prix d'entrée">
+          </div>
+          <div class="field-row" id="admin-trade-exit-row" style="flex:1;min-width:110px;margin-top:0;">
+            <label>Prix de sortie <span style="text-transform:none;letter-spacing:0;font-weight:400;">(optionnel — résultat du récap)</span></label>
+            <input type="number" step="any" id="admin-trade-exit" class="tpsl-input" placeholder="Prix de sortie">
           </div>
           <div class="field-row" style="flex:1;min-width:110px;margin-top:0;">
             <label>Stop Loss <span style="text-transform:none;letter-spacing:0;font-weight:400;">(optionnel)</span></label>
@@ -1814,8 +1856,9 @@ const EDB_PLUS_FEATURES = {
   theme:     {label:"Le changement de thème",    detail:"personnaliser l'interface (Ember, Sage, Ink, Noir, Gold, Azure)"},
   tradesedb: {label:"Trades EDB+",               detail:"suivre les trades partagés par le bureau et le trade swing hebdomadaire"},
   resources: {label:"Ressources trading",        detail:"accéder à la sélection d'outils externes recommandés par EDB"},
+  concoursedbplus: {label:"Le Concours EDB+ (Challenge Hardcore)", detail:"tenter le Challenge 200 000 $ et gagner une vraie Prop Firm 100 000 $"},
 };
-const EDB_PLUS_FEATURE_ICONS = {quiz:"🧠", learn:"📚", news:"📰", challenge:"🏅", theme:"🎨", tradesedb:"📈", resources:"🔗"};
+const EDB_PLUS_FEATURE_ICONS = {quiz:"🧠", learn:"📚", news:"📰", challenge:"🏅", theme:"🎨", tradesedb:"📈", resources:"🔗", concoursedbplus:"💎"};
 // Reusable "EDB+ requise" card — dropped into a feature's own container in
 // place of its real content. `key` picks the wording from EDB_PLUS_FEATURES
 // above; the CTA button is wired by wireEdbPlusCta(key) right after this
@@ -1846,7 +1889,7 @@ function goToEdbPlus(){
 // this badge is just a heads-up before clicking).
 function updateEdbPlusNavBadges(){
   const locked = !isEdbPlus();
-  [["quiz","🧠"],["learn","📚"],["news","📰"],["challenge","🏅"],["tradesedb","📈"],["resources","🔗"]].forEach(([view,emoji])=>{
+  [["quiz","🧠"],["learn","📚"],["news","📰"],["challenge","🏅"],["tradesedb","📈"],["resources","🔗"],["concoursedbplus","💎"]].forEach(([view,emoji])=>{
     const btn = document.querySelector('nav.tabs button[data-view="'+view+'"]');
     if (!btn) return;
     let badge = btn.querySelector(".nav-lock-badge");
@@ -2484,6 +2527,8 @@ function hydrateStateFromDoc(snap){
   state.weekKey = d.weekKey || null;
   state.streakDays = typeof d.streakDays==="number" ? d.streakDays : 0;
   state.lastActiveDateKey = d.lastActiveDateKey || null;
+  state.hardcore200kPasses = typeof d.hardcore200kPasses==="number" ? d.hardcore200kPasses : 0;
+  state.challenge200kOpens = typeof d.challenge200kOpens==="number" ? d.challenge200kOpens : 0;
   // Now that we actually know this trader's EDB+ status, re-check anything
   // gated by it: the display theme (may need to snap back to Ember, or be
   // restored from the saved preference) and the small lock badges on the
@@ -2598,6 +2643,8 @@ function persistAccount(){
           weeklyPnl: normalEquity - weekStartEquity,
           streakDays: state.streakDays||0,
           lastActiveDateKey: state.lastActiveDateKey || null,
+          hardcore200kPasses: state.hardcore200kPasses||0,
+          challenge200kOpens: state.challenge200kOpens||0,
           positions: normal.positions.slice(0,20),
           pendingOrders: normal.pendingOrders.slice(0,20),
           history: normal.history.slice(0,TRADE_HISTORY_RETAIN),
@@ -4389,8 +4436,24 @@ const CHALLENGE_STEPS = {
 const CHALLENGE_RULES = {
   maxDailyLossPct: 5,   // equity can't drop more than this % below the day's starting equity
   maxDrawdownPct: 10,   // equity can't drop more than this % below the challenge's ORIGINAL balance, for its whole life (incl. once funded)
-  minTradingDays: 4,    // distinct days with >=1 trade opened, required per step before passing it
+  // No minimum-trading-days rule (dropped — see recordChallengeTradingDay():
+  // tradedDates is still tracked, purely informational, nothing gates on it
+  // anymore).
 };
+// Real crypto prop firms cap leverage far below what a free-roam demo
+// account allows (OneFunded/Goat Funded Trader ~x2, Breakout/BrightFunded
+// x5, "For Traders" x20 at the more permissive end — see SERVER_SETUP.md)
+// — nothing like the x200 the normal EDB+ account permits. Enforced in
+// enforceLeverageAccess() below whenever state.activeBookName==="prop",
+// regardless of EDB+ status (Challenge access already requires EDB+, this
+// is a separate, stricter cap specific to staying close to the real thing).
+const CHALLENGE_LEVERAGE_CAP = 20;
+// Concours EDB+ "Challenge Hardcore" anti-abus — starting a challenge is
+// free and instant, so without a lifetime cap a trader could just spam
+// restarts of the 200k tier hoping to get lucky rather than actually
+// trading well. 15 total OPENS of the 200k tier (not 15 successful
+// passes) — see confirmStartChallenge() for where this is enforced.
+const CHALLENGE_200K_MAX_OPENS = 15;
 function todayKey(){ return new Date().toISOString().slice(0,10); } // YYYY-MM-DD (UTC)
 // Creates a brand-new Prop book (replacing any existing one) sized to
 // `tier`, parks whichever book is currently live, and makes the fresh prop
@@ -4398,6 +4461,11 @@ function todayKey(){ return new Date().toISOString().slice(0,10); } // YYYY-MM-D
 // just one switch (or "Gérer" → Abandonner) away the whole time.
 function startChallenge(tier){
   const normalData = bookDataFor("normal") || freshBookObj(START_CASH);
+  // Lifetime counter toward CHALLENGE_200K_MAX_OPENS — confirmStartChallenge()
+  // is the normal gate (checked before the confirm() dialog even opens), this
+  // increment just has to stay in lockstep with every code path that can
+  // reach startChallenge(200000) even if a future caller skips that check.
+  if (tier===200000) state.challenge200kOpens = (state.challenge200kOpens||0) + 1;
   state.challenge = {
     tier, phase:"step1", // "step1" -> "step2" -> "funded" (passed) or "failed" at any point
     startCash: tier,          // fixed for the challenge's whole life — basis for the overall drawdown floor
@@ -4449,7 +4517,7 @@ function updateChallengeStatus(){
   if (c.phase==="step1" || c.phase==="step2"){
     const stepCfg = CHALLENGE_STEPS[c.phase];
     const target = c.stepStartEquity * (1 + stepCfg.profitTargetPct/100);
-    if (eq >= target && c.tradedDates.length >= CHALLENGE_RULES.minTradingDays){
+    if (eq >= target){
       if (c.phase==="step1"){
         c.step1PassedAt = new Date().toISOString();
         awardBadge('prop_step1_passed', {tier:c.tier, value:eq});
@@ -4467,6 +4535,31 @@ function updateChallengeStatus(){
         awardBadge('prop_step2_passed', {tier:c.tier, value:eq});
         awardBadge('prop_funded', {tier:c.tier, value:eq});
         c.phase = "funded";
+        // Concours EDB+ "Challenge Hardcore": a full pass (Étape 1 + Étape 2)
+        // specifically on the 200k tier counts toward the 5-pass reward — but
+        // ONLY if this specific run also has at least HARDCORE_MIN_QUALIFYING_TRADES
+        // closed positions clearing CONTEST_QUALIFY_PNL (same "qualified
+        // trade" definition as the normal Concours) — otherwise a trader
+        // could pass on literally 2 lucky trades (one per step) and call
+        // that a "réussite". startChallenge() always hands the prop book a
+        // FRESH history array (see freshBookObj()), so propBookData().history
+        // here is exactly this run's trades, nothing from a prior attempt.
+        // This counter is separate from `state.challenge` on purpose — that
+        // object gets wholesale-replaced every time startChallenge() runs
+        // (new tier or a restart after failing), so cumulative progress has
+        // to live in its own persisted field or it would be wiped by the
+        // next attempt. A pass that doesn't qualify still keeps its badges
+        // (prop_step1_passed/prop_step2_passed/prop_funded above) — only the
+        // Hardcore counter is gated.
+        if (c.tier === 200000){
+          const runHistory = (propBookData()||{}).history || [];
+          const qualifyingInRun = runHistory.filter(h=>typeof h.pnl==="number" && Math.abs(h.pnl)>=CONTEST_QUALIFY_PNL).length;
+          if (qualifyingInRun >= HARDCORE_MIN_QUALIFYING_TRADES){
+            state.hardcore200kPasses = (state.hardcore200kPasses||0) + 1;
+            if (state.hardcore200kPasses >= HARDCORE_200K_TARGET) awardBadge('hardcore_master', {value: state.hardcore200kPasses});
+          }
+          if (typeof renderHardcoreChallenge==="function") renderHardcoreChallenge();
+        }
       }
       persistAccount();
     }
@@ -4477,7 +4570,37 @@ function challengeStatusLabel(c){
   if (c.phase==="funded") return "Compte financé (simulation)";
   return CHALLENGE_STEPS[c.phase] ? CHALLENGE_STEPS[c.phase].label : "Challenge en cours";
 }
+// Concours EDB+ "Challenge Hardcore" — its own dedicated page (#view-
+// concoursedbplus, see the HTML), but piggybacks on renderChallengeBanner()'s
+// existing call sites (hydrate, renderAll, every challenge update) instead of
+// needing its own set of hooks; cheap no-op when the page isn't in the DOM.
+const HARDCORE_200K_TARGET = 5;
+const HARDCORE_MIN_QUALIFYING_TRADES = 5; // per-run gate, same $1000 "qualified trade" definition as the normal Concours — see updateChallengeStatus()
+const HARDCORE_REWARD_LABEL = "un vrai challenge Prop Firm 100 000 $ offert par l'EDB";
+function renderHardcoreChallenge(){
+  const locked = document.getElementById("concoursedbplus-locked");
+  const unlocked = document.getElementById("concoursedbplus-unlocked");
+  if (!locked || !unlocked) return; // page not in the DOM yet
+  if (!isEdbPlus()){ locked.hidden = false; unlocked.hidden = true; return; }
+  locked.hidden = true; unlocked.hidden = false;
+  const n = Math.min(state.hardcore200kPasses||0, HARDCORE_200K_TARGET);
+  const lbl = document.getElementById("hardcore-progress-lbl");
+  const fill = document.getElementById("hardcore-progress-fill");
+  const note = document.getElementById("hardcore-status-note");
+  const opensNote = document.getElementById("hardcore-opens-note");
+  if (lbl) lbl.textContent = n+" / "+HARDCORE_200K_TARGET+" challenges 200k réussis";
+  if (fill) fill.style.width = ((n/HARDCORE_200K_TARGET)*100).toFixed(1)+"%";
+  if (note) note.textContent = n>=HARDCORE_200K_TARGET
+    ? "🏆 Objectif atteint — contacte le bureau pour récupérer "+HARDCORE_REWARD_LABEL+"."
+    : "Valide "+(HARDCORE_200K_TARGET-n)+" challenge(s) 200 000 $ de plus (Étape 1 + Étape 2, au moins "+HARDCORE_MIN_QUALIFYING_TRADES+" trades qualifiés, palier 200k uniquement) pour décrocher "+HARDCORE_REWARD_LABEL+".";
+  if (opensNote){
+    const used = state.challenge200kOpens||0;
+    opensNote.textContent = "Ouvertures du Challenge 200k utilisées : "+used+"/"+CHALLENGE_200K_MAX_OPENS+(used>=CHALLENGE_200K_MAX_OPENS?" — limite atteinte, plus aucune nouvelle tentative possible sur ce palier.":".");
+  }
+}
 function renderChallengeBanner(){
+  renderHardcoreChallenge();
+  if (typeof enforceLeverageAccess==="function") enforceLeverageAccess(); // re-applies the x20 Challenge cap the instant activeBookName flips (see CHALLENGE_LEVERAGE_CAP)
   const wrap = document.getElementById("challenge-banner");
   if (!wrap) return;
   if (!isEdbPlus()){ wrap.hidden = true; return; } // no grandfathering — a legacy challenge stays parked, just not shown
@@ -4511,7 +4634,6 @@ function renderChallengeBanner(){
         (inStep ? '<div class="challenge-meter"><span class="challenge-meter-lbl">Objectif +'+stepCfg.profitTargetPct+'%</span><div class="challenge-meter-bar"><div class="challenge-meter-fill up" style="width:'+progressPct.toFixed(1)+'%;"></div></div></div>' : '')+
         '<div class="challenge-meter"><span class="challenge-meter-lbl">Perte journ. (max '+CHALLENGE_RULES.maxDailyLossPct+'%)</span><div class="challenge-meter-bar"><div class="challenge-meter-fill down" style="width:'+dailyUsedPct.toFixed(1)+'%;"></div></div></div>'+
         '<div class="challenge-meter"><span class="challenge-meter-lbl">Drawdown (max '+CHALLENGE_RULES.maxDrawdownPct+'%)</span><div class="challenge-meter-bar"><div class="challenge-meter-fill down" style="width:'+ddUsedPct.toFixed(1)+'%;"></div></div></div>'+
-        (inStep ? '<div class="challenge-meter"><span class="challenge-meter-lbl">Jours de trading</span><span class="challenge-days">'+c.tradedDates.length+' / '+CHALLENGE_RULES.minTradingDays+'</span></div>' : '')+
       '</div>' : ''
     );
   const btn = document.getElementById("challenge-manage-btn");
@@ -4558,7 +4680,7 @@ function renderChallengeProfileCard(){
       {icon:"🏁", label:"Objectif Étape 2", val:"+"+CHALLENGE_STEPS.step2.profitTargetPct+"%", cls:"rule-up"},
       {icon:"📉", label:"Perte journalière max", val:"-"+CHALLENGE_RULES.maxDailyLossPct+"%", cls:"rule-down"},
       {icon:"⚠️", label:"Perte max (drawdown)", val:"-"+CHALLENGE_RULES.maxDrawdownPct+"%", cls:"rule-down"},
-      {icon:"📅", label:"Jours de trading min.", val:CHALLENGE_RULES.minTradingDays+" jours", cls:"rule-neutral"},
+      {icon:"⚡", label:"Levier max", val:"x"+CHALLENGE_LEVERAGE_CAP, cls:"rule-neutral"},
     ];
     let gridCells = '<div class="cc-cell cc-label-cell"></div>'+
       CHALLENGE_TIERS.map((t,i)=>'<div class="cc-cell cc-amount-cell'+(i===2?' cc-col-hl':'')+'">'+
@@ -4594,6 +4716,10 @@ function renderChallengeProfileCard(){
 // actions elsewhere in the app.
 function confirmStartChallenge(tier){
   if (!isEdbPlus()){ goToEdbPlus(); return; } // belt-and-suspenders — the grid isn't even rendered for a non-member
+  if (tier===200000 && (state.challenge200kOpens||0) >= CHALLENGE_200K_MAX_OPENS){
+    alert("Limite atteinte : "+CHALLENGE_200K_MAX_OPENS+" ouvertures du Challenge 200 000 $ déjà utilisées (compteur à vie, anti-abus pour le Concours EDB+). Choisis un autre palier — les autres tailles ne sont pas concernées par cette limite.");
+    return;
+  }
   const warnExtra = (state.positions.length || state.pendingOrders.length) ? " Tes positions ouvertes et ordres en attente seront aussi effacés." : "";
   if (!confirm("Démarrer un challenge à "+fmtMoney(tier)+" ? Ton solde démo actuel sera remplacé par ce montant."+warnExtra)) return;
   startChallenge(tier);
@@ -5185,6 +5311,25 @@ function traderStatusFromCaches(id){
 // Read-only public profile — photo + username + shared screenshot feed —
 // for any trader in the cached equity leaderboard. Posting to your OWN feed
 // happens from the Profil tab (initFeedPosting), not from here.
+// Read-only "badges obtenus" strip for someone else's profile — reuses the
+// same BADGES catalogue as "Mes badges" (renderBadgesGrid()) but only lists
+// the ones this trader actually has (no locked placeholders — that grid is
+// about showing your OWN remaining goals, this one is just "what has this
+// person earned").
+function traderEarnedBadgesGridHtml(d){
+  const earnedMap = (d && d.badges && typeof d.badges==="object") ? d.badges : {};
+  const earned = (typeof BADGES!=="undefined" ? BADGES : []).filter(b=>earnedMap[b.id]);
+  if (!earned.length) return '<div class="empty-note">Aucun badge débloqué pour l\'instant.</div>';
+  return '<div class="badges-grid">'+earned.map(b=>{
+    const entry = earnedMap[b.id];
+    const sub = (entry && entry.value!=null) ? '<div class="badge-tile-sub">'+fmtMoney(entry.value)+'</div>' : '';
+    return '<div class="badge-tile earned" title="'+escapeHtml(b.desc)+'">'+
+      '<div class="badge-tile-icon">'+b.icon+'</div>'+
+      '<div class="badge-tile-title">'+escapeHtml(b.title)+'</div>'+
+      sub+
+    '</div>';
+  }).join("")+'</div>';
+}
 function openTraderProfileModal(id){
   const doc = leaderboardDocsCache[id] || weeklyLeaderboardDocsCache[id] || contestLeaderboardDocsCache[id] || propLeaderboardDocsCache[id];
   const d = doc && doc.data();
@@ -5196,7 +5341,9 @@ function openTraderProfileModal(id){
       '<div><h3 style="margin:0;">'+escapeHtml(d.username||"Trader")+traderBadgesHtml(d)+'</h3>'+
       '<div class="chart-note">Équité '+fmtMoney(d.equity||0)+'</div></div>'+
     '</div>'+
-    '<h4 style="margin:0 0 10px;font-size:13px;color:var(--text-dim);">Feed</h4>'+
+    '<h4 style="margin:0 0 10px;font-size:13px;color:var(--text-dim);">Badges obtenus</h4>'+
+    traderEarnedBadgesGridHtml(d)+
+    '<h4 style="margin:16px 0 10px;font-size:13px;color:var(--text-dim);">Feed</h4>'+
     (feed.length
       ? '<div class="feed-grid">'+feed.map(p=>
           '<div class="feed-item">'+
@@ -5378,6 +5525,7 @@ const BADGES = [
  {id:"streak_3", icon:"🔥", title:"Série — 3 jours", desc:"Revenir sur Paper Tape 3 jours de suite."},
  {id:"streak_7", icon:"🔥", title:"Série — 7 jours", desc:"Revenir sur Paper Tape 7 jours de suite."},
  {id:"streak_30", icon:"🔥", title:"Série — 30 jours", desc:"Revenir sur Paper Tape 30 jours de suite."},
+ {id:"hardcore_master", icon:"💎", title:"Challenge Hardcore", desc:"Valider 5 challenges prop firm complets (Étape 1 + Étape 2) sur le palier 200 000 $."},
 ];
 // `extra` (optional) is merged into the stored badge entry — used by the
 // prop firm challenge to keep the account tier + the equity value at the
@@ -5481,13 +5629,20 @@ const CONTEST_PRIZES = [
   {rank:2, icon:"🥈", label:"2ème place", prize:"Challenge Prop Firm 10 000 $ offert par l'EDB"},
   {rank:3, icon:"🥉", label:"3ème place", prize:"Challenge Prop Firm 5 000 $ offert par l'EDB"},
 ];
-function countQualifyingTrades(d){
+// Shared by countQualifyingTrades() below and by the anti-triche
+// concentration report further down (adminConcentrationReportHtml) — one
+// filter definition, so the two can never drift apart on what counts as
+// "qualifying".
+function qualifyingTradesOf(d){
   const hist = Array.isArray(d.history) ? d.history : [];
   return hist.filter(h=>{
     if (typeof h.pnl!=="number" || Math.abs(h.pnl) < CONTEST_QUALIFY_PNL) return false;
     if (CONTEST_START_AT && h.closedAt && new Date(h.closedAt) < CONTEST_START_AT) return false;
     return true;
-  }).length;
+  });
+}
+function countQualifyingTrades(d){
+  return qualifyingTradesOf(d).length;
 }
 let contestLeaderboardDocsCache = {};
 // Fed the SAME docs as the main equity leaderboard (see subscribeLeaderboard()
@@ -5604,6 +5759,89 @@ function detectHedgePairs(d){
   }
   return pairs;
 }
+/* ============================= PROFIL DE RISQUE (Admin) =============================
+ * General trader behavior profiling, shown for EVERY trader — unlike the
+ * contest-specific anti-triche reports below (hedge/concentration), which
+ * only ever look at qualifying trades for podium eligibility, this reads
+ * the trader's WHOLE closed history to answer: does this trader lean on
+ * oversized leverage/position size instead of real risk management, and is
+ * their PnL a product of genuine market reads or just leverage
+ * amplification? Purely descriptive — no scoring, no auto-flag tied to any
+ * reward, just a read the bureau can use in conversation with a trader.
+ */
+const RISK_PROFILE_MIN_TRADES = 5; // below this, any stat here is too noisy to mean anything
+const RISK_PROFILE_HIGH_LEVERAGE = 50; // "plays it too strong" reference — half the app's x200 ceiling
+function pearsonCorrelation(xs, ys){
+  const n = xs.length;
+  if (n<2) return null;
+  const meanX = xs.reduce((s,v)=>s+v,0)/n, meanY = ys.reduce((s,v)=>s+v,0)/n;
+  let num=0, denX=0, denY=0;
+  for (let i=0;i<n;i++){
+    const dx = xs[i]-meanX, dy = ys[i]-meanY;
+    num += dx*dy; denX += dx*dx; denY += dy*dy;
+  }
+  if (denX===0 || denY===0) return null;
+  return num/Math.sqrt(denX*denY);
+}
+function traderRiskProfile(d){
+  const hist = (Array.isArray(d.history) ? d.history : []).filter(h=>
+    typeof h.pnl==="number" && typeof h.leverage==="number" && typeof h.notional==="number" && h.leverage>0
+  );
+  if (hist.length < RISK_PROFILE_MIN_TRADES) return null;
+  const n = hist.length;
+  const leverages = hist.map(h=>h.leverage);
+  const absPnls = hist.map(h=>Math.abs(h.pnl));
+  const avgLeverage = leverages.reduce((s,v)=>s+v,0)/n;
+  const maxLeverage = Math.max(...leverages);
+  const highLevPct = (hist.filter(h=>h.leverage>=RISK_PROFILE_HIGH_LEVERAGE).length/n)*100;
+  // Marge engagée par trade (notional/leverage), en % du capital de DÉPART
+  // (START_CASH, pas l'équité courante) — même repère fixe que
+  // CONTEST_QUALIFY_PNL ailleurs dans l'app, pour rester comparable trade à
+  // trade sans que les propres gains/pertes du trader ne déplacent la base.
+  const marginPcts = hist.map(h=>((h.notional/h.leverage)/START_CASH)*100);
+  const avgMarginPct = marginPcts.reduce((s,v)=>s+v,0)/n;
+  const maxMarginPct = Math.max(...marginPcts);
+  const pnlPcts = absPnls.map(v=>(v/START_CASH)*100);
+  const avgAbsPnlPct = pnlPcts.reduce((s,v)=>s+v,0)/n;
+  const refPct = (CONTEST_QUALIFY_PNL/START_CASH)*100; // le repère "risque 1%" déjà utilisé pour le concours
+  const swingMultiple = refPct>0 ? avgAbsPnlPct/refPct : null;
+  const leverageCorr = pearsonCorrelation(leverages, absPnls);
+  const winRate = (hist.filter(h=>h.pnl>0).length/n)*100;
+  const totalAbs = absPnls.reduce((s,v)=>s+v,0);
+  const top5Abs = hist.slice().sort((a,b)=>Math.abs(b.pnl)-Math.abs(a.pnl)).slice(0,5)
+    .reduce((s,h)=>s+Math.abs(h.pnl),0);
+  const top5Pct = totalAbs>0 ? (top5Abs/totalAbs)*100 : 0;
+  return {n, avgLeverage, maxLeverage, highLevPct, avgMarginPct, maxMarginPct, avgAbsPnlPct, swingMultiple, leverageCorr, winRate, top5Pct};
+}
+function adminRiskProfileHtml(d){
+  const r = traderRiskProfile(d);
+  if (!r){
+    return adminDetailSection("Profil de risque",
+      '<div class="admin-detail-empty">Pas assez de trades clôturés ('+RISK_PROFILE_MIN_TRADES+' minimum) pour dresser un profil.</div>'
+    );
+  }
+  const risky = r.avgLeverage>=RISK_PROFILE_HIGH_LEVERAGE;
+  const leverageNote = risky
+    ? '🔴 Joue systématiquement fort : levier moyen x'+r.avgLeverage.toFixed(0)+' (jusqu\'à x'+r.maxLeverage.toFixed(0)+'), '+r.highLevPct.toFixed(0)+'% de ses trades à x'+RISK_PROFILE_HIGH_LEVERAGE+' ou plus.'
+    : '🟢 Levier plutôt maîtrisé : moyenne x'+r.avgLeverage.toFixed(0)+' (jusqu\'à x'+r.maxLeverage.toFixed(0)+').';
+  const sizeNote = r.avgMarginPct.toFixed(1)+'% du capital de départ engagé en marge par trade en moyenne (jusqu\'à '+r.maxMarginPct.toFixed(1)+'%).';
+  const swingNote = r.swingMultiple!=null
+    ? r.avgAbsPnlPct.toFixed(1)+'% du capital par trade en moyenne — soit ~'+r.swingMultiple.toFixed(1)+'x le repère "risque 1%" ('+fmtMoney(CONTEST_QUALIFY_PNL)+') déjà utilisé pour le concours.'
+    : '—';
+  const corrNote = r.leverageCorr!=null
+    ? 'r='+r.leverageCorr.toFixed(2)+' — '+(r.leverageCorr>=0.5
+        ? 'ses plus gros résultats (gains ou pertes) sont d\'abord des trades à fort levier, pas des lectures de marché exceptionnelles.'
+        : 'ses résultats ne sont pas particulièrement liés au levier utilisé.')
+    : '—';
+  const consistNote = r.winRate.toFixed(0)+'% de trades gagnants · top 5 positions = '+r.top5Pct.toFixed(0)+'% du PnL cumulé (en valeur absolue) sur ses '+r.n+' trades clôturés.';
+  return adminDetailSection("Profil de risque ("+r.n+" trades clôturés)",
+    '<div class="admin-detail-empty" style="color:'+(risky?"var(--warn)":"var(--long)")+';">'+leverageNote+'</div>'+
+    adminDetailRow("Taille des positions", sizeNote)+
+    adminDetailRow("Amplitude PnL / risque 1%", swingNote)+
+    adminDetailRow("Levier ↔ PnL", corrNote)+
+    adminDetailRow("Régularité", consistNote)
+  );
+}
 // Rendered into the admin trader detail view (adminDetailHtml() below) —
 // this is the "click on a trader in Admin, get told legit or hedged" the
 // bureau asked for.
@@ -5639,6 +5877,52 @@ function adminHedgeReportHtml(d){
     : '🟠 Chevauchement Long+Short détecté ('+pairs.length+' paire(s)), mais aucun ne touche un trade actuellement compté comme qualifié pour le concours.';
   return adminDetailSection("Analyse anti-triche (concours)",
     '<div class="admin-detail-empty" style="color:var(--warn);">'+verdict+'</div>'+rows
+  );
+}
+
+/* ============================= ANTI-TRICHE — CONCENTRATION (concours) =============================
+ * Second loophole in the "30 trades qualifiés" rule, separate from hedging:
+ * nothing stops a trader from padding out to 30 qualifying trades with
+ * borderline ~1 000 $ closes while 1-5 outsized bets actually carry the
+ * whole result. That's not "consistent, repeatable trading" — it's one or
+ * two lucky/reckless swings wearing a costume of 30 trades. Flags (doesn't
+ * auto-disqualify, same philosophy as the hedge report above) whenever the
+ * CONTEST_CONCENTRATION_TOP_N largest qualifying trades (by |pnl|) account
+ * for too large a share of the total |pnl| across ALL qualifying trades.
+ */
+const CONTEST_CONCENTRATION_TOP_N = 5;
+const CONTEST_CONCENTRATION_WARN_PCT = 60; // top-5 trades >= 60% of the qualifying total |pnl| → flagged for manual review
+function contestConcentrationReport(d){
+  const qualifying = qualifyingTradesOf(d);
+  if (qualifying.length < CONTEST_MIN_QUALIFYING_TRADES) return null; // not eligible yet — nothing to check
+  const totalAbs = qualifying.reduce((s,h)=>s+Math.abs(h.pnl),0);
+  const sorted = qualifying.slice().sort((a,b)=>Math.abs(b.pnl)-Math.abs(a.pnl));
+  const top1 = sorted.slice(0,1);
+  const topN = sorted.slice(0,CONTEST_CONCENTRATION_TOP_N);
+  const top1Abs = top1.reduce((s,h)=>s+Math.abs(h.pnl),0);
+  const topNAbs = topN.reduce((s,h)=>s+Math.abs(h.pnl),0);
+  const top1Pct = totalAbs>0 ? (top1Abs/totalAbs)*100 : 0;
+  const topNPct = totalAbs>0 ? (topNAbs/totalAbs)*100 : 0;
+  return {
+    qualifyingCount: qualifying.length, totalAbs, top1, topN, top1Pct, topNPct,
+    flagged: topNPct >= CONTEST_CONCENTRATION_WARN_PCT,
+  };
+}
+function adminConcentrationReportHtml(d){
+  const r = contestConcentrationReport(d);
+  if (!r){
+    return adminDetailSection("Analyse anti-triche — concentration du PnL (concours)",
+      '<div class="admin-detail-empty">Pas encore éligible ('+countQualifyingTrades(d)+'/'+CONTEST_MIN_QUALIFYING_TRADES+' trades qualifiés) — rien à vérifier pour l\'instant.</div>'
+    );
+  }
+  const tradeLine = (h)=> (h.side==="long"?"▲ Long ":"▼ Short ")+escapeHtml(h.symbol)+" · "+
+    (h.pnl>=0?"+":"")+fmtMoney(h.pnl)+(h.closedAt?" · "+fmtWhen(h.closedAt):"");
+  const rows = r.topN.map(h=>adminDetailRow("Position", tradeLine(h))).join("");
+  const verdict = r.flagged
+    ? '🔴 Concentration excessive — les '+CONTEST_CONCENTRATION_TOP_N+' plus grosses positions qualifiées pèsent '+r.topNPct.toFixed(0)+'% du PnL cumulé de ses '+r.qualifyingCount+' trades qualifiés (dont '+r.top1Pct.toFixed(0)+'% pour la seule plus grosse). Performance pas assez répartie pour valider une régularité — à vérifier avant de valider son classement.'
+    : '🟢 Régulier — les '+CONTEST_CONCENTRATION_TOP_N+' plus grosses positions qualifiées ne pèsent que '+r.topNPct.toFixed(0)+'% du PnL cumulé de ses '+r.qualifyingCount+' trades qualifiés.';
+  return adminDetailSection("Analyse anti-triche — concentration du PnL (concours)",
+    '<div class="admin-detail-empty" style="color:'+(r.flagged?"var(--warn)":"var(--long)")+';">'+verdict+'</div>'+(r.flagged?rows:'')
   );
 }
 
@@ -6445,6 +6729,18 @@ function edbTradePnlPct(d){
   const raw = d.side==="short" ? (d.entryPrice-d.exitPrice)/d.entryPrice : (d.exitPrice-d.entryPrice)/d.entryPrice;
   return raw*100;
 }
+// "Trade EDB" (kind!=="swing") is published as a recap/analysis, never a
+// live position the bureau tracks day to day — it's always status:"closed"
+// from the moment it's published (see adminPublishTrade()), so there's
+// nothing to close later and it should never read "En cours". Without an
+// exit price there's no outcome to report either, so it gets a neutral
+// "Récap" label instead of a possibly-misleading "Clôturé". "Swing hebdo"
+// keeps the real open→closed lifecycle (admin closes it later via the
+// Clôturer flow), so it's the only kind that ever shows "En cours".
+function edbTradeStatusLabel(d, pnlPct){
+  if (d.kind!=="swing" && pnlPct===null) return "Récap";
+  return d.status==="closed" ? "Clôturé" : "En cours";
+}
 // Entrée is optional (an admin can post a trade idea without a firm entry
 // yet) — build the meta line from whichever price fields are actually set
 // so there's never a stray leading/double " · " separator.
@@ -6469,7 +6765,7 @@ function edbTradeCardHtml(doc){
         '<span class="pos-badge '+(d.side==="short"?"short":"long")+'">'+(d.side==="short"?"Short":"Long")+'</span>'+
       '</div>'+
       (pnlPct!==null ? '<span class="edbtrade-pnl '+(pnlPct>=0?"up":"down")+'">'+fmtPct(pnlPct)+'</span>'
-        : '<span class="chart-note" style="display:inline;">'+(d.status==="closed"?"Clôturé":"En cours")+'</span>')+
+        : '<span class="chart-note" style="display:inline;">'+edbTradeStatusLabel(d,pnlPct)+'</span>')+
     '</div>'+
     '<div class="edbtrade-meta">'+edbTradeMetaLine(d,a)+'</div>'+
     (d.comment ? '<div class="edbtrade-comment">'+escapeHtml(d.comment)+'</div>' : '')+
@@ -8908,6 +9204,9 @@ function switchView(name){
   if (name==="challenge"){
     renderChallengeProfileCard();
   }
+  if (name==="concoursedbplus" && typeof renderHardcoreChallenge==="function"){
+    renderHardcoreChallenge(); // paints immediately instead of waiting for the next price tick
+  }
   if (name==="news"){
     const list = document.getElementById("news-list");
     const status = document.getElementById("news-status");
@@ -8960,6 +9259,12 @@ function initEvents(){
 
   const ticketHelpBtn = document.getElementById("ticket-help-btn");
   if (ticketHelpBtn) ticketHelpBtn.addEventListener("click", openExecutionHelpModal);
+
+  // #concoursedbplus-locked is static HTML (unlike the other EDB+ paywalls,
+  // which get their CTA re-wired every render because their innerHTML is
+  // rebuilt from scratch) — one-time wiring here is enough, the button never
+  // gets replaced.
+  wireEdbPlusCta("concoursedbplus");
 
   function setLbTab(tab){
     ["normal","week","prop"].forEach(t=>{
@@ -9055,7 +9360,10 @@ function initEvents(){
     b.addEventListener("click", ()=>{
       const v = parseInt(b.dataset.lev,10);
       if (v>LEVERAGE_CAP_FREE && !isEdbPlus()){ goToEdbPlus(); return; }
-      leverage=v; saveLeverage(leverage); setLevUI(); updateOrderReadout();
+      // Challenge Prop Firm cap is a hard clamp, not a paywall (EDB+ access
+      // to the Challenge doesn't buy a way past it) — see CHALLENGE_LEVERAGE_CAP.
+      const cap = state.activeBookName==="prop" ? CHALLENGE_LEVERAGE_CAP : 200;
+      leverage=Math.min(v,cap); saveLeverage(leverage); setLevUI(); updateOrderReadout();
     });
   });
 
@@ -9253,18 +9561,23 @@ function enforceWidgetAccess(){
   if (typeof loadWidgetLayout!=="function") return;
   applyWidgetLayout(loadWidgetLayout());
 }
-// Re-checks the EDB+ leverage cap on the real order ticket (the position-size
+// Re-checks the leverage cap on the real order ticket (the position-size
 // calculator widget doesn't need this — it's edbPlusOnly outright, see
-// WIDGET_DEFS). Same two call sites as enforceWidgetAccess(): once at boot
-// (defaults locked to x20 until Firestore hydrates) and again whenever
-// hydrateStateFromDoc() learns the real EDB+ status.
+// WIDGET_DEFS). Two layers, tightest wins: the EDB+ x20/x200 split (same as
+// always), AND — independently — a hard x20 ceiling whenever the Prop Firm
+// Challenge book is the active one (CHALLENGE_LEVERAGE_CAP, see its
+// definition for why), regardless of EDB+ status. Called at boot, whenever
+// hydrateStateFromDoc() learns the real EDB+ status, AND from
+// renderChallengeBanner() (so it re-applies the instant a trader switches
+// into or out of the Challenge book, not just on the next price tick).
 function enforceLeverageAccess(){
   const slider = document.getElementById("lev-slider");
   const badge = document.getElementById("lev-badge");
   const presetsWrap = document.getElementById("lev-presets");
   if (!slider) return; // order ticket not wired yet
   const locked = !isEdbPlus();
-  const cap = locked ? LEVERAGE_CAP_FREE : 200;
+  const onChallenge = state.activeBookName==="prop";
+  const cap = onChallenge ? CHALLENGE_LEVERAGE_CAP : (locked ? LEVERAGE_CAP_FREE : 200);
   slider.max = cap;
   if (leverage > cap){
     leverage = cap;
@@ -9274,10 +9587,10 @@ function enforceLeverageAccess(){
   if (badge) badge.textContent = "x"+leverage;
   if (presetsWrap) presetsWrap.querySelectorAll("[data-lev]").forEach(b=>{
     const v = parseInt(b.dataset.lev,10);
-    const isLocked = locked && v>LEVERAGE_CAP_FREE;
+    const isLocked = v>cap;
     b.classList.toggle("locked", isLocked);
     b.classList.toggle("active", v===leverage);
-    b.title = isLocked ? "Réservé aux membres EDB+" : "";
+    b.title = !isLocked ? "" : (onChallenge ? "Plafonné à x"+CHALLENGE_LEVERAGE_CAP+" sur le Challenge Prop Firm — aligné sur les vrais prop firms crypto" : "Réservé aux membres EDB+");
   });
   if (typeof updateOrderReadout==="function") updateOrderReadout();
 }
@@ -9723,6 +10036,27 @@ function adminDetailRow(k, v){
 function adminDetailSection(title, inner){
   return '<div class="admin-detail-section"><div class="admin-detail-title">'+title+'</div>'+inner+'</div>';
 }
+// Admin visibility into a trader's Prop Firm Challenge — every step
+// transition (Étape 1 validée / Étape 2 validée / Financé, or un échec) is
+// already timestamped on state.challenge (step1PassedAt/step2PassedAt/
+// fundedAt/failedAt, persisted every time — see updateChallengeStatus()) and
+// also fires a badge (prop_step1_passed/prop_step2_passed/prop_funded, with
+// its own toast for the trader) — this section is what makes those dates
+// visible to an admin without having to cross-reference the raw badges list.
+function adminChallengeHtml(d){
+  const c = d.challenge;
+  if (!c) return "";
+  const fmtDt = (iso)=> iso ? new Date(iso).toLocaleString('fr-FR') : "—";
+  let rows = adminDetailRow("Palier", fmtMoney(c.tier)) +
+    adminDetailRow("Statut", typeof challengeStatusLabel==="function" ? challengeStatusLabel(c) : (c.phase||"—")) +
+    adminDetailRow("Démarré le", fmtDt(c.startedAt)) +
+    adminDetailRow("Étape 1 validée", fmtDt(c.step1PassedAt)) +
+    adminDetailRow("Étape 2 validée", fmtDt(c.step2PassedAt)) +
+    adminDetailRow("Financé le", c.fundedAt ? (fmtDt(c.fundedAt)+" · "+fmtMoney(c.fundedValue)) : "—");
+  if (c.phase==="failed") rows += adminDetailRow("Échec", (c.failReason==="daily"?"perte journalière":"drawdown")+" · "+fmtDt(c.failedAt));
+  if (c.tier===200000) rows += adminDetailRow("Concours EDB+ (Hardcore)", (d.hardcore200kPasses||0)+" / "+(typeof HARDCORE_200K_TARGET!=="undefined"?HARDCORE_200K_TARGET:5)+" réussites qualifiées");
+  return adminDetailSection("Challenge Prop Firm", rows);
+}
 // Human-readable admin account breakdown — replaces the raw JSON dump that
 // used to show here (which read like an error/bug to non-technical admins).
 function adminDetailHtml(d){
@@ -9730,7 +10064,8 @@ function adminDetailHtml(d){
   const pos = Array.isArray(d.positions) ? d.positions : [];
   const pending = Array.isArray(d.pendingOrders) ? d.pendingOrders : [];
   const hist = Array.isArray(d.history) ? d.history : [];
-  const badges = (d.badges && typeof d.badges==="object") ? Object.keys(d.badges) : [];
+  const badgesMap = (d.badges && typeof d.badges==="object") ? d.badges : {};
+  const badges = Object.keys(badgesMap);
   const journal = Array.isArray(d.journal) ? d.journal : [];
   const stats = d.stats || {};
 
@@ -9745,7 +10080,10 @@ function adminDetailHtml(d){
     adminDetailRow("Dernière activité", fmtWhen(d.lastActiveAt))
   );
 
+  html += (typeof adminRiskProfileHtml==="function" ? adminRiskProfileHtml(d) : "");
   html += (typeof adminHedgeReportHtml==="function" ? adminHedgeReportHtml(d) : "");
+  html += (typeof adminConcentrationReportHtml==="function" ? adminConcentrationReportHtml(d) : "");
+  html += (typeof adminChallengeHtml==="function" ? adminChallengeHtml(d) : "");
 
   html += adminDetailSection("Positions ouvertes ("+pos.length+")",
     pos.length ? pos.map(p=>adminDetailRow(
@@ -9784,7 +10122,12 @@ function adminDetailHtml(d){
   );
 
   html += adminDetailSection("Badges ("+badges.length+")",
-    badges.length ? escapeHtml(badges.join(", ")) : '<div class="admin-detail-empty">Aucun</div>'
+    badges.length ? badges.map(id=>{
+      const def = (typeof BADGES!=="undefined" ? BADGES.find(b=>b.id===id) : null);
+      const entry = badgesMap[id];
+      const when = entry && entry.earnedAt ? new Date(entry.earnedAt).toLocaleDateString('fr-FR') : "—";
+      return adminDetailRow((def?def.icon+" "+def.title:id), when);
+    }).join("") : '<div class="admin-detail-empty">Aucun</div>'
   );
 
   if (journal.length){
@@ -9974,7 +10317,7 @@ function renderAdminTrades(){
       '<td><span class="pos-badge '+(d.side==="short"?"short":"long")+'">'+(d.side==="short"?"Short":"Long")+'</span></td>'+
       '<td>'+(typeof d.entryPrice==="number" ? fmtPrice(d.entryPrice, a.decimals) : '—')+'</td>'+
       '<td>'+(typeof d.exitPrice==="number" ? fmtPrice(d.exitPrice, a.decimals)+(pnlPct!==null?' ('+fmtPct(pnlPct)+')':'') : '—')+'</td>'+
-      '<td>'+(d.status==="closed"?"Clôturé":"En cours")+'</td>'+
+      '<td>'+edbTradeStatusLabel(d,pnlPct)+'</td>'+
       '<td>'+(d.kind==="swing"?"🌊 Swing":"Trade EDB")+'</td>'+
       '<td>'+fmtWhen(d.createdAt)+'</td>'+
       '<td style="display:flex;gap:6px;flex-wrap:wrap;">'+
@@ -9987,6 +10330,7 @@ function renderAdminTrades(){
 async function adminPublishTrade(){
   const symbolSel = document.getElementById("admin-trade-symbol");
   const entryInput = document.getElementById("admin-trade-entry");
+  const exitInput = document.getElementById("admin-trade-exit");
   const slInput = document.getElementById("admin-trade-sl");
   const tpInput = document.getElementById("admin-trade-tp");
   const commentInput = document.getElementById("admin-trade-comment");
@@ -10005,6 +10349,20 @@ async function adminPublishTrade(){
       return;
     }
   }
+  // Prix de sortie — only asked for/used on "Trade EDB" (the field is
+  // hidden for "Swing hebdo", see setAdminTradeKindUI()). Optional even
+  // there: a recap posted with no exit is a pure idea/analysis share.
+  let exit = null;
+  if (adminTradeKind==="bde" && exitInput){
+    const exitRaw = exitInput.value.trim();
+    if (exitRaw!==""){
+      exit = parseFloat(exitRaw);
+      if (!isFinite(exit) || exit<=0){
+        if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Prix de sortie invalide."; }
+        return;
+      }
+    }
+  }
   const sl = parseFloat(slInput.value);
   const tp = parseFloat(tpInput.value);
   if (!dbReady || !db){
@@ -10013,19 +10371,27 @@ async function adminPublishTrade(){
   }
   if (btn) btn.disabled = true;
   const id = uid();
+  const createdAt = new Date().toISOString();
+  // "Trade EDB" is a recap by design — never "en cours", never closable
+  // from the admin table (see edbTradeStatusLabel() and the Clôturer button
+  // condition, both keyed off status==="closed"). It's published already
+  // closed, with whatever exit price (or none) the admin gave it. "Swing
+  // hebdo" keeps the real open→closed lifecycle: it starts open and is
+  // closed later through adminCloseTrade().
+  const isRecap = adminTradeKind==="bde";
   const payload = {
     symbol: symbolSel.value,
     side: adminTradeSide,
     kind: adminTradeKind,
     entryPrice: entry,
-    exitPrice: null,
+    exitPrice: isRecap ? exit : null,
     stopLoss: isFinite(sl) ? sl : null,
     takeProfit: isFinite(tp) ? tp : null,
-    status: "open",
+    status: isRecap ? "closed" : "open",
     comment: (commentInput ? commentInput.value.trim() : "").slice(0,500),
     postedBy: state.username,
-    createdAt: new Date().toISOString(),
-    closedAt: null,
+    createdAt,
+    closedAt: isRecap ? createdAt : null,
   };
   // Split into two try/catch blocks — Storage and Firestore are two
   // different services with two different rule files, so a failure needs
@@ -10054,7 +10420,7 @@ async function adminPublishTrade(){
   try{
     await db.collection("edbTrades").doc(id).set(payload);
     if (msg){ msg.style.color = "var(--long)"; msg.textContent = "Trade publié."; }
-    entryInput.value = ""; slInput.value = ""; tpInput.value = ""; if (commentInput) commentInput.value = "";
+    entryInput.value = ""; if (exitInput) exitInput.value = ""; slInput.value = ""; tpInput.value = ""; if (commentInput) commentInput.value = "";
     clearAdminTradeImage();
     loadAdminTrades();
   }catch(e){
@@ -10168,12 +10534,18 @@ function initAdminUI(){
   if (tradeSideShortBtn) tradeSideShortBtn.addEventListener("click", ()=>{ adminTradeSide="short"; setAdminTradeSideUI(); });
   const tradeKindBdeBtn = document.getElementById("admin-trade-kind-bde");
   const tradeKindSwingBtn = document.getElementById("admin-trade-kind-swing");
+  const tradeExitRow = document.getElementById("admin-trade-exit-row");
   function setAdminTradeKindUI(){
     if (tradeKindBdeBtn) tradeKindBdeBtn.classList.toggle("active", adminTradeKind==="bde");
     if (tradeKindSwingBtn) tradeKindSwingBtn.classList.toggle("active", adminTradeKind==="swing");
+    // Prix de sortie only makes sense for "Trade EDB" (published pre-closed,
+    // as a recap) — "Swing hebdo" is tracked live and closed later via the
+    // Clôturer flow in the table below, so it never takes an exit at publish.
+    if (tradeExitRow) tradeExitRow.hidden = adminTradeKind!=="bde";
   }
   if (tradeKindBdeBtn) tradeKindBdeBtn.addEventListener("click", ()=>{ adminTradeKind="bde"; setAdminTradeKindUI(); });
   if (tradeKindSwingBtn) tradeKindSwingBtn.addEventListener("click", ()=>{ adminTradeKind="swing"; setAdminTradeKindUI(); });
+  setAdminTradeKindUI();
   const tradeImgBtn = document.getElementById("admin-trade-image-btn");
   const tradeImgInput = document.getElementById("admin-trade-image-input");
   if (tradeImgBtn && tradeImgInput) tradeImgBtn.addEventListener("click", ()=>tradeImgInput.click());
