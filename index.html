@@ -2338,6 +2338,11 @@ const state = {
   photoURL: null,  // profile picture (Firebase Storage download URL) — see initProfilePhoto()
   feed: [],        // [{id, imageURL, caption, createdAt}] — public screenshot feed, visible to others by clicking this trader in the classement
   challenge: null, // {tier, phase:"step1"|"step2"|"funded"|"failed", startCash, stepStartEquity, startedAt, dayKey, dailyStartEquity, tradedDates:[iso-date...], failReason, failedAt, step1PassedAt, step2PassedAt, fundedAt, fundedValue} — see CHALLENGE PROP FIRM below
+  // Archive of PAST challenge attempts (most recent first) — a lightweight
+  // summary only (tier/outcome/dates/final equity), not the full trade log,
+  // written once per attempt right before it's overwritten/wiped by a
+  // restart or an abandon — see archiveChallenge().
+  challengeHistory: [],
   // --- Dual-book trading (Normal demo account + Prop Firm challenge account) ---
   // Exactly one of "normal"/"prop" is ever "active": its cash/marginUsed/
   // positions/pendingOrders/history/stats live directly on `state.*` above
@@ -2665,6 +2670,7 @@ function hydrateStateFromDoc(snap){
   state.photoURL = d.photoURL || null;
   state.feed = Array.isArray(d.feed) ? d.feed : [];
   state.challenge = (d.challenge && typeof d.challenge==="object") ? d.challenge : null;
+  state.challengeHistory = Array.isArray(d.challengeHistory) ? d.challengeHistory : [];
   // The fields hydrated above (cash/marginUsed/positions/pendingOrders/
   // history/stats) are always treated as the NORMAL book, and we always
   // boot back into it regardless of which was active when last saved — a
@@ -2838,6 +2844,7 @@ function persistAccount(){
           photoURL: state.photoURL || null,
           feed: (state.feed||[]).slice(0,30),
           challenge: state.challenge || null,
+          challengeHistory: (state.challengeHistory||[]).slice(0,20),
           // Heartbeat: the "paper-tape-mark" Cloud Function (see /functions)
           // only touches a trader's pending orders / TP-SL / liquidations /
           // mark-to-market equity once this goes stale (no write in the
@@ -5109,7 +5116,8 @@ function renderChallengeProfileCard(){
       '<div class="challenge-hero-badge">🏆 PROP FIRM CHALLENGE</div>'+
       '<p class="chart-note" style="margin:12px 0 4px;">Trade un compte démo calqué sur une vraie évaluation prop firm en 2 étapes (challenge puis vérification, avant le compte financé) — comptes de '+fmtMoney(CHALLENGE_TIERS[0])+' à '+fmtMoney(CHALLENGE_TIERS[CHALLENGE_TIERS.length-1])+'. Ton compte normal reste actif à côté — tu peux trader les deux et basculer entre eux à tout moment.</p>'+
       '<p class="chart-note" style="margin:14px 0 8px;">Démarrer un challenge réinitialise ton solde, tes positions et tes ordres en attente sur le compte prop firm. 👇 <strong>Compare les comptes et clique sur une taille pour démarrer :</strong></p>'+
-      '<div class="challenge-compare-wrap"><div class="challenge-compare-grid" id="challenge-compare-grid" style="grid-template-columns:minmax(118px,150px) repeat('+CHALLENGE_TIERS.length+',minmax(84px,1fr));">'+gridCells+'</div></div>';
+      '<div class="challenge-compare-wrap"><div class="challenge-compare-grid" id="challenge-compare-grid" style="grid-template-columns:minmax(118px,150px) repeat('+CHALLENGE_TIERS.length+',minmax(84px,1fr));">'+gridCells+'</div></div>'+
+      challengeAttemptsHistoryHtml();
     const cGrid = document.getElementById("challenge-compare-grid");
     if (cGrid) cGrid.querySelectorAll("[data-tier]").forEach(btn=>{
       btn.addEventListener("click", ()=>confirmStartChallenge(parseInt(btn.dataset.tier,10)));
@@ -5120,10 +5128,34 @@ function renderChallengeProfileCard(){
       '<button class="btn-secondary" id="challenge-manage-btn-2">Gérer ce challenge</button>'+
       challengeTimelineHtml(c)+
       '<h4 class="challenge-history-head">Historique du challenge</h4>'+
-      '<div id="challenge-history-list">'+challengeTradeHistoryHtml()+'</div>';
+      '<div id="challenge-history-list">'+challengeTradeHistoryHtml()+'</div>'+
+      challengeAttemptsHistoryHtml();
     const btn = document.getElementById("challenge-manage-btn-2");
     if (btn) btn.addEventListener("click", openChallengeManageModal);
   }
+}
+// List of PAST challenge attempts (most recent first) — see archiveChallenge()
+// for what gets recorded and when. Shown on the Challenge page regardless of
+// whether a challenge is currently running or not, so it survives across
+// restarts (unlike propBookData().history, which is wiped/replaced each time
+// startChallenge() runs).
+function challengeAttemptsHistoryHtml(){
+  const list = state.challengeHistory || [];
+  if (list.length===0) return "";
+  const rows = list.slice(0,20).map(a=>{
+    let label, warn = false;
+    if (a.outcome==="failed"){
+      label = "❌ Échec — "+(a.failReason==="daily"?"perte journalière dépassée":"drawdown maximal dépassé");
+      warn = true;
+    } else if (a.outcome==="funded"){
+      label = "💰 Financé (simulation)";
+    } else {
+      label = "⏹️ Abandonné";
+    }
+    const eqNote = typeof a.finalEquity==="number" ? " · Équité finale "+fmtMoney(a.finalEquity) : "";
+    return '<div class="challenge-timeline-row'+(warn?" warn":"")+'"><span>'+fmtMoney(a.tier)+' · '+label+eqNote+'</span><span class="chart-note">'+fmtWhen(a.endedAt)+'</span></div>';
+  }).join("");
+  return '<h4 class="challenge-history-head">Historique des comptes essayés</h4><div class="challenge-timeline">'+rows+'</div>';
 }
 // Small chronological log of the challenge's own phase transitions (started,
 // each step passed, funded, or failed+reason) — separate from the trade-by-
@@ -5186,6 +5218,27 @@ function confirmStartChallenge(tier){
   renderChallengeProfileCard();
   if (typeof renderChallengeTeaser==="function") renderChallengeTeaser();
 }
+// Called right before a challenge's positions/orders/trade-history get wiped
+// (restart or abandon, below) — keeps a lightweight SUMMARY of the attempt
+// (tier, how it ended, key dates, final equity) in state.challengeHistory so
+// it isn't lost entirely, without persisting every past attempt's full trade
+// log (which could grow unbounded across many restarts). Must run BEFORE any
+// book-swap/wipe: propEquity() has to still see the challenge's real,
+// still-live numbers, not whatever comes after.
+function archiveChallenge(){
+  const c = state.challenge;
+  if (!c) return;
+  const eq = propEquity();
+  const outcome = c.phase==="failed" ? "failed" : (c.phase==="funded" ? "funded" : "abandoned");
+  state.challengeHistory = state.challengeHistory || [];
+  state.challengeHistory.unshift({
+    tier: c.tier, outcome, failReason: c.failReason || null,
+    startedAt: c.startedAt, endedAt: new Date().toISOString(),
+    step1PassedAt: c.step1PassedAt || null, step2PassedAt: c.step2PassedAt || null,
+    fundedAt: c.fundedAt || null, finalEquity: (typeof eq==="number" ? eq : null),
+  });
+  if (state.challengeHistory.length>20) state.challengeHistory.length = 20;
+}
 // "Recommencer un challenge" from the Gérer modal: abandons whatever
 // challenge is currently running (same effect as the "Abandonner" button
 // just below it) and drops the trader back on the Challenge page, where
@@ -5195,6 +5248,7 @@ function confirmStartChallenge(tier){
 function restartChallengeFlow(){
   if (!state.challenge) return;
   if (!confirm("Recommencer un challenge ? Le challenge actuel ("+fmtMoney(state.challenge.tier)+") sera abandonné — positions, ordres et historique du compte prop firm actuel seront supprimés. Choisis la nouvelle taille sur la page Challenge.")) return;
+  archiveChallenge();
   if (state.activeBookName==="prop"){
     loadBookSnapshot(state.parked || freshBookObj(START_CASH));
     state.activeBookName = "normal";
@@ -5234,6 +5288,7 @@ function openChallengeManageModal(){
   document.getElementById("challenge-restart-btn").addEventListener("click", restartChallengeFlow);
   document.getElementById("challenge-abandon-btn").addEventListener("click", ()=>{
     if (!confirm("Abandonner ce challenge ? Le compte prop firm sera définitivement supprimé (positions, ordres et historique compris) — ton compte normal n'est pas affecté.")) return;
+    archiveChallenge();
     if (state.activeBookName==="prop"){
       loadBookSnapshot(state.parked || freshBookObj(START_CASH));
       state.activeBookName = "normal";
@@ -5246,6 +5301,12 @@ function openChallengeManageModal(){
     renderAll();
     renderChallengeBanner();
     closeModal();
+    // Unlike "Recommencer" (which lands back on switchView("challenge") and
+    // so repaints the card for free), abandoning just closes this modal —
+    // without this, the Challenge page underneath would keep showing the
+    // just-abandoned challenge (and miss the new "Historique des comptes
+    // essayés" entry) until the trader manually left and re-opened the tab.
+    if (typeof renderChallengeProfileCard==="function") renderChallengeProfileCard();
   });
 }
 
