@@ -329,18 +329,6 @@
   .edbplus-feature-detail{font-size:10.5px;color:var(--text-dim);margin-top:3px;line-height:1.35;}
   .edbplus-cta-btn{width:100%;max-width:420px;padding:16px;font-size:13px;font-weight:700;letter-spacing:.02em;}
 
-  /* ---------- Concours podium ---------- */
-  .contest-podium{display:grid;grid-template-columns:repeat(auto-fit, minmax(190px,1fr));gap:12px;margin-top:6px;}
-  .contest-podium-card{
-    text-align:center;padding:18px 14px;border-radius:var(--radius);
-    background:var(--bg-raised);border:1px solid var(--border-soft);
-  }
-  .contest-podium-card.filled{border-color:color-mix(in srgb, var(--gold) 55%, transparent 45%);}
-  .contest-podium-icon{font-size:30px;line-height:1;}
-  .contest-podium-rank{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);margin-top:8px;}
-  .contest-podium-name{font-weight:700;font-size:14px;color:var(--text);margin-top:4px;}
-  .contest-podium-prize{font-size:10.5px;color:var(--text-dim);margin-top:6px;line-height:1.4;}
-
   /* ---------- EDB+ chat: automatic payment-info message ---------- */
   .edbplus-payment-rows{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
   .edbplus-payment-row{
@@ -365,13 +353,40 @@
   /* ---------- terminal layout ---------- */
   .terminal-grid{
     display:grid;
-    grid-template-columns:230px 1fr 340px;
+    grid-template-columns:230px 6px 1fr 6px 340px;
     gap:14px;
     align-items:start;
   }
   @media (max-width:1080px){
     .terminal-grid{grid-template-columns:1fr;}
+    .col-resizer{display:none;}
+    .widget-hresize{display:none;}
   }
+  /* Drag handles between the three terminal columns — width is adjustable
+     per side-column (left="Sessions/Marchés/Calendrier", right="Compte/
+     Positions/…"), the middle chart column always fills whatever's left
+     (1fr). See initColumnResizers(). */
+  .col-resizer{align-self:stretch;cursor:col-resize;display:flex;align-items:center;justify-content:center;position:relative;}
+  .col-resizer:hover .col-resizer-grip, .col-resizer.resizing .col-resizer-grip{background:var(--accent);}
+  .col-resizer-grip{width:2px;height:100%;min-height:60px;border-radius:2px;background:var(--border);transition:background .15s;}
+  /* Per-widget resize grips — vertical ones (top/bottom edges) grow/shrink
+     the widget's own height, horizontal ones (left/right edges) forward to
+     the same column-width drag as the dividers between columns (see
+     initWidgetVerticalResize() / initWidgetHorizontalResize()). Drag away
+     from the widget's center to grow, toward it to shrink; double-click a
+     vertical grip resets that widget to its natural height. */
+  .card.widget{position:relative;}
+  .widget-vresize{height:9px;cursor:ns-resize;display:flex;align-items:center;justify-content:center;}
+  .widget-vresize::after{content:"";width:28px;height:3px;border-radius:2px;background:var(--border);transition:background .15s;}
+  .widget-vresize:hover::after, .widget-vresize.resizing::after{background:var(--accent);}
+  .widget-vresize-bottom{margin:8px -14px -14px;}
+  .widget-vresize-top{margin:-14px -14px 8px;}
+  .widget-hresize{position:absolute;top:0;bottom:0;width:10px;cursor:ew-resize;display:flex;align-items:center;justify-content:center;z-index:2;}
+  .widget-hresize-left{left:-14px;}
+  .widget-hresize-right{right:-14px;}
+  .widget-hresize::after{content:"";width:3px;height:28px;border-radius:2px;background:var(--border);transition:background .15s;}
+  .widget-hresize:hover::after, .widget-hresize.resizing::after{background:var(--accent);}
+  .widget-hresize[hidden]{display:none;}
 
   .card{
     background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
@@ -552,6 +567,15 @@
   }
   .tf-seg button:hover:not(.active){color:var(--text-dim);border-color:var(--text-faint);}
   .tf-seg button.active{background:var(--panel-2);border-color:var(--accent);color:var(--accent);}
+  .chart-zoom-seg{display:flex;align-items:center;gap:6px;}
+  .chart-zoom-seg[hidden]{display:none;}
+  .chart-zoom-seg .pos-close{padding:3px 9px;font-size:12px;line-height:1;}
+  .chart-zoom-seg .chart-note{margin-top:0;white-space:nowrap;}
+  /* Draggable TP/SL lines + "add TP/SL" chips on the internal chart — see
+     initChartLineDrag(). */
+  .tpsl-hit{cursor:ns-resize;}
+  .tpsl-chip{cursor:ns-resize;}
+  #chart-svg.tpsl-dragging{cursor:ns-resize;}
 
   /* order ticket */
   .ticket{margin-top:14px;}
@@ -1068,7 +1092,6 @@
       <button data-view="news"><span class="tab-emoji">📰</span>News</button>
       <button data-view="chat"><span class="tab-emoji">💬</span>Chat</button>
       <button data-view="leaderboard"><span class="tab-emoji">🏆</span>Classement</button>
-      <button data-view="contest"><span class="tab-emoji">🎁</span>Concours</button>
       <button data-view="concoursedbplus"><span class="tab-emoji">💎</span>Concours EDB+</button>
       <button data-view="challenge"><span class="tab-emoji">🏅</span>Challenge</button>
       <button data-view="quiz"><span class="tab-emoji">📚</span>Connaissances</button>
@@ -1113,6 +1136,8 @@
           </div>
         </div>
 
+        <div class="col-resizer" data-col-resize="left" title="Glisser pour élargir/rétrécir — double-clic pour réinitialiser"><span class="col-resizer-grip"></span></div>
+
         <div class="widget-col" data-col="1">
           <div class="card widget" draggable="true" data-widget="chart">
             <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Graphique</h3><button type="button" class="widget-hide" data-widget-hide="chart" title="Masquer ce widget">✕</button></div>
@@ -1126,6 +1151,11 @@
                 <button data-tf="5m">5m</button>
                 <button data-tf="15m">15m</button>
                 <button data-tf="1h">1h</button>
+              </div>
+              <div class="chart-zoom-seg" id="chart-zoom-seg" title="Molette de la souris pour zoomer sur le graphique">
+                <button type="button" class="pos-close" id="chart-zoom-out" title="Dézoomer — voir plus d'historique">−</button>
+                <span class="chart-note" id="chart-zoom-label" style="display:inline;"></span>
+                <button type="button" class="pos-close" id="chart-zoom-in" title="Zoomer">+</button>
               </div>
               <div class="candle-theme-switch" id="candle-theme-seg">
                 <button type="button" class="candle-dot active" data-candle-theme="classic"  title="Classique"    style="--dot:conic-gradient(#31c882 0 50%, #f0546a 50% 100%)"></button>
@@ -1260,6 +1290,8 @@
           </div>
         </div>
 
+        <div class="col-resizer" data-col-resize="right" title="Glisser pour élargir/rétrécir — double-clic pour réinitialiser"><span class="col-resizer-grip"></span></div>
+
         <div class="widget-col" data-col="2">
           <div class="card widget" draggable="true" data-widget="account">
             <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3 id="account-widget-title">Compte</h3><button type="button" class="widget-hide" data-widget-hide="account" title="Masquer ce widget">✕</button></div>
@@ -1353,36 +1385,6 @@
       </div>
     </section>
 
-    <!-- ================= CONCOURS ================= -->
-    <section class="view" id="view-contest">
-      <div class="card">
-        <div class="quiz-cat gold-badge">🎁 Concours EDB</div>
-        <h2 style="margin:10px 0 6px;">Concours Trading — comptes Prop Firm à la clé</h2>
-        <p class="chart-note" style="max-width:680px;margin-bottom:14px;">Ouvert à tous, sur le compte normal Paper Tape. Même classement que l'onglet Classement — seuls les 3 premiers qui remplissent les conditions ci-dessous remportent un prix.</p>
-        <div class="contest-podium" id="contest-podium"></div>
-        <div class="card" style="margin-top:16px;background:var(--bg-raised);">
-          <h3 style="margin-top:0;">Règlement</h3>
-          <ul style="margin:0;padding-left:20px;font-size:12.5px;color:var(--text-dim);line-height:1.7;">
-            <li>Minimum <strong>30 positions clôturées « qualifiées »</strong> sur ton compte normal.</li>
-            <li>Une position est « qualifiée » si son PnL — gain <strong>ou</strong> perte — dépasse <strong>1 000 $</strong> (1% du capital de départ) en valeur absolue. Les micro-trades ne comptent pas.</li>
-            <li>Classement = équité du compte normal, identique à l'onglet Classement.</li>
-            <li>Ajouter à une position déjà ouverte (même sens, même actif) ne crée pas une position qualifiée supplémentaire — seule sa clôture finale compte comme UNE position.</li>
-            <li><strong>Le hedging est interdit</strong> : pas de Long et de Short ouverts en même temps sur un même actif, ni sur des actifs crypto corrélés entre eux (BTC/ETH/SOL/HYPE) — ça permet de sécuriser artificiellement les 1 000 $ ci-dessus sans vrai risque de marché. Vérifié manuellement par le bureau (panneau Admin) avant de valider le podium ; un compte détecté peut être disqualifié.</li>
-            <li><strong>Une performance régulière, pas 1 à 5 paris démesurés</strong> : si tes 5 plus grosses positions qualifiées représentent 60% ou plus du PnL cumulé de tes 30 trades qualifiés, ton compte est signalé pour vérification manuelle — le concours récompense une régularité sur la durée, pas un ou deux coups de chance (ou de folie) noyés dans des trades de complément. Vérifié dans le panneau Admin avant de valider le podium.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="card" style="margin-top:14px;">
-        <h3>Classement du concours</h3>
-        <div style="overflow-x:auto;">
-          <table class="lb-table">
-            <thead><tr><th>Rang</th><th>Trader</th><th>Équité</th><th>Statut</th></tr></thead>
-            <tbody id="contest-body"><tr><td colspan="4" class="empty-note">Chargement…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
     <!-- ================= CONCOURS EDB+ (Challenge Hardcore) =================
          Visible to every EDB member (tab is never hidden, same pattern as
          Quiz/Connaissances/Challenge) but the real rules/progress only ever
@@ -1413,7 +1415,7 @@
           <ul style="margin:0;padding-left:20px;font-size:12.5px;color:var(--text-dim);line-height:1.7;">
             <li>Palier <strong>200 000 $</strong> uniquement — les autres tailles de challenge ne comptent pas pour ce concours (elles restent valables pour les badges Prop Firm normaux).</li>
             <li>Passer les <strong>2 étapes</strong> du Challenge Prop Firm — mêmes règles que le Challenge classique (objectifs +10%/+5%, perte journalière -5%, drawdown -10%, levier max x20).</li>
-            <li>Au moins <strong>5 positions clôturées « qualifiées »</strong> sur ce passage précis (PnL — gain ou perte — d'au moins 1 000 $), même définition que pour le Concours normal. Un passage financé avec moins de 5 trades qualifiés ne compte pas pour les 5 réussites requises ici — les badges Prop Firm restent acquis, mais la progression vers la Prop 100k n'avance pas.</li>
+            <li>Au moins <strong>5 positions clôturées « qualifiées »</strong> sur ce passage précis (PnL — gain ou perte — d'au moins 1 000 $). Un passage financé avec moins de 5 trades qualifiés ne compte pas pour les 5 réussites requises ici — les badges Prop Firm restent acquis, mais la progression vers la Prop 100k n'avance pas.</li>
             <li>Maximum <strong>15 ouvertures</strong> du Challenge 200 000 $ au total, à vie — choisis tes tentatives, ce n'est pas illimité.</li>
           </ul>
         </div>
@@ -1827,6 +1829,56 @@ const BINANCE_API_BASE = "https://api.binance.com/api/v3";
 const CANDLE_TIMEFRAMES = ["1m","5m","15m","1h"];
 let currentTimeframe = "1m";
 let candleTimer = null;
+// How many of the fetched candles are actually drawn on the internal chart —
+// the "zoom" level. Fewer candles = wider bodies, zoomed in on recent price
+// action; more candles = thinner bodies, zoomed out to see more history. The
+// zoom-in/out buttons and the mouse wheel over the chart step through this
+// list; persisted per-browser like the theme/widget layout so it survives a
+// reload. CHART_ZOOM_MAX also caps how many candles are worth fetching from
+// the API (see fetchCandlesBinance/fetchCandlesCryptoCom) — no point asking
+// for more than the most zoomed-out view could ever show.
+const CHART_ZOOM_STEPS = [15,25,40,60,100,150,200,300];
+const CHART_ZOOM_DEFAULT_INDEX = 3; // 60 candles — matches the old fixed window
+const CHART_ZOOM_MAX = CHART_ZOOM_STEPS[CHART_ZOOM_STEPS.length-1];
+const CHART_ZOOM_KEY = "paperTapeChartZoomIndex";
+function loadChartZoomIndex(){
+  try{
+    const raw = localStorage.getItem(CHART_ZOOM_KEY);
+    const n = raw==null ? NaN : parseInt(raw,10);
+    return (isFinite(n) && n>=0 && n<CHART_ZOOM_STEPS.length) ? n : CHART_ZOOM_DEFAULT_INDEX;
+  }catch(e){ return CHART_ZOOM_DEFAULT_INDEX; }
+}
+let chartZoomIndex = loadChartZoomIndex();
+function chartVisibleCandleCount(){ return CHART_ZOOM_STEPS[chartZoomIndex]; }
+function setChartZoomIndex(i){
+  chartZoomIndex = Math.max(0, Math.min(CHART_ZOOM_STEPS.length-1, i));
+  try{ localStorage.setItem(CHART_ZOOM_KEY, String(chartZoomIndex)); }catch(e){}
+  updateChartZoomLabel();
+  updateChart();
+}
+function updateChartZoomLabel(){
+  const el = document.getElementById("chart-zoom-label");
+  if (el) el.textContent = chartVisibleCandleCount()+" bougies";
+  const outBtn = document.getElementById("chart-zoom-out");
+  const inBtn = document.getElementById("chart-zoom-in");
+  if (outBtn) outBtn.disabled = chartZoomIndex>=CHART_ZOOM_STEPS.length-1;
+  if (inBtn) inBtn.disabled = chartZoomIndex<=0;
+}
+function initChartZoomControls(){
+  const outBtn = document.getElementById("chart-zoom-out");
+  const inBtn = document.getElementById("chart-zoom-in");
+  const svg = document.getElementById("chart-svg");
+  if (outBtn) outBtn.addEventListener("click", ()=>setChartZoomIndex(chartZoomIndex+1)); // more candles = zoomed out
+  if (inBtn) inBtn.addEventListener("click", ()=>setChartZoomIndex(chartZoomIndex-1));   // fewer candles = zoomed in
+  if (svg){
+    svg.addEventListener("wheel", (e)=>{
+      if (chartSource!=="internal") return;
+      e.preventDefault();
+      setChartZoomIndex(chartZoomIndex + (e.deltaY>0 ? 1 : -1));
+    }, {passive:false});
+  }
+  updateChartZoomLabel();
+}
 const MMR = 0.004;          // flat maintenance margin rate
 // Taker: market-order entries and every exit (SL/TP/liquidation-check/manual
 // close all fill at the current market price, i.e. taking liquidity).
@@ -2737,15 +2789,10 @@ function quizGrandTotal(){
 function subscribeLeaderboard(){
   try{
     db.collection("traders").orderBy("equity","desc").limit(50).onSnapshot(
-      (snap)=>{
-        renderLeaderboard(snap.docs);
-        // Concours page reuses this exact same query/snapshot (see
-        // renderContestPage() below) instead of opening a second listener.
-        if (typeof renderContestPage==="function") renderContestPage(snap.docs);
-      },
-      (err)=>{ console.warn("lb error", err); renderLeaderboardError(); if (typeof renderContestPageError==="function") renderContestPageError(); }
+      (snap)=>renderLeaderboard(snap.docs),
+      (err)=>{ console.warn("lb error", err); renderLeaderboardError(); }
     );
-  }catch(e){ renderLeaderboardError(); if (typeof renderContestPageError==="function") renderContestPageError(); }
+  }catch(e){ renderLeaderboardError(); }
 }
 // Separate ranking for Prop Firm challenge accounts — a real Firestore
 // orderBy("propEquity") already excludes docs missing that field, but
@@ -2960,7 +3007,8 @@ async function fetchTickerRest(a){
   return fetchTickerCryptoCom(a.instrument);
 }
 async function fetchCandlesCryptoCom(instrument, tf){
-  const url = CRYPTO_API_BASE+"/get-candlestick?instrument_name="+encodeURIComponent(instrument)+"&timeframe="+encodeURIComponent(tf);
+  // count matches CHART_ZOOM_MAX — same reasoning as the Binance limit above.
+  const url = CRYPTO_API_BASE+"/get-candlestick?instrument_name="+encodeURIComponent(instrument)+"&timeframe="+encodeURIComponent(tf)+"&count="+CHART_ZOOM_MAX;
   const res = await fetch(url, {signal:AbortSignal.timeout(12000)});
   if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
   const json = await res.json();
@@ -2973,7 +3021,10 @@ async function fetchCandlesCryptoCom(instrument, tf){
 }
 async function fetchCandlesBinance(binanceSymbol, tf){
   // Binance's interval strings ("1m","5m","15m","1h") already match ours.
-  const url = BINANCE_API_BASE+"/klines?symbol="+encodeURIComponent(binanceSymbol)+"&interval="+encodeURIComponent(tf)+"&limit=50";
+  // limit matches CHART_ZOOM_MAX (the most zoomed-out chart view) so the
+  // zoom-out control has real history to reveal instead of stretching the
+  // same ~50 candles thinner.
+  const url = BINANCE_API_BASE+"/klines?symbol="+encodeURIComponent(binanceSymbol)+"&interval="+encodeURIComponent(tf)+"&limit="+CHART_ZOOM_MAX;
   const res = await fetch(url, {signal:AbortSignal.timeout(8000)});
   if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
   const raw = await res.json();
@@ -3622,6 +3673,7 @@ function setChartSource(src){
   const tvWrap = document.getElementById("tv-chart-wrap");
   const tfSeg = document.getElementById("tf-seg");
   const themeSeg = document.getElementById("candle-theme-seg");
+  const zoomSeg = document.getElementById("chart-zoom-seg");
   document.getElementById("chart-src-internal").classList.toggle("active", src==="internal");
   document.getElementById("chart-src-tv").classList.toggle("active", src==="tv");
   // Belt-and-suspenders: some browsers don't apply the UA [hidden]{display:none}
@@ -3634,6 +3686,7 @@ function setChartSource(src){
   // quirk, since an inline style always wins over any class/attribute selector.
   tfSeg.hidden = src==="tv"; tfSeg.style.display = src==="tv" ? "none" : "";
   themeSeg.hidden = src==="tv"; themeSeg.style.display = src==="tv" ? "none" : "";
+  if (zoomSeg){ zoomSeg.hidden = src==="tv"; zoomSeg.style.display = src==="tv" ? "none" : ""; }
   if (src==="tv"){
     svg.hidden = true; svg.style.display = "none";
     tvWrap.hidden = false; tvWrap.style.display = "";
@@ -3656,7 +3709,211 @@ function initChartSourceToggle(){
   document.getElementById("chart-src-internal").addEventListener("click", ()=>setChartSource("internal"));
   document.getElementById("chart-src-tv").addEventListener("click", ()=>setChartSource("tv"));
 }
+// ---- Draggable TP/SL lines on the internal chart ----
+// chartScale is the price↔pixel scale of the chart's LAST successful
+// render (see updateChart()) — needed so a drag gesture, which happens
+// between renders, can convert the pointer's Y position back into a price.
+// null whenever there's nothing sensibly drawn to drag against (tv mode,
+// loading, no market data yet).
+let chartScale = null;
+// Converts a pointer event's viewport clientY into a chart price, using
+// chartScale and the SVG element's current on-screen bounding box (the
+// 640x220 viewBox is almost always scaled up/down to fit the widget, so a
+// raw clientY needs remapping into viewBox units first).
+function chartPriceFromClientY(clientY, svgEl){
+  if (!chartScale) return null;
+  const rect = svgEl.getBoundingClientRect();
+  if (!rect.height) return null;
+  const viewY = (clientY - rect.top) / rect.height * chartScale.H;
+  const {min, max, padT, H, padB} = chartScale;
+  const range = (max-min)||1;
+  const clampedY = Math.max(padT, Math.min(H-padB, viewY));
+  return min + (1 - (clampedY-padT)/(H-padT-padB)) * range;
+}
+// Clamps a candidate TP/SL price so it stays strictly on the valid side of
+// the entry price for that leg/side — same rule openTPSLModal() enforces
+// (TP above entry & SL below for a long, mirrored for a short) — with a
+// tiny epsilon so it's never exactly at entry (a TP/SL at entry would
+// trigger instantly). Shared by both "move an existing line" and "create a
+// new one by dragging away from entry".
+function clampTpSlPrice(price, leg, side, entryPrice){
+  const eps = Math.max(entryPrice*0.0005, 0.0001);
+  const aboveEntryOnly = (leg==="tp") === (side==="long"); // tp+long or sl+short => must be ABOVE entry
+  return aboveEntryOnly ? Math.max(price, entryPrice+eps) : Math.min(price, entryPrice-eps);
+}
+// Current drag, or null. {positionId, leg:"tp"|"sl", mode:"move"|"create",
+// pointerId, price, startClientY} — `price` is always the live (already
+// clamped) candidate value, kept up to date on every pointermove so
+// pointerup just has to commit it.
+let chartLineDrag = null;
+function chartLineDragMinDistancePx(){ return 5; } // below this, a "create" drag is treated as an accidental click and discarded
+function initChartLineDrag(){
+  const svg = document.getElementById("chart-svg");
+  if (!svg) return;
+  svg.addEventListener("pointerdown", (e)=>{
+    const el = e.target.closest && e.target.closest("[data-tpsl-pos]");
+    if (!el) return;
+    const p = (state.positions||[]).find(x=>x.id===el.dataset.tpslPos);
+    if (!p) return;
+    const leg = el.dataset.tpslLeg; // "tp" | "sl"
+    const mode = el.dataset.tpslMode; // "move" | "create"
+    const startPrice = mode==="move" ? (leg==="tp"?p.takeProfit:p.stopLoss) : p.entryPrice;
+    chartLineDrag = {positionId:p.id, leg, mode, pointerId:e.pointerId, price:startPrice, startClientY:e.clientY};
+    try{ svg.setPointerCapture(e.pointerId); }catch(err){}
+    svg.classList.add("tpsl-dragging");
+    e.preventDefault();
+  });
+  svg.addEventListener("pointermove", (e)=>{
+    if (!chartLineDrag || e.pointerId!==chartLineDrag.pointerId) return;
+    e.preventDefault();
+    const p = (state.positions||[]).find(x=>x.id===chartLineDrag.positionId);
+    if (!p){ chartLineDrag = null; return; }
+    const raw = chartPriceFromClientY(e.clientY, svg);
+    if (raw==null) return;
+    const price = clampTpSlPrice(raw, chartLineDrag.leg, p.side, p.entryPrice);
+    chartLineDrag.price = price;
+    chartLineDragPatchDom(svg, p);
+  });
+  function endDrag(e){
+    if (!chartLineDrag || e.pointerId!==chartLineDrag.pointerId) return;
+    const drag = chartLineDrag;
+    chartLineDrag = null;
+    svg.classList.remove("tpsl-dragging");
+    const p = (state.positions||[]).find(x=>x.id===drag.positionId);
+    if (p){
+      const movedPx = Math.abs(e.clientY - drag.startClientY);
+      if (drag.mode==="move" || movedPx>=chartLineDragMinDistancePx()){
+        if (drag.leg==="tp") p.takeProfit = drag.price; else p.stopLoss = drag.price;
+        persistAccount();
+        renderPositions();
+      }
+    }
+    updateChart(); // resume normal rendering (also redraws from the committed value if nothing changed)
+  }
+  svg.addEventListener("pointerup", endDrag);
+  svg.addEventListener("pointercancel", endDrag);
+}
+// Moves just the dragged line/label/chip during an active drag, instead of
+// a full updateChart() rebuild (which is paused for the whole gesture —
+// see the guard at the top of updateChart()). Keeps the OTHER leg/entry
+// line untouched so a fast drag doesn't flicker the rest of the chart.
+function chartLineDragPatchDom(svg, p){
+  if (!chartLineDrag || !chartScale) return;
+  const {leg, price, mode} = chartLineDrag;
+  const y = v => chartScale.padT + (1-((v-chartScale.min)/((chartScale.max-chartScale.min)||1)))*(chartScale.H-chartScale.padT-chartScale.padB);
+  const yPix = y(price);
+  const color = leg==="tp" ? "#31c882" : "#f0546a";
+  const label = (leg==="tp"?"TP ":"SL ")+fmtPrice(price, (ASSETS.find(a=>a.symbol===p.symbol)||{}).decimals);
+  if (mode==="move"){
+    const line = document.getElementById("tpsl-line-"+p.id+"-"+leg);
+    const text = document.getElementById("tpsl-label-"+p.id+"-"+leg);
+    if (line){ line.setAttribute("y1", yPix.toFixed(1)); line.setAttribute("y2", yPix.toFixed(1)); }
+    if (text){
+      const labelY = Math.max(chartScale.padT+9, Math.min(chartScale.H-chartScale.padB-2, yPix-3));
+      text.setAttribute("y", labelY.toFixed(1));
+      text.textContent = label;
+    }
+  } else {
+    // "create" — draw a live preview line growing out from the entry price,
+    // appended fresh each move (cheap: it's one line + one text node).
+    let preview = document.getElementById("tpsl-drag-preview");
+    if (!preview){
+      preview = document.createElementNS("http://www.w3.org/2000/svg","g");
+      preview.setAttribute("id","tpsl-drag-preview");
+      svg.appendChild(preview);
+    }
+    const entryY = y(p.entryPrice);
+    preview.innerHTML =
+      '<line x1="'+chartScale.padL+'" y1="'+yPix.toFixed(1)+'" x2="'+(chartScale.W-chartScale.padR)+'" y2="'+yPix.toFixed(1)+'" stroke="'+color+'" stroke-width="1" stroke-dasharray="4,3" opacity="0.9"/>'+
+      '<text x="'+(chartScale.padL+3)+'" y="'+Math.max(chartScale.padT+9, Math.min(chartScale.H-chartScale.padB-2, yPix-3)).toFixed(1)+'" fill="'+color+'" font-size="9" font-family="IBM Plex Mono,monospace">'+label+'</text>'+
+      '<line x1="'+chartScale.padL+'" y1="'+entryY.toFixed(1)+'" x2="'+chartScale.padL+'" y2="'+yPix.toFixed(1)+'" stroke="'+color+'" stroke-width="1" opacity="0.35"/>';
+  }
+}
+// Open position(s) on `sym`, straight off the live/active book — the chart
+// widget always reflects whichever account (normal/prop) is currently on
+// state.*, same as the order ticket and the rest of the trading UI on this
+// page, so no book-switching indirection is needed here.
+function openPositionsForChart(sym){
+  return (state.positions||[]).filter(p=>p.symbol===sym);
+}
+// SVG markup for a single dashed/solid horizontal price line + label, used
+// for a position's entry/TP/SL on the internal chart. `y` is the chart's
+// price→pixel mapper (see updateChart()); label sits just above the line,
+// clamped inside the plot area so it doesn't get cut off at the very
+// top/bottom edge. When `posId`+`leg` are given (leg: "tp"|"sl", never for
+// the entry line itself — entry price isn't editable by dragging) the line
+// gets a fat, mostly-invisible hit-strip on top of it (`.tpsl-hit`) so it's
+// draggable — see initChartLineDrag() — with a stable id so an in-progress
+// drag can move just this line/label without a full chart re-render.
+function chartPriceLineHtml(price, y, W, padL, padR, padT, H, padB, color, label, dashed, posId, leg){
+  const yPix = y(price);
+  const labelY = Math.max(padT+9, Math.min(H-padB-2, yPix-3));
+  const draggable = posId!=null && leg!=null;
+  const idAttr = draggable ? ' id="tpsl-line-'+posId+'-'+leg+'"' : "";
+  const labelIdAttr = draggable ? ' id="tpsl-label-'+posId+'-'+leg+'"' : "";
+  const hit = draggable
+    ? '<rect class="tpsl-hit" data-tpsl-pos="'+posId+'" data-tpsl-leg="'+leg+'" data-tpsl-mode="move" x="'+padL+'" y="'+(yPix-6).toFixed(1)+'" width="'+(W-padL-padR)+'" height="12" fill="transparent"/>'
+    : "";
+  return '<line'+idAttr+' x1="'+padL+'" y1="'+yPix.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+yPix.toFixed(1)+'" stroke="'+color+'" stroke-width="1"'+(dashed?' stroke-dasharray="4,3"':'')+' opacity="0.85"/>'+
+    '<text'+labelIdAttr+' x="'+(padL+3)+'" y="'+labelY.toFixed(1)+'" fill="'+color+'" font-size="9" font-family="IBM Plex Mono,monospace">'+escapeHtml(label)+'</text>'+
+    hit;
+}
+// A small draggable "+ TP"/"+ SL" chip anchored near the entry line, shown
+// only when that leg isn't set yet — grabbing it and dragging away from
+// entry creates it (see initChartLineDrag()'s "create" mode). Placed a
+// fixed pixel offset from the entry line, on whichever side is actually
+// valid for a long vs a short, so the two chips (when both legs are empty)
+// never overlap each other or the entry line itself.
+function chartCreateChipHtml(entryY, padL, W, padR, color, label, posId, leg, dir){
+  const y = entryY + dir*14;
+  const w = 34, h = 13;
+  const x = padL+4;
+  return '<g class="tpsl-chip" data-tpsl-pos="'+posId+'" data-tpsl-leg="'+leg+'" data-tpsl-mode="create">'+
+    '<rect x="'+x+'" y="'+(y-h/2).toFixed(1)+'" width="'+w+'" height="'+h+'" rx="3" fill="'+color+'" opacity="0.18" stroke="'+color+'" stroke-width="1"/>'+
+    '<text x="'+(x+w/2)+'" y="'+(y+3).toFixed(1)+'" fill="'+color+'" font-size="9" font-family="IBM Plex Mono,monospace" text-anchor="middle">'+label+'</text>'+
+  '</g>';
+}
+// Builds the full set of entry/TP/SL lines (+ "add TP"/"add SL" chips for
+// whichever leg isn't set) for every open position on `sym` — a hedge
+// (long+short at once) draws both sets, each tagged with its side so
+// they're not ambiguous stacked on the same chart.
+function positionLinesHtml(positions, y, W, padL, padR, padT, H, padB, decimals){
+  let out = "";
+  positions.forEach(p=>{
+    const sideLabel = p.side==="short" ? "Short" : "Long";
+    if (typeof p.entryPrice!=="number") return;
+    const entryY = y(p.entryPrice);
+    out += chartPriceLineHtml(p.entryPrice, y, W, padL, padR, padT, H, padB, "#8fa3bf", "Entrée "+sideLabel+" "+fmtPrice(p.entryPrice,decimals), false);
+    // TP sits above entry for a long, below for a short; SL is the mirror.
+    const tpDir = p.side==="long" ? -1 : 1;
+    const slDir = p.side==="long" ? 1 : -1;
+    if (typeof p.takeProfit==="number") out += chartPriceLineHtml(p.takeProfit, y, W, padL, padR, padT, H, padB, "#31c882", "TP "+fmtPrice(p.takeProfit,decimals), true, p.id, "tp");
+    else out += chartCreateChipHtml(entryY, padL, W, padR, "#31c882", "+ TP", p.id, "tp", tpDir);
+    if (typeof p.stopLoss==="number") out += chartPriceLineHtml(p.stopLoss, y, W, padL, padR, padT, H, padB, "#f0546a", "SL "+fmtPrice(p.stopLoss,decimals), true, p.id, "sl");
+    else out += chartCreateChipHtml(entryY, padL, W, padR, "#f0546a", "+ SL", p.id, "sl", slDir);
+  });
+  return out;
+}
+// Extends a [min,max] price range so every entry/TP/SL level is actually
+// visible on the chart instead of being clipped off — otherwise a stop loss
+// set far from the current price would just fall outside the drawn area.
+function extendRangeForPositions(min, max, positions){
+  positions.forEach(p=>{
+    [p.entryPrice, p.takeProfit, p.stopLoss].forEach(v=>{
+      if (typeof v==="number" && isFinite(v)){ if (v<min) min=v; if (v>max) max=v; }
+    });
+  });
+  return [min,max];
+}
 function updateChart(){
+  // While a TP/SL line is actively being dragged, a periodic price-tick
+  // re-render would wipe out the in-progress drag preview (a fresh
+  // svg.innerHTML rebuilt from the *committed* position, not the pointer's
+  // current position) — see initChartLineDrag(), which patches the SVG
+  // directly during the drag instead of going through here. The chart
+  // simply pauses its candle/price refresh for that one- or two-second
+  // gesture, same trade-off most trading platforms make.
+  if (chartLineDrag) return;
   if (chartSource==="tv"){
     document.getElementById("chart-sym").innerHTML = '<span style="color:'+((ASSETS.find(x=>x.symbol===selectedSymbol)||{}).color||"inherit")+';">'+((ASSETS.find(x=>x.symbol===selectedSymbol)||{}).icon||"")+'</span> '+selectedSymbol;
     document.getElementById("chart-name").textContent = (ASSETS.find(x=>x.symbol===selectedSymbol)||{}).name||"";
@@ -3679,6 +3936,7 @@ function updateChart(){
     priceEl.className = "price-big num flat";
     svg.innerHTML = '<text x="320" y="112" text-anchor="middle" fill="#57667a" font-size="12" font-family="IBM Plex Mono,monospace">'+
       (m.error ? "Flux Crypto.com indisponible pour "+a.symbol : "Connexion au flux Crypto.com en cours…")+'</text>';
+    chartScale = null;
     return;
   }
   priceEl.textContent = fmtPrice(m.last,a.decimals);
@@ -3699,15 +3957,18 @@ function updateChart(){
   // rescaled for SPY/QQQ exactly like the live ticker. Falls back to the
   // simple accumulating tick-line below only while candles are still
   // loading, unavailable, or the connector doesn't support them.
-  const candles = (m.candles && m.candles.data) || [];
+  const allCandles = (m.candles && m.candles.data) || [];
+  const candles = allCandles.slice(-chartVisibleCandleCount());
   if (candles.length>=2){
+    const positions = openPositionsForChart(selectedSymbol);
     const highs = candles.map(c=>c.h), lows = candles.map(c=>c.l);
-    const min = Math.min(...lows), max = Math.max(...highs);
+    let [min, max] = extendRangeForPositions(Math.min(...lows), Math.max(...highs), positions);
     const range = (max-min)||(max*0.001)||1;
     const n = candles.length;
     const slotW = (W-padL-padR)/n;
     const bodyW = Math.max(2, Math.min(14, slotW*0.62));
     const y = v => padT + (1-((v-min)/range))*(H-padT-padB);
+    chartScale = {min, max, padT, H, padB, W, padL, padR};
     const cc = candleColors();
     let bars = "";
     candles.forEach((c,i)=>{
@@ -3728,27 +3989,32 @@ function updateChart(){
       '<text x="'+(W-padR+8)+'" y="'+(H-padB+2)+'" fill="'+textColor+'" font-size="10" font-family="IBM Plex Mono,monospace">'+fmtPrice(min,a.decimals)+'</text>'+
       bars+
       '<line x1="'+padL+'" y1="'+lastY.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+lastY.toFixed(1)+'" stroke="'+lineColor+'" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>'+
+      positionLinesHtml(positions, y, W, padL, padR, padT, H, padB, a.decimals)+
       '<text x="'+padL+'" y="'+(H-6)+'" fill="'+textColor+'" font-size="9" font-family="IBM Plex Mono,monospace">'+fmtClock(candles[0].t)+'</text>'+
       '<text x="'+(W-padR)+'" y="'+(H-6)+'" fill="'+textColor+'" font-size="9" font-family="IBM Plex Mono,monospace" text-anchor="end">'+fmtClock(candles[n-1].t)+'</text>';
     return;
   }
   if (m.candles && m.candles.loading && candles.length===0){
     svg.innerHTML = '<text x="320" y="112" text-anchor="middle" fill="#57667a" font-size="12" font-family="IBM Plex Mono,monospace">Chargement du graphique en bougies ('+currentTimeframe+')…</text>';
+    chartScale = null;
     return;
   }
   if (m.history.length<2){
     svg.innerHTML = '<text x="320" y="112" text-anchor="middle" fill="#57667a" font-size="12" font-family="IBM Plex Mono,monospace">'+
       (m.candles && m.candles.error ? "Historique en bougies indisponible — la courbe se construit en direct" : "Premier relevé reçu — la courbe se construit au fil des prochaines actualisations (~30s)")+
       '</text>';
+    chartScale = null;
     return;
   }
   // Fallback: simple accumulating line built from polled ticks, used only
   // when get_candlestick data couldn't be obtained for this symbol.
   const hist = m.history.slice(-140);
-  const min = Math.min(...hist), max = Math.max(...hist);
+  const positionsFallback = openPositionsForChart(selectedSymbol);
+  const [min, max] = extendRangeForPositions(Math.min(...hist), Math.max(...hist), positionsFallback);
   const range = (max-min)||(max*0.001)||1;
   const x = i => padL + (hist.length<2?0:(i/(hist.length-1))*(W-padL-padR));
   const y = v => padT + (1-((v-min)/range))*(H-padT-padB);
+  chartScale = {min, max, padT, H, padB, W, padL, padR};
   let d = "";
   hist.forEach((p,i)=>{ d += (i===0?"M":"L")+x(i).toFixed(1)+","+y(p).toFixed(1)+" "; });
   const up = m.changePct>=0;
@@ -3761,6 +4027,7 @@ function updateChart(){
     '<text x="'+(W-padR+8)+'" y="'+(H-padB+2)+'" fill="'+textColor+'" font-size="10" font-family="IBM Plex Mono,monospace">'+fmtPrice(min,a.decimals)+'</text>'+
     '<path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>'+
     '<line x1="'+padL+'" y1="'+lastY.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+lastY.toFixed(1)+'" stroke="'+color+'" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>'+
+    positionLinesHtml(positionsFallback, y, W, padL, padR, padT, H, padB, a.decimals)+
     '<circle cx="'+lastX.toFixed(1)+'" cy="'+lastY.toFixed(1)+'" r="3" fill="'+color+'"/>';
 }
 
@@ -5632,165 +5899,18 @@ function renderStreakDisplay(){
   el.textContent = n>0 ? "🔥 "+n+" jour"+(n>1?"s":"")+" de suite" : "Reviens demain pour démarrer une série 🔥";
 }
 
-/* ============================= CONCOURS (Prop Firm) =============================
- * Deliberately NOT a new trading mode or a new leaderboard metric — it's the
- * existing "compte normal" equity leaderboard (same query, same order),
- * re-rendered with an eligibility filter on top: a trader needs at least
- * CONTEST_MIN_QUALIFYING_TRADES CLOSED positions whose PnL (win OR loss)
- * clears CONTEST_QUALIFY_PNL in absolute value. That threshold does double
- * duty: it screens out throwaway micro-trades, AND it closes the "click
- * Long 30 times at 0.01 lot" loophole — as long as those clicks share the
- * same symbol/side/mode, openPositionCore() already merges them into ONE
- * open position (see that function above), so closing it writes exactly ONE
- * history entry, never 30. Getting 30 qualifying entries requires 30
- * genuinely separate round-trips of real size.
- */
-const CONTEST_MIN_QUALIFYING_TRADES = 30;
+// Le concours normal ("Concours Trading — comptes Prop Firm à la clé") et
+// son podium ont été retirés de l'app (tab, page, classement, et les
+// vérifications anti-triche dédiées à sa validation, plus bas). CONTEST_QUALIFY_PNL
+// reste : c'est le seuil "trade qualifié" (1 000 $, 1% du capital de départ)
+// toujours utilisé par le Challenge Hardcore (Concours EDB+, voir
+// updateChallengeStatus()) et par le Profil de risque admin ci-dessous.
+let contestLeaderboardDocsCache = {}; // toujours vide désormais — conservé car référencé par le lookup partagé plus bas (openTraderProfileModal)
 const CONTEST_QUALIFY_PNL = START_CASH * 0.01; // 1 000 $ (1% de 100 000 $)
-// Trades clôturés avant cette date ne comptent pas pour le concours — à
-// ajuster ici si la date de lancement réelle est différente (mets `null`
-// pour ne filtrer sur aucune date, c-à-d compter tout l'historique existant).
-const CONTEST_START_AT = new Date("2026-09-15T00:00:00+02:00");
-const CONTEST_PRIZES = [
-  {rank:1, icon:"🥇", label:"1ère place", prize:"Challenge Prop Firm 25 000 $ offert par l'EDB"},
-  {rank:2, icon:"🥈", label:"2ème place", prize:"Challenge Prop Firm 10 000 $ offert par l'EDB"},
-  {rank:3, icon:"🥉", label:"3ème place", prize:"Challenge Prop Firm 5 000 $ offert par l'EDB"},
-];
-// Shared by countQualifyingTrades() below and by the anti-triche
-// concentration report further down (adminConcentrationReportHtml) — one
-// filter definition, so the two can never drift apart on what counts as
-// "qualifying".
-function qualifyingTradesOf(d){
-  const hist = Array.isArray(d.history) ? d.history : [];
-  return hist.filter(h=>{
-    if (typeof h.pnl!=="number" || Math.abs(h.pnl) < CONTEST_QUALIFY_PNL) return false;
-    if (CONTEST_START_AT && h.closedAt && new Date(h.closedAt) < CONTEST_START_AT) return false;
-    return true;
-  });
-}
-function countQualifyingTrades(d){
-  return qualifyingTradesOf(d).length;
-}
-let contestLeaderboardDocsCache = {};
-// Fed the SAME docs as the main equity leaderboard (see subscribeLeaderboard()
-// below) rather than opening a second Firestore listener on the same query —
-// no extra reads, and the two views can never drift out of sync.
-function renderContestPage(docs){
-  const body = document.getElementById("contest-body");
-  const podium = document.getElementById("contest-podium");
-  if (!body) return;
-  const rows = docs.map(doc=>{
-    const d = doc.data();
-    const qualifying = countQualifyingTrades(d);
-    return {doc, d, qualifying, eligible: qualifying>=CONTEST_MIN_QUALIFYING_TRADES};
-  });
-  // `rows` inherits the query's own equity-desc order — filtering down to
-  // eligible traders preserves that relative order, so indexOf()+1 below is
-  // already the correct contest rank.
-  const eligibleRows = rows.filter(r=>r.eligible);
-  contestLeaderboardDocsCache = {};
-  rows.forEach(r=>{ contestLeaderboardDocsCache[r.doc.id] = r.doc; });
-  if (podium){
-    podium.innerHTML = CONTEST_PRIZES.map(p=>{
-      const r = eligibleRows[p.rank-1];
-      const name = r ? escapeHtml(r.d.username||"Trader") : "—";
-      return '<div class="contest-podium-card'+(r?" filled":"")+'">'+
-        '<div class="contest-podium-icon">'+p.icon+'</div>'+
-        '<div class="contest-podium-rank">'+p.label+'</div>'+
-        '<div class="contest-podium-name">'+name+'</div>'+
-        '<div class="contest-podium-prize">'+escapeHtml(p.prize)+'</div>'+
-      '</div>';
-    }).join("");
-  }
-  if (!rows.length){ body.innerHTML = '<tr><td colspan="4" class="empty-note">Aucun trader pour le moment.</td></tr>'; return; }
-  body.innerHTML = rows.map(r=>{
-    const rank = r.eligible ? (eligibleRows.indexOf(r)+1) : null;
-    const rankClass = rank===1?"rank-1":rank===2?"rank-2":rank===3?"rank-3":"";
-    const progress = Math.min(r.qualifying, CONTEST_MIN_QUALIFYING_TRADES)+"/"+CONTEST_MIN_QUALIFYING_TRADES;
-    const statusHtml = r.eligible
-      ? '<span class="up">✅ Éligible</span>'
-      : '<span class="chart-note">'+progress+' trades qualifiés</span>';
-    return '<tr class="lb-row-clickable '+(r.doc.id===clientId?"me":"")+'" data-trader-id="'+r.doc.id+'" title="Voir le profil">'+
-      '<td class="num '+rankClass+'">'+(rank?("#"+rank):"—")+'</td>'+
-      '<td>'+avatarHtml(r.d.photoURL, r.d.username)+' '+escapeHtml(r.d.username||"Trader")+traderBadgesHtml(r.d)+(r.doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
-      '<td class="num">'+fmtMoney(r.d.equity||0)+'</td>'+
-      '<td>'+statusHtml+'</td>'+
-    '</tr>';
-  }).join("");
-  body.querySelectorAll("tr[data-trader-id]").forEach(tr=>{
-    tr.addEventListener("click", ()=>openTraderProfileModal(tr.dataset.traderId));
-  });
-}
-function renderContestPageError(){
-  const body = document.getElementById("contest-body");
-  if (body) body.innerHTML = '<tr><td colspan="4" class="empty-note">Classement indisponible pour le moment.</td></tr>';
-}
 
-/* ============================= ANTI-TRICHE — HEDGING (concours) =============================
- * Interdit par le règlement du concours (voir #view-contest) : ouvrir Long ET
- * Short en même temps sur le même actif, ou sur deux actifs crypto corrélés
- * — ça permet de "farmer" le seuil des 1 000 $ (CONTEST_QUALIFY_PNL) avec un
- * risque de marché quasi nul, puisqu'une jambe absorbe la perte de l'autre.
- * Détection : deux positions/trades du même trader, sens opposés, sur des
- * actifs liés, dont les fenêtres [ouverture, clôture-ou-maintenant] se
- * chevauchent dans le temps. C'est un outil de suspicion pour l'admin, pas
- * un juge automatique — le panneau Admin affiche les preuves, la décision
- * finale (disqualifier ou non) reste humaine.
- */
-const HEDGE_GROUPS = [
-  ["BTC","ETH","SOL","HYPE"], // crypto majors/alts — fortement corrélés entre eux
-];
-function hedgeGroupOf(symbol){
-  return HEDGE_GROUPS.find(g=>g.includes(symbol)) || null;
-}
-function areRelatedSymbols(symA, symB){
-  if (symA===symB) return true;
-  const g = hedgeGroupOf(symA);
-  return !!(g && g.includes(symB));
-}
-// One interval per trade: closed trades come from `history` (end=closedAt),
-// still-open ones from `positions` (end=now, since an open position can
-// still be hedging something else right now or a trade closed earlier).
-// Requires `openedAt` on the entry — always present on trades closed by the
-// CLIENT (closePosition()/closePositionPartial() above), and now also on
-// ones closed server-side by paperTapeMark (see functions/index.js) since
-// that file's history entries were extended to match; older entries from
-// before that fix simply can't be checked and are skipped, not miscounted.
-function traderIntervals(d){
-  const hist = Array.isArray(d.history) ? d.history : [];
-  const pos = Array.isArray(d.positions) ? d.positions : [];
-  const nowIso = new Date().toISOString();
-  const fromHist = hist.filter(h=>h.openedAt && h.symbol && h.side).map(h=>({
-    symbol:h.symbol, side:h.side, start:h.openedAt, end:h.closedAt||nowIso,
-    notional:h.notional, pnl:(typeof h.pnl==="number"?h.pnl:null), open:false,
-  }));
-  const fromPos = pos.filter(p=>p.openedAt && p.symbol && p.side).map(p=>({
-    symbol:p.symbol, side:p.side, start:p.openedAt, end:nowIso,
-    notional:p.notional, pnl:null, open:true,
-  }));
-  return fromHist.concat(fromPos);
-}
-function detectHedgePairs(d){
-  const intervals = traderIntervals(d);
-  const pairs = [];
-  for (let i=0;i<intervals.length;i++){
-    for (let j=i+1;j<intervals.length;j++){
-      const a = intervals[i], b = intervals[j];
-      if (a.side===b.side) continue; // same direction is just two trades, not a hedge
-      if (!areRelatedSymbols(a.symbol, b.symbol)) continue;
-      const aStart=new Date(a.start).getTime(), aEnd=new Date(a.end).getTime();
-      const bStart=new Date(b.start).getTime(), bEnd=new Date(b.end).getTime();
-      if (!(aStart<=bEnd && bStart<=aEnd)) continue; // no time overlap -> not simultaneous (inclusive: a position opened this instant still counts)
-      pairs.push({a, b, sameSymbol:a.symbol===b.symbol});
-    }
-  }
-  return pairs;
-}
 /* ============================= PROFIL DE RISQUE (Admin) =============================
- * General trader behavior profiling, shown for EVERY trader — unlike the
- * contest-specific anti-triche reports below (hedge/concentration), which
- * only ever look at qualifying trades for podium eligibility, this reads
- * the trader's WHOLE closed history to answer: does this trader lean on
+ * General trader behavior profiling, shown for EVERY trader. Reads the
+ * trader's WHOLE closed history to answer: does this trader lean on
  * oversized leverage/position size instead of real risk management, and is
  * their PnL a product of genuine market reads or just leverage
  * amplification? Purely descriptive — no scoring, no auto-flag tied to any
@@ -5823,14 +5943,15 @@ function traderRiskProfile(d){
   const highLevPct = (hist.filter(h=>h.leverage>=RISK_PROFILE_HIGH_LEVERAGE).length/n)*100;
   // Marge engagée par trade (notional/leverage), en % du capital de DÉPART
   // (START_CASH, pas l'équité courante) — même repère fixe que
-  // CONTEST_QUALIFY_PNL ailleurs dans l'app, pour rester comparable trade à
-  // trade sans que les propres gains/pertes du trader ne déplacent la base.
+  // CONTEST_QUALIFY_PNL ailleurs dans l'app (Challenge Hardcore), pour
+  // rester comparable trade à trade sans que les propres gains/pertes du
+  // trader ne déplacent la base.
   const marginPcts = hist.map(h=>((h.notional/h.leverage)/START_CASH)*100);
   const avgMarginPct = marginPcts.reduce((s,v)=>s+v,0)/n;
   const maxMarginPct = Math.max(...marginPcts);
   const pnlPcts = absPnls.map(v=>(v/START_CASH)*100);
   const avgAbsPnlPct = pnlPcts.reduce((s,v)=>s+v,0)/n;
-  const refPct = (CONTEST_QUALIFY_PNL/START_CASH)*100; // le repère "risque 1%" déjà utilisé pour le concours
+  const refPct = (CONTEST_QUALIFY_PNL/START_CASH)*100; // le repère "risque 1%" (même seuil que le Challenge Hardcore)
   const swingMultiple = refPct>0 ? avgAbsPnlPct/refPct : null;
   const leverageCorr = pearsonCorrelation(leverages, absPnls);
   const winRate = (hist.filter(h=>h.pnl>0).length/n)*100;
@@ -5853,7 +5974,7 @@ function adminRiskProfileHtml(d){
     : '🟢 Levier plutôt maîtrisé : moyenne x'+r.avgLeverage.toFixed(0)+' (jusqu\'à x'+r.maxLeverage.toFixed(0)+').';
   const sizeNote = r.avgMarginPct.toFixed(1)+'% du capital de départ engagé en marge par trade en moyenne (jusqu\'à '+r.maxMarginPct.toFixed(1)+'%).';
   const swingNote = r.swingMultiple!=null
-    ? r.avgAbsPnlPct.toFixed(1)+'% du capital par trade en moyenne — soit ~'+r.swingMultiple.toFixed(1)+'x le repère "risque 1%" ('+fmtMoney(CONTEST_QUALIFY_PNL)+') déjà utilisé pour le concours.'
+    ? r.avgAbsPnlPct.toFixed(1)+'% du capital par trade en moyenne — soit ~'+r.swingMultiple.toFixed(1)+'x le repère "risque 1%" ('+fmtMoney(CONTEST_QUALIFY_PNL)+', même seuil que le Challenge Hardcore).'
     : '—';
   const corrNote = r.leverageCorr!=null
     ? 'r='+r.leverageCorr.toFixed(2)+' — '+(r.leverageCorr>=0.5
@@ -5869,90 +5990,6 @@ function adminRiskProfileHtml(d){
     adminDetailRow("Régularité", consistNote)
   );
 }
-// Rendered into the admin trader detail view (adminDetailHtml() below) —
-// this is the "click on a trader in Admin, get told legit or hedged" the
-// bureau asked for.
-function adminHedgeReportHtml(d){
-  const pairs = detectHedgePairs(d);
-  const qualifying = typeof countQualifyingTrades==="function" ? countQualifyingTrades(d) : 0;
-  if (!pairs.length){
-    return adminDetailSection("Analyse anti-triche (concours)",
-      '<div class="admin-detail-empty" style="color:var(--long);">🟢 Légitime — aucun Long+Short simultané détecté sur un même actif ou un groupe corrélé (BTC/ETH/SOL/HYPE). '+qualifying+' trade(s) actuellement qualifié(s) pour le concours.</div>'
-    );
-  }
-  // Which qualifying (>=1000$) closed trades are themselves one leg of a
-  // detected pair — the number that actually matters for "should this count".
-  const taintedKeys = new Set();
-  pairs.forEach(({a,b})=>{
-    if (!a.open) taintedKeys.add(a.start+"|"+a.symbol+"|"+a.side);
-    if (!b.open) taintedKeys.add(b.start+"|"+b.symbol+"|"+b.side);
-  });
-  const hist = Array.isArray(d.history) ? d.history : [];
-  let taintedQualifying = 0;
-  hist.forEach(h=>{
-    if (typeof h.pnl!=="number" || Math.abs(h.pnl) < CONTEST_QUALIFY_PNL) return;
-    if (taintedKeys.has((h.openedAt||"")+"|"+h.symbol+"|"+h.side)) taintedQualifying++;
-  });
-  const legHtml = (leg)=> (leg.side==="long"?"▲ Long ":"▼ Short ")+escapeHtml(leg.symbol)+" · "+fmtMoney(leg.notional)+
-    (leg.open ? " (encore ouverte)" : " · "+fmtMoney(leg.pnl));
-  const rows = pairs.map(({a,b,sameSymbol})=>{
-    const label = sameSymbol ? "Hedge direct sur "+escapeHtml(a.symbol) : "Hedge croisé "+escapeHtml(a.symbol)+" / "+escapeHtml(b.symbol)+" (corrélés)";
-    return adminDetailRow(label, legHtml(a)+"<br>"+legHtml(b));
-  }).join("");
-  const verdict = taintedQualifying>0
-    ? '🔴 Hedging détecté — '+taintedQualifying+' des '+qualifying+' trade(s) qualifié(s) pour le concours chevauchent une position opposée sur un actif corrélé. À vérifier avant de valider son classement.'
-    : '🟠 Chevauchement Long+Short détecté ('+pairs.length+' paire(s)), mais aucun ne touche un trade actuellement compté comme qualifié pour le concours.';
-  return adminDetailSection("Analyse anti-triche (concours)",
-    '<div class="admin-detail-empty" style="color:var(--warn);">'+verdict+'</div>'+rows
-  );
-}
-
-/* ============================= ANTI-TRICHE — CONCENTRATION (concours) =============================
- * Second loophole in the "30 trades qualifiés" rule, separate from hedging:
- * nothing stops a trader from padding out to 30 qualifying trades with
- * borderline ~1 000 $ closes while 1-5 outsized bets actually carry the
- * whole result. That's not "consistent, repeatable trading" — it's one or
- * two lucky/reckless swings wearing a costume of 30 trades. Flags (doesn't
- * auto-disqualify, same philosophy as the hedge report above) whenever the
- * CONTEST_CONCENTRATION_TOP_N largest qualifying trades (by |pnl|) account
- * for too large a share of the total |pnl| across ALL qualifying trades.
- */
-const CONTEST_CONCENTRATION_TOP_N = 5;
-const CONTEST_CONCENTRATION_WARN_PCT = 60; // top-5 trades >= 60% of the qualifying total |pnl| → flagged for manual review
-function contestConcentrationReport(d){
-  const qualifying = qualifyingTradesOf(d);
-  if (qualifying.length < CONTEST_MIN_QUALIFYING_TRADES) return null; // not eligible yet — nothing to check
-  const totalAbs = qualifying.reduce((s,h)=>s+Math.abs(h.pnl),0);
-  const sorted = qualifying.slice().sort((a,b)=>Math.abs(b.pnl)-Math.abs(a.pnl));
-  const top1 = sorted.slice(0,1);
-  const topN = sorted.slice(0,CONTEST_CONCENTRATION_TOP_N);
-  const top1Abs = top1.reduce((s,h)=>s+Math.abs(h.pnl),0);
-  const topNAbs = topN.reduce((s,h)=>s+Math.abs(h.pnl),0);
-  const top1Pct = totalAbs>0 ? (top1Abs/totalAbs)*100 : 0;
-  const topNPct = totalAbs>0 ? (topNAbs/totalAbs)*100 : 0;
-  return {
-    qualifyingCount: qualifying.length, totalAbs, top1, topN, top1Pct, topNPct,
-    flagged: topNPct >= CONTEST_CONCENTRATION_WARN_PCT,
-  };
-}
-function adminConcentrationReportHtml(d){
-  const r = contestConcentrationReport(d);
-  if (!r){
-    return adminDetailSection("Analyse anti-triche — concentration du PnL (concours)",
-      '<div class="admin-detail-empty">Pas encore éligible ('+countQualifyingTrades(d)+'/'+CONTEST_MIN_QUALIFYING_TRADES+' trades qualifiés) — rien à vérifier pour l\'instant.</div>'
-    );
-  }
-  const tradeLine = (h)=> (h.side==="long"?"▲ Long ":"▼ Short ")+escapeHtml(h.symbol)+" · "+
-    (h.pnl>=0?"+":"")+fmtMoney(h.pnl)+(h.closedAt?" · "+fmtWhen(h.closedAt):"");
-  const rows = r.topN.map(h=>adminDetailRow("Position", tradeLine(h))).join("");
-  const verdict = r.flagged
-    ? '🔴 Concentration excessive — les '+CONTEST_CONCENTRATION_TOP_N+' plus grosses positions qualifiées pèsent '+r.topNPct.toFixed(0)+'% du PnL cumulé de ses '+r.qualifyingCount+' trades qualifiés (dont '+r.top1Pct.toFixed(0)+'% pour la seule plus grosse). Performance pas assez répartie pour valider une régularité — à vérifier avant de valider son classement.'
-    : '🟢 Régulier — les '+CONTEST_CONCENTRATION_TOP_N+' plus grosses positions qualifiées ne pèsent que '+r.topNPct.toFixed(0)+'% du PnL cumulé de ses '+r.qualifyingCount+' trades qualifiés.';
-  return adminDetailSection("Analyse anti-triche — concentration du PnL (concours)",
-    '<div class="admin-detail-empty" style="color:'+(r.flagged?"var(--warn)":"var(--long)")+';">'+verdict+'</div>'+(r.flagged?rows:'')
-  );
-}
-
 /* ============================= PNL CARDS ============================= */
 function renderTradeCardHtml(h){
   const pnlClass = h.pnl>=0?"up":"down";
@@ -9674,6 +9711,86 @@ const WIDGET_DEFS = [
   {id:"history",     label:"Historique récent"},
   {id:"performance", label:"Performance"},
 ];
+// Terminal column widths — lets a trader widen/narrow the left (Sessions/
+// Marchés/Calendrier) and right (Compte/Positions/…) columns by dragging the
+// handle between columns; the middle chart column always absorbs whatever
+// width is left (grid-template-columns' "1fr" track). Persisted per-browser
+// like the widget layout/theme, so it survives a reload.
+const COL_WIDTH_KEY = "paperTapeColumnWidths";
+const COL_WIDTH_DEFAULTS = {left:230, right:340};
+const COL_WIDTH_MIN = 180, COL_WIDTH_MAX = 520;
+function clampColWidth(v){
+  const n = Number(v);
+  if (!isFinite(n)) return null;
+  return Math.max(COL_WIDTH_MIN, Math.min(COL_WIDTH_MAX, Math.round(n)));
+}
+function loadColumnWidths(){
+  const widths = {left:COL_WIDTH_DEFAULTS.left, right:COL_WIDTH_DEFAULTS.right};
+  try{
+    const raw = localStorage.getItem(COL_WIDTH_KEY);
+    if (raw){
+      const parsed = JSON.parse(raw);
+      widths.left = clampColWidth(parsed.left) || COL_WIDTH_DEFAULTS.left;
+      widths.right = clampColWidth(parsed.right) || COL_WIDTH_DEFAULTS.right;
+    }
+  }catch(e){}
+  return widths;
+}
+let columnWidths = loadColumnWidths();
+function saveColumnWidths(){
+  try{ localStorage.setItem(COL_WIDTH_KEY, JSON.stringify(columnWidths)); }catch(e){}
+}
+// Only applied above the 1080px breakpoint — below it the CSS media query
+// collapses .terminal-grid to a single "1fr" column, and an inline style
+// here would otherwise outrank that rule and keep the 3-column layout stuck
+// on a phone-width screen.
+function applyColumnWidths(){
+  const grid = document.querySelector(".terminal-grid");
+  if (!grid) return;
+  if (window.innerWidth<=1080){ grid.style.gridTemplateColumns = ""; return; }
+  grid.style.gridTemplateColumns = columnWidths.left+"px 6px 1fr 6px "+columnWidths.right+"px";
+}
+function initColumnResizers(){
+  applyColumnWidths();
+  window.addEventListener("resize", applyColumnWidths);
+  document.querySelectorAll(".col-resizer").forEach(handle=>{
+    const side = handle.dataset.colResize; // "left" | "right"
+    let dragPointerId = null, startX = 0, startWidth = 0;
+    handle.style.touchAction = "none";
+    handle.addEventListener("pointerdown", (e)=>{
+      if (e.button !== 0 && e.pointerType==="mouse") return;
+      dragPointerId = e.pointerId;
+      startX = e.clientX;
+      startWidth = columnWidths[side];
+      handle.classList.add("resizing");
+      try{ handle.setPointerCapture(dragPointerId); }catch(err){}
+      e.preventDefault();
+    });
+    handle.addEventListener("pointermove", (e)=>{
+      if (dragPointerId===null || e.pointerId!==dragPointerId) return;
+      const delta = e.clientX - startX;
+      // Left column grows as the handle moves right; right column grows as
+      // it moves left (it's on the trailing edge of the layout).
+      const next = side==="left" ? startWidth+delta : startWidth-delta;
+      columnWidths[side] = clampColWidth(next) || startWidth;
+      applyColumnWidths();
+    });
+    function endDrag(e){
+      if (dragPointerId===null || e.pointerId!==dragPointerId) return;
+      dragPointerId = null;
+      handle.classList.remove("resizing");
+      saveColumnWidths();
+    }
+    handle.addEventListener("pointerup", endDrag);
+    handle.addEventListener("pointercancel", endDrag);
+    // Double-click/tap resets just that column back to its default width.
+    handle.addEventListener("dblclick", ()=>{
+      columnWidths[side] = COL_WIDTH_DEFAULTS[side];
+      applyColumnWidths();
+      saveColumnWidths();
+    });
+  });
+}
 const WIDGET_LAYOUT_KEY = "paperTapeWidgetLayout";
 function defaultWidgetLayout(){
   return {
@@ -9722,6 +9839,7 @@ function applyWidgetLayout(layout){
     el.hidden = (w.edbPlusOnly && locked) ? true : layout.hidden.indexOf(w.id)!==-1;
   });
   renderWidgetPanel();
+  if (typeof updateWidgetHResizeVisibility==="function") updateWidgetHResizeVisibility();
 }
 function currentLayoutFromDom(){
   const cols = Array.from(document.querySelectorAll(".widget-col"));
@@ -9815,8 +9933,217 @@ function renderWidgetPanel(){
     });
   });
 }
+// Per-widget vertical size — a grip at the TOP and one at the BOTTOM of each
+// widget card let a trader shrink or grow it by dragging away from the card
+// to grow, toward it to shrink ("de haut en bas" from the top grip, "de bas
+// en haut" from the bottom one — either edge works). The bottom grip only
+// ever changes the card's height (its top edge is fixed by normal document
+// flow, so growing/shrinking naturally happens at the bottom). The top grip
+// needs an extra trick to make the CARD's top edge move while its bottom
+// edge stays put: it adjusts height AND a negative margin-top by the same
+// amount, in lockstep (see wireWidgetVResizeHandle() below) — grow by d ⇒
+// height+=d, marginTop-=d, which keeps top+height (the bottom edge)
+// constant while the top edge visibly moves up. The card gets a fixed
+// inline height + overflow-y:auto once resized at least once, so its
+// content scrolls instead of getting clipped outright. Both persisted per
+// widget id, like the widget layout/column widths above.
+const WIDGET_HEIGHT_KEY = "paperTapeWidgetHeights";
+const WIDGET_HEIGHT_MIN = 90;
+const WIDGET_TOP_OFFSET_KEY = "paperTapeWidgetTopOffsets";
+function loadWidgetHeights(){
+  try{
+    const raw = localStorage.getItem(WIDGET_HEIGHT_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return (parsed && typeof parsed==="object") ? parsed : {};
+  }catch(e){ return {}; }
+}
+let widgetHeights = loadWidgetHeights();
+function saveWidgetHeights(){
+  try{ localStorage.setItem(WIDGET_HEIGHT_KEY, JSON.stringify(widgetHeights)); }catch(e){}
+}
+function loadWidgetTopOffsets(){
+  try{
+    const raw = localStorage.getItem(WIDGET_TOP_OFFSET_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return (parsed && typeof parsed==="object") ? parsed : {};
+  }catch(e){ return {}; }
+}
+let widgetTopOffsets = loadWidgetTopOffsets();
+function saveWidgetTopOffsets(){
+  try{ localStorage.setItem(WIDGET_TOP_OFFSET_KEY, JSON.stringify(widgetTopOffsets)); }catch(e){}
+}
+function applyWidgetHeight(el, id){
+  const h = widgetHeights[id];
+  const mt = widgetTopOffsets[id];
+  if (typeof h==="number" && h>0){
+    el.style.height = h+"px";
+    el.style.overflowY = "auto";
+    el.style.overflowX = "hidden";
+  } else {
+    el.style.height = "";
+    el.style.overflowY = "";
+    el.style.overflowX = "";
+  }
+  el.style.marginTop = (typeof mt==="number" && mt!==0) ? mt+"px" : "";
+}
+// Shared by both the top and bottom grips — `edge` only changes the sign of
+// "dragging away from the card grows it" and whether marginTop also moves.
+function wireWidgetVResizeHandle(el, id, edge){
+  const handle = document.createElement("div");
+  handle.className = "widget-vresize widget-vresize-"+edge;
+  handle.title = "Glisser pour réduire/agrandir — double-clic pour réinitialiser";
+  handle.style.touchAction = "none";
+  if (edge==="top") el.insertBefore(handle, el.firstChild); else el.appendChild(handle);
+  let dragPointerId = null, startY = 0, startHeight = 0, startTopOffset = 0;
+  handle.addEventListener("pointerdown", (e)=>{
+    if (e.button !== 0 && e.pointerType==="mouse") return;
+    dragPointerId = e.pointerId;
+    startY = e.clientY;
+    startHeight = el.getBoundingClientRect().height;
+    startTopOffset = widgetTopOffsets[id] || 0;
+    try{ handle.setPointerCapture(dragPointerId); }catch(err){}
+    handle.classList.add("resizing");
+    e.preventDefault();
+    e.stopPropagation(); // don't let this bubble into the widget-reorder drag above
+  });
+  handle.addEventListener("pointermove", (e)=>{
+    if (dragPointerId===null || e.pointerId!==dragPointerId) return;
+    // Bottom grip: dragging down (clientY increases) grows. Top grip:
+    // dragging up (clientY decreases) grows — both "away from the card".
+    const rawDelta = edge==="bottom" ? (e.clientY-startY) : (startY-e.clientY);
+    const nextHeight = Math.max(WIDGET_HEIGHT_MIN, Math.round(startHeight + rawDelta));
+    widgetHeights[id] = nextHeight;
+    if (edge==="top"){
+      // Actual (clamped) growth this drag has produced so far — keeps the
+      // bottom edge pinned even once the MIN clamp above kicks in.
+      const actualDelta = nextHeight - startHeight;
+      widgetTopOffsets[id] = startTopOffset - actualDelta;
+    }
+    applyWidgetHeight(el, id);
+  });
+  function endResize(e){
+    if (dragPointerId===null || e.pointerId!==dragPointerId) return;
+    dragPointerId = null;
+    handle.classList.remove("resizing");
+    saveWidgetHeights();
+    saveWidgetTopOffsets();
+  }
+  handle.addEventListener("pointerup", endResize);
+  handle.addEventListener("pointercancel", endResize);
+  handle.addEventListener("dblclick", (e)=>{
+    e.stopPropagation();
+    delete widgetHeights[id];
+    delete widgetTopOffsets[id];
+    applyWidgetHeight(el, id);
+    saveWidgetHeights();
+    saveWidgetTopOffsets();
+  });
+}
+function initWidgetVerticalResize(){
+  document.querySelectorAll(".card.widget").forEach(el=>{
+    const id = el.dataset.widget;
+    if (!id || el.querySelector(":scope > .widget-vresize-bottom")) return;
+    applyWidgetHeight(el, id);
+    wireWidgetVResizeHandle(el, id, "top");
+    wireWidgetVResizeHandle(el, id, "bottom");
+  });
+}
+// Per-widget horizontal size — a grip on the LEFT and RIGHT edges of each
+// widget card ("de droite à gauche, de gauche à droite"). Widgets in a
+// column all share that column's width (see .widget-col — plain vertical
+// stack, not an independent per-widget width), so there's no separate
+// "widget width" to store: each grip instead forwards to the exact same
+// columnWidths/applyColumnWidths()/saveColumnWidths() machinery as the
+// .col-resizer dividers between columns (see initColumnResizers() above),
+// just grabbed from inside the widget instead of from the thin gap between
+// columns. Which divider a given grip controls depends on which column the
+// widget is CURRENTLY in (it can move via drag-and-drop reordering), so
+// that's resolved fresh on every pointerdown rather than once at wiring
+// time. The outer edge of the leftmost/rightmost column has no divider to
+// move — that grip is hidden there (see updateWidgetHResizeVisibility()).
+function widgetColumnIndex(el){
+  const col = el.closest(".widget-col");
+  const cols = Array.from(document.querySelectorAll(".widget-col"));
+  return cols.indexOf(col);
+}
+// Which column-divider (see COL_WIDTH_DEFAULTS: "left" | "right") a given
+// edge of a widget currently controls — null when that edge is the outer
+// boundary of the whole terminal (nothing to drag there).
+function widgetHResizeDividerSide(el, edge){
+  const idx = widgetColumnIndex(el);
+  if (idx<0) return null;
+  if (edge==="left") return idx===0 ? null : (idx===1 ? "left" : "right");
+  return idx===2 ? null : (idx===0 ? "left" : "right"); // edge==="right"
+}
+function wireWidgetHResizeHandle(el, edge){
+  const handle = document.createElement("div");
+  handle.className = "widget-hresize widget-hresize-"+edge;
+  handle.title = "Glisser pour élargir/rétrécir la colonne — double-clic pour réinitialiser";
+  handle.style.touchAction = "none";
+  el.appendChild(handle);
+  let dragPointerId = null, startX = 0, startWidth = 0, side = null;
+  handle.addEventListener("pointerdown", (e)=>{
+    if (e.button !== 0 && e.pointerType==="mouse") return;
+    side = widgetHResizeDividerSide(el, edge);
+    if (!side) return; // outer edge of the layout — nothing to resize
+    dragPointerId = e.pointerId;
+    startX = e.clientX;
+    startWidth = columnWidths[side];
+    try{ handle.setPointerCapture(dragPointerId); }catch(err){}
+    handle.classList.add("resizing");
+    e.preventDefault();
+    e.stopPropagation();
+  });
+  handle.addEventListener("pointermove", (e)=>{
+    if (dragPointerId===null || e.pointerId!==dragPointerId || !side) return;
+    const delta = e.clientX - startX;
+    // Same convention as the dividers themselves: the "left" column grows as
+    // the divider moves right, the "right" column grows as it moves left.
+    const next = side==="left" ? startWidth+delta : startWidth-delta;
+    columnWidths[side] = clampColWidth(next) || startWidth;
+    applyColumnWidths();
+  });
+  function endDrag(e){
+    if (dragPointerId===null || e.pointerId!==dragPointerId) return;
+    dragPointerId = null;
+    handle.classList.remove("resizing");
+    if (side) saveColumnWidths();
+    side = null;
+  }
+  handle.addEventListener("pointerup", endDrag);
+  handle.addEventListener("pointercancel", endDrag);
+  handle.addEventListener("dblclick", (e)=>{
+    e.stopPropagation();
+    const s = widgetHResizeDividerSide(el, edge);
+    if (!s) return;
+    columnWidths[s] = COL_WIDTH_DEFAULTS[s];
+    applyColumnWidths();
+    saveColumnWidths();
+  });
+}
+// Hides whichever grip has no divider to move (leftmost column's left edge,
+// rightmost column's right edge) — called once at init and again whenever
+// widgets might have changed column (drag-and-drop reorder, layout reset).
+function updateWidgetHResizeVisibility(){
+  document.querySelectorAll(".card.widget").forEach(el=>{
+    const left = el.querySelector(":scope > .widget-hresize-left");
+    const right = el.querySelector(":scope > .widget-hresize-right");
+    if (left) left.hidden = !widgetHResizeDividerSide(el, "left");
+    if (right) right.hidden = !widgetHResizeDividerSide(el, "right");
+  });
+}
+function initWidgetHorizontalResize(){
+  document.querySelectorAll(".card.widget").forEach(el=>{
+    if (el.querySelector(":scope > .widget-hresize-left")) return;
+    wireWidgetHResizeHandle(el, "left");
+    wireWidgetHResizeHandle(el, "right");
+  });
+  updateWidgetHResizeVisibility();
+}
 function initWidgets(){
   applyWidgetLayout(loadWidgetLayout());
+  initWidgetVerticalResize();
+  initWidgetHorizontalResize();
 
   // Widget reordering uses the Pointer Events API (not native HTML5
   // drag-and-drop): native DnD frequently fails to even start with a plain
@@ -9855,6 +10182,7 @@ function initWidgets(){
     dragWidget.classList.remove("dragging");
     document.querySelectorAll(".widget-col.drag-over").forEach(c=>c.classList.remove("drag-over"));
     persistCurrentLayout();
+    if (typeof updateWidgetHResizeVisibility==="function") updateWidgetHResizeVisibility();
     dragWidget = null;
     dragPointerId = null;
   }
@@ -10268,8 +10596,6 @@ function adminDetailHtml(d){
   );
 
   html += (typeof adminRiskProfileHtml==="function" ? adminRiskProfileHtml(d) : "");
-  html += (typeof adminHedgeReportHtml==="function" ? adminHedgeReportHtml(d) : "");
-  html += (typeof adminConcentrationReportHtml==="function" ? adminConcentrationReportHtml(d) : "");
   html += (typeof adminChallengeHtml==="function" ? adminChallengeHtml(d) : "");
 
   html += adminDetailSection("Positions ouvertes ("+pos.length+")",
@@ -10777,12 +11103,15 @@ async function init(){
   updateEdbPlusNavBadges();
   initCandleTheme();
   initChartSourceToggle();
+  initChartZoomControls();
+  initChartLineDrag();
   setChartSource(chartSource); // sync the static markup (buttons/svg/tv-wrap) to the "tv" default above
   initAuthUI();
   initGateUI();
   initGateTicker();
   initAdminUI();
   initWidgets();
+  initColumnResizers();
   renderEconCalendar();
   initPositionCalc();
   initSessionTimeTracking();
