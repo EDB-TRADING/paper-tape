@@ -305,6 +305,16 @@
     white-space:nowrap;
   }
 
+  /* ---------- Challenge page: "Historique du challenge" (timeline + trades) ---------- */
+  .challenge-timeline{margin-top:12px;display:flex;flex-direction:column;}
+  .challenge-timeline-row{
+    display:flex;justify-content:space-between;gap:10px;padding:6px 0;font-family:var(--mono);font-size:10.5px;
+    border-bottom:1px solid var(--border-soft);
+  }
+  .challenge-timeline-row:last-child{border-bottom:none;}
+  .challenge-timeline-row.warn{color:var(--short);}
+  .challenge-history-head{margin:18px 0 8px;font-size:12.5px;color:var(--text-dim);}
+
   /* ---------- EDB+ pitch page (not-yet-member state) ---------- */
   .edbplus-pitch{max-width:620px;margin:0 auto;text-align:center;padding:6px 0 4px;}
   .edbplus-pitch h2{font-size:24px;}
@@ -1945,6 +1955,16 @@ const HIST_LEN = 220;
 const TRADER_ID_KEY = "paperTapeTraderId";
 const REFETCH_MS = 30000;         // price refresh interval while the tab is backgrounded/hidden
 const REFETCH_MS_VISIBLE = 5000;  // faster refresh while the tab is actually visible/focused
+// Tighter cadence used only while a prop challenge can still fail (step1/
+// step2/funded — see schedulePriceRefresh()). With CHALLENGE_LEVERAGE_CAP as
+// high as it is, a fast price swing can breach the daily-loss/drawdown floor
+// and recover again before the NEXT poll ever samples it — since equity is
+// only ever checked at each poll, not continuously, that kind of spike-and-
+// revert can go undetected. Polling faster while a challenge is at risk
+// shrinks that blind window; it can't remove it entirely (this app reads
+// prices over REST, it doesn't hold a live tick feed).
+const REFETCH_MS_CHALLENGE = 8000;
+const REFETCH_MS_VISIBLE_CHALLENGE = 2000;
 
 /* ============================= EDB+ (MEMBERSHIP GATE) =============================
    EDB+ is a paid association membership (25€/an) — NOT a Paper Tape feature
@@ -3222,7 +3242,15 @@ function pollAllAssets(){
 let priceFeedTimer = null;
 function schedulePriceRefresh(){
   if (priceFeedTimer) clearTimeout(priceFeedTimer);
-  const delay = (typeof document!=="undefined" && document.visibilityState==="hidden") ? REFETCH_MS : REFETCH_MS_VISIBLE;
+  const hidden = (typeof document!=="undefined" && document.visibilityState==="hidden");
+  // See REFETCH_MS_CHALLENGE/REFETCH_MS_VISIBLE_CHALLENGE above — only while
+  // a challenge is still at risk of failing (not "no challenge" and not
+  // already "failed") does polling speed up.
+  const c = state.challenge;
+  const challengeAtRisk = !!(c && (c.phase==="step1" || c.phase==="step2" || c.phase==="funded"));
+  const delay = hidden
+    ? (challengeAtRisk ? REFETCH_MS_CHALLENGE : REFETCH_MS)
+    : (challengeAtRisk ? REFETCH_MS_VISIBLE_CHALLENGE : REFETCH_MS_VISIBLE);
   priceFeedTimer = setTimeout(()=>{ pollAllAssets(); schedulePriceRefresh(); }, delay);
 }
 async function initPriceFeed(){
@@ -5089,10 +5117,54 @@ function renderChallengeProfileCard(){
   } else {
     body.innerHTML =
       '<p class="chart-note" style="margin-bottom:10px;">'+challengeStatusLabel(c)+' · '+fmtMoney(c.tier)+' · Équité '+fmtMoney(propEquity()||0)+(c.phase==="funded"?' · Valeur financée '+fmtMoney(c.fundedValue):'')+'</p>'+
-      '<button class="btn-secondary" id="challenge-manage-btn-2">Gérer ce challenge</button>';
+      '<button class="btn-secondary" id="challenge-manage-btn-2">Gérer ce challenge</button>'+
+      challengeTimelineHtml(c)+
+      '<h4 class="challenge-history-head">Historique du challenge</h4>'+
+      '<div id="challenge-history-list">'+challengeTradeHistoryHtml()+'</div>';
     const btn = document.getElementById("challenge-manage-btn-2");
     if (btn) btn.addEventListener("click", openChallengeManageModal);
   }
+}
+// Small chronological log of the challenge's own phase transitions (started,
+// each step passed, funded, or failed+reason) — separate from the trade-by-
+// trade history below, which is about individual positions, not the
+// challenge's lifecycle. Purely reads fields updateChallengeStatus()/
+// startChallenge() already persist, nothing new to store.
+function challengeTimelineHtml(c){
+  const events = [];
+  if (c.startedAt) events.push({label:"🚀 Challenge démarré", at:c.startedAt});
+  if (c.step1PassedAt) events.push({label:"🎯 Étape 1 validée", at:c.step1PassedAt});
+  if (c.step2PassedAt) events.push({label:"🏁 Étape 2 validée", at:c.step2PassedAt});
+  if (c.fundedAt) events.push({label:"💰 Compte financé (simulation)", at:c.fundedAt});
+  if (c.failedAt) events.push({label:"❌ Échec — "+(c.failReason==="daily"?"perte journalière dépassée":"drawdown maximal dépassé"), at:c.failedAt, warn:true});
+  if (events.length===0) return "";
+  events.sort((a,b)=>new Date(a.at)-new Date(b.at));
+  return '<div class="challenge-timeline">'+events.map(e=>
+    '<div class="challenge-timeline-row'+(e.warn?" warn":"")+'"><span>'+e.label+'</span><span class="chart-note">'+fmtWhen(e.at)+'</span></div>'
+  ).join("")+'</div>';
+}
+// Detailed, read-only trade list for the CURRENT challenge run — reuses the
+// exact same row formatting as the terminal's own "Historique récent"
+// widget (renderHistory()/histSubLine()/reasonLabel()), just sourced from
+// propBookData().history instead of state.history, so it's visible on the
+// Challenge page itself without having to switch the active book. Read-only
+// on purpose (no 🪪/✍️ action buttons) — those actions target state.journal/
+// state.history of whichever book is currently ACTIVE, which may not be the
+// prop book while looking at this page, so wiring them here risked acting on
+// the wrong book.
+function challengeTradeHistoryHtml(){
+  const hist = (propBookData()||{}).history || [];
+  if (hist.length===0) return '<div class="empty-note">Pas encore de trade clôturé sur ce challenge.</div>';
+  return hist.slice(0,50).map(h=>{
+    const feeNote = h.feesPaid ? ' <span style="font-size:9.5px;color:var(--text-faint);font-weight:400;">(frais '+fmtMoney(h.feesPaid)+')</span>' : '';
+    const partialNote = h.partial ? ' <span class="hist-tag">'+h.closedPct+'% partiel</span>' : '';
+    return '<div class="hist-row">'+
+      '<div class="hist-row-main"><span>'+h.symbol+' · '+(h.side==="long"?"Long":"Short")+
+        ' <span class="hist-tag">'+reasonLabel(h.reason)+'</span>'+partialNote+'</span>'+
+        '<span class="hist-row-right"><span class="num '+(h.pnl>=0?"up":"down")+'">'+fmtMoney(h.pnl)+feeNote+'</span></span></div>'+
+      '<div class="hist-row-sub">'+histSubLine(h)+'</div>'+
+    '</div>';
+  }).join("");
 }
 // Called from the flashy tier-select grid on the dedicated Challenge page —
 // starting a challenge is destructive (wipes the prop book), so a plain
