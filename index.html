@@ -515,13 +515,13 @@
   .tv-chart-wrap{width:100%;max-width:100%;min-width:0;box-sizing:border-box;height:420px;border-radius:8px;overflow:hidden;}
   .tv-chart-wrap[hidden]{display:none;}
   .econcal-wrap{width:100%;max-width:100%;min-width:0;box-sizing:border-box;height:420px;border-radius:8px;overflow:hidden;}
-  .edbtrade-card{background:var(--bg-raised);border:1px solid var(--border-soft);border-radius:8px;padding:12px 14px;margin-bottom:10px;}
+  .edbtrade-card{background:var(--bg-raised);border:1px solid var(--border-soft);border-radius:14px;padding:16px 20px;margin-bottom:16px;}
   .edbtrade-card.swing{border-color:var(--gold);background:linear-gradient(135deg, var(--gold)1a, var(--bg-raised) 65%);}
   .edbtrade-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
-  .edbtrade-sym{font-family:var(--mono);font-weight:700;font-size:14px;}
-  .edbtrade-meta{font-family:var(--mono);font-size:11px;color:var(--text-faint);margin-top:6px;}
-  .edbtrade-comment{margin-top:8px;font-size:12.5px;line-height:1.4;white-space:pre-wrap;}
-  .edbtrade-pnl{font-family:var(--mono);font-weight:700;font-size:13px;}
+  .edbtrade-sym{font-family:var(--mono);font-weight:700;font-size:16px;}
+  .edbtrade-meta{font-family:var(--mono);font-size:12px;color:var(--text-faint);margin-top:7px;}
+  .edbtrade-comment{margin-top:9px;font-size:14.5px;line-height:1.5;white-space:pre-wrap;}
+  .edbtrade-pnl{font-family:var(--mono);font-weight:700;font-size:15px;}
   .edbtrade-pnl.up{color:var(--long);}
   .edbtrade-pnl.down{color:var(--short);}
   .poscalc-sync-btn{
@@ -922,16 +922,31 @@
   .mini-pnl-card-meta{font-family:var(--mono);font-size:8.5px;color:var(--text-faint);margin-top:2px;}
 
   /* Global chat */
-  .global-chat-messages{max-height:60vh;min-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 4px 8px;}
+  .global-chat-messages{max-height:60vh;min-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding:4px 4px 8px;}
   .chat-bubble-author{font-weight:700;color:var(--text);}
   .chat-bubble-img{max-width:220px;max-height:220px;border-radius:8px;display:block;margin-top:4px;cursor:zoom-in;}
-  .edbtrade-img{max-width:100%;max-height:340px;border-radius:8px;display:block;margin-top:10px;cursor:zoom-in;border:1px solid var(--border-soft);}
-  .edbtrade-imgs{display:grid;grid-template-columns:repeat(auto-fill, minmax(140px,1fr));gap:8px;margin-top:10px;}
-  .edbtrade-imgs .edbtrade-img{margin-top:0;max-height:160px;width:100%;height:160px;object-fit:cover;}
-  .chat-bubble-actions{display:flex;gap:8px;margin-top:4px;}
+  .edbtrade-img{max-width:100%;max-height:460px;border-radius:14px;display:block;margin-top:10px;cursor:zoom-in;border:1px solid var(--border-soft);}
+  .edbtrade-imgs{display:grid;grid-template-columns:repeat(auto-fill, minmax(200px,1fr));gap:10px;margin-top:10px;}
+  .edbtrade-imgs .edbtrade-img{margin-top:0;max-height:220px;width:100%;height:220px;object-fit:cover;}
+  .chat-bubble-actions{display:flex;align-items:center;gap:14px;margin-top:8px;}
   .chat-bubble-actions button{background:none;border:none;cursor:pointer;font-size:10px;color:var(--text-faint);padding:0;}
   .chat-bubble-actions button:hover{color:var(--text);}
   .chat-bubble-edited{font-style:italic;opacity:.7;}
+  /* Chat global "façon Twitter" — bulles et texte plus grands, images mises
+     en avant. Scopé à #global-chat-messages pour ne pas affecter la mini
+     conversation privée EDB+ (edbplus-chat-messages), qui réutilise la même
+     classe .chat-bubble de base dans une modale plus compacte. */
+  #global-chat-messages .chat-bubble{max-width:640px;padding:14px 18px;border-radius:18px;}
+  #global-chat-messages .chat-bubble-meta{font-size:12px;}
+  #global-chat-messages .chat-bubble-author{font-size:13.5px;}
+  #global-chat-messages .chat-bubble-text{font-size:15.5px;line-height:1.45;}
+  #global-chat-messages .chat-bubble-img{max-width:100%;width:100%;max-height:440px;border-radius:14px;margin-top:8px;}
+  /* Réaction pouce — partagée par le chat global et les cartes Trades EDB+. */
+  .thumb-react-btn{display:inline-flex;align-items:center;gap:5px;background:var(--bg-raised);border:1px solid var(--border-soft);border-radius:999px;padding:4px 11px;cursor:pointer;font-size:12.5px;color:var(--text-dim);line-height:1;}
+  .thumb-react-btn:hover{border-color:var(--gold);color:var(--text);}
+  .thumb-react-btn.active{background:color-mix(in srgb, var(--gold) 20%, var(--bg-raised) 80%);border-color:var(--gold);color:var(--text);}
+  .thumb-react-icon{font-size:13px;}
+  .thumb-react-count{font-family:var(--mono);font-weight:700;}
   .global-chat-image-preview{display:flex;align-items:center;gap:8px;margin-top:8px;padding:6px 10px;background:var(--bg-raised);border:1px solid var(--border-soft);border-radius:8px;}
   .global-chat-image-preview img{width:40px;height:40px;object-fit:cover;border-radius:6px;}
   .global-chat-image-preview button{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:14px;margin-left:auto;}
@@ -5978,8 +5993,15 @@ function pnlDayKey(iso){
   return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 }
 function pnlCalendarDayTotals(){
+  // Reads via bookDataFor("normal") rather than state.history directly — the
+  // latter is whichever book is CURRENTLY live on state.* (normal or prop),
+  // so while the Prop Firm account is active it would silently show the prop
+  // book's trades under the "normal" calendar, i.e. the exact same figures as
+  // the Prop Firm calendar right next to it. Same pattern as
+  // pnlCalendarPropDayTotals()/propBookData() below, just for the other book.
+  const book = (typeof bookDataFor==="function") ? bookDataFor("normal") : null;
   const map = {};
-  (state.history||[]).forEach(h=>{
+  (book && Array.isArray(book.history) ? book.history : []).forEach(h=>{
     if (!h.closedAt) return;
     const key = pnlDayKey(h.closedAt);
     if (!map[key]) map[key] = {pnl:0, count:0};
@@ -6030,7 +6052,9 @@ function renderPnlCalendar(){
   });
 }
 function openPnlCalendarDayModal(key){
-  const trades = (state.history||[]).filter(h=>h.closedAt && pnlDayKey(h.closedAt)===key);
+  const book = (typeof bookDataFor==="function") ? bookDataFor("normal") : null;
+  const hist = (book && Array.isArray(book.history)) ? book.history : [];
+  const trades = hist.filter(h=>h.closedAt && pnlDayKey(h.closedAt)===key);
   const dayLabel = new Date(key+"T00:00:00").toLocaleDateString('fr-FR',{weekday:"long", day:"numeric", month:"long"});
   const totalPnl = trades.reduce((s,h)=>s+h.pnl,0);
   openModal(
@@ -6050,7 +6074,7 @@ function openPnlCalendarDayModal(key){
   );
   document.querySelectorAll("[data-cal-card-hist]").forEach(btn=>{
     btn.addEventListener("click", ()=>{
-      const h = state.history.find(x=>x.id===btn.dataset.calCardHist);
+      const h = hist.find(x=>x.id===btn.dataset.calCardHist);
       if (h) openTradeCardModal(h);
     });
   });
@@ -6884,6 +6908,7 @@ function edbTradeCardHtml(doc){
     (d.comment ? '<div class="edbtrade-comment">'+escapeHtml(d.comment)+'</div>' : '')+
     edbTradeImagesHtml(d)+
     '<div class="chart-note" style="margin-top:8px;">'+escapeHtml(d.postedBy||"Bureau EDB")+' · '+fmtWhen(d.createdAt)+'</div>'+
+    '<div class="chat-bubble-actions" style="margin-top:10px;">'+thumbReactionHtml("edbTrades", doc.id, d.reactions)+'</div>'+
   '</div>';
 }
 // Renders 0+ screenshots for a trade. Newer docs carry imageUrls (array,
@@ -6904,6 +6929,7 @@ function renderTradesEdbFeed(){
     swingWrap.innerHTML = swingDoc
       ? '<div class="chart-note" style="margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em;font-size:10px;">Trade swing de la semaine</div>'+edbTradeCardHtml(swingDoc)
       : '';
+    wireThumbReactionButtons(swingWrap);
   }
   const rest = tradesEdbDocsCache.filter(doc=>!swingDoc || doc.id!==swingDoc.id);
   if (rest.length===0 && !swingDoc){
@@ -6913,6 +6939,7 @@ function renderTradesEdbFeed(){
   feedWrap.innerHTML =
     '<div class="chart-note" style="margin:14px 0 8px;text-transform:uppercase;letter-spacing:0.06em;font-size:10px;">Trades du bureau</div>'+
     (rest.length ? rest.map(doc=>edbTradeCardHtml(doc)).join("") : '<div class="empty-note">Aucun autre trade partagé pour le moment.</div>');
+  wireThumbReactionButtons(feedWrap);
 }
 function subscribeTradesEdb(){
   if (tradesEdbUnsub) return; // already listening
@@ -6969,6 +6996,39 @@ function renderMiniPnlCardHtml(card){
       (dt ? '<div class="mini-pnl-card-meta">'+dt.toLocaleDateString('fr-FR')+' '+dt.toLocaleTimeString('fr-FR',{hour:"2-digit",minute:"2-digit"})+'</div>' : "")+
     '</div>';
 }
+// Thumbs-up reaction — a lightweight, presence-only "I liked this" toggle
+// shared by the global chat messages and the Trades EDB+ recap cards.
+// Stored right on the document itself as reactions.<uid>:true (no
+// subcollection, no counter field to keep in sync) so the count is just
+// Object.keys(reactions).length off the same cached snapshot that already
+// renders the message/card. Toggling only ever writes the caller's own key
+// via dot-notation, which is also exactly the shape the Firestore rules for
+// globalChat/edbTrades allow a non-admin/non-author trader to write — see
+// SERVER_SETUP.md ("réaction pouce").
+function thumbReactionHtml(collectionName, docId, reactions){
+  const map = (reactions && typeof reactions==="object") ? reactions : {};
+  const count = Object.keys(map).length;
+  const mine = !!(clientId && map[clientId]);
+  return '<button type="button" class="thumb-react-btn'+(mine?" active":"")+'" data-thumb-coll="'+collectionName+'" data-thumb-id="'+escapeHtml(docId)+'" data-thumb-mine="'+(mine?"1":"0")+'" title="'+(mine?"Retirer ton pouce":"Réagir avec un pouce")+'">'+
+    '<span class="thumb-react-icon">👍</span>'+(count>0 ? '<span class="thumb-react-count">'+count+'</span>' : '')+
+  '</button>';
+}
+function wireThumbReactionButtons(root){
+  if (!root) return;
+  root.querySelectorAll("[data-thumb-coll]").forEach(btn=>{
+    btn.addEventListener("click", ()=>toggleThumbReaction(btn.dataset.thumbColl, btn.dataset.thumbId, btn.dataset.thumbMine==="1"));
+  });
+}
+async function toggleThumbReaction(collectionName, docId, currentlyReacted){
+  if (!clientId){ alert("Connecte-toi pour réagir."); return; }
+  if (!dbReady || !db) return;
+  try{
+    const field = "reactions."+clientId;
+    await db.collection(collectionName).doc(docId).update({
+      [field]: currentlyReacted ? firebase.firestore.FieldValue.delete() : true
+    });
+  }catch(e){ console.warn("toggleThumbReaction failed", collectionName, docId, e); }
+}
 function renderGlobalChatMessages(){
   const el = document.getElementById("global-chat-messages");
   if (!el) return;
@@ -7001,19 +7061,20 @@ function renderGlobalChatMessages(){
     } else {
       body = '<div class="chat-bubble-text">'+escapeHtml(d.text||"")+'</div>';
     }
-    const actions = [];
+    const actions = [thumbReactionHtml("globalChat", doc.id, d.reactions)];
     if (mine) actions.push('<button data-chat-edit="'+doc.id+'">Modifier</button>');
     if (canDelete) actions.push('<button data-chat-delete="'+doc.id+'">Supprimer</button>');
     return '<div class="chat-bubble '+(mine?"mine":"theirs")+'">'+
       '<div class="chat-bubble-meta"><span class="chat-bubble-author">'+escapeHtml(d.authorName||"Trader")+authorBadges+'</span> · '+t+(d.editedAt?' · <span class="chat-bubble-edited">modifié</span>':'')+'</div>'+
       body+
-      (actions.length ? '<div class="chat-bubble-actions">'+actions.join("")+'</div>' : "")+
+      '<div class="chat-bubble-actions">'+actions.join("")+'</div>'+
     '</div>';
   }).join("");
   el.querySelectorAll("[data-chat-edit]").forEach(btn=>btn.addEventListener("click", ()=>startEditGlobalChatMessage(btn.dataset.chatEdit)));
   el.querySelectorAll("[data-chat-delete]").forEach(btn=>btn.addEventListener("click", ()=>deleteGlobalChatMessage(btn.dataset.chatDelete)));
   el.querySelectorAll("[data-chat-save-edit]").forEach(btn=>btn.addEventListener("click", ()=>saveEditGlobalChatMessage(btn.dataset.chatSaveEdit)));
   el.querySelectorAll("[data-chat-cancel-edit]").forEach(btn=>btn.addEventListener("click", cancelEditGlobalChatMessage));
+  wireThumbReactionButtons(el);
   if (wasAtBottom) el.scrollTop = el.scrollHeight;
 }
 function startEditGlobalChatMessage(id){
