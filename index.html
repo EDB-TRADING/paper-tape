@@ -4250,6 +4250,26 @@ function updateOrderReadout(){
     ? "Placer l'ordre limite · "+a.symbol
     : (side==="long"?"Ouvrir Long":"Ouvrir Short")+" · "+a.symbol;
 
+  // A failed Prop Firm challenge is a frozen account, like a real prop firm
+  // evaluation that's been breached — no NEW position should be openable on
+  // it (existing open positions still get marked-to-market/TP'd/SL'd/
+  // liquidated normally by pollAsset(), and can still be closed manually —
+  // only opening something new is blocked). Gated on currentBookName() so
+  // this only applies while the PROP book is the one actually being traded
+  // (via the ticket, or via withParkedBook() during copy-order mirroring),
+  // never the normal book, even if some other trader's/this trader's OWN
+  // normal account happens to be equal in value.
+  if (currentBookName()==="prop" && state.challenge && state.challenge.phase==="failed"){
+    ["ro-notional","ro-units","ro-spread","ro-fee","ro-margin","ro-liq"].forEach(id=>{ document.getElementById(id).textContent = "—"; });
+    document.getElementById("ro-free").textContent = fmtMoney(freeBalance());
+    const tpPrev = document.getElementById("tp-preview"), slPrev = document.getElementById("sl-preview");
+    if (tpPrev) tpPrev.textContent = ""; if (slPrev) slPrev.textContent = "";
+    btn.disabled = true;
+    msg.textContent = "Challenge échoué — ce compte est gelé, aucune nouvelle position ne peut être ouverte. Redémarre un nouveau challenge ou reviens au compte normal.";
+    syncSizeSliderFromInput();
+    return;
+  }
+
   if (orderType==="limit"){
     document.getElementById("ro-fee-label").textContent = "Commission entrée (0.02% maker)";
     const limitPrice = parseFloat(document.getElementById("limit-price-input").value)||0;
@@ -4917,6 +4937,29 @@ function recordChallengeTradingDay(){
 // happens regardless of which book is on screen. Daily loss + drawdown keep
 // being enforced even once funded (only the profit target and
 // min-trading-days gate go away); only "failed" freezes it.
+// Called the instant a challenge is marked "failed" (below) — cancels every
+// still-resting limit order on the now-frozen prop book and refunds the
+// margin each had reserved, so the trader doesn't come back to dead orders
+// that can never fill (submitOrder()/submitLimitOrder()/
+// mirrorOrderToOtherBook() already refuse to open anything NEW on a failed
+// challenge — see those functions). Doesn't touch already-OPEN positions:
+// those keep being marked-to-market/TP'd/SL'd/liquidated exactly as before,
+// and can still be closed manually — only opening something new is blocked.
+// Written against state.parked/state.* directly (not cancelPendingOrder(),
+// which only ever acts on the currently-displayed book) since this can run
+// from pollAsset() while either book happens to be on screen — positions/
+// pendingOrders arrays are shared references either way, but cash/marginUsed
+// are plain numbers on the live state.* and have to be updated there
+// specifically when the prop book is the one currently live.
+function cancelAllPendingOnFailedProp(){
+  const isLive = currentBookName()==="prop";
+  const orders = isLive ? state.pendingOrders : (state.parked ? state.parked.pendingOrders : null);
+  if (!orders || orders.length===0) return;
+  const refund = orders.reduce((s,o)=>s+(o.initMargin||0), 0);
+  if (isLive) state.marginUsed = Math.max(0, state.marginUsed - refund);
+  else if (state.parked) state.parked.marginUsed = Math.max(0, (state.parked.marginUsed||0) - refund);
+  orders.length = 0;
+}
 function updateChallengeStatus(){
   const c = state.challenge;
   if (!c || c.phase==="failed") return;
@@ -4930,6 +4973,7 @@ function updateChallengeStatus(){
     c.phase = "failed";
     c.failReason = eq<=overallFloor ? "drawdown" : "daily";
     c.failedAt = new Date().toISOString();
+    cancelAllPendingOnFailedProp();
     persistAccount();
     return;
   }
@@ -5363,6 +5407,12 @@ function mirrorOrderToOtherBook(kind, params){
   const flag = sourceName==="normal" ? state.copyNormalToProp : (sourceName==="prop" ? state.copyPropToNormal : false);
   if (!flag || !state.parked) return;
   withParkedBook(()=>{
+    // Same freeze as submitOrder()/updateOrderReadout() — copying a fresh
+    // order INTO a failed prop account would silently reopen exactly what
+    // the freeze exists to prevent. currentBookName() correctly reads as
+    // "prop" in here once withParkedBook() has swapped it in as the
+    // destination, regardless of which book is actually on screen.
+    if (currentBookName()==="prop" && state.challenge && state.challenge.phase==="failed") return;
     if (!hasLive(params.symbol)) return;
     const feeRate = kind==="limit" ? MAKER_FEE_RATE : TAKER_FEE_RATE;
     const destFree = freeBalance();
@@ -5389,6 +5439,17 @@ function mirrorOrderToOtherBook(kind, params){
 }
 function submitOrder(){
   const msg = document.getElementById("ticket-msg");
+  // Backend-side belt-and-suspenders for BOTH the market and limit paths
+  // below (updateOrderReadout() already disables the submit button for this
+  // case, but that's just the UI — this is what actually matters). Doesn't
+  // need to cover mirrorOrderToOtherBook() — that calls openPositionCore()
+  // directly and never goes through submitOrder()/submitLimitOrder(), so it
+  // has its own identical guard right where it swaps into the destination
+  // book.
+  if (currentBookName()==="prop" && state.challenge && state.challenge.phase==="failed"){
+    msg.textContent = "Challenge échoué — ce compte est gelé, aucune nouvelle position ne peut être ouverte.";
+    return;
+  }
   if (orderType==="limit"){ submitLimitOrder(msg); return; }
   try{
     if (!hasLive(selectedSymbol)){
