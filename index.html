@@ -539,6 +539,11 @@
   .edbtrade-pnl{font-family:var(--mono);font-weight:700;font-size:15px;}
   .edbtrade-pnl.up{color:var(--long);}
   .edbtrade-pnl.down{color:var(--short);}
+  /* Analyses EDB+ — same card language as .edbtrade-*, its own class names
+     since there's no PnL/side here, just a timeframe badge + free text. */
+  .edbanalysis-card{background:var(--bg-raised);border:1px solid var(--border-soft);border-radius:14px;padding:16px 20px;margin-bottom:16px;}
+  .edbanalysis-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .edbanalysis-body{margin-top:9px;font-size:14.5px;line-height:1.5;white-space:pre-wrap;}
   .poscalc-sync-btn{
     background:var(--bg-raised);border:1px solid var(--border);color:var(--text-dim);
     font-family:var(--mono);font-size:9.5px;letter-spacing:0;text-transform:none;font-weight:600;
@@ -1638,6 +1643,47 @@
       </div>
       <div class="card" style="margin-top:14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+          <h3 style="margin:0;">Analyses EDB+ — publier une analyse</h3>
+          <button class="pos-close" id="admin-analyses-refresh">🔄 Actualiser</button>
+        </div>
+        <div class="chart-note" style="margin-bottom:10px;">Partagé avec tous les membres EDB+ dans l'onglet "Trades EDB+" → "🧠 Analyse". Sers-t'en pour ta lecture du jour ou ton analyse en HTF (higher timeframe) — texte libre, captures d'écran optionnelles, actif optionnel (laisse "Marché général" si l'analyse ne porte pas sur un actif précis).</div>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;">
+          <div class="field-row" style="flex:1;min-width:160px;margin-top:0;">
+            <label>Actif <span style="text-transform:none;letter-spacing:0;font-weight:400;">(optionnel)</span></label>
+            <select id="admin-analysis-symbol" class="tpsl-input"><option value="">— Marché général —</option></select>
+          </div>
+          <div class="field-row" style="flex:1;min-width:160px;margin-top:0;">
+            <label>Horizon</label>
+            <div class="seg">
+              <button type="button" id="admin-analysis-tf-daily" class="on-mode active">🕯️ Du jour</button>
+              <button type="button" id="admin-analysis-tf-htf" class="on-mode">🔭 HTF</button>
+            </div>
+          </div>
+        </div>
+        <div class="field-row" style="margin-top:12px;">
+          <label>Analyse</label>
+          <textarea id="admin-analysis-text" class="tpsl-input" rows="5" style="resize:vertical;font-family:inherit;" maxlength="4000" placeholder="Ta lecture du marché, niveaux clés, biais, invalidation…"></textarea>
+        </div>
+        <div class="field-row" style="margin-top:12px;">
+          <label>Captures d'écran <span style="text-transform:none;letter-spacing:0;font-weight:400;">(optionnel, plusieurs possibles)</span></label>
+          <div>
+            <input type="file" id="admin-analysis-image-input" accept="image/*" multiple hidden>
+            <button type="button" class="btn-secondary" id="admin-analysis-image-btn">🖼️ Joindre des images</button>
+          </div>
+          <div id="admin-analysis-image-preview" class="admin-trade-image-list" hidden></div>
+        </div>
+        <div class="chart-note" id="admin-analysis-publish-msg" style="margin:8px 0;min-height:14px;"></div>
+        <button class="btn-primary" id="admin-analysis-publish">Publier l'analyse</button>
+        <div class="chart-note" id="admin-analyses-status" style="margin-top:16px;"></div>
+        <div style="overflow-x:auto;">
+          <table class="lb-table">
+            <thead><tr><th>Actif</th><th>Horizon</th><th>Aperçu</th><th>Publié</th><th>Actions</th></tr></thead>
+            <tbody id="admin-analyses-body"><tr><td colspan="5" class="empty-note">Clique sur Actualiser pour charger les analyses.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
           <h3 style="margin:0;">Retours — bugs &amp; idées</h3>
           <button class="pos-close" id="admin-feedback-refresh">🔄 Actualiser</button>
         </div>
@@ -2197,6 +2243,13 @@ function fmtMoney(v){
   const s = Math.abs(v).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
   return (neg?"-$":"$")+s;
 }
+// Same as fmtMoney() but with an explicit leading "+" for non-negative
+// values — used for gain/loss figures (chart TP/SL/entry PnL labels) where
+// the sign needs to read at a glance, not just from color.
+function fmtMoneySigned(v){
+  if (typeof v!=="number" || !isFinite(v)) return "—";
+  return (v>=0?"+":"")+fmtMoney(v);
+}
 function fmtPrice(v,decimals){
   return "$"+v.toLocaleString("en-US",{minimumFractionDigits:decimals,maximumFractionDigits:decimals});
 }
@@ -2312,6 +2365,15 @@ function posUnrealized(p){
   const exit = exitFill(p.symbol, p.side);
   if (exit===null) return 0;
   return p.side==="long" ? (exit-p.entryPrice)*p.sizeUnits : (p.entryPrice-exit)*p.sizeUnits;
+}
+// Same GROSS PnL formula as posUnrealized(), but evaluated at an arbitrary
+// hypothetical price instead of the live bid/ask — used to show "if TP/SL
+// hits, you'd make/lose this much" on the chart's TP/SL lines (and while
+// dragging one). Deliberately mirrors posUnrealized()'s math exactly so the
+// two never disagree once `price` actually becomes the live exit.
+function pnlAtPrice(p, price){
+  if (typeof price!=="number" || !isFinite(price)) return null;
+  return p.side==="long" ? (price-p.entryPrice)*p.sizeUnits : (p.entryPrice-price)*p.sizeUnits;
 }
 function totalUnrealized(){
   return state.positions.reduce((s,p)=>s+posUnrealized(p),0);
@@ -3727,8 +3789,16 @@ function chartPriceFromClientY(clientY, svgEl){
   const viewY = (clientY - rect.top) / rect.height * chartScale.H;
   const {min, max, padT, H, padB} = chartScale;
   const range = (max-min)||1;
-  const clampedY = Math.max(padT, Math.min(H-padB, viewY));
-  return min + (1 - (clampedY-padT)/(H-padT-padB)) * range;
+  // Deliberately NOT clamped to [padT, H-padB] here — dragging above/below
+  // the currently visible plot area extrapolates the price linearly past
+  // chartScale's min/max instead of getting stuck at the edge, so a TP/SL
+  // can be dragged further than what's currently drawn. initChartLineDrag()
+  // detects when the live drag price goes out of range and forces a real
+  // rescaled re-render (via extendRangeForPositions) so the chart catches
+  // up. A tiny positive floor guards against a wild drag producing a
+  // zero/negative price.
+  const price = min + (1 - (viewY-padT)/(H-padT-padB)) * range;
+  return Math.max(price, 0.0001);
 }
 // Clamps a candidate TP/SL price so it stays strictly on the valid side of
 // the entry price for that leg/side — same rule openTPSLModal() enforces
@@ -3772,6 +3842,21 @@ function initChartLineDrag(){
     if (raw==null) return;
     const price = clampTpSlPrice(raw, chartLineDrag.leg, p.side, p.entryPrice);
     chartLineDrag.price = price;
+    // If the drag has gone beyond what's currently drawn (chartScale's
+    // min/max — no longer pixel-clamped in chartPriceFromClientY, see
+    // there), commit it to the position now and force one real re-render:
+    // updateChart(true) -> extendRangeForPositions() widens the visible
+    // range to include it, so the chart "catches up" instead of leaving the
+    // drag stuck at the old edge. This also promotes a "create" drag to
+    // "move" (the line now has a real id, so subsequent moves go back to
+    // the cheap chartLineDragPatchDom() path below) — the final value still
+    // only gets persistAccount()'d on pointerup, same as any other drag.
+    if (chartScale && (price<chartScale.min || price>chartScale.max)){
+      if (chartLineDrag.leg==="tp") p.takeProfit = price; else p.stopLoss = price;
+      chartLineDrag.mode = "move";
+      updateChart(true);
+      return;
+    }
     chartLineDragPatchDom(svg, p);
   });
   function endDrag(e){
@@ -3803,7 +3888,7 @@ function chartLineDragPatchDom(svg, p){
   const y = v => chartScale.padT + (1-((v-chartScale.min)/((chartScale.max-chartScale.min)||1)))*(chartScale.H-chartScale.padT-chartScale.padB);
   const yPix = y(price);
   const color = leg==="tp" ? "#31c882" : "#f0546a";
-  const label = (leg==="tp"?"TP ":"SL ")+fmtPrice(price, (ASSETS.find(a=>a.symbol===p.symbol)||{}).decimals);
+  const label = (leg==="tp"?"TP ":"SL ")+fmtPrice(price, (ASSETS.find(a=>a.symbol===p.symbol)||{}).decimals)+" · "+fmtMoneySigned(pnlAtPrice(p,price));
   if (mode==="move"){
     const line = document.getElementById("tpsl-line-"+p.id+"-"+leg);
     const text = document.getElementById("tpsl-label-"+p.id+"-"+leg);
@@ -3883,13 +3968,13 @@ function positionLinesHtml(positions, y, W, padL, padR, padT, H, padB, decimals)
     const sideLabel = p.side==="short" ? "Short" : "Long";
     if (typeof p.entryPrice!=="number") return;
     const entryY = y(p.entryPrice);
-    out += chartPriceLineHtml(p.entryPrice, y, W, padL, padR, padT, H, padB, "#8fa3bf", "Entrée "+sideLabel+" "+fmtPrice(p.entryPrice,decimals), false);
+    out += chartPriceLineHtml(p.entryPrice, y, W, padL, padR, padT, H, padB, "#8fa3bf", "Entrée "+sideLabel+" "+fmtPrice(p.entryPrice,decimals)+" · "+fmtMoneySigned(posUnrealized(p)), false);
     // TP sits above entry for a long, below for a short; SL is the mirror.
     const tpDir = p.side==="long" ? -1 : 1;
     const slDir = p.side==="long" ? 1 : -1;
-    if (typeof p.takeProfit==="number") out += chartPriceLineHtml(p.takeProfit, y, W, padL, padR, padT, H, padB, "#31c882", "TP "+fmtPrice(p.takeProfit,decimals), true, p.id, "tp");
+    if (typeof p.takeProfit==="number") out += chartPriceLineHtml(p.takeProfit, y, W, padL, padR, padT, H, padB, "#31c882", "TP "+fmtPrice(p.takeProfit,decimals)+" · "+fmtMoneySigned(pnlAtPrice(p,p.takeProfit)), true, p.id, "tp");
     else out += chartCreateChipHtml(entryY, padL, W, padR, "#31c882", "+ TP", p.id, "tp", tpDir);
-    if (typeof p.stopLoss==="number") out += chartPriceLineHtml(p.stopLoss, y, W, padL, padR, padT, H, padB, "#f0546a", "SL "+fmtPrice(p.stopLoss,decimals), true, p.id, "sl");
+    if (typeof p.stopLoss==="number") out += chartPriceLineHtml(p.stopLoss, y, W, padL, padR, padT, H, padB, "#f0546a", "SL "+fmtPrice(p.stopLoss,decimals)+" · "+fmtMoneySigned(pnlAtPrice(p,p.stopLoss)), true, p.id, "sl");
     else out += chartCreateChipHtml(entryY, padL, W, padR, "#f0546a", "+ SL", p.id, "sl", slDir);
   });
   return out;
@@ -3905,7 +3990,7 @@ function extendRangeForPositions(min, max, positions){
   });
   return [min,max];
 }
-function updateChart(){
+function updateChart(forceDuringDrag){
   // While a TP/SL line is actively being dragged, a periodic price-tick
   // re-render would wipe out the in-progress drag preview (a fresh
   // svg.innerHTML rebuilt from the *committed* position, not the pointer's
@@ -3913,7 +3998,12 @@ function updateChart(){
   // directly during the drag instead of going through here. The chart
   // simply pauses its candle/price refresh for that one- or two-second
   // gesture, same trade-off most trading platforms make.
-  if (chartLineDrag) return;
+  // Exception: when the dragged price goes beyond what's currently visible,
+  // initChartLineDrag() commits it and calls updateChart(true) to force one
+  // real rescaled render (extendRangeForPositions picks up the new
+  // committed value) — every other call site still passes nothing, so this
+  // guard behaves exactly as before for them.
+  if (chartLineDrag && !forceDuringDrag) return;
   if (chartSource==="tv"){
     document.getElementById("chart-sym").innerHTML = '<span style="color:'+((ASSETS.find(x=>x.symbol===selectedSymbol)||{}).color||"inherit")+';">'+((ASSETS.find(x=>x.symbol===selectedSymbol)||{}).icon||"")+'</span> '+selectedSymbol;
     document.getElementById("chart-name").textContent = (ASSETS.find(x=>x.symbol===selectedSymbol)||{}).name||"";
@@ -4251,8 +4341,8 @@ function renderPositions(){
         '<div><div class="k">Notionnel</div><div class="v">'+fmtMoney(p.notional)+'</div></div>'+
         '<div><div class="k">Marge</div><div class="v">'+fmtMoney(p.initMargin)+'</div></div>'+
         '<div><div class="k">Liq.</div><div class="v '+(warn?"liq-warn":"")+'">'+fmtPrice(p.liqPrice,a.decimals)+'</div></div>'+
-        '<div><div class="k">Take Profit</div><div class="v '+(p.takeProfit!=null?"tp-set":"")+'">'+(p.takeProfit!=null?fmtPrice(p.takeProfit,a.decimals):"—")+'</div></div>'+
-        '<div><div class="k">Stop Loss</div><div class="v '+(p.stopLoss!=null?"sl-set":"")+'">'+(p.stopLoss!=null?fmtPrice(p.stopLoss,a.decimals):"—")+'</div></div>'+
+        '<div><div class="k">Take Profit</div><div class="v '+(p.takeProfit!=null?"tp-set":"")+'">'+(p.takeProfit!=null?fmtPrice(p.takeProfit,a.decimals)+' <span style="font-size:10px;font-weight:400;">('+fmtMoneySigned(pnlAtPrice(p,p.takeProfit))+')</span>':"—")+'</div></div>'+
+        '<div><div class="k">Stop Loss</div><div class="v '+(p.stopLoss!=null?"sl-set":"")+'">'+(p.stopLoss!=null?fmtPrice(p.stopLoss,a.decimals)+' <span style="font-size:10px;font-weight:400;">('+fmtMoneySigned(pnlAtPrice(p,p.stopLoss))+')</span>':"—")+'</div></div>'+
         '<div><div class="k">Commission payée</div><div class="v">'+fmtMoney(p.entryFee||0)+'</div></div>'+
       '</div>'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">'+
@@ -6308,9 +6398,11 @@ function openTPSLModal(p){
     '<h3 style="margin-bottom:14px;">Take Profit / Stop Loss</h3>'+
     '<div class="chart-note" style="margin-bottom:12px;">'+p.symbol+' · '+(p.side==="long"?"Long":"Short")+' · Entrée '+fmtMoney(p.entryPrice)+' · Taille '+fmtQty(p.sizeUnits)+' '+p.symbol+'</div>'+
     '<div class="field-row"><label>Take Profit</label><input type="number" step="any" class="tpsl-input" id="tpsl-tp-input" placeholder="Optionnel" value="'+(p.takeProfit!=null?p.takeProfit:"")+'"></div>'+
+    '<div class="chart-note" id="tpsl-tp-preview" style="margin-top:-6px;min-height:14px;"></div>'+
     '<div class="field-row"><label>TP — clôturer par</label><div class="seg"><button type="button" class="on-mode active" id="tpsl-tp-unit-pct">%</button><button type="button" class="on-mode" id="tpsl-tp-unit-qty">Quantité ('+p.symbol+')</button></div></div>'+
     '<div class="field-row"><label id="tpsl-tp-pct-label">TP — % de la position à clôturer</label><input type="number" step="any" min="0" class="tpsl-input" id="tpsl-tp-pct-input" placeholder="100" value="'+(p.takeProfitPct!=null?p.takeProfitPct:"")+'"></div>'+
     '<div class="field-row" style="margin-top:10px;"><label>Stop Loss</label><input type="number" step="any" class="tpsl-input" id="tpsl-sl-input" placeholder="Optionnel" value="'+(p.stopLoss!=null?p.stopLoss:"")+'"></div>'+
+    '<div class="chart-note" id="tpsl-sl-preview" style="margin-top:-6px;min-height:14px;"></div>'+
     '<div class="field-row"><label>SL — clôturer par</label><div class="seg"><button type="button" class="on-mode active" id="tpsl-sl-unit-pct">%</button><button type="button" class="on-mode" id="tpsl-sl-unit-qty">Quantité ('+p.symbol+')</button></div></div>'+
     '<div class="field-row"><label id="tpsl-sl-pct-label">SL — % de la position à clôturer</label><input type="number" step="any" min="0" class="tpsl-input" id="tpsl-sl-pct-input" placeholder="100" value="'+(p.stopLossPct!=null?p.stopLossPct:"")+'"></div>'+
     '<div class="chart-note" style="margin-top:6px;">Laisse ce champ vide (ou 100%) pour une clôture complète au déclenchement — sinon seule cette part se ferme, le reste de la position continue à tourner.</div>'+
@@ -6355,6 +6447,28 @@ function openTPSLModal(p){
   }
   const tpToPct = wireUnitToggle("tp");
   const slToPct = wireUnitToggle("sl");
+  // Live "si touché : +$xxx / -$xxx" preview under each price field, using
+  // the exact same pnlAtPrice() formula as the Positions card and the
+  // internal chart's TP/SL labels — updates on every keystroke, before
+  // Enregistrer is even clicked, so there's no need to save first to see
+  // what a given TP/SL level would actually be worth.
+  function wireTpslPricePreview(leg){
+    const input = document.getElementById("tpsl-"+leg+"-input");
+    const preview = document.getElementById("tpsl-"+leg+"-preview");
+    if (!input || !preview) return;
+    function update(){
+      const raw = input.value.trim();
+      const val = raw==="" ? NaN : parseFloat(raw);
+      if (!isFinite(val) || val<=0){ preview.textContent = ""; return; }
+      const pnl = pnlAtPrice(p, val);
+      preview.textContent = "Si touché : "+fmtMoneySigned(pnl);
+      preview.style.color = pnl>=0 ? "var(--long)" : "var(--short)";
+    }
+    input.addEventListener("input", update);
+    update();
+  }
+  wireTpslPricePreview("tp");
+  wireTpslPricePreview("sl");
   function readAndValidate(){
     const tpRaw = document.getElementById("tpsl-tp-input").value;
     const slRaw = document.getElementById("tpsl-sl-input").value;
@@ -6996,26 +7110,115 @@ function teardownTradesEdb(){
   if (typeof tradesEdbUnsub === "function") tradesEdbUnsub();
   tradesEdbUnsub = null;
 }
+// Which of the two Trades EDB+ sub-tabs is showing — "trades" (the trade
+// feed + swing above) or "analyses" (see below). Always reset to "trades"
+// each time the page (re)opens, same convention as the Quiz page's own
+// top-level sub-tabs (see switchView("quiz")) resetting to their first tab.
+let tradesEdbSubTab = "trades";
+function switchTradesEdbSubTab(tab){
+  tradesEdbSubTab = tab;
+  const tTab = document.getElementById("tradesedb-tab-trades");
+  const aTab = document.getElementById("tradesedb-tab-analyses");
+  if (tTab) tTab.classList.toggle("active", tab==="trades");
+  if (aTab) aTab.classList.toggle("active", tab==="analyses");
+  const tSection = document.getElementById("tradesedb-trades-section");
+  const aSection = document.getElementById("tradesedb-analyses-section");
+  if (tSection) tSection.hidden = tab!=="trades";
+  if (aSection) aSection.hidden = tab!=="analyses";
+}
 // Called from switchView("tradesedb") — paywall for a non-member (same
 // pattern as News/Quiz/Connaissances/Challenge), otherwise builds the page
-// shell and starts the live feed subscription above.
+// shell (both sub-tabs) and starts both live feed subscriptions above.
 function renderTradesEdbPage(){
   const el = document.getElementById("tradesedb-card");
   if (!el) return;
   if (!isEdbPlus()){
     teardownTradesEdb();
+    teardownAnalysesEdb();
     el.innerHTML = edbPlusPaywallHtml("tradesedb");
     wireEdbPlusCta("tradesedb");
     return;
   }
+  tradesEdbSubTab = "trades";
   el.innerHTML =
     '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">'+
       '<h3 style="margin:0;">Trades EDB+</h3>'+
     '</div>'+
-    '<div class="chart-note" style="margin-bottom:14px;">Les trades partagés ici sont ceux du bureau EDB, à titre pédagogique — ce ne sont pas des conseils en investissement. Le trade swing hebdomadaire est mis à jour chaque semaine par le bureau.</div>'+
-    '<div id="tradesedb-swing-wrap"></div>'+
-    '<div id="tradesedb-feed-wrap"><div class="empty-note">Chargement…</div></div>';
+    '<div class="seg" style="max-width:360px;margin-bottom:14px;">'+
+      '<button type="button" id="tradesedb-tab-trades" class="on-mode active">📈 Trades</button>'+
+      '<button type="button" id="tradesedb-tab-analyses" class="on-mode">🧠 Analyse</button>'+
+    '</div>'+
+    '<div id="tradesedb-trades-section">'+
+      '<div class="chart-note" style="margin-bottom:14px;">Les trades partagés ici sont ceux du bureau EDB, à titre pédagogique — ce ne sont pas des conseils en investissement. Le trade swing hebdomadaire est mis à jour chaque semaine par le bureau.</div>'+
+      '<div id="tradesedb-swing-wrap"></div>'+
+      '<div id="tradesedb-feed-wrap"><div class="empty-note">Chargement…</div></div>'+
+    '</div>'+
+    '<div id="tradesedb-analyses-section" hidden>'+
+      '<div class="chart-note" style="margin-bottom:14px;">La lecture du marché par le bureau — analyse du jour ou en HTF (higher timeframe) — à titre pédagogique, pas des conseils en investissement.</div>'+
+      '<div id="tradesedb-analyses-wrap"><div class="empty-note">Chargement…</div></div>'+
+    '</div>';
+  document.getElementById("tradesedb-tab-trades").addEventListener("click", ()=>switchTradesEdbSubTab("trades"));
+  document.getElementById("tradesedb-tab-analyses").addEventListener("click", ()=>switchTradesEdbSubTab("analyses"));
   subscribeTradesEdb();
+  subscribeAnalysesEdb();
+}
+
+/* ============================= ANALYSES EDB+ (2nd sub-tab of the Trades EDB+ page) ============================= */
+// Same collection/lifecycle shape as edbTrades just above: one doc per post
+// in a new Firestore collection "edbAnalyses", admin-only write, read open
+// to any signed-in trader (the EDB+ paywall in renderTradesEdbPage() is what
+// actually hides it from a non-member, same as edbTrades — see
+// SERVER_SETUP.md). Deliberately separate from edbTrades rather than a
+// "kind" flag on the same collection: an analysis has no side/entry/exit/PnL
+// at all, just free text + optional screenshots + a timeframe tag, so
+// reusing the trade shape would leave every analysis doc full of null
+// trade-only fields for no benefit.
+let analysesEdbUnsub = null;
+let analysesEdbDocsCache = [];
+const EDB_ANALYSIS_TIMEFRAME_LABELS = {daily:"🕯️ Analyse du jour", htf:"🔭 Analyse HTF"};
+function edbAnalysisCardHtml(doc){
+  const d = doc.data();
+  const a = d.symbol ? edbTradeAssetMeta(d.symbol) : null;
+  return '<div class="edbanalysis-card">'+
+    '<div class="edbanalysis-head">'+
+      '<div>'+
+        '<span class="quiz-cat gold-badge" style="margin-right:8px;">'+(EDB_ANALYSIS_TIMEFRAME_LABELS[d.timeframe]||"Analyse")+'</span>'+
+        '<span class="edbtrade-sym">'+(a ? a.icon+' '+escapeHtml(d.symbol) : "Marché général")+'</span>'+
+      '</div>'+
+    '</div>'+
+    (d.text ? '<div class="edbanalysis-body">'+escapeHtml(d.text)+'</div>' : '')+
+    edbTradeImagesHtml(d)+
+    '<div class="chart-note" style="margin-top:8px;">'+escapeHtml(d.postedBy||"Bureau EDB")+' · '+fmtWhen(d.createdAt)+'</div>'+
+    '<div class="chat-bubble-actions" style="margin-top:10px;">'+thumbReactionHtml("edbAnalyses", doc.id, d.reactions)+'</div>'+
+  '</div>';
+}
+function renderAnalysesEdbFeed(){
+  const wrap = document.getElementById("tradesedb-analyses-wrap");
+  if (!wrap) return;
+  if (analysesEdbDocsCache.length===0){
+    wrap.innerHTML = '<div class="empty-note">Aucune analyse partagée pour le moment.</div>';
+    return;
+  }
+  wrap.innerHTML = analysesEdbDocsCache.map(doc=>edbAnalysisCardHtml(doc)).join("");
+  wireThumbReactionButtons(wrap);
+}
+function subscribeAnalysesEdb(){
+  if (analysesEdbUnsub) return; // already listening
+  const wrap = document.getElementById("tradesedb-analyses-wrap");
+  if (!dbReady || !db){
+    if (wrap) wrap.innerHTML = '<div class="empty-note">Analyses indisponibles pour le moment.</div>';
+    return;
+  }
+  try{
+    analysesEdbUnsub = db.collection("edbAnalyses").orderBy("createdAt","desc").limit(50).onSnapshot(
+      (snap)=>{ analysesEdbDocsCache = snap.docs; renderAnalysesEdbFeed(); },
+      (err)=>{ console.warn("edbAnalyses subscribe failed", err); if (wrap) wrap.innerHTML = '<div class="empty-note">Analyses indisponibles — vérifie que la règle Firestore edbAnalyses est bien déployée (SERVER_SETUP.md).</div>'; }
+    );
+  }catch(e){}
+}
+function teardownAnalysesEdb(){
+  if (typeof analysesEdbUnsub === "function") analysesEdbUnsub();
+  analysesEdbUnsub = null;
 }
 
 function renderMiniPnlCardHtml(card){
@@ -9384,6 +9587,7 @@ function switchView(name){
     renderTradesEdbPage();
   } else {
     teardownTradesEdb();
+    teardownAnalysesEdb();
   }
   if (name==="quiz"){
     const seg = document.getElementById("quiz-toplevel-seg");
@@ -10991,6 +11195,146 @@ async function adminDeleteTrade(id){
     alert("Échec de la suppression.");
   }
 }
+/* ============================= ADMIN — ANALYSES EDB+ ============================= */
+// Publishing side of the "🧠 Analyse" sub-tab (see renderTradesEdbPage() /
+// edbAnalysisCardHtml() above) — same shape as the Trades EDB+ admin block
+// just above (load/render/publish/delete, own image-selection state), minus
+// everything trade-specific (side, entry/exit/SL/TP, close flow, PnL).
+let adminAnalysesDocs = [];
+let adminAnalysisTimeframe = "daily"; // "daily" | "htf"
+let adminAnalysisSelectedImages = [];
+const ADMIN_ANALYSIS_MAX_IMAGES = 6;
+function adminFindAnalysisDoc(id){ return adminAnalysesDocs.find(d=>d.id===id) || null; }
+function clearAdminAnalysisImage(){
+  adminAnalysisSelectedImages = [];
+  const input = document.getElementById("admin-analysis-image-input");
+  if (input) input.value = "";
+  renderAdminAnalysisImagePreview();
+}
+function renderAdminAnalysisImagePreview(){
+  const preview = document.getElementById("admin-analysis-image-preview");
+  if (!preview) return;
+  if (adminAnalysisSelectedImages.length===0){ preview.hidden = true; preview.innerHTML = ""; return; }
+  preview.hidden = false;
+  preview.innerHTML = adminAnalysisSelectedImages.map((file,i)=>
+    '<div class="admin-trade-image-chip">'+
+      '<img src="'+URL.createObjectURL(file)+'" alt="">'+
+      '<span>'+escapeHtml(file.name)+'</span>'+
+      '<button type="button" data-admin-analysis-img-remove="'+i+'">✕</button>'+
+    '</div>'
+  ).join("");
+  preview.querySelectorAll("[data-admin-analysis-img-remove]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      adminAnalysisSelectedImages.splice(parseInt(btn.dataset.adminAnalysisImgRemove,10), 1);
+      renderAdminAnalysisImagePreview();
+    });
+  });
+}
+async function loadAdminAnalyses(){
+  const status = document.getElementById("admin-analyses-status");
+  const body = document.getElementById("admin-analyses-body");
+  if (!dbReady || !db){ if (status) status.textContent = "Base de données indisponible."; return; }
+  if (status) status.textContent = "Chargement…";
+  try{
+    const snap = await db.collection("edbAnalyses").orderBy("createdAt","desc").limit(100).get();
+    adminAnalysesDocs = snap.docs;
+    if (status) status.textContent = adminAnalysesDocs.length+(adminAnalysesDocs.length>1?" analyses":" analyse")+" — dernière actualisation "+new Date().toLocaleTimeString("fr-FR");
+    renderAdminAnalyses();
+  }catch(e){
+    console.warn("admin analyses load failed", e);
+    if (status) status.textContent = "Erreur de chargement — vérifie que la règle Firestore edbAnalyses est bien déployée (SERVER_SETUP.md).";
+    if (body) body.innerHTML = '<tr><td colspan="5" class="empty-note">Impossible de charger les analyses.</td></tr>';
+  }
+}
+function renderAdminAnalyses(){
+  const body = document.getElementById("admin-analyses-body");
+  if (!body) return;
+  if (adminAnalysesDocs.length===0){ body.innerHTML = '<tr><td colspan="5" class="empty-note">Aucune analyse publiée.</td></tr>'; return; }
+  body.innerHTML = adminAnalysesDocs.map(doc=>{
+    const d = doc.data();
+    const a = d.symbol ? edbTradeAssetMeta(d.symbol) : null;
+    const preview = (d.text||"").slice(0,60) + ((d.text||"").length>60 ? "…" : "");
+    return '<tr>'+
+      '<td>'+(a ? a.icon+' '+escapeHtml(d.symbol) : "Marché général")+'</td>'+
+      '<td>'+(EDB_ANALYSIS_TIMEFRAME_LABELS[d.timeframe]||"—")+'</td>'+
+      '<td>'+escapeHtml(preview)+'</td>'+
+      '<td>'+fmtWhen(d.createdAt)+'</td>'+
+      '<td><button class="pos-close" data-admin-analysis-delete="'+doc.id+'" style="color:var(--short);">Supprimer</button></td>'+
+    '</tr>';
+  }).join("");
+}
+async function adminPublishAnalysis(){
+  const symbolSel = document.getElementById("admin-analysis-symbol");
+  const textInput = document.getElementById("admin-analysis-text");
+  const msg = document.getElementById("admin-analysis-publish-msg");
+  const btn = document.getElementById("admin-analysis-publish");
+  if (!textInput) return;
+  const text = textInput.value.trim().slice(0,4000);
+  const symbol = (symbolSel && symbolSel.value) ? symbolSel.value : null;
+  if (!text && adminAnalysisSelectedImages.length===0){
+    if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Écris un texte ou joins au moins une image."; }
+    return;
+  }
+  if (!dbReady || !db){
+    if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Base de données indisponible."; }
+    return;
+  }
+  if (btn) btn.disabled = true;
+  const id = uid();
+  const createdAt = new Date().toISOString();
+  const payload = {
+    symbol, timeframe: adminAnalysisTimeframe, text,
+    postedBy: state.username, createdAt,
+  };
+  // Same two-try/catch split as adminPublishTrade() above, and for the same
+  // reason: Storage and Firestore are two different services with two
+  // different rule files, so a failure needs to name which one to go check.
+  if (adminAnalysisSelectedImages.length>0){
+    if (!storage){ if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Stockage indisponible pour le moment — réessaie plus tard."; } if (btn) btn.disabled = false; return; }
+    try{
+      const imageUrls = [];
+      const imagePaths = [];
+      for (let i=0; i<adminAnalysisSelectedImages.length; i++){
+        const imagePath = "edbanalyses/"+id+"_"+i;
+        const imageUrl = await uploadToStorage(adminAnalysisSelectedImages[i], imagePath);
+        imageUrls.push(imageUrl); imagePaths.push(imagePath);
+      }
+      payload.imageUrls = imageUrls; payload.imagePaths = imagePaths;
+    }catch(e){
+      console.warn("admin analysis image upload failed", e);
+      if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Échec de l'envoi des images ("+(e.code||e.message||"erreur inconnue")+") — vérifie que la règle Storage edbanalyses/{analysisId} est bien déployée (SERVER_SETUP.md § 5)."; }
+      if (btn) btn.disabled = false;
+      return;
+    }
+  }
+  try{
+    await db.collection("edbAnalyses").doc(id).set(payload);
+    if (msg){ msg.style.color = "var(--long)"; msg.textContent = "Analyse publiée."; }
+    textInput.value = "";
+    if (symbolSel) symbolSel.value = "";
+    clearAdminAnalysisImage();
+    loadAdminAnalyses();
+  }catch(e){
+    console.warn("admin analysis publish failed", e);
+    if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Échec de la publication ("+(e.code||e.message||"erreur inconnue")+") — vérifie que la règle Firestore edbAnalyses est bien déployée (SERVER_SETUP.md § 2)."; }
+  }
+  if (btn) btn.disabled = false;
+}
+async function adminDeleteAnalysis(id){
+  if (!confirm("Supprimer cette analyse ? Irréversible.")) return;
+  try{
+    const doc = adminFindAnalysisDoc(id);
+    const d = doc ? doc.data() : null;
+    const imagePaths = d ? (Array.isArray(d.imagePaths) ? d.imagePaths : []) : [];
+    await db.collection("edbAnalyses").doc(id).delete();
+    if (storage){ for (const p of imagePaths){ try{ await storage.ref().child(p).delete(); }catch(e2){} } }
+    adminAnalysesDocs = adminAnalysesDocs.filter(d=>d.id!==id);
+    renderAdminAnalyses();
+  }catch(e){
+    console.warn("admin analysis delete failed", e);
+    alert("Échec de la suppression.");
+  }
+}
 function initAdminUI(){
   updateAdminNavVisibility();
   const codeBtn = document.getElementById("admin-code-btn");
@@ -11087,12 +11431,54 @@ function initAdminUI(){
       else if (t && t.dataset && t.dataset.adminTradeDelete) adminDeleteTrade(t.dataset.adminTradeDelete);
     });
   }
+  const analysisSymbolSel = document.getElementById("admin-analysis-symbol");
+  if (analysisSymbolSel && typeof visibleAssets==="function"){
+    analysisSymbolSel.innerHTML = '<option value="">— Marché général —</option>'+
+      visibleAssets().map(a=>'<option value="'+a.symbol+'">'+a.icon+' '+a.symbol+' — '+escapeHtml(a.name)+'</option>').join("");
+  }
+  const analysisTfDailyBtn = document.getElementById("admin-analysis-tf-daily");
+  const analysisTfHtfBtn = document.getElementById("admin-analysis-tf-htf");
+  function setAdminAnalysisTfUI(){
+    if (analysisTfDailyBtn) analysisTfDailyBtn.classList.toggle("active", adminAnalysisTimeframe==="daily");
+    if (analysisTfHtfBtn) analysisTfHtfBtn.classList.toggle("active", adminAnalysisTimeframe==="htf");
+  }
+  if (analysisTfDailyBtn) analysisTfDailyBtn.addEventListener("click", ()=>{ adminAnalysisTimeframe="daily"; setAdminAnalysisTfUI(); });
+  if (analysisTfHtfBtn) analysisTfHtfBtn.addEventListener("click", ()=>{ adminAnalysisTimeframe="htf"; setAdminAnalysisTfUI(); });
+  setAdminAnalysisTfUI();
+  const analysisImgBtn = document.getElementById("admin-analysis-image-btn");
+  const analysisImgInput = document.getElementById("admin-analysis-image-input");
+  if (analysisImgBtn && analysisImgInput) analysisImgBtn.addEventListener("click", ()=>analysisImgInput.click());
+  if (analysisImgInput){
+    analysisImgInput.addEventListener("change", ()=>{
+      const files = analysisImgInput.files ? Array.from(analysisImgInput.files) : [];
+      analysisImgInput.value = ""; // reset so picking again (to add more) always fires change, even for the same file(s)
+      for (const file of files){
+        if (adminAnalysisSelectedImages.length >= ADMIN_ANALYSIS_MAX_IMAGES){ alert("Maximum "+ADMIN_ANALYSIS_MAX_IMAGES+" images par analyse."); break; }
+        if (!file.type.startsWith("image/")){ alert("'"+file.name+"' n'est pas une image, ignorée."); continue; }
+        if (file.size > 6*1024*1024){ alert("'"+file.name+"' est trop lourde (max 6 Mo), ignorée."); continue; }
+        adminAnalysisSelectedImages.push(file);
+      }
+      renderAdminAnalysisImagePreview();
+    });
+  }
+  const analysisPublishBtn = document.getElementById("admin-analysis-publish");
+  if (analysisPublishBtn) analysisPublishBtn.addEventListener("click", adminPublishAnalysis);
+  const analysesRefreshBtn = document.getElementById("admin-analyses-refresh");
+  if (analysesRefreshBtn) analysesRefreshBtn.addEventListener("click", loadAdminAnalyses);
+  const analysesBody = document.getElementById("admin-analyses-body");
+  if (analysesBody){
+    analysesBody.addEventListener("click", (e)=>{
+      const t = e.target;
+      if (t && t.dataset && t.dataset.adminAnalysisDelete) adminDeleteAnalysis(t.dataset.adminAnalysisDelete);
+    });
+  }
   document.querySelectorAll('nav.tabs button[data-view="admin"]').forEach(b=>{
     b.addEventListener("click", ()=>{
       if (adminDocs.length===0) loadAdminTraders();
       if (adminEdbPlusChatDocs.length===0) loadAdminEdbPlusChats();
       if (adminFeedbackDocs.length===0) loadAdminFeedback();
       if (adminTradesDocs.length===0) loadAdminTrades();
+      if (adminAnalysesDocs.length===0) loadAdminAnalyses();
     });
   });
 }
