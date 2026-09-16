@@ -366,11 +366,22 @@
     grid-template-columns:230px 6px 1fr 6px 340px;
     gap:14px;
     align-items:start;
+    position:relative; /* containing block for #widget-free-layer below */
   }
+  /* See the HTML comment above #widget-free-layer for what this is. z-index
+     gives it its own stacking context so it reliably paints above the
+     docked widgets (position:relative, z-index:auto) regardless of DOM
+     order. */
+  #widget-free-layer{position:absolute;inset:0;pointer-events:none;z-index:5;}
   @media (max-width:1080px){
     .terminal-grid{grid-template-columns:1fr;}
     .col-resizer{display:none;}
     .widget-hresize{display:none;}
+    /* Free/absolute positioning only makes sense on the wide 3-column
+       layout — below the breakpoint everything (including free widgets)
+       falls back to a plain vertical stack, same as docked widgets. */
+    #widget-free-layer{position:static;}
+    .widget.is-free{position:relative !important;left:auto !important;top:auto !important;width:auto !important;margin-top:14px;}
   }
   /* Drag handles between the three terminal columns — width is adjustable
      per side-column (left="Sessions/Marchés/Calendrier", right="Compte/
@@ -424,6 +435,15 @@
   .widget-grip:active{cursor:grabbing;}
   .widget-hide{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;line-height:1;padding:2px 4px;border-radius:4px;}
   .widget-hide:hover{color:var(--warn);background:var(--bg-raised);}
+  .widget-free-toggle{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;line-height:1;padding:2px 4px;border-radius:4px;}
+  .widget-free-toggle:hover{color:var(--accent);background:var(--bg-raised);}
+  /* A "free" widget leaves the normal column stack: position:absolute inside
+     #widget-free-layer, dragged to an arbitrary x/y (see makeWidgetFree() /
+     the pointer-drag branch in initWidgets()). Declared after .card.widget
+     (position:relative) so it wins the position override at equal
+     specificity (source order). The shadow/border give it a clear
+     "floating above everything else" look while overlapping other widgets. */
+  .widget.is-free{position:absolute;pointer-events:auto;box-shadow:0 10px 30px rgba(0,0,0,.45);border-color:var(--accent);}
   .widget-help{background:none;border:1px solid var(--warn);color:var(--warn);cursor:pointer;font-size:10.5px;font-weight:700;line-height:1;width:16px;height:16px;padding:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none;}
   .widget-help:hover{color:var(--bg);background:var(--warn);}
   .help-row{margin-bottom:11px;font-size:12.5px;line-height:1.5;color:var(--text-dim);}
@@ -1135,18 +1155,18 @@
       <div class="terminal-grid">
         <div class="widget-col" data-col="0">
           <div class="card widget" draggable="true" data-widget="sessions">
-            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Sessions de marché</h3><button type="button" class="widget-hide" data-widget-hide="sessions" title="Masquer ce widget">✕</button></div>
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Sessions de marché</h3><button type="button" class="widget-free-toggle" data-widget-free="sessions" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="sessions" title="Masquer ce widget">✕</button></div>
             <div class="paris-clock num" id="paris-clock">--:--:--</div>
             <div class="sessions-list" id="sessions-list"></div>
           </div>
           <div class="card widget" draggable="true" data-widget="watchlist" style="margin-top:14px;">
-            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Marchés</h3><button type="button" class="widget-hide" data-widget-hide="watchlist" title="Masquer ce widget">✕</button></div>
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Marchés</h3><button type="button" class="widget-free-toggle" data-widget-free="watchlist" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="watchlist" title="Masquer ce widget">✕</button></div>
             <div id="market-status" class="chart-note" style="margin-bottom:10px;">initialisation…</div>
             <div class="watchlist" id="watchlist"></div>
           </div>
 
           <div class="card widget" draggable="true" data-widget="econcal" style="margin-top:14px;">
-            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Calendrier économique</h3><button type="button" class="widget-hide" data-widget-hide="econcal" title="Masquer ce widget">✕</button></div>
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Calendrier économique</h3><button type="button" class="widget-free-toggle" data-widget-free="econcal" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="econcal" title="Masquer ce widget">✕</button></div>
             <div class="econcal-wrap" id="econcal-wrap"></div>
           </div>
         </div>
@@ -1155,7 +1175,7 @@
 
         <div class="widget-col" data-col="1">
           <div class="card widget" draggable="true" data-widget="chart">
-            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Graphique</h3><button type="button" class="widget-hide" data-widget-hide="chart" title="Masquer ce widget">✕</button></div>
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Graphique</h3><button type="button" class="widget-free-toggle" data-widget-free="chart" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="chart" title="Masquer ce widget">✕</button></div>
             <div class="chart-head">
               <div><span class="sym-big" id="chart-sym">BTC</span><span class="name-big" id="chart-name">Bitcoin</span></div>
               <span class="price-big num" id="chart-price">$0.00</span>
@@ -1187,13 +1207,13 @@
           </div>
 
           <div class="card widget" draggable="true" data-widget="dom">
-            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Carnet d'ordres</h3><button type="button" class="widget-hide" data-widget-hide="dom" title="Masquer ce widget">✕</button></div>
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Carnet d'ordres</h3><button type="button" class="widget-free-toggle" data-widget-free="dom" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="dom" title="Masquer ce widget">✕</button></div>
             <div class="dom-sym chart-note" id="dom-sym">BTC</div>
             <div id="dom-body" class="dom-body"><div class="empty-note">Chargement du carnet…</div></div>
           </div>
 
           <div class="card ticket widget" draggable="true" data-widget="ticket">
-            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Ticket d'ordre</h3><button type="button" class="widget-help" id="ticket-help-btn" title="Aide : comprendre le ticket d'ordre">?</button><button type="button" class="widget-hide" data-widget-hide="ticket" title="Masquer ce widget">✕</button></div>
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Ticket d'ordre</h3><button type="button" class="widget-help" id="ticket-help-btn" title="Aide : comprendre le ticket d'ordre">?</button><button type="button" class="widget-free-toggle" data-widget-free="ticket" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="ticket" title="Masquer ce widget">✕</button></div>
             <div class="seg">
               <button id="side-long" class="on-long active">Long</button>
               <button id="side-short" class="on-short">Short</button>
@@ -1264,7 +1284,7 @@
           </div>
 
           <div class="card widget" draggable="true" data-widget="poscalc" style="margin-top:14px;">
-            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Calculateur de taille</h3><button type="button" class="widget-hide" data-widget-hide="poscalc" title="Masquer ce widget">✕</button></div>
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Calculateur de taille</h3><button type="button" class="widget-free-toggle" data-widget-free="poscalc" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="poscalc" title="Masquer ce widget">✕</button></div>
             <div class="field-row">
               <label>Actif</label>
               <select id="poscalc-asset" class="tpsl-input"></select>
@@ -1309,7 +1329,7 @@
 
         <div class="widget-col" data-col="2">
           <div class="card widget" draggable="true" data-widget="account">
-            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3 id="account-widget-title">Compte</h3><button type="button" class="widget-hide" data-widget-hide="account" title="Masquer ce widget">✕</button></div>
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3 id="account-widget-title">Compte</h3><button type="button" class="widget-free-toggle" data-widget-free="account" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="account" title="Masquer ce widget">✕</button></div>
             <div class="acct-summary">
               <div class="cell"><div class="lbl">Cash</div><div class="val num" id="acc-cash">$100,000.00</div></div>
               <div class="cell"><div class="lbl">Équité</div><div class="val num" id="acc-equity">$100,000.00</div></div>
@@ -1320,25 +1340,35 @@
           </div>
 
           <div class="card widget" draggable="true" data-widget="positions" style="margin-top:14px;">
-            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Positions ouvertes</h3><button type="button" class="widget-hide" data-widget-hide="positions" title="Masquer ce widget">✕</button></div>
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Positions ouvertes</h3><button type="button" class="widget-free-toggle" data-widget-free="positions" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="positions" title="Masquer ce widget">✕</button></div>
             <div id="positions-list"><div class="empty-note">Aucune position ouverte</div></div>
           </div>
 
           <div class="card widget" draggable="true" data-widget="pending" style="margin-top:14px;">
-            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Ordres en attente</h3><button type="button" class="widget-hide" data-widget-hide="pending" title="Masquer ce widget">✕</button></div>
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Ordres en attente</h3><button type="button" class="widget-free-toggle" data-widget-free="pending" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="pending" title="Masquer ce widget">✕</button></div>
             <div id="pending-orders-list"><div class="empty-note">Aucun ordre en attente</div></div>
           </div>
 
           <div class="card widget" draggable="true" data-widget="history" style="margin-top:14px;">
-            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Historique récent</h3><button type="button" class="widget-hide" data-widget-hide="history" title="Masquer ce widget">✕</button></div>
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Historique récent</h3><button type="button" class="widget-free-toggle" data-widget-free="history" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="history" title="Masquer ce widget">✕</button></div>
             <div id="history-list"><div class="empty-note">Pas encore de trade clôturé</div></div>
           </div>
 
           <div class="card widget" draggable="true" data-widget="performance" style="margin-top:14px;">
-            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Performance</h3><button type="button" class="widget-hide" data-widget-hide="performance" title="Masquer ce widget">✕</button></div>
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Performance</h3><button type="button" class="widget-free-toggle" data-widget-free="performance" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="performance" title="Masquer ce widget">✕</button></div>
             <div id="perf-stats"></div>
           </div>
         </div>
+        <!-- Absolutely-positioned overlay spanning all 3 columns — a widget
+             switched to "free" mode (see the 📌 toggle in its header) moves
+             into this layer so it can be dragged to any x/y, overlapping
+             other widgets or crossing column boundaries, instead of being
+             confined to a column's vertical stack. See applyWidgetFreeState()
+             / makeWidgetFree() / lockWidgetToColumn(). pointer-events:none on
+             the layer itself so empty space over it doesn't block clicks on
+             the docked widgets underneath; individual free widgets re-enable
+             pointer-events via .widget.is-free. -->
+        <div id="widget-free-layer"></div>
       </div>
     </section>
 
@@ -10303,6 +10333,7 @@ function currentLayoutFromDom(){
 function enforceWidgetAccess(){
   if (typeof loadWidgetLayout!=="function") return;
   applyWidgetLayout(loadWidgetLayout());
+  if (typeof applyWidgetFreeState==="function") applyWidgetFreeState();
 }
 // Re-checks the leverage cap on the real order ticket (the position-size
 // calculator widget doesn't need this — it's edbPlusOnly outright, see
@@ -10411,6 +10442,131 @@ let widgetTopOffsets = loadWidgetTopOffsets();
 function saveWidgetTopOffsets(){
   try{ localStorage.setItem(WIDGET_TOP_OFFSET_KEY, JSON.stringify(widgetTopOffsets)); }catch(e){}
 }
+// ---- Free positioning ("libre") ----
+// Docked widgets (the default) live in the 3-column vertical-stack flow
+// exactly like before. A widget can instead be switched to "free" mode via
+// the 📌 header toggle: it's moved into #widget-free-layer (an absolute
+// overlay spanning all 3 columns, see its HTML comment) and can be dragged
+// to any x/y, overlapping other widgets or crossing column boundaries.
+// Presence of an id in widgetFreePositions IS the "is this widget free"
+// flag — there's no separate boolean to keep in sync. Position is stored
+// in px relative to #widget-free-layer's own top-left corner, so it's
+// stable across reloads regardless of viewport size.
+const WIDGET_FREE_KEY = "paperTapeWidgetFreePos";
+function loadWidgetFreePositions(){
+  try{
+    const raw = localStorage.getItem(WIDGET_FREE_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return (parsed && typeof parsed==="object") ? parsed : {};
+  }catch(e){ return {}; }
+}
+let widgetFreePositions = loadWidgetFreePositions(); // { [id]: {x,y,w,z} }
+function saveWidgetFreePositions(){
+  try{ localStorage.setItem(WIDGET_FREE_KEY, JSON.stringify(widgetFreePositions)); }catch(e){}
+}
+let freeZCounter = 1000;
+function isWidgetFree(id){ return !!(id && widgetFreePositions[id]); }
+// Bumps a free widget above its free-mode siblings — called on every
+// pointerdown drag-start and whenever a widget is switched into free mode,
+// so "the one you touched last is on top" (confirmed with the trader).
+function bringWidgetToFront(id){
+  freeZCounter += 1;
+  if (widgetFreePositions[id]) widgetFreePositions[id].z = freeZCounter;
+  const el = widgetEl(id);
+  if (el) el.style.zIndex = String(freeZCounter);
+}
+// Picks whichever of the 3 .widget-col containers a widget is currently
+// closest to (by horizontal center) — used when "locking" a free widget
+// back onto a predefined column slot, so the lock target is whatever
+// column it's currently floating over, not always the first one.
+function nearestWidgetColumn(el){
+  const cols = Array.from(document.querySelectorAll(".widget-col"));
+  if (!el || !cols.length) return cols[0];
+  const rect = el.getBoundingClientRect();
+  const cx = rect.left + rect.width/2;
+  let best = cols[0], bestDist = Infinity;
+  cols.forEach(c=>{
+    const cr = c.getBoundingClientRect();
+    const ccx = cr.left + cr.width/2;
+    const d = Math.abs(cx-ccx);
+    if (d<bestDist){ bestDist = d; best = c; }
+  });
+  return best;
+}
+// Switches a docked widget to free mode: captures its current on-screen box
+// (relative to the free layer) as its starting free position/size, then
+// hands off to applyWidgetFreeState() to actually move it in the DOM.
+function makeWidgetFree(id){
+  const el = widgetEl(id);
+  const layer = document.getElementById("widget-free-layer");
+  if (!el || !layer) return;
+  const layerRect = layer.getBoundingClientRect();
+  const elRect = el.getBoundingClientRect();
+  freeZCounter += 1;
+  widgetFreePositions[id] = {
+    x: Math.round(elRect.left - layerRect.left),
+    y: Math.round(elRect.top - layerRect.top),
+    w: Math.round(elRect.width),
+    z: freeZCounter,
+  };
+  saveWidgetFreePositions();
+  applyWidgetFreeState();
+  persistCurrentLayout();
+  if (typeof updateWidgetHResizeVisibility==="function") updateWidgetHResizeVisibility();
+}
+// Reverse of makeWidgetFree(): drops the stored free position, moves the
+// widget back into a real .widget-col (appended at the end of that
+// column's stack) so it resumes normal docked flow — this is the "lock
+// onto a predefined column slot" the trader asked for. Defaults to
+// whichever column it's currently floating nearest to.
+function lockWidgetToColumn(id, targetCol){
+  delete widgetFreePositions[id];
+  saveWidgetFreePositions();
+  const el = widgetEl(id);
+  if (el){
+    el.style.left = ""; el.style.top = ""; el.style.width = ""; el.style.zIndex = "";
+    el.classList.remove("is-free");
+    (targetCol || document.querySelector(".widget-col")).appendChild(el);
+  }
+  applyWidgetFreeState();
+  persistCurrentLayout();
+  if (typeof updateWidgetHResizeVisibility==="function") updateWidgetHResizeVisibility();
+}
+// Syncs every widget's DOM position/class and its 📌/🔓 header toggle to
+// match widgetFreePositions — called at boot (after applyWidgetLayout),
+// after enforceWidgetAccess(), and after the reset button clears
+// everything. Free widgets are (re)parented into #widget-free-layer here;
+// docked ones just get their free-mode inline styles cleared (their actual
+// column position is applyWidgetLayout()'s job, not this function's).
+function applyWidgetFreeState(){
+  const layer = document.getElementById("widget-free-layer");
+  document.querySelectorAll(".card.widget").forEach(el=>{
+    const id = el.dataset.widget;
+    const head = el.querySelector(":scope > .widget-head");
+    const btn = head ? head.querySelector(".widget-free-toggle") : null;
+    const free = isWidgetFree(id);
+    el.classList.toggle("is-free", free);
+    if (btn){
+      btn.textContent = free ? "🔓" : "📌";
+      btn.title = free
+        ? "Verrouiller ce widget sur une place de colonne (la plus proche)"
+        : "Libérer la position — glisser n'importe où, chevauchement permis";
+    }
+    if (free){
+      const pos = widgetFreePositions[id];
+      if (layer && el.parentElement!==layer) layer.appendChild(el);
+      el.style.left = pos.x+"px";
+      el.style.top = pos.y+"px";
+      if (pos.w) el.style.width = pos.w+"px";
+      el.style.zIndex = String(pos.z || freeZCounter);
+    } else {
+      el.style.left = "";
+      el.style.top = "";
+      el.style.width = "";
+      el.style.zIndex = "";
+    }
+  });
+}
 function applyWidgetHeight(el, id){
   const h = widgetHeights[id];
   const mt = widgetTopOffsets[id];
@@ -10423,23 +10579,30 @@ function applyWidgetHeight(el, id){
     el.style.overflowY = "";
     el.style.overflowX = "";
   }
-  el.style.marginTop = (typeof mt==="number" && mt!==0) ? mt+"px" : "";
+  // The negative-margin-top trick below is only meaningful for docked
+  // widgets (it fakes the top edge moving within normal document flow). A
+  // free widget has a real `top` coordinate instead — see the "top" branch
+  // in wireWidgetVResizeHandle(), which adjusts widgetFreePositions[id].y
+  // directly and never touches marginTop.
+  el.style.marginTop = (!isWidgetFree(id) && typeof mt==="number" && mt!==0) ? mt+"px" : "";
 }
 // Shared by both the top and bottom grips — `edge` only changes the sign of
-// "dragging away from the card grows it" and whether marginTop also moves.
+// "dragging away from the card grows it" and whether marginTop (docked) or
+// the free y-position (free mode) also moves.
 function wireWidgetVResizeHandle(el, id, edge){
   const handle = document.createElement("div");
   handle.className = "widget-vresize widget-vresize-"+edge;
   handle.title = "Glisser pour réduire/agrandir — double-clic pour réinitialiser";
   handle.style.touchAction = "none";
   if (edge==="top") el.insertBefore(handle, el.firstChild); else el.appendChild(handle);
-  let dragPointerId = null, startY = 0, startHeight = 0, startTopOffset = 0;
+  let dragPointerId = null, startY = 0, startHeight = 0, startTopOffset = 0, startFreeY = 0;
   handle.addEventListener("pointerdown", (e)=>{
     if (e.button !== 0 && e.pointerType==="mouse") return;
     dragPointerId = e.pointerId;
     startY = e.clientY;
     startHeight = el.getBoundingClientRect().height;
     startTopOffset = widgetTopOffsets[id] || 0;
+    startFreeY = (isWidgetFree(id) && widgetFreePositions[id]) ? widgetFreePositions[id].y : 0;
     try{ handle.setPointerCapture(dragPointerId); }catch(err){}
     handle.classList.add("resizing");
     e.preventDefault();
@@ -10456,7 +10619,15 @@ function wireWidgetVResizeHandle(el, id, edge){
       // Actual (clamped) growth this drag has produced so far — keeps the
       // bottom edge pinned even once the MIN clamp above kicks in.
       const actualDelta = nextHeight - startHeight;
-      widgetTopOffsets[id] = startTopOffset - actualDelta;
+      if (isWidgetFree(id)){
+        // Free mode has a real top coordinate — move it directly instead
+        // of the docked-mode negative-margin trick.
+        const newY = startFreeY - actualDelta;
+        if (widgetFreePositions[id]) widgetFreePositions[id].y = newY;
+        el.style.top = newY+"px";
+      } else {
+        widgetTopOffsets[id] = startTopOffset - actualDelta;
+      }
     }
     applyWidgetHeight(el, id);
   });
@@ -10466,6 +10637,7 @@ function wireWidgetVResizeHandle(el, id, edge){
     handle.classList.remove("resizing");
     saveWidgetHeights();
     saveWidgetTopOffsets();
+    if (isWidgetFree(id)) saveWidgetFreePositions();
   }
   handle.addEventListener("pointerup", endResize);
   handle.addEventListener("pointercancel", endResize);
@@ -10514,15 +10686,32 @@ function widgetHResizeDividerSide(el, edge){
   if (edge==="left") return idx===0 ? null : (idx===1 ? "left" : "right");
   return idx===2 ? null : (idx===0 ? "left" : "right"); // edge==="right"
 }
+const WIDGET_FREE_WIDTH_MIN = 140;
 function wireWidgetHResizeHandle(el, edge){
   const handle = document.createElement("div");
   handle.className = "widget-hresize widget-hresize-"+edge;
-  handle.title = "Glisser pour élargir/rétrécir la colonne — double-clic pour réinitialiser";
+  handle.title = "Glisser pour élargir/rétrécir — double-clic pour réinitialiser";
   handle.style.touchAction = "none";
   el.appendChild(handle);
-  let dragPointerId = null, startX = 0, startWidth = 0, side = null;
+  let dragPointerId = null, startX = 0, startWidth = 0, startLeft = 0, side = null;
   handle.addEventListener("pointerdown", (e)=>{
     if (e.button !== 0 && e.pointerType==="mouse") return;
+    const id = el.dataset.widget;
+    if (isWidgetFree(id)){
+      // Free mode: this grip resizes the widget's OWN width directly (and,
+      // from the left edge, moves x in lockstep so the right edge stays
+      // put) — there's no shared column width to forward to here.
+      side = "free-"+edge;
+      dragPointerId = e.pointerId;
+      startX = e.clientX;
+      startWidth = el.getBoundingClientRect().width;
+      startLeft = (widgetFreePositions[id] && widgetFreePositions[id].x) || 0;
+      try{ handle.setPointerCapture(dragPointerId); }catch(err){}
+      handle.classList.add("resizing");
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
     side = widgetHResizeDividerSide(el, edge);
     if (!side) return; // outer edge of the layout — nothing to resize
     dragPointerId = e.pointerId;
@@ -10536,6 +10725,21 @@ function wireWidgetHResizeHandle(el, edge){
   handle.addEventListener("pointermove", (e)=>{
     if (dragPointerId===null || e.pointerId!==dragPointerId || !side) return;
     const delta = e.clientX - startX;
+    if (side==="free-left" || side==="free-right"){
+      const id = el.dataset.widget;
+      let w, x;
+      if (side==="free-right"){
+        w = Math.max(WIDGET_FREE_WIDTH_MIN, Math.round(startWidth+delta));
+        x = startLeft;
+      } else {
+        w = Math.max(WIDGET_FREE_WIDTH_MIN, Math.round(startWidth-delta));
+        x = startLeft + (startWidth - w);
+      }
+      el.style.width = w+"px";
+      el.style.left = x+"px";
+      if (widgetFreePositions[id]){ widgetFreePositions[id].w = w; widgetFreePositions[id].x = x; }
+      return;
+    }
     // Same convention as the dividers themselves: the "left" column grows as
     // the divider moves right, the "right" column grows as it moves left.
     const next = side==="left" ? startWidth+delta : startWidth-delta;
@@ -10546,6 +10750,7 @@ function wireWidgetHResizeHandle(el, edge){
     if (dragPointerId===null || e.pointerId!==dragPointerId) return;
     dragPointerId = null;
     handle.classList.remove("resizing");
+    if (side==="free-left" || side==="free-right"){ saveWidgetFreePositions(); side = null; return; }
     if (side) saveColumnWidths();
     side = null;
   }
@@ -10553,6 +10758,8 @@ function wireWidgetHResizeHandle(el, edge){
   handle.addEventListener("pointercancel", endDrag);
   handle.addEventListener("dblclick", (e)=>{
     e.stopPropagation();
+    const id = el.dataset.widget;
+    if (isWidgetFree(id)) return; // no single "natural width" to reset to in free mode
     const s = widgetHResizeDividerSide(el, edge);
     if (!s) return;
     columnWidths[s] = COL_WIDTH_DEFAULTS[s];
@@ -10563,10 +10770,18 @@ function wireWidgetHResizeHandle(el, edge){
 // Hides whichever grip has no divider to move (leftmost column's left edge,
 // rightmost column's right edge) — called once at init and again whenever
 // widgets might have changed column (drag-and-drop reorder, layout reset).
+// A free widget always shows both grips since it resizes its own width
+// directly rather than a shared column divider (see wireWidgetHResizeHandle).
 function updateWidgetHResizeVisibility(){
   document.querySelectorAll(".card.widget").forEach(el=>{
+    const id = el.dataset.widget;
     const left = el.querySelector(":scope > .widget-hresize-left");
     const right = el.querySelector(":scope > .widget-hresize-right");
+    if (isWidgetFree(id)){
+      if (left) left.hidden = false;
+      if (right) right.hidden = false;
+      return;
+    }
     if (left) left.hidden = !widgetHResizeDividerSide(el, "left");
     if (right) right.hidden = !widgetHResizeDividerSide(el, "right");
   });
@@ -10581,34 +10796,63 @@ function initWidgetHorizontalResize(){
 }
 function initWidgets(){
   applyWidgetLayout(loadWidgetLayout());
+  applyWidgetFreeState();
   initWidgetVerticalResize();
   initWidgetHorizontalResize();
 
-  // Widget reordering uses the Pointer Events API (not native HTML5
+  // Widget dragging uses the Pointer Events API (not native HTML5
   // drag-and-drop): native DnD frequently fails to even start with a plain
   // click-and-hold in some browsers/trackpad setups, and it doesn't work at
   // all on touch (phone/tablet) — Pointer Events cover mouse, pen and touch
   // with one code path and let us reflow the layout live as you drag.
+  // Two distinct behaviors share this one pointerdown/move/up pipeline,
+  // branching on dragIsFree (decided once, at pointerdown, from whichever
+  // mode the widget was in when the drag started):
+  //  - docked (default): unchanged from before — reorders within the 3
+  //    column stacks, no overlap.
+  //  - free (📌 toggled to 🔓, see applyWidgetFreeState()): the widget
+  //    follows the pointer directly as an absolute x/y inside
+  //    #widget-free-layer, so it can go anywhere — including overlapping
+  //    another widget or crossing into a neighboring column.
   let dragWidget = null;
   let dragPointerId = null;
+  let dragIsFree = false;
+  let dragOffsetX = 0, dragOffsetY = 0;
   document.querySelectorAll(".widget").forEach(el=>{
     el.draggable = false; // fully disable native HTML5 DnD to avoid it fighting with pointer events
     const head = el.querySelector(".widget-head");
     if (!head) return;
     head.style.touchAction = "none"; // don't let touch-scroll steal the gesture while dragging
     head.addEventListener("pointerdown", (e)=>{
-      if (e.target.closest && e.target.closest(".widget-hide, .widget-help")) return;
+      if (e.target.closest && e.target.closest(".widget-hide, .widget-help, .widget-free-toggle")) return;
       if (e.button !== 0 && e.pointerType==="mouse") return; // primary mouse button only
       dragWidget = el;
       dragPointerId = e.pointerId;
+      dragIsFree = isWidgetFree(el.dataset.widget);
       try{ head.setPointerCapture(dragPointerId); }catch(err){}
       el.classList.add("dragging");
+      if (dragIsFree){
+        bringWidgetToFront(el.dataset.widget);
+        const elRect = el.getBoundingClientRect();
+        dragOffsetX = e.clientX - elRect.left;
+        dragOffsetY = e.clientY - elRect.top;
+      }
       e.preventDefault();
     });
   });
   function widgetPointerMove(e){
     if (!dragWidget || e.pointerId!==dragPointerId) return;
     e.preventDefault();
+    if (dragIsFree){
+      const layer = document.getElementById("widget-free-layer");
+      if (!layer) return;
+      const layerRect = layer.getBoundingClientRect();
+      const x = Math.round(e.clientX - layerRect.left - dragOffsetX);
+      const y = Math.round(e.clientY - layerRect.top - dragOffsetY);
+      dragWidget.style.left = x+"px";
+      dragWidget.style.top = y+"px";
+      return;
+    }
     const under = document.elementFromPoint(e.clientX, e.clientY);
     const overCol = (under && under.closest && under.closest(".widget-col")) || dragWidget.closest(".widget-col");
     if (!overCol) return;
@@ -10620,10 +10864,23 @@ function initWidgets(){
     if (!dragWidget || e.pointerId!==dragPointerId) return;
     dragWidget.classList.remove("dragging");
     document.querySelectorAll(".widget-col.drag-over").forEach(c=>c.classList.remove("drag-over"));
-    persistCurrentLayout();
+    if (dragIsFree){
+      const id = dragWidget.dataset.widget;
+      const layer = document.getElementById("widget-free-layer");
+      if (layer && widgetFreePositions[id]){
+        const layerRect = layer.getBoundingClientRect();
+        const rect = dragWidget.getBoundingClientRect();
+        widgetFreePositions[id].x = Math.round(rect.left - layerRect.left);
+        widgetFreePositions[id].y = Math.round(rect.top - layerRect.top);
+        saveWidgetFreePositions();
+      }
+    } else {
+      persistCurrentLayout();
+    }
     if (typeof updateWidgetHResizeVisibility==="function") updateWidgetHResizeVisibility();
     dragWidget = null;
     dragPointerId = null;
+    dragIsFree = false;
   }
   document.addEventListener("pointermove", widgetPointerMove);
   document.addEventListener("pointerup", widgetPointerUp);
@@ -10633,6 +10890,23 @@ function initWidgets(){
     btn.addEventListener("click", ()=>{
       const el = widgetEl(btn.dataset.widgetHide);
       if (el){ el.hidden = true; persistCurrentLayout(); renderWidgetPanel(); }
+    });
+  });
+
+  // 📌 (docked → free) / 🔓 (free → locked back onto a column). Locking
+  // always targets whichever column the widget currently floats nearest
+  // to, so "choose where to lock it" is just a matter of dragging it near
+  // that column first, then clicking 🔓.
+  document.querySelectorAll(".widget-free-toggle").forEach(btn=>{
+    btn.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      const id = btn.dataset.widgetFree;
+      if (!id) return;
+      if (isWidgetFree(id)){
+        lockWidgetToColumn(id, nearestWidgetColumn(widgetEl(id)));
+      } else {
+        makeWidgetFree(id);
+      }
     });
   });
 
@@ -10664,9 +10938,36 @@ function initWidgets(){
   const resetBtn = document.getElementById("widget-panel-reset");
   if (resetBtn){
     resetBtn.addEventListener("click", ()=>{
+      // A full reset needs to clear EVERY piece of persisted widget-layout
+      // state, not just cols/hidden — this used to only call
+      // defaultWidgetLayout()/applyWidgetLayout(), which left custom widget
+      // heights, top-offsets, column widths and (now) free positions
+      // untouched, so the button visibly "didn't really reset the layout".
       const layout = defaultWidgetLayout();
       saveWidgetLayout(layout);
-      applyWidgetLayout(layout);
+      widgetHeights = {};
+      saveWidgetHeights();
+      widgetTopOffsets = {};
+      saveWidgetTopOffsets();
+      widgetFreePositions = {};
+      saveWidgetFreePositions();
+      columnWidths = {left:COL_WIDTH_DEFAULTS.left, right:COL_WIDTH_DEFAULTS.right};
+      saveColumnWidths();
+      document.querySelectorAll(".card.widget").forEach(el=>{
+        el.style.height = "";
+        el.style.overflowY = "";
+        el.style.overflowX = "";
+        el.style.marginTop = "";
+        el.style.left = "";
+        el.style.top = "";
+        el.style.width = "";
+        el.style.zIndex = "";
+        el.classList.remove("is-free");
+      });
+      applyWidgetLayout(layout); // re-docks every widget into the default 3 columns, in default order
+      applyWidgetFreeState();    // nothing left free — resyncs the 📌/🔓 toggles
+      applyColumnWidths();
+      if (typeof updateWidgetHResizeVisibility==="function") updateWidgetHResizeVisibility();
     });
   }
 }
