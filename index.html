@@ -5613,8 +5613,22 @@ function closePosition(id, reason){
       // Liquidation fee REPLACES the normal exit commission — it's a
       // penalty on top of the margin already lost, not stacked with a taker fee.
       exitFee = p.notional*LIQUIDATION_FEE_RATE;
-      pnl = -p.initMargin - exitFee;
-      exitPrice = p.liqPrice; // liquidation fills at the guaranteed liq price, not whatever the mark happens to be past it
+      // Isolated positions fill at their own guaranteed liqPrice (no
+      // slippage past it, by design). Cross positions are liquidated by the
+      // shared-equity check in checkLiquidations(), not by this position's
+      // own (irrelevant, in cross) liqPrice — so they fill at the live
+      // market price instead, falling back to liqPrice only if a price tick
+      // genuinely isn't available right now.
+      exitPrice = p.mode==="isolated" ? p.liqPrice : (exitFill(p.symbol, p.side) ?? p.liqPrice);
+      // Realized loss is the actual mark-to-market move at the fill price —
+      // NOT a flat "lose the whole initial margin". liqPriceFor() already
+      // sizes the price buffer (1/leverage - MMR) so that this loss lands
+      // at exactly (initMargin - maintMargin): the trader is wiped down to
+      // their maintenance margin, not past it. Charging the full initMargin
+      // here (the previous behaviour) meant every isolated liquidation lost
+      // the untouched maintMargin buffer too, on top of the real loss —
+      // wildly more than the price move that actually happened.
+      pnl = pnlAtPrice(p, exitPrice) - exitFee;
     } else {
       exitFee = p.notional*TAKER_FEE_RATE;
       pnl = posUnrealized(p) - exitFee;
