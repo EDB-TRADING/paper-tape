@@ -6012,6 +6012,23 @@ function positionTourStep(){
     // already fully visible, which is the common case on a normal desktop
     // viewport.
     target.scrollIntoView({behavior:"auto", block:"nearest", inline:"nearest"});
+    // Native scrollIntoView has no idea header.topbar is position:sticky —
+    // "nearest" happily aligns a target's top edge to y=0 of the viewport,
+    // which is BEHIND the sticky header (whose height itself varies with
+    // viewport width, since its nav wraps onto a second line on narrower
+    // windows). For a widget taller than the header this only clips an
+    // unnoticeable sliver, but for a short one (account, positions) the
+    // header can cover it entirely — the highlight then lands squarely on
+    // the header/nav instead of the widget, looking like it's pointing at
+    // nothing. Nudge the scroll position down by whatever the header still
+    // covers, synchronously, so the rect read right after is the final one.
+    const headerEl = document.querySelector("header.topbar");
+    const headerBottom = headerEl ? headerEl.getBoundingClientRect().bottom : 0;
+    const headerClearance = 12;
+    const preClear = target.getBoundingClientRect();
+    if (preClear.top < headerBottom + headerClearance){
+      window.scrollBy(0, preClear.top - (headerBottom + headerClearance));
+    }
     const r = target.getBoundingClientRect();
     highlight.style.display = "";
     highlight.style.top = (r.top - pad) + "px";
