@@ -1489,20 +1489,6 @@
           <p class="chart-note" style="margin-bottom:10px;">La visite guidée s'affiche automatiquement une seule fois, à la toute première connexion d'un compte. Tu peux la revoir ici à tout moment.</p>
           <button class="btn-secondary" id="tour-replay-btn">Revoir le tutoriel</button>
         </div>
-        <div class="card" style="margin-top:14px;" id="admin-unlock-card">
-          <h3>Mode admin</h3>
-          <div id="admin-unlock-form">
-            <p class="chart-note" style="margin-bottom:10px;">Réservé au bureau EDB : accès à tous les comptes, réinitialisation et ajustement de solde.</p>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;">
-              <input type="password" id="admin-code-input" class="tpsl-input" placeholder="Code admin" style="flex:1;min-width:140px;">
-              <button class="btn-primary" id="admin-code-btn">Activer</button>
-            </div>
-            <div class="chart-note" id="admin-code-msg" style="margin-top:8px;"></div>
-          </div>
-          <div id="admin-unlock-active" hidden>
-            <p class="chart-note" style="color:var(--long);">✅ Mode admin activé sur ce compte — onglet "Admin" disponible dans la barre du haut.</p>
-          </div>
-        </div>
         <div class="card" style="margin-top:14px;">
           <h3>Photo de profil</h3>
           <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
@@ -2330,11 +2316,13 @@ const state = {
     currentStreak:0, streakType:null, bestWinStreak:0, bestLossStreak:0,
   },
   email: null,     // set from Firebase Auth once signed in — persisted so admins can identify traders
-  isAdmin: false,  // durable "ADMIN321" unlock — see ADMIN PANEL below
+  isAdmin: false,  // grantable only by an existing admin — see ADMIN PANEL below
   edbPlus: false,           // paid membership (25€/an) — see EDB+ below; granted manually by an admin, never self-writable in good faith
   edbPlusRequested: false,  // trader self-flags "j'ai payé" so an admin sees them in the admin panel's pending list
   edbPlusRequestedAt: null, // ISO timestamp of that self-flag, for admin sorting
   totalTimeSpent: 0, // cumulative seconds with the tab open & visible — see initSessionTimeTracking()
+  timeSpentConnaissances: 0, // subset of totalTimeSpent specifically on the Connaissances/Quiz tab — see initSessionTimeTracking()
+  connaissancesOpened: {}, // {[deckId]: iso timestamp FIRST opened} — see recordConnaissanceOpened()/renderLearnDoc()
   photoURL: null,  // profile picture (Firebase Storage download URL) — see initProfilePhoto()
   feed: [],        // [{id, imageURL, caption, createdAt}] — public screenshot feed, visible to others by clicking this trader in the classement
   challenge: null, // {tier, phase:"step1"|"step2"|"funded"|"failed", startCash, stepStartEquity, startedAt, dayKey, dailyStartEquity, tradedDates:[iso-date...], failReason, failedAt, step1PassedAt, step2PassedAt, fundedAt, fundedValue} — see CHALLENGE PROP FIRM below
@@ -2667,6 +2655,8 @@ function hydrateStateFromDoc(snap){
   state.edbPlusRequested = !!d.edbPlusRequested;
   state.edbPlusRequestedAt = d.edbPlusRequestedAt || null;
   state.totalTimeSpent = typeof d.totalTimeSpent==="number" ? d.totalTimeSpent : 0;
+  state.timeSpentConnaissances = typeof d.timeSpentConnaissances==="number" ? d.timeSpentConnaissances : 0;
+  state.connaissancesOpened = (d.connaissancesOpened && typeof d.connaissancesOpened==="object") ? d.connaissancesOpened : {};
   state.photoURL = d.photoURL || null;
   state.feed = Array.isArray(d.feed) ? d.feed : [];
   state.challenge = (d.challenge && typeof d.challenge==="object") ? d.challenge : null;
@@ -2841,6 +2831,8 @@ function persistAccount(){
           edbPlusRequested: !!state.edbPlusRequested,
           edbPlusRequestedAt: state.edbPlusRequestedAt || null,
           totalTimeSpent: state.totalTimeSpent||0,
+          timeSpentConnaissances: state.timeSpentConnaissances||0,
+          connaissancesOpened: state.connaissancesOpened||{},
           photoURL: state.photoURL || null,
           feed: (state.feed||[]).slice(0,30),
           challenge: state.challenge || null,
@@ -2868,6 +2860,14 @@ function initSessionTimeTracking(){
     const gate = document.getElementById("auth-gate");
     if (document.visibilityState==="visible" && gate && gate.hidden){
       state.totalTimeSpent = (state.totalTimeSpent||0) + 30;
+      // Subset specifically spent on the Connaissances/Quiz tab — reads the
+      // DOM directly (whichever .view currently has "active") rather than
+      // tracking a separate "current view" variable, since switchView()
+      // already toggles that class and nothing else needs a new state field.
+      const quizView = document.getElementById("view-quiz");
+      if (quizView && quizView.classList.contains("active")){
+        state.timeSpentConnaissances = (state.timeSpentConnaissances||0) + 30;
+      }
       persistAccount();
     }
   }, 30000);
@@ -9464,8 +9464,18 @@ function renderQuizDeckList(){
     });
   });
 }
+// Records the FIRST time a trader opens a given Connaissances fiche — never
+// overwrites an existing timestamp, so re-opening the same fiche later
+// doesn't move it. Visible to admins via adminConnaissancesHtml() below.
+function recordConnaissanceOpened(deckId){
+  state.connaissancesOpened = state.connaissancesOpened || {};
+  if (state.connaissancesOpened[deckId]) return;
+  state.connaissancesOpened[deckId] = new Date().toISOString();
+  persistAccount();
+}
 /* ============================= CONNAISSANCES (RENDER) ============================= */
 function renderLearnDoc(k){
+  recordConnaissanceOpened(k.id);
   document.getElementById("quiz-play-wrap").classList.remove("wrap-wide");
   const card = document.getElementById("quiz-card");
   const meta = deckMeta(k.id);
@@ -10631,116 +10641,18 @@ function initWidgets(){
 }
 
 /* ============================= ADMIN PANEL ============================= */
-// "isAdmin" on a trader's own doc is set by that trader entering the
-// ADMIN321 code below — a UI convenience gate only, not real security: the
-// code lives in this public JS file, so anyone can read it. Actual
-// protection has to come from Firestore rules: a self-write (isAdmin:true
-// on YOUR OWN doc) is allowed under the same rule that already lets you
-// save your own trades, but writing to *another* trader's doc (reset,
-// balance edit) additionally needs the security-rules snippet in
-// SERVER_SETUP.md deployed in the Firebase console — until that's done,
-// reading everyone's data works immediately (the leaderboard proves read
-// access is already open) but reset/edit actions on OTHER traders will
-// fail with a permission error.
+// "isAdmin" on a trader's doc used to be self-servable (a trader entering
+// an "ADMIN321" code on their own Profil page). That self-serve unlock has
+// been removed: the ONLY way to become admin now is for an existing admin
+// to grant it from the Admin table (see adminToggleIsAdmin/adminSetIsAdmin
+// below), mirroring the existing "Activer EDB+" pattern. This is also
+// enforced server-side — firestore.rules no longer allows a trader to
+// self-write isAdmin:true on their own doc; only an existing admin can set
+// isAdmin (true or false) on ANY doc, including their own. See
+// SERVER_SETUP.md for the rules snippet to (re)deploy.
 function updateAdminNavVisibility(){
   const btn = document.getElementById("nav-admin-btn");
   if (btn) btn.hidden = !state.isAdmin;
-  const form = document.getElementById("admin-unlock-form");
-  const active = document.getElementById("admin-unlock-active");
-  if (form) form.hidden = !!state.isAdmin;
-  if (active) active.hidden = !state.isAdmin;
-}
-// Brute-force cooldown on the ADMIN321 code: 3 wrong tries in a row locks
-// the form for 24h. Same "UI convenience, not real security" caveat as the
-// code itself (see the comment above) — this is a per-browser localStorage
-// counter, not a server-enforced rule, so it stops someone idly guessing in
-// the UI, not someone motivated enough to clear their storage. Mirrors the
-// theme/widget-layout localStorage pattern used elsewhere in the app.
-const ADMIN_CODE_LOCK_KEY = "paperTapeAdminCodeLock";
-const ADMIN_CODE_MAX_ATTEMPTS = 3;
-const ADMIN_CODE_LOCK_MS = 24*60*60*1000;
-function loadAdminCodeLockState(){
-  try{
-    const raw = localStorage.getItem(ADMIN_CODE_LOCK_KEY);
-    if (!raw) return {attempts:0, lockedUntil:null};
-    const parsed = JSON.parse(raw);
-    return {
-      attempts: typeof parsed.attempts==="number" ? parsed.attempts : 0,
-      lockedUntil: typeof parsed.lockedUntil==="number" ? parsed.lockedUntil : null,
-    };
-  }catch(e){ return {attempts:0, lockedUntil:null}; }
-}
-function saveAdminCodeLockState(s){
-  try{ localStorage.setItem(ADMIN_CODE_LOCK_KEY, JSON.stringify(s)); }catch(e){}
-}
-function adminCodeLockRemainingMs(){
-  const s = loadAdminCodeLockState();
-  if (!s.lockedUntil) return 0;
-  const remaining = s.lockedUntil - Date.now();
-  return remaining>0 ? remaining : 0;
-}
-function fmtLockDuration(ms){
-  const totalMin = Math.max(1, Math.ceil(ms/60000));
-  const h = Math.floor(totalMin/60);
-  const m = totalMin%60;
-  if (h>0) return h+"h"+(m>0?" "+m+"min":"");
-  return m+"min";
-}
-// Reflects the current lock state on the admin-code form — called on init
-// and every time Profil is (re)rendered, so a stale "réessaie dans Xh"
-// message doesn't linger past its expiry the next time the trader looks.
-function updateAdminCodeLockUI(){
-  const input = document.getElementById("admin-code-input");
-  const btn = document.getElementById("admin-code-btn");
-  const msg = document.getElementById("admin-code-msg");
-  if (!input || !btn) return;
-  const remaining = adminCodeLockRemainingMs();
-  const locked = remaining>0;
-  input.disabled = locked;
-  btn.disabled = locked;
-  if (msg && locked){
-    msg.style.color = "var(--warn)";
-    msg.textContent = "Trop d'essais incorrects — réessaie dans "+fmtLockDuration(remaining)+".";
-  } else if (msg && msg.dataset.lockMsg){
-    // the lock just lifted — clear the message we ourselves put there, but
-    // leave anything else (e.g. "Mode admin activé.") untouched
-    msg.textContent = "";
-    delete msg.dataset.lockMsg;
-  }
-}
-async function unlockAdmin(code){
-  const msg = document.getElementById("admin-code-msg");
-  const remaining = adminCodeLockRemainingMs();
-  if (remaining>0){
-    if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Trop d'essais incorrects — réessaie dans "+fmtLockDuration(remaining)+"."; msg.dataset.lockMsg = "1"; }
-    updateAdminCodeLockUI();
-    return;
-  }
-  if (code!=="ADMIN321"){
-    const s = loadAdminCodeLockState();
-    s.attempts = (s.attempts||0) + 1;
-    if (s.attempts>=ADMIN_CODE_MAX_ATTEMPTS){
-      saveAdminCodeLockState({attempts:0, lockedUntil: Date.now()+ADMIN_CODE_LOCK_MS});
-      if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Trop d'essais incorrects — réessaie dans "+fmtLockDuration(ADMIN_CODE_LOCK_MS)+"."; msg.dataset.lockMsg = "1"; }
-      updateAdminCodeLockUI();
-    } else {
-      saveAdminCodeLockState(s);
-      const left = ADMIN_CODE_MAX_ATTEMPTS - s.attempts;
-      if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Code invalide ("+left+" essai"+(left>1?"s":"")+" restant"+(left>1?"s":"")+" avant blocage 24h)."; }
-    }
-    return;
-  }
-  saveAdminCodeLockState({attempts:0, lockedUntil:null}); // correct code: clear any partial attempt count
-  if (!dbReady || !clientId){
-    if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Connecte-toi d'abord."; }
-    return;
-  }
-  state.isAdmin = true;
-  updateAdminNavVisibility();
-  try{
-    await db.collection("traders").doc(clientId).update({isAdmin:true});
-    if (msg){ msg.style.color = "var(--long)"; msg.textContent = "Mode admin activé."; }
-  }catch(e){ console.warn("admin unlock write failed", e); }
 }
 function fmtWhen(iso){
   if (!iso) return "—";
@@ -10809,6 +10721,7 @@ function renderAdminTable(){
           '<button class="pos-close" data-admin-view="'+id+'">Détails</button>'+
           '<button class="pos-close" data-admin-adjust="'+id+'">Solde</button>'+
           '<button class="pos-close" data-admin-edbplus="'+id+'" style="color:var(--gold);">'+(d.edbPlus?"Retirer EDB+":"Activer EDB+")+'</button>'+
+          '<button class="pos-close" data-admin-isadmin="'+id+'" style="color:var(--long);">'+(d.isAdmin?"Retirer admin":"Passer admin")+'</button>'+
           '<button class="pos-close" data-admin-reset="'+id+'" style="color:var(--warn);">Reset</button>'+
           '<button class="pos-close" data-admin-delete="'+id+'" style="color:var(--short);">Supprimer</button>'+
         '</td>'+
@@ -10820,7 +10733,7 @@ function adminFindDoc(id){ return adminDocs.find(d=>d.id===id); }
 async function adminResetTrader(id){
   const doc = adminFindDoc(id);
   const label = doc ? (doc.data().username||id) : id;
-  if (!confirm('Réinitialiser intégralement le compte de "'+label+'" ? Cash, positions, ordres, historique (+ calendrier PnL), badges, journal, scores quiz/superflash ET le challenge prop firm (compte, historique, statut) repartent à zéro. Irréversible.')) return;
+  if (!confirm('Réinitialiser intégralement le compte de "'+label+'" ? Cash, positions, ordres, historique (+ calendrier PnL), badges, journal, scores quiz/superflash ET le challenge prop firm (compte, historique de trades, statut, ET l\'historique des tentatives passées) repartent à zéro. Irréversible.')) return;
   try{
     await db.collection("traders").doc(id).update({
       cash: START_CASH, marginUsed: 0, equity: START_CASH,
@@ -10833,7 +10746,14 @@ async function adminResetTrader(id){
       // reset trader would keep an old challenge running (or a pass/fail
       // status) alongside a brand-new normal account, which is confusing
       // and lets someone dodge a failed challenge by asking for a "reset".
-      propBook: null, propEquity: null, challenge: null,
+      // challengeHistory (past attempts, see archiveChallenge()) is wiped
+      // here too — a "reset everything" action wiping the trading account
+      // but leaving a trail of old challenge attempts behind would be a
+      // half-reset. Connaissances/Quiz engagement (timeSpentConnaissances/
+      // connaissancesOpened) is deliberately NOT touched here, same as
+      // totalTimeSpent already wasn't — that's reading/engagement history,
+      // not trading-account state.
+      propBook: null, propEquity: null, challenge: null, challengeHistory: [],
       copyNormalToProp: false, copyPropToNormal: false,
       updatedAt: new Date().toISOString(), lastActiveAt: new Date().toISOString(),
     });
@@ -10927,6 +10847,51 @@ async function adminSetEdbPlus(id, value){
     alert("Échec de la mise à jour EDB+ — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).");
   }
 }
+// Grant/revoke admin status on another (or one's own) trader doc. This is
+// now the ONLY way to become admin — the old self-serve "ADMIN321" code on
+// the Profil page has been removed. Mirrors adminToggleEdbPlus/
+// adminSetEdbPlus above. A safety guard blocks removing the very last
+// admin (so the bureau can never lock itself out of the admin panel
+// entirely) — everything else (including an admin removing their OWN
+// status, as long as another admin remains) is allowed, matching "seuls
+// les admins peuvent ajouter voire supprimer des admins": the action is
+// gated by being an admin, not by whose account is being changed.
+function adminCountCurrentAdmins(){
+  return adminDocs.reduce((n,doc)=> n + (doc.data().isAdmin ? 1 : 0), 0);
+}
+async function adminToggleIsAdmin(id){
+  const doc = adminFindDoc(id);
+  const label = doc ? (doc.data().username||id) : id;
+  const d = doc ? doc.data() : {};
+  const next = !d.isAdmin;
+  if (!next && adminCountCurrentAdmins()<=1){
+    alert('Impossible de retirer le statut admin de "'+label+'" : c\'est le dernier admin restant. Passe d\'abord un autre trader admin.');
+    return;
+  }
+  const isSelf = id===clientId;
+  const question = next
+    ? 'Passer "'+label+'" admin ? Cette personne aura alors accès à TOUS les comptes (détails, solde, reset, suppression) et pourra elle-même passer ou retirer le statut admin à n\'importe qui, y compris elle-même.'
+    : 'Retirer le statut admin à "'+label+'" ?'+(isSelf ? " C'est TON PROPRE compte — tu perdras immédiatement l'accès à l'onglet Admin." : " Cette personne perd l'accès à l'onglet Admin et à tous les comptes.");
+  if (!confirm(question)) return;
+  adminSetIsAdmin(id, next);
+}
+async function adminSetIsAdmin(id, value){
+  try{
+    await db.collection("traders").doc(id).update({
+      isAdmin: !!value,
+      updatedAt: new Date().toISOString(),
+    });
+    if (id===clientId){
+      hydrateStateFromDoc(await db.collection("traders").doc(id).get());
+      updateAdminNavVisibility();
+      renderAll();
+    }
+    loadAdminTraders();
+  }catch(e){
+    console.warn("admin isAdmin toggle failed", e);
+    alert("Échec de la mise à jour du statut admin — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).");
+  }
+}
 async function adminDeleteTrader(id){
   const doc = adminFindDoc(id);
   const label = doc ? (doc.data().username||id) : id;
@@ -10970,6 +10935,26 @@ function adminChallengeHtml(d){
   if (c.tier===200000) rows += adminDetailRow("Concours EDB+ (Hardcore)", (d.hardcore200kPasses||0)+" / "+(typeof HARDCORE_200K_TARGET!=="undefined"?HARDCORE_200K_TARGET:5)+" réussites qualifiées");
   return adminDetailSection("Challenge Prop Firm", rows);
 }
+// Admin visibility into Connaissances/Quiz engagement — which fiches a
+// trader has actually opened at least once (connaissancesOpened, written by
+// recordConnaissanceOpened()/renderLearnDoc()) and time spent specifically
+// on that tab (timeSpentConnaissances, a subset of the app-wide
+// totalTimeSpent already shown above — see initSessionTimeTracking()).
+// Deliberately NOT wiped by adminResetTrader() (like totalTimeSpent isn't
+// either) — this is engagement/reading history, not trading-account state.
+function adminConnaissancesHtml(d){
+  const opened = (d.connaissancesOpened && typeof d.connaissancesOpened==="object") ? d.connaissancesOpened : {};
+  const openedIds = Object.keys(opened);
+  const total = (typeof KNOWLEDGE!=="undefined" && Array.isArray(KNOWLEDGE)) ? KNOWLEDGE.length : 0;
+  const titles = openedIds.map(id=>{
+    const k = (typeof KNOWLEDGE!=="undefined") ? KNOWLEDGE.find(x=>x.id===id) : null;
+    return k ? k.title : id;
+  }).sort();
+  let rows = adminDetailRow("Temps passé (Connaissances/Quiz)", fmtDuration(d.timeSpentConnaissances)) +
+    adminDetailRow("Fiches ouvertes", openedIds.length+" / "+total);
+  if (titles.length) rows += adminDetailRow("Lesquelles", escapeHtml(titles.join(", ")));
+  return adminDetailSection("Connaissances & Quiz", rows);
+}
 // Human-readable admin account breakdown — replaces the raw JSON dump that
 // used to show here (which read like an error/bug to non-technical admins).
 function adminDetailHtml(d){
@@ -10995,6 +10980,7 @@ function adminDetailHtml(d){
 
   html += (typeof adminRiskProfileHtml==="function" ? adminRiskProfileHtml(d) : "");
   html += (typeof adminChallengeHtml==="function" ? adminChallengeHtml(d) : "");
+  html += (typeof adminConnaissancesHtml==="function" ? adminConnaissancesHtml(d) : "");
 
   html += adminDetailSection("Positions ouvertes ("+pos.length+")",
     pos.length ? pos.map(p=>adminDetailRow(
@@ -11531,13 +11517,6 @@ async function adminDeleteAnalysis(id){
 }
 function initAdminUI(){
   updateAdminNavVisibility();
-  const codeBtn = document.getElementById("admin-code-btn");
-  const codeInput = document.getElementById("admin-code-input");
-  if (codeBtn && codeInput){
-    codeBtn.addEventListener("click", ()=>unlockAdmin(codeInput.value.trim()));
-    codeInput.addEventListener("keydown", (e)=>{ if (e.key==="Enter") codeBtn.click(); });
-  }
-  updateAdminCodeLockUI(); // reflect an already-running 24h lock immediately, e.g. after a page reload
   const refreshBtn = document.getElementById("admin-refresh");
   if (refreshBtn) refreshBtn.addEventListener("click", loadAdminTraders);
   const body = document.getElementById("admin-body");
@@ -11548,6 +11527,7 @@ function initAdminUI(){
       if (t.dataset.adminView) adminToggleDetail(t.dataset.adminView);
       else if (t.dataset.adminAdjust) adminAdjustCash(t.dataset.adminAdjust);
       else if (t.dataset.adminEdbplus) adminToggleEdbPlus(t.dataset.adminEdbplus);
+      else if (t.dataset.adminIsadmin) adminToggleIsAdmin(t.dataset.adminIsadmin);
       else if (t.dataset.adminReset) adminResetTrader(t.dataset.adminReset);
       else if (t.dataset.adminDelete) adminDeleteTrader(t.dataset.adminDelete);
     });
