@@ -10856,6 +10856,15 @@ async function adminSetEdbPlus(id, value){
 // status, as long as another admin remains) is allowed, matching "seuls
 // les admins peuvent ajouter voire supprimer des admins": the action is
 // gated by being an admin, not by whose account is being changed.
+// On top of already being an admin (enforced both by the button only
+// showing in the Admin tab and, for real, by firestore.rules), granting or
+// revoking admin status additionally asks for the ADMIN321 code — the same
+// code the old self-serve unlock used — as one more explicit confirmation
+// step before this specific, high-privilege action goes through. Like the
+// old code, this lives in public JS: it's a deliberate speed bump against a
+// stray click, not a secret — the real access control is still the
+// isAdmin-based Firestore rule.
+const ADMIN_GRANT_CODE = "ADMIN321";
 function adminCountCurrentAdmins(){
   return adminDocs.reduce((n,doc)=> n + (doc.data().isAdmin ? 1 : 0), 0);
 }
@@ -10873,6 +10882,12 @@ async function adminToggleIsAdmin(id){
     ? 'Passer "'+label+'" admin ? Cette personne aura alors accès à TOUS les comptes (détails, solde, reset, suppression) et pourra elle-même passer ou retirer le statut admin à n\'importe qui, y compris elle-même.'
     : 'Retirer le statut admin à "'+label+'" ?'+(isSelf ? " C'est TON PROPRE compte — tu perdras immédiatement l'accès à l'onglet Admin." : " Cette personne perd l'accès à l'onglet Admin et à tous les comptes.");
   if (!confirm(question)) return;
+  const code = prompt("Code admin requis pour "+(next?"nommer un":"retirer un")+" admin :");
+  if (code===null) return; // cancelled
+  if (code.trim()!==ADMIN_GRANT_CODE){
+    alert("Code invalide — action annulée.");
+    return;
+  }
   adminSetIsAdmin(id, next);
 }
 async function adminSetIsAdmin(id, value){
