@@ -1464,7 +1464,7 @@
           <img src="concours-hero.jpg" alt="Setup de trading multi-écrans" style="width:100%;max-width:640px;border-radius:14px;border:1px solid var(--gold)55;box-shadow:0 12px 32px rgba(0,0,0,0.35);margin:0 auto 16px;display:block;">
           <div class="deck-big-icon" style="background:var(--gold)22;border:1px solid var(--gold)55;">💎</div>
           <div class="quiz-cat gold-badge">Concours EDB+</div>
-          <h2 style="margin:10px 0 4px;">Challenge 200 000 $ — une vraie Prop Firm 100 000 $ à la clé</h2>
+          <h2 style="margin:10px 0 4px;">Challenge 200 000 $ — une vraie Prop Firm 100 000 $ ou 400 € à la clé</h2>
           <p style="max-width:520px;margin:0 auto 14px;">Réservé aux membres EDB+ : enchaîne les Challenges Prop Firm sur le palier 200 000 $ et décroche un vrai compte prop firm financé, en argent réel, offert par l'association. Les règles complètes (conditions à remplir, nombre de réussites requis) se débloquent avec l'abonnement.</p>
           <div class="quiz-intro-actions">
             <button class="btn-primary" id="edbplus-cta-concoursedbplus">Découvrir EDB+</button>
@@ -1473,8 +1473,8 @@
       </div>
       <div class="card" id="concoursedbplus-unlocked" hidden>
         <div class="quiz-cat gold-badge">💎 Concours EDB+ — Challenge Hardcore</div>
-        <h2 style="margin:10px 0 6px;">5x le Challenge 200 000 $ → une vraie Prop Firm 100 000 $</h2>
-        <p class="chart-note" style="max-width:680px;margin-bottom:10px;">Valide le Challenge Prop Firm complet (Étape 1 + Étape 2 → compte financé, voir l'onglet Challenge) sur le palier 200 000 $, cinq fois — les autres paliers et les étapes ratées ne comptent pas. Une fois les 5 réussites cumulées, l'EDB t'offre un vrai challenge prop firm à 100 000 $.</p>
+        <h2 style="margin:10px 0 6px;">5x le Challenge 200 000 $ → une vraie Prop Firm 100 000 $ ou 400 €</h2>
+        <p class="chart-note" style="max-width:680px;margin-bottom:10px;">Valide le Challenge Prop Firm complet (Étape 1 + Étape 2 → compte financé, voir l'onglet Challenge) sur le palier 200 000 $, cinq fois — les autres paliers et les étapes ratées ne comptent pas. Une fois les 5 réussites cumulées, l'EDB t'offre un vrai challenge prop firm à 100 000 $ ou 400 €.</p>
         <div class="challenge-meter"><span class="challenge-meter-lbl" id="hardcore-progress-lbl">0 / 5 challenges 200k réussis</span><div class="challenge-meter-bar"><div class="challenge-meter-fill up" id="hardcore-progress-fill" style="width:0%;"></div></div></div>
         <div class="chart-note" id="hardcore-status-note" style="margin-top:8px;"></div>
         <div class="chart-note" id="hardcore-opens-note" style="margin-top:6px;"></div>
@@ -2032,13 +2032,13 @@ const EDB_PLUS_FEATURES = {
   // (fusion demandée par l'EDB — voir renderQuizDeckList()), donc un seul
   // paywall/une seule clé pour les deux — l'ancienne clé "learn" séparée a
   // disparu.
-  quiz:      {label:"Connaissances & Quiz",     detail:"réviser chaque sujet puis tester tes connaissances et grimper au classement des quiz"},
+  quiz:      {label:"Connaissances & Quiz",     detail:"réviser chaque sujet puis tester tes connaissances et grimper au classement des quiz", img:"quiz-hero.jpg"},
   news:      {label:"Les actualités marché",     detail:"suivre l'actualité macro/crypto en direct depuis le terminal"},
-  challenge: {label:"Le challenge prop firm",    detail:"trader un compte démo calqué sur une vraie évaluation prop firm en 2 étapes"},
+  challenge: {label:"Le challenge prop firm",    detail:"trader un compte démo calqué sur une vraie évaluation prop firm en 2 étapes", img:"propfirm-hero.jpg"},
   theme:     {label:"Le changement de thème",    detail:"personnaliser l'interface (Ember, Sage, Ink, Noir, Gold, Azure)"},
-  tradesedb: {label:"Trades EDB+",               detail:"suivre les trades partagés par le bureau et le trade swing hebdomadaire"},
-  resources: {label:"Ressources trading",        detail:"accéder à la sélection d'outils externes recommandés par EDB"},
-  concoursedbplus: {label:"Le Concours EDB+ (Challenge Hardcore)", detail:"tenter le Challenge 200 000 $ et gagner une vraie Prop Firm 100 000 $"},
+  tradesedb: {label:"Trades EDB+",               detail:"suivre les trades partagés par le bureau et le trade swing hebdomadaire", img:"tradesedb-hero.png"},
+  resources: {label:"Ressources trading",        detail:"accéder à la sélection d'outils externes recommandés par EDB", img:"resources-hero.png"},
+  concoursedbplus: {label:"Le Concours EDB+ (Challenge Hardcore)", detail:"tenter le Challenge 200 000 $ et gagner une vraie Prop Firm 100 000 $ ou 400 €"},
 };
 const EDB_PLUS_FEATURE_ICONS = {quiz:"📚", news:"📰", challenge:"🏅", theme:"🎨", tradesedb:"📈", resources:"🔗", concoursedbplus:"💎"};
 // Reusable "EDB+ requise" card — dropped into a feature's own container in
@@ -2047,8 +2047,14 @@ const EDB_PLUS_FEATURE_ICONS = {quiz:"📚", news:"📰", challenge:"🏅", them
 // HTML is inserted into the DOM (event listeners don't survive innerHTML).
 function edbPlusPaywallHtml(key){
   const f = EDB_PLUS_FEATURES[key] || {label:"Cette fonctionnalité", detail:"débloquer cette fonctionnalité"};
+  // A feature with its own illustrative photo (f.img) shows that photo in
+  // place of the generic lock icon — same pattern as the Concours EDB+
+  // paywall's concours-hero.jpg (see #concoursedbplus-locked above).
+  const visual = f.img
+    ? '<img src="'+f.img+'" alt="'+escapeHtml(f.label)+'" style="width:100%;max-width:640px;border-radius:14px;border:1px solid var(--gold)55;box-shadow:0 12px 32px rgba(0,0,0,0.35);margin:0 auto 16px;display:block;">'
+    : '<div class="deck-big-icon" style="background:var(--gold)22;border:1px solid var(--gold)55;">🔒</div>';
   return '<div class="quiz-intro edbplus-paywall">'+
-    '<div class="deck-big-icon" style="background:var(--gold)22;border:1px solid var(--gold)55;">🔒</div>'+
+    visual+
     '<div class="quiz-cat gold-badge">EDB+ requis</div>'+
     '<h2>'+escapeHtml(f.label)+'</h2>'+
     '<p>Réservé aux membres EDB+ — 25€/an pour '+escapeHtml(f.detail)+', et soutenir l\'association au passage.</p>'+
@@ -5238,7 +5244,7 @@ function challengeStatusLabel(c){
 // needing its own set of hooks; cheap no-op when the page isn't in the DOM.
 const HARDCORE_200K_TARGET = 5;
 const HARDCORE_MIN_QUALIFYING_TRADES = 5; // per-run gate, same $1000 "qualified trade" definition as the normal Concours — see updateChallengeStatus()
-const HARDCORE_REWARD_LABEL = "un vrai challenge Prop Firm 100 000 $ offert par l'EDB";
+const HARDCORE_REWARD_LABEL = "un vrai challenge Prop Firm 100 000 $ ou 400 € offert par l'EDB";
 function renderHardcoreChallenge(){
   const locked = document.getElementById("concoursedbplus-locked");
   const unlocked = document.getElementById("concoursedbplus-unlocked");
@@ -9795,7 +9801,7 @@ function renderResources(){
     '<div class="quiz-intro" style="padding:20px 10px 24px;">'+
       '<div class="quiz-cat">Liens externes</div>'+
       '<h2>Ressources trading</h2>'+
-      '<p>Une sélection d\'outils externes utiles pour l\'order flow, la fondamentale et la data crypto — recommandés par EDB. Ces sites ne sont pas gérés par Paper Tape, ouvre-les avec ton propre jugement. La capture d\'écran de chaque carte donne un aperçu réel de l\'outil avant de cliquer.</p>'+
+      '<p>Une sélection d\'outils externes utiles pour l\'order flow, la fondamentale et la data crypto — recommandés par EDB. Ces sites ne sont pas gérés par Paper Tape, ouvre-les avec ton propre jugement.</p>'+
     '</div>'+
     '<div class="resource-grid" id="resource-grid"></div>';
   const grid = document.getElementById("resource-grid");
