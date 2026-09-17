@@ -1091,14 +1091,15 @@
       </div>
     </div>
     <div class="auth-gate-card">
-      <div class="chart-note" style="text-align:center;margin-bottom:18px;">Connecte-toi ou crée un compte pour entrer.</div>
+      <div class="chart-note" style="text-align:center;margin-bottom:18px;">Connecte-toi — ton compte est créé automatiquement à la première connexion.</div>
+      <button type="button" class="btn-secondary" id="gate-google-btn" style="width:100%;">Continuer avec Google</button>
+      <div class="chart-note" style="text-align:center;margin:14px 0;font-size:11px;color:var(--text-faint);">— ou —</div>
       <div class="field-row"><label>Email</label><input type="email" id="gate-email-input" class="tpsl-input" placeholder="toi@exemple.com" autocomplete="email"></div>
-      <div class="field-row" style="margin-top:8px;"><label>Mot de passe</label><input type="password" id="gate-password-input" class="tpsl-input" placeholder="6 caractères minimum" autocomplete="current-password"></div>
       <div class="chart-note" id="gate-msg" style="margin:8px 0;min-height:14px;"></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn-primary" id="gate-login-btn" style="flex:1;">Se connecter</button>
-        <button class="btn-secondary" id="gate-signup-btn" style="flex:1;">Créer un compte</button>
+        <button class="btn-primary" id="gate-send-link-btn" style="flex:1;">Recevoir mon lien de connexion</button>
       </div>
+      <p class="chart-note" style="margin-top:10px;font-size:11px;color:var(--text-faint);">Pas de mot de passe : un email t'envoie un lien, tu cliques dessus, tu es connecté — sur ce navigateur ou n'importe quel autre.</p>
     </div>
   </div>
 </div>
@@ -1500,14 +1501,12 @@
         <div class="card">
           <h3>Compte</h3>
           <div id="account-logged-out">
-            <p class="chart-note" style="margin-bottom:10px;">Sans connexion, ta progression reste liée à ce navigateur. Connecte-toi (ou crée un compte) pour la retrouver depuis n'importe quel appareil.</p>
-            <div class="field-row"><label>Email</label><input type="email" id="auth-email-input" class="tpsl-input" placeholder="toi@exemple.com" autocomplete="email"></div>
-            <div class="field-row" style="margin-top:8px;"><label>Mot de passe</label><input type="password" id="auth-password-input" class="tpsl-input" placeholder="6 caractères minimum" autocomplete="current-password"></div>
-            <div class="chart-note" id="auth-msg" style="margin:8px 0;"></div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;">
-              <button class="btn-primary" id="auth-login-btn">Se connecter</button>
-              <button class="btn-secondary" id="auth-signup-btn">Créer un compte</button>
-            </div>
+            <!-- In practice unreachable: the full-screen #auth-gate blocks
+                 the whole app (this page included) until Firebase Auth
+                 resolves a signed-in user, so this branch never has an
+                 audience — kept only as a harmless fallback note rather
+                 than an interactive (and now outdated) password form. -->
+            <p class="chart-note">Non connecté.</p>
           </div>
           <div id="account-logged-in" hidden>
             <p class="chart-note">Connecté en tant que <strong id="auth-current-email"></strong> — ce compte est accessible depuis n'importe quel navigateur.</p>
@@ -2956,22 +2955,58 @@ function subscribeSuperflashLeaderboard(){
   }catch(e){}
 }
 
-/* ============================= AUTH (mandatory email/password) ============================= */
-// Login is now required before anything else loads: on arrival the
-// full-screen #auth-gate covers the app and nothing (prices aside) is
-// usable until Firebase Auth resolves a signed-in user. The trader doc is
-// always keyed by the Firebase Auth uid — there is no more anonymous
-// per-browser account. Requires the "Email/Password" sign-in provider to be
-// turned on in the Firebase console (Authentication → Sign-in method) — a
-// one-time setup step outside the code, see SERVER_SETUP.md.
+/* ============================= AUTH (mandatory, passwordless email link) ============================= */
+// Login is required before anything else loads: on arrival the full-screen
+// #auth-gate covers the app and nothing (prices aside) is usable until
+// Firebase Auth resolves a signed-in user. The trader doc is always keyed
+// by the Firebase Auth uid — there is no more anonymous per-browser account.
+//
+// No password anywhere anymore: a trader types their email, gets a
+// sign-in link by email (Firebase's built-in "Email link (passwordless
+// sign-in)" — no custom backend, no email service to configure, Firebase
+// sends it), and clicking that link finishes the login on whichever
+// browser opens it — same one that requested it, or a different one
+// (see completeEmailLinkSignInIfPresent() below for that fallback).
+// EMAIL_FOR_SIGNIN_KEY only smooths the common case (same browser): if the
+// link happens to be opened somewhere that key isn't present, the trader
+// is asked to re-type their email to confirm before completing the login,
+// which is the standard Firebase Email Link pattern.
+//
+// This used to be classic email/password (signInWithEmailAndPassword /
+// createUserWithEmailAndPassword) — replaced because, per the trader who
+// asked for this, the email address wasn't actually verified by anything:
+// any string with an "@" plus any 6-character password worked, so it
+// wasn't a real proof that the account belongs to that inbox. A clicked
+// link IS that proof. Existing accounts aren't affected: Firebase keys
+// both the old password sign-in and this email-link sign-in under the
+// same "password" provider by email address, so logging in with the link
+// using the SAME email a trader already used lands back on their exact
+// same uid/account — no data migration needed.
+//
+// One-time setup outside the code, see SERVER_SETUP.md: turn on "Email
+// link (passwordless sign-in)" under Authentication → Sign-in method →
+// Email/Password in the Firebase console, and make sure the site's real
+// domain is listed under Authentication → Settings → Authorized domains
+// (required specifically for email-link continuation, unlike plain
+// email/password).
 let authUser = null;
+const EMAIL_FOR_SIGNIN_KEY = "paperTapeEmailForSignIn";
 function authErrorMsg(e){
   const code = e && e.code || "";
-  if (code==="auth/email-already-in-use") return "Un compte existe déjà avec cet email — connecte-toi plutôt.";
-  if (code==="auth/invalid-credential" || code==="auth/wrong-password" || code==="auth/user-not-found") return "Email ou mot de passe incorrect.";
-  if (code==="auth/weak-password") return "Mot de passe trop faible (6 caractères minimum).";
-  if (code==="auth/operation-not-allowed") return "La connexion par email n'est pas encore activée côté serveur (Firebase → Authentication → Sign-in method).";
+  if (code==="auth/invalid-email") return "Adresse email invalide.";
+  if (code==="auth/invalid-action-code") return "Ce lien de connexion a déjà été utilisé, ou n'est plus valide — redemandes-en un.";
+  if (code==="auth/expired-action-code") return "Ce lien de connexion a expiré — redemandes-en un.";
+  if (code==="auth/user-disabled") return "Ce compte a été désactivé.";
+  if (code==="auth/too-many-requests") return "Trop de tentatives — patiente quelques minutes avant de redemander un lien.";
+  if (code==="auth/operation-not-allowed") return "La connexion par email n'est pas encore activée côté serveur (Firebase → Authentication → Sign-in method → Email link).";
   if (code==="auth/network-request-failed") return "Connexion réseau impossible pour le moment — réessaie.";
+  if (code==="auth/unauthorized-continue-uri" || code==="auth/invalid-continue-uri" || code==="auth/unauthorized-domain") return "Ce domaine n'est pas autorisé côté serveur (Firebase → Authentication → Settings → Authorized domains).";
+  if (code==="auth/account-exists-with-different-credential"){
+    const email = e && e.email;
+    return "Un compte existe déjà"+(email?" pour "+email:"")+" avec la connexion par lien email — connecte-toi avec cette méthode-là (pas Google) pour retrouver ce compte.";
+  }
+  if (code==="auth/popup-blocked") return "Le popup Google a été bloqué par le navigateur — nouvelle tentative via redirection…";
+  if (code==="auth/popup-closed-by-user" || code==="auth/cancelled-popup-request") return ""; // the trader just closed it themselves — not worth an error message
   return "Erreur : "+((e&&e.message)||e);
 }
 function showAuthGate(){
@@ -2990,6 +3025,95 @@ function initGateTicker(){
 function hideAuthGate(){
   const gate = document.getElementById("auth-gate");
   if (gate) gate.hidden = true;
+}
+// The link Firebase mails out points back at this exact same URL (see
+// sendMagicLink() below) with its own query params appended — this is
+// what tells signInWithEmailLink() the link is genuine and unexpired.
+function emailLinkActionCodeSettings(){
+  return { url: window.location.origin + window.location.pathname, handleCodeInApp: true };
+}
+// Runs once at boot, right after the auth-state listener is attached
+// (see initAuth()). If the current URL IS a Firebase sign-in link (i.e.
+// this page just got reopened from the email), completes the sign-in —
+// which then flows into the normal onAuthStateChanged handler exactly
+// like any other login. Cleans the link's query params off the URL
+// afterwards either way, so refreshing the page never replays an
+// already-used (and by then invalid) link.
+async function completeEmailLinkSignInIfPresent(){
+  if (typeof firebase.auth !== "function") return;
+  let isLink = false;
+  try{ isLink = firebase.auth().isSignInWithEmailLink(window.location.href); }catch(e){ isLink = false; }
+  if (!isLink) return;
+  const msg = document.getElementById("gate-msg");
+  try{
+    let email = null;
+    try{ email = localStorage.getItem(EMAIL_FOR_SIGNIN_KEY); }catch(e){}
+    if (!email){
+      // Opened in a different browser/device than the one that requested
+      // the link (e.g. clicked from a phone's mail app) — the standard
+      // Firebase Email Link fallback is to ask for the email again, purely
+      // to confirm it matches, not as a password substitute.
+      email = window.prompt("Confirme l'adresse email à laquelle le lien de connexion a été envoyé :");
+    }
+    if (!email) return;
+    if (msg){ msg.style.color = "var(--text-dim)"; msg.textContent = "Connexion en cours…"; }
+    await firebase.auth().signInWithEmailLink(email, window.location.href);
+    try{ localStorage.removeItem(EMAIL_FOR_SIGNIN_KEY); }catch(e){}
+  }catch(e){
+    if (msg){ msg.style.color = "var(--warn)"; msg.textContent = authErrorMsg(e); }
+  }finally{
+    try{ window.history.replaceState({}, document.title, window.location.pathname); }catch(e){}
+  }
+}
+// "Continuer avec Google" — the other login option alongside the email
+// link, wired to the #gate-google-btn click in initGateUI(). Popup is the
+// normal path (immediate, no reload); a handful of environments block
+// popups outright (some in-app browsers/webviews, strict popup-blocker
+// settings) — those fall back to a full-page redirect instead, whose
+// result is picked up by checkGoogleRedirectResult() below once the page
+// comes back. Either way, a successful sign-in just flows into the normal
+// onAuthStateChanged handler like any other login method.
+//
+// NOT handled: automatically linking a Google sign-in to an existing
+// email-link account that shares the same address. Firebase treats
+// "google.com" and "password" (which covers the email-link method too) as
+// different providers, so if a trader already has an account via the
+// email link and then tries Google with that same address, Firebase
+// refuses with auth/account-exists-with-different-credential rather than
+// silently merging — see authErrorMsg() for the message this shows. Not
+// building a linking flow for that (sign in via the original method, then
+// call linkWithCredential() with the pending Google credential) keeps this
+// addition small; it can be added later if it turns out to matter in
+// practice (a trader hitting it just needs to use their original method).
+async function signInWithGoogle(){
+  const msg = document.getElementById("gate-msg");
+  try{
+    await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
+  }catch(e){
+    const code = e && e.code;
+    if (code==="auth/popup-closed-by-user" || code==="auth/cancelled-popup-request") return; // trader closed it themselves, not an error
+    if (code==="auth/popup-blocked" || code==="auth/operation-not-supported-in-this-environment"){
+      try{
+        if (msg){ msg.style.color = "var(--text-dim)"; msg.textContent = authErrorMsg(e); }
+        await firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+      }catch(e2){ if (msg){ msg.style.color = "var(--warn)"; msg.textContent = authErrorMsg(e2); } }
+      return;
+    }
+    if (msg){ msg.style.color = "var(--warn)"; msg.textContent = authErrorMsg(e); }
+  }
+}
+// Picks up the result once the page reloads after the signInWithRedirect()
+// fallback above — a no-op (resolves with no user) on every OTHER boot,
+// including the very first visit and every email-link login, so it's safe
+// to always call from initAuth().
+async function checkGoogleRedirectResult(){
+  if (typeof firebase.auth !== "function") return;
+  try{
+    await firebase.auth().getRedirectResult();
+  }catch(e){
+    const msg = document.getElementById("gate-msg");
+    if (msg){ msg.style.color = "var(--warn)"; msg.textContent = authErrorMsg(e); }
+  }
 }
 function initAuth(){
   try{
@@ -3018,6 +3142,8 @@ function initAuth(){
         }
       }catch(e){ console.warn("auth state sync failed", e); }
     });
+    completeEmailLinkSignInIfPresent();
+    checkGoogleRedirectResult();
   }catch(e){ console.warn("auth init failed", e); hideAuthGate(); }
 }
 function renderAccountCard(){
@@ -3040,43 +3166,64 @@ function initAuthUI(){
     });
   }
 }
+// Cooldown after a successful send — avoids hammering Firebase's own rate
+// limit on this endpoint and makes the "check your inbox" state visually
+// obvious (button stays disabled with a countdown instead of looking
+// clickable again right away).
+const GATE_RESEND_COOLDOWN_S = 30;
 function initGateUI(){
   const emailInput = document.getElementById("gate-email-input");
-  const passInput = document.getElementById("gate-password-input");
   const msg = document.getElementById("gate-msg");
-  const loginBtn = document.getElementById("gate-login-btn");
-  const signupBtn = document.getElementById("gate-signup-btn");
-  if (!loginBtn || !signupBtn) return;
-  function readCreds(){
+  const sendBtn = document.getElementById("gate-send-link-btn");
+  if (!sendBtn) return;
+  const sendBtnLabel = sendBtn.textContent;
+  function readEmail(){
     const email = (emailInput.value||"").trim();
-    const password = passInput.value||"";
     if (!email || email.indexOf("@")<0){ msg.style.color="var(--warn)"; msg.textContent = "Adresse email invalide."; return null; }
-    if (password.length<6){ msg.style.color="var(--warn)"; msg.textContent = "Le mot de passe doit faire au moins 6 caractères."; return null; }
     msg.textContent = "";
-    return {email, password};
+    return email;
   }
-  loginBtn.addEventListener("click", async ()=>{
-    const creds = readCreds();
-    if (!creds) return;
-    loginBtn.disabled = true;
+  function startCooldown(){
+    let remaining = GATE_RESEND_COOLDOWN_S;
+    sendBtn.disabled = true;
+    sendBtn.textContent = "Renvoyer dans "+remaining+"s";
+    const iv = setInterval(()=>{
+      remaining -= 1;
+      if (remaining<=0){
+        clearInterval(iv);
+        sendBtn.disabled = false;
+        sendBtn.textContent = sendBtnLabel;
+      } else {
+        sendBtn.textContent = "Renvoyer dans "+remaining+"s";
+      }
+    }, 1000);
+  }
+  async function sendLink(){
+    const email = readEmail();
+    if (!email) return;
+    sendBtn.disabled = true;
     try{
-      await firebase.auth().signInWithEmailAndPassword(creds.email, creds.password);
-    }catch(e){ msg.style.color = "var(--warn)"; msg.textContent = authErrorMsg(e); }
-    finally{ loginBtn.disabled = false; }
-  });
-  signupBtn.addEventListener("click", async ()=>{
-    const creds = readCreds();
-    if (!creds) return;
-    signupBtn.disabled = true;
-    try{
-      await firebase.auth().createUserWithEmailAndPassword(creds.email, creds.password);
-    }catch(e){ msg.style.color = "var(--warn)"; msg.textContent = authErrorMsg(e); }
-    finally{ signupBtn.disabled = false; }
-  });
-  [emailInput, passInput].forEach(inp=>{
-    if (!inp) return;
-    inp.addEventListener("keydown", (e)=>{ if (e.key==="Enter") loginBtn.click(); });
-  });
+      await firebase.auth().sendSignInLinkToEmail(email, emailLinkActionCodeSettings());
+      try{ localStorage.setItem(EMAIL_FOR_SIGNIN_KEY, email); }catch(e){}
+      msg.style.color = "var(--long)";
+      msg.textContent = "Lien envoyé ! Vérifie ta boîte mail (et les spams) — clique dessus pour te connecter.";
+      startCooldown();
+    }catch(e){
+      msg.style.color = "var(--warn)";
+      msg.textContent = authErrorMsg(e);
+      sendBtn.disabled = false;
+    }
+  }
+  sendBtn.addEventListener("click", sendLink);
+  emailInput.addEventListener("keydown", (e)=>{ if (e.key==="Enter") sendBtn.click(); });
+  const googleBtn = document.getElementById("gate-google-btn");
+  if (googleBtn){
+    googleBtn.addEventListener("click", async ()=>{
+      googleBtn.disabled = true;
+      try{ await signInWithGoogle(); }
+      finally{ googleBtn.disabled = false; }
+    });
+  }
 }
 
 /* ============================= LIVE PRICES (Binance primary, Crypto.com fallback — direct public REST APIs) ============================= */
