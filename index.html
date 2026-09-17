@@ -524,6 +524,11 @@
   .admin-detail-row{display:flex;justify-content:space-between;gap:12px;padding:2px 0;}
   .admin-detail-row .k{color:var(--text-faint);}
   .admin-detail-row .v{font-family:var(--mono);text-align:right;}
+  /* Secondary line under a position/order/history row (adminDetailSubRow) —
+     the less-glanceable facts (TP/SL, marge, mode, horodatage), shrunk and
+     faded so the primary row (symbole/notionnel/PnL) still reads first. */
+  .admin-detail-row.sub{padding:0 0 6px;opacity:.68;font-size:10.5px;}
+  .admin-detail-row.sub .k{padding-left:12px;}
   .admin-detail-empty{color:var(--text-faint);font-style:italic;}
   .admin-detail-journal{padding:3px 0;color:var(--text-dim);}
   .admin-actions{display:flex;gap:6px;flex-wrap:wrap;}
@@ -11442,8 +11447,21 @@ async function adminDeleteTrader(id){
 function adminDetailRow(k, v){
   return '<div class="admin-detail-row"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>';
 }
+// Dimmer, smaller second line under an adminDetailRow — used to pack the
+// less-glanceable facts (TP/SL, margin, mode, timestamps...) without making
+// the primary row unreadable. Purely visual: same markup shape as
+// adminDetailRow, just with the "sub" class for CSS to shrink/fade it.
+function adminDetailSubRow(k, v){
+  return '<div class="admin-detail-row sub"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>';
+}
 function adminDetailSection(title, inner){
   return '<div class="admin-detail-section"><div class="admin-detail-title">'+title+'</div>'+inner+'</div>';
+}
+// Friendly label for state.history[].reason (raw codes set by
+// closePosition()/triggerTpSl() — "closed"/"liquidated"/"tp"/"sl") — the
+// admin panel used to show these codes verbatim.
+function adminCloseReasonLabel(reason){
+  return {closed:"Clôture manuelle", liquidated:"Liquidation", tp:"Take Profit", sl:"Stop Loss"}[reason] || (reason||"—");
 }
 // Admin visibility into a trader's Prop Firm Challenge — every step
 // transition (Étape 1 validée / Étape 2 validée / Financé, or un échec) is
@@ -11514,24 +11532,42 @@ function adminDetailHtml(d){
   html += (typeof adminConnaissancesHtml==="function" ? adminConnaissancesHtml(d) : "");
 
   html += adminDetailSection("Positions ouvertes ("+pos.length+")",
-    pos.length ? pos.map(p=>adminDetailRow(
-      (p.side==="long"?"▲ Long":"▼ Short")+" "+escapeHtml(p.symbol||"—"),
-      fmtMoney(p.notional)+" · x"+(p.leverage||"—")+" · entrée "+(p.entryPrice!=null?p.entryPrice:"—")
-    )).join("") : '<div class="admin-detail-empty">Aucune</div>'
+    pos.length ? pos.map(p=>{
+      const pnl = (typeof hasLive==="function" && hasLive(p.symbol)) ? posUnrealized(p) : null;
+      return adminDetailRow(
+        (p.side==="long"?"▲ Long":"▼ Short")+" "+escapeHtml(p.symbol||"—"),
+        fmtMoney(p.notional)+" · x"+(p.leverage||"—")+" · entrée "+(p.entryPrice!=null?p.entryPrice:"—")
+          + (pnl!=null ? ' · <span class="'+(pnl>=0?"up":"down")+'">'+fmtMoneySigned(pnl)+"</span>" : "")
+      ) + adminDetailSubRow(
+        (p.mode==="isolated"?"Isolé":"Croisé")+" · marge "+fmtMoney(p.initMargin)+" · liq "+(p.liqPrice!=null?p.liqPrice:"—"),
+        "TP "+(p.takeProfit!=null?p.takeProfit:"—")+" · SL "+(p.stopLoss!=null?p.stopLoss:"—")+" · ouvert "+fmtWhen(p.openedAt)
+      );
+    }).join("") : '<div class="admin-detail-empty">Aucune</div>'
   );
 
   html += adminDetailSection("Ordres en attente ("+pending.length+")",
-    pending.length ? pending.map(o=>adminDetailRow(
-      (o.side==="long"?"▲ Long":"▼ Short")+" "+escapeHtml(o.symbol||"—"),
-      "Limite "+(o.limitPrice!=null?o.limitPrice:"—")+" · "+fmtMoney(o.notional)
-    )).join("") : '<div class="admin-detail-empty">Aucun</div>'
+    pending.length ? pending.map(o=>
+      adminDetailRow(
+        (o.side==="long"?"▲ Long":"▼ Short")+" "+escapeHtml(o.symbol||"—"),
+        "Limite "+(o.limitPrice!=null?o.limitPrice:"—")+" · "+fmtMoney(o.notional)+" · x"+(o.leverage||"—")
+      ) + adminDetailSubRow(
+        (o.mode==="isolated"?"Isolé":"Croisé")+" · marge "+fmtMoney(o.initMargin),
+        "TP "+(o.takeProfit!=null?o.takeProfit:"—")+" · SL "+(o.stopLoss!=null?o.stopLoss:"—")+" · placé "+fmtWhen(o.createdAt)
+      )
+    ).join("") : '<div class="admin-detail-empty">Aucun</div>'
   );
 
   html += adminDetailSection("Historique récent ("+hist.length+")",
-    hist.length ? hist.slice(0,10).map(h=>adminDetailRow(
-      (h.side==="long"?"▲":"▼")+" "+escapeHtml(h.symbol||"—")+(h.reason?" · "+escapeHtml(h.reason):""),
-      '<span class="'+(h.pnl>0?"up":h.pnl<0?"down":"")+'">'+fmtMoney(h.pnl)+"</span> · "+fmtWhen(h.closedAt)
-    )).join("") : '<div class="admin-detail-empty">Pas encore de trade clôturé</div>'
+    hist.length ? hist.slice(0,10).map(h=>{
+      const durSec = (h.openedAt && h.closedAt) ? Math.max(0,(new Date(h.closedAt)-new Date(h.openedAt))/1000) : null;
+      return adminDetailRow(
+        (h.side==="long"?"▲":"▼")+" "+escapeHtml(h.symbol||"—")+" · "+adminCloseReasonLabel(h.reason)+(h.partial?" (partiel "+h.closedPct+"%)":""),
+        '<span class="'+(h.pnl>0?"up":h.pnl<0?"down":"")+'">'+fmtMoneySigned(h.pnl)+"</span> · "+fmtWhen(h.closedAt)
+      ) + adminDetailSubRow(
+        (h.entryPrice!=null?h.entryPrice:"—")+" → "+(h.exitPrice!=null?h.exitPrice:"—")+" · x"+(h.leverage||"—")+" · "+fmtMoney(h.notional),
+        "frais "+fmtMoney(h.feesPaid||0)+(durSec!=null?" · durée "+fmtDuration(durSec):"")
+      );
+    }).join("") : '<div class="admin-detail-empty">Pas encore de trade clôturé</div>'
   );
 
   html += adminDetailSection("Performance",
