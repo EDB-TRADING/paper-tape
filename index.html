@@ -2423,9 +2423,40 @@ function saveLeverage(n){
   try{ localStorage.setItem(LEVERAGE_KEY, String(n)); }catch(e){}
 }
 // Above x20, leverage sharply shrinks the price move needed to get
-// liquidated — an EDB+ perk, same as the other risk/analysis tools gated
-// behind isEdbPlus() (see WIDGET_DEFS' edbPlusOnly + enforceWidgetAccess()).
-const LEVERAGE_CAP_FREE = 20;
+// liquidated. This used to be an EDB+ perk (x20 free / x200 EDB+) — dropped
+// in favour of a progressive cap that unlocks with EXPERIENCE (closed
+// trades) instead of a subscription: a brand-new trader going straight for
+// x200 is exactly the "trade big, don't analyse, blow up, churn" pattern
+// this is meant to discourage, and a paying EDB+ member is no less prone to
+// it than anyone else. Same rule for every trader now, EDB+ or not — see
+// progressiveLeverageCap()/enforceLeverageAccess() below. (EDB+ still gates
+// everything in EDB_PLUS_FEATURES — challenge, quiz, news, theme, tradesedb,
+// resources, concoursedbplus — this is the one exception that came out.)
+const LEVERAGE_PROGRESSION = [
+  {trades:0,   cap:10},
+  {trades:10,  cap:25},
+  {trades:30,  cap:50},
+  {trades:75,  cap:100},
+  {trades:150, cap:200},
+];
+function progressiveLeverageCap(tradesClosed){
+  const n = typeof tradesClosed==="number" ? tradesClosed : 0;
+  let cap = LEVERAGE_PROGRESSION[0].cap;
+  LEVERAGE_PROGRESSION.forEach(tier=>{ if (n>=tier.trades) cap = tier.cap; });
+  return cap;
+}
+// The next tier a trader hasn't reached yet (or null once fully unlocked at
+// x200) — used to word the lock tooltip on presets above their current cap.
+function nextLeverageTier(tradesClosed){
+  const n = typeof tradesClosed==="number" ? tradesClosed : 0;
+  return LEVERAGE_PROGRESSION.find(t=>t.trades>n) || null;
+}
+function leverageLockTitle(tradesClosed){
+  const n = typeof tradesClosed==="number" ? tradesClosed : 0;
+  const tier = nextLeverageTier(n);
+  if (!tier) return ""; // fully unlocked, shouldn't be reachable but just in case
+  return "Débloqué à "+tier.trades+" trades clôturés (actuellement "+n+")";
+}
 let leverage = loadLeverage(); // remembered per-browser across reloads, like the theme/widget layout
 let isFreshAccount = false; // set true exactly once, by loadAccountForClientId(), when a brand-new trader doc had to be created — drives the onboarding tour auto-trigger in initAuth()
 let db = null;
@@ -5852,6 +5883,7 @@ function closePosition(id, reason){
       sizeUnits:p.sizeUnits, leverage:p.leverage, mode:p.mode, entryPrice:p.entryPrice, exitPrice, notional:p.notional, openedAt:p.openedAt});
     state.history = state.history.slice(0,TRADE_HISTORY_RETAIN);
     updatePerfStats(pnl);
+    if (typeof enforceLeverageAccess==="function") enforceLeverageAccess(); // stats.tradesClosed just moved — a new leverage tier may have unlocked
     renderAll();
     persistAccount();
     if (reason==="liquidated") awardBadge('first_liquidation');
@@ -5900,6 +5932,7 @@ function closePositionPartial(id, fraction, reason){
       sizeUnits:closedSizeUnits, leverage:p.leverage, mode:p.mode, entryPrice:p.entryPrice, exitPrice:exit, notional:closedNotional, openedAt:p.openedAt});
     state.history = state.history.slice(0,TRADE_HISTORY_RETAIN);
     updatePerfStats(pnl);
+    if (typeof enforceLeverageAccess==="function") enforceLeverageAccess(); // stats.tradesClosed just moved — a new leverage tier may have unlocked
     renderAll();
     persistAccount();
     if (pnl>=500) awardBadge('big_win');
@@ -10224,17 +10257,18 @@ function initEvents(){
     presetsWrap.querySelectorAll("button").forEach(b=>b.classList.toggle("active", parseInt(b.dataset.lev,10)===leverage));
   }
   setLevUI(); // sync the slider/badge to the leverage restored from localStorage on load
-  if (typeof enforceLeverageAccess==="function") enforceLeverageAccess(); // apply the EDB+ x20 cap right away (locked by default until Firestore hydrates)
+  if (typeof enforceLeverageAccess==="function") enforceLeverageAccess(); // apply the experience-based cap right away (starts at the lowest tier until Firestore hydrates stats.tradesClosed)
   document.getElementById("lev-slider").addEventListener("input", (e)=>{
     leverage=parseInt(e.target.value,10); saveLeverage(leverage); setLevUI(); updateOrderReadout();
   });
   presetsWrap.querySelectorAll("button").forEach(b=>{
     b.addEventListener("click", ()=>{
       const v = parseInt(b.dataset.lev,10);
-      if (v>LEVERAGE_CAP_FREE && !isEdbPlus()){ goToEdbPlus(); return; }
-      // Challenge Prop Firm cap is a hard clamp, not a paywall (EDB+ access
-      // to the Challenge doesn't buy a way past it) — see CHALLENGE_LEVERAGE_CAP.
-      const cap = state.activeBookName==="prop" ? CHALLENGE_LEVERAGE_CAP : 200;
+      // No more EDB+ redirect here — the leverage cap is purely experience-based
+      // now (progressiveLeverageCap()), same rule for every trader. Clicking a
+      // preset above the current cap just clamps silently, same as the
+      // Challenge's hard x20 ceiling already did.
+      const cap = state.activeBookName==="prop" ? CHALLENGE_LEVERAGE_CAP : progressiveLeverageCap(state.stats && state.stats.tradesClosed);
       leverage=Math.min(v,cap); saveLeverage(leverage); setLevUI(); updateOrderReadout();
     });
   });
@@ -10517,21 +10551,24 @@ function enforceWidgetAccess(){
 }
 // Re-checks the leverage cap on the real order ticket (the position-size
 // calculator widget doesn't need this — it's edbPlusOnly outright, see
-// WIDGET_DEFS). Two layers, tightest wins: the EDB+ x20/x200 split (same as
-// always), AND — independently — a hard x20 ceiling whenever the Prop Firm
-// Challenge book is the active one (CHALLENGE_LEVERAGE_CAP, see its
-// definition for why), regardless of EDB+ status. Called at boot, whenever
-// hydrateStateFromDoc() learns the real EDB+ status, AND from
-// renderChallengeBanner() (so it re-applies the instant a trader switches
-// into or out of the Challenge book, not just on the next price tick).
+// WIDGET_DEFS, and that gate is unrelated/unchanged). Cap comes from
+// progressiveLeverageCap() — experience (closed trades), not EDB+ status —
+// except on the Prop Firm Challenge book, which always hard-locks to exactly
+// CHALLENGE_LEVERAGE_CAP regardless of experience: that cap exists to mirror
+// a REAL prop firm's fixed rules, not to gate a feature, so it isn't relaxed
+// as the trader progresses. Called at boot, whenever hydrateStateFromDoc()
+// re-syncs state (stats.tradesClosed included), right after a trade closes
+// (closePosition()/closePositionPartial(), so a newly-unlocked tier shows up
+// immediately), AND from renderChallengeBanner() (so it re-applies the
+// instant a trader switches into or out of the Challenge book).
 function enforceLeverageAccess(){
   const slider = document.getElementById("lev-slider");
   const badge = document.getElementById("lev-badge");
   const presetsWrap = document.getElementById("lev-presets");
   if (!slider) return; // order ticket not wired yet
-  const locked = !isEdbPlus();
+  const tradesClosed = state.stats && state.stats.tradesClosed;
   const onChallenge = state.activeBookName==="prop";
-  const cap = onChallenge ? CHALLENGE_LEVERAGE_CAP : (locked ? LEVERAGE_CAP_FREE : 200);
+  const cap = onChallenge ? CHALLENGE_LEVERAGE_CAP : progressiveLeverageCap(tradesClosed);
   slider.max = cap;
   if (leverage > cap){
     leverage = cap;
@@ -10544,7 +10581,7 @@ function enforceLeverageAccess(){
     const isLocked = v>cap;
     b.classList.toggle("locked", isLocked);
     b.classList.toggle("active", v===leverage);
-    b.title = !isLocked ? "" : (onChallenge ? "Plafonné à x"+CHALLENGE_LEVERAGE_CAP+" sur le Challenge Prop Firm — aligné sur les vrais prop firms crypto" : "Réservé aux membres EDB+");
+    b.title = !isLocked ? "" : (onChallenge ? "Plafonné à x"+CHALLENGE_LEVERAGE_CAP+" sur le Challenge Prop Firm — aligné sur les vrais prop firms crypto" : leverageLockTitle(tradesClosed));
   });
   if (typeof updateOrderReadout==="function") updateOrderReadout();
 }
