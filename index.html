@@ -1104,6 +1104,10 @@
           <div class="auth-gate-feature-icon">📚</div>
           <div class="auth-gate-feature-text"><strong>Connaissances &amp; Quiz</strong> — les bases pour comprendre ce que tu trades, un quiz par sujet pour tester ce que tu as retenu, et Superflash pour des bonus de capital.</div>
         </li>
+        <li class="auth-gate-feature">
+          <div class="auth-gate-feature-icon">💎</div>
+          <div class="auth-gate-feature-text"><strong>Concours EDB+</strong> — enchaîne les Challenges Prop Firm 200 000 $ et gagne une vraie Prop Firm 100 000 $ ou 400 € offerts par l'association.</div>
+        </li>
       </ul>
       <div class="auth-gate-ticker">
         <div class="auth-gate-ticker-track" id="gate-ticker-track"></div>
@@ -1122,11 +1126,18 @@
       </button>
       <div class="chart-note" style="text-align:center;margin:14px 0;font-size:11px;color:var(--text-faint);">— ou —</div>
       <div class="field-row"><label>Email</label><input type="email" id="gate-email-input" class="tpsl-input" placeholder="toi@exemple.com" autocomplete="email"></div>
+      <div class="field-row"><label>Mot de passe</label><input type="password" id="gate-password-input" class="tpsl-input" placeholder="••••••••" autocomplete="current-password"></div>
       <div class="chart-note" id="gate-msg" style="margin:8px 0;min-height:14px;"></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn-primary" id="gate-send-link-btn" style="flex:1;">Recevoir mon lien de connexion</button>
+        <button class="btn-primary" id="gate-password-btn" style="flex:1;">Se connecter</button>
       </div>
-      <p class="chart-note" style="margin-top:10px;font-size:11px;color:var(--text-faint);">Pas de mot de passe : un email t'envoie un lien, tu cliques dessus, tu es connecté — sur ce navigateur ou n'importe quel autre.</p>
+      <div style="text-align:right;margin-top:6px;">
+        <button type="button" id="gate-forgot-btn" style="background:none;border:none;color:var(--text-dim);text-decoration:underline;cursor:pointer;font-size:11px;padding:0;font-family:var(--sans);">Mot de passe oublié ?</button>
+      </div>
+      <div class="chart-note" style="text-align:center;margin:14px 0;font-size:11px;color:var(--text-faint);">— ou, sans mot de passe —</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn-secondary" id="gate-send-link-btn" style="flex:1;">Recevoir un lien de connexion</button>
+      </div>
     </div>
   </div>
 </div>
@@ -3071,6 +3082,18 @@ function authErrorMsg(e){
   }
   if (code==="auth/popup-blocked") return "Le popup Google a été bloqué par le navigateur — nouvelle tentative via redirection…";
   if (code==="auth/popup-closed-by-user" || code==="auth/cancelled-popup-request") return ""; // the trader just closed it themselves — not worth an error message
+  // Password sign-in (signInWithPassword()/sendPasswordReset() below).
+  // auth/wrong-password and auth/invalid-credential are handled together
+  // deliberately — newer Firebase SDKs consolidate "wrong password" and "no
+  // password set on this account yet" (e.g. an existing magic-link/Google
+  // account) into the same invalid-credential code, on purpose, so a wrong
+  // guess can't be used to tell which emails are registered. Either way,
+  // "Mot de passe oublié" is the fix.
+  if (code==="auth/wrong-password" || code==="auth/invalid-credential") return "Email ou mot de passe incorrect — si tu t'es déjà inscrit via lien magique ou Google, utilise \"Mot de passe oublié ?\" pour définir un mot de passe sur ce compte.";
+  if (code==="auth/weak-password") return "Mot de passe trop court — 6 caractères minimum.";
+  if (code==="auth/missing-password") return "Entre un mot de passe.";
+  if (code==="auth/email-already-in-use") return "Un compte existe déjà avec cet email — réessaie de te connecter, ou utilise \"Mot de passe oublié ?\" si tu ne connais pas le mot de passe.";
+  if (code==="auth/user-not-found") return "Aucun compte pour cet email — vérifie l'adresse, ou connecte-toi normalement pour en créer un.";
   return "Erreur : "+((e&&e.message)||e);
 }
 function showAuthGate(){
@@ -3178,6 +3201,41 @@ async function checkGoogleRedirectResult(){
     const msg = document.getElementById("gate-msg");
     if (msg){ msg.style.color = "var(--warn)"; msg.textContent = authErrorMsg(e); }
   }
+}
+// Classic email+password login — added back ALONGSIDE the email-link and
+// Google options above, not a replacement (some traders find having to
+// check their inbox every time annoying). Firebase keys plain password
+// sign-in and the email-link method under the exact same "password"
+// provider by email address (see the big comment above initAuth()), so
+// this is fully compatible with every existing account regardless of which
+// method created it — same uid, no migration.
+//
+// Sign-in-first, and only create a brand-new account on a literal
+// "user-not-found" (an email Firebase has NEVER seen, under any provider),
+// keeps the same frictionless "your account is created automatically the
+// first time" auto-signup as the other two methods — while any email that
+// already exists (whatever method it was created with) just needs the
+// RIGHT password, surfaced as one clear error either way (see
+// authErrorMsg()'s auth/invalid-credential case).
+async function signInWithPassword(email, password){
+  try{
+    await firebase.auth().signInWithEmailAndPassword(email, password);
+  }catch(e){
+    if (e && e.code==="auth/user-not-found"){
+      await firebase.auth().createUserWithEmailAndPassword(email, password);
+      return;
+    }
+    throw e;
+  }
+}
+// "Mot de passe oublié ?" — sendPasswordResetEmail() works for ANY existing
+// email regardless of which method actually created the account: Firebase
+// adds the "password" sign-in method to that same account if it wasn't
+// already on it. So for a trader who originally signed up via the magic
+// link or Google, this doubles as "set a password on my account" — not
+// just a reset for someone who forgot one.
+async function sendPasswordReset(email){
+  await firebase.auth().sendPasswordResetEmail(email);
 }
 function initAuth(){
   try{
@@ -3288,6 +3346,49 @@ function initGateUI(){
       finally{ googleBtn.disabled = false; }
     });
   }
+
+  // Email + password — added alongside the link/Google options above (see
+  // signInWithPassword()/sendPasswordReset()). Reuses readEmail() for the
+  // same validation the magic-link button already does.
+  const passwordInput = document.getElementById("gate-password-input");
+  const passwordBtn = document.getElementById("gate-password-btn");
+  const forgotBtn = document.getElementById("gate-forgot-btn");
+  async function submitPassword(){
+    const email = readEmail();
+    if (!email) return;
+    const password = passwordInput.value||"";
+    if (!password){ msg.style.color="var(--warn)"; msg.textContent = "Entre ton mot de passe."; return; }
+    passwordBtn.disabled = true;
+    msg.style.color = "var(--text-dim)";
+    msg.textContent = "Connexion en cours…";
+    try{
+      await signInWithPassword(email, password);
+      // Success flows into onAuthStateChanged like any other method — no
+      // further UI update needed here, the gate hides itself.
+    }catch(e){
+      msg.style.color = "var(--warn)";
+      msg.textContent = authErrorMsg(e);
+    }finally{
+      passwordBtn.disabled = false;
+    }
+  }
+  if (passwordBtn) passwordBtn.addEventListener("click", submitPassword);
+  if (passwordInput) passwordInput.addEventListener("keydown", (e)=>{ if (e.key==="Enter") submitPassword(); });
+  if (forgotBtn) forgotBtn.addEventListener("click", async ()=>{
+    const email = readEmail();
+    if (!email) return;
+    forgotBtn.disabled = true;
+    try{
+      await sendPasswordReset(email);
+      msg.style.color = "var(--long)";
+      msg.textContent = "Email envoyé ! Suis le lien pour choisir (ou changer) ton mot de passe.";
+    }catch(e){
+      msg.style.color = "var(--warn)";
+      msg.textContent = authErrorMsg(e);
+    }finally{
+      forgotBtn.disabled = false;
+    }
+  });
 }
 
 /* ============================= LIVE PRICES (Binance primary, Crypto.com fallback — direct public REST APIs) ============================= */
