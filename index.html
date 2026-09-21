@@ -983,7 +983,8 @@
 
   /* badges */
   .badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;}
-  .badge-tile{background:var(--bg-raised);border:1px solid var(--border);border-radius:8px;padding:14px 8px;text-align:center;opacity:0.45;transition:transform .15s ease, box-shadow .15s ease;}
+  .badge-tile{background:var(--bg-raised);border:1px solid var(--border);border-radius:8px;padding:14px 8px;text-align:center;opacity:0.45;transition:transform .15s ease, box-shadow .15s ease;cursor:pointer;}
+  .badge-tile:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(255,255,255,0.06);}
   .badge-tile.earned{opacity:1;border-color:var(--gold);background:var(--panel-2);}
   .badge-tile.earned:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(215,181,99,0.18);}
   .badge-tile-icon{font-size:26px;margin-bottom:6px;}
@@ -991,6 +992,13 @@
   .badge-tile.earned .badge-tile-title{color:var(--text);}
   .badge-tile-sub{font-family:var(--mono);font-size:8.5px;color:var(--text-faint);margin-top:3px;}
   .badge-tile.earned .badge-tile-sub{color:var(--accent);}
+
+  /* compact earned-badge icons shown inline next to a name in classements —
+     full grid + descriptions still live in "Mes badges" / the profile modal,
+     this is just a quick "what has this trader unlocked" glance. */
+  .lb-badge-icons{display:inline-flex;align-items:center;gap:3px;margin-left:6px;vertical-align:middle;}
+  .lb-badge-icon{font-size:12.5px;line-height:1;cursor:pointer;}
+  .lb-badge-more{font-family:var(--mono);font-size:9px;color:var(--text-faint);cursor:pointer;}
 
   /* badge unlock toast */
   .badge-toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-20px);opacity:0;transition:transform .3s,opacity .3s;z-index:60;background:var(--panel-2);border:1px solid var(--gold);border-radius:10px;padding:10px 16px;box-shadow:0 8px 24px rgba(0,0,0,0.4);pointer-events:none;}
@@ -6199,7 +6207,7 @@ function renderLeaderboard(docs){
     const rankClass = rank===1?"rank-1":rank===2?"rank-2":rank===3?"rank-3":"";
     return '<tr class="lb-row-clickable '+(doc.id===clientId?"me":"")+'" data-trader-id="'+doc.id+'" title="Voir le profil">'+
       '<td class="num '+rankClass+'">#'+rank+'</td>'+
-      '<td>'+avatarHtml(d.photoURL, d.username)+' '+escapeHtml(d.username||"Trader")+traderBadgesHtml(d)+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
+      '<td>'+avatarHtml(d.photoURL, d.username)+' '+escapeHtml(d.username||"Trader")+traderBadgesHtml(d)+traderBadgeIconsHtml(d)+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
       '<td class="num">'+fmtMoney(d.equity||0)+'</td>'+
       '<td class="num '+(ret>=0?"up":"down")+'">'+fmtPct(ret)+'</td>'+
     '</tr>';
@@ -6222,7 +6230,7 @@ function renderWeeklyLeaderboard(docs){
     const rankClass = rank===1?"rank-1":rank===2?"rank-2":rank===3?"rank-3":"";
     return '<tr class="lb-row-clickable '+(doc.id===clientId?"me":"")+'" data-trader-id="'+doc.id+'" title="Voir le profil">'+
       '<td class="num '+rankClass+'">#'+rank+'</td>'+
-      '<td>'+avatarHtml(d.photoURL, d.username)+' '+escapeHtml(d.username||"Trader")+traderBadgesHtml(d)+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
+      '<td>'+avatarHtml(d.photoURL, d.username)+' '+escapeHtml(d.username||"Trader")+traderBadgesHtml(d)+traderBadgeIconsHtml(d)+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
       '<td class="num '+(d.weeklyPnl>=0?"up":"down")+'">'+fmtMoney(d.weeklyPnl)+'</td>'+
       '<td class="num">'+fmtMoney(d.equity||0)+'</td>'+
     '</tr>';
@@ -6264,7 +6272,7 @@ function renderPropLeaderboard(docs){
     const phaseClass = c.phase==="failed" ? "down" : c.phase==="funded" ? "up" : "";
     return '<tr class="lb-row-clickable '+(doc.id===clientId?"me":"")+'" data-trader-id="'+doc.id+'" title="Voir le profil">'+
       '<td class="num '+rankClass+'">#'+rank+'</td>'+
-      '<td>'+avatarHtml(d.photoURL, d.username)+' '+escapeHtml(d.username||"Trader")+traderBadgesHtml(d)+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
+      '<td>'+avatarHtml(d.photoURL, d.username)+' '+escapeHtml(d.username||"Trader")+traderBadgesHtml(d)+traderBadgeIconsHtml(d)+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
       '<td class="num">'+fmtMoney(c.tier||0)+'</td>'+
       '<td class="num '+phaseClass+'">'+phaseLabel+'</td>'+
       '<td class="num">'+fmtMoney(d.propEquity||0)+'</td>'+
@@ -6320,12 +6328,35 @@ function traderEarnedBadgesGridHtml(d){
   return '<div class="badges-grid">'+earned.map(b=>{
     const entry = earnedMap[b.id];
     const sub = (entry && entry.value!=null) ? '<div class="badge-tile-sub">'+fmtMoney(entry.value)+'</div>' : '';
-    return '<div class="badge-tile earned" title="'+escapeHtml(b.desc)+'">'+
+    return '<div class="badge-tile earned" title="'+escapeHtml(b.desc)+' — clique pour les détails" data-badge-id="'+b.id+'" data-earned-at="'+escapeHtml((entry&&entry.earnedAt)||"")+'"'+
+      (entry && entry.value!=null?' data-earned-value="'+entry.value+'"':'')+'>'+
       '<div class="badge-tile-icon">'+b.icon+'</div>'+
       '<div class="badge-tile-title">'+escapeHtml(b.title)+'</div>'+
       sub+
     '</div>';
   }).join("")+'</div>';
+}
+// Compact inline strip of a trader's earned achievement badges (icons only,
+// no locked placeholders), shown next to their name in classements so
+// they're visible without opening the profile modal. Capped at `max` so a
+// veteran trader's row doesn't blow up in height; the rest collapse into a
+// "+N" chip. Reads straight off that trader's own leaderboard doc (`d`),
+// same as traderEarnedBadgesGridHtml above.
+function traderBadgeIconsHtml(d, max){
+  max = max || 6;
+  const earnedMap = (d && d.badges && typeof d.badges==="object") ? d.badges : {};
+  const earned = (typeof BADGES!=="undefined" ? BADGES : []).filter(b=>earnedMap[b.id]);
+  if (!earned.length) return "";
+  const shown = earned.slice(0, max);
+  const extra = earned.length - shown.length;
+  return '<span class="lb-badge-icons">'+
+    shown.map(b=>{
+      const entry = earnedMap[b.id];
+      return '<span class="lb-badge-icon" title="'+escapeHtml(b.title)+' — clique pour les détails" data-badge-id="'+b.id+'" data-earned-at="'+escapeHtml((entry&&entry.earnedAt)||"")+'"'+
+        (entry && entry.value!=null?' data-earned-value="'+entry.value+'"':'')+'>'+b.icon+'</span>';
+    }).join("")+
+    (extra>0 ? '<span class="lb-badge-more" title="'+extra+' badge(s) supplémentaire(s)">+'+extra+'</span>' : '')+
+  '</span>';
 }
 function openTraderProfileModal(id){
   const doc = leaderboardDocsCache[id] || weeklyLeaderboardDocsCache[id] || contestLeaderboardDocsCache[id] || propLeaderboardDocsCache[id];
@@ -6372,6 +6403,20 @@ function openLightbox(src){
 function closeLightbox(){
   document.getElementById("lightbox-overlay").hidden = true;
   document.getElementById("lightbox-img").src = "";
+}
+// Delegated (capture phase, so it wins over a leaderboard row's own click-to-
+// open-profile handler) click handler for every badge tile/icon rendered
+// anywhere — "Mes badges", someone else's profile modal, and the compact
+// icon strip in classements. Capture phase + stopPropagation() is what lets
+// clicking a badge icon inside a clickable <tr> show that badge's info
+// instead of opening the trader's profile.
+function initBadgeInfoClicks(){
+  document.addEventListener("click", (e)=>{
+    const el = e.target.closest("[data-badge-id]");
+    if (!el) return;
+    e.stopPropagation();
+    openBadgeInfoModal(el.dataset.badgeId, el.dataset.earnedAt || null, el.dataset.earnedValue);
+  }, true);
 }
 function initLightbox(){
   document.addEventListener("click", (e)=>{
@@ -6603,12 +6648,36 @@ function renderBadgesGrid(){
     const entry = state.badges[b.id];
     const earned = !!entry;
     const sub = (earned && entry.value!=null) ? '<div class="badge-tile-sub">'+fmtMoney(entry.value)+'</div>' : '';
-    return '<div class="badge-tile'+(earned?" earned":"")+'" title="'+escapeHtml(b.desc)+'">'+
+    return '<div class="badge-tile'+(earned?" earned":"")+'" title="'+escapeHtml(b.desc)+' — clique pour les détails" data-badge-id="'+b.id+'"'+
+      (earned?' data-earned-at="'+escapeHtml(entry.earnedAt||"")+'"':'')+
+      (earned && entry.value!=null?' data-earned-value="'+entry.value+'"':'')+'>'+
       '<div class="badge-tile-icon">'+(earned?b.icon:"🔒")+'</div>'+
       '<div class="badge-tile-title">'+escapeHtml(b.title)+'</div>'+
       sub+
     '</div>';
   }).join("");
+}
+// Full details for one badge (its unlock condition, plus — if earned — when
+// it was earned and the account value at that moment). Shared by "Mes
+// badges", the read-only badge grid on someone else's profile, and the
+// compact icon strip in classements — all three now open this on click
+// instead of relying on a hover-only browser tooltip (useless on mobile).
+function openBadgeInfoModal(id, earnedAt, earnedValue){
+  const b = BADGES.find(x=>x.id===id);
+  if (!b) return;
+  const earned = !!earnedAt;
+  const dateLine = earned ? '<div class="chart-note" style="margin-top:10px;color:var(--text-faint);">Débloqué '+fmtWhen(earnedAt)+'</div>' : "";
+  const valueLine = (earned && earnedValue!=null && earnedValue!=="") ? '<div class="chart-note" style="margin-top:2px;color:var(--text-faint);">Compte à '+fmtMoney(parseFloat(earnedValue))+' à ce moment-là</div>' : "";
+  openModal(
+    '<div style="text-align:center;padding:8px 4px 4px;">'+
+      '<div style="font-size:44px;line-height:1;margin-bottom:12px;">'+(earned?b.icon:"🔒")+'</div>'+
+      '<h3 style="margin:0 0 8px;">'+escapeHtml(b.title)+'</h3>'+
+      '<div class="quiz-cat gold-badge" style="display:inline-block;margin-bottom:12px;">'+(earned?"Débloqué":"À débloquer")+'</div>'+
+      '<p class="chart-note" style="max-width:320px;margin:0 auto;">'+escapeHtml(b.desc)+'</p>'+
+      dateLine+
+      valueLine+
+    '</div>'
+  );
 }
 
 /* ============================= DAILY STREAK ============================= */
@@ -10073,7 +10142,7 @@ function renderQuizLeaderboard(docs){
     }).join("");
     return '<tr class="'+(doc.id===clientId?"me":"")+'">'+
       '<td class="num '+rankClass+'">#'+rank+'</td>'+
-      '<td>'+escapeHtml(d.username||"Trader")+traderBadgesHtml(d)+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
+      '<td>'+escapeHtml(d.username||"Trader")+traderBadgesHtml(d)+traderBadgeIconsHtml(d)+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
       '<td class="num">'+fmtMoney(d.quizTotal||0)+'</td>'+
       deckCells+
     '</tr>';
@@ -12472,6 +12541,7 @@ async function init(){
   buildWatchlist();
   initEvents();
   initLightbox();
+  initBadgeInfoClicks();
   initOnboardingTour();
   initScrollReveal();
   renderSessions();
