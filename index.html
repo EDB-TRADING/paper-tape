@@ -304,6 +304,27 @@
     .cedb-hero, .cedb-reward, .cedb-rules-wrap{background-attachment:scroll;}
   }
 
+  /* ---------- Generic Apple-style scroll-reveal sections — shared by every
+     EDB+ paywall page (edbPlusPaywallHtml()) AND the main "Devenir EDB+"
+     pitch page (renderEdbPlusProfileCard()'s not-yet-member branch). Same
+     visual system as the Concours EDB+ redesign above (.cedb-*), pulled out
+     generic so any page can drop in a photo/hero section without its own
+     bespoke CSS. */
+  .ap-bleed{margin:-14px;} /* cancels .card's own 14px padding for edge-to-edge photos */
+  .ap-overlay{position:absolute;inset:0;background:linear-gradient(180deg, rgba(10,8,6,0.25), rgba(10,8,6,0.88));}
+  .ap-photo{
+    position:relative;overflow:hidden;padding:34px 20px;
+    background-size:cover;background-position:center;background-attachment:fixed;
+  }
+  .ap-photo.ap-photo-first{min-height:260px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius) var(--radius) 0 0;}
+  .ap-photo.ap-photo-last{border-radius:0 0 var(--radius) var(--radius);}
+  .ap-content{position:relative;z-index:1;text-align:center;max-width:560px;margin:0 auto;}
+  .ap-hero-title{font-size:clamp(21px,4vw,32px);font-weight:800;color:#fff;margin:12px 0 6px;line-height:1.2;}
+  .ap-hero-sub{font-family:var(--mono);color:#fff;opacity:.92;font-size:clamp(12px,1.7vw,14.5px);margin:0;}
+  .ap-photo .chart-note{color:rgba(255,255,255,0.82);}
+  .ap-section{padding:26px 20px;text-align:center;}
+  @media (max-width: 640px){ .ap-photo{background-attachment:scroll;} }
+
   /* ---------- Challenge page: FTMO-style comparison table ---------- */
   .challenge-hero-badge{
     display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;font-weight:700;
@@ -1461,7 +1482,7 @@
     <!-- ================= NEWS ================= -->
     <section class="view" id="view-news">
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:10px;">
+        <div id="news-card-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:10px;">
           <h3 style="margin:0;">Actualités marchés &amp; crypto en direct</h3>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
             <div class="seg" id="news-lang-seg">
@@ -1852,7 +1873,7 @@
     <section class="view" id="view-challenge">
       <div class="learn-wrap">
         <div class="card" id="challenge-profile-card">
-          <h3>Challenge Prop Firm</h3>
+          <h3 id="challenge-card-title">Challenge Prop Firm</h3>
           <div id="challenge-card-body"></div>
         </div>
       </div>
@@ -2127,27 +2148,65 @@ const EDB_PLUS_FEATURE_ICONS = {quiz:"📚", news:"📰", challenge:"🏅", them
 // place of its real content. `key` picks the wording from EDB_PLUS_FEATURES
 // above; the CTA button is wired by wireEdbPlusCta(key) right after this
 // HTML is inserted into the DOM (event listeners don't survive innerHTML).
+//
+// Full Apple-marketing-style scroll-reveal treatment (same system as the
+// Concours EDB+ redesign — see .ap-* CSS above): a hero (that feature's own
+// photo when EDB_PLUS_FEATURES[key].img exists, otherwise a big centered
+// icon), then a cross-sell section listing every OTHER EDB+ perk (so a
+// trader who only wanted, say, the quiz sees the whole pitch — challenge,
+// news, tradesedb, ressources, thèmes, concours — not just this one
+// feature), then the price + CTA. Every paywall page doubles as a mini
+// version of the full "Devenir EDB+" pitch (renderEdbPlusProfileCard()).
 function edbPlusPaywallHtml(key){
   const f = EDB_PLUS_FEATURES[key] || {label:"Cette fonctionnalité", detail:"débloquer cette fonctionnalité"};
-  // A feature with its own illustrative photo (f.img) shows that photo in
-  // place of the generic lock icon — same pattern as the Concours EDB+
-  // paywall's concours-hero.jpg (see #concoursedbplus-locked above).
-  const visual = f.img
-    ? '<img src="'+f.img+'" alt="'+escapeHtml(f.label)+'" style="width:100%;max-width:640px;border-radius:14px;border:1px solid var(--gold)55;box-shadow:0 12px 32px rgba(0,0,0,0.35);margin:0 auto 16px;display:block;">'
-    : '<div class="deck-big-icon" style="background:var(--gold)22;border:1px solid var(--gold)55;">🔒</div>';
-  return '<div class="quiz-intro edbplus-paywall">'+
-    visual+
-    '<div class="quiz-cat gold-badge">EDB+ requis</div>'+
-    '<h2>'+escapeHtml(f.label)+'</h2>'+
-    '<p>Réservé aux membres EDB+ — 25€/an pour '+escapeHtml(f.detail)+', et soutenir l\'association au passage.</p>'+
-    '<div class="quiz-intro-actions">'+
-      '<button class="btn-primary" id="edbplus-cta-'+key+'">Découvrir EDB+</button>'+
-    '</div>'+
+  const icon = EDB_PLUS_FEATURE_ICONS[key] || "✅";
+  const others = Object.entries(EDB_PLUS_FEATURES).filter(([k])=>k!==key);
+  const hero = f.img
+    ? '<section class="ap-photo ap-photo-first reveal" style="background-image:url(\''+f.img+'\');">'+
+        '<div class="ap-overlay"></div>'+
+        '<div class="ap-content">'+
+          '<div class="quiz-cat gold-badge">🔒 EDB+ requis</div>'+
+          '<h2 class="ap-hero-title">'+escapeHtml(f.label)+'</h2>'+
+          '<p class="ap-hero-sub">'+escapeHtml(f.detail)+'</p>'+
+        '</div>'+
+      '</section>'
+    : '<section class="ap-section reveal" style="padding-top:38px;">'+
+        '<div class="deck-big-icon" style="background:var(--gold)22;border:1px solid var(--gold)55;">'+icon+'</div>'+
+        '<div class="quiz-cat gold-badge" style="margin-top:14px;">🔒 EDB+ requis</div>'+
+        '<h2 style="margin:10px 0 6px;">'+escapeHtml(f.label)+'</h2>'+
+        '<p class="chart-note" style="max-width:420px;margin:0 auto;">'+escapeHtml(f.detail)+'</p>'+
+      '</section>';
+  return '<div class="ap-bleed edbplus-paywall">'+
+    hero+
+    '<section class="ap-section reveal">'+
+      '<p class="chart-note" style="max-width:520px;margin:0 auto 18px;">Réservé aux membres EDB+ — 25€/an pour '+escapeHtml(f.detail)+', et soutenir l\'association au passage. Et ce n\'est pas tout, EDB+ débloque aussi :</p>'+
+      '<div class="edbplus-feature-grid" style="max-width:560px;margin:0 auto;">'+
+        others.map(([k,of])=>
+          '<div class="edbplus-feature-row">'+
+            '<span class="edbplus-feature-icon">'+(EDB_PLUS_FEATURE_ICONS[k]||"✅")+'</span>'+
+            '<div><div class="edbplus-feature-label">'+escapeHtml(of.label)+'</div><div class="edbplus-feature-detail">'+escapeHtml(of.detail)+'</div></div>'+
+          '</div>'
+        ).join("")+
+      '</div>'+
+    '</section>'+
+    '<section class="ap-section reveal" style="padding-top:4px;">'+
+      '<div class="edbplus-price-box">'+
+        '<div class="edbplus-price-amount">25€</div>'+
+        '<div class="edbplus-price-period">par an</div>'+
+        '<div class="edbplus-price-sub">soit un peu plus de 2€ / mois</div>'+
+      '</div>'+
+      '<button class="btn-primary edbplus-cta-btn" id="edbplus-cta-'+key+'">🚀 Découvrir EDB+</button>'+
+    '</section>'+
   '</div>';
 }
 function wireEdbPlusCta(key){
   const btn = document.getElementById("edbplus-cta-"+key);
   if (btn) btn.addEventListener("click", goToEdbPlus);
+  // Every call site does el.innerHTML = edbPlusPaywallHtml(key) right before
+  // calling this — a single choke point to (re)start the scroll-reveal
+  // animation on the `.reveal` sections that HTML just introduced (see
+  // initScrollReveal()'s own comment for why re-calling it is safe).
+  if (typeof initScrollReveal==="function") initScrollReveal();
 }
 // Jumps to the dedicated EDB+ page — the single destination every paywall
 // CTA and locked theme-dot click leads to.
@@ -2208,30 +2267,77 @@ function renderEdbPlusProfileCard(){
     if (cancelBtn) cancelBtn.addEventListener("click", cancelMyEdbPlusRequest);
     return;
   }
+  // Full Apple-marketing-style scroll-reveal pitch — same system as the
+  // Concours EDB+ redesign and every paywall page (see .ap-*/.reveal CSS and
+  // edbPlusPaywallHtml() above): a hero, then one photo spotlight per
+  // headline feature (in the order a trader would actually earn/use them —
+  // Challenge, then the Concours EDB+ reward it unlocks, then Quiz, Trades
+  // EDB+, Ressources), a compact "et aussi" section for the two features
+  // without their own photo (News, Thèmes), and the price + CTA to close.
+  const SPOTLIGHTS = [
+    {key:"challenge", img:"propfirm-hero.jpg",
+      title:"Deviens un vrai trader, pas un joueur",
+      body:"Un compte démo calqué précisément sur une évaluation Prop Firm FTMO en 2 étapes — même objectif de gain, même perte journalière max, même drawdown. Prouve que tu sais gérer un compte comme un pro, sans risquer un centime de ta poche."},
+    {key:"concoursedbplus", img:"concours-hero.jpg",
+      title:"5 Challenges réussis. Un vrai compte offert.",
+      body:"Enchaîne 5 Challenges 200 000 $ validés (Étape 1 + Étape 2) et l'EDB t'offre une vraie Prop Firm 100 000 $ ou 400 € — payés par l'association, pas simulés. Le seul avantage EDB+ qui rapporte littéralement de l'argent."},
+    {key:"quiz", img:"quiz-hero.jpg",
+      title:"Apprends vite, retiens tout",
+      body:"Des fiches par thème — order flow, produits dérivés, macro… — puis un quiz pour tester ce que tu as vraiment retenu. Grimpe au classement quiz, décroche le badge Sans-faute, chronomètre-toi en mode Superflash."},
+    {key:"tradesedb", img:"tradesedb-hero.png",
+      title:"Les trades du bureau, en direct",
+      body:"Suis les idées et analyses partagées par le bureau EDB, plus un trade swing mis en avant chaque semaine — une vraie fenêtre sur comment l'association elle-même approche le marché."},
+    {key:"resources", img:"resources-hero.png",
+      title:"Les bons outils, sans chercher",
+      body:"Une sélection d'outils externes recommandés par l'EDB — order flow, calendrier économique, screeners… Le tri a déjà été fait pour toi."},
+  ];
+  const spotlightsHtml = SPOTLIGHTS.map(s=>
+    '<section class="ap-photo reveal" style="background-image:url(\''+s.img+'\');">'+
+      '<div class="ap-overlay"></div>'+
+      '<div class="ap-content">'+
+        '<h2 class="ap-hero-title">'+escapeHtml(s.title)+'</h2>'+
+        '<p class="chart-note" style="max-width:480px;margin:8px auto 0;">'+escapeHtml(s.body)+'</p>'+
+      '</div>'+
+    '</section>'
+  ).join("");
   el.innerHTML =
-    '<div class="edbplus-pitch">'+
-      '<div class="quiz-cat gold-badge">🏛️ ÉCOLE DE LA BOURSE</div>'+
-      '<h2 style="margin:12px 0 8px;">Débloque le terminal complet</h2>'+
-      '<p class="chart-note" style="max-width:520px;margin:0 auto 22px;">L\'abonnement association qui te donne accès au challenge prop firm, aux quiz, aux fiches de révision et aux actus marché en direct — et qui finance les projets du bureau.</p>'+
-      '<div class="edbplus-price-box">'+
-        '<div class="edbplus-price-amount">25€</div>'+
-        '<div class="edbplus-price-period">par an</div>'+
-        '<div class="edbplus-price-sub">soit un peu plus de 2€ / mois</div>'+
-      '</div>'+
-      '<div class="edbplus-feature-grid">'+
-        Object.entries(EDB_PLUS_FEATURES).map(([k,f])=>
+    '<div class="ap-bleed">'+
+      '<section class="ap-photo ap-photo-first reveal" style="background-image:url(\'concours-hero.jpg\');">'+
+        '<div class="ap-overlay"></div>'+
+        '<div class="ap-content">'+
+          '<div class="quiz-cat gold-badge">🏛️ ÉCOLE DE LA BOURSE</div>'+
+          '<h2 class="ap-hero-title">Débloque le terminal complet</h2>'+
+          '<p class="ap-hero-sub">L\'abonnement association qui donne accès à tout Paper Tape — et qui finance les projets du bureau.</p>'+
+        '</div>'+
+      '</section>'+
+      spotlightsHtml+
+      '<section class="ap-section reveal">'+
+        '<div class="quiz-cat gold-badge" style="margin-bottom:10px;">Et aussi</div>'+
+        '<div class="edbplus-feature-grid" style="max-width:520px;margin:0 auto;">'+
           '<div class="edbplus-feature-row">'+
-            '<span class="edbplus-feature-icon">'+(EDB_PLUS_FEATURE_ICONS[k]||"✅")+'</span>'+
-            '<div><div class="edbplus-feature-label">'+escapeHtml(f.label)+'</div><div class="edbplus-feature-detail">'+escapeHtml(f.detail)+'</div></div>'+
-          '</div>'
-        ).join("")+
-      '</div>'+
-      '<p class="chart-note" style="max-width:520px;margin:18px auto 14px;">Paiement à régler auprès du bureau EDB par Wero ou virement. Clique ci-dessous pour envoyer ta demande — tu reçois aussitôt les coordonnées de paiement, et le bureau active ton compte dès réception.</p>'+
-      '<button class="btn-primary edbplus-cta-btn" id="edbplus-request-btn">🚀 Je souhaite m\'abonner à EDB+</button>'+
-      '<div class="chart-note" id="edbplus-request-msg" style="margin-top:10px;"></div>'+
+            '<span class="edbplus-feature-icon">'+(EDB_PLUS_FEATURE_ICONS.news||"📰")+'</span>'+
+            '<div><div class="edbplus-feature-label">'+escapeHtml(EDB_PLUS_FEATURES.news.label)+'</div><div class="edbplus-feature-detail">'+escapeHtml(EDB_PLUS_FEATURES.news.detail)+'</div></div>'+
+          '</div>'+
+          '<div class="edbplus-feature-row">'+
+            '<span class="edbplus-feature-icon">'+(EDB_PLUS_FEATURE_ICONS.theme||"🎨")+'</span>'+
+            '<div><div class="edbplus-feature-label">'+escapeHtml(EDB_PLUS_FEATURES.theme.label)+'</div><div class="edbplus-feature-detail">'+escapeHtml(EDB_PLUS_FEATURES.theme.detail)+'</div></div>'+
+          '</div>'+
+        '</div>'+
+      '</section>'+
+      '<section class="ap-section reveal" style="padding-top:6px;">'+
+        '<div class="edbplus-price-box">'+
+          '<div class="edbplus-price-amount">25€</div>'+
+          '<div class="edbplus-price-period">par an</div>'+
+          '<div class="edbplus-price-sub">soit un peu plus de 2€ / mois</div>'+
+        '</div>'+
+        '<p class="chart-note" style="max-width:480px;margin:0 auto 16px;">Moins qu\'un café par semaine, pour soutenir l\'association et débloquer tout ça. Paiement à régler auprès du bureau EDB par Wero ou virement — clique ci-dessous pour envoyer ta demande, tu reçois aussitôt les coordonnées de paiement, et le bureau active ton compte dès réception.</p>'+
+        '<button class="btn-primary edbplus-cta-btn" id="edbplus-request-btn">🚀 Je souhaite m\'abonner à EDB+</button>'+
+        '<div class="chart-note" id="edbplus-request-msg" style="margin-top:10px;"></div>'+
+      '</section>'+
     '</div>';
   const btn = document.getElementById("edbplus-request-btn");
   if (btn) btn.addEventListener("click", openEdbPlusRequestConfirmModal);
+  if (typeof initScrollReveal==="function") initScrollReveal();
 }
 // A quick confirmation step before firing off the request — explains what
 // happens (an automatic message to the bureau + an automatic reply with the
@@ -5448,14 +5554,21 @@ function renderChallengeTeaser(){
 function renderChallengeProfileCard(){
   const body = document.getElementById("challenge-card-body");
   if (!body) return;
+  const title = document.getElementById("challenge-card-title");
   if (!isEdbPlus()){
     // No grandfathering: even a trader with an existing challenge from
     // before EDB+ shipped sees the paywall here — see renderChallengeBanner()
-    // for why the top banner also disappears for them.
+    // for why the top banner also disappears for them. The static "Challenge
+    // Prop Firm" title above is hidden so the full-bleed Apple-style paywall
+    // (edbPlusPaywallHtml()) can use the card's own hero title instead —
+    // otherwise its edge-to-edge photo section would sit awkwardly under an
+    // already-indented heading.
+    if (title) title.hidden = true;
     body.innerHTML = edbPlusPaywallHtml("challenge");
     wireEdbPlusCta("challenge");
     return;
   }
+  if (title) title.hidden = false;
   const c = state.challenge;
   if (!c){
     // FTMO-style comparison table: a left label column (icon + row name) and
@@ -6478,15 +6591,24 @@ function closeModal(){
   if (typeof teardownEdbPlusChatModal === "function") teardownEdbPlusChatModal();
 }
 // Apple-marketing-style scroll reveal — any element with class "reveal"
-// (currently just the Concours EDB+ page's hero/reward/rules sections, see
-// #concoursedbplus-unlocked) fades/slides in the first time it scrolls into
-// view, then stays visible (unobserve() after firing — no replay if the
-// trader scrolls back up, which would feel like a glitch rather than a
-// polish). Called once at boot: these elements live in static HTML that's
-// merely hidden/shown via switchView() (renderHardcoreChallenge() never
-// rebuilds this markup, only updates the progress bar/notes by id inside
-// it — see its own comment), so observing them once here is enough; they
-// keep the same DOM nodes for the life of the page.
+// (the Concours EDB+ page's hero/reward/rules sections, every EDB+ paywall
+// page via edbPlusPaywallHtml(), and the main "Devenir EDB+" pitch page via
+// renderEdbPlusProfileCard()) fades/slides in the first time it scrolls
+// into view, then stays visible (unobserve() after firing — no replay if
+// the trader scrolls back up, which would feel like a glitch rather than a
+// polish).
+//
+// Uses ONE persistent IntersectionObserver (created lazily, kept in
+// __revealObserver) rather than a fresh one per call, because unlike the
+// Concours EDB+ section — static HTML built once at boot — paywall pages
+// and the pitch page rebuild their `.reveal` elements as fresh DOM nodes
+// every time they're re-rendered (switching away from EDB+ and back,
+// re-opening a locked tab, a trader's EDB+ status flipping). Re-observing
+// an already-`.is-visible` element is harmless (IntersectionObserver.
+// observe() on a node it's already watching is a no-op), so it's safe —
+// and necessary — to call this again after any innerHTML swap that can
+// introduce new `.reveal` nodes.
+let __revealObserver = null;
 function initScrollReveal(){
   const els = document.querySelectorAll(".reveal");
   if (!els.length) return;
@@ -6494,14 +6616,16 @@ function initScrollReveal(){
     els.forEach(el=>el.classList.add("is-visible")); // no JS support — just show everything, no animation
     return;
   }
-  const io = new IntersectionObserver((entries)=>{
-    entries.forEach(entry=>{
-      if (!entry.isIntersecting) return;
-      entry.target.classList.add("is-visible");
-      io.unobserve(entry.target);
-    });
-  }, {threshold:0.15});
-  els.forEach(el=>io.observe(el));
+  if (!__revealObserver){
+    __revealObserver = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-visible");
+        __revealObserver.unobserve(entry.target);
+      });
+    }, {threshold:0.15});
+  }
+  els.forEach(el=>__revealObserver.observe(el));
 }
 
 /* ============================= BADGES ============================= */
@@ -10285,14 +10409,26 @@ function switchView(name){
     const list = document.getElementById("news-list");
     const status = document.getElementById("news-status");
     const langSeg = document.getElementById("news-lang-seg");
+    const header = document.getElementById("news-card-header");
     if (!isEdbPlus()){
       if (status) status.hidden = true;
       if (langSeg) langSeg.hidden = true;
+      // Hides the whole title/refresh header row (not just the language
+      // toggle above) so the full-bleed Apple-style paywall below can go
+      // edge-to-edge instead of sitting under an already-indented heading
+      // — same reasoning as the Challenge page's title (see
+      // renderChallengeProfileCard()). Setting .hidden wouldn't actually
+      // hide anything here: this row has its own inline style="display:
+      // flex", and an inline style always wins over the `[hidden]{display:
+      // none}` the browser applies via its default stylesheet — so the
+      // display property has to be set directly instead.
+      if (header) header.style.display = "none";
       list.innerHTML = edbPlusPaywallHtml("news");
       wireEdbPlusCta("news");
     } else {
       if (status) status.hidden = false;
       if (langSeg) langSeg.hidden = false;
+      if (header) header.style.display = "flex";
       if (list.querySelector(".edbplus-paywall")) list.innerHTML = "";
       if (!newsLoading && newsCache.intl.items.length===0 && newsCache.fr.items.length===0){
         refreshNews();
