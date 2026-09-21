@@ -1543,18 +1543,12 @@
          render for EDB+ — non-members get a sales pitch for the reward
          instead, wired up by renderHardcoreChallenge() below. -->
     <section class="view" id="view-concoursedbplus">
-      <div class="card" id="concoursedbplus-locked" hidden>
-        <div class="quiz-intro edbplus-paywall" style="text-align:center;">
-          <img src="concours-hero.jpg" alt="Setup de trading multi-écrans" style="width:100%;max-width:640px;border-radius:14px;border:1px solid var(--gold)55;box-shadow:0 12px 32px rgba(0,0,0,0.35);margin:0 auto 16px;display:block;">
-          <div class="deck-big-icon" style="background:var(--gold)22;border:1px solid var(--gold)55;">💎</div>
-          <div class="quiz-cat gold-badge">Concours EDB+</div>
-          <h2 style="margin:10px 0 4px;">Challenge 200 000 $ — une vraie Prop Firm 100 000 $ ou 400 € à la clé</h2>
-          <p style="max-width:520px;margin:0 auto 14px;">Réservé aux membres EDB+ : enchaîne les Challenges Prop Firm sur le palier 200 000 $ et décroche un vrai compte prop firm financé, en argent réel, offert par l'association. Les règles complètes (conditions à remplir, nombre de réussites requis) se débloquent avec l'abonnement.</p>
-          <div class="quiz-intro-actions">
-            <button class="btn-primary" id="edbplus-cta-concoursedbplus">Découvrir EDB+</button>
-          </div>
-        </div>
-      </div>
+      <!-- Contenu injecté par renderHardcoreChallenge() via edbPlusPaywallHtml("concoursedbplus")
+           — même système Apple-marketing (photo hero + reveal au scroll) que
+           tous les autres paywalls EDB+, plutôt qu'une carte statique à part
+           (ancienne version : un <img> local qui cassait sans le fichier à
+           côté, avec un alt text resté d'un tout autre visuel). -->
+      <div class="card" id="concoursedbplus-locked" hidden></div>
       <div class="card" id="concoursedbplus-unlocked" hidden>
         <div class="cedb-bleed">
           <section class="cedb-hero reveal" style="background-image:url('https://images.pexels.com/photos/7567440/pexels-photo-7567440.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1600');">
@@ -2136,12 +2130,15 @@ const EDB_PLUS_FEATURES = {
   // paywall/une seule clé pour les deux — l'ancienne clé "learn" séparée a
   // disparu.
   quiz:      {label:"Connaissances & Quiz",     detail:"réviser chaque sujet puis tester tes connaissances et grimper au classement des quiz", img:"quiz-hero.jpg"},
-  news:      {label:"Les actualités marché",     detail:"suivre l'actualité macro/crypto en direct depuis le terminal"},
+  news:      {label:"Les actualités marché",     detail:"suivre l'actualité macro/crypto en direct depuis le terminal", img:"https://images.pexels.com/photos/7054384/pexels-photo-7054384.jpeg?auto=compress&cs=tinysrgb&w=1600"},
   challenge: {label:"Le challenge prop firm",    detail:"trader un compte démo calqué sur une vraie évaluation prop firm en 2 étapes", img:"propfirm-hero.jpg"},
-  theme:     {label:"Le changement de thème",    detail:"personnaliser l'interface (Ember, Sage, Ink, Noir, Gold, Azure)"},
+  theme:     {label:"Le changement de thème",    detail:"personnaliser l'interface (Ember, Sage, Ink, Noir, Gold, Azure)", img:"https://images.pexels.com/photos/10275089/pexels-photo-10275089.jpeg?auto=compress&cs=tinysrgb&w=1600"},
   tradesedb: {label:"Trades EDB+",               detail:"suivre les trades partagés par le bureau et le trade swing hebdomadaire", img:"tradesedb-hero.png"},
   resources: {label:"Ressources trading",        detail:"accéder à la sélection d'outils externes recommandés par EDB", img:"resources-hero.png"},
-  concoursedbplus: {label:"Le Concours EDB+ (Challenge Hardcore)", detail:"tenter le Challenge 200 000 $ et gagner une vraie Prop Firm 100 000 $ ou 400 €"},
+  // Réutilise la même photo hero que la page débloquée (.cedb-hero, voir
+  // #concoursedbplus-unlocked) — même image pour l'état verrouillé et
+  // déverrouillé de cette page, plutôt qu'une image différente à chaque fois.
+  concoursedbplus: {label:"Le Concours EDB+ (Challenge Hardcore)", detail:"tenter le Challenge 200 000 $ et gagner une vraie Prop Firm 100 000 $ ou 400 €", img:"https://images.pexels.com/photos/7567440/pexels-photo-7567440.jpeg?auto=compress&cs=tinysrgb&w=1600"},
 };
 const EDB_PLUS_FEATURE_ICONS = {quiz:"📚", news:"📰", challenge:"🏅", theme:"🎨", tradesedb:"📈", resources:"🔗", concoursedbplus:"💎"};
 // Reusable "EDB+ requise" card — dropped into a feature's own container in
@@ -2197,6 +2194,7 @@ function edbPlusPaywallHtml(key){
       '</div>'+
       '<button class="btn-primary edbplus-cta-btn" id="edbplus-cta-'+key+'">🚀 Découvrir EDB+</button>'+
     '</section>'+
+    (f.img && f.img.indexOf("http")===0 ? '<p class="chart-note cedb-credit">Photo : Pexels (licence libre).</p>' : "")+
   '</div>';
 }
 function wireEdbPlusCta(key){
@@ -2272,8 +2270,8 @@ function renderEdbPlusProfileCard(){
   // edbPlusPaywallHtml() above): a hero, then one photo spotlight per
   // headline feature (in the order a trader would actually earn/use them —
   // Challenge, then the Concours EDB+ reward it unlocks, then Quiz, Trades
-  // EDB+, Ressources), a compact "et aussi" section for the two features
-  // without their own photo (News, Thèmes), and the price + CTA to close.
+  // EDB+, Ressources, News, Thèmes — les 7 avantages ont chacun leur photo),
+  // and the price + CTA to close.
   const SPOTLIGHTS = [
     {key:"challenge", img:"propfirm-hero.jpg",
       title:"Deviens un vrai trader, pas un joueur",
@@ -2290,6 +2288,12 @@ function renderEdbPlusProfileCard(){
     {key:"resources", img:"resources-hero.png",
       title:"Les bons outils, sans chercher",
       body:"Une sélection d'outils externes recommandés par l'EDB — order flow, calendrier économique, screeners… Le tri a déjà été fait pour toi."},
+    {key:"news", img:EDB_PLUS_FEATURES.news.img,
+      title:"L'actu qui bouge le marché, sans changer d'onglet",
+      body:"Les actualités macro et crypto en direct, en français ou à l'international, directement dans le terminal — plus besoin d'ouvrir dix onglets pendant que tu trades."},
+    {key:"theme", img:EDB_PLUS_FEATURES.theme.img,
+      title:"Ton terminal, tes couleurs",
+      body:"Six thèmes complets — Ember, Sage, Ink, Noir, Gold, Azure — pour trader dans une interface qui te ressemble, du plus sobre au plus affirmé."},
   ];
   const spotlightsHtml = SPOTLIGHTS.map(s=>
     '<section class="ap-photo reveal" style="background-image:url(\''+s.img+'\');">'+
@@ -2311,19 +2315,6 @@ function renderEdbPlusProfileCard(){
         '</div>'+
       '</section>'+
       spotlightsHtml+
-      '<section class="ap-section reveal">'+
-        '<div class="quiz-cat gold-badge" style="margin-bottom:10px;">Et aussi</div>'+
-        '<div class="edbplus-feature-grid" style="max-width:520px;margin:0 auto;">'+
-          '<div class="edbplus-feature-row">'+
-            '<span class="edbplus-feature-icon">'+(EDB_PLUS_FEATURE_ICONS.news||"📰")+'</span>'+
-            '<div><div class="edbplus-feature-label">'+escapeHtml(EDB_PLUS_FEATURES.news.label)+'</div><div class="edbplus-feature-detail">'+escapeHtml(EDB_PLUS_FEATURES.news.detail)+'</div></div>'+
-          '</div>'+
-          '<div class="edbplus-feature-row">'+
-            '<span class="edbplus-feature-icon">'+(EDB_PLUS_FEATURE_ICONS.theme||"🎨")+'</span>'+
-            '<div><div class="edbplus-feature-label">'+escapeHtml(EDB_PLUS_FEATURES.theme.label)+'</div><div class="edbplus-feature-detail">'+escapeHtml(EDB_PLUS_FEATURES.theme.detail)+'</div></div>'+
-          '</div>'+
-        '</div>'+
-      '</section>'+
       '<section class="ap-section reveal" style="padding-top:6px;">'+
         '<div class="edbplus-price-box">'+
           '<div class="edbplus-price-amount">25€</div>'+
@@ -2334,6 +2325,7 @@ function renderEdbPlusProfileCard(){
         '<button class="btn-primary edbplus-cta-btn" id="edbplus-request-btn">🚀 Je souhaite m\'abonner à EDB+</button>'+
         '<div class="chart-note" id="edbplus-request-msg" style="margin-top:10px;"></div>'+
       '</section>'+
+      '<p class="chart-note cedb-credit">Photos : Pexels (licence libre).</p>'+
     '</div>';
   const btn = document.getElementById("edbplus-request-btn");
   if (btn) btn.addEventListener("click", openEdbPlusRequestConfirmModal);
@@ -5473,7 +5465,20 @@ function renderHardcoreChallenge(){
   const locked = document.getElementById("concoursedbplus-locked");
   const unlocked = document.getElementById("concoursedbplus-unlocked");
   if (!locked || !unlocked) return; // page not in the DOM yet
-  if (!isEdbPlus()){ locked.hidden = false; unlocked.hidden = true; return; }
+  if (!isEdbPlus()){
+    locked.hidden = false; unlocked.hidden = true;
+    // renderHardcoreChallenge() piggybacks on renderChallengeBanner(), which
+    // runs on every price tick / renderAll() — building the paywall just
+    // once (guarded by this dataset flag) instead of on every single call
+    // avoids constantly tearing down/rebuilding the DOM and re-triggering
+    // the scroll-reveal animation while the trader is just looking at it.
+    if (locked.dataset.built !== "1"){
+      locked.innerHTML = edbPlusPaywallHtml("concoursedbplus");
+      wireEdbPlusCta("concoursedbplus");
+      locked.dataset.built = "1";
+    }
+    return;
+  }
   locked.hidden = true; unlocked.hidden = false;
   const n = Math.min(state.hardcore200kPasses||0, HARDCORE_200K_TARGET);
   const lbl = document.getElementById("hardcore-progress-lbl");
@@ -9551,20 +9556,64 @@ const KNOWLEDGE = [
  {
   id:"order_flow",
   title:"Order Flow",
-  intro:`La lecture avancée du flux d'ordres en temps réel : les outils (footprint, DOM, tick rule), les signatures à repérer (absorption, épuisement, déséquilibres) et les pièges volontaires (sweep, spoofing).`,
+  intro:`La lecture avancée du flux d'ordres en temps réel : les outils (footprint, DOM, volume profile, TPO, tick rule), les signatures à repérer (absorption, épuisement, déséquilibres empilés), la data dérivés (open interest, funding rate, cartes de liquidation) et les pièges volontaires (sweep, spoofing).`,
   sections:[
-   {h:"Les outils de lecture",
+   {h:"Le carnet d'ordres (DOM) et les ordres cachés",
     p:[
-     `Un <strong>iceberg order</strong> masque la taille réelle d'un ordre pour limiter son impact visible sur le marché — seule une petite tranche est affichée à la fois dans le carnet.`,
-     `Un <strong>footprint chart</strong> détaille, prix par prix, la répartition du volume entre acheteurs et vendeurs agressifs à l'intérieur même de chaque bougie.`,
-     `Le <strong>DOM (Depth of Market)</strong> affiche la profondeur du carnet : combien de liquidité attend à chaque prix, côté achat et côté vente.`,
+     `Le <strong>DOM (Depth of Market)</strong> affiche la profondeur du carnet : combien de liquidité attend à chaque prix, côté achat (bids) et côté vente (asks) — c'est la photo instantanée du rapport de force entre acheteurs et vendeurs à un instant T (voir le diagramme en haut de cette fiche).`,
+     `Un <strong>iceberg order</strong> masque la taille réelle d'un ordre pour limiter son impact visible sur le marché — seule une petite tranche est affichée à la fois dans le carnet, le reste se recharge automatiquement à mesure qu'elle s'exécute.`,
      `La <strong>tick rule</strong> classe historiquement chaque transaction comme initiée à l'achat ou à la vente selon le sens du dernier mouvement de prix (utile quand on n'a pas directement l'info bid/ask de l'exécution).`,
     ]},
-   {h:"Signatures de déséquilibre",
+   {h:"Le footprint chart", svg:"footprint",
     p:[
-     `Une <strong>divergence entre le prix et le delta cumulé</strong> (cumulative volume delta) signale que le flux d'ordres réel ne soutient plus le mouvement de prix visible — méfiance sur la suite.`,
-     `Une <strong>stacked imbalance</strong> (déséquilibre empilé sur plusieurs niveaux de prix consécutifs) trahit une agressivité directionnelle soutenue sur la zone, pas un simple accident isolé.`,
-     `La différence entre <strong>absorption</strong> et <strong>épuisement (exhaustion)</strong> : ce sont deux signatures opposées — l'absorption freine le prix malgré un fort volume ; l'épuisement laisse le prix avancer alors que le volume, lui, faiblit.`,
+     `Un <strong>footprint chart</strong> détaille, prix par prix, la répartition du volume entre acheteurs et vendeurs agressifs à l'intérieur même de chaque bougie — contrairement à une bougie classique qui ne montre que l'open/high/low/close, le footprint ouvre la bougie et montre ce qui s'est passé niveau par niveau.`,
+     `Les variantes les plus courantes sont le mode <strong>Volume</strong> (volume total par niveau), le mode <strong>Delta</strong> (volume acheteur − volume vendeur par niveau) et le mode <strong>Bid x Ask</strong> (les deux chiffres côte à côte, comme sur le diagramme ci-dessus).`,
+     `Un <strong>déséquilibre (imbalance)</strong> se lit quand un côté dépasse largement l'autre à un niveau donné — un seuil courant est <strong>300%</strong> (un côté fait au moins 3 fois l'autre) ; ces niveaux surlignés servent de repères de support/résistance intrabar.`,
+    ]},
+   {h:"Le volume profile", svg:"volume_profile",
+    p:[
+     `Le <strong>volume profile</strong> agrège, sur une session ou une période donnée (pas juste une bougie), le volume total échangé à chaque prix — le résultat est un histogramme horizontal accolé au graphique, une barre par niveau de prix.`,
+     `Le <strong>POC (Point of Control)</strong> est le prix où le plus de volume a été échangé sur la période — souvent le niveau le plus « juste » aux yeux du marché, donc une zone de support/résistance particulièrement suivie.`,
+     `La <strong>Value Area</strong> (VAH en haut, VAL en bas) délimite la zone où environ 68% du volume total s'est échangé, centrée sur le POC — sortir de cette zone signale généralement un déséquilibre net entre acheteurs et vendeurs.`,
+     `Un <strong>HVN (High Volume Node)</strong> — une zone où beaucoup de volume s'est échangé — a tendance à faire hésiter/consolider le prix ; un <strong>LVN (Low Volume Node)</strong> — peu de volume échangé — est souvent traversé rapidement, comme si le prix « sautait » par-dessus.`,
+    ]},
+   {h:"Le TPO / Market Profile", svg:"tpo",
+    p:[
+     `Le <strong>TPO (Time Price Opportunity)</strong> découpe la séance en périodes fixes (traditionnellement 30 minutes, une lettre par période : A, B, C…) et compte, pour chaque prix, le nombre de périodes différentes où ce prix a été traité — c'est une mesure du <strong>temps</strong> passé à chaque niveau, pas du volume.`,
+     `Empilées les unes sur les autres, ces lettres dessinent un profil dont la forme ressemble souvent à une cloche — d'où le nom <strong>Market Profile</strong>. Un profil équilibré (bell shape nette, une seule zone dense) suggère une séance en range ; un profil allongé et peu dense (<strong>« trend day »</strong>) suggère une séance très directionnelle, sans vraie zone de consolidation.`,
+     `Différence clé avec le volume profile : deux niveaux visités par le même nombre de périodes (même largeur en TPO) peuvent avoir des volumes totalement différents — le TPO répond à « combien de temps le marché a-t-il négocié ici ? », le volume profile répond à « combien de volume s'y est échangé ? ».`,
+    ]},
+   {h:"Cumulative Volume Delta (CVD)", svg:"cvd",
+    p:[
+     `Le <strong>delta</strong> d'une période compare l'agressivité acheteuse (exécutions au ask) à l'agressivité vendeuse (exécutions au bid) ; le <strong>CVD</strong> en fait la somme cumulée dans le temps — une courbe qui monte quand les acheteurs dominent l'agressivité, qui descend quand ce sont les vendeurs.`,
+     `Une <strong>divergence entre le prix et le CVD</strong> (le prix fait un nouveau plus haut mais le CVD, lui, ne le fait pas) signale que le flux d'ordres réel ne soutient plus le mouvement de prix visible — méfiance sur la suite du mouvement.`,
+    ]},
+   {h:"Absorption et épuisement", svg:"absorption_exhaustion",
+    p:[
+     `L'<strong>absorption</strong> se produit quand un acteur important pose (ou défend) une grosse liquidité à un niveau de prix précis, empêchant le prix d'avancer malgré un volume agressif important en face — le prix « bute » sur ce mur au lieu de le traverser.`,
+     `L'<strong>épuisement (exhaustion)</strong> est la signature inverse : le prix continue nominalement dans un sens, mais le volume et l'agressivité faiblissent progressivement — signe que les acheteurs (ou vendeurs) marginaux manquent à l'appel, souvent annonciateur d'un essoufflement du mouvement.`,
+    ]},
+   {h:"Déséquilibres empilés (stacked imbalance)", svg:"stacked_imbalance",
+    p:[
+     `Une <strong>stacked imbalance</strong> (déséquilibre empilé) apparaît quand plusieurs niveaux de prix consécutifs affichent chacun un déséquilibre dans le même sens (par exemple 3 niveaux d'affilée où l'ask fait au moins 3 fois le bid) — ça trahit une agressivité directionnelle soutenue sur toute une zone, pas un simple accident isolé sur un seul niveau.`,
+     `Plus le nombre de niveaux empilés est élevé, plus le signal est considéré fiable par les traders order flow — un empilement de 5-6 niveaux ou plus est généralement pris bien plus au sérieux qu'un empilement de 2 niveaux.`,
+    ]},
+   {h:"Open Interest", svg:"open_interest",
+    p:[
+     `L'<strong>open interest (OI)</strong> compte le nombre total de contrats dérivés (futures/perpétuels) encore ouverts à un instant donné — contrairement au volume (qui compte les transactions), l'OI ne bouge que quand une position est réellement ouverte ou fermée.`,
+     `Croiser OI et prix donne 4 lectures classiques : <strong>OI ↑ + Prix ↑</strong> = de nouveaux longs entrent (conviction haussière) ; <strong>OI ↑ + Prix ↓</strong> = de nouveaux shorts entrent (conviction baissière) ; <strong>OI ↓ + Prix ↑</strong> = des shorts se rachètent (short covering, pas forcément de la conviction haussière neuve) ; <strong>OI ↓ + Prix ↓</strong> = des longs se font liquider ou ferment leur position (capitulation).`,
+    ]},
+   {h:"Funding rate", svg:"funding_rate",
+    p:[
+     `Le <strong>funding rate</strong> est spécifique aux contrats <strong>perpétuels</strong> (sans échéance) : à intervalles réguliers (souvent toutes les 8h), il fait payer un camp par l'autre — longs vs shorts — pour ramener le prix du perpétuel vers le prix spot dont il n'a, sinon, aucune raison mécanique de se rapprocher.`,
+     `Un funding <strong>positif</strong> veut dire que les <strong>longs paient les shorts</strong> — signe que le marché est net acheteur/surchargé du côté long ; un funding <strong>négatif</strong> veut dire l'inverse, les <strong>shorts paient les longs</strong>.`,
+     `Un funding <strong>extrême</strong> (très positif ou très négatif) signale un positionnement très déséquilibré et « surchargé » d'un côté — un terrain propice à un <strong>squeeze</strong> si le prix part contre la foule, forçant une cascade de liquidations dans l'autre sens.`,
+    ]},
+   {h:"Cartes de liquidation (liquidation heatmaps)", svg:"liquidation_heatmap",
+    p:[
+     `Une <strong>liquidation heatmap</strong> (carte de chaleur des liquidations) estime, à partir du positionnement et du levier observables sur le marché, les zones de prix où se concentrent le plus d'ordres de liquidation forcée — plus la zone est « chaude », plus le nombre estimé de positions à effet de levier qui sauteraient si le prix l'atteint est élevé.`,
+     `Le prix est souvent « attiré » par ces zones : chaque liquidation forcée déclenche elle-même un ordre au marché dans le sens du mouvement, ce qui peut créer un effet cascade (mèche rapide) une fois la zone atteinte — d'où l'intérêt de repérer ces amas avant qu'ils ne soient touchés.`,
+     `À prendre comme une <strong>estimation statistique</strong>, pas une certitude : ces cartes (visibles par exemple sur Coinglass) reconstruisent le levier probable du marché à partir de données publiques, elles ne voient pas la position exacte de chaque trader.`,
     ]},
    {h:"Pièges et manipulation",
     p:[
@@ -9814,6 +9863,133 @@ function learnDiagram(id){
       '<text x="60" y="70" fill="#f0546a" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="middle">prime perdue</text>'+
       '<text x="330" y="28" fill="#31c882" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="middle">gain illimité</text>'+
       '</svg></div>';
+  }
+  return "";
+}
+// Per-section illustrations for the Order Flow fiche (see the `svg` key on
+// individual `sections` entries in QUIZ_DECKS/order_flow above) — same
+// hand-drawn SVG approach and fixed (theme-independent) color palette as
+// learnDiagram() above, just one diagram per concept instead of one per
+// whole deck, since this fiche now covers a lot more distinct tools.
+function ofSectionDiagram(key){
+  if (key==="footprint"){
+    var rows=[[14,30],[26,18],[18,42],[36,20],[16,28]]; // [bid, ask] par ligne de prix
+    var y0=28, rh=20, gap=4, scale=3, x0=200;
+    var out='<div class="learn-diagram"><svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">'+
+      '<line x1="'+x0+'" y1="8" x2="'+x0+'" y2="142" stroke="#57667a" stroke-width="1"/>'+
+      '<text x="120" y="14" fill="#f0546a" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="middle">BID</text>'+
+      '<text x="280" y="14" fill="#31c882" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="middle">ASK</text>';
+    rows.forEach(function(r,i){
+      var y=y0+i*(rh+gap), bid=r[0], ask=r[1], stacked=ask>=bid*2;
+      out += '<rect x="'+(x0-bid*scale)+'" y="'+y+'" width="'+(bid*scale)+'" height="'+rh+'" fill="#f0546a" opacity="0.85"/>';
+      out += '<rect x="'+x0+'" y="'+y+'" width="'+(ask*scale)+'" height="'+rh+'" fill="#31c882" opacity="0.85"/>';
+      if (stacked) out += '<rect x="'+x0+'" y="'+y+'" width="'+(ask*scale)+'" height="'+rh+'" fill="none" stroke="#d7b563" stroke-width="2"/>';
+    });
+    out += '<text x="330" y="'+(y0+2*(rh+gap)+12)+'" fill="#d7b563" font-size="9" font-family="IBM Plex Mono, monospace">imbalance</text></svg></div>';
+    return out;
+  }
+  if (key==="volume_profile"){
+    var vals=[15,35,55,95,120,80,45,20], y0=12, rh=13, gap=3, scale=2.4, x0=50, pocIdx=4;
+    var out='<div class="learn-diagram"><svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">'+
+      '<line x1="'+x0+'" y1="8" x2="'+x0+'" y2="142" stroke="#57667a" stroke-width="1"/>'+
+      '<line x1="'+(x0-8)+'" y1="'+(y0+(pocIdx-1)*(rh+gap))+'" x2="'+(x0-8)+'" y2="'+(y0+(pocIdx+2)*(rh+gap))+'" stroke="#d7b563" stroke-width="2"/>';
+    vals.forEach(function(v,i){
+      var y=y0+i*(rh+gap), isPoc=i===pocIdx;
+      out += '<rect x="'+x0+'" y="'+y+'" width="'+(v*scale)+'" height="'+rh+'" fill="'+(isPoc?"#d7b563":"#37c7db")+'" opacity="'+(isPoc?0.95:0.55)+'" rx="1"/>';
+    });
+    out += '<text x="'+(x0-8)+'" y="'+(y0+(pocIdx+2)*(rh+gap)+12)+'" fill="#d7b563" font-size="9" font-family="IBM Plex Mono, monospace" text-anchor="middle">VA</text>'+
+      '<text x="'+(x0+vals[pocIdx]*scale+10)+'" y="'+(y0+pocIdx*(rh+gap)+rh-3)+'" fill="#d7b563" font-size="10" font-family="IBM Plex Mono, monospace">POC</text>'+
+      '</svg></div>';
+    return out;
+  }
+  if (key==="tpo"){
+    var counts=[2,4,7,10,8,5,3,1], letters="ABCDEFGHIJK", y0=10, rh=12, gap=2, x0=40;
+    var out='<div class="learn-diagram"><svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">'+
+      '<line x1="'+x0+'" y1="6" x2="'+x0+'" y2="130" stroke="#57667a" stroke-width="1"/>';
+    counts.forEach(function(n,i){
+      var y=y0+i*(rh+gap)+rh-2, row="";
+      for (var j=0;j<n;j++) row += letters[j%letters.length];
+      out += '<text x="'+(x0+6)+'" y="'+y+'" fill="#37c7db" font-size="11" font-family="IBM Plex Mono, monospace" letter-spacing="1">'+row+'</text>';
+    });
+    out += '<text x="200" y="144" fill="#93a0b3" font-size="9" font-family="IBM Plex Mono, monospace" text-anchor="middle">Chaque lettre = une période de 30 min passée à ce prix</text></svg></div>';
+    return out;
+  }
+  if (key==="cvd"){
+    return '<div class="learn-diagram"><svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">'+
+      '<text x="10" y="14" fill="#93a0b3" font-size="10" font-family="IBM Plex Mono, monospace">PRIX</text>'+
+      '<path d="M 20 70 L 90 55 L 160 40 L 230 28 L 300 18 L 370 10" fill="none" stroke="#93a0b3" stroke-width="2"/>'+
+      '<text x="10" y="92" fill="#37c7db" font-size="10" font-family="IBM Plex Mono, monospace">CVD</text>'+
+      '<path d="M 20 130 L 90 115 L 160 100 L 230 100 L 300 108 L 370 118" fill="none" stroke="#37c7db" stroke-width="2"/>'+
+      '<line x1="230" y1="28" x2="230" y2="100" stroke="#d7b563" stroke-width="1" stroke-dasharray="3 3"/>'+
+      '<text x="300" y="70" fill="#d7b563" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="middle">DIVERGENCE</text>'+
+      '</svg></div>';
+  }
+  if (key==="absorption_exhaustion"){
+    var left=[30,60,85,90,70], right=[80,55,35,20,10];
+    return '<div class="learn-diagram"><svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">'+
+      '<line x1="200" y1="10" x2="200" y2="140" stroke="#57667a" stroke-width="1" stroke-dasharray="3 3"/>'+
+      '<text x="100" y="16" fill="#31c882" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="middle">ABSORPTION</text>'+
+      left.map(function(h,i){ var x=20+i*32; return '<rect x="'+x+'" y="'+(120-h)+'" width="24" height="'+h+'" fill="#31c882" opacity="0.55"/>'; }).join("")+
+      '<line x1="20" y1="35" x2="180" y2="35" stroke="#93a0b3" stroke-width="2"/>'+
+      '<text x="300" y="16" fill="#f0546a" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="middle">ÉPUISEMENT</text>'+
+      right.map(function(h,i){ var x=220+i*32; return '<rect x="'+x+'" y="'+(120-h)+'" width="24" height="'+h+'" fill="#f0546a" opacity="0.55"/>'; }).join("")+
+      '<path d="M 220 60 L 380 15" fill="none" stroke="#93a0b3" stroke-width="2"/>'+
+      '</svg></div>';
+  }
+  if (key==="stacked_imbalance"){
+    var rows=[[20,22],[24,58],[20,52],[18,60],[26,24]], y0=28, rh=20, gap=4, scale=2.6, x0=200;
+    var out='<div class="learn-diagram"><svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">'+
+      '<line x1="'+x0+'" y1="8" x2="'+x0+'" y2="142" stroke="#57667a" stroke-width="1"/>';
+    rows.forEach(function(r,i){
+      var y=y0+i*(rh+gap), bid=r[0], ask=r[1], stacked=i>=1 && i<=3;
+      out += '<rect x="'+(x0-bid*scale)+'" y="'+y+'" width="'+(bid*scale)+'" height="'+rh+'" fill="#f0546a" opacity="0.85"/>';
+      out += '<rect x="'+x0+'" y="'+y+'" width="'+(ask*scale)+'" height="'+rh+'" fill="#31c882" opacity="0.85"/>';
+      if (stacked) out += '<rect x="'+x0+'" y="'+y+'" width="'+(ask*scale)+'" height="'+rh+'" fill="none" stroke="#d7b563" stroke-width="2"/>';
+    });
+    out += '<text x="330" y="'+(y0+2*(rh+gap)+10)+'" fill="#d7b563" font-size="9" font-family="IBM Plex Mono, monospace">3 niveaux empilés</text></svg></div>';
+    return out;
+  }
+  if (key==="open_interest"){
+    return '<div class="learn-diagram"><svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">'+
+      '<text x="10" y="20" fill="#93a0b3" font-size="10" font-family="IBM Plex Mono, monospace">PRIX</text>'+
+      '<path d="M 30 90 L 100 75 L 170 68 L 240 50 L 310 35 L 380 20" fill="none" stroke="#93a0b3" stroke-width="2"/>'+
+      '<text x="10" y="140" fill="#37c7db" font-size="10" font-family="IBM Plex Mono, monospace">OPEN INTEREST</text>'+
+      '<path d="M 30 130 L 100 122 L 170 112 L 240 98 L 310 82 L 380 68" fill="none" stroke="#37c7db" stroke-width="2"/>'+
+      '<text x="200" y="85" fill="#31c882" font-size="9" font-family="IBM Plex Mono, monospace" text-anchor="middle">OI ↑ + Prix ↑ → nouveaux longs (conviction)</text>'+
+      '</svg></div>';
+  }
+  if (key==="funding_rate"){
+    return '<div class="learn-diagram"><svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">'+
+      '<defs><linearGradient id="fundingGrad" x1="0" y1="0" x2="1" y2="0">'+
+        '<stop offset="0%" stop-color="#37c7db"/><stop offset="100%" stop-color="#d7b563"/>'+
+      '</linearGradient></defs>'+
+      '<rect x="30" y="65" width="340" height="18" rx="9" fill="url(#fundingGrad)" opacity="0.85"/>'+
+      '<line x1="270" y1="52" x2="270" y2="96" stroke="#f0546a" stroke-width="3"/>'+
+      '<text x="30" y="48" fill="#37c7db" font-size="10" font-family="IBM Plex Mono, monospace">NÉGATIF</text>'+
+      '<text x="30" y="112" fill="#93a0b3" font-size="9" font-family="IBM Plex Mono, monospace">shorts paient longs</text>'+
+      '<text x="370" y="48" fill="#d7b563" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="end">POSITIF</text>'+
+      '<text x="370" y="112" fill="#93a0b3" font-size="9" font-family="IBM Plex Mono, monospace" text-anchor="end">longs paient shorts</text>'+
+      '</svg></div>';
+  }
+  if (key==="liquidation_heatmap"){
+    var intensities=[
+      [0.1,0.1,0.15,0.1,0.2,0.15,0.1,0.1,0.15,0.1,0.1,0.15,0.1,0.1],
+      [0.15,0.2,0.25,0.2,0.3,0.35,0.3,0.25,0.3,0.35,0.3,0.25,0.2,0.15],
+      [0.3,0.4,0.55,0.7,0.85,0.9,0.85,0.7,0.6,0.55,0.4,0.35,0.3,0.25],
+      [0.2,0.25,0.3,0.35,0.3,0.25,0.3,0.35,0.3,0.25,0.2,0.2,0.15,0.1],
+      [0.1,0.15,0.1,0.15,0.1,0.15,0.1,0.15,0.1,0.1,0.1,0.1,0.05,0.05],
+      [0.05,0.05,0.1,0.05,0.1,0.05,0.1,0.05,0.05,0.05,0.05,0.05,0.05,0.05],
+    ];
+    var cw=24, ch=20, x0=20, y0=10;
+    var out='<div class="learn-diagram"><svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">';
+    intensities.forEach(function(row,ri){
+      row.forEach(function(v,ci){
+        out += '<rect x="'+(x0+ci*cw)+'" y="'+(y0+ri*ch)+'" width="'+(cw-1)+'" height="'+(ch-1)+'" fill="#f0546a" opacity="'+v+'"/>';
+      });
+    });
+    out += '<path d="M 20 100 Q 200 90 300 40" fill="none" stroke="#93a0b3" stroke-width="2" stroke-dasharray="4 3"/>'+
+      '<text x="290" y="35" fill="#93a0b3" font-size="9" font-family="IBM Plex Mono, monospace">prix attiré</text></svg></div>';
+    return out;
   }
   return "";
 }
@@ -10067,6 +10243,7 @@ function renderLearnDoc(k){
       k.sections.map(s=>
         '<div class="learn-section">'+
           '<h3>'+escapeHtml(s.h)+'</h3>'+
+          (s.svg && typeof ofSectionDiagram==="function" ? ofSectionDiagram(s.svg) : '')+
           s.p.map(par=>'<p>'+par+'</p>').join("")+
         '</div>'
       ).join("")+
@@ -10469,12 +10646,6 @@ function initEvents(){
 
   const ticketHelpBtn = document.getElementById("ticket-help-btn");
   if (ticketHelpBtn) ticketHelpBtn.addEventListener("click", openExecutionHelpModal);
-
-  // #concoursedbplus-locked is static HTML (unlike the other EDB+ paywalls,
-  // which get their CTA re-wired every render because their innerHTML is
-  // rebuilt from scratch) — one-time wiring here is enough, the button never
-  // gets replaced.
-  wireEdbPlusCta("concoursedbplus");
 
   function setLbTab(tab){
     ["normal","week","prop"].forEach(t=>{
