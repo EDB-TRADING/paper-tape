@@ -1179,14 +1179,11 @@
       <div class="field-row"><label>Mot de passe</label><input type="password" id="gate-password-input" class="tpsl-input" placeholder="••••••••" autocomplete="current-password"></div>
       <div class="chart-note" id="gate-msg" style="margin:8px 0;min-height:14px;"></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn-secondary" id="gate-signup-btn" style="flex:1;">Créer un compte</button>
         <button class="btn-primary" id="gate-password-btn" style="flex:1;">Se connecter</button>
       </div>
       <div style="text-align:right;margin-top:6px;">
         <button type="button" id="gate-forgot-btn" style="background:none;border:none;color:var(--text-dim);text-decoration:underline;cursor:pointer;font-size:11px;padding:0;font-family:var(--sans);">Mot de passe oublié ?</button>
-      </div>
-      <div class="chart-note" style="text-align:center;margin:14px 0;font-size:11px;color:var(--text-faint);">— ou, sans mot de passe —</div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn-secondary" id="gate-send-link-btn" style="flex:1;">Recevoir un lien de connexion</button>
       </div>
     </div>
   </div>
@@ -3099,70 +3096,55 @@ function subscribeSuperflashLeaderboard(){
   }catch(e){}
 }
 
-/* ============================= AUTH (mandatory, passwordless email link) ============================= */
+/* ============================= AUTH (mandatory, email + password + Google) ============================= */
 // Login is required before anything else loads: on arrival the full-screen
 // #auth-gate covers the app and nothing (prices aside) is usable until
 // Firebase Auth resolves a signed-in user. The trader doc is always keyed
 // by the Firebase Auth uid — there is no more anonymous per-browser account.
 //
-// No password anywhere anymore: a trader types their email, gets a
-// sign-in link by email (Firebase's built-in "Email link (passwordless
-// sign-in)" — no custom backend, no email service to configure, Firebase
-// sends it), and clicking that link finishes the login on whichever
-// browser opens it — same one that requested it, or a different one
-// (see completeEmailLinkSignInIfPresent() below for that fallback).
-// EMAIL_FOR_SIGNIN_KEY only smooths the common case (same browser): if the
-// link happens to be opened somewhere that key isn't present, the trader
-// is asked to re-type their email to confirm before completing the login,
-// which is the standard Firebase Email Link pattern.
+// Two ways in: classic email + password (two distinct buttons — "Créer un
+// compte" and "Se connecter", each calling the matching Firebase method
+// directly rather than silently guessing which one the trader meant), and
+// "Continuer avec Google". The passwordless "magic link" method that used
+// to sit alongside these was removed (per the trader who runs the app) —
+// simpler gate, one less thing to explain. Firebase still keys plain
+// password sign-in under the same "password" provider by email address
+// that the old email-link method used, so an account created back when
+// the link existed logs in fine with "Mot de passe oublié ?" (see
+// sendPasswordReset() below) to set a password on it for the first time —
+// no data migration, no lost account.
 //
-// This used to be classic email/password (signInWithEmailAndPassword /
-// createUserWithEmailAndPassword) — replaced because, per the trader who
-// asked for this, the email address wasn't actually verified by anything:
-// any string with an "@" plus any 6-character password worked, so it
-// wasn't a real proof that the account belongs to that inbox. A clicked
-// link IS that proof. Existing accounts aren't affected: Firebase keys
-// both the old password sign-in and this email-link sign-in under the
-// same "password" provider by email address, so logging in with the link
-// using the SAME email a trader already used lands back on their exact
-// same uid/account — no data migration needed.
-//
-// One-time setup outside the code, see SERVER_SETUP.md: turn on "Email
-// link (passwordless sign-in)" under Authentication → Sign-in method →
-// Email/Password in the Firebase console, and make sure the site's real
-// domain is listed under Authentication → Settings → Authorized domains
-// (required specifically for email-link continuation, unlike plain
-// email/password).
+// One-time setup outside the code, see SERVER_SETUP.md: turn on
+// **Email/Password** under Authentication → Sign-in method in the Firebase
+// console, and enable the **Google** provider for the Google button.
 let authUser = null;
-const EMAIL_FOR_SIGNIN_KEY = "paperTapeEmailForSignIn";
 function authErrorMsg(e){
   const code = e && e.code || "";
   if (code==="auth/invalid-email") return "Adresse email invalide.";
-  if (code==="auth/invalid-action-code") return "Ce lien de connexion a déjà été utilisé, ou n'est plus valide — redemandes-en un.";
-  if (code==="auth/expired-action-code") return "Ce lien de connexion a expiré — redemandes-en un.";
   if (code==="auth/user-disabled") return "Ce compte a été désactivé.";
-  if (code==="auth/too-many-requests") return "Trop de tentatives — patiente quelques minutes avant de redemander un lien.";
-  if (code==="auth/operation-not-allowed") return "La connexion par email n'est pas encore activée côté serveur (Firebase → Authentication → Sign-in method → Email link).";
+  if (code==="auth/too-many-requests") return "Trop de tentatives — patiente quelques minutes avant de réessayer.";
+  if (code==="auth/operation-not-allowed") return "La connexion par email n'est pas encore activée côté serveur (Firebase → Authentication → Sign-in method → Email/Password).";
   if (code==="auth/network-request-failed") return "Connexion réseau impossible pour le moment — réessaie.";
   if (code==="auth/unauthorized-continue-uri" || code==="auth/invalid-continue-uri" || code==="auth/unauthorized-domain") return "Ce domaine n'est pas autorisé côté serveur (Firebase → Authentication → Settings → Authorized domains).";
   if (code==="auth/account-exists-with-different-credential"){
     const email = e && e.email;
-    return "Un compte existe déjà"+(email?" pour "+email:"")+" avec la connexion par lien email — connecte-toi avec cette méthode-là (pas Google) pour retrouver ce compte.";
+    return "Un compte existe déjà"+(email?" pour "+email:"")+" avec la connexion par email/mot de passe — connecte-toi avec cette méthode-là (pas Google) pour retrouver ce compte.";
   }
   if (code==="auth/popup-blocked") return "Le popup Google a été bloqué par le navigateur — nouvelle tentative via redirection…";
   if (code==="auth/popup-closed-by-user" || code==="auth/cancelled-popup-request") return ""; // the trader just closed it themselves — not worth an error message
-  // Password sign-in (signInWithPassword()/sendPasswordReset() below).
-  // auth/wrong-password and auth/invalid-credential are handled together
-  // deliberately — newer Firebase SDKs consolidate "wrong password" and "no
-  // password set on this account yet" (e.g. an existing magic-link/Google
-  // account) into the same invalid-credential code, on purpose, so a wrong
-  // guess can't be used to tell which emails are registered. Either way,
-  // "Mot de passe oublié" is the fix.
-  if (code==="auth/wrong-password" || code==="auth/invalid-credential") return "Email ou mot de passe incorrect — si tu t'es déjà inscrit via lien magique ou Google, utilise \"Mot de passe oublié ?\" pour définir un mot de passe sur ce compte.";
+  // Password sign-in (logInWithPassword()/createAccountWithPassword()/
+  // sendPasswordReset() below). auth/wrong-password and auth/invalid-
+  // credential are handled together deliberately — newer Firebase SDKs
+  // consolidate "wrong password" and "no password set on this account yet"
+  // (e.g. an account created back when the magic-link method existed, or
+  // via Google) into the same invalid-credential code, on purpose, so a
+  // wrong guess can't be used to tell which emails are registered. Either
+  // way, "Mot de passe oublié" is the fix.
+  if (code==="auth/wrong-password" || code==="auth/invalid-credential") return "Email ou mot de passe incorrect — si ce compte a été créé via Google (ou via l'ancien lien magique), utilise \"Mot de passe oublié ?\" pour définir un mot de passe dessus.";
   if (code==="auth/weak-password") return "Mot de passe trop court — 6 caractères minimum.";
   if (code==="auth/missing-password") return "Entre un mot de passe.";
-  if (code==="auth/email-already-in-use") return "Un compte existe déjà avec cet email — réessaie de te connecter, ou utilise \"Mot de passe oublié ?\" si tu ne connais pas le mot de passe.";
-  if (code==="auth/user-not-found") return "Aucun compte pour cet email — vérifie l'adresse, ou connecte-toi normalement pour en créer un.";
+  if (code==="auth/email-already-in-use") return "Un compte existe déjà avec cet email — utilise plutôt \"Se connecter\", ou \"Mot de passe oublié ?\" si tu ne connais pas le mot de passe.";
+  if (code==="auth/user-not-found") return "Aucun compte pour cet email — utilise \"Créer un compte\" pour en ouvrir un.";
   return "Erreur : "+((e&&e.message)||e);
 }
 function showAuthGate(){
@@ -3182,48 +3164,9 @@ function hideAuthGate(){
   const gate = document.getElementById("auth-gate");
   if (gate) gate.hidden = true;
 }
-// The link Firebase mails out points back at this exact same URL (see
-// sendMagicLink() below) with its own query params appended — this is
-// what tells signInWithEmailLink() the link is genuine and unexpired.
-function emailLinkActionCodeSettings(){
-  return { url: window.location.origin + window.location.pathname, handleCodeInApp: true };
-}
-// Runs once at boot, right after the auth-state listener is attached
-// (see initAuth()). If the current URL IS a Firebase sign-in link (i.e.
-// this page just got reopened from the email), completes the sign-in —
-// which then flows into the normal onAuthStateChanged handler exactly
-// like any other login. Cleans the link's query params off the URL
-// afterwards either way, so refreshing the page never replays an
-// already-used (and by then invalid) link.
-async function completeEmailLinkSignInIfPresent(){
-  if (typeof firebase.auth !== "function") return;
-  let isLink = false;
-  try{ isLink = firebase.auth().isSignInWithEmailLink(window.location.href); }catch(e){ isLink = false; }
-  if (!isLink) return;
-  const msg = document.getElementById("gate-msg");
-  try{
-    let email = null;
-    try{ email = localStorage.getItem(EMAIL_FOR_SIGNIN_KEY); }catch(e){}
-    if (!email){
-      // Opened in a different browser/device than the one that requested
-      // the link (e.g. clicked from a phone's mail app) — the standard
-      // Firebase Email Link fallback is to ask for the email again, purely
-      // to confirm it matches, not as a password substitute.
-      email = window.prompt("Confirme l'adresse email à laquelle le lien de connexion a été envoyé :");
-    }
-    if (!email) return;
-    if (msg){ msg.style.color = "var(--text-dim)"; msg.textContent = "Connexion en cours…"; }
-    await firebase.auth().signInWithEmailLink(email, window.location.href);
-    try{ localStorage.removeItem(EMAIL_FOR_SIGNIN_KEY); }catch(e){}
-  }catch(e){
-    if (msg){ msg.style.color = "var(--warn)"; msg.textContent = authErrorMsg(e); }
-  }finally{
-    try{ window.history.replaceState({}, document.title, window.location.pathname); }catch(e){}
-  }
-}
-// "Continuer avec Google" — the other login option alongside the email
-// link, wired to the #gate-google-btn click in initGateUI(). Popup is the
-// normal path (immediate, no reload); a handful of environments block
+// "Continuer avec Google" — the other login option alongside email +
+// password, wired to the #gate-google-btn click in initGateUI(). Popup is
+// the normal path (immediate, no reload); a handful of environments block
 // popups outright (some in-app browsers/webviews, strict popup-blocker
 // settings) — those fall back to a full-page redirect instead, whose
 // result is picked up by checkGoogleRedirectResult() below once the page
@@ -3231,16 +3174,16 @@ async function completeEmailLinkSignInIfPresent(){
 // onAuthStateChanged handler like any other login method.
 //
 // NOT handled: automatically linking a Google sign-in to an existing
-// email-link account that shares the same address. Firebase treats
-// "google.com" and "password" (which covers the email-link method too) as
-// different providers, so if a trader already has an account via the
-// email link and then tries Google with that same address, Firebase
-// refuses with auth/account-exists-with-different-credential rather than
-// silently merging — see authErrorMsg() for the message this shows. Not
-// building a linking flow for that (sign in via the original method, then
-// call linkWithCredential() with the pending Google credential) keeps this
-// addition small; it can be added later if it turns out to matter in
-// practice (a trader hitting it just needs to use their original method).
+// password account that shares the same address. Firebase treats
+// "google.com" and "password" as different providers, so if a trader
+// already has a password account and then tries Google with that same
+// address, Firebase refuses with auth/account-exists-with-different-
+// credential rather than silently merging — see authErrorMsg() for the
+// message this shows. Not building a linking flow for that (sign in via
+// the original method, then call linkWithCredential() with the pending
+// Google credential) keeps this addition small; it can be added later if
+// it turns out to matter in practice (a trader hitting it just needs to
+// use their original method).
 async function signInWithGoogle(){
   const msg = document.getElementById("gate-msg");
   try{
@@ -3271,38 +3214,26 @@ async function checkGoogleRedirectResult(){
     if (msg){ msg.style.color = "var(--warn)"; msg.textContent = authErrorMsg(e); }
   }
 }
-// Classic email+password login — added back ALONGSIDE the email-link and
-// Google options above, not a replacement (some traders find having to
-// check their inbox every time annoying). Firebase keys plain password
-// sign-in and the email-link method under the exact same "password"
-// provider by email address (see the big comment above initAuth()), so
-// this is fully compatible with every existing account regardless of which
-// method created it — same uid, no migration.
-//
-// Sign-in-first, and only create a brand-new account on a literal
-// "user-not-found" (an email Firebase has NEVER seen, under any provider),
-// keeps the same frictionless "your account is created automatically the
-// first time" auto-signup as the other two methods — while any email that
-// already exists (whatever method it was created with) just needs the
-// RIGHT password, surfaced as one clear error either way (see
-// authErrorMsg()'s auth/invalid-credential case).
-async function signInWithPassword(email, password){
-  try{
-    await firebase.auth().signInWithEmailAndPassword(email, password);
-  }catch(e){
-    if (e && e.code==="auth/user-not-found"){
-      await firebase.auth().createUserWithEmailAndPassword(email, password);
-      return;
-    }
-    throw e;
-  }
+// Classic email+password login — two distinct, explicit actions rather
+// than one button that silently guesses whether this is a new or existing
+// account. "Se connecter" only ever signs in; "Créer un compte" only ever
+// creates. Each surfaces the OTHER action in its error message when it
+// guesses wrong (auth/user-not-found on login → suggests "Créer un
+// compte"; auth/email-already-in-use on signup → suggests "Se connecter",
+// see authErrorMsg()) instead of quietly doing the other thing for them.
+async function logInWithPassword(email, password){
+  await firebase.auth().signInWithEmailAndPassword(email, password);
+}
+async function createAccountWithPassword(email, password){
+  await firebase.auth().createUserWithEmailAndPassword(email, password);
 }
 // "Mot de passe oublié ?" — sendPasswordResetEmail() works for ANY existing
 // email regardless of which method actually created the account: Firebase
 // adds the "password" sign-in method to that same account if it wasn't
-// already on it. So for a trader who originally signed up via the magic
-// link or Google, this doubles as "set a password on my account" — not
-// just a reset for someone who forgot one.
+// already on it. So for a trader whose account came from Google (or, for
+// an account that predates this change, the old magic-link method), this
+// doubles as "set a password on my account" — not just a reset for
+// someone who forgot one.
 async function sendPasswordReset(email){
   await firebase.auth().sendPasswordResetEmail(email);
 }
@@ -3333,7 +3264,6 @@ function initAuth(){
         }
       }catch(e){ console.warn("auth state sync failed", e); }
     });
-    completeEmailLinkSignInIfPresent();
     checkGoogleRedirectResult();
   }catch(e){ console.warn("auth init failed", e); hideAuthGate(); }
 }
@@ -3357,56 +3287,27 @@ function initAuthUI(){
     });
   }
 }
-// Cooldown after a successful send — avoids hammering Firebase's own rate
-// limit on this endpoint and makes the "check your inbox" state visually
-// obvious (button stays disabled with a countdown instead of looking
-// clickable again right away).
-const GATE_RESEND_COOLDOWN_S = 30;
 function initGateUI(){
   const emailInput = document.getElementById("gate-email-input");
   const msg = document.getElementById("gate-msg");
-  const sendBtn = document.getElementById("gate-send-link-btn");
-  if (!sendBtn) return;
-  const sendBtnLabel = sendBtn.textContent;
+  const passwordInput = document.getElementById("gate-password-input");
+  const passwordBtn = document.getElementById("gate-password-btn");
+  const signupBtn = document.getElementById("gate-signup-btn");
+  const forgotBtn = document.getElementById("gate-forgot-btn");
+  if (!passwordBtn) return;
   function readEmail(){
     const email = (emailInput.value||"").trim();
     if (!email || email.indexOf("@")<0){ msg.style.color="var(--warn)"; msg.textContent = "Adresse email invalide."; return null; }
     msg.textContent = "";
     return email;
   }
-  function startCooldown(){
-    let remaining = GATE_RESEND_COOLDOWN_S;
-    sendBtn.disabled = true;
-    sendBtn.textContent = "Renvoyer dans "+remaining+"s";
-    const iv = setInterval(()=>{
-      remaining -= 1;
-      if (remaining<=0){
-        clearInterval(iv);
-        sendBtn.disabled = false;
-        sendBtn.textContent = sendBtnLabel;
-      } else {
-        sendBtn.textContent = "Renvoyer dans "+remaining+"s";
-      }
-    }, 1000);
-  }
-  async function sendLink(){
+  function readCredentials(){
     const email = readEmail();
-    if (!email) return;
-    sendBtn.disabled = true;
-    try{
-      await firebase.auth().sendSignInLinkToEmail(email, emailLinkActionCodeSettings());
-      try{ localStorage.setItem(EMAIL_FOR_SIGNIN_KEY, email); }catch(e){}
-      msg.style.color = "var(--long)";
-      msg.textContent = "Lien envoyé ! Vérifie ta boîte mail (et les spams) — clique dessus pour te connecter.";
-      startCooldown();
-    }catch(e){
-      msg.style.color = "var(--warn)";
-      msg.textContent = authErrorMsg(e);
-      sendBtn.disabled = false;
-    }
+    if (!email) return null;
+    const password = passwordInput.value||"";
+    if (!password){ msg.style.color="var(--warn)"; msg.textContent = "Entre ton mot de passe."; return null; }
+    return {email, password};
   }
-  sendBtn.addEventListener("click", sendLink);
-  emailInput.addEventListener("keydown", (e)=>{ if (e.key==="Enter") sendBtn.click(); });
   const googleBtn = document.getElementById("gate-google-btn");
   if (googleBtn){
     googleBtn.addEventListener("click", async ()=>{
@@ -3416,22 +3317,17 @@ function initGateUI(){
     });
   }
 
-  // Email + password — added alongside the link/Google options above (see
-  // signInWithPassword()/sendPasswordReset()). Reuses readEmail() for the
-  // same validation the magic-link button already does.
-  const passwordInput = document.getElementById("gate-password-input");
-  const passwordBtn = document.getElementById("gate-password-btn");
-  const forgotBtn = document.getElementById("gate-forgot-btn");
-  async function submitPassword(){
-    const email = readEmail();
-    if (!email) return;
-    const password = passwordInput.value||"";
-    if (!password){ msg.style.color="var(--warn)"; msg.textContent = "Entre ton mot de passe."; return; }
+  // Email + password — two distinct actions (see logInWithPassword()/
+  // createAccountWithPassword() above for why they're kept separate rather
+  // than one button that guesses).
+  async function submitLogin(){
+    const cred = readCredentials();
+    if (!cred) return;
     passwordBtn.disabled = true;
     msg.style.color = "var(--text-dim)";
     msg.textContent = "Connexion en cours…";
     try{
-      await signInWithPassword(email, password);
+      await logInWithPassword(cred.email, cred.password);
       // Success flows into onAuthStateChanged like any other method — no
       // further UI update needed here, the gate hides itself.
     }catch(e){
@@ -3441,8 +3337,24 @@ function initGateUI(){
       passwordBtn.disabled = false;
     }
   }
-  if (passwordBtn) passwordBtn.addEventListener("click", submitPassword);
-  if (passwordInput) passwordInput.addEventListener("keydown", (e)=>{ if (e.key==="Enter") submitPassword(); });
+  async function submitSignup(){
+    const cred = readCredentials();
+    if (!cred) return;
+    signupBtn.disabled = true;
+    msg.style.color = "var(--text-dim)";
+    msg.textContent = "Création du compte en cours…";
+    try{
+      await createAccountWithPassword(cred.email, cred.password);
+    }catch(e){
+      msg.style.color = "var(--warn)";
+      msg.textContent = authErrorMsg(e);
+    }finally{
+      signupBtn.disabled = false;
+    }
+  }
+  passwordBtn.addEventListener("click", submitLogin);
+  if (signupBtn) signupBtn.addEventListener("click", submitSignup);
+  if (passwordInput) passwordInput.addEventListener("keydown", (e)=>{ if (e.key==="Enter") submitLogin(); });
   if (forgotBtn) forgotBtn.addEventListener("click", async ()=>{
     const email = readEmail();
     if (!email) return;
