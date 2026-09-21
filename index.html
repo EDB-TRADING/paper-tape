@@ -262,6 +262,48 @@
   .challenge-tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px;}
   .challenge-tier-btn{padding:12px 6px;font-family:var(--mono);font-weight:700;}
 
+  /* ---------- Concours EDB+ page: Apple-style scroll-reveal layout ----------
+     Photo backgrounds are hotlinked directly from Pexels (free license, no
+     attribution required — see the small credit line at the page's end)
+     rather than downloaded into the repo: this environment has no general
+     web access to fetch them, and hotlinking is explicitly permitted by the
+     Pexels License, so the trader's own browser loads them straight from
+     Pexels' CDN when the page is live. */
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.22,.61,.36,1), transform .8s cubic-bezier(.22,.61,.36,1);}
+  .reveal.is-visible{opacity:1;transform:translateY(0);}
+  .cedb-bleed{margin:-14px;} /* cancels .card's own 14px padding so the photo sections bleed edge-to-edge */
+  .cedb-overlay{position:absolute;inset:0;background:linear-gradient(180deg, rgba(10,8,6,0.25), rgba(10,8,6,0.88));}
+  .cedb-hero{
+    position:relative;overflow:hidden;min-height:300px;display:flex;align-items:center;justify-content:center;
+    background-size:cover;background-position:center;background-attachment:fixed;
+    border-radius:var(--radius) var(--radius) 0 0;
+  }
+  .cedb-hero-content{position:relative;z-index:1;text-align:center;padding:36px 20px;max-width:560px;}
+  .cedb-hero-title{font-size:clamp(24px,4.5vw,40px);font-weight:800;color:#fff;margin:12px 0 6px;line-height:1.15;}
+  .cedb-hero-sub{font-family:var(--mono);color:#fff;opacity:.92;font-size:clamp(13px,2vw,17px);margin:0;}
+  .cedb-section{padding:28px 20px;text-align:center;}
+  .cedb-reward{
+    position:relative;overflow:hidden;padding:34px 20px;
+    background-size:cover;background-position:center;background-attachment:fixed;
+  }
+  .cedb-reward-content{position:relative;z-index:1;max-width:480px;margin:0 auto;text-align:center;}
+  .cedb-reward-content .challenge-meter{justify-content:center;font-size:12.5px;color:#fff;}
+  .cedb-reward-content .challenge-meter-bar{width:140px;height:7px;}
+  .cedb-reward-content .chart-note{color:rgba(255,255,255,0.82);}
+  .cedb-rules-wrap{
+    position:relative;overflow:hidden;padding:28px 20px;
+    background-size:cover;background-position:center;background-attachment:fixed;
+    border-radius:0 0 var(--radius) var(--radius);
+  }
+  .cedb-rules-card{position:relative;z-index:1;max-width:640px;margin:0 auto;background:var(--bg-raised);}
+  .cedb-credit{position:relative;text-align:center;padding:10px 20px 4px;font-size:10px;opacity:.6;}
+  @media (max-width: 640px){
+    /* iOS Safari ignores background-attachment:fixed anyway (renders as
+       scroll) — dropping it explicitly everywhere on narrow/touch layouts
+       avoids the occasional jank some mobile browsers show trying anyway. */
+    .cedb-hero, .cedb-reward, .cedb-rules-wrap{background-attachment:scroll;}
+  }
+
   /* ---------- Challenge page: FTMO-style comparison table ---------- */
   .challenge-hero-badge{
     display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;font-weight:700;
@@ -1488,20 +1530,39 @@
         </div>
       </div>
       <div class="card" id="concoursedbplus-unlocked" hidden>
-        <div class="quiz-cat gold-badge">💎 Concours EDB+ — Challenge Hardcore</div>
-        <h2 style="margin:10px 0 6px;">5x le Challenge 200 000 $ → une vraie Prop Firm 100 000 $ ou 400 €</h2>
-        <p class="chart-note" style="max-width:680px;margin-bottom:10px;">Valide le Challenge Prop Firm complet (Étape 1 + Étape 2 → compte financé, voir l'onglet Challenge) sur le palier 200 000 $, cinq fois — les autres paliers et les étapes ratées ne comptent pas. Une fois les 5 réussites cumulées, l'EDB t'offre un vrai challenge prop firm à 100 000 $ ou 400 €.</p>
-        <div class="challenge-meter"><span class="challenge-meter-lbl" id="hardcore-progress-lbl">0 / 5 challenges 200k réussis</span><div class="challenge-meter-bar"><div class="challenge-meter-fill up" id="hardcore-progress-fill" style="width:0%;"></div></div></div>
-        <div class="chart-note" id="hardcore-status-note" style="margin-top:8px;"></div>
-        <div class="chart-note" id="hardcore-opens-note" style="margin-top:6px;"></div>
-        <div class="card" style="margin-top:16px;background:var(--bg-raised);">
-          <h3 style="margin-top:0;">Règlement</h3>
-          <ul style="margin:0;padding-left:20px;font-size:12.5px;color:var(--text-dim);line-height:1.7;">
-            <li>Palier <strong>200 000 $</strong> uniquement — les autres tailles de challenge ne comptent pas pour ce concours (elles restent valables pour les badges Prop Firm normaux).</li>
-            <li>Passer les <strong>2 étapes</strong> du Challenge Prop Firm — mêmes règles que le Challenge classique (objectifs +10%/+5%, perte journalière -5%, drawdown -10%, levier max x20).</li>
-            <li>Au moins <strong>5 positions clôturées « qualifiées »</strong> sur ce passage précis (PnL — gain ou perte — d'au moins 1 000 $). Un passage financé avec moins de 5 trades qualifiés ne compte pas pour les 5 réussites requises ici — les badges Prop Firm restent acquis, mais la progression vers la Prop 100k n'avance pas.</li>
-            <li>Maximum <strong>15 ouvertures</strong> du Challenge 200 000 $ au total, à vie — choisis tes tentatives, ce n'est pas illimité.</li>
-          </ul>
+        <div class="cedb-bleed">
+          <section class="cedb-hero reveal" style="background-image:url('https://images.pexels.com/photos/7567440/pexels-photo-7567440.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1600');">
+            <div class="cedb-overlay"></div>
+            <div class="cedb-hero-content">
+              <div class="quiz-cat gold-badge">💎 Concours EDB+ — Challenge Hardcore</div>
+              <h2 class="cedb-hero-title">5x le Challenge 200 000 $</h2>
+              <p class="cedb-hero-sub">→ une vraie Prop Firm 100 000 $ ou 400 €</p>
+            </div>
+          </section>
+          <section class="cedb-section reveal">
+            <p class="chart-note" style="max-width:680px;margin:0 auto;">Valide le Challenge Prop Firm complet (Étape 1 + Étape 2 → compte financé, voir l'onglet Challenge) sur le palier 200 000 $, cinq fois — les autres paliers et les étapes ratées ne comptent pas. Une fois les 5 réussites cumulées, l'EDB t'offre un vrai challenge prop firm à 100 000 $ ou 400 €.</p>
+          </section>
+          <section class="cedb-reward reveal" style="background-image:url('https://images.pexels.com/photos/13057867/pexels-photo-13057867.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1600');">
+            <div class="cedb-overlay"></div>
+            <div class="cedb-reward-content">
+              <div class="challenge-meter"><span class="challenge-meter-lbl" id="hardcore-progress-lbl">0 / 5 challenges 200k réussis</span><div class="challenge-meter-bar"><div class="challenge-meter-fill up" id="hardcore-progress-fill" style="width:0%;"></div></div></div>
+              <div class="chart-note" id="hardcore-status-note" style="margin-top:10px;"></div>
+              <div class="chart-note" id="hardcore-opens-note" style="margin-top:6px;"></div>
+            </div>
+          </section>
+          <div class="cedb-rules-wrap reveal" style="background-image:url('https://images.pexels.com/photos/39511470/pexels-photo-39511470.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1600');">
+            <div class="cedb-overlay"></div>
+            <div class="card cedb-rules-card">
+              <h3 style="margin-top:0;">Règlement</h3>
+              <ul style="margin:0;padding-left:20px;font-size:12.5px;color:var(--text-dim);line-height:1.7;">
+                <li>Palier <strong>200 000 $</strong> uniquement — les autres tailles de challenge ne comptent pas pour ce concours (elles restent valables pour les badges Prop Firm normaux).</li>
+                <li>Passer les <strong>2 étapes</strong> du Challenge Prop Firm — mêmes règles que le Challenge classique (objectifs +10%/+5%, perte journalière -5%, drawdown -10%, levier max x20).</li>
+                <li>Au moins <strong>5 positions clôturées « qualifiées »</strong> sur ce passage précis (PnL — gain ou perte — d'au moins 1 000 $). Un passage financé avec moins de 5 trades qualifiés ne compte pas pour les 5 réussites requises ici — les badges Prop Firm restent acquis, mais la progression vers la Prop 100k n'avance pas.</li>
+                <li>Maximum <strong>15 ouvertures</strong> du Challenge 200 000 $ au total, à vie — choisis tes tentatives, ce n'est pas illimité.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="chart-note cedb-credit">Photos : Pexels (licence libre).</p>
         </div>
       </div>
     </section>
@@ -6458,6 +6519,32 @@ function closeModal(){
   document.getElementById("modal-overlay").hidden = true;
   document.getElementById("modal-box").innerHTML = "";
   if (typeof teardownEdbPlusChatModal === "function") teardownEdbPlusChatModal();
+}
+// Apple-marketing-style scroll reveal — any element with class "reveal"
+// (currently just the Concours EDB+ page's hero/reward/rules sections, see
+// #concoursedbplus-unlocked) fades/slides in the first time it scrolls into
+// view, then stays visible (unobserve() after firing — no replay if the
+// trader scrolls back up, which would feel like a glitch rather than a
+// polish). Called once at boot: these elements live in static HTML that's
+// merely hidden/shown via switchView() (renderHardcoreChallenge() never
+// rebuilds this markup, only updates the progress bar/notes by id inside
+// it — see its own comment), so observing them once here is enough; they
+// keep the same DOM nodes for the life of the page.
+function initScrollReveal(){
+  const els = document.querySelectorAll(".reveal");
+  if (!els.length) return;
+  if (!("IntersectionObserver" in window)){
+    els.forEach(el=>el.classList.add("is-visible")); // no JS support — just show everything, no animation
+    return;
+  }
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("is-visible");
+      io.unobserve(entry.target);
+    });
+  }, {threshold:0.15});
+  els.forEach(el=>io.observe(el));
 }
 
 /* ============================= BADGES ============================= */
@@ -12386,6 +12473,7 @@ async function init(){
   initEvents();
   initLightbox();
   initOnboardingTour();
+  initScrollReveal();
   renderSessions();
   setInterval(renderSessions, 1000);
   refreshNews();
