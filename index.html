@@ -5505,9 +5505,9 @@ function renderChallengeBanner(){
     '</div>'+
     (monitoring ?
       '<div class="challenge-meters">'+
-        (inStep ? '<div class="challenge-meter"><span class="challenge-meter-lbl">Objectif +'+stepCfg.profitTargetPct+'%</span><div class="challenge-meter-bar"><div class="challenge-meter-fill up" style="width:'+progressPct.toFixed(1)+'%;"></div></div></div>' : '')+
-        '<div class="challenge-meter"><span class="challenge-meter-lbl">Perte journ. (max '+CHALLENGE_RULES.maxDailyLossPct+'%)</span><div class="challenge-meter-bar"><div class="challenge-meter-fill down" style="width:'+dailyUsedPct.toFixed(1)+'%;"></div></div></div>'+
-        '<div class="challenge-meter"><span class="challenge-meter-lbl">Drawdown (max '+CHALLENGE_RULES.maxDrawdownPct+'%)</span><div class="challenge-meter-bar"><div class="challenge-meter-fill down" style="width:'+ddUsedPct.toFixed(1)+'%;"></div></div></div>'+
+        (inStep ? '<div class="challenge-meter"><span class="challenge-meter-lbl">Objectif +'+stepCfg.profitTargetPct+'% ('+fmtMoneySigned(target-c.stepStartEquity)+')</span><div class="challenge-meter-bar"><div class="challenge-meter-fill up" style="width:'+progressPct.toFixed(1)+'%;"></div></div></div>' : '')+
+        '<div class="challenge-meter"><span class="challenge-meter-lbl">Perte journ. (max '+CHALLENGE_RULES.maxDailyLossPct+'% / '+fmtMoney(c.dailyStartEquity-dailyFloor)+')</span><div class="challenge-meter-bar"><div class="challenge-meter-fill down" style="width:'+dailyUsedPct.toFixed(1)+'%;"></div></div></div>'+
+        '<div class="challenge-meter"><span class="challenge-meter-lbl">Drawdown (max '+CHALLENGE_RULES.maxDrawdownPct+'% / '+fmtMoney(c.startCash-overallFloor)+')</span><div class="challenge-meter-bar"><div class="challenge-meter-fill down" style="width:'+ddUsedPct.toFixed(1)+'%;"></div></div></div>'+
       '</div>' : ''
     );
   const btn = document.getElementById("challenge-manage-btn");
