@@ -1963,11 +1963,15 @@ const ASSETS = [
   // instrument, same family as the SPY/QQQ perps above) — no Binance
   // equivalent, no rescaling needed (already 1:1 on the troy ounce spot price).
   {symbol:"SILVER", name:"Argent (indice, perp. XAGUSD — once troy)", instrument:"XAGUSD-PERP", decimals:2, icon:"🥈", color:"#c7cdd6"},
-  // OIL: Crypto.com's own CLUSD perpetual (real spot-crude-tracking
-  // instrument, same family as XAGUSD/SPYUSD/QQQUSD above — "CL" is the
-  // standard ticker for WTI crude) — no Binance equivalent, no rescaling
-  // needed (already 1:1 on the $/baril spot price).
-  {symbol:"OIL", name:"Pétrole (WTI, indice perp. CLUSD)", instrument:"CLUSD-PERP", decimals:2, icon:"🛢️", color:"#8b5e3c"},
+  // OIL: NOT Crypto.com — this one is priced directly off Hyperliquid's own
+  // perp DEX, specifically the "xyz" HIP-3 builder-deployed dex (trade[xyz]),
+  // whose WTI crude market's coin ticker is "CL". `hyperliquid:{dex,coin}`
+  // (instead of `instrument`/`binanceSymbol`) tells fetchTickerRest()/
+  // fetchCandlesRest()/fetchDepthRest() below to route to the dedicated
+  // fetchXHyperliquid() functions instead of Crypto.com/Binance — see those
+  // for the request/response shapes (Hyperliquid's public /info endpoint is
+  // POST+JSON, a different shape from Crypto.com/Binance's REST GETs).
+  {symbol:"OIL", name:"Pétrole (WTI, perp. Hyperliquid xyz:CL)", hyperliquid:{dex:"xyz", coin:"CL"}, decimals:2, icon:"🛢️", color:"#8b5e3c"},
 ];
 // Assets flagged `delisted` stay in ASSETS (price polling, mark-to-market,
 // liquidation checks and closing an existing position all still need to
@@ -2022,6 +2026,13 @@ function saveWatchlistOrder(order){
 // means this endpoint shape needs a tweak (see FIREBASE_SETUP.md).
 const CRYPTO_API_BASE = "https://api.crypto.com/exchange/v1/public";
 const BINANCE_API_BASE = "https://api.binance.com/api/v3";
+// OIL only (see ASSETS) — Hyperliquid's public "info" endpoint, a single
+// POST+JSON URL (not a REST-per-verb API like the two above). No API key,
+// no auth (public market data), but every request needs a `type` field
+// (and for a HIP-3 builder-deployed dex like "xyz", either a `dex` field
+// or a "dex:coin"-prefixed coin string, depending on the request type —
+// see fetchTickerHyperliquid/fetchCandlesHyperliquid/fetchDepthHyperliquid).
+const HYPERLIQUID_API_BASE = "https://api.hyperliquid.xyz/info";
 const CANDLE_TIMEFRAMES = ["1m","5m","15m","1h"];
 let currentTimeframe = "1m";
 let candleTimer = null;
@@ -3515,7 +3526,73 @@ async function fetchTickerBinance(binanceSymbol){
     timestamp: raw.closeTime ? new Date(Number(raw.closeTime)).toISOString() : new Date().toISOString(),
   };
 }
+// ---- Hyperliquid (OIL only — see ASSETS' `hyperliquid:{dex,coin}` field) ----
+// One POST to the same /info URL for every request `type`, unlike Crypto.com/
+// Binance's per-purpose REST endpoints above.
+async function hlInfoPost(body){
+  const res = await fetch(HYPERLIQUID_API_BASE, {
+    method: "POST", headers: {"Content-Type":"application/json"},
+    body: JSON.stringify(body), signal: AbortSignal.timeout(12000),
+  });
+  if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
+  return res.json();
+}
+// Real top-of-book bid/ask (and full depth, for the DOM widget) for a HIP-3
+// dex market. `l2Book`'s exact coin-naming convention for a builder-deployed
+// dex isn't spelled out with a literal example in Hyperliquid's own docs the
+// way candleSnapshot's is — "dex:coin" (e.g. "xyz:CL") is the documented
+// HIP-3 naming convention used elsewhere, so it's used here too, but treat
+// this one function as the spot most worth checking first (devtools →
+// Network) if oil's order book/spread ever looks wrong after deploying.
+async function fetchDepthHyperliquid(hl, limit){
+  const raw = await hlInfoPost({type:"l2Book", coin: hl.dex+":"+hl.coin});
+  const levels = raw && Array.isArray(raw.levels) ? raw.levels : null;
+  if (!levels || !Array.isArray(levels[0]) || !Array.isArray(levels[1])){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
+  return {
+    bids: levels[0].slice(0,limit).map(l=>({price:parseFloat(l.px), size:parseFloat(l.sz)})),
+    asks: levels[1].slice(0,limit).map(l=>({price:parseFloat(l.px), size:parseFloat(l.sz)})),
+  };
+}
+// `metaAndAssetCtxs` (with a top-level `dex` field — this one IS spelled out
+// explicitly in Hyperliquid's docs, unlike l2Book above) returns [meta,
+// assetCtxs] where meta.universe[i] lines up positionally with assetCtxs[i]
+// — find our coin's index in the universe, then read its context. Gives the
+// mark price + prior day's price (for `change`) but no bid/ask of its own,
+// so a real spread is layered on top from fetchDepthHyperliquid() — falling
+// back to the mark price for both sides (zero spread) if that fails, rather
+// than failing the whole tick over a missing order book.
+async function fetchTickerHyperliquid(hl){
+  const [meta, ctxs] = await hlInfoPost({type:"metaAndAssetCtxs", dex: hl.dex});
+  const idx = (meta && Array.isArray(meta.universe)) ? meta.universe.findIndex(u=>u && u.name===hl.coin) : -1;
+  const ctx = (idx>=0 && Array.isArray(ctxs)) ? ctxs[idx] : null;
+  if (!ctx || ctx.markPx==null){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
+  const last = parseFloat(ctx.markPx);
+  const prev = ctx.prevDayPx!=null ? parseFloat(ctx.prevDayPx) : null;
+  const change = (prev && isFinite(prev) && prev!==0) ? (last-prev)/prev : 0;
+  let bid = last, ask = last;
+  try{
+    const book = await fetchDepthHyperliquid(hl, 1);
+    if (book.bids[0]) bid = book.bids[0].price;
+    if (book.asks[0]) ask = book.asks[0].price;
+  }catch(e){ /* keep the mark-price fallback above */ }
+  return {last:String(last), best_bid:String(bid), best_ask:String(ask), change, timestamp:new Date().toISOString()};
+}
+const HL_INTERVAL_MS = {"1m":60000, "5m":5*60000, "15m":15*60000, "1h":3600000};
+async function fetchCandlesHyperliquid(hl, tf){
+  // Our own timeframe strings ("1m"/"5m"/"15m"/"1h" — see CANDLE_TIMEFRAMES)
+  // already match Hyperliquid's own interval strings verbatim, so `tf` is
+  // passed straight through with no translation table needed.
+  const endTime = Date.now();
+  const startTime = endTime - CHART_ZOOM_MAX*(HL_INTERVAL_MS[tf]||60000);
+  const raw = await hlInfoPost({type:"candleSnapshot", req:{coin: hl.dex+":"+hl.coin, interval: tf, startTime, endTime}});
+  if (!Array.isArray(raw)){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
+  return raw.map(c=>({
+    open:c.o, high:c.h, low:c.l, close:c.c,
+    timestamp: c.t ? new Date(Number(c.t)).toISOString() : null,
+  }));
+}
 async function fetchTickerRest(a){
+  if (a.hyperliquid) return fetchTickerHyperliquid(a.hyperliquid);
   if (a.binanceSymbol){
     try{ return await fetchTickerBinance(a.binanceSymbol); }
     catch(e){ /* fall through to Crypto.com below */ }
@@ -3552,6 +3629,7 @@ async function fetchCandlesBinance(binanceSymbol, tf){
   }));
 }
 async function fetchCandlesRest(a, tf){
+  if (a.hyperliquid) return fetchCandlesHyperliquid(a.hyperliquid, tf);
   if (a.binanceSymbol){
     try{ return await fetchCandlesBinance(a.binanceSymbol, tf); }
     catch(e){ /* fall through to Crypto.com below */ }
@@ -3585,6 +3663,7 @@ async function fetchDepthCryptoCom(instrument, depth){
   };
 }
 async function fetchDepthRest(a, limit){
+  if (a.hyperliquid) return fetchDepthHyperliquid(a.hyperliquid, limit);
   if (a.binanceSymbol){
     try{ return await fetchDepthBinance(a.binanceSymbol, limit); }
     catch(e){ /* fall through to Crypto.com below */ }
@@ -3688,7 +3767,7 @@ function schedulePriceRefresh(){
   priceFeedTimer = setTimeout(()=>{ pollAllAssets(); schedulePriceRefresh(); }, delay);
 }
 async function initPriceFeed(){
-  setMarketStatus("connexion aux API publiques (Binance / Crypto.com)…");
+  setMarketStatus("connexion aux API publiques (Binance / Crypto.com / Hyperliquid)…");
   pollAllAssets();
   schedulePriceRefresh();
   scheduleCandleRefresh();
@@ -3696,7 +3775,7 @@ async function initPriceFeed(){
 function setLiveBanner(code){
   liveGloballyDown = true;
   const banner = document.getElementById("live-banner");
-  banner.textContent = "Impossible de récupérer les prix réels pour le moment (" + code + ") — connexion réseau, CORS, ou API Crypto.com temporairement indisponible. Nouvelle tentative automatique en continu.";
+  banner.textContent = "Impossible de récupérer les prix réels pour le moment (" + code + ") — connexion réseau, CORS, ou API Crypto.com/Hyperliquid temporairement indisponible. Nouvelle tentative automatique en continu.";
   banner.hidden = false;
 }
 function clearLiveBanner(){
