@@ -691,6 +691,7 @@
   .seg button.on-long.active{background:var(--long-dim);border-color:var(--long);color:var(--long);}
   .seg button.on-short.active{background:var(--short-dim);border-color:var(--short);color:var(--short);}
   .seg button.on-mode.active{background:var(--panel-2);border-color:var(--accent);color:var(--accent);}
+  .seg button.on-mode:disabled, .seg button.on-mode.disabled{opacity:0.4;cursor:not-allowed;}
   .field-row{display:flex;flex-direction:column;gap:6px;margin-top:12px;}
   .field-row label{font-family:var(--mono);font-size:9.5px;letter-spacing:0.08em;color:var(--text-faint);text-transform:uppercase;display:flex;justify-content:space-between;}
   .lev-row{display:flex;align-items:center;gap:10px;}
@@ -1971,7 +1972,15 @@ const ASSETS = [
   // fetchXHyperliquid() functions instead of Crypto.com/Binance — see those
   // for the request/response shapes (Hyperliquid's public /info endpoint is
   // POST+JSON, a different shape from Crypto.com/Binance's REST GETs).
-  {symbol:"OIL", name:"Pétrole (WTI, perp. Hyperliquid xyz:CL)", hyperliquid:{dex:"xyz", coin:"CL"}, decimals:2, icon:"🛢️", color:"#8b5e3c"},
+  // `tvUnavailable`: the TradingView chart for this exact market
+  // (HIP3XYZ:CLUSDC.P) is listed but shows "Market closed / No trades" on
+  // TradingView itself — and a different provider's WTI quote (e.g. OANDA)
+  // trades at a visibly different price than the real Hyperliquid market
+  // being traded here, which is more confusing than helpful sitting right
+  // next to the real order ticket. See updateChart()/setChartSource() below:
+  // this asset is forced onto the internal chart (real Hyperliquid candles,
+  // same price as the trade) and the TradingView toggle is disabled for it.
+  {symbol:"OIL", name:"Pétrole (WTI, perp. Hyperliquid xyz:CL)", hyperliquid:{dex:"xyz", coin:"CL"}, decimals:2, icon:"🛢️", color:"#8b5e3c", tvUnavailable:true},
 ];
 // Assets flagged `delisted` stay in ASSETS (price polling, mark-to-market,
 // liquidation checks and closing an existing position all still need to
@@ -3561,9 +3570,15 @@ async function fetchDepthHyperliquid(hl, limit){
 // so a real spread is layered on top from fetchDepthHyperliquid() — falling
 // back to the mark price for both sides (zero spread) if that fails, rather
 // than failing the whole tick over a missing order book.
+// NB: even though `dex` already scopes the request, live testing (browser
+// devtools against the real endpoint — the docs don't mention this) showed
+// meta.universe[i].name comes back "xyz:CL", the dex-prefixed form, not the
+// bare "CL" the docs' own non-HIP-3 examples use — match either form so a
+// dex that behaves the documented (unprefixed) way still works too.
 async function fetchTickerHyperliquid(hl){
   const [meta, ctxs] = await hlInfoPost({type:"metaAndAssetCtxs", dex: hl.dex});
-  const idx = (meta && Array.isArray(meta.universe)) ? meta.universe.findIndex(u=>u && u.name===hl.coin) : -1;
+  const prefixed = hl.dex+":"+hl.coin;
+  const idx = (meta && Array.isArray(meta.universe)) ? meta.universe.findIndex(u=>u && (u.name===hl.coin || u.name===prefixed)) : -1;
   const ctx = (idx>=0 && Array.isArray(ctxs)) ? ctxs[idx] : null;
   if (!ctx || ctx.markPx==null){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
   const last = parseFloat(ctx.markPx);
@@ -4118,6 +4133,7 @@ function initWatchlistDrag(){
 function selectSymbol(sym){
   selectedSymbol = sym;
   document.querySelectorAll(".wl-row").forEach(r=>r.classList.toggle("selected", r.dataset.symbol===sym));
+  updateChartSourceToggleAvailability();
   updateChart();
   updateOrderReadout();
   scheduleCandleRefresh();
@@ -4227,19 +4243,33 @@ const TV_SYMBOL_MAP = {
   BTC:"BINANCE:BTCUSDT", ETH:"BINANCE:ETHUSDT", SOL:"BINANCE:SOLUSDT", HYPE:"BINANCE:HYPEUSDT.P",
   EURUSD:"OANDA:EURUSD",
   SPY:"HIP3XYZ:SP500USDC.P", QQQ:"HIP3XYZ:XYZ100USDC.P", GOLD:"HIP3XYZ:GOLDUSDC.P", SILVER:"HIP3XYZ:SILVERUSDC.P",
-  // OIL: unlike the HIP3XYZ perps just above, the equivalent HIP3XYZ oil
-  // market (HIP3XYZ:CLUSDC.P) checked out as illiquid/inactive on
-  // TradingView at the time this was added ("Market closed", no trades) —
-  // a blank chart would be worse than a different-but-live source. OANDA's
-  // WTI crude CFD is a mainstream, actively-traded symbol, same trusted
-  // provider already used for EURUSD above.
-  OIL:"OANDA:WTICOUSD",
+  // OIL is intentionally NOT mapped here. The HIP3XYZ oil market
+  // (HIP3XYZ:CLUSDC.P) is illiquid/inactive on TradingView ("Market closed",
+  // no trades), and every alternative real WTI symbol (e.g. OANDA:WTICOUSD)
+  // is a different provider's quote that trades at a visibly different price
+  // than the actual Hyperliquid xyz:CL market this app trades OIL on — showing
+  // it next to the real order ticket was confusing (reported live). See the
+  // `tvUnavailable` flag on the OIL entry in ASSETS: it forces this asset onto
+  // the internal chart (real Hyperliquid candles, same price as the trade)
+  // and disables the TradingView toggle instead — see effectiveChartSource()
+  // and updateChartSourceToggleAvailability() below.
 };
 // TradingView is the default view — it's the more capable charting tool and
 // solves the market-hours-gap problem for SPY/QQQ/GOLD/SILVER/OIL above; the
 // internal candlestick chart stays one click away via the toggle.
-let chartSource = "tv"; // "internal" | "tv"
+let chartSource = "tv"; // "internal" | "tv" — the user's stored preference, unaffected by tvUnavailable overrides
 let tvLoadedSymbol = null;
+// The source actually used to render the chart right now: same as the user's
+// `chartSource` preference for almost every asset, EXCEPT an asset flagged
+// `tvUnavailable` (currently just OIL — see the ASSETS/TV_SYMBOL_MAP comments)
+// is always forced to "internal", regardless of what chartSource is set to.
+// Every place that decides what to actually draw/show reads this, not
+// chartSource directly; setChartSource() still only ever writes the raw
+// preference, so switching back to a normal asset instantly restores it.
+function effectiveChartSource(){
+  const a = ASSETS.find(x=>x.symbol===selectedSymbol);
+  return (a && a.tvUnavailable) ? "internal" : chartSource;
+}
 function renderTradingViewChart(){
   const wrap = document.getElementById("tv-chart-wrap");
   if (!wrap) return;
@@ -4277,15 +4307,25 @@ function renderEconCalendar(){
   });
   wrap.querySelector(".tradingview-widget-container").appendChild(script);
 }
-function setChartSource(src){
-  chartSource = src;
+// Shows/hides the internal-SVG-vs-TradingView panels (and their associated
+// toolbars) to match `eff` (the EFFECTIVE source — see effectiveChartSource()).
+// Pulled out of setChartSource() so it can also run from updateChart() itself:
+// switching symbols via selectSymbol() never calls setChartSource() (the
+// user's chartSource preference isn't changing), but the effective source
+// CAN still change on a symbol switch alone — into or out of a tvUnavailable
+// asset like OIL — so the visible panel has to be re-synced on every
+// updateChart() call, not just on an explicit toggle click.
+function applyChartSourceVisibility(eff){
   const svg = document.getElementById("chart-svg");
   const tvWrap = document.getElementById("tv-chart-wrap");
   const tfSeg = document.getElementById("tf-seg");
   const themeSeg = document.getElementById("candle-theme-seg");
   const zoomSeg = document.getElementById("chart-zoom-seg");
-  document.getElementById("chart-src-internal").classList.toggle("active", src==="internal");
-  document.getElementById("chart-src-tv").classList.toggle("active", src==="tv");
+  document.getElementById("chart-src-internal").classList.toggle("active", chartSource==="internal");
+  // The TV button only lights up "active" when TradingView is actually the
+  // one in effect — updateChartSourceToggleAvailability() is what keeps it
+  // unclickable in the first place while the selected asset is tvUnavailable.
+  document.getElementById("chart-src-tv").classList.toggle("active", chartSource==="tv" && eff==="tv");
   // Belt-and-suspenders: some browsers don't apply the UA [hidden]{display:none}
   // rule to <svg> reliably (it's an SVG-namespaced element, and support for the
   // HTML `hidden` presentational hint on it is inconsistent), and this is the
@@ -4294,16 +4334,19 @@ function setChartSource(src){
   // chart). Setting hidden AND an inline display style together makes this
   // 100% deterministic across browsers regardless of any CSS cascade/namespace
   // quirk, since an inline style always wins over any class/attribute selector.
-  tfSeg.hidden = src==="tv"; tfSeg.style.display = src==="tv" ? "none" : "";
-  themeSeg.hidden = src==="tv"; themeSeg.style.display = src==="tv" ? "none" : "";
-  if (zoomSeg){ zoomSeg.hidden = src==="tv"; zoomSeg.style.display = src==="tv" ? "none" : ""; }
-  if (src==="tv"){
+  tfSeg.hidden = eff==="tv"; tfSeg.style.display = eff==="tv" ? "none" : "";
+  themeSeg.hidden = eff==="tv"; themeSeg.style.display = eff==="tv" ? "none" : "";
+  if (zoomSeg){ zoomSeg.hidden = eff==="tv"; zoomSeg.style.display = eff==="tv" ? "none" : ""; }
+  if (eff==="tv"){
     svg.hidden = true; svg.style.display = "none";
     tvWrap.hidden = false; tvWrap.style.display = "";
   } else {
     svg.hidden = false; svg.style.display = "";
     tvWrap.hidden = true; tvWrap.style.display = "none";
   }
+}
+function setChartSource(src){
+  chartSource = src;
   // Actually draw whichever source is now active. Without this, switching
   // to "Interne" just unhid an empty/stale <svg> — updateChart() is what
   // draws the candles into it from market[selectedSymbol].candles, and
@@ -4312,12 +4355,37 @@ function setChartSource(src){
   // call updateChart() afterwards, which is exactly the reported bug: you
   // had to switch timeframe to get candles to appear. (For "tv" this also
   // covers what the old direct renderTradingViewChart() call here used to
-  // do, since updateChart()'s tv branch calls it too.)
+  // do, since updateChart()'s tv branch calls it too — and updateChart()
+  // itself now calls applyChartSourceVisibility() on every render, see there.)
   updateChart();
+}
+// Greys out and disables the "TradingView" toggle button whenever the
+// currently selected asset is flagged tvUnavailable (currently just OIL —
+// see the ASSETS/TV_SYMBOL_MAP comments), with an explanatory tooltip, and
+// restores it for every other asset. Called on init and every time
+// selectSymbol() changes the selected asset, since switching from OIL to
+// e.g. BTC must instantly re-enable it.
+function updateChartSourceToggleAvailability(){
+  const btn = document.getElementById("chart-src-tv");
+  if (!btn) return;
+  const a = ASSETS.find(x=>x.symbol===selectedSymbol);
+  const unavailable = !!(a && a.tvUnavailable);
+  btn.disabled = unavailable;
+  btn.classList.toggle("disabled", unavailable);
+  btn.title = unavailable ? "Graphique TradingView indisponible pour "+a.symbol+" (marché fermé chez ce fournisseur, ou prix d'un autre fournisseur que celui utilisé pour trader) — graphique interne (prix réel) affiché à la place." : "";
 }
 function initChartSourceToggle(){
   document.getElementById("chart-src-internal").addEventListener("click", ()=>setChartSource("internal"));
-  document.getElementById("chart-src-tv").addEventListener("click", ()=>setChartSource("tv"));
+  // Belt-and-suspenders alongside the disabled attribute set by
+  // updateChartSourceToggleAvailability(): even if the button were ever
+  // reachable despite looking disabled, this still refuses to force
+  // chartSource to "tv" while the selected asset is tvUnavailable.
+  document.getElementById("chart-src-tv").addEventListener("click", ()=>{
+    const a = ASSETS.find(x=>x.symbol===selectedSymbol);
+    if (a && a.tvUnavailable) return;
+    setChartSource("tv");
+  });
+  updateChartSourceToggleAvailability();
 }
 // ---- Draggable TP/SL lines on the internal chart ----
 // chartScale is the price↔pixel scale of the chart's LAST successful
@@ -4552,7 +4620,9 @@ function updateChart(forceDuringDrag){
   // committed value) — every other call site still passes nothing, so this
   // guard behaves exactly as before for them.
   if (chartLineDrag && !forceDuringDrag) return;
-  if (chartSource==="tv"){
+  const eff = effectiveChartSource();
+  applyChartSourceVisibility(eff);
+  if (eff==="tv"){
     document.getElementById("chart-sym").innerHTML = '<span style="color:'+((ASSETS.find(x=>x.symbol===selectedSymbol)||{}).color||"inherit")+';">'+((ASSETS.find(x=>x.symbol===selectedSymbol)||{}).icon||"")+'</span> '+selectedSymbol;
     document.getElementById("chart-name").textContent = (ASSETS.find(x=>x.symbol===selectedSymbol)||{}).name||"";
     const m = market[selectedSymbol];
@@ -4573,7 +4643,7 @@ function updateChart(forceDuringDrag){
     priceEl.textContent = m.error ? "hors ligne" : "en attente…";
     priceEl.className = "price-big num flat";
     svg.innerHTML = '<text x="320" y="112" text-anchor="middle" fill="#57667a" font-size="12" font-family="IBM Plex Mono,monospace">'+
-      (m.error ? "Flux Crypto.com indisponible pour "+a.symbol : "Connexion au flux Crypto.com en cours…")+'</text>';
+      (m.error ? "Flux de prix indisponible pour "+a.symbol : "Connexion au flux de prix en cours…")+'</text>';
     chartScale = null;
     return;
   }
@@ -4823,8 +4893,8 @@ function updateOrderReadout(){
     document.getElementById("sl-preview").textContent = "";
     btn.disabled = true;
     msg.textContent = market[selectedSymbol].error
-      ? "Flux Crypto.com indisponible pour "+a.symbol+" — impossible d'exécuter sans prix réel."
-      : "En attente du prix live (Crypto.com)…";
+      ? "Flux de prix indisponible pour "+a.symbol+" — impossible d'exécuter sans prix réel."
+      : "En attente du prix live…";
     syncSizeSliderFromInput();
     return;
   }
