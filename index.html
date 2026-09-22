@@ -1555,17 +1555,17 @@
             <div class="cedb-overlay"></div>
             <div class="cedb-hero-content">
               <div class="quiz-cat gold-badge">💎 Concours EDB+ — Challenge Hardcore</div>
-              <h2 class="cedb-hero-title">5x le Challenge 200 000 $</h2>
+              <h2 class="cedb-hero-title">5x le Challenge 200 000 $ à la suite</h2>
               <p class="cedb-hero-sub">→ une vraie Prop Firm 100 000 $ ou 400 €</p>
             </div>
           </section>
           <section class="cedb-section reveal">
-            <p class="chart-note" style="max-width:680px;margin:0 auto;">Valide le Challenge Prop Firm complet (Étape 1 + Étape 2 → compte financé, voir l'onglet Challenge) sur le palier 200 000 $, cinq fois — les autres paliers et les étapes ratées ne comptent pas. Une fois les 5 réussites cumulées, l'EDB t'offre un vrai challenge prop firm à 100 000 $ ou 400 €.</p>
+            <p class="chart-note" style="max-width:680px;margin:0 auto;">Valide le Challenge Prop Firm complet (Étape 1 + Étape 2 → compte financé, voir l'onglet Challenge) sur le palier 200 000 $, cinq fois <strong>d'affilée</strong> — un échec (ou un passage non qualifié) sur ce palier remet le compteur à zéro, il faut les enchaîner sans accroc. Les autres paliers n'interrompent pas la série : seuls les passages sur le 200 000 $ comptent, dans un sens comme dans l'autre. Une fois les 5 réussites consécutives obtenues, l'EDB t'offre un vrai challenge prop firm à 100 000 $ ou 400 €.</p>
           </section>
           <section class="cedb-reward reveal" style="background-image:url('https://images.pexels.com/photos/13057867/pexels-photo-13057867.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1600');">
             <div class="cedb-overlay"></div>
             <div class="cedb-reward-content">
-              <div class="challenge-meter"><span class="challenge-meter-lbl" id="hardcore-progress-lbl">0 / 5 challenges 200k réussis</span><div class="challenge-meter-bar"><div class="challenge-meter-fill up" id="hardcore-progress-fill" style="width:0%;"></div></div></div>
+              <div class="challenge-meter"><span class="challenge-meter-lbl" id="hardcore-progress-lbl">0 / 5 challenges 200k réussis à la suite</span><div class="challenge-meter-bar"><div class="challenge-meter-fill up" id="hardcore-progress-fill" style="width:0%;"></div></div></div>
               <div class="chart-note" id="hardcore-status-note" style="margin-top:10px;"></div>
               <div class="chart-note" id="hardcore-opens-note" style="margin-top:6px;"></div>
             </div>
@@ -1575,10 +1575,11 @@
             <div class="card cedb-rules-card">
               <h3 style="margin-top:0;">Règlement</h3>
               <ul style="margin:0;padding-left:20px;font-size:12.5px;color:var(--text-dim);line-height:1.7;">
-                <li>Palier <strong>200 000 $</strong> uniquement — les autres tailles de challenge ne comptent pas pour ce concours (elles restent valables pour les badges Prop Firm normaux).</li>
+                <li>Palier <strong>200 000 $</strong> uniquement — les autres tailles de challenge ne comptent pas pour ce concours, ni en positif ni en négatif (elles restent valables pour les badges Prop Firm normaux, mais n'avancent ni ne cassent la série ici).</li>
                 <li>Passer les <strong>2 étapes</strong> du Challenge Prop Firm — mêmes règles que le Challenge classique (objectifs +10%/+5%, perte journalière -5%, drawdown -10%, levier max x20).</li>
-                <li>Au moins <strong>5 positions clôturées « qualifiées »</strong> sur ce passage précis (PnL — gain ou perte — d'au moins 1 000 $). Un passage financé avec moins de 5 trades qualifiés ne compte pas pour les 5 réussites requises ici — les badges Prop Firm restent acquis, mais la progression vers la Prop 100k n'avance pas.</li>
-                <li>Maximum <strong>15 ouvertures</strong> du Challenge 200 000 $ au total, à vie — choisis tes tentatives, ce n'est pas illimité.</li>
+                <li>Au moins <strong>5 positions clôturées « qualifiées »</strong> sur ce passage précis (PnL — gain ou perte — d'au moins 1 000 $). Un passage financé avec moins de 5 trades qualifiés ne compte pas comme une réussite ici — les badges Prop Firm restent acquis, mais <strong>la série repart à zéro</strong>, exactement comme un échec.</li>
+                <li>Les 5 réussites doivent s'enchaîner <strong>d'affilée, sans interruption</strong> : le moindre échec du Challenge 200 000 $ (perte journalière ou drawdown dépassé) remet immédiatement le compteur à 0, même si tu avais déjà validé plusieurs passages d'affilée.</li>
+                <li>Maximum <strong>30 ouvertures</strong> du Challenge 200 000 $ au total, à vie — choisis tes tentatives, ce n'est pas illimité.</li>
               </ul>
             </div>
           </div>
@@ -5311,9 +5312,14 @@ const CHALLENGE_LEVERAGE_CAP = 20;
 // Concours EDB+ "Challenge Hardcore" anti-abus — starting a challenge is
 // free and instant, so without a lifetime cap a trader could just spam
 // restarts of the 200k tier hoping to get lucky rather than actually
-// trading well. 15 total OPENS of the 200k tier (not 15 successful
-// passes) — see confirmStartChallenge() for where this is enforced.
-const CHALLENGE_200K_MAX_OPENS = 15;
+// trading well. 30 total OPENS of the 200k tier (not 30 successful
+// passes) — see confirmStartChallenge() for where this is enforced. Raised
+// from 15 to 30 now that the reward requires 5 passes IN A ROW (a single
+// failure resets the streak to 0, see updateChallengeStatus()) — the old
+// 15-open budget was tuned for "5 successes total, in any order", which is
+// far more forgiving than "5 in a row", so traders need more attempts to
+// realistically still be able to complete the streak.
+const CHALLENGE_200K_MAX_OPENS = 30;
 function todayKey(){ return new Date().toISOString().slice(0,10); } // YYYY-MM-DD (UTC)
 // Creates a brand-new Prop book (replacing any existing one) sized to
 // `tier`, parks whichever book is currently live, and makes the fresh prop
@@ -5395,6 +5401,14 @@ function updateChallengeStatus(){
     c.failReason = eq<=overallFloor ? "drawdown" : "daily";
     c.failedAt = new Date().toISOString();
     cancelAllPendingOnFailedProp();
+    // Concours EDB+ "Challenge Hardcore" requires 5 passes on the 200k tier
+    // IN A ROW — a failed 200k run (this branch) breaks the streak back to
+    // 0, exactly like a non-qualifying pass does below. Other tiers don't
+    // touch this counter at all (the contest ignores them either way).
+    if (c.tier === 200000 && (state.hardcore200kPasses||0) > 0){
+      state.hardcore200kPasses = 0;
+      if (typeof renderHardcoreChallenge==="function") renderHardcoreChallenge();
+    }
     persistAccount();
     return;
   }
@@ -5420,8 +5434,8 @@ function updateChallengeStatus(){
         awardBadge('prop_funded', {tier:c.tier, value:eq});
         c.phase = "funded";
         // Concours EDB+ "Challenge Hardcore": a full pass (Étape 1 + Étape 2)
-        // specifically on the 200k tier counts toward the 5-pass reward — but
-        // ONLY if this specific run also has at least HARDCORE_MIN_QUALIFYING_TRADES
+        // specifically on the 200k tier counts toward the reward — but ONLY
+        // if this specific run also has at least HARDCORE_MIN_QUALIFYING_TRADES
         // closed positions clearing CONTEST_QUALIFY_PNL (same "qualified
         // trade" definition as the normal Concours) — otherwise a trader
         // could pass on literally 2 lucky trades (one per step) and call
@@ -5435,12 +5449,20 @@ function updateChallengeStatus(){
         // next attempt. A pass that doesn't qualify still keeps its badges
         // (prop_step1_passed/prop_step2_passed/prop_funded above) — only the
         // Hardcore counter is gated.
+        //
+        // The 5 passes must now be consecutive ("à la suite"): this counter
+        // is a STREAK, not a lifetime total — it resets to 0 both here (a
+        // funded 200k run that doesn't meet the qualifying-trades bar) and in
+        // the failed-challenge branch above (a 200k run that gets liquidated
+        // before funding). Other tiers never touch it either way.
         if (c.tier === 200000){
           const runHistory = (propBookData()||{}).history || [];
           const qualifyingInRun = runHistory.filter(h=>typeof h.pnl==="number" && Math.abs(h.pnl)>=CONTEST_QUALIFY_PNL).length;
           if (qualifyingInRun >= HARDCORE_MIN_QUALIFYING_TRADES){
             state.hardcore200kPasses = (state.hardcore200kPasses||0) + 1;
             if (state.hardcore200kPasses >= HARDCORE_200K_TARGET) awardBadge('hardcore_master', {value: state.hardcore200kPasses});
+          } else {
+            state.hardcore200kPasses = 0;
           }
           if (typeof renderHardcoreChallenge==="function") renderHardcoreChallenge();
         }
@@ -5458,6 +5480,8 @@ function challengeStatusLabel(c){
 // concoursedbplus, see the HTML), but piggybacks on renderChallengeBanner()'s
 // existing call sites (hydrate, renderAll, every challenge update) instead of
 // needing its own set of hooks; cheap no-op when the page isn't in the DOM.
+// state.hardcore200kPasses is a STREAK (consecutive qualifying 200k passes),
+// not a lifetime total — see the reset logic in updateChallengeStatus().
 const HARDCORE_200K_TARGET = 5;
 const HARDCORE_MIN_QUALIFYING_TRADES = 5; // per-run gate, same $1000 "qualified trade" definition as the normal Concours — see updateChallengeStatus()
 const HARDCORE_REWARD_LABEL = "un vrai challenge Prop Firm 100 000 $ ou 400 € offert par l'EDB";
@@ -5485,11 +5509,11 @@ function renderHardcoreChallenge(){
   const fill = document.getElementById("hardcore-progress-fill");
   const note = document.getElementById("hardcore-status-note");
   const opensNote = document.getElementById("hardcore-opens-note");
-  if (lbl) lbl.textContent = n+" / "+HARDCORE_200K_TARGET+" challenges 200k réussis";
+  if (lbl) lbl.textContent = n+" / "+HARDCORE_200K_TARGET+" challenges 200k réussis à la suite";
   if (fill) fill.style.width = ((n/HARDCORE_200K_TARGET)*100).toFixed(1)+"%";
   if (note) note.textContent = n>=HARDCORE_200K_TARGET
     ? "🏆 Objectif atteint — contacte le bureau pour récupérer "+HARDCORE_REWARD_LABEL+"."
-    : "Valide "+(HARDCORE_200K_TARGET-n)+" challenge(s) 200 000 $ de plus (Étape 1 + Étape 2, au moins "+HARDCORE_MIN_QUALIFYING_TRADES+" trades qualifiés, palier 200k uniquement) pour décrocher "+HARDCORE_REWARD_LABEL+".";
+    : "Valide "+(HARDCORE_200K_TARGET-n)+" challenge(s) 200 000 $ de plus D'AFFILÉE (Étape 1 + Étape 2, au moins "+HARDCORE_MIN_QUALIFYING_TRADES+" trades qualifiés, palier 200k uniquement) pour décrocher "+HARDCORE_REWARD_LABEL+" — un échec ou un passage non qualifié sur ce palier remet le compteur à 0.";
   if (opensNote){
     const used = state.challenge200kOpens||0;
     opensNote.textContent = "Ouvertures du Challenge 200k utilisées : "+used+"/"+CHALLENGE_200K_MAX_OPENS+(used>=CHALLENGE_200K_MAX_OPENS?" — limite atteinte, plus aucune nouvelle tentative possible sur ce palier.":".");
@@ -5576,47 +5600,39 @@ function renderChallengeProfileCard(){
   if (title) title.hidden = false;
   const c = state.challenge;
   if (!c){
-    // FTMO-style comparison table: a left label column (icon + row name) and
-    // one column per account tier, values repeated per column since — unlike
-    // FTMO — the rules here don't change with account size, only the $ does.
-    const compareRows = [
-      {icon:"🎯", label:"Objectif Étape 1", val:"+"+CHALLENGE_STEPS.step1.profitTargetPct+"%", cls:"rule-up"},
-      {icon:"🏁", label:"Objectif Étape 2", val:"+"+CHALLENGE_STEPS.step2.profitTargetPct+"%", cls:"rule-up"},
-      {icon:"📉", label:"Perte journalière max", val:"-"+CHALLENGE_RULES.maxDailyLossPct+"%", cls:"rule-down"},
-      {icon:"⚠️", label:"Perte max (drawdown)", val:"-"+CHALLENGE_RULES.maxDrawdownPct+"%", cls:"rule-down"},
-      {icon:"⚡", label:"Levier max", val:"x"+CHALLENGE_LEVERAGE_CAP, cls:"rule-neutral"},
-    ];
-    let gridCells = '<div class="cc-cell cc-label-cell"></div>'+
-      CHALLENGE_TIERS.map((t,i)=>'<div class="cc-cell cc-amount-cell'+(i===2?' cc-col-hl':'')+'">'+
-        (i===2 ? '<span class="cc-tier-badge">Populaire</span>' : '')+
-        '<span class="cc-amount">$'+t.toLocaleString("en-US")+'</span>'+
-      '</div>').join("");
-    compareRows.forEach(r=>{
-      gridCells += '<div class="cc-cell cc-label-cell"><span class="cc-row-icon">'+r.icon+'</span><span class="cc-row-label">'+r.label+'</span></div>'+
-        CHALLENGE_TIERS.map((t,i)=>'<div class="cc-cell cc-value-cell '+r.cls+(i===2?' cc-col-hl':'')+'">'+r.val+'</div>').join("");
-    });
-    gridCells += '<div class="cc-cell cc-label-cell cc-cta-cell"></div>'+
-      CHALLENGE_TIERS.map((t,i)=>'<div class="cc-cell cc-cta-cell'+(i===2?' cc-col-hl':'')+'"><button type="button" class="cc-cta-btn" data-tier="'+t+'">Commencer →</button></div>').join("");
     body.innerHTML =
       '<div class="challenge-hero-badge">🏆 PROP FIRM CHALLENGE</div>'+
       '<p class="chart-note" style="margin:12px 0 4px;">Trade un compte démo calqué sur une vraie évaluation prop firm en 2 étapes (challenge puis vérification, avant le compte financé) — comptes de '+fmtMoney(CHALLENGE_TIERS[0])+' à '+fmtMoney(CHALLENGE_TIERS[CHALLENGE_TIERS.length-1])+'. Ton compte normal reste actif à côté — tu peux trader les deux et basculer entre eux à tout moment.</p>'+
       '<p class="chart-note" style="margin:14px 0 8px;">Démarrer un challenge réinitialise ton solde, tes positions et tes ordres en attente sur le compte prop firm. 👇 <strong>Compare les comptes et clique sur une taille pour démarrer :</strong></p>'+
-      '<div class="challenge-compare-wrap"><div class="challenge-compare-grid" id="challenge-compare-grid" style="grid-template-columns:minmax(118px,150px) repeat('+CHALLENGE_TIERS.length+',minmax(84px,1fr));">'+gridCells+'</div></div>'+
+      challengeCompareGridHtml()+
       challengeAttemptsHistoryHtml();
-    const cGrid = document.getElementById("challenge-compare-grid");
-    if (cGrid) cGrid.querySelectorAll("[data-tier]").forEach(btn=>{
-      btn.addEventListener("click", ()=>confirmStartChallenge(parseInt(btn.dataset.tier,10)));
-    });
+    wireChallengeCompareGrid(confirmStartChallenge);
   } else {
+    // A FUNDED challenge has nothing left to fail (no more profit target,
+    // just the ongoing daily-loss/drawdown floors) — previously the ONLY way
+    // to start a next one was the "Gérer" modal's "Recommencer", worded as
+    // abandoning the current account even though a funded run is a success,
+    // not a loss. It's already kept forever either way (archiveChallenge()
+    // tags it "funded", never "abandoned" — see challengeAttemptsHistoryHtml()
+    // below) — only the live, no-longer-relevant prop book itself is
+    // replaced. So for the funded case specifically, show the tier grid
+    // directly here too, wired to confirmStartChallengeAfterFunded() (honest
+    // wording, no "abandon" language) instead of routing through that modal.
     body.innerHTML =
       '<p class="chart-note" style="margin-bottom:10px;">'+challengeStatusLabel(c)+' · '+fmtMoney(c.tier)+' · Équité '+fmtMoney(propEquity()||0)+(c.phase==="funded"?' · Valeur financée '+fmtMoney(c.fundedValue):'')+'</p>'+
       '<button class="btn-secondary" id="challenge-manage-btn-2">Gérer ce challenge</button>'+
       challengeTimelineHtml(c)+
       '<h4 class="challenge-history-head">Historique du challenge</h4>'+
       '<div id="challenge-history-list">'+challengeTradeHistoryHtml()+'</div>'+
+      (c.phase==="funded" ?
+        '<h4 class="challenge-history-head">🎉 Compte financé conservé — démarrer un nouveau challenge</h4>'+
+        '<p class="chart-note" style="margin:4px 0 8px;">Ton compte financé actuel reste dans ton historique ci-dessous, il n\'est pas supprimé. 👇 Choisis une taille pour démarrer le prochain :</p>'+
+        challengeCompareGridHtml()
+      : '')+
       challengeAttemptsHistoryHtml();
     const btn = document.getElementById("challenge-manage-btn-2");
     if (btn) btn.addEventListener("click", openChallengeManageModal);
+    if (c.phase==="funded") wireChallengeCompareGrid(confirmStartChallengeAfterFunded);
   }
 }
 // List of PAST challenge attempts (most recent first) — see archiveChallenge()
@@ -5683,6 +5699,40 @@ function challengeTradeHistoryHtml(){
     '</div>';
   }).join("");
 }
+// FTMO-style comparison table shared by both places the tier-picker can
+// appear (no challenge running yet, or a FUNDED one being replaced by a
+// fresh one — see renderChallengeProfileCard()): a left label column (icon +
+// row name) and one column per account tier, values repeated per column
+// since — unlike FTMO — the rules here don't change with account size, only
+// the $ does. Returns markup only; wireChallengeCompareGrid() below wires
+// the "Commencer" buttons once it's actually in the DOM.
+function challengeCompareGridHtml(){
+  const compareRows = [
+    {icon:"🎯", label:"Objectif Étape 1", val:"+"+CHALLENGE_STEPS.step1.profitTargetPct+"%", cls:"rule-up"},
+    {icon:"🏁", label:"Objectif Étape 2", val:"+"+CHALLENGE_STEPS.step2.profitTargetPct+"%", cls:"rule-up"},
+    {icon:"📉", label:"Perte journalière max", val:"-"+CHALLENGE_RULES.maxDailyLossPct+"%", cls:"rule-down"},
+    {icon:"⚠️", label:"Perte max (drawdown)", val:"-"+CHALLENGE_RULES.maxDrawdownPct+"%", cls:"rule-down"},
+    {icon:"⚡", label:"Levier max", val:"x"+CHALLENGE_LEVERAGE_CAP, cls:"rule-neutral"},
+  ];
+  let gridCells = '<div class="cc-cell cc-label-cell"></div>'+
+    CHALLENGE_TIERS.map((t,i)=>'<div class="cc-cell cc-amount-cell'+(i===2?' cc-col-hl':'')+'">'+
+      (i===2 ? '<span class="cc-tier-badge">Populaire</span>' : '')+
+      '<span class="cc-amount">$'+t.toLocaleString("en-US")+'</span>'+
+    '</div>').join("");
+  compareRows.forEach(r=>{
+    gridCells += '<div class="cc-cell cc-label-cell"><span class="cc-row-icon">'+r.icon+'</span><span class="cc-row-label">'+r.label+'</span></div>'+
+      CHALLENGE_TIERS.map((t,i)=>'<div class="cc-cell cc-value-cell '+r.cls+(i===2?' cc-col-hl':'')+'">'+r.val+'</div>').join("");
+  });
+  gridCells += '<div class="cc-cell cc-label-cell cc-cta-cell"></div>'+
+    CHALLENGE_TIERS.map((t,i)=>'<div class="cc-cell cc-cta-cell'+(i===2?' cc-col-hl':'')+'"><button type="button" class="cc-cta-btn" data-tier="'+t+'">Commencer →</button></div>').join("");
+  return '<div class="challenge-compare-wrap"><div class="challenge-compare-grid" id="challenge-compare-grid" style="grid-template-columns:minmax(118px,150px) repeat('+CHALLENGE_TIERS.length+',minmax(84px,1fr));">'+gridCells+'</div></div>';
+}
+function wireChallengeCompareGrid(onPick){
+  const cGrid = document.getElementById("challenge-compare-grid");
+  if (cGrid) cGrid.querySelectorAll("[data-tier]").forEach(btn=>{
+    btn.addEventListener("click", ()=>onPick(parseInt(btn.dataset.tier,10)));
+  });
+}
 // Called from the flashy tier-select grid on the dedicated Challenge page —
 // starting a challenge is destructive (wipes the prop book), so a plain
 // confirm() gates it, same pattern as the admin reset / message-delete
@@ -5700,6 +5750,34 @@ function confirmStartChallenge(tier){
   // top banner — this page's own body still needs a manual refresh so the
   // tier-picker swaps over to the "challenge in progress" status view
   // immediately, instead of only on the next visit to this tab.
+  renderChallengeProfileCard();
+  if (typeof renderChallengeTeaser==="function") renderChallengeTeaser();
+}
+// Starting a fresh challenge right after being FUNDED is not an abandon —
+// unlike confirmStartChallenge() above (only ever called with no challenge
+// running at all), this replaces a challenge that already succeeded. It's
+// archived exactly the same way (archiveChallenge() already tags it "funded",
+// never "abandoned" — see challengeAttemptsHistoryHtml()) so it's kept
+// forever in "Historique des comptes essayés"; only the wording is honest
+// about that, instead of reusing the "Recommencer"/"Abandonner" flow's
+// scarier "sera abandonné" language which reads as if a win were being
+// thrown away. A challenge still IN PROGRESS (step1/step2) has no direct
+// path here on purpose — giving up on an unfinished evaluation to try a
+// different size is a real abandon, so that one still goes through the
+// "Gérer ce challenge" modal below.
+function confirmStartChallengeAfterFunded(tier){
+  const c = state.challenge;
+  if (!c || c.phase!=="funded") return;
+  if (!isEdbPlus()){ goToEdbPlus(); return; }
+  if (tier===200000 && (state.challenge200kOpens||0) >= CHALLENGE_200K_MAX_OPENS){
+    alert("Limite atteinte : "+CHALLENGE_200K_MAX_OPENS+" ouvertures du Challenge 200 000 $ déjà utilisées (compteur à vie, anti-abus pour le Concours EDB+). Choisis un autre palier — les autres tailles ne sont pas concernées par cette limite.");
+    return;
+  }
+  const fundedDateNote = c.fundedAt ? (" le "+new Date(c.fundedAt).toLocaleDateString('fr-FR')) : "";
+  if (!confirm("Démarrer un nouveau challenge à "+fmtMoney(tier)+" ? Ton compte financé actuel ("+fmtMoney(c.tier)+", financé"+fundedDateNote+") n'est PAS supprimé — il reste dans ton historique des comptes essayés, juste remplacé comme compte prop firm ACTIF par ce nouveau challenge.")) return;
+  archiveChallenge();
+  state.challenge = null;
+  startChallenge(tier);
   renderChallengeProfileCard();
   if (typeof renderChallengeTeaser==="function") renderChallengeTeaser();
 }
@@ -6651,7 +6729,7 @@ const BADGES = [
  {id:"streak_3", icon:"🔥", title:"Série — 3 jours", desc:"Revenir sur Paper Tape 3 jours de suite."},
  {id:"streak_7", icon:"🔥", title:"Série — 7 jours", desc:"Revenir sur Paper Tape 7 jours de suite."},
  {id:"streak_30", icon:"🔥", title:"Série — 30 jours", desc:"Revenir sur Paper Tape 30 jours de suite."},
- {id:"hardcore_master", icon:"💎", title:"Challenge Hardcore", desc:"Valider 5 challenges prop firm complets (Étape 1 + Étape 2) sur le palier 200 000 $."},
+ {id:"hardcore_master", icon:"💎", title:"Challenge Hardcore", desc:"Valider 5 challenges prop firm complets (Étape 1 + Étape 2) sur le palier 200 000 $, d'affilée."},
 ];
 // `extra` (optional) is merged into the stored badge entry — used by the
 // prop firm challenge to keep the account tier + the equity value at the
@@ -9867,131 +9945,67 @@ function learnDiagram(id){
   return "";
 }
 // Per-section illustrations for the Order Flow fiche (see the `svg` key on
-// individual `sections` entries in QUIZ_DECKS/order_flow above) — same
-// hand-drawn SVG approach and fixed (theme-independent) color palette as
-// learnDiagram() above, just one diagram per concept instead of one per
-// whole deck, since this fiche now covers a lot more distinct tools.
+// individual `sections` entries in QUIZ_DECKS/order_flow above). Demandé
+// explicitement par l'EDB : de vraies images (pas des schémas dessinés) —
+// chacune ci-dessous est un screenshot généré par un projet open source qui
+// produit précisément ce type de graphique (footprint/TPO/CVD/...), hotlinkée
+// depuis GitHub sous licence permissive (MIT ou Apache-2.0, vérifiée une par
+// une avant d'être ajoutée ici — voir le changelog dans SERVER_SETUP.md).
+// Aucun fichier à uploader : comme pour les photos Pexels des pages EDB+, le
+// navigateur du trader va chercher l'image chez GitHub au moment de l'affichage.
+const OF_CONCEPT_IMAGES = {
+  footprint: {
+    url:"https://raw.githubusercontent.com/murtazayusuf/OrderflowChart/main/image.png",
+    alt:"Footprint chart : volume bid/ask détaillé prix par prix à l'intérieur de chaque bougie",
+    credit:"OrderflowChart, GitHub (licence Apache-2.0)"},
+  volume_profile: {
+    url:"https://raw.githubusercontent.com/srlcarlg/srl-python-indicators/master/readme_files/output_5_0.png",
+    alt:"Volume profile : histogramme horizontal du volume par niveau de prix",
+    credit:"srl-python-indicators, GitHub (licence Apache-2.0)"},
+  tpo: {
+    url:"https://user-images.githubusercontent.com/28746824/89121455-a7b87a00-d4dc-11ea-9df1-6bc1bf897ac6.png",
+    alt:"TPO / Market Profile : lettres empilées formant un profil par niveau de prix",
+    credit:"tpo_project, GitHub (licence MIT)"},
+  cvd: {
+    url:"https://user-images.githubusercontent.com/130616587/236219890-b3a0cc28-8bcc-46b1-9c56-adadeadc3778.png",
+    alt:"Cumulative Volume Delta (CVD) tracé sous un graphique de prix",
+    credit:"aggr.template, GitHub (licence MIT)"},
+  absorption_exhaustion: {
+    url:"https://raw.githubusercontent.com/Azhagesan-dev/OrderFlowMap/main/screenshot.png",
+    alt:"Outil de visualisation order flow : DOM, bulles de volume et mur de liquidité",
+    credit:"OrderFlowMap, GitHub (licence MIT)"},
+  // Même image que "footprint" : c'est la coloration bid/ask par niveau,
+  // visible sur ce même screenshot, qui sert de base à un déséquilibre empilé
+  // (plusieurs niveaux consécutifs colorés dans le même sens).
+  stacked_imbalance: {
+    url:"https://raw.githubusercontent.com/murtazayusuf/OrderflowChart/main/image.png",
+    alt:"Footprint chart avec coloration des déséquilibres bid/ask par niveau de prix",
+    credit:"OrderflowChart, GitHub (licence Apache-2.0)"},
+  open_interest: {
+    url:"https://raw.githubusercontent.com/Effanuel/BitMEX-Open-Interest-chart/master/assets/chart_v2.png",
+    alt:"Prix et Open Interest tracés ensemble sur le même axe temporel",
+    credit:"BitMEX-Open-Interest-chart, GitHub (licence MIT)"},
+  funding_rate: {
+    url:"https://raw.githubusercontent.com/StephanAkkerman/funding-rate-heatmap/main/img/funding_rate_heatmap.png",
+    alt:"Heatmap du funding rate de plusieurs cryptomonnaies perpétuelles dans le temps",
+    credit:"funding-rate-heatmap, GitHub (licence MIT)"},
+  liquidation_heatmap: {
+    url:"https://raw.githubusercontent.com/aoki-h-jp/py-liquidation-map/main/img/BTCUSDT_2023-08-01_00-00-00-2023-08-01_06-00-00_gross_value_100000.png",
+    alt:"Carte des liquidations estimées par niveau de prix, colorée par palier de levier",
+    credit:"py-liquidation-map, GitHub (licence MIT)"},
+};
 function ofSectionDiagram(key){
-  if (key==="footprint"){
-    var rows=[[14,30],[26,18],[18,42],[36,20],[16,28]]; // [bid, ask] par ligne de prix
-    var y0=28, rh=20, gap=4, scale=3, x0=200;
-    var out='<div class="learn-diagram"><svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">'+
-      '<line x1="'+x0+'" y1="8" x2="'+x0+'" y2="142" stroke="#57667a" stroke-width="1"/>'+
-      '<text x="120" y="14" fill="#f0546a" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="middle">BID</text>'+
-      '<text x="280" y="14" fill="#31c882" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="middle">ASK</text>';
-    rows.forEach(function(r,i){
-      var y=y0+i*(rh+gap), bid=r[0], ask=r[1], stacked=ask>=bid*2;
-      out += '<rect x="'+(x0-bid*scale)+'" y="'+y+'" width="'+(bid*scale)+'" height="'+rh+'" fill="#f0546a" opacity="0.85"/>';
-      out += '<rect x="'+x0+'" y="'+y+'" width="'+(ask*scale)+'" height="'+rh+'" fill="#31c882" opacity="0.85"/>';
-      if (stacked) out += '<rect x="'+x0+'" y="'+y+'" width="'+(ask*scale)+'" height="'+rh+'" fill="none" stroke="#d7b563" stroke-width="2"/>';
-    });
-    out += '<text x="330" y="'+(y0+2*(rh+gap)+12)+'" fill="#d7b563" font-size="9" font-family="IBM Plex Mono, monospace">imbalance</text></svg></div>';
-    return out;
-  }
-  if (key==="volume_profile"){
-    var vals=[15,35,55,95,120,80,45,20], y0=12, rh=13, gap=3, scale=2.4, x0=50, pocIdx=4;
-    var out='<div class="learn-diagram"><svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">'+
-      '<line x1="'+x0+'" y1="8" x2="'+x0+'" y2="142" stroke="#57667a" stroke-width="1"/>'+
-      '<line x1="'+(x0-8)+'" y1="'+(y0+(pocIdx-1)*(rh+gap))+'" x2="'+(x0-8)+'" y2="'+(y0+(pocIdx+2)*(rh+gap))+'" stroke="#d7b563" stroke-width="2"/>';
-    vals.forEach(function(v,i){
-      var y=y0+i*(rh+gap), isPoc=i===pocIdx;
-      out += '<rect x="'+x0+'" y="'+y+'" width="'+(v*scale)+'" height="'+rh+'" fill="'+(isPoc?"#d7b563":"#37c7db")+'" opacity="'+(isPoc?0.95:0.55)+'" rx="1"/>';
-    });
-    out += '<text x="'+(x0-8)+'" y="'+(y0+(pocIdx+2)*(rh+gap)+12)+'" fill="#d7b563" font-size="9" font-family="IBM Plex Mono, monospace" text-anchor="middle">VA</text>'+
-      '<text x="'+(x0+vals[pocIdx]*scale+10)+'" y="'+(y0+pocIdx*(rh+gap)+rh-3)+'" fill="#d7b563" font-size="10" font-family="IBM Plex Mono, monospace">POC</text>'+
-      '</svg></div>';
-    return out;
-  }
-  if (key==="tpo"){
-    var counts=[2,4,7,10,8,5,3,1], letters="ABCDEFGHIJK", y0=10, rh=12, gap=2, x0=40;
-    var out='<div class="learn-diagram"><svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">'+
-      '<line x1="'+x0+'" y1="6" x2="'+x0+'" y2="130" stroke="#57667a" stroke-width="1"/>';
-    counts.forEach(function(n,i){
-      var y=y0+i*(rh+gap)+rh-2, row="";
-      for (var j=0;j<n;j++) row += letters[j%letters.length];
-      out += '<text x="'+(x0+6)+'" y="'+y+'" fill="#37c7db" font-size="11" font-family="IBM Plex Mono, monospace" letter-spacing="1">'+row+'</text>';
-    });
-    out += '<text x="200" y="144" fill="#93a0b3" font-size="9" font-family="IBM Plex Mono, monospace" text-anchor="middle">Chaque lettre = une période de 30 min passée à ce prix</text></svg></div>';
-    return out;
-  }
-  if (key==="cvd"){
-    return '<div class="learn-diagram"><svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">'+
-      '<text x="10" y="14" fill="#93a0b3" font-size="10" font-family="IBM Plex Mono, monospace">PRIX</text>'+
-      '<path d="M 20 70 L 90 55 L 160 40 L 230 28 L 300 18 L 370 10" fill="none" stroke="#93a0b3" stroke-width="2"/>'+
-      '<text x="10" y="92" fill="#37c7db" font-size="10" font-family="IBM Plex Mono, monospace">CVD</text>'+
-      '<path d="M 20 130 L 90 115 L 160 100 L 230 100 L 300 108 L 370 118" fill="none" stroke="#37c7db" stroke-width="2"/>'+
-      '<line x1="230" y1="28" x2="230" y2="100" stroke="#d7b563" stroke-width="1" stroke-dasharray="3 3"/>'+
-      '<text x="300" y="70" fill="#d7b563" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="middle">DIVERGENCE</text>'+
-      '</svg></div>';
-  }
-  if (key==="absorption_exhaustion"){
-    var left=[30,60,85,90,70], right=[80,55,35,20,10];
-    return '<div class="learn-diagram"><svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">'+
-      '<line x1="200" y1="10" x2="200" y2="140" stroke="#57667a" stroke-width="1" stroke-dasharray="3 3"/>'+
-      '<text x="100" y="16" fill="#31c882" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="middle">ABSORPTION</text>'+
-      left.map(function(h,i){ var x=20+i*32; return '<rect x="'+x+'" y="'+(120-h)+'" width="24" height="'+h+'" fill="#31c882" opacity="0.55"/>'; }).join("")+
-      '<line x1="20" y1="35" x2="180" y2="35" stroke="#93a0b3" stroke-width="2"/>'+
-      '<text x="300" y="16" fill="#f0546a" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="middle">ÉPUISEMENT</text>'+
-      right.map(function(h,i){ var x=220+i*32; return '<rect x="'+x+'" y="'+(120-h)+'" width="24" height="'+h+'" fill="#f0546a" opacity="0.55"/>'; }).join("")+
-      '<path d="M 220 60 L 380 15" fill="none" stroke="#93a0b3" stroke-width="2"/>'+
-      '</svg></div>';
-  }
-  if (key==="stacked_imbalance"){
-    var rows=[[20,22],[24,58],[20,52],[18,60],[26,24]], y0=28, rh=20, gap=4, scale=2.6, x0=200;
-    var out='<div class="learn-diagram"><svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">'+
-      '<line x1="'+x0+'" y1="8" x2="'+x0+'" y2="142" stroke="#57667a" stroke-width="1"/>';
-    rows.forEach(function(r,i){
-      var y=y0+i*(rh+gap), bid=r[0], ask=r[1], stacked=i>=1 && i<=3;
-      out += '<rect x="'+(x0-bid*scale)+'" y="'+y+'" width="'+(bid*scale)+'" height="'+rh+'" fill="#f0546a" opacity="0.85"/>';
-      out += '<rect x="'+x0+'" y="'+y+'" width="'+(ask*scale)+'" height="'+rh+'" fill="#31c882" opacity="0.85"/>';
-      if (stacked) out += '<rect x="'+x0+'" y="'+y+'" width="'+(ask*scale)+'" height="'+rh+'" fill="none" stroke="#d7b563" stroke-width="2"/>';
-    });
-    out += '<text x="330" y="'+(y0+2*(rh+gap)+10)+'" fill="#d7b563" font-size="9" font-family="IBM Plex Mono, monospace">3 niveaux empilés</text></svg></div>';
-    return out;
-  }
-  if (key==="open_interest"){
-    return '<div class="learn-diagram"><svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">'+
-      '<text x="10" y="20" fill="#93a0b3" font-size="10" font-family="IBM Plex Mono, monospace">PRIX</text>'+
-      '<path d="M 30 90 L 100 75 L 170 68 L 240 50 L 310 35 L 380 20" fill="none" stroke="#93a0b3" stroke-width="2"/>'+
-      '<text x="10" y="140" fill="#37c7db" font-size="10" font-family="IBM Plex Mono, monospace">OPEN INTEREST</text>'+
-      '<path d="M 30 130 L 100 122 L 170 112 L 240 98 L 310 82 L 380 68" fill="none" stroke="#37c7db" stroke-width="2"/>'+
-      '<text x="200" y="85" fill="#31c882" font-size="9" font-family="IBM Plex Mono, monospace" text-anchor="middle">OI ↑ + Prix ↑ → nouveaux longs (conviction)</text>'+
-      '</svg></div>';
-  }
-  if (key==="funding_rate"){
-    return '<div class="learn-diagram"><svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">'+
-      '<defs><linearGradient id="fundingGrad" x1="0" y1="0" x2="1" y2="0">'+
-        '<stop offset="0%" stop-color="#37c7db"/><stop offset="100%" stop-color="#d7b563"/>'+
-      '</linearGradient></defs>'+
-      '<rect x="30" y="65" width="340" height="18" rx="9" fill="url(#fundingGrad)" opacity="0.85"/>'+
-      '<line x1="270" y1="52" x2="270" y2="96" stroke="#f0546a" stroke-width="3"/>'+
-      '<text x="30" y="48" fill="#37c7db" font-size="10" font-family="IBM Plex Mono, monospace">NÉGATIF</text>'+
-      '<text x="30" y="112" fill="#93a0b3" font-size="9" font-family="IBM Plex Mono, monospace">shorts paient longs</text>'+
-      '<text x="370" y="48" fill="#d7b563" font-size="10" font-family="IBM Plex Mono, monospace" text-anchor="end">POSITIF</text>'+
-      '<text x="370" y="112" fill="#93a0b3" font-size="9" font-family="IBM Plex Mono, monospace" text-anchor="end">longs paient shorts</text>'+
-      '</svg></div>';
-  }
-  if (key==="liquidation_heatmap"){
-    var intensities=[
-      [0.1,0.1,0.15,0.1,0.2,0.15,0.1,0.1,0.15,0.1,0.1,0.15,0.1,0.1],
-      [0.15,0.2,0.25,0.2,0.3,0.35,0.3,0.25,0.3,0.35,0.3,0.25,0.2,0.15],
-      [0.3,0.4,0.55,0.7,0.85,0.9,0.85,0.7,0.6,0.55,0.4,0.35,0.3,0.25],
-      [0.2,0.25,0.3,0.35,0.3,0.25,0.3,0.35,0.3,0.25,0.2,0.2,0.15,0.1],
-      [0.1,0.15,0.1,0.15,0.1,0.15,0.1,0.15,0.1,0.1,0.1,0.1,0.05,0.05],
-      [0.05,0.05,0.1,0.05,0.1,0.05,0.1,0.05,0.05,0.05,0.05,0.05,0.05,0.05],
-    ];
-    var cw=24, ch=20, x0=20, y0=10;
-    var out='<div class="learn-diagram"><svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">';
-    intensities.forEach(function(row,ri){
-      row.forEach(function(v,ci){
-        out += '<rect x="'+(x0+ci*cw)+'" y="'+(y0+ri*ch)+'" width="'+(cw-1)+'" height="'+(ch-1)+'" fill="#f0546a" opacity="'+v+'"/>';
-      });
-    });
-    out += '<path d="M 20 100 Q 200 90 300 40" fill="none" stroke="#93a0b3" stroke-width="2" stroke-dasharray="4 3"/>'+
-      '<text x="290" y="35" fill="#93a0b3" font-size="9" font-family="IBM Plex Mono, monospace">prix attiré</text></svg></div>';
-    return out;
-  }
-  return "";
+  var d = OF_CONCEPT_IMAGES[key];
+  if (!d) return "";
+  // onerror cache tout le bloc (image + légende) plutôt que de laisser une
+  // icône d'image cassée avec un texte alternatif à côté — vu une fois sur la
+  // page Concours EDB+ (voir SERVER_SETUP.md), jamais deux.
+  return '<div class="learn-diagram">'+
+      '<img src="'+d.url+'" alt="'+escapeHtml(d.alt)+'" loading="lazy" '+
+        'style="width:100%;height:auto;max-height:420px;object-fit:contain;border-radius:8px;display:block;" '+
+        'onerror="this.parentElement.style.display=\'none\';">'+
+      '<div class="chart-note" style="margin-top:8px;text-align:center;">Source : '+escapeHtml(d.credit)+'.</div>'+
+    '</div>';
 }
 function deckMaxScore(deck){ return deck.questions.length * QUIZ_BONUS_PER_Q; }
 // Reward for finally solving a question decays with the attempt it's solved
@@ -10012,6 +10026,27 @@ function deckSolvedCount(progress){ return progress.solved.filter(Boolean).lengt
 let currentDeck = null;
 let quizIdx = 0, quizCorrect = 0, quizAnswered = false;
 let attemptStartEarned = 0; // progress.earned snapshot when this attempt/resume began
+// True only while an actual question is on screen (not the intro, the deck
+// list, or the end-of-attempt score screen) — lets pauseQuizIfActive() know
+// whether there's really something live to save. See pauseQuizIfActive().
+let quizScreenActive = false;
+
+// Leaving a quiz mid-question via ANY route other than the explicit
+// "Quitter" button — clicking a different main nav tab, closing the tab,
+// switching app, etc. — used to silently lose the current question/streak:
+// nothing saved progress.inProgress, so coming back showed "Commencer le
+// quiz" instead of "Reprendre", forcing a fresh attempt (which bumps
+// `attempts` and knocks the per-question decay down) for no reason other
+// than having navigated away. This makes every such exit behave exactly
+// like clicking "Quitter": a pause, never a failure. Wired into
+// switchView() plus tab-visibility/unload as a safety net — see below.
+function pauseQuizIfActive(){
+  if (!quizScreenActive || !currentDeck) return;
+  const progress = deckProgress(currentDeck);
+  progress.inProgress = {idx:quizIdx, correctSoFar:quizCorrect};
+  quizScreenActive = false;
+  persistAccount();
+}
 
 function renderQuiz(){
   document.getElementById("quiz-play-wrap").classList.remove("wrap-wide");
@@ -10019,6 +10054,9 @@ function renderQuiz(){
   const deck = currentDeck;
   const progress = deckProgress(deck);
   const maxScore = deckMaxScore(deck);
+  // Only an actual question screen counts as "live" for pauseQuizIfActive() —
+  // the branch below (score screen) already clears inProgress itself.
+  quizScreenActive = quizIdx < deck.questions.length;
   if (quizIdx>=deck.questions.length){
     progress.inProgress = null;
     const earnedThisAttempt = progress.earned - attemptStartEarned;
@@ -10112,6 +10150,7 @@ function resumeAttempt(deck){
 function renderQuizIntro(deck){
   document.getElementById("quiz-play-wrap").classList.remove("wrap-wide");
   currentDeck = deck;
+  quizScreenActive = false; // viewing the intro/resume screen, not mid-question yet
   const progress = deckProgress(deck);
   const maxScore = deckMaxScore(deck);
   const card = document.getElementById("quiz-card");
@@ -10156,6 +10195,7 @@ function renderQuizIntro(deck){
 function renderQuizDeckList(){
   document.getElementById("quiz-play-wrap").classList.add("wrap-wide");
   currentDeck = null;
+  quizScreenActive = false;
   const card = document.getElementById("quiz-card");
   card.innerHTML =
     '<div class="quiz-deck-list">'+
@@ -10523,6 +10563,7 @@ function renderSuperflashLeaderboardRows(rawDocs){
 
 /* ============================= VIEW SWITCH ============================= */
 function switchView(name){
+  pauseQuizIfActive(); // leaving to any other main tab pauses an in-progress quiz instead of losing it
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
   document.getElementById("view-"+name).classList.add("active");
   document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("active", b.dataset.view===name));
@@ -10640,6 +10681,14 @@ function initEvents(){
   document.querySelectorAll("nav.tabs button").forEach(b=>{
     b.addEventListener("click", ()=>switchView(b.dataset.view));
   });
+
+  // Belt-and-braces for pauseQuizIfActive(): switchView() already covers
+  // in-app nav, but backgrounding the tab (switching app, phone lock screen)
+  // or closing/reloading the page entirely never calls switchView() at all —
+  // without these, a mid-question quiz left that way would still silently
+  // lose its progress.
+  document.addEventListener("visibilitychange", ()=>{ if (document.hidden) pauseQuizIfActive(); });
+  window.addEventListener("beforeunload", pauseQuizIfActive);
   document.querySelectorAll(".profile-teaser-card[data-goto-view]").forEach(card=>{
     card.addEventListener("click", ()=>switchView(card.dataset.gotoView));
   });
@@ -11747,6 +11796,7 @@ function renderAdminTable(){
           '<button class="pos-close" data-admin-adjust="'+id+'">Solde</button>'+
           '<button class="pos-close" data-admin-edbplus="'+id+'" style="color:var(--gold);">'+(d.edbPlus?"Retirer EDB+":"Activer EDB+")+'</button>'+
           '<button class="pos-close" data-admin-isadmin="'+id+'" style="color:var(--long);">'+(d.isAdmin?"Retirer admin":"Passer admin")+'</button>'+
+          '<button class="pos-close" data-admin-reset-quiz="'+id+'" style="color:var(--warn);">Reset quiz</button>'+
           '<button class="pos-close" data-admin-reset="'+id+'" style="color:var(--warn);">Reset</button>'+
           '<button class="pos-close" data-admin-delete="'+id+'" style="color:var(--short);">Supprimer</button>'+
         '</td>'+
@@ -11798,6 +11848,36 @@ async function adminResetTrader(id){
   }catch(e){
     console.warn("admin reset failed", e);
     alert("Échec de la réinitialisation — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).");
+  }
+}
+// Narrower than adminResetTrader() above: wipes ONLY the Connaissances/Quiz
+// side (quiz decks + Superflash + the badges tied to them), leaving the
+// trading account, challenge, EDB+ status, journal, etc. completely
+// untouched — for clearing a trader's quiz results without resetting
+// everything else (e.g. a leaderboard dispute, or letting someone replay
+// the quizzes for real practice).
+const QUIZ_ONLY_BADGE_IDS = ["first_quiz_perfect","options_master","all_quizzes_perfect","first_superflash"];
+async function adminResetTraderQuiz(id){
+  const doc = adminFindDoc(id);
+  const label = doc ? (doc.data().username||id) : id;
+  if (!confirm('Réinitialiser uniquement les résultats Connaissances/Quiz (quiz + Superflash + badges associés) de "'+label+'" ? Son compte de trading, son challenge et le reste de son profil ne sont pas touchés. Irréversible.')) return;
+  try{
+    const patch = {
+      quizProgress: {}, quizTotal: 0,
+      superflashBest: 0, superflashBestCorrect: 0, superflashAttempts: 0,
+      updatedAt: new Date().toISOString(),
+    };
+    QUIZ_ONLY_BADGE_IDS.forEach(bid=>{ patch["badges."+bid] = firebase.firestore.FieldValue.delete(); });
+    await db.collection("traders").doc(id).update(patch);
+    if (id===clientId){
+      hydrateStateFromDoc(await db.collection("traders").doc(id).get());
+      renderAll();
+      if (typeof renderBadgesGrid==="function") renderBadgesGrid();
+    }
+    loadAdminTraders();
+  }catch(e){
+    console.warn("admin quiz reset failed", e);
+    alert("Échec de la réinitialisation des quiz — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).");
   }
 }
 function adminAdjustCash(id){
@@ -11994,7 +12074,7 @@ function adminChallengeHtml(d){
     adminDetailRow("Étape 2 validée", fmtDt(c.step2PassedAt)) +
     adminDetailRow("Financé le", c.fundedAt ? (fmtDt(c.fundedAt)+" · "+fmtMoney(c.fundedValue)) : "—");
   if (c.phase==="failed") rows += adminDetailRow("Échec", (c.failReason==="daily"?"perte journalière":"drawdown")+" · "+fmtDt(c.failedAt));
-  if (c.tier===200000) rows += adminDetailRow("Concours EDB+ (Hardcore)", (d.hardcore200kPasses||0)+" / "+(typeof HARDCORE_200K_TARGET!=="undefined"?HARDCORE_200K_TARGET:5)+" réussites qualifiées");
+  if (c.tier===200000) rows += adminDetailRow("Concours EDB+ (Hardcore)", (d.hardcore200kPasses||0)+" / "+(typeof HARDCORE_200K_TARGET!=="undefined"?HARDCORE_200K_TARGET:5)+" réussites qualifiées d'affilée");
   return adminDetailSection("Challenge Prop Firm", rows);
 }
 // Admin visibility into Connaissances/Quiz engagement — which fiches a
@@ -12608,6 +12688,7 @@ function initAdminUI(){
       else if (t.dataset.adminAdjust) adminAdjustCash(t.dataset.adminAdjust);
       else if (t.dataset.adminEdbplus) adminToggleEdbPlus(t.dataset.adminEdbplus);
       else if (t.dataset.adminIsadmin) adminToggleIsAdmin(t.dataset.adminIsadmin);
+      else if (t.dataset.adminResetQuiz) adminResetTraderQuiz(t.dataset.adminResetQuiz);
       else if (t.dataset.adminReset) adminResetTrader(t.dataset.adminReset);
       else if (t.dataset.adminDelete) adminDeleteTrader(t.dataset.adminDelete);
     });
