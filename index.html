@@ -1963,6 +1963,11 @@ const ASSETS = [
   // instrument, same family as the SPY/QQQ perps above) — no Binance
   // equivalent, no rescaling needed (already 1:1 on the troy ounce spot price).
   {symbol:"SILVER", name:"Argent (indice, perp. XAGUSD — once troy)", instrument:"XAGUSD-PERP", decimals:2, icon:"🥈", color:"#c7cdd6"},
+  // OIL: Crypto.com's own CLUSD perpetual (real spot-crude-tracking
+  // instrument, same family as XAGUSD/SPYUSD/QQQUSD above — "CL" is the
+  // standard ticker for WTI crude) — no Binance equivalent, no rescaling
+  // needed (already 1:1 on the $/baril spot price).
+  {symbol:"OIL", name:"Pétrole (WTI, indice perp. CLUSD)", instrument:"CLUSD-PERP", decimals:2, icon:"🛢️", color:"#8b5e3c"},
 ];
 // Assets flagged `delisted` stay in ASSETS (price polling, mark-to-market,
 // liquidation checks and closing an existing position all still need to
@@ -4143,9 +4148,16 @@ const TV_SYMBOL_MAP = {
   BTC:"BINANCE:BTCUSDT", ETH:"BINANCE:ETHUSDT", SOL:"BINANCE:SOLUSDT", HYPE:"BINANCE:HYPEUSDT.P",
   EURUSD:"OANDA:EURUSD",
   SPY:"HIP3XYZ:SP500USDC.P", QQQ:"HIP3XYZ:XYZ100USDC.P", GOLD:"HIP3XYZ:GOLDUSDC.P", SILVER:"HIP3XYZ:SILVERUSDC.P",
+  // OIL: unlike the HIP3XYZ perps just above, the equivalent HIP3XYZ oil
+  // market (HIP3XYZ:CLUSDC.P) checked out as illiquid/inactive on
+  // TradingView at the time this was added ("Market closed", no trades) —
+  // a blank chart would be worse than a different-but-live source. OANDA's
+  // WTI crude CFD is a mainstream, actively-traded symbol, same trusted
+  // provider already used for EURUSD above.
+  OIL:"OANDA:WTICOUSD",
 };
 // TradingView is the default view — it's the more capable charting tool and
-// solves the market-hours-gap problem for SPY/QQQ/GOLD/SILVER above; the
+// solves the market-hours-gap problem for SPY/QQQ/GOLD/SILVER/OIL above; the
 // internal candlestick chart stays one click away via the toggle.
 let chartSource = "tv"; // "internal" | "tv"
 let tvLoadedSymbol = null;
