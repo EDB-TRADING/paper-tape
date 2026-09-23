@@ -1972,15 +1972,15 @@ const ASSETS = [
   // fetchXHyperliquid() functions instead of Crypto.com/Binance — see those
   // for the request/response shapes (Hyperliquid's public /info endpoint is
   // POST+JSON, a different shape from Crypto.com/Binance's REST GETs).
-  // `tvUnavailable`: the TradingView chart for this exact market
-  // (HIP3XYZ:CLUSDC.P) is listed but shows "Market closed / No trades" on
-  // TradingView itself — and a different provider's WTI quote (e.g. OANDA)
-  // trades at a visibly different price than the real Hyperliquid market
-  // being traded here, which is more confusing than helpful sitting right
-  // next to the real order ticket. See updateChart()/setChartSource() below:
-  // this asset is forced onto the internal chart (real Hyperliquid candles,
-  // same price as the trade) and the TradingView toggle is disabled for it.
-  {symbol:"OIL", name:"Pétrole (WTI, perp. Hyperliquid xyz:CL)", hyperliquid:{dex:"xyz", coin:"CL"}, decimals:2, icon:"🛢️", color:"#8b5e3c", tvUnavailable:true},
+  // TradingView chart: TV_SYMBOL_MAP below points OIL at HIP3XYZ:CLUSDC.P —
+  // the actual Trade[XYZ]/Hyperliquid-listed symbol for this exact market
+  // (same dex, same "CL" coin actually traded here), not a different
+  // provider's proxy quote. Note: as of the last check, TradingView's own
+  // feed for that symbol shows "Market closed / No trades" even though the
+  // underlying Hyperliquid market is live and trading (confirmed directly
+  // against the real API) — that gap is on TradingView's data-feed side, not
+  // this app; switch to the "Interne" chart toggle for a live-updating chart.
+  {symbol:"OIL", name:"Pétrole (WTI, perp. Hyperliquid xyz:CL)", hyperliquid:{dex:"xyz", coin:"CL"}, decimals:2, icon:"🛢️", color:"#8b5e3c"},
 ];
 // Assets flagged `delisted` stay in ASSETS (price polling, mark-to-market,
 // liquidation checks and closing an existing position all still need to
@@ -4243,16 +4243,17 @@ const TV_SYMBOL_MAP = {
   BTC:"BINANCE:BTCUSDT", ETH:"BINANCE:ETHUSDT", SOL:"BINANCE:SOLUSDT", HYPE:"BINANCE:HYPEUSDT.P",
   EURUSD:"OANDA:EURUSD",
   SPY:"HIP3XYZ:SP500USDC.P", QQQ:"HIP3XYZ:XYZ100USDC.P", GOLD:"HIP3XYZ:GOLDUSDC.P", SILVER:"HIP3XYZ:SILVERUSDC.P",
-  // OIL is intentionally NOT mapped here. The HIP3XYZ oil market
-  // (HIP3XYZ:CLUSDC.P) is illiquid/inactive on TradingView ("Market closed",
-  // no trades), and every alternative real WTI symbol (e.g. OANDA:WTICOUSD)
-  // is a different provider's quote that trades at a visibly different price
-  // than the actual Hyperliquid xyz:CL market this app trades OIL on — showing
-  // it next to the real order ticket was confusing (reported live). See the
-  // `tvUnavailable` flag on the OIL entry in ASSETS: it forces this asset onto
-  // the internal chart (real Hyperliquid candles, same price as the trade)
-  // and disables the TradingView toggle instead — see effectiveChartSource()
-  // and updateChartSourceToggleAvailability() below.
+  // OIL: the actual Trade[XYZ]/Hyperliquid-listed symbol for the exact "xyz:CL"
+  // market this app trades OIL on (same dex, same coin) — NOT a different
+  // provider's proxy quote like OANDA's WTI CFD, which trades at a visibly
+  // different price and was confusing sitting next to the real order ticket
+  // (tried and reverted). Caveat, confirmed directly against TradingView: this
+  // specific symbol's own feed there currently shows "Market closed / No
+  // trades" even though the underlying Hyperliquid market is live — a gap on
+  // TradingView's data-feed side, not this app. The "Interne" chart toggle
+  // (real-time, same Hyperliquid data as the trade) is the fallback for a
+  // live-updating view.
+  OIL:"HIP3XYZ:CLUSDC.P",
 };
 // TradingView is the default view — it's the more capable charting tool and
 // solves the market-hours-gap problem for SPY/QQQ/GOLD/SILVER/OIL above; the
@@ -4260,9 +4261,12 @@ const TV_SYMBOL_MAP = {
 let chartSource = "tv"; // "internal" | "tv" — the user's stored preference, unaffected by tvUnavailable overrides
 let tvLoadedSymbol = null;
 // The source actually used to render the chart right now: same as the user's
-// `chartSource` preference for almost every asset, EXCEPT an asset flagged
-// `tvUnavailable` (currently just OIL — see the ASSETS/TV_SYMBOL_MAP comments)
-// is always forced to "internal", regardless of what chartSource is set to.
+// `chartSource` preference for every asset today, EXCEPT an asset flagged
+// `tvUnavailable` on its ASSETS entry (none currently — tried for OIL, then
+// reverted at the user's request in favor of showing TradingView's own
+// HIP3XYZ:CLUSDC.P feed for it even though that feed itself shows no live
+// trades; kept here in case a future asset genuinely has no usable
+// TradingView symbol at all) is always forced to "internal" instead.
 // Every place that decides what to actually draw/show reads this, not
 // chartSource directly; setChartSource() still only ever writes the raw
 // preference, so switching back to a normal asset instantly restores it.
@@ -4360,11 +4364,11 @@ function setChartSource(src){
   updateChart();
 }
 // Greys out and disables the "TradingView" toggle button whenever the
-// currently selected asset is flagged tvUnavailable (currently just OIL —
-// see the ASSETS/TV_SYMBOL_MAP comments), with an explanatory tooltip, and
-// restores it for every other asset. Called on init and every time
-// selectSymbol() changes the selected asset, since switching from OIL to
-// e.g. BTC must instantly re-enable it.
+// currently selected asset is flagged tvUnavailable on its ASSETS entry (no
+// asset currently is — see the note on effectiveChartSource() above), with
+// an explanatory tooltip, and restores it for every other asset. Called on
+// init and every time selectSymbol() changes the selected asset, so this
+// still self-updates correctly if that flag is ever used again.
 function updateChartSourceToggleAvailability(){
   const btn = document.getElementById("chart-src-tv");
   if (!btn) return;
