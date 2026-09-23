@@ -12024,6 +12024,7 @@ function renderAdminTable(){
         '<td class="admin-actions">'+
           '<button class="pos-close" data-admin-view="'+id+'">Détails</button>'+
           '<button class="pos-close" data-admin-adjust="'+id+'">Solde</button>'+
+          '<button class="pos-close" data-admin-badges="'+id+'">Badges</button>'+
           '<button class="pos-close" data-admin-edbplus="'+id+'" style="color:var(--gold);">'+(d.edbPlus?"Retirer EDB+":"Activer EDB+")+'</button>'+
           '<button class="pos-close" data-admin-isadmin="'+id+'" style="color:var(--long);">'+(d.isAdmin?"Retirer admin":"Passer admin")+'</button>'+
           '<button class="pos-close" data-admin-reset-quiz="'+id+'" style="color:var(--warn);">Reset quiz</button>'+
@@ -12149,6 +12150,77 @@ function adminAdjustCash(id){
   input.addEventListener("keydown", (e)=>{ if (e.key==="Enter") submit(); });
   input.focus();
   input.select();
+}
+// Manually award/revoke any badge from BADGES on a trader's doc — for
+// correcting a mistake (e.g. a badge that should have unlocked but didn't,
+// or one earned by a bug) or rewarding something done outside the app.
+// Reuses the exact same storage shape awardBadge() writes client-side
+// (state.badges[id] = {earnedAt, ...extra}) so a badge granted here looks
+// no different to the trader than one earned normally — same tile, same
+// "Débloqué <date>" in its info modal. No Firestore rules change needed:
+// an admin is already allowed to write ANY field on ANY trader doc (see
+// firestore.rules), same path adminResetTraderQuiz already uses to delete
+// individual "badges.<id>" entries.
+function adminManageBadges(id){
+  const doc = adminFindDoc(id);
+  if (!doc) return;
+  const d = doc.data();
+  const label = d.username || id;
+  const badgesMap = (d.badges && typeof d.badges==="object") ? d.badges : {};
+  openModal(
+    '<h3 style="margin-bottom:10px;">Badges — '+escapeHtml(label)+'</h3>'+
+    '<div class="chart-note" style="margin-bottom:12px;">Coche pour attribuer un badge, décoche pour le retirer.</div>'+
+    '<div id="admin-badges-list" style="display:flex;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto;">'+
+      BADGES.map(b=>{
+        const earned = !!badgesMap[b.id];
+        return '<label style="display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--border);border-radius:8px;cursor:pointer;'+(earned?"background:var(--panel-2);border-color:var(--gold);":"")+'">'+
+          '<input type="checkbox" data-manage-badge-id="'+b.id+'" '+(earned?"checked":"")+'>'+
+          '<span style="font-size:20px;">'+b.icon+'</span>'+
+          '<span style="flex:1;min-width:0;">'+
+            '<div style="font-family:var(--sans);font-size:13px;font-weight:600;">'+escapeHtml(b.title)+'</div>'+
+            '<div class="chart-note" style="margin:0;">'+escapeHtml(b.desc)+'</div>'+
+          '</span>'+
+        '</label>';
+      }).join("")+
+    '</div>'+
+    '<div class="chart-note" id="admin-badges-msg" style="margin:10px 0;min-height:14px;"></div>'+
+    '<button class="btn-primary" id="admin-badges-confirm" style="width:100%;margin-top:6px;">Enregistrer</button>'
+  );
+  const msg = document.getElementById("admin-badges-msg");
+  const confirmBtn = document.getElementById("admin-badges-confirm");
+  confirmBtn.addEventListener("click", async ()=>{
+    confirmBtn.disabled = true;
+    msg.style.color = "var(--text-dim)";
+    msg.textContent = "Enregistrement…";
+    const patch = {updatedAt: new Date().toISOString()};
+    let changed = false;
+    document.querySelectorAll('#admin-badges-list input[type="checkbox"]').forEach(cb=>{
+      const bid = cb.dataset.manageBadgeId;
+      const wasEarned = !!badgesMap[bid];
+      if (cb.checked && !wasEarned){
+        patch["badges."+bid] = {earnedAt: new Date().toISOString(), grantedByAdmin: true};
+        changed = true;
+      } else if (!cb.checked && wasEarned){
+        patch["badges."+bid] = firebase.firestore.FieldValue.delete();
+        changed = true;
+      }
+    });
+    if (!changed){ closeModal(); return; }
+    try{
+      await db.collection("traders").doc(id).update(patch);
+      if (id===clientId){
+        hydrateStateFromDoc(await db.collection("traders").doc(id).get());
+        renderAll();
+        if (typeof renderBadgesGrid==="function") renderBadgesGrid();
+      }
+      closeModal();
+      loadAdminTraders();
+    }catch(e){
+      console.warn("admin badges update failed", e);
+      msg.style.color="var(--warn)"; msg.textContent="Échec — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).";
+      confirmBtn.disabled = false;
+    }
+  });
 }
 async function adminToggleEdbPlus(id){
   const doc = adminFindDoc(id);
@@ -12916,6 +12988,7 @@ function initAdminUI(){
       if (!t || !t.dataset) return;
       if (t.dataset.adminView) adminToggleDetail(t.dataset.adminView);
       else if (t.dataset.adminAdjust) adminAdjustCash(t.dataset.adminAdjust);
+      else if (t.dataset.adminBadges) adminManageBadges(t.dataset.adminBadges);
       else if (t.dataset.adminEdbplus) adminToggleEdbPlus(t.dataset.adminEdbplus);
       else if (t.dataset.adminIsadmin) adminToggleIsAdmin(t.dataset.adminIsadmin);
       else if (t.dataset.adminResetQuiz) adminResetTraderQuiz(t.dataset.adminResetQuiz);
