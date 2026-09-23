@@ -14,12 +14,12 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Paper Tape — Terminal de trading simulé EDB">
 <meta property="og:description" content="Terminal de trading simulé de l'École de la Bourse (ISG Bordeaux) — positions live, classement, challenge prop firm.">
-<meta property="og:image" content="https://nobi-trading.github.io/paper-tape/og-image.png">
-<meta property="og:url" content="https://nobi-trading.github.io/paper-tape/">
+<meta property="og:image" content="https://edb-trading.github.io/paper-tape/og-image.png">
+<meta property="og:url" content="https://edb-trading.github.io/paper-tape/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Paper Tape — Terminal de trading simulé EDB">
 <meta name="twitter:description" content="Terminal de trading simulé de l'École de la Bourse (ISG Bordeaux) — positions live, classement, challenge prop firm.">
-<meta name="twitter:image" content="https://nobi-trading.github.io/paper-tape/og-image.png">
+<meta name="twitter:image" content="https://edb-trading.github.io/paper-tape/og-image.png">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 
@@ -1633,6 +1633,15 @@
             <p class="chart-note">Connecté en tant que <strong id="auth-current-email"></strong> — ce compte est accessible depuis n'importe quel navigateur.</p>
             <button class="btn-secondary" id="auth-logout-btn" style="margin-top:8px;">Se déconnecter</button>
           </div>
+        </div>
+        <div class="card" style="margin-top:14px;">
+          <h3>Pseudo</h3>
+          <p class="chart-note" style="margin-bottom:10px;">Le nom affiché partout dans l'app (classement, chat, feed, historique…). Modifiable à tout moment.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <input type="text" id="profile-username-input" class="tpsl-input" maxlength="16" spellcheck="false" style="max-width:220px;">
+            <button class="btn-secondary" id="profile-username-save-btn">Enregistrer</button>
+          </div>
+          <div class="chart-note" id="profile-username-msg" style="margin-top:6px;"></div>
         </div>
         <div class="card" style="margin-top:14px;">
           <h3>Aide</h3>
@@ -3419,6 +3428,26 @@ function initGateUI(){
   const signupBtn = document.getElementById("gate-signup-btn");
   const forgotBtn = document.getElementById("gate-forgot-btn");
   if (!passwordBtn) return;
+  const googleBtn = document.getElementById("gate-google-btn");
+  // Guards against starting a SECOND sign-in method while a first one is
+  // still in flight — e.g. clicking "Continuer avec Google" then, popup
+  // still open, also filling the password form and clicking "Créer un
+  // compte" (the reported glitch: the Google account looked "deleted and
+  // replaced" by the freshly-typed email/password). Firebase Auth only ever
+  // has one signed-in user in this tab at a time, so whichever call
+  // resolved last silently became "the" account and onAuthStateChanged
+  // swapped the whole app over to it — both accounts actually still existed
+  // server-side, the app just switched which one it was showing. Each
+  // button used to only disable itself during its own call, leaving the
+  // other three clickable; disabling all four for the duration of ANY one
+  // of them (and bailing out immediately if a second click still gets
+  // through, e.g. via the Enter-key shortcut below) closes the race.
+  let gateBusy = false;
+  const gateButtons = [googleBtn, passwordBtn, signupBtn, forgotBtn].filter(Boolean);
+  function setGateBusy(busy){
+    gateBusy = busy;
+    gateButtons.forEach(b=>{ b.disabled = busy; });
+  }
   function readEmail(){
     const email = (emailInput.value||"").trim();
     if (!email || email.indexOf("@")<0){ msg.style.color="var(--warn)"; msg.textContent = "Adresse email invalide."; return null; }
@@ -3432,12 +3461,12 @@ function initGateUI(){
     if (!password){ msg.style.color="var(--warn)"; msg.textContent = "Entre ton mot de passe."; return null; }
     return {email, password};
   }
-  const googleBtn = document.getElementById("gate-google-btn");
   if (googleBtn){
     googleBtn.addEventListener("click", async ()=>{
-      googleBtn.disabled = true;
+      if (gateBusy) return;
+      setGateBusy(true);
       try{ await signInWithGoogle(); }
-      finally{ googleBtn.disabled = false; }
+      finally{ setGateBusy(false); }
     });
   }
 
@@ -3445,9 +3474,10 @@ function initGateUI(){
   // createAccountWithPassword() above for why they're kept separate rather
   // than one button that guesses).
   async function submitLogin(){
+    if (gateBusy) return;
     const cred = readCredentials();
     if (!cred) return;
-    passwordBtn.disabled = true;
+    setGateBusy(true);
     msg.style.color = "var(--text-dim)";
     msg.textContent = "Connexion en cours…";
     try{
@@ -3458,13 +3488,14 @@ function initGateUI(){
       msg.style.color = "var(--warn)";
       msg.textContent = authErrorMsg(e);
     }finally{
-      passwordBtn.disabled = false;
+      setGateBusy(false);
     }
   }
   async function submitSignup(){
+    if (gateBusy) return;
     const cred = readCredentials();
     if (!cred) return;
-    signupBtn.disabled = true;
+    setGateBusy(true);
     msg.style.color = "var(--text-dim)";
     msg.textContent = "Création du compte en cours…";
     try{
@@ -3473,16 +3504,17 @@ function initGateUI(){
       msg.style.color = "var(--warn)";
       msg.textContent = authErrorMsg(e);
     }finally{
-      signupBtn.disabled = false;
+      setGateBusy(false);
     }
   }
   passwordBtn.addEventListener("click", submitLogin);
   if (signupBtn) signupBtn.addEventListener("click", submitSignup);
   if (passwordInput) passwordInput.addEventListener("keydown", (e)=>{ if (e.key==="Enter") submitLogin(); });
   if (forgotBtn) forgotBtn.addEventListener("click", async ()=>{
+    if (gateBusy) return;
     const email = readEmail();
     if (!email) return;
-    forgotBtn.disabled = true;
+    setGateBusy(true);
     try{
       await sendPasswordReset(email);
       msg.style.color = "var(--long)";
@@ -3491,7 +3523,7 @@ function initGateUI(){
       msg.style.color = "var(--warn)";
       msg.textContent = authErrorMsg(e);
     }finally{
-      forgotBtn.disabled = false;
+      setGateBusy(false);
     }
   });
 }
@@ -10831,6 +10863,8 @@ function renderAll(){
   if (inBackgroundBookCheck) return;
   const unameEl = document.getElementById("username-input");
   if (unameEl && document.activeElement!==unameEl) unameEl.value = state.username;
+  const profileUnameEl = document.getElementById("profile-username-input");
+  if (profileUnameEl && document.activeElement!==profileUnameEl) profileUnameEl.value = state.username;
   updateWatchlist();
   updateChart();
   updateOrderReadout();
@@ -11004,8 +11038,39 @@ function initEvents(){
     const v = unameInput.value.trim();
     state.username = v || randHandle();
     unameInput.value = state.username;
+    const profileEcho = document.getElementById("profile-username-input");
+    if (profileEcho && document.activeElement!==profileEcho) profileEcho.value = state.username;
     persistAccount();
   });
+
+  // Same pseudo change, duplicated as an explicit "Pseudo" card in Profil
+  // (the header strip input above is easy to miss / looks like a label) —
+  // both write to the same state.username and persistAccount(), and each
+  // handler echoes the new value into the other input directly so the two
+  // stay in sync immediately, without waiting on the next price-tick
+  // renderAll() (renderAll() below still covers any other source of change,
+  // e.g. an admin edit or a cross-tab reload).
+  const profileUnameInput = document.getElementById("profile-username-input");
+  const profileUnameBtn = document.getElementById("profile-username-save-btn");
+  const profileUnameMsg = document.getElementById("profile-username-msg");
+  if (profileUnameInput && profileUnameBtn){
+    profileUnameInput.value = state.username;
+    const saveProfileUsername = ()=>{
+      const v = profileUnameInput.value.trim();
+      state.username = v || randHandle();
+      profileUnameInput.value = state.username;
+      unameInput.value = state.username;
+      persistAccount();
+      if (profileUnameMsg){
+        profileUnameMsg.textContent = "Pseudo mis à jour ✓";
+        setTimeout(()=>{ if (profileUnameMsg.textContent==="Pseudo mis à jour ✓") profileUnameMsg.textContent=""; }, 2500);
+      }
+    };
+    profileUnameBtn.addEventListener("click", saveProfileUsername);
+    profileUnameInput.addEventListener("keydown", (e)=>{
+      if (e.key==="Enter"){ e.preventDefault(); saveProfileUsername(); }
+    });
+  }
 }
 
 /* ============================= THEME ============================= */
