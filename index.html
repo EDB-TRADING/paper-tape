@@ -1183,7 +1183,7 @@
     --shadow-card:0 1px 0 rgba(255,255,255,.025) inset, 0 12px 32px -18px rgba(0,0,0,.6);
   }
   html.sb-rail{--sb-w:var(--sb-rail);}
-  body{font-size:14px;line-height:1.45;}
+  body{font-size:14px;line-height:1.45;margin:0;} /* the browser's default 8px body margin used to frame the whole app */
   h1,h2,h3,h4{font-family:var(--sans);letter-spacing:-0.01em;}
 
   /* ---------- shell ---------- */
@@ -1613,6 +1613,194 @@
     .auth-gate-pitch .wordmark{display:none;}
     body[data-view="chat"] .feedback-fab{display:none;} /* would sit on top of the chat's Send button */
   }
+
+  /* ---------- Chat (refonte) ---------- */
+  body[data-view="chat"] main{padding-bottom:24px;}
+  .chat-shell{
+    display:flex;flex-direction:column;max-width:980px;margin:0 auto;
+    height:calc(100dvh - var(--topbar-h) - 66px);min-height:420px;
+    background:var(--panel);border:1px solid var(--border-soft);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-card);
+  }
+  .chat-head{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border-soft);
+    background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, var(--panel)), var(--panel));}
+  .chat-head-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:none;
+    background:color-mix(in srgb, var(--accent) 18%, transparent);color:var(--accent);}
+  .chat-head-icon .ic{width:20px;height:20px;}
+  .chat-head-text{min-width:0;flex:1;}
+  .chat-head-title{font-weight:700;font-size:15.5px;letter-spacing:-0.01em;}
+  .chat-head-sub{font-size:12px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .chat-head-avatars{display:flex;align-items:center;flex:none;}
+  .chat-head-av{display:flex;margin-left:-8px;border-radius:50%;box-shadow:0 0 0 2px var(--panel);}
+  .chat-head-av:first-child{margin-left:0;}
+  .chat-head-count{font-size:12px;color:var(--text-faint);margin-left:10px;white-space:nowrap;}
+  .chat-scroll-wrap{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;}
+  #view-chat .global-chat-messages{flex:1;max-height:none;min-height:0;overflow-y:auto;overflow-x:hidden;gap:0;padding:10px 18px 16px;scroll-behavior:auto;overscroll-behavior:contain;}
+  .chat-day{display:flex;align-items:center;gap:12px;margin:18px 0 4px;font-size:11.5px;font-weight:600;color:var(--text-faint);text-transform:capitalize;}
+  .chat-day::before,.chat-day::after{content:"";flex:1;height:1px;background:var(--border-soft);}
+  .chat-msg{display:flex;gap:10px;align-items:flex-start;margin-top:12px;}
+  .chat-msg.grouped{margin-top:3px;}
+  .chat-msg.mine{justify-content:flex-end;}
+  .chat-msg-avatar{width:34px;flex:none;}
+  .chat-av-btn{background:none;border:none;padding:0;cursor:pointer;display:flex;border-radius:50%;}
+  .chat-msg-main{display:flex;flex-direction:column;align-items:flex-start;max-width:min(74%,580px);min-width:0;}
+  .chat-msg.mine .chat-msg-main{align-items:flex-end;}
+  .chat-msg-author{display:flex;align-items:center;flex-wrap:wrap;gap:2px;font-size:12.5px;font-weight:600;color:var(--text-dim);margin:0 0 4px 6px;}
+  .chat-msg-author .user-badge{font-size:9.5px;padding:1px 6px;}
+  .chat-msg-row{display:flex;align-items:center;gap:4px;max-width:100%;min-width:0;}
+  .chat-msg.mine .chat-msg-row{flex-direction:row-reverse;}
+  #view-chat .chat-bubble{
+    max-width:100%;min-width:0;padding:8px 13px 7px;border-radius:18px;border:none;margin:0;
+    background:var(--panel-2);color:var(--text);box-shadow:0 1px 0 rgba(0,0,0,.15);
+  }
+  #view-chat .chat-bubble.theirs{border-top-left-radius:6px;}
+  #view-chat .chat-msg.grouped .chat-bubble.theirs{border-top-left-radius:6px;}
+  #view-chat .chat-bubble.mine{
+    background:linear-gradient(160deg, var(--accent-light), var(--accent));color:var(--on-accent);border-top-right-radius:6px;
+  }
+  #view-chat .chat-bubble.mine.media{background:var(--panel-2);color:var(--text);box-shadow:0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);}
+  #view-chat .chat-bubble-text{font-size:14.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word;}
+  #view-chat .chat-bubble-img + .chat-bubble-text,#view-chat .mini-pnl-card + .chat-bubble-text{margin-top:6px;}
+  #view-chat .chat-bubble a{color:inherit;text-decoration:underline;text-underline-offset:2px;}
+  .chat-mention{font-weight:600;color:var(--accent);}
+  #view-chat .chat-bubble.mine .chat-mention{color:inherit;text-decoration:underline;}
+  #view-chat .chat-msg.mention .chat-bubble{box-shadow:0 0 0 1.5px var(--gold);}
+  .chat-msg-time{float:right;margin:5px 0 -3px 12px;font-family:var(--mono);font-size:10px;opacity:.55;white-space:nowrap;line-height:1.4;}
+  #view-chat .chat-bubble.media .chat-msg-time{display:block;float:none;text-align:right;margin:4px 0 0;}
+  #view-chat .chat-bubble-img{display:block;width:320px;max-width:100%;height:auto;max-height:360px;object-fit:cover;border-radius:12px;margin:2px 0 0;}
+  .chat-msg-tools{display:flex;gap:2px;opacity:0;transition:opacity .12s;flex:none;}
+  .chat-tool{width:28px;height:28px;border-radius:8px;border:none;background:none;color:var(--text-faint);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+  .chat-tool .ic{width:15px;height:15px;}
+  .chat-tool:hover{background:var(--panel-2);color:var(--text);}
+  .chat-tool.danger:hover{color:var(--short);}
+  .chat-msg-react{margin-top:3px;padding:0 4px;}
+  .chat-msg-react .thumb-react-btn{padding:2px 8px;font-size:11.5px;}
+  .chat-msg-react.is-empty{display:none;}
+  @media (hover:hover){
+    .chat-msg:hover .chat-msg-tools{opacity:1;}
+    .chat-msg:hover .chat-msg-react.is-empty{display:block;}
+    .chat-msg-react.is-empty .thumb-react-btn{opacity:.6;}
+  }
+  .chat-msg.show-tools .chat-msg-tools{opacity:1;}
+  .chat-msg.show-tools .chat-msg-react.is-empty{display:block;}
+  #view-chat .chat-bubble.chat-edit-box{min-width:min(420px,70vw);background:var(--panel-2);color:var(--text);box-shadow:0 0 0 1px var(--accent);}
+  @media (max-width:1320px){ body[data-view="chat"] .feedback-fab{display:none;} }
+  #view-chat .chat-edit-box textarea{font-size:14px;border-radius:10px;}
+  #view-chat .chat-edit-actions button{padding:6px 12px;font-size:12.5px;}
+  .chat-new-pill{
+    position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;align-items:center;gap:6px;
+    background:var(--accent);color:var(--on-accent);border:none;border-radius:999px;padding:7px 14px;font-family:var(--sans);font-size:12.5px;font-weight:600;cursor:pointer;
+    box-shadow:0 8px 20px -6px rgba(0,0,0,.6);
+  }
+  .chat-new-pill[hidden]{display:none;}
+  .chat-new-pill .ic{width:14px;height:14px;}
+  .chat-empty{margin:auto;text-align:center;padding:40px 20px;}
+  .chat-empty-icon{width:56px;height:56px;border-radius:18px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb, var(--accent) 16%, transparent);color:var(--accent);}
+  .chat-empty-icon .ic{width:26px;height:26px;}
+  .chat-empty-title{font-weight:600;font-size:15px;margin-bottom:4px;}
+  .global-chat-image-preview[hidden]{display:none;} /* its display:flex used to override [hidden] — an empty bar sat above the input */
+  #view-chat .global-chat-image-preview{margin:0 14px 8px;border-radius:12px;}
+  .chat-composer{display:flex;align-items:flex-end;gap:8px;padding:12px 14px;border-top:1px solid var(--border-soft);background:var(--panel);}
+  .chat-composer textarea{
+    flex:1;min-width:0;resize:none;max-height:140px;background:var(--bg-raised);border:1px solid var(--border);border-radius:20px;
+    padding:10px 16px;font-family:var(--sans);font-size:14.5px;line-height:1.4;color:var(--text);overflow-y:auto;
+  }
+  .chat-composer textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);}
+  .chat-composer-btn,.chat-send-btn{width:42px;height:42px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;}
+  .chat-composer-btn{background:var(--bg-raised);border:1px solid var(--border);color:var(--text-dim);}
+  .chat-composer-btn:hover{color:var(--text);border-color:var(--accent);}
+  .chat-send-btn{border:none;background:linear-gradient(160deg, var(--accent-light), var(--accent));color:var(--on-accent);box-shadow:0 6px 16px -8px var(--accent);}
+  .chat-send-btn:disabled{opacity:.5;cursor:default;}
+  .chat-send-btn .ic{width:19px;height:19px;margin-left:-2px;}
+  @media (max-width:1080px){
+    body[data-view="chat"] main{padding:10px 8px calc(var(--tabbar-h) + 10px + env(safe-area-inset-bottom));}
+    .chat-shell{height:calc(100dvh - 56px - var(--tabbar-h) - env(safe-area-inset-bottom) - 36px);border-radius:16px;min-height:320px;}
+    .chat-head{padding:11px 14px;}
+    .chat-head-avatars .chat-head-av{display:none;}
+    #view-chat .global-chat-messages{padding:6px 10px 12px;}
+    .chat-msg-main{max-width:82%;}
+    .chat-msg-avatar{width:30px;}
+    .chat-composer{padding:10px;}
+    .chat-composer textarea{font-size:16px;} /* ≥16px so iOS doesn't zoom the page on focus */
+  }
+
+  /* ---------- Profil: equity curve ---------- */
+  .eq-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+  .eq-summary{margin-top:6px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+  .eq-now{font-size:22px;font-weight:600;letter-spacing:-0.01em;font-variant-numeric:normal;}
+  .eq-delta{font-size:13px;font-weight:600;}
+  .eq-chart{position:relative;width:100%;}
+  .eq-svg{display:block;width:100%;height:auto;overflow:visible;touch-action:pan-y;}
+  .eq-svg:focus{outline:none;}
+  .eq-svg:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:6px;}
+  .eq-grid{stroke:var(--border-soft);stroke-width:1;}
+  .eq-base{stroke:var(--text-faint);stroke-width:1;opacity:.55;}
+  .eq-tick,.eq-x{fill:var(--text-faint);font-family:var(--mono);font-size:10.5px;}
+  .eq-line{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round;}
+  .eq-line.up{stroke:var(--long);}
+  .eq-line.dn{stroke:var(--short);}
+  .eq-area{stroke:none;}
+  .eq-area.up{fill:var(--long);opacity:.10;}
+  .eq-area.dn{fill:var(--short);opacity:.10;}
+  .eq-end,.eq-hdot{stroke:var(--panel);stroke-width:2;}
+  .eq-end.up,.eq-hdot.up{fill:var(--long);}
+  .eq-end.dn,.eq-hdot.dn{fill:var(--short);}
+  .eq-cross{stroke:var(--text-faint);stroke-width:1;}
+  .eq-hit{fill:transparent;cursor:crosshair;}
+  .eq-tip{
+    position:absolute;pointer-events:none;background:var(--panel-2);border:1px solid var(--border);border-radius:10px;
+    padding:7px 10px;box-shadow:0 10px 24px -10px rgba(0,0,0,.6);min-width:150px;max-width:260px;z-index:2;
+  }
+  .eq-tip[hidden]{display:none;}
+  .eq-tip-v{font-family:var(--mono);font-weight:600;font-size:14px;color:var(--text);}
+  .eq-tip-l{font-size:11.5px;color:var(--text-dim);margin-top:2px;}
+  .eq-empty{display:flex;gap:12px;align-items:center;padding:18px 16px;border:1px dashed var(--border);border-radius:12px;color:var(--text-dim);}
+  .eq-empty .ic{width:28px;height:28px;color:var(--accent);flex:none;}
+  .eq-table-wrap{margin-top:10px;}
+  .eq-table-wrap[hidden]{display:none;}
+  .eq-table-wrap summary{cursor:pointer;font-size:12.5px;color:var(--text-faint);}
+  .eq-table-wrap summary:hover{color:var(--text);}
+  .eq-table{margin-top:8px;font-size:12.5px;}
+  .eq-table td,.eq-table th{padding:7px 10px;}
+  .eq-table td.num,.eq-table th.num{text-align:right;}
+
+  /* ---------- Classement: movement since Monday ---------- */
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+  .lb-rank{white-space:nowrap;}
+  .lb-rank-n{display:inline-block;min-width:18px;}
+  .lb-move{display:inline-flex;align-items:center;gap:2px;margin-left:8px;font-family:var(--mono);font-size:11.5px;font-weight:600;
+    padding:2px 7px;border-radius:999px;vertical-align:1px;}
+  .lb-move span[aria-hidden]{font-size:9px;}
+  .lb-pod-move .lb-move{font-size:12.5px;padding:3px 9px;}
+  .lb-move.up{color:var(--long);background:color-mix(in srgb, var(--long) 14%, transparent);}
+  .lb-move.down{color:var(--short);background:color-mix(in srgb, var(--short) 14%, transparent);}
+  .lb-move.same{color:var(--text-faint);}
+  .lb-move.new{color:var(--text-faint);font-family:var(--sans);font-weight:500;}
+  .lb-pod-move .lb-move{margin-left:0;}
+  .lb-podium-caption{font-size:11.5px;color:var(--text-faint);text-align:right;margin:-10px 0 12px;}
+  @media (max-width:640px){ .lb-move{margin-left:3px;padding:1px 4px;} .lb-rank{width:48px;} }
+
+  /* ---------- Connaissances: progress rings ---------- */
+  .pring{display:block;flex:none;}
+  .pring-track{fill:none;stroke:var(--border);}
+  .pring-fill{fill:none;stroke:var(--long);stroke-linecap:round;transition:stroke-dashoffset .6s ease;}
+  .pring.gold .pring-fill{stroke:var(--gold);}
+  .learn-prog{display:flex;justify-content:center;gap:10px 22px;flex-wrap:wrap;margin-top:18px;}
+  .learn-prog-item{display:flex;align-items:center;gap:10px;text-align:left;background:var(--bg-raised);border:1px solid var(--border-soft);border-radius:14px;padding:8px 14px 8px 8px;}
+  .learn-prog-val{font-weight:600;font-size:15px;color:var(--text);font-variant-numeric:normal;}
+  .learn-prog-lbl{font-size:11.5px;color:var(--text-faint);}
+  .deck-top{display:flex;align-items:center;gap:10px;}
+  .deck-top .deck-card-icon{margin-bottom:0;}
+  .deck-top .quiz-deck-item-head{flex:1;min-width:0;}
+  .deck-top .quiz-deck-count{white-space:normal;line-height:1.35;}
+  .deck-ring{position:relative;flex:none;width:46px;height:46px;}
+  .deck-ring-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--text-dim);}
+  .quiz-deck-item.is-done .deck-ring-txt{color:var(--gold);font-size:15px;}
+  .deck-chips{display:flex;gap:6px;flex-wrap:wrap;}
+  .deck-chip{font-size:11px;font-weight:500;color:var(--text-faint);background:var(--panel-2);border:1px solid var(--border-soft);border-radius:999px;padding:2px 9px;}
+  .deck-chip.ok{color:var(--long);border-color:color-mix(in srgb, var(--long) 40%, transparent);}
+  .deck-chip.gold{color:var(--gold);border-color:color-mix(in srgb, var(--gold) 50%, transparent);}
+  .quiz-deck-item.is-done{box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--gold) 40%, transparent);}
+  @media (max-width:640px){ .learn-prog{gap:8px;} .learn-prog-item{flex:1 1 calc(50% - 8px);} }
   @media (max-width:520px){
     .acct-metric:nth-child(3){display:none;} /* PnL ouvert: equity alone on very narrow phones */
     .tb-title{font-size:17px;max-width:40vw;overflow:hidden;text-overflow:ellipsis;}
@@ -1648,6 +1836,11 @@
     <symbol id="i-grid" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="14" rx="1.5"/><rect width="7" height="7" x="3" y="14" rx="1.5"/></symbol>
     <symbol id="i-panel" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2.5"/><path d="M9 3v18"/></symbol>
     <symbol id="i-lock" viewBox="0 0 24 24"><rect width="16" height="10" x="4" y="11" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M14.5 9.5 21 3"/><path d="M21 3 14.5 21a.55.55 0 0 1-1 0L10 14 3 10.5a.55.55 0 0 1 0-1L21 3z"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2.5"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.4 3.6a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></symbol>
     <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
   </defs>
 </svg>
@@ -2032,9 +2225,10 @@
         </div>
         <div id="lb-wrap-normal">
           <div class="lb-podium" id="lb-podium"></div>
+          <div class="lb-podium-caption">▲▼ places gagnées ou perdues depuis lundi</div>
           <div style="overflow-x:auto;">
             <table class="lb-table lb-table-main">
-              <thead><tr><th>Rang</th><th>Trader</th><th class="lb-col-opt num">Trades</th><th class="lb-col-opt num">Réussite</th><th class="num">Équité</th><th class="num">Perf.</th></tr></thead>
+              <thead><tr><th title="Flèche = places gagnées ou perdues depuis lundi">Rang</th><th>Trader</th><th class="lb-col-opt num">Trades</th><th class="lb-col-opt num">Réussite</th><th class="num">Équité</th><th class="num">Perf.</th></tr></thead>
               <tbody id="lb-body"><tr><td colspan="6" class="empty-note">Chargement du classement…</td></tr></tbody>
             </table>
           </div>
@@ -2168,6 +2362,24 @@
             <button class="btn-secondary" id="tour-replay-btn">Revoir le tutoriel</button>
             <button class="btn-secondary ph-logout" id="auth-logout-btn">Se déconnecter</button>
           </div>
+        </div>
+        <div class="card eq-card" style="margin-top:14px;">
+          <div class="eq-head">
+            <div class="eq-head-text">
+              <h3 style="margin:0;">Courbe d'équité</h3>
+              <div class="eq-summary" id="eq-summary"></div>
+            </div>
+            <div class="seg lb-seg eq-range" id="eq-range" role="group" aria-label="Période">
+              <button type="button" class="on-mode" data-eq-range="7">7 j</button>
+              <button type="button" class="on-mode" data-eq-range="30">30 j</button>
+              <button type="button" class="on-mode active" data-eq-range="all">Tout</button>
+            </div>
+          </div>
+          <div class="eq-chart" id="equity-curve"></div>
+          <details class="eq-table-wrap" id="eq-table-wrap" hidden>
+            <summary>Voir les données</summary>
+            <div id="eq-table"></div>
+          </details>
         </div>
         <div class="card" style="margin-top:14px;">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
@@ -2396,20 +2608,25 @@
 
     <!-- ================= CHAT GLOBAL ================= -->
     <section class="view" id="view-chat">
-      <div class="learn-wrap wrap-wide">
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
-            <h3 style="margin:0;">Chat global EDB</h3>
+      <div class="chat-shell">
+        <div class="chat-head">
+          <div class="chat-head-icon"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg></div>
+          <div class="chat-head-text">
+            <div class="chat-head-title">Chat EDB</div>
+            <div class="chat-head-sub" id="global-chat-sub">Ouvert à tous les traders · visible par tout le monde, bureau compris</div>
           </div>
-          <div class="chart-note" style="margin-bottom:10px;">Discussion ouverte à tous les traders. Sois sympa — les messages et images sont visibles par tout le monde, y compris le bureau.</div>
+          <div class="chat-head-avatars" id="global-chat-avatars"></div>
+        </div>
+        <div class="chat-scroll-wrap">
           <div id="global-chat-messages" class="global-chat-messages"><div class="empty-note">Chargement…</div></div>
-          <div id="global-chat-image-preview" class="global-chat-image-preview" hidden></div>
-          <div style="display:flex;gap:8px;margin-top:10px;align-items:flex-end;">
-            <input type="file" id="global-chat-image-input" accept="image/*" hidden>
-            <button class="btn-secondary" id="global-chat-image-btn" title="Joindre une image">🖼️</button>
-            <input type="text" id="global-chat-input" class="tpsl-input" maxlength="500" placeholder="Écris un message…" style="flex:1;">
-            <button class="btn-primary" id="global-chat-send-btn">Envoyer</button>
-          </div>
+          <button type="button" class="chat-new-pill" id="global-chat-new-pill" hidden><svg class="ic" aria-hidden="true"><use href="#i-down"/></svg><span>Nouveaux messages</span></button>
+        </div>
+        <div id="global-chat-image-preview" class="global-chat-image-preview" hidden></div>
+        <div class="chat-composer">
+          <input type="file" id="global-chat-image-input" accept="image/*" hidden>
+          <button type="button" class="chat-composer-btn" id="global-chat-image-btn" title="Joindre une image" aria-label="Joindre une image"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg></button>
+          <textarea id="global-chat-input" rows="1" maxlength="500" placeholder="Écris un message…" aria-label="Message"></textarea>
+          <button type="button" class="chat-send-btn" id="global-chat-send-btn" title="Envoyer (Entrée)" aria-label="Envoyer"><svg class="ic" aria-hidden="true"><use href="#i-send"/></svg></button>
         </div>
       </div>
     </section>
@@ -7183,6 +7400,25 @@ function lbWinRate(d){
   const closed = st.tradesClosed||0;
   return closed>0 ? ((st.wins||0)/closed)*100 : null;
 }
+// "Depuis lundi" movement: the weeklyLeaderboardReset Cloud Function
+// snapshots every trader's equity each Monday into weekStartEquity, so the
+// ranking as it stood on Monday can be rebuilt client-side (same set of
+// ranked traders, ordered by that snapshot) and compared to today's.
+function lbStartRanks(active){
+  const ranked = active.map(doc=>({id:doc.id, v:doc.data().weekStartEquity}))
+    .filter(x=>typeof x.v==="number")
+    .sort((a,b)=>b.v-a.v);
+  const map = {};
+  ranked.forEach((x,i)=>{ map[x.id] = i+1; });
+  return map;
+}
+function lbMoveHtml(startRank, rank){
+  if (!startRank) return '<span class="lb-move new" title="Pas encore de point de départ cette semaine">nouv.</span>';
+  const d = startRank - rank;
+  if (d===0) return '<span class="lb-move same" title="Même place que lundi (#'+startRank+')">=</span>';
+  return '<span class="lb-move '+(d>0?"up":"down")+'" title="Lundi : #'+startRank+' → aujourd\'hui : #'+rank+'">'+
+    '<span aria-hidden="true">'+(d>0?"▲":"▼")+'</span>'+Math.abs(d)+'<span class="sr-only"> place'+(Math.abs(d)>1?"s":"")+' '+(d>0?"gagnée":"perdue")+(Math.abs(d)>1?"s":"")+' depuis lundi</span></span>';
+}
 function renderLeaderboard(docs){
   const body = document.getElementById("lb-body");
   const podium = document.getElementById("lb-podium");
@@ -7191,6 +7427,7 @@ function renderLeaderboard(docs){
   docs.forEach(doc=>{ leaderboardDocsCache[doc.id] = doc; });
   const active = docs.filter(doc=>lbTraderIsActive(doc.data()));
   const inactive = docs.filter(doc=>!lbTraderIsActive(doc.data()));
+  const startRanks = lbStartRanks(active);
   if (!docs.length){
     if (podium) podium.innerHTML = "";
     body.innerHTML = '<tr><td colspan="6" class="empty-note">Aucun trader pour le moment — sois le premier.</td></tr>';
@@ -7211,6 +7448,7 @@ function renderLeaderboard(docs){
         '<span class="lb-pod-badges">'+traderBadgesHtml(d)+'</span>'+
         '<span class="lb-pod-eq num">'+fmtMoney(d.equity||0)+'</span>'+
         '<span class="lb-pod-ret num '+(ret>=0?"up":"down")+'">'+fmtPct(ret)+'</span>'+
+        '<span class="lb-pod-move">'+lbMoveHtml(startRanks[doc.id], rank)+'</span>'+
       '</button>';
     }).join("") : "";
     podium.hidden = !top.length;
@@ -7228,7 +7466,7 @@ function renderLeaderboard(docs){
       const st = d.stats || {};
       const wr = lbWinRate(d);
       return '<tr class="lb-row-clickable '+(doc.id===clientId?"me":"")+'" data-trader-id="'+doc.id+'" title="Voir le profil">'+
-        '<td class="num lb-rank">'+rank+'</td>'+
+        '<td class="num lb-rank"><span class="lb-rank-n">'+rank+'</span>'+lbMoveHtml(startRanks[doc.id], rank)+'</td>'+
         '<td><span class="lb-trader">'+avatarHtml(d.photoURL, d.username, 30)+'<span class="lb-trader-name">'+escapeHtml(d.username||"Trader")+(doc.id===clientId?' <span class="hist-tag">toi</span>':'')+'</span>'+traderBadgesHtml(d)+traderBadgeIconsHtml(d)+'</span></td>'+
         '<td class="num lb-col-opt">'+(st.tradesClosed||0)+'</td>'+
         '<td class="num lb-col-opt">'+(wr!=null ? wr.toFixed(0)+"%" : "—")+'</td>'+
@@ -8420,6 +8658,200 @@ function renderProfileAvatar(){
   el.innerHTML = avatarHtml(state.photoURL, state.username, 84);
   renderProfileHero();
 }
+/* ---------- Profil: equity curve ----------
+   Built from the normal account's closed-trade history. Anchored on the
+   CURRENT balance and walked backwards trade by trade, so the curve always
+   ends on the real number even when older trades were trimmed from history
+   (TRADE_HISTORY_RETAIN) or the balance moved for other reasons (quiz
+   bonuses, admin adjustments) — those simply show up before the first trade
+   in the window. Stepped line: equity only changes when a trade closes.
+   Above the starting capital the line/wash is green, below it red. */
+let eqRange = "all";
+let eqPoints = [];      // points currently drawn (after range filter)
+let eqHoverIdx = null;
+function equityCurveSeries(){
+  let normal = null;
+  try{ normal = booksForPersist().normal; }catch(e){}
+  const book = normal || {cash:state.cash, positions:state.positions, history:state.history};
+  const hist = (book.history||[]).filter(h=>h && h.closedAt && typeof h.pnl==="number")
+    .slice().sort((a,b)=>new Date(a.closedAt)-new Date(b.closedAt));
+  if (!hist.length) return null;
+  // Entry fees are taken from cash when a position OPENS: add back the ones
+  // still sitting in open positions, and count each closed trade net of its own.
+  const openFees = (book.positions||[]).reduce((sum,p)=>sum+(p.entryFee||0),0);
+  let run = book.cash + openFees;
+  const pts = [];
+  for (let i=hist.length-1;i>=0;i--){
+    const h = hist[i];
+    const entryFee = Math.max(0, (h.feesPaid||0)-(h.exitFee||0));
+    const net = h.pnl - entryFee;
+    pts.unshift({t:new Date(h.closedAt).getTime(), v:run, trade:h, net});
+    run -= net;
+  }
+  const first = hist[0];
+  const t0 = first.openedAt ? new Date(first.openedAt).getTime() : pts[0].t - 3600e3;
+  pts.unshift({t:Math.min(t0, pts[0].t-60e3), v:run, kind:"start"});
+  const nowV = normal ? bookEquity(normal) : equity();
+  pts.push({t:Date.now(), v:nowV, kind:"now"});
+  return pts;
+}
+function eqFmtDate(t, withTime){
+  const d = new Date(t);
+  return withTime ? d.toLocaleString("fr-FR",{day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"})
+                  : d.toLocaleDateString("fr-FR",{day:"numeric", month:"short"});
+}
+function eqNiceTicks(min, max, count){
+  const span = max-min || 1;
+  const raw = span/count;
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1,2,2.5,5,10].map(m=>m*mag).find(x=>x>=raw) || 10*mag;
+  const out = [];
+  for (let v=Math.ceil(min/step)*step; v<=max+1e-9; v+=step) out.push(v);
+  return out;
+}
+function renderEquityCurve(){
+  const wrap = document.getElementById("equity-curve");
+  const summary = document.getElementById("eq-summary");
+  const tableWrap = document.getElementById("eq-table-wrap");
+  if (!wrap) return;
+  const all = equityCurveSeries();
+  if (!all){
+    wrap.innerHTML = '<div class="eq-empty"><svg class="ic" aria-hidden="true"><use href="#i-trend"/></svg><div><strong>Ta courbe apparaîtra ici</strong><div class="chart-note" style="margin:2px 0 0;">Dès ton premier trade clôturé, chaque résultat viendra la faire monter… ou descendre.</div></div></div>';
+    if (summary) summary.textContent = "";
+    if (tableWrap) tableWrap.hidden = true;
+    return;
+  }
+  // Range filter — the value at the cut-off is carried in as the window's first point.
+  let pts = all;
+  if (eqRange!=="all"){
+    const cutoff = Date.now() - (+eqRange)*86400e3;
+    const before = all.filter(p=>p.t<cutoff);
+    const inside = all.filter(p=>p.t>=cutoff);
+    pts = before.length ? [{t:cutoff, v:before[before.length-1].v, kind:"cut"}].concat(inside) : inside;
+  }
+  eqPoints = pts;
+  const W = Math.max(280, Math.round(wrap.clientWidth || 640));
+  const H = W<480 ? 190 : 230;
+  const m = {l:8, r:78, t:14, b:26};
+  const iw = W-m.l-m.r, ih = H-m.t-m.b;
+  const vals = pts.map(p=>p.v).concat([START_CASH]);
+  let lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+  const pad = Math.max((hi-lo)*0.12, START_CASH*0.002);
+  lo -= pad; hi += pad;
+  const t0 = pts[0].t, t1 = pts[pts.length-1].t;
+  const x = t=> m.l + (t1===t0 ? iw : (t-t0)/(t1-t0)*iw);
+  const y = v=> m.t + (hi-v)/(hi-lo)*ih;
+  const by = y(START_CASH);
+  // stepped path
+  let d = "M"+x(pts[0].t).toFixed(1)+","+y(pts[0].v).toFixed(1);
+  for (let i=1;i<pts.length;i++){ d += "H"+x(pts[i].t).toFixed(1)+"V"+y(pts[i].v).toFixed(1); }
+  const area = d+"V"+by.toFixed(1)+"H"+x(pts[0].t).toFixed(1)+"Z";
+  const ticks = eqNiceTicks(lo, hi, 3);
+  const last = pts[pts.length-1];
+  const uid = "eq"+Math.random().toString(36).slice(2,7);
+  wrap.innerHTML =
+    '<svg class="eq-svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" role="img" tabindex="0" aria-label="Courbe d\'équité — utilise les flèches pour parcourir les trades">'+
+      '<defs>'+
+        '<clipPath id="'+uid+'-up"><rect x="0" y="0" width="'+W+'" height="'+by.toFixed(1)+'"/></clipPath>'+
+        '<clipPath id="'+uid+'-dn"><rect x="0" y="'+by.toFixed(1)+'" width="'+W+'" height="'+(H-by).toFixed(1)+'"/></clipPath>'+
+      '</defs>'+
+      ticks.map(v=>'<line class="eq-grid" x1="'+m.l+'" x2="'+(m.l+iw)+'" y1="'+y(v).toFixed(1)+'" y2="'+y(v).toFixed(1)+'"/>'+
+        '<text class="eq-tick" x="'+(m.l+iw+8)+'" y="'+(y(v)+4).toFixed(1)+'">'+fmtMoneyCompact(v)+'</text>').join("")+
+      '<line class="eq-base" x1="'+m.l+'" x2="'+(m.l+iw)+'" y1="'+by.toFixed(1)+'" y2="'+by.toFixed(1)+'"/>'+
+      '<path class="eq-area up" d="'+area+'" clip-path="url(#'+uid+'-up)"/>'+
+      '<path class="eq-area dn" d="'+area+'" clip-path="url(#'+uid+'-dn)"/>'+
+      '<path class="eq-line up" d="'+d+'" clip-path="url(#'+uid+'-up)"/>'+
+      '<path class="eq-line dn" d="'+d+'" clip-path="url(#'+uid+'-dn)"/>'+
+      '<circle class="eq-end '+(last.v>=START_CASH?"up":"dn")+'" cx="'+x(last.t).toFixed(1)+'" cy="'+y(last.v).toFixed(1)+'" r="4.5"/>'+
+      '<text class="eq-x" x="'+m.l+'" y="'+(H-6)+'">'+eqFmtDate(t0)+'</text>'+
+      '<text class="eq-x" x="'+(m.l+iw)+'" y="'+(H-6)+'" text-anchor="end">Maintenant</text>'+
+      '<g class="eq-hover" style="display:none"><line class="eq-cross" y1="'+m.t+'" y2="'+(m.t+ih)+'"/><circle class="eq-hdot" r="5"/></g>'+
+      '<rect class="eq-hit" x="'+m.l+'" y="0" width="'+iw+'" height="'+H+'"/>'+
+    '</svg>'+
+    '<div class="eq-tip" hidden><div class="eq-tip-v"></div><div class="eq-tip-l"></div></div>';
+  // summary: value + change over the window
+  if (summary){
+    const chg = last.v - pts[0].v;
+    const pct = pts[0].v ? chg/pts[0].v*100 : 0;
+    const label = eqRange==="all" ? "depuis le début" : "sur "+eqRange+" jours";
+    summary.innerHTML = '<span class="eq-now num">'+fmtMoney(last.v)+'</span> <span class="eq-delta num '+(chg>0?"up":chg<0?"down":"")+'">'+(chg>=0?"+":"−")+fmtMoney(Math.abs(chg))+' ('+(pct>=0?"+":"−")+Math.abs(pct).toFixed(2)+' %)</span> <span class="chart-note" style="display:inline;margin:0;">'+label+'</span>';
+  }
+  // hover / keyboard
+  const svg = wrap.querySelector("svg");
+  const hov = svg.querySelector(".eq-hover");
+  const cross = svg.querySelector(".eq-cross");
+  const hdot = svg.querySelector(".eq-hdot");
+  const tip = wrap.querySelector(".eq-tip");
+  const show = (i)=>{
+    if (i==null || !pts[i]){ hov.style.display = "none"; tip.hidden = true; eqHoverIdx = null; return; }
+    eqHoverIdx = i;
+    const p = pts[i]; const px = x(p.t), py = y(p.v);
+    hov.style.display = "";
+    cross.setAttribute("x1", px); cross.setAttribute("x2", px);
+    hdot.setAttribute("cx", px); hdot.setAttribute("cy", py);
+    hdot.setAttribute("class", "eq-hdot "+(p.v>=START_CASH?"up":"dn"));
+    tip.hidden = false;
+    tip.querySelector(".eq-tip-v").textContent = fmtMoney(p.v);
+    let lbl;
+    if (p.kind==="start") lbl = "Avant ton premier trade";
+    else if (p.kind==="cut") lbl = eqFmtDate(p.t)+" · début de la période";
+    else if (p.kind==="now") lbl = "Maintenant (positions ouvertes incluses)";
+    else lbl = eqFmtDate(p.t, true)+" · "+(p.trade.symbol||"")+" "+(p.trade.side==="long"?"Long":"Short")+" "+(p.net>=0?"+":"−")+fmtMoney(Math.abs(p.net));
+    tip.querySelector(".eq-tip-l").textContent = lbl;
+    const tw = tip.offsetWidth || 180;
+    let left = px + 12; if (left+tw > W-4) left = px - tw - 12;
+    tip.style.left = Math.max(0,left)+"px";
+    tip.style.top = Math.max(0, Math.min(py-24, H-60))+"px";
+  };
+  const nearest = (clientX)=>{
+    const r = svg.getBoundingClientRect();
+    const mx = (clientX - r.left) * (W / r.width);
+    let best = 0, bd = Infinity;
+    pts.forEach((p,i)=>{ const dd = Math.abs(x(p.t)-mx); if (dd<bd){ bd = dd; best = i; } });
+    return best;
+  };
+  const hit = svg.querySelector(".eq-hit");
+  hit.addEventListener("pointermove", e=>show(nearest(e.clientX)));
+  hit.addEventListener("pointerdown", e=>show(nearest(e.clientX)));
+  hit.addEventListener("pointerleave", ()=>show(null));
+  svg.addEventListener("keydown", e=>{
+    if (e.key!=="ArrowLeft" && e.key!=="ArrowRight") return;
+    e.preventDefault();
+    const cur = eqHoverIdx==null ? pts.length-1 : eqHoverIdx + (e.key==="ArrowRight"?1:-1);
+    show(Math.max(0, Math.min(pts.length-1, cur)));
+  });
+  svg.addEventListener("blur", ()=>show(null));
+  // table view (accessible fallback + exact numbers)
+  const table = document.getElementById("eq-table");
+  if (tableWrap && table){
+    tableWrap.hidden = false;
+    const rows = pts.filter(p=>p.trade).slice(-40).reverse();
+    table.innerHTML = '<table class="lb-table eq-table"><thead><tr><th>Date</th><th>Trade</th><th class="num">Résultat</th><th class="num">Équité</th></tr></thead><tbody>'+
+      rows.map(p=>'<tr><td>'+escapeHtml(eqFmtDate(p.t,true))+'</td><td>'+escapeHtml((p.trade.symbol||"")+" "+(p.trade.side==="long"?"Long":"Short"))+'</td><td class="num '+(p.net>=0?"up":"down")+'">'+(p.net>=0?"+":"−")+fmtMoney(Math.abs(p.net))+'</td><td class="num">'+fmtMoney(p.v)+'</td></tr>').join("")+
+      '</tbody></table>';
+  }
+}
+function fmtMoneyCompact(v){
+  const a = Math.abs(v);
+  if (a>=1e6) return "$"+(v/1e6).toFixed(2)+"M";
+  if (a>=1e3) return "$"+(v/1e3).toFixed(a>=1e5?0:1)+"k";
+  return "$"+v.toFixed(0);
+}
+function initEquityCurve(){
+  const seg = document.getElementById("eq-range");
+  if (seg) seg.addEventListener("click", e=>{
+    const b = e.target.closest("[data-eq-range]");
+    if (!b) return;
+    eqRange = b.dataset.eqRange;
+    seg.querySelectorAll("[data-eq-range]").forEach(x=>x.classList.toggle("active", x===b));
+    renderEquityCurve();
+  });
+  let t = null;
+  window.addEventListener("resize", ()=>{
+    clearTimeout(t);
+    t = setTimeout(()=>{ if (document.body.dataset.view==="profile") renderEquityCurve(); }, 150);
+  });
+}
 // Profil header: status chips + the numbers a trader actually checks
 // (normal account, whichever book is currently on screen).
 function renderProfileHero(){
@@ -8821,6 +9253,8 @@ function teardownGlobalChat(){
   if (typeof globalChatUnsub === "function") globalChatUnsub();
   globalChatUnsub = null;
   globalChatEditingId = null;
+  const list = document.getElementById("global-chat-messages");
+  if (list) list.dataset.count = ""; // coming back to the chat always lands on the latest message
 }
 
 /* ============================= TRADES EDB+ (dedicated page) ============================= */
@@ -9092,53 +9526,125 @@ async function toggleThumbReaction(collectionName, docId, currentlyReacted){
     });
   }catch(e){ console.warn("toggleThumbReaction failed", collectionName, docId, e); }
 }
+// ---- Chat rendering (refonte 2026-09): messenger-style — day separators,
+// consecutive messages from the same author grouped under one avatar/name,
+// own messages on the right in the accent colour, hover (or tap on mobile)
+// to edit/delete, reactions only shown once someone has reacted. ----
+let globalChatForceScroll = false;
+function chatDayKey(iso){ const d = new Date(iso); return d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate(); }
+function chatDayLabel(iso){
+  const d = new Date(iso); const now = new Date();
+  const y = new Date(now.getFullYear(), now.getMonth(), now.getDate()-1);
+  if (chatDayKey(iso)===chatDayKey(now.toISOString())) return "Aujourd'hui";
+  if (chatDayKey(iso)===chatDayKey(y.toISOString())) return "Hier";
+  const sameYear = d.getFullYear()===now.getFullYear();
+  return d.toLocaleDateString("fr-FR", sameYear ? {weekday:"long", day:"numeric", month:"long"} : {day:"numeric", month:"long", year:"numeric"});
+}
+function chatFormatText(text){
+  let h = escapeHtml(text||"");
+  h = h.replace(/(https?:\/\/[^\s<]+)/g, (u)=>'<a href="'+u+'" target="_blank" rel="noopener noreferrer">'+u+'</a>');
+  h = h.replace(/(^|\s)@([A-Za-zÀ-ÿ0-9._-]{2,16})/g, (m,pre,name)=>pre+'<span class="chat-mention">@'+name+'</span>');
+  return h;
+}
+function chatAuthorInfo(d){
+  const mine = d.authorId===clientId;
+  const status = mine ? state : traderStatusFromCaches(d.authorId);
+  const name = mine ? (state.username||d.authorName||"Trader") : (d.authorName||"Trader");
+  const photo = mine ? state.photoURL : (d.authorPhotoURL || (status && status.photoURL) || null);
+  return {mine, status, name, photo};
+}
+function renderGlobalChatHeader(){
+  const av = document.getElementById("global-chat-avatars");
+  if (!av) return;
+  const seen = {}; const people = [];
+  globalChatDocsCache.forEach(doc=>{
+    const d = doc.data();
+    if (!d.authorId || seen[d.authorId]) return;
+    seen[d.authorId] = true;
+    people.push(chatAuthorInfo(d));
+  });
+  av.innerHTML = people.slice(0,5).map(p=>'<span class="chat-head-av" title="'+escapeHtml(p.name)+'">'+avatarHtml(p.photo, p.name, 28)+'</span>').join("")+
+    (people.length ? '<span class="chat-head-count">'+people.length+' participant'+(people.length>1?"s":"")+'</span>' : '');
+}
+function chatMessageHtml(doc, d, grouped){
+  const a = chatAuthorInfo(d);
+  const canDelete = a.mine || state.isAdmin;
+  const time = d.createdAt ? new Date(d.createdAt).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}) : "";
+  const timeHtml = '<span class="chat-msg-time">'+(d.editedAt?'modifié · ':'')+time+'</span>';
+  const mentionsMe = !a.mine && state.username && (" "+(d.text||"")).toLowerCase().indexOf("@"+state.username.toLowerCase())>=0;
+  const isMedia = d.type==="image" || d.type==="pnlcard";
+  let bubble;
+  if (globalChatEditingId===doc.id){
+    bubble = '<div class="chat-bubble '+(a.mine?"mine":"theirs")+' chat-edit-box">'+
+      '<textarea rows="2" maxlength="500" id="chat-edit-input-'+doc.id+'">'+escapeHtml(d.text||"")+'</textarea>'+
+      '<div class="chat-edit-actions"><button class="btn-secondary" data-chat-cancel-edit="1">Annuler</button><button class="btn-primary" data-chat-save-edit="'+doc.id+'">Enregistrer</button></div>'+
+    '</div>';
+  } else {
+    let body;
+    if (d.type==="image"){
+      body = (d.imageUrl ? '<img class="chat-bubble-img" src="'+escapeHtml(d.imageUrl)+'" alt="Image partagée" loading="lazy">' : "")+
+        (d.text ? '<div class="chat-bubble-text">'+chatFormatText(d.text)+'</div>' : "")+timeHtml;
+    } else if (d.type==="pnlcard" && d.pnlCard){
+      body = renderMiniPnlCardHtml(d.pnlCard)+(d.text ? '<div class="chat-bubble-text">'+chatFormatText(d.text)+'</div>' : "")+timeHtml;
+    } else {
+      body = '<div class="chat-bubble-text">'+chatFormatText(d.text)+timeHtml+'</div>';
+    }
+    bubble = '<div class="chat-bubble '+(a.mine?"mine":"theirs")+(isMedia?" media":"")+'">'+body+'</div>';
+  }
+  const tools = (a.mine ? '<button type="button" class="chat-tool" data-chat-edit="'+doc.id+'" title="Modifier"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg></button>' : '')+
+    (canDelete ? '<button type="button" class="chat-tool danger" data-chat-delete="'+doc.id+'" title="Supprimer"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg></button>' : '');
+  const nReact = d.reactions && typeof d.reactions==="object" ? Object.keys(d.reactions).length : 0;
+  return '<div class="chat-msg '+(a.mine?"mine":"theirs")+(grouped?" grouped":"")+(mentionsMe?" mention":"")+'" data-msg-id="'+doc.id+'">'+
+    (a.mine ? '' : '<div class="chat-msg-avatar">'+(grouped ? '' : '<button type="button" class="chat-av-btn" data-chat-profile="'+escapeHtml(d.authorId||"")+'" title="Voir le profil">'+avatarHtml(a.photo, a.name, 34)+'</button>')+'</div>')+
+    '<div class="chat-msg-main">'+
+      (grouped || a.mine ? '' : '<div class="chat-msg-author"><span>'+escapeHtml(a.name)+'</span>'+traderBadgesHtml(a.status)+'</div>')+
+      '<div class="chat-msg-row">'+bubble+(tools && globalChatEditingId!==doc.id ? '<div class="chat-msg-tools">'+tools+'</div>' : '')+'</div>'+
+      '<div class="chat-msg-react'+(nReact?'':' is-empty')+'">'+thumbReactionHtml("globalChat", doc.id, d.reactions)+'</div>'+
+    '</div>'+
+  '</div>';
+}
 function renderGlobalChatMessages(){
   const el = document.getElementById("global-chat-messages");
   if (!el) return;
-  if (globalChatDocsCache.length===0){ el.innerHTML = '<div class="empty-note">Aucun message — sois le premier à écrire !</div>'; return; }
-  const wasAtBottom = (el.scrollHeight - el.scrollTop - el.clientHeight) < 40;
+  renderGlobalChatHeader();
+  const pill = document.getElementById("global-chat-new-pill");
+  if (globalChatDocsCache.length===0){
+    el.innerHTML = '<div class="chat-empty"><div class="chat-empty-icon"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg></div><div class="chat-empty-title">Aucun message pour l\'instant</div><div class="chart-note">Lance la discussion : une question, un setup, une actu du marché…</div></div>';
+    return;
+  }
+  const wasAtBottom = (el.scrollHeight - el.scrollTop - el.clientHeight) < 80;
+  const prevCount = +(el.dataset.count||0);
   const docs = globalChatDocsCache.slice().reverse(); // oldest first for a natural reading order
-  el.innerHTML = docs.map(doc=>{
+  let html = ""; let prev = null; let lastDay = null;
+  docs.forEach(doc=>{
     const d = doc.data();
-    const mine = d.authorId===clientId;
-    const canDelete = mine || state.isAdmin;
-    // "mine" reads the live, always-accurate state.isAdmin/edbPlus; anyone
-    // else falls back to a best-effort lookup in the leaderboard caches (see
-    // traderStatusFromCaches) — the message doc itself doesn't store a status
-    // snapshot, so this can miss a trader who isn't in any cached ranking yet.
-    const authorBadges = traderBadgesHtml(mine ? state : traderStatusFromCaches(d.authorId));
-    const t = d.createdAt ? new Date(d.createdAt).toLocaleString('fr-FR',{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}) : "";
-    if (globalChatEditingId===doc.id){
-      return '<div class="chat-bubble '+(mine?"mine":"theirs")+' chat-edit-box">'+
-        '<div class="chat-bubble-meta"><span class="chat-bubble-author">'+escapeHtml(d.authorName||"Trader")+authorBadges+'</span> · '+t+'</div>'+
-        '<textarea rows="2" maxlength="500" id="chat-edit-input-'+doc.id+'">'+escapeHtml(d.text||"")+'</textarea>'+
-        '<div class="chat-edit-actions"><button class="btn-secondary" data-chat-cancel-edit="1" style="padding:4px 10px;font-size:11px;">Annuler</button><button class="btn-primary" data-chat-save-edit="'+doc.id+'" style="padding:4px 10px;font-size:11px;">Enregistrer</button></div>'+
-      '</div>';
-    }
-    let body = "";
-    if (d.type==="image"){
-      body = (d.imageUrl ? '<img class="chat-bubble-img" src="'+escapeHtml(d.imageUrl)+'" alt="Image partagée">' : "")+
-        (d.text ? '<div class="chat-bubble-text" style="margin-top:4px;">'+escapeHtml(d.text)+'</div>' : "");
-    } else if (d.type==="pnlcard" && d.pnlCard){
-      body = renderMiniPnlCardHtml(d.pnlCard)+(d.text ? '<div class="chat-bubble-text" style="margin-top:6px;">'+escapeHtml(d.text)+'</div>' : "");
-    } else {
-      body = '<div class="chat-bubble-text">'+escapeHtml(d.text||"")+'</div>';
-    }
-    const actions = [thumbReactionHtml("globalChat", doc.id, d.reactions)];
-    if (mine) actions.push('<button data-chat-edit="'+doc.id+'">Modifier</button>');
-    if (canDelete) actions.push('<button data-chat-delete="'+doc.id+'">Supprimer</button>');
-    return '<div class="chat-bubble '+(mine?"mine":"theirs")+'">'+
-      '<div class="chat-bubble-meta"><span class="chat-bubble-author">'+escapeHtml(d.authorName||"Trader")+authorBadges+'</span> · '+t+(d.editedAt?' · <span class="chat-bubble-edited">modifié</span>':'')+'</div>'+
-      body+
-      '<div class="chat-bubble-actions">'+actions.join("")+'</div>'+
-    '</div>';
-  }).join("");
+    const iso = d.createdAt || null;
+    const day = iso ? chatDayKey(iso) : lastDay;
+    if (iso && day!==lastDay){ html += '<div class="chat-day"><span>'+escapeHtml(chatDayLabel(iso))+'</span></div>'; lastDay = day; prev = null; }
+    const grouped = !!(prev && prev.authorId===d.authorId && iso && prev.createdAt && (new Date(iso)-new Date(prev.createdAt)) < 6*60000);
+    html += chatMessageHtml(doc, d, grouped);
+    prev = d;
+  });
+  el.innerHTML = html;
+  el.dataset.count = String(docs.length);
   el.querySelectorAll("[data-chat-edit]").forEach(btn=>btn.addEventListener("click", ()=>startEditGlobalChatMessage(btn.dataset.chatEdit)));
   el.querySelectorAll("[data-chat-delete]").forEach(btn=>btn.addEventListener("click", ()=>deleteGlobalChatMessage(btn.dataset.chatDelete)));
   el.querySelectorAll("[data-chat-save-edit]").forEach(btn=>btn.addEventListener("click", ()=>saveEditGlobalChatMessage(btn.dataset.chatSaveEdit)));
   el.querySelectorAll("[data-chat-cancel-edit]").forEach(btn=>btn.addEventListener("click", cancelEditGlobalChatMessage));
+  el.querySelectorAll("[data-chat-profile]").forEach(btn=>btn.addEventListener("click", ()=>{ if (btn.dataset.chatProfile) openTraderProfileModal(btn.dataset.chatProfile); }));
   wireThumbReactionButtons(el);
-  if (wasAtBottom) el.scrollTop = el.scrollHeight;
+  if (wasAtBottom || !prevCount || globalChatForceScroll){
+    el.scrollTop = el.scrollHeight;
+    globalChatForceScroll = false;
+    if (pill) pill.hidden = true;
+    // Images arrive after this render and push the bottom further down —
+    // keep the view pinned to the latest message as each one loads.
+    el.querySelectorAll("img").forEach(img=>{
+      if (!img.complete) img.addEventListener("load", ()=>{ el.scrollTop = el.scrollHeight; }, {once:true});
+    });
+  } else if (docs.length>prevCount && pill){
+    pill.hidden = false;
+  }
 }
 function startEditGlobalChatMessage(id){
   globalChatEditingId = id;
@@ -9185,7 +9691,28 @@ function initGlobalChat(){
   const imgBtn = document.getElementById("global-chat-image-btn");
   const imgInput = document.getElementById("global-chat-image-input");
   if (sendBtn) sendBtn.addEventListener("click", sendGlobalChatFromInput);
-  if (input) input.addEventListener("keydown", (e)=>{ if (e.key==="Enter") sendGlobalChatFromInput(); });
+  const autoGrow = ()=>{ if (!input) return; input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 140)+"px"; };
+  window.resetGlobalChatInputHeight = ()=>{ if (input){ input.style.height = "auto"; } };
+  if (input){
+    // Entrée envoie, Maj+Entrée va à la ligne.
+    input.addEventListener("keydown", (e)=>{ if (e.key==="Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); sendGlobalChatFromInput(); } });
+    input.addEventListener("input", autoGrow);
+  }
+  const list = document.getElementById("global-chat-messages");
+  const pill = document.getElementById("global-chat-new-pill");
+  if (pill && list){
+    pill.addEventListener("click", ()=>{ list.scrollTo({top:list.scrollHeight, behavior:"smooth"}); pill.hidden = true; });
+    list.addEventListener("scroll", ()=>{ if ((list.scrollHeight - list.scrollTop - list.clientHeight) < 80) pill.hidden = true; }, {passive:true});
+  }
+  if (list){
+    // Touch screens have no hover: a tap on a message reveals its tools/reactions.
+    list.addEventListener("click", (e)=>{
+      if (e.target.closest("button, a, img, textarea")) return;
+      const msg = e.target.closest(".chat-msg");
+      list.querySelectorAll(".chat-msg.show-tools").forEach(m=>{ if (m!==msg) m.classList.remove("show-tools"); });
+      if (msg) msg.classList.toggle("show-tools");
+    });
+  }
   if (imgBtn && imgInput) imgBtn.addEventListener("click", ()=>imgInput.click());
   if (imgInput){
     imgInput.addEventListener("change", ()=>{
@@ -9214,9 +9741,10 @@ async function sendGlobalChatFromInput(){
   try{
     const id = uid();
     const payload = {
-      authorId: clientId, authorName: state.username,
+      authorId: clientId, authorName: state.username, authorPhotoURL: state.photoURL || null,
       createdAt: new Date().toISOString(), editedAt: null,
     };
+    globalChatForceScroll = true;
     if (globalChatSelectedImage){
       if (!storage){ alert("Stockage indisponible pour le moment — réessaie plus tard."); return; }
       const imagePath = "chat/"+clientId+"/"+id;
@@ -9226,7 +9754,7 @@ async function sendGlobalChatFromInput(){
       payload.type = "text"; payload.text = text;
     }
     await db.collection("globalChat").doc(id).set(payload);
-    if (input) input.value = "";
+    if (input){ input.value = ""; if (typeof window.resetGlobalChatInputHeight==="function") window.resetGlobalChatInputHeight(); input.focus(); }
     clearGlobalChatImage();
   }catch(e){
     console.warn("global chat send failed", e);
@@ -9242,7 +9770,7 @@ async function sendGlobalChatPnlCard(h){
   if (!dbReady || !db) return;
   const id = uid();
   const payload = {
-    authorId: clientId, authorName: state.username,
+    authorId: clientId, authorName: state.username, authorPhotoURL: state.photoURL || null,
     type: "pnlcard",
     pnlCard: {symbol:h.symbol, side:h.side, pnl:h.pnl, reason:h.reason, leverage:h.leverage, mode:h.mode, sizeUnits:h.sizeUnits, closedAt:h.closedAt},
     text: "",
@@ -11171,20 +11699,57 @@ function renderQuizIntro(deck){
 // quiz via renderQuizIntro()) rather than one whole-card click doing one
 // thing. Still named renderQuizDeckList() (not renamed) since that's what
 // switchView("quiz")/quiz-deck-back/quiz-tab-play already call.
+function progressRingSvg(pct, size, stroke, cls){
+  const r = (size-stroke)/2, c = 2*Math.PI*r, cx = size/2;
+  const f = Math.max(0, Math.min(1, pct||0));
+  return '<svg class="pring '+(cls||"")+'" width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" aria-hidden="true">'+
+    '<circle class="pring-track" cx="'+cx+'" cy="'+cx+'" r="'+r.toFixed(2)+'" stroke-width="'+stroke+'"/>'+
+    (f>0 ? '<circle class="pring-fill" cx="'+cx+'" cy="'+cx+'" r="'+r.toFixed(2)+'" stroke-width="'+stroke+'" stroke-dasharray="'+c.toFixed(2)+'" stroke-dashoffset="'+(c*(1-f)).toFixed(2)+'" transform="rotate(-90 '+cx+' '+cx+')"/>' : '')+
+  '</svg>';
+}
+// Per-course progress = the fiche has been opened at least once
+// (connaissancesOpened) + share of the quiz's questions already mastered
+// (quizProgress[deck].solved). A course counts as "terminé" when both are done.
+function courseProgress(k){
+  const deck = QUIZ_DECKS.find(d=>d.id===k.id);
+  const read = !!(state.connaissancesOpened && state.connaissancesOpened[k.id]);
+  let solved = 0, total = 0, perfect = false;
+  if (deck){
+    const pr = deckProgress(deck);
+    solved = deckSolvedCount(pr); total = deck.questions.length;
+    perfect = pr.perfectAttempt!=null;
+  }
+  const quizPct = total ? solved/total : 0;
+  const done = read && (total ? solved>=total : true);
+  return {deck, read, solved, total, perfect, quizPct, done};
+}
 function renderQuizDeckList(){
   document.getElementById("quiz-play-wrap").classList.add("wrap-wide");
   currentDeck = null;
   quizScreenActive = false;
   const card = document.getElementById("quiz-card");
+  const progs = KNOWLEDGE.map(k=>courseProgress(k));
+  const nRead = progs.filter(p=>p.read).length;
+  const qSolved = progs.reduce((a,p)=>a+p.solved,0), qTotal = progs.reduce((a,p)=>a+p.total,0);
+  const nPerfect = progs.filter(p=>p.perfect).length;
+  const nDone = progs.filter(p=>p.done).length;
+  const sumItem = (pct, val, lbl, cls)=>'<div class="learn-prog-item">'+progressRingSvg(pct, 40, 5, cls)+'<div><div class="learn-prog-val num">'+val+'</div><div class="learn-prog-lbl">'+lbl+'</div></div></div>';
   card.innerHTML =
     '<div class="quiz-deck-list">'+
       '<div class="quiz-intro quiz-deck-list-intro" style="padding:20px 10px 24px;">'+
         '<div class="quiz-cat">'+KNOWLEDGE.length+' cours disponibles</div>'+
         '<h2>Connaissances &amp; Quiz</h2>'+
         '<p>Une fiche de connaissances par sujet, plus le quiz correspondant pour tester ce que tu as retenu — révise, joue, ou les deux, dans l\'ordre que tu veux.</p>'+
+        '<div class="learn-prog" aria-label="Ta progression">'+
+          sumItem(nDone/KNOWLEDGE.length, nDone+' / '+KNOWLEDGE.length, 'cours terminés', nDone===KNOWLEDGE.length?"gold":"")+
+          sumItem(nRead/KNOWLEDGE.length, nRead+' / '+KNOWLEDGE.length, 'fiches lues')+
+          sumItem(qTotal?qSolved/qTotal:0, qSolved+' / '+qTotal, 'questions maîtrisées')+
+          sumItem(nPerfect/Math.max(1,progs.filter(p=>p.deck).length), nPerfect+' / '+progs.filter(p=>p.deck).length, 'sans-faute', "gold")+
+        '</div>'+
       '</div>'+
-      KNOWLEDGE.map(k=>{
-        const deck = QUIZ_DECKS.find(d=>d.id===k.id);
+      KNOWLEDGE.map((k,ki)=>{
+        const pg = progs[ki];
+        const deck = pg.deck;
         const meta = deckMeta(k.id);
         const shot = (typeof KNOWLEDGE_SHOTS!=="undefined") ? KNOWLEDGE_SHOTS[k.id] : null;
         const img = shot ? '<img class="learn-deck-item-img" src="'+shot+'" alt="'+escapeHtml(k.title)+'" loading="lazy">' : '';
@@ -11194,21 +11759,31 @@ function renderQuizDeckList(){
           const maxScore = deckMaxScore(deck);
           if (progress.perfectAttempt!=null) statusLine = 'Quiz : sans-faute à l\'essai n°'+progress.perfectAttempt+' · '+fmtMoney(progress.earned)+' / '+fmtMoney(maxScore);
           else if (progress.inProgress) statusLine = 'Quiz en cours — reprendre à la question '+(progress.inProgress.idx+1)+'/'+deck.questions.length;
-          else if (progress.attempts>0) statusLine = 'Quiz : '+fmtMoney(progress.earned)+' / '+fmtMoney(maxScore)+' · '+deckSolvedCount(progress)+'/'+deck.questions.length+' maîtrisées';
+          else if (progress.attempts>0) statusLine = 'Quiz : '+fmtMoney(progress.earned)+' / '+fmtMoney(maxScore);
           else statusLine = 'Quiz : jusqu\'à '+fmtMoney(maxScore)+' à gagner';
         }
-        return '<div class="quiz-deck-item" style="border-left-color:'+meta.color+';">'+
+        const pct = Math.round(pg.quizPct*100);
+        const ringTitle = pg.done ? "Cours terminé : fiche lue et toutes les questions maîtrisées" : (pg.total ? pg.solved+" / "+pg.total+" questions maîtrisées" : "");
+        return '<div class="quiz-deck-item'+(pg.done?" is-done":"")+'" style="border-left-color:'+meta.color+';">'+
           img+
-          '<div class="deck-card-icon" style="background:'+meta.color+'22;border:1px solid '+meta.color+'55;">'+meta.icon+'</div>'+
-          '<div class="quiz-deck-item-head">'+
-            '<span class="quiz-deck-title">'+escapeHtml(k.title)+'</span>'+
-            '<span class="quiz-deck-count">'+k.sections.length+' sections'+(deck?' · '+deck.questions.length+' questions':'')+'</span>'+
+          '<div class="deck-top">'+
+            '<div class="deck-card-icon" style="background:'+meta.color+'22;border:1px solid '+meta.color+'55;">'+meta.icon+'</div>'+
+            '<div class="quiz-deck-item-head">'+
+              '<span class="quiz-deck-title">'+escapeHtml(k.title)+'</span>'+
+              '<span class="quiz-deck-count">'+k.sections.length+' sections'+(deck?' · '+deck.questions.length+' questions':'')+'</span>'+
+            '</div>'+
+            (deck ? '<div class="deck-ring" title="'+escapeHtml(ringTitle)+'">'+progressRingSvg(pg.quizPct, 46, 5, pg.done||pg.perfect?"gold":"")+'<span class="deck-ring-txt num">'+(pg.done?"✓":pct+"%")+'</span></div>' : '')+
+          '</div>'+
+          '<div class="deck-chips">'+
+            '<span class="deck-chip '+(pg.read?"ok":"")+'">'+(pg.read?"✓ Fiche lue":"Fiche à lire")+'</span>'+
+            (deck ? '<span class="deck-chip '+(pg.solved>=pg.total?"ok":"")+'">'+pg.solved+'/'+pg.total+' maîtrisées</span>' : '')+
+            (pg.done ? '<span class="deck-chip gold">Terminé</span>' : '')+
           '</div>'+
           '<div class="learn-deck-item-desc">'+escapeHtml(deck?deck.intro:"")+'</div>'+
           (statusLine ? '<div class="quiz-deck-item-bonus">'+statusLine+'</div>' : '')+
           '<div class="quiz-deck-item-actions">'+
-            '<button class="btn-secondary" data-review="'+k.id+'">📖 Réviser</button>'+
-            (deck ? '<button class="btn-primary" data-play="'+k.id+'">▶️ Jouer</button>' : '')+
+            '<button class="btn-secondary" data-review="'+k.id+'">📖 '+(pg.read?"Relire":"Lire la fiche")+'</button>'+
+            (deck ? '<button class="btn-primary" data-play="'+k.id+'">▶️ '+(pg.solved>0 && pg.solved<pg.total?"Continuer":"Jouer")+'</button>' : '')+
           '</div>'+
         '</div>';
       }).join("")+
@@ -11674,6 +12249,7 @@ function switchView(name){
     renderResources();
   }
   if (name==="profile"){
+    renderEquityCurve();
     renderBadgesGrid();
     renderStreakDisplay();
     renderJournalList();
@@ -11753,6 +12329,7 @@ function renderAll(){
 /* ============================= EVENTS ============================= */
 function initEvents(){
   initShell();
+  initEquityCurve();
   document.querySelectorAll("nav.tabs button").forEach(b=>{
     b.addEventListener("click", ()=>switchView(b.dataset.view));
   });
