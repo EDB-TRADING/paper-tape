@@ -1723,38 +1723,44 @@
     .chat-composer textarea{font-size:16px;} /* ≥16px so iOS doesn't zoom the page on focus */
   }
 
-  /* ---------- Profil: equity curve ---------- */
-  .eq-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
-  .eq-summary{margin-top:6px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
-  .eq-now{font-size:22px;font-weight:600;letter-spacing:-0.01em;font-variant-numeric:normal;}
-  .eq-delta{font-size:13px;font-weight:600;}
-  .eq-chart{position:relative;width:100%;}
+  /* ---------- Profil: equity curve (v2 — smooth, gradient, scrubbable) ---------- */
+  .eq-card{overflow:hidden;}
+  .eq-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:6px;}
+  .eq-head h3{font-size:13px !important;color:var(--text-faint) !important;font-weight:500 !important;}
+  .eq-summary{margin-top:4px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;min-height:40px;}
+  .eq-now{font-size:30px;font-weight:700;letter-spacing:-0.025em;line-height:1.1;}
+  .eq-delta{font-size:13px;font-weight:600;font-family:var(--sans);}
+  .eq-delta.up{color:var(--long);}
+  .eq-delta.down{color:var(--short);}
+  .eq-when{font-size:12.5px;color:var(--text-faint);}
+  .eq-chart{position:relative;width:calc(100% + 36px);margin:0 -18px;}
   .eq-svg{display:block;width:100%;height:auto;overflow:visible;touch-action:pan-y;}
+  .eq-svg.up{color:var(--long);}
+  .eq-svg.dn{color:var(--short);}
   .eq-svg:focus{outline:none;}
-  .eq-svg:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:6px;}
-  .eq-grid{stroke:var(--border-soft);stroke-width:1;}
-  .eq-base{stroke:var(--text-faint);stroke-width:1;opacity:.55;}
-  .eq-tick,.eq-x{fill:var(--text-faint);font-family:var(--mono);font-size:10.5px;}
-  .eq-line{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round;}
-  .eq-line.up{stroke:var(--long);}
-  .eq-line.dn{stroke:var(--short);}
+  .eq-svg:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:8px;}
+  .eq-line{fill:none;stroke:currentColor;stroke-width:2.25;stroke-linejoin:round;stroke-linecap:round;}
   .eq-area{stroke:none;}
-  .eq-area.up{fill:var(--long);opacity:.10;}
-  .eq-area.dn{fill:var(--short);opacity:.10;}
-  .eq-end,.eq-hdot{stroke:var(--panel);stroke-width:2;}
-  .eq-end.up,.eq-hdot.up{fill:var(--long);}
-  .eq-end.dn,.eq-hdot.dn{fill:var(--short);}
-  .eq-cross{stroke:var(--text-faint);stroke-width:1;}
+  .eq-base{stroke:var(--text-faint);stroke-width:1;opacity:.35;}
+  .eq-base-lbl{fill:var(--text-faint);font-family:var(--sans);font-size:10.5px;opacity:.8;}
+  .eq-ext{fill:var(--text-dim);font-family:var(--mono);font-size:10.5px;font-weight:600;}
+  .eq-x{fill:var(--text-faint);font-family:var(--sans);font-size:11px;}
+  .eq-end{fill:currentColor;stroke:var(--panel);stroke-width:2.5;}
+  .eq-pulse{fill:currentColor;opacity:.45;transform-box:fill-box;transform-origin:center;animation:eq-pulse 2.2s ease-out infinite;}
+  @keyframes eq-pulse{0%{transform:scale(1);opacity:.45;}80%,100%{transform:scale(3.2);opacity:0;}}
+  .eq-hdot{fill:currentColor;stroke:var(--panel);stroke-width:2.5;}
+  .eq-cross{stroke:var(--text-faint);stroke-width:1;opacity:.6;}
   .eq-hit{fill:transparent;cursor:crosshair;}
   .eq-tip{
-    position:absolute;pointer-events:none;background:var(--panel-2);border:1px solid var(--border);border-radius:10px;
-    padding:7px 10px;box-shadow:0 10px 24px -10px rgba(0,0,0,.6);min-width:150px;max-width:260px;z-index:2;
+    position:absolute;top:0;pointer-events:none;white-space:nowrap;font-size:11.5px;font-weight:500;color:var(--text-dim);
+    background:var(--panel-2);border:1px solid var(--border-soft);border-radius:999px;padding:3px 10px;z-index:2;
   }
+  .eq-tip.up{color:var(--long);}
+  .eq-tip.dn{color:var(--short);}
   .eq-tip[hidden]{display:none;}
-  .eq-tip-v{font-family:var(--mono);font-weight:600;font-size:14px;color:var(--text);}
-  .eq-tip-l{font-size:11.5px;color:var(--text-dim);margin-top:2px;}
-  .eq-empty{display:flex;gap:12px;align-items:center;padding:18px 16px;border:1px dashed var(--border);border-radius:12px;color:var(--text-dim);}
+  .eq-empty{display:flex;gap:12px;align-items:center;padding:18px 16px;border:1px dashed var(--border);border-radius:12px;color:var(--text-dim);margin:0 18px;}
   .eq-empty .ic{width:28px;height:28px;color:var(--accent);flex:none;}
+  @media (max-width:1080px){ .eq-chart{width:calc(100% + 28px);margin:0 -14px;} .eq-empty{margin:0 14px;} .eq-now{font-size:26px;} }
   .eq-table-wrap{margin-top:10px;}
   .eq-table-wrap[hidden]{display:none;}
   .eq-table-wrap summary{cursor:pointer;font-size:12.5px;color:var(--text-faint);}
@@ -5605,8 +5611,8 @@ function updateChart(forceDuringDrag){
     const lineColor = m.changePct>=0 ? cc.up : cc.down;
     svg.innerHTML =
       gridLines()+
-      '<text x="'+(W-padR+8)+'" y="'+(padT+4)+'" fill="'+textColor+'" font-size="10" font-family="IBM Plex Mono,monospace">'+fmtPrice(max,a.decimals)+'</text>'+
-      '<text x="'+(W-padR+8)+'" y="'+(H-padB+2)+'" fill="'+textColor+'" font-size="10" font-family="IBM Plex Mono,monospace">'+fmtPrice(min,a.decimals)+'</text>'+
+      '<text x="'+(W-4)+'" y="'+(padT+4)+'" fill="'+textColor+'" font-size="10" font-family="IBM Plex Mono,monospace" text-anchor="end">'+fmtPrice(max,a.decimals)+'</text>'+
+      '<text x="'+(W-4)+'" y="'+(H-padB+2)+'" fill="'+textColor+'" font-size="10" font-family="IBM Plex Mono,monospace" text-anchor="end">'+fmtPrice(min,a.decimals)+'</text>'+
       bars+
       '<line x1="'+padL+'" y1="'+lastY.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+lastY.toFixed(1)+'" stroke="'+lineColor+'" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>'+
       positionLinesHtml(positions, y, W, padL, padR, padT, H, padB, a.decimals)+
@@ -8700,14 +8706,41 @@ function eqFmtDate(t, withTime){
   return withTime ? d.toLocaleString("fr-FR",{day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"})
                   : d.toLocaleDateString("fr-FR",{day:"numeric", month:"short"});
 }
-function eqNiceTicks(min, max, count){
-  const span = max-min || 1;
-  const raw = span/count;
-  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
-  const step = [1,2,2.5,5,10].map(m=>m*mag).find(x=>x>=raw) || 10*mag;
-  const out = [];
-  for (let v=Math.ceil(min/step)*step; v<=max+1e-9; v+=step) out.push(v);
-  return out;
+// Monotone cubic (Fritsch–Carlson): a smooth curve through every point
+// that never overshoots between them — so it can't invent a high or a low
+// that never happened.
+function eqMonotonePath(P){
+  const n = P.length;
+  if (n<2) return "M"+P[0][0]+","+P[0][1];
+  const dx = [], dy = [], sl = [];
+  for (let i=0;i<n-1;i++){ dx[i] = P[i+1][0]-P[i][0]; dy[i] = P[i+1][1]-P[i][1]; sl[i] = dx[i] ? dy[i]/dx[i] : 0; }
+  const m = [sl[0]];
+  for (let i=1;i<n-1;i++) m[i] = (sl[i-1]*sl[i]<=0) ? 0 : (sl[i-1]+sl[i])/2;
+  m[n-1] = sl[n-2];
+  for (let i=0;i<n-1;i++){
+    if (sl[i]===0){ m[i] = 0; m[i+1] = 0; continue; }
+    const a = m[i]/sl[i], b = m[i+1]/sl[i], h = a*a+b*b;
+    if (h>9){ const t = 3/Math.sqrt(h); m[i] = t*a*sl[i]; m[i+1] = t*b*sl[i]; }
+  }
+  let d = "M"+P[0][0].toFixed(1)+","+P[0][1].toFixed(1);
+  for (let i=0;i<n-1;i++){
+    const h = dx[i]/3;
+    d += "C"+(P[i][0]+h).toFixed(1)+","+(P[i][1]+m[i]*h).toFixed(1)+" "+(P[i+1][0]-h).toFixed(1)+","+(P[i+1][1]-m[i+1]*h).toFixed(1)+" "+P[i+1][0].toFixed(1)+","+P[i+1][1].toFixed(1);
+  }
+  return d;
+}
+function renderEquitySummary(p, first, isScrub){
+  const summary = document.getElementById("eq-summary");
+  if (!summary || !p || !first) return;
+  const chg = p.v - first.v;
+  const pct = first.v ? chg/first.v*100 : 0;
+  const cls = chg>0 ? "up" : chg<0 ? "down" : "";
+  let label;
+  if (isScrub) label = p.kind==="now" ? "maintenant" : eqFmtDate(p.t, p.kind!=="start" && p.kind!=="cut");
+  else label = eqRange==="all" ? "depuis le début" : "sur "+eqRange+" jours";
+  summary.innerHTML = '<span class="eq-now">'+fmtMoney(p.v)+'</span>'+
+    '<span class="eq-delta '+cls+'">'+(chg>=0?"▲ ":"▼ ")+fmtMoney(Math.abs(chg))+' · '+Math.abs(pct).toFixed(2)+' %</span>'+
+    '<span class="eq-when">'+escapeHtml(label)+'</span>';
 }
 function renderEquityCurve(){
   const wrap = document.getElementById("equity-curve");
@@ -8721,7 +8754,6 @@ function renderEquityCurve(){
     if (tableWrap) tableWrap.hidden = true;
     return;
   }
-  // Range filter — the value at the cut-off is carried in as the window's first point.
   let pts = all;
   if (eqRange!=="all"){
     const cutoff = Date.now() - (+eqRange)*86400e3;
@@ -8731,83 +8763,97 @@ function renderEquityCurve(){
   }
   eqPoints = pts;
   const W = Math.max(280, Math.round(wrap.clientWidth || 640));
-  const H = W<480 ? 190 : 230;
-  const m = {l:8, r:78, t:14, b:26};
+  const H = W<480 ? 200 : 250;
+  const m = {l:0, r:18, t:28, b:26}; // right room for the live end-dot and its pulse
   const iw = W-m.l-m.r, ih = H-m.t-m.b;
-  const vals = pts.map(p=>p.v).concat([START_CASH]);
+  const vals = pts.map(p=>p.v);
   let lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
-  const pad = Math.max((hi-lo)*0.12, START_CASH*0.002);
-  lo -= pad; hi += pad;
-  const t0 = pts[0].t, t1 = pts[pts.length-1].t;
-  const x = t=> m.l + (t1===t0 ? iw : (t-t0)/(t1-t0)*iw);
-  const y = v=> m.t + (hi-v)/(hi-lo)*ih;
-  const by = y(START_CASH);
-  // stepped path
-  let d = "M"+x(pts[0].t).toFixed(1)+","+y(pts[0].v).toFixed(1);
-  for (let i=1;i<pts.length;i++){ d += "H"+x(pts[i].t).toFixed(1)+"V"+y(pts[i].v).toFixed(1); }
-  const area = d+"V"+by.toFixed(1)+"H"+x(pts[0].t).toFixed(1)+"Z";
-  const ticks = eqNiceTicks(lo, hi, 3);
-  const last = pts[pts.length-1];
+  const span = Math.max(hi-lo, Math.abs(hi)*0.004);
+  const yLo = lo - span*0.14, yHi = hi + span*0.20;
+  // Evenly spaced by trade (not by clock time): a week with no trade doesn't
+  // flatten into a long empty line, and clusters of trades stay readable.
+  const x = i=> m.l + (pts.length>1 ? i/(pts.length-1)*iw : iw);
+  const y = v=> m.t + (yHi-v)/(yHi-yLo)*ih;
+  const P = pts.map((p,i)=>[x(i), y(p.v)]);
+  const line = eqMonotonePath(P);
+  const area = line+"L"+P[P.length-1][0].toFixed(1)+","+(m.t+ih).toFixed(1)+"L"+P[0][0].toFixed(1)+","+(m.t+ih).toFixed(1)+"Z";
+  const first = pts[0], last = pts[pts.length-1];
+  const dir = last.v>=first.v ? "up" : "dn";
   const uid = "eq"+Math.random().toString(36).slice(2,7);
+  // Starting capital, only when it actually falls inside the drawn range.
+  const showBase = START_CASH>yLo && START_CASH<yHi;
+  const by = y(START_CASH);
+  // Label the high and the low only (never every point).
+  let iHi = 0, iLo = 0;
+  pts.forEach((p,i)=>{ if (p.v>pts[iHi].v) iHi = i; if (p.v<pts[iLo].v) iLo = i; });
+  const extLbl = (i, above)=>{
+    const px = P[i][0], py = P[i][1];
+    const anchor = px < W*0.12 ? "start" : px > W*0.88 ? "end" : "middle";
+    return '<text class="eq-ext" x="'+px.toFixed(1)+'" y="'+(above ? py-10 : py+18).toFixed(1)+'" text-anchor="'+anchor+'">'+fmtMoneyCompact(pts[i].v)+'</text>';
+  };
   wrap.innerHTML =
-    '<svg class="eq-svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" role="img" tabindex="0" aria-label="Courbe d\'équité — utilise les flèches pour parcourir les trades">'+
+    '<svg class="eq-svg '+dir+'" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" role="img" tabindex="0" aria-label="Courbe d\'équité — flèches gauche/droite pour parcourir les trades">'+
       '<defs>'+
-        '<clipPath id="'+uid+'-up"><rect x="0" y="0" width="'+W+'" height="'+by.toFixed(1)+'"/></clipPath>'+
-        '<clipPath id="'+uid+'-dn"><rect x="0" y="'+by.toFixed(1)+'" width="'+W+'" height="'+(H-by).toFixed(1)+'"/></clipPath>'+
+        '<linearGradient id="'+uid+'-g" x1="0" y1="0" x2="0" y2="1">'+
+          '<stop offset="0" stop-color="currentColor" stop-opacity=".30"/>'+
+          '<stop offset=".55" stop-color="currentColor" stop-opacity=".08"/>'+
+          '<stop offset="1" stop-color="currentColor" stop-opacity="0"/>'+
+        '</linearGradient>'+
+        '<filter id="'+uid+'-glow" x="-10%" y="-40%" width="120%" height="180%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'+
       '</defs>'+
-      ticks.map(v=>'<line class="eq-grid" x1="'+m.l+'" x2="'+(m.l+iw)+'" y1="'+y(v).toFixed(1)+'" y2="'+y(v).toFixed(1)+'"/>'+
-        '<text class="eq-tick" x="'+(m.l+iw+8)+'" y="'+(y(v)+4).toFixed(1)+'">'+fmtMoneyCompact(v)+'</text>').join("")+
-      '<line class="eq-base" x1="'+m.l+'" x2="'+(m.l+iw)+'" y1="'+by.toFixed(1)+'" y2="'+by.toFixed(1)+'"/>'+
-      '<path class="eq-area up" d="'+area+'" clip-path="url(#'+uid+'-up)"/>'+
-      '<path class="eq-area dn" d="'+area+'" clip-path="url(#'+uid+'-dn)"/>'+
-      '<path class="eq-line up" d="'+d+'" clip-path="url(#'+uid+'-up)"/>'+
-      '<path class="eq-line dn" d="'+d+'" clip-path="url(#'+uid+'-dn)"/>'+
-      '<circle class="eq-end '+(last.v>=START_CASH?"up":"dn")+'" cx="'+x(last.t).toFixed(1)+'" cy="'+y(last.v).toFixed(1)+'" r="4.5"/>'+
-      '<text class="eq-x" x="'+m.l+'" y="'+(H-6)+'">'+eqFmtDate(t0)+'</text>'+
+      (showBase ? '<line class="eq-base" x1="'+m.l+'" x2="'+(m.l+iw)+'" y1="'+by.toFixed(1)+'" y2="'+by.toFixed(1)+'"/>'+
+        '<text class="eq-base-lbl" x="'+(m.l+iw)+'" y="'+(by-6).toFixed(1)+'" text-anchor="end">Départ '+fmtMoneyCompact(START_CASH)+'</text>' : '')+
+      '<path class="eq-area" d="'+area+'" fill="url(#'+uid+'-g)"/>'+
+      '<path class="eq-line" d="'+line+'" filter="url(#'+uid+'-glow)"/>'+
+      (pts.length>2 && pts[iHi].v!==last.v ? extLbl(iHi, true) : '')+
+      (pts.length>2 && iLo!==iHi && iLo!==0 ? extLbl(iLo, false) : '')+
+      '<circle class="eq-pulse" cx="'+P[P.length-1][0].toFixed(1)+'" cy="'+P[P.length-1][1].toFixed(1)+'" r="4.5"/>'+
+      '<circle class="eq-end" cx="'+P[P.length-1][0].toFixed(1)+'" cy="'+P[P.length-1][1].toFixed(1)+'" r="4.5"/>'+
+      '<text class="eq-x" x="'+(m.l+18)+'" y="'+(H-6)+'">'+(first.kind==="cut" ? eqFmtDate(first.t) : "Départ")+'</text>'+
       '<text class="eq-x" x="'+(m.l+iw)+'" y="'+(H-6)+'" text-anchor="end">Maintenant</text>'+
-      '<g class="eq-hover" style="display:none"><line class="eq-cross" y1="'+m.t+'" y2="'+(m.t+ih)+'"/><circle class="eq-hdot" r="5"/></g>'+
-      '<rect class="eq-hit" x="'+m.l+'" y="0" width="'+iw+'" height="'+H+'"/>'+
+      '<g class="eq-hover" style="display:none"><line class="eq-cross" y1="'+m.t+'" y2="'+(m.t+ih)+'"/><circle class="eq-hdot" r="5.5"/></g>'+
+      '<rect class="eq-hit" x="0" y="0" width="'+W+'" height="'+H+'"/>'+
     '</svg>'+
-    '<div class="eq-tip" hidden><div class="eq-tip-v"></div><div class="eq-tip-l"></div></div>';
-  // summary: value + change over the window
-  if (summary){
-    const chg = last.v - pts[0].v;
-    const pct = pts[0].v ? chg/pts[0].v*100 : 0;
-    const label = eqRange==="all" ? "depuis le début" : "sur "+eqRange+" jours";
-    summary.innerHTML = '<span class="eq-now num">'+fmtMoney(last.v)+'</span> <span class="eq-delta num '+(chg>0?"up":chg<0?"down":"")+'">'+(chg>=0?"+":"−")+fmtMoney(Math.abs(chg))+' ('+(pct>=0?"+":"−")+Math.abs(pct).toFixed(2)+' %)</span> <span class="chart-note" style="display:inline;margin:0;">'+label+'</span>';
-  }
-  // hover / keyboard
+    '<div class="eq-tip" hidden></div>';
+  renderEquitySummary(last, first, false);
   const svg = wrap.querySelector("svg");
+  // draw-in animation, once per render
+  const lineEl = svg.querySelector(".eq-line");
+  try{
+    const len = lineEl.getTotalLength();
+    lineEl.style.strokeDasharray = len; lineEl.style.strokeDashoffset = len;
+    requestAnimationFrame(()=>{ lineEl.style.transition = "stroke-dashoffset .9s cubic-bezier(.22,.61,.36,1)"; lineEl.style.strokeDashoffset = "0"; });
+    setTimeout(()=>{ lineEl.style.strokeDasharray = ""; lineEl.style.transition = ""; }, 1000);
+  }catch(e){}
   const hov = svg.querySelector(".eq-hover");
   const cross = svg.querySelector(".eq-cross");
   const hdot = svg.querySelector(".eq-hdot");
   const tip = wrap.querySelector(".eq-tip");
   const show = (i)=>{
-    if (i==null || !pts[i]){ hov.style.display = "none"; tip.hidden = true; eqHoverIdx = null; return; }
+    if (i==null || !pts[i]){ hov.style.display = "none"; tip.hidden = true; eqHoverIdx = null; renderEquitySummary(last, first, false); return; }
     eqHoverIdx = i;
-    const p = pts[i]; const px = x(p.t), py = y(p.v);
+    const p = pts[i]; const px = P[i][0], py = P[i][1];
     hov.style.display = "";
     cross.setAttribute("x1", px); cross.setAttribute("x2", px);
     hdot.setAttribute("cx", px); hdot.setAttribute("cy", py);
-    hdot.setAttribute("class", "eq-hdot "+(p.v>=START_CASH?"up":"dn"));
-    tip.hidden = false;
-    tip.querySelector(".eq-tip-v").textContent = fmtMoney(p.v);
+    renderEquitySummary(p, first, true); // the header number follows the finger
     let lbl;
     if (p.kind==="start") lbl = "Avant ton premier trade";
-    else if (p.kind==="cut") lbl = eqFmtDate(p.t)+" · début de la période";
-    else if (p.kind==="now") lbl = "Maintenant (positions ouvertes incluses)";
-    else lbl = eqFmtDate(p.t, true)+" · "+(p.trade.symbol||"")+" "+(p.trade.side==="long"?"Long":"Short")+" "+(p.net>=0?"+":"−")+fmtMoney(Math.abs(p.net));
-    tip.querySelector(".eq-tip-l").textContent = lbl;
-    const tw = tip.offsetWidth || 180;
-    let left = px + 12; if (left+tw > W-4) left = px - tw - 12;
-    tip.style.left = Math.max(0,left)+"px";
-    tip.style.top = Math.max(0, Math.min(py-24, H-60))+"px";
+    else if (p.kind==="cut") lbl = "Début de la période";
+    else if (p.kind==="now") lbl = "Maintenant · positions ouvertes incluses";
+    else lbl = (p.trade.symbol||"")+" "+(p.trade.side==="long"?"Long":"Short")+" · "+(p.net>=0?"+":"−")+fmtMoney(Math.abs(p.net));
+    tip.textContent = lbl;
+    tip.className = "eq-tip"+(p.net!=null ? (p.net>=0?" up":" dn") : "");
+    tip.hidden = false;
+    const tw = tip.offsetWidth || 160;
+    tip.style.left = Math.max(0, Math.min(W-tw, px - tw/2))+"px";
+    tip.style.top = "0px";
   };
   const nearest = (clientX)=>{
     const r = svg.getBoundingClientRect();
     const mx = (clientX - r.left) * (W / r.width);
     let best = 0, bd = Infinity;
-    pts.forEach((p,i)=>{ const dd = Math.abs(x(p.t)-mx); if (dd<bd){ bd = dd; best = i; } });
+    P.forEach((q,i)=>{ const dd = Math.abs(q[0]-mx); if (dd<bd){ bd = dd; best = i; } });
     return best;
   };
   const hit = svg.querySelector(".eq-hit");
@@ -8821,7 +8867,6 @@ function renderEquityCurve(){
     show(Math.max(0, Math.min(pts.length-1, cur)));
   });
   svg.addEventListener("blur", ()=>show(null));
-  // table view (accessible fallback + exact numbers)
   const table = document.getElementById("eq-table");
   if (tableWrap && table){
     tableWrap.hidden = false;
@@ -12698,16 +12743,40 @@ function defaultWidgetLayout(){
     hidden: ["dom","econcal","poscalc"],
   };
 }
+const SESSIONS_TOPBAR_MIGRATION_KEY = "paperTapeSessionsInTopbar";
 function loadWidgetLayout(){
   try{
     const raw = localStorage.getItem(WIDGET_LAYOUT_KEY);
     if (!raw) return defaultWidgetLayout();
     const parsed = JSON.parse(raw);
     const allIds = WIDGET_DEFS.map(w=>w.id);
-    const present = [].concat(...(parsed.cols||[]), (parsed.hidden||[]));
-    const ok = Array.isArray(parsed.cols) && parsed.cols.length===3 &&
-      allIds.every(id=>present.indexOf(id)!==-1) && present.length===allIds.length;
-    return ok ? parsed : defaultWidgetLayout();
+    // A saved layout lists every widget once across the 3 columns (hidden
+    // ones included — they stay in their column, just hidden), plus the ids
+    // of the hidden ones. The previous check also required cols+hidden to
+    // add up to exactly the number of widgets, which no real layout ever
+    // satisfies as soon as one widget is hidden (it's counted twice) — so
+    // every saved layout was silently thrown away and each reload came back
+    // to the default arrangement.
+    const colIds = Array.isArray(parsed.cols) ? [].concat(...parsed.cols) : [];
+    const hidden = Array.isArray(parsed.hidden) ? parsed.hidden : null;
+    const ok = Array.isArray(parsed.cols) && parsed.cols.length===3 && hidden &&
+      colIds.every(id=>allIds.indexOf(id)!==-1) && new Set(colIds).size===colIds.length &&
+      allIds.every(id=>colIds.indexOf(id)!==-1 || hidden.indexOf(id)!==-1);
+    if (!ok) return defaultWidgetLayout();
+    // Widgets added to the app after this layout was saved: append them hidden.
+    allIds.forEach(id=>{ if (colIds.indexOf(id)===-1 && hidden.indexOf(id)===-1) hidden.push(id); });
+    // The short-lived "compact Terminal" version moved "Sessions de marché"
+    // to the top bar and hid the widget once (flagged with this key). That
+    // version was rolled back: give the widget back to anyone it was hidden
+    // for, once, then drop the flag.
+    let wasMoved = false;
+    try{ wasMoved = !!localStorage.getItem(SESSIONS_TOPBAR_MIGRATION_KEY); }catch(e){}
+    if (wasMoved){
+      const i = hidden.indexOf("sessions");
+      if (i!==-1) hidden.splice(i,1);
+      try{ localStorage.removeItem(SESSIONS_TOPBAR_MIGRATION_KEY); localStorage.setItem(WIDGET_LAYOUT_KEY, JSON.stringify(parsed)); }catch(e){}
+    }
+    return parsed;
   }catch(e){ return defaultWidgetLayout(); }
 }
 function saveWidgetLayout(layout){
