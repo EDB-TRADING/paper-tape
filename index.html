@@ -1807,6 +1807,171 @@
   .deck-chip.gold{color:var(--gold);border-color:color-mix(in srgb, var(--gold) 50%, transparent);}
   .quiz-deck-item.is-done{box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--gold) 40%, transparent);}
   @media (max-width:640px){ .learn-prog{gap:8px;} .learn-prog-item{flex:1 1 calc(50% - 8px);} }
+
+  /* ---------- Investissement (PEA + CTO) ---------- */
+  .inv-wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:16px;}
+  .inv-wrap .card{margin:0;}
+  .inv-wrap h3{margin:0;font-size:15px;font-weight:600;}
+  .inv-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);}
+  .inv-dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:7px;vertical-align:baseline;}
+  .inv-dot.pea{background:var(--accent);}
+  .inv-dot.cto{background:var(--gold);}
+  .inv-dot.cash{background:var(--border);}
+  .inv-wrap .up{color:var(--long);} .inv-wrap .down{color:var(--short);} .inv-wrap .flat{color:var(--text-dim);}
+  .inv-wrap .r{text-align:right;}
+
+  .inv-intro{padding:28px;max-width:860px;margin:0 auto;}
+  .inv-intro h2{font-size:26px;margin:6px 0 10px;letter-spacing:-.01em;}
+  .inv-intro-lead{color:var(--text-dim);font-size:15px;line-height:1.55;max-width:680px;margin:0 0 20px;}
+  .inv-intro-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:22px;}
+  .inv-intro-tile{background:var(--panel-2);border:1px solid var(--border-soft);border-radius:var(--radius);padding:14px;}
+  .inv-intro-tile h4{margin:0 0 6px;font-size:14px;}
+  .inv-intro-tile p{margin:0;color:var(--text-dim);font-size:13px;line-height:1.5;}
+
+  .inv-hero{padding:22px 22px 18px;}
+  .inv-hero-top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;}
+  .inv-total{font-family:var(--mono);font-size:38px;font-weight:600;letter-spacing:-.02em;margin-top:6px;line-height:1.1;}
+  .inv-perf{font-family:var(--mono);font-size:13.5px;margin-top:6px;}
+  .inv-hero-actions{display:flex;gap:8px;}
+  .inv-alloc{display:flex;gap:2px;height:10px;border-radius:6px;overflow:hidden;margin:20px 0 10px;background:var(--panel-2);}
+  .inv-alloc i{display:block;height:100%;transition:width .4s ease;min-width:0;}
+  .inv-alloc i.pea{background:var(--accent);} .inv-alloc i.cto{background:var(--gold);} .inv-alloc i.cash{background:var(--border);}
+  .inv-alloc-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--text-dim);}
+  .inv-alloc-legend b{color:var(--text);font-weight:600;margin-left:4px;}
+
+  .inv-envs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start;}
+  .inv-env-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;}
+  .inv-env-sub{font-size:12px;color:var(--text-faint);margin-top:3px;}
+  .inv-env-value{text-align:right;display:flex;flex-direction:column;gap:2px;}
+  .inv-env-value b{font-family:var(--mono);font-size:20px;font-weight:600;}
+  .inv-env-value span{font-family:var(--mono);font-size:12px;}
+  .inv-env-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0 12px;}
+  .inv-env-metrics div{background:var(--panel-2);border:1px solid var(--border-soft);border-radius:var(--radius);padding:8px 10px;min-width:0;}
+  .inv-env-metrics span{display:block;font-size:11px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .inv-env-metrics b{display:block;font-family:var(--mono);font-size:13.5px;font-weight:600;margin-top:2px;}
+  .inv-pea-clock{margin:0 0 12px;}
+  .inv-pea-clock-top{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--text-faint);margin-bottom:5px;flex-wrap:wrap;}
+  .inv-pea-bar{height:4px;border-radius:3px;background:var(--panel-2);overflow:hidden;}
+  .inv-pea-bar i{display:block;height:100%;background:var(--accent);border-radius:3px;min-width:3px;}
+  .inv-empty{font-size:13px;color:var(--text-faint);padding:14px 0 4px;text-align:center;}
+
+  .inv-hold{display:flex;flex-direction:column;border-top:1px solid var(--border-soft);}
+  .inv-hold-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border-soft);}
+  .inv-hold-val{display:flex;flex-direction:column;align-items:flex-end;gap:1px;}
+  .inv-hold-val b{font-family:var(--mono);font-size:13.5px;font-weight:600;}
+  .inv-hold-val span{font-family:var(--mono);font-size:11.5px;white-space:nowrap;}
+  .inv-asset em{font-style:normal;}
+  .inv-hold .inv-asset div span{white-space:normal;line-height:1.4;}
+  .inv-asset{display:flex;align-items:center;gap:9px;min-width:0;text-align:left;}
+  .inv-asset > div, .inv-asset > span:last-child{display:flex;flex-direction:column;min-width:0;}
+  .inv-asset b{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
+  .inv-asset span span, .inv-asset div span{font-size:11.5px;color:var(--text-faint);font-family:var(--mono);white-space:nowrap;}
+  .inv-mono{flex:none;width:30px;height:30px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:-.02em;background:var(--panel-2);border:1px solid var(--border-soft);color:var(--text-dim);}
+  .inv-mono.cat-etf{color:var(--accent-light);border-color:color-mix(in srgb, var(--accent) 35%, var(--border-soft));}
+  .inv-mono.cat-stock{color:var(--text);}
+  .inv-mono.cat-commodity{color:var(--gold);border-color:color-mix(in srgb, var(--gold) 35%, var(--border-soft));}
+  .inv-mono.cat-crypto{color:var(--long);border-color:color-mix(in srgb, var(--long) 30%, var(--border-soft));}
+  .inv-row-acts{display:flex;gap:4px;justify-content:flex-end;}
+  .inv-mini{font-family:var(--sans);font-size:11.5px;padding:4px 8px;border-radius:7px;background:var(--panel-2);border:1px solid var(--border);color:var(--text-dim);cursor:pointer;}
+  .inv-mini:hover{color:var(--text);border-color:color-mix(in srgb, var(--accent) 50%, var(--border));}
+
+  .inv-sec-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  .inv-chips{display:flex;gap:6px;flex-wrap:wrap;}
+  .inv-chip{font-family:var(--sans);font-size:12px;padding:5px 11px;border-radius:999px;border:1px solid var(--border-soft);background:transparent;color:var(--text-dim);cursor:pointer;}
+  .inv-chip.active{background:var(--panel-2);border-color:var(--accent);color:var(--text);}
+  .inv-mkt-note{margin:8px 0 10px;}
+  .inv-mkt{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 14px;}
+  .inv-mkt-row{display:grid;grid-template-columns:minmax(0,1fr) auto 92px 64px;gap:10px;align-items:center;padding:8px 10px;border-radius:var(--radius);
+    border:1px solid transparent;background:transparent;color:var(--text);font:inherit;cursor:pointer;text-align:left;}
+  .inv-mkt-row:hover{background:var(--panel-2);border-color:var(--border-soft);}
+  .inv-mkt-px{font-family:var(--mono);font-size:13px;font-weight:600;}
+  .inv-mkt-chg{font-family:var(--mono);font-size:12px;}
+  .inv-mkt-status{font-size:11px;white-space:nowrap;color:var(--text-faint);padding-left:12px;position:relative;}
+  .inv-mkt-status::before{content:"";position:absolute;left:0;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:var(--text-faint);opacity:.6;}
+  .inv-mkt-status.open{color:var(--text-dim);}
+  .inv-mkt-status.open::before{background:var(--long);opacity:1;}
+  .inv-tag-pea{font-style:normal;font-family:var(--sans);font-size:10px;font-weight:600;color:var(--accent-light);border:1px solid color-mix(in srgb, var(--accent) 45%, transparent);border-radius:4px;padding:0 4px;margin-left:4px;}
+
+  .inv-bottom{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start;}
+  .inv-fx-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px;}
+  .inv-fx-col{background:var(--panel-2);border:1px solid var(--border-soft);border-radius:var(--radius);padding:12px;}
+  .inv-fx-col h4{margin:0 0 8px;font-size:13px;}
+  .inv-fx-row{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--text-dim);padding:3px 0;}
+  .inv-fx-row b{font-family:var(--mono);color:var(--text);font-weight:600;}
+  .inv-fx-row b.up{color:var(--long);} .inv-fx-row b.down{color:var(--short);}
+  .inv-fx-note{font-size:11.5px;color:var(--text-faint);margin:8px 0 0;line-height:1.45;}
+  .inv-fx-total{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:12px 0 8px;padding-top:12px;border-top:1px solid var(--border-soft);font-size:13px;color:var(--text-dim);}
+  .inv-fx-total b{font-family:var(--mono);font-size:18px;color:var(--text);}
+  .inv-history h3{margin-bottom:8px;}
+  .inv-h-row{display:grid;grid-template-columns:78px 34px minmax(0,1fr) auto;gap:8px;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--border-soft);font-size:12.5px;}
+  .inv-h-when{font-family:var(--mono);font-size:11px;color:var(--text-faint);}
+  .inv-h-env{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);}
+  .inv-h-fee{font-size:11px;color:var(--text-faint);}
+  .inv-h-row .num{font-family:var(--mono);}
+  .inv-h-move .inv-h-what{color:var(--text-dim);}
+  .inv-link{background:none;border:none;color:var(--accent-light);font:inherit;font-size:12.5px;cursor:pointer;padding:10px 0 0;}
+
+  .inv-order h3{margin:0;font-size:17px;}
+  .inv-om-head{display:flex;gap:10px;align-items:center;padding-right:30px;}
+  .inv-om-sub{font-size:12px;color:var(--text-faint);margin-top:2px;}
+  .inv-om-sub .up{color:var(--long);} .inv-om-sub .down{color:var(--short);}
+  .inv-om-desc{font-size:12.5px;color:var(--text-dim);line-height:1.5;margin:10px 0 0;}
+  .inv-om-px{display:flex;align-items:baseline;gap:10px;margin:14px 0 4px;}
+  .inv-om-px b{font-family:var(--mono);font-size:24px;font-weight:600;}
+  .inv-om-px span{font-family:var(--mono);font-size:12px;}
+  .inv-om-px .up{color:var(--long);} .inv-om-px .down{color:var(--short);}
+  .inv-om-label{font-size:11.5px;color:var(--text-faint);margin:14px 0 6px;display:flex;justify-content:space-between;}
+  .inv-om-avail{font-family:var(--mono);}
+  .inv-om-seg button{flex:1;}
+  .inv-om-hint{font-size:12px;color:var(--text-faint);margin-top:7px;line-height:1.45;}
+  .inv-om-hint.warn{color:var(--warn);background:color-mix(in srgb, var(--warn) 10%, transparent);border:1px solid color-mix(in srgb, var(--warn) 35%, transparent);border-radius:var(--radius);padding:9px 11px;margin-top:12px;}
+  .inv-om-qty{display:flex;gap:8px;}
+  .inv-om-qty input{flex:1;min-width:0;font-family:var(--mono);font-size:15px;padding:10px 12px;background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm, 8px);}
+  .inv-om-qty input:focus{outline:none;border-color:var(--accent);}
+  .inv-om-sum{margin:14px 0 0;border-top:1px solid var(--border-soft);padding-top:10px;}
+  .inv-om-sum div{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--text-dim);padding:3px 0;}
+  .inv-om-sum b{font-family:var(--mono);color:var(--text);font-weight:600;}
+  .inv-om-sum b.up{color:var(--long);} .inv-om-sum b.down{color:var(--short);}
+  .inv-om-err{font-size:12.5px;color:var(--short);margin-top:10px;line-height:1.45;}
+  .inv-om-err[hidden]{display:none;}
+  .inv-om-go{width:100%;margin-top:14px;}
+  .inv-om-go:disabled{opacity:.45;cursor:not-allowed;filter:none;}
+  .inv-danger{color:var(--short);border-color:color-mix(in srgb, var(--short) 45%, var(--border));}
+  .inv-toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:70;
+    background:var(--panel-2);border:1px solid var(--border);color:var(--text);font-size:13px;padding:10px 16px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.35);transition:opacity .25s, transform .25s;}
+  .inv-toast.show{opacity:1;transform:translate(-50%,0);}
+  .inv-lb-split{color:var(--text-faint);font-size:11px;}
+
+  @media (max-width:1080px){
+    .inv-envs, .inv-bottom{grid-template-columns:minmax(0,1fr);}
+    .inv-mkt{grid-template-columns:minmax(0,1fr);}
+  }
+  @media (max-width:720px){
+    .inv-intro{padding:20px 16px;}
+    .inv-intro-grid{grid-template-columns:minmax(0,1fr);}
+    .inv-hero{padding:18px 16px 14px;}
+    .inv-total{font-size:30px;}
+    .inv-hero-actions{width:100%;}
+    .inv-hero-actions button{flex:1;}
+    .inv-env-metrics{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}
+    .inv-env-metrics div{padding:7px 8px;}
+    .inv-hold-row{grid-template-columns:minmax(0,1fr) auto;row-gap:8px;}
+    .inv-hold-row .inv-row-acts{grid-column:1 / span 2;justify-content:flex-start;}
+    .inv-hold-row .inv-row-acts .inv-mini{flex:1;padding:6px 8px;}
+    .inv-asset div span{white-space:normal;}
+    .inv-mkt-row{grid-template-columns:minmax(0,1fr) auto;row-gap:2px;padding:9px 6px;}
+    .inv-mkt-row .inv-asset{grid-row:1 / span 2;}
+    .inv-mkt-status{display:none;}
+    .inv-mkt-px{grid-column:2;grid-row:1;}
+    .inv-mkt-chg{grid-column:2;grid-row:2;}
+    .inv-fx-grid{grid-template-columns:minmax(0,1fr);}
+    .inv-chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px;width:calc(100% + 32px);}
+    .inv-chips::-webkit-scrollbar{display:none;}
+    .inv-chip{white-space:nowrap;}
+    .inv-h-row{grid-template-columns:62px minmax(0,1fr) auto;}
+    .inv-h-env{display:none;}
+  }
   @media (max-width:520px){
     .acct-metric:nth-child(3){display:none;} /* PnL ouvert: equity alone on very narrow phones */
     .tb-title{font-size:17px;max-width:40vw;overflow:hidden;text-overflow:ellipsis;}
@@ -1834,6 +1999,7 @@
     <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></symbol>
     <symbol id="i-news" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8z"/></symbol>
     <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></symbol>
+    <symbol id="i-pie" viewBox="0 0 24 24"><path d="M21 12c.55 0 1-.45.95-1A10 10 0 0 0 13 2.05c-.55-.05-1 .4-1 .95v8a1 1 0 0 0 1 1z"/><path d="M21.2 15.9A10 10 0 1 1 8 2.8"/></symbol>
     <symbol id="i-trend" viewBox="0 0 24 24"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
     <symbol id="i-user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
     <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.7 9a1 1 0 0 1-.6 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.2-2.7a1.2 1.2 0 0 1 1.6 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z"/></symbol>
@@ -1917,6 +2083,7 @@
     <nav class="tabs sb-nav">
       <div class="sb-section">Trading</div>
       <button data-view="terminal" class="active"><svg class="ic" aria-hidden="true"><use href="#i-terminal"/></svg><span class="sb-label">Terminal</span></button>
+      <button data-view="invest"><svg class="ic" aria-hidden="true"><use href="#i-pie"/></svg><span class="sb-label">Investir</span></button>
       <button data-view="challenge"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg><span class="sb-label">Challenge</span><span class="sb-short">Challenge</span></button>
       <button data-view="concoursedbplus"><svg class="ic" aria-hidden="true"><use href="#i-gem"/></svg><span class="sb-label">Concours EDB+</span><span class="sb-short">Concours</span></button>
       <div class="sb-section">Communauté</div>
@@ -2228,6 +2395,7 @@
           <button type="button" id="lb-tab-normal" class="on-mode active">Compte normal</button>
           <button type="button" id="lb-tab-week" class="on-mode">Cette semaine</button>
           <button type="button" id="lb-tab-prop" class="on-mode">Prop Firm</button>
+          <button type="button" id="lb-tab-invest" class="on-mode">Investissement</button>
         </div>
         <div id="lb-wrap-normal">
           <div class="lb-podium" id="lb-podium"></div>
@@ -2257,6 +2425,16 @@
             <table class="lb-table">
               <thead><tr><th>Rang</th><th>Trader</th><th>Compte</th><th>Étape</th><th>Équité</th><th>Performance</th></tr></thead>
               <tbody id="prop-lb-body"><tr><td colspan="6" class="empty-note">Chargement du classement…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="lb-wrap-invest" hidden>
+          <h3>Classement investissement</h3>
+          <p class="chart-note" style="margin-bottom:10px;">Portefeuilles long terme sans levier (PEA + CTO), classés par <strong>performance</strong> depuis la mise de départ de 100 000 $, frais déduits, avant impôt. Mis à jour quand le trader passe sur l'app.</p>
+          <div style="overflow-x:auto;">
+            <table class="lb-table">
+              <thead><tr><th>Rang</th><th>Trader</th><th class="lb-col-opt num">Lignes</th><th class="num">Valeur</th><th class="num">Perf.</th></tr></thead>
+              <tbody id="invest-lb-body"><tr><td colspan="5" class="empty-note">Chargement du classement…</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -2600,6 +2778,11 @@
       <div class="learn-wrap wrap-wide">
         <div class="card" id="tradesedb-card"></div>
       </div>
+    </section>
+
+    <!-- ================= INVESTISSEMENT (PEA + CTO, sans levier) ================= -->
+    <section class="view" id="view-invest">
+      <div class="inv-wrap" id="invest-root"></div>
     </section>
 
     <!-- ================= CHALLENGE PROP FIRM (dedicated page) ================= -->
@@ -3347,6 +3530,7 @@ const state = {
   // written once per attempt right before it's overwritten/wiped by a
   // restart or an abandon — see archiveChallenge().
   challengeHistory: [],
+  invest: null, // Investissement space (PEA + CTO) — see investFresh()
   // --- Dual-book trading (Normal demo account + Prop Firm challenge account) ---
   // Exactly one of "normal"/"prop" is ever "active": its cash/marginUsed/
   // positions/pendingOrders/history/stats live directly on `state.*` above
@@ -3708,6 +3892,8 @@ function hydrateStateFromDoc(snap){
   state.feed = Array.isArray(d.feed) ? d.feed : [];
   state.challenge = (d.challenge && typeof d.challenge==="object") ? d.challenge : null;
   state.challengeHistory = Array.isArray(d.challengeHistory) ? d.challengeHistory : [];
+  state.invest = investSanitize(d.invest);
+  if (state.invest && typeof investKick==="function") investKick();
   // The fields hydrated above (cash/marginUsed/positions/pendingOrders/
   // history/stats) are always treated as the NORMAL book, and we always
   // boot back into it regardless of which was active when last saved — a
@@ -3902,6 +4088,8 @@ function persistAccount(){
           lastActiveAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           hasOpenActivity,
+          // Investissement space (PEA + CTO) — only once opened, see investPersistFields().
+          ...investPersistFields(),
         };
         const ref = db.collection("traders").doc(clientId);
         const createDoc = async ()=>{
@@ -3969,6 +4157,7 @@ const LB_SUB_DEFS = {
   equity: {views:["leaderboard","chat"], start:()=>subscribeLeaderboard()},
   weekly: {views:["leaderboard"],        start:()=>subscribeWeeklyLeaderboard()},
   prop:   {views:["leaderboard"],        start:()=>subscribePropLeaderboard()},
+  invest: {views:["leaderboard"],        start:()=>subscribeInvestLeaderboard()},
   quiz:   {views:["quiz"],               start:()=>subscribeQuizLeaderboard()},
   flash:  {views:["quiz"],               start:()=>subscribeSuperflashLeaderboard()},
 };
@@ -7912,6 +8101,8 @@ const BADGES = [
  {id:"streak_3", icon:"🔥", title:"Série — 3 jours", desc:"Revenir sur Paper Tape 3 jours de suite."},
  {id:"streak_7", icon:"🔥", title:"Série — 7 jours", desc:"Revenir sur Paper Tape 7 jours de suite."},
  {id:"streak_30", icon:"🔥", title:"Série — 30 jours", desc:"Revenir sur Paper Tape 30 jours de suite."},
+ {id:"first_invest", icon:"🌱", title:"Premier investissement", desc:"Acheter ta première ligne dans ton PEA ou ton CTO."},
+ {id:"invest_diversified", icon:"🧺", title:"Portefeuille diversifié", desc:"Détenir 5 actifs différents dans ton espace investissement."},
  {id:"hardcore_master", icon:"💎", title:"Challenge Hardcore", desc:"Valider 5 challenges prop firm complets (Étape 1 + Étape 2) sur le palier 200 000 $, d'affilée."},
 ];
 // `extra` (optional) is merged into the stored badge entry — used by the
@@ -12168,7 +12359,7 @@ function renderSuperflashLeaderboardRows(rawDocs){
 const VIEW_TITLES = {
   terminal:"Terminal", news:"News", chat:"Chat", leaderboard:"Classement", concoursedbplus:"Concours EDB+",
   challenge:"Challenge Prop Firm", quiz:"Connaissances", resources:"Ressources", edbplus:"EDB+",
-  tradesedb:"Trades EDB+", profile:"Profil", admin:"Admin",
+  tradesedb:"Trades EDB+", profile:"Profil", admin:"Admin", invest:"Investissement",
 };
 const SIDEBAR_KEY = "paperTapeSidebar"; // "full" | "rail" — per-browser preference, like the theme
 function applySidebarMode(mode){
@@ -12312,6 +12503,10 @@ function switchView(name){
   if (name==="challenge"){
     renderChallengeProfileCard();
   }
+  if (name==="invest"){
+    renderInvest();
+    investKick();
+  }
   if (name==="concoursedbplus" && typeof renderHardcoreChallenge==="function"){
     renderHardcoreChallenge(); // paints immediately instead of waiting for the next price tick
   }
@@ -12349,6 +12544,802 @@ function switchView(name){
   }
 }
 
+/* ============================= INVESTISSEMENT (PEA + CTO, sans levier) ============================= */
+// Long-term investing space, separate from the leveraged trading books: one
+// 100 000 $ pot that starts as uninvested cash ("Liquidités à placer") and is
+// paid into two French envelopes, each with its real-world rules:
+//  - PEA: only PEA-eligible ETFs (here: the synthetic S&P 500 / Nasdaq-100
+//    ones), 150k deposit cap, a withdrawal before 5 years closes the plan,
+//    gains taxed 31.4% before 5 years / 18.6% (social charges only) after.
+//  - CTO: everything (ETFs, US stocks, commodity ETCs, crypto), gains taxed
+//    at the 31.4% flat tax (PFU 2026: 12.8% income tax + 18.6% social charges).
+// Market orders only, filled at the last price, 0.5% fees (the real legal
+// cap for online PEA orders), whole units except crypto, and only while the
+// asset's exchange is open. Taxes are SHOWN ("si tu retirais aujourd'hui"),
+// never deducted. Everything lives in state.invest, persisted as `invest`
+// on the trader doc, plus investValue/investPerf for the leaderboard.
+const INVEST_START = 100000;
+const INVEST_FEE_RATE = 0.005;
+const INVEST_PFU_RATE = 0.314;
+const INVEST_PS_RATE = 0.186;
+const INVEST_PEA_CAP = 150000;
+const INVEST_PEA_YEARS = 5;
+const INVEST_HISTORY_MAX = 100;
+const INVEST_VENUES = {
+  euronext: {label:"Euronext Paris", sess:{name:"Euronext", timeZone:"Europe/Paris", openH:9, openM:0, closeH:17, closeM:30}},
+  nyse:     {label:"NYSE / Nasdaq",  sess:{name:"NYSE", timeZone:"America/New_York", openH:9, openM:30, closeH:16, closeM:0}},
+  crypto:   {label:"Crypto 24/7",    sess:null},
+};
+const INVEST_CATS = [["all","Tout"],["etf","ETF"],["stock","Actions US"],["commodity","Matières premières"],["crypto","Crypto"]];
+// src.symbol → priced off the Terminal's own feed (market[symbol].last,
+// already in index points for SPY/QQQ) times `ratio`, so the ETF has a
+// realistic unit price but exactly the index's return. src.xyz → Hyperliquid
+// "xyz" dex (24/7 perps that track the real US stocks), one request for all.
+const INVEST_ASSETS = [
+  {id:"PEA500", name:"ETF S&P 500 éligible PEA", short:"SP500·PEA", cat:"etf", pea:true, venue:"euronext", src:{symbol:"SPY", ratio:1/150},
+    desc:"Réplique le S&P 500 (500 grandes entreprises US). ETF « synthétique » : il détient des actions européennes et échange leur performance contre celle de l'indice, ce qui le rend éligible au PEA."},
+  {id:"PEANDX", name:"ETF Nasdaq-100 éligible PEA", short:"NDX·PEA", cat:"etf", pea:true, venue:"euronext", src:{symbol:"QQQ", ratio:1/270},
+    desc:"Réplique le Nasdaq-100 (grandes valeurs tech US), en version synthétique éligible au PEA."},
+  {id:"SP500", name:"ETF S&P 500", short:"SP500", cat:"etf", pea:false, venue:"euronext", src:{symbol:"SPY", ratio:1/10},
+    desc:"ETF physique sur le S&P 500 : il détient vraiment les actions de l'indice. Non éligible au PEA (actions américaines), donc en CTO."},
+  {id:"NDX100", name:"ETF Nasdaq-100", short:"NDX100", cat:"etf", pea:false, venue:"euronext", src:{symbol:"QQQ", ratio:1/44},
+    desc:"ETF physique sur le Nasdaq-100. Non éligible au PEA, donc en CTO."},
+  {id:"AAPL",  name:"Apple",      short:"AAPL",  cat:"stock", venue:"nyse", src:{xyz:"AAPL"}},
+  {id:"MSFT",  name:"Microsoft",  short:"MSFT",  cat:"stock", venue:"nyse", src:{xyz:"MSFT"}},
+  {id:"NVDA",  name:"Nvidia",     short:"NVDA",  cat:"stock", venue:"nyse", src:{xyz:"NVDA"}},
+  {id:"GOOGL", name:"Alphabet",   short:"GOOGL", cat:"stock", venue:"nyse", src:{xyz:"GOOGL"}},
+  {id:"AMZN",  name:"Amazon",     short:"AMZN",  cat:"stock", venue:"nyse", src:{xyz:"AMZN"}},
+  {id:"META",  name:"Meta",       short:"META",  cat:"stock", venue:"nyse", src:{xyz:"META"}},
+  {id:"TSLA",  name:"Tesla",      short:"TSLA",  cat:"stock", venue:"nyse", src:{xyz:"TSLA"}},
+  {id:"NFLX",  name:"Netflix",    short:"NFLX",  cat:"stock", venue:"nyse", src:{xyz:"NFLX"}},
+  {id:"AMD",   name:"AMD",        short:"AMD",   cat:"stock", venue:"nyse", src:{xyz:"AMD"}},
+  {id:"LLY",   name:"Eli Lilly",  short:"LLY",   cat:"stock", venue:"nyse", src:{xyz:"LLY"}},
+  {id:"GOLDETC",   name:"Or physique (ETC)",  short:"OR",     cat:"commodity", venue:"euronext", src:{symbol:"GOLD", ratio:1/10},
+    desc:"ETC adossé à de l'or physique (1 part = 1/10e d'once). Un ETC n'est pas un ETF : il n'est pas éligible au PEA."},
+  {id:"SILVERETC", name:"Argent physique (ETC)", short:"ARGENT", cat:"commodity", venue:"euronext", src:{symbol:"SILVER", ratio:1}},
+  {id:"OILETC",    name:"Pétrole WTI (ETC)",  short:"WTI",    cat:"commodity", venue:"euronext", src:{symbol:"OIL", ratio:1}},
+  {id:"BTC", name:"Bitcoin",  short:"BTC", cat:"crypto", venue:"crypto", src:{symbol:"BTC", ratio:1}, fractional:true},
+  {id:"ETH", name:"Ethereum", short:"ETH", cat:"crypto", venue:"crypto", src:{symbol:"ETH", ratio:1}, fractional:true},
+  {id:"SOL", name:"Solana",   short:"SOL", cat:"crypto", venue:"crypto", src:{symbol:"SOL", ratio:1}, fractional:true},
+];
+function investAssetById(id){ return INVEST_ASSETS.find(a=>a.id===id) || null; }
+function investEnvName(env){ return env==="pea" ? "PEA" : "CTO"; }
+
+/* ---- prices ---- */
+const investXyz = {};
+let investXyzTimer = null, investXyzLoading = false, investXyzError = null, investXyzLastAt = 0;
+async function pollInvestXyz(){
+  if (investXyzLoading) return;
+  investXyzLoading = true;
+  try{
+    const res = await hlInfoPost({type:"metaAndAssetCtxs", dex:"xyz"});
+    const meta = Array.isArray(res) ? res[0] : null, ctxs = Array.isArray(res) ? res[1] : null;
+    const uni = (meta && Array.isArray(meta.universe)) ? meta.universe : [];
+    INVEST_ASSETS.forEach(a=>{
+      if (!a.src.xyz) return;
+      const idx = uni.findIndex(u=>u && (u.name===a.src.xyz || u.name==="xyz:"+a.src.xyz));
+      const c = (idx>=0 && Array.isArray(ctxs)) ? ctxs[idx] : null;
+      const last = c && c.markPx!=null ? parseFloat(c.markPx) : NaN;
+      if (!isFinite(last)) return;
+      const prev = c.prevDayPx!=null ? parseFloat(c.prevDayPx) : NaN;
+      investXyz[a.src.xyz] = {last, changePct: (isFinite(prev) && prev) ? (last-prev)/prev*100 : 0};
+    });
+    investXyzError = null;
+    investXyzLastAt = Date.now();
+  }catch(e){ investXyzError = (e && e.code) || "indisponible"; }
+  investXyzLoading = false;
+  investOnPrices();
+}
+function investHoldsXyz(){
+  const inv = state.invest;
+  if (!inv) return false;
+  return ["pea","cto"].some(env=>Object.keys(inv[env].holdings).some(id=>{ const a = investAssetById(id); return a && a.src.xyz; }));
+}
+// US stock prices are only fetched while they're needed: every 15s on the
+// Investissement page, every 60s elsewhere if the portfolio holds any (so
+// its value — and the leaderboard — stays current), never otherwise.
+function scheduleInvestXyz(){
+  clearTimeout(investXyzTimer);
+  const onView = document.body.dataset.view==="invest";
+  if (!onView && !investHoldsXyz()) return;
+  const delay = (onView && document.visibilityState!=="hidden") ? 15000 : 60000;
+  investXyzTimer = setTimeout(async ()=>{ await pollInvestXyz(); scheduleInvestXyz(); }, delay);
+}
+function investKick(){
+  if (Date.now()-investXyzLastAt > 10000 && (document.body.dataset.view==="invest" || investHoldsXyz())) pollInvestXyz();
+  scheduleInvestXyz();
+}
+function investQuote(a){
+  if (a.src.xyz){
+    const q = investXyz[a.src.xyz];
+    return q ? {px:q.last, chg:q.changePct} : {px:null, chg:null};
+  }
+  const m = market[a.src.symbol];
+  return (m && m.last!=null) ? {px:m.last*a.src.ratio, chg:m.changePct} : {px:null, chg:null};
+}
+function investVenueStatus(a, now){
+  const v = INVEST_VENUES[a.venue];
+  if (!v || !v.sess) return {open:true, always:true, label:"24/7"};
+  now = now || new Date();
+  const open = sessionIsOpen(v.sess, now);
+  const boundary = nextSessionBoundary(v.sess, open, now);
+  const time = boundary.toLocaleTimeString("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit"});
+  const today = zonedYMD(now,"Europe/Paris"), bd = zonedYMD(boundary,"Europe/Paris");
+  const sameDay = today.y===bd.y && today.m===bd.m && today.d===bd.d;
+  const day = sameDay ? "" : boundary.toLocaleDateString("fr-FR",{timeZone:"Europe/Paris",weekday:"short"})+" ";
+  return {open, label: open ? "Ouvert · ferme "+time : "Fermé · ouvre "+day+time};
+}
+
+/* ---- account ---- */
+function investFresh(){
+  const now = new Date().toISOString();
+  return {v:1, openedAt:now, reserve:INVEST_START, feesPaid:0,
+    pea:{openedAt:now, cash:0, deposits:0, holdings:{}},
+    cto:{cash:0, deposits:0, holdings:{}, realized:{}},
+    history:[]};
+}
+function investSanitize(d){
+  if (!d || typeof d!=="object") return null;
+  const num = (v,f)=> (typeof v==="number" && isFinite(v)) ? v : f;
+  const now = new Date().toISOString();
+  const holds = (h)=>{
+    const out = {};
+    if (h && typeof h==="object") Object.keys(h).forEach(id=>{
+      const x = h[id];
+      if (x && num(x.qty,0)>0) out[id] = {qty:x.qty, cost:num(x.cost,0), lastPx:num(x.lastPx,null)};
+    });
+    return out;
+  };
+  const pea = d.pea || {}, cto = d.cto || {};
+  return {v:1, openedAt:d.openedAt||now, reserve:num(d.reserve,0), feesPaid:num(d.feesPaid,0),
+    pea:{openedAt:pea.openedAt||d.openedAt||now, cash:num(pea.cash,0), deposits:num(pea.deposits,0), holdings:holds(pea.holdings)},
+    cto:{cash:num(cto.cash,0), deposits:num(cto.deposits,0), holdings:holds(cto.holdings),
+      realized:(cto.realized && typeof cto.realized==="object") ? cto.realized : {}},
+    history:Array.isArray(d.history) ? d.history.slice(0,INVEST_HISTORY_MAX) : []};
+}
+function investHoldingPx(id, h){
+  const a = investAssetById(id);
+  const q = a ? investQuote(a) : {px:null};
+  if (q.px!=null){ h.lastPx = q.px; return q.px; }
+  return h.lastPx!=null ? h.lastPx : (h.qty ? h.cost/h.qty : 0);
+}
+function investEnvTotals(env){
+  const e = state.invest[env];
+  let value = 0, cost = 0, lines = 0;
+  Object.keys(e.holdings).forEach(id=>{
+    const h = e.holdings[id];
+    value += h.qty*investHoldingPx(id, h);
+    cost += h.cost;
+    lines++;
+  });
+  return {cash:e.cash, holdings:value, value:e.cash+value, cost, gain:value-cost, lines, deposits:e.deposits};
+}
+function investTotals(){
+  const pea = investEnvTotals("pea"), cto = investEnvTotals("cto");
+  const total = state.invest.reserve + pea.value + cto.value;
+  return {pea, cto, reserve:state.invest.reserve, total, gain:total-INVEST_START, perf:(total-INVEST_START)/INVEST_START*100};
+}
+function investPeaAge(){
+  const opened = new Date(state.invest.pea.openedAt);
+  const matures = new Date(opened); matures.setFullYear(matures.getFullYear()+INVEST_PEA_YEARS);
+  const now = new Date();
+  return {opened, matures, mature: now>=matures, progress: Math.max(0, Math.min(1, (now-opened)/(matures-opened)))};
+}
+function investFmtQty(a, q){
+  if (a && a.fractional) return q.toLocaleString("fr-FR",{maximumFractionDigits:6});
+  return q.toLocaleString("fr-FR",{maximumFractionDigits:0});
+}
+function investFmtPx(p){
+  if (p==null || !isFinite(p)) return "—";
+  const d = p<1 ? 4 : 2;
+  return "$"+p.toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
+}
+function investFmtDate(iso){
+  const d = new Date(iso);
+  return isNaN(d) ? "—" : d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"});
+}
+function investLog(entry){
+  state.invest.history.unshift(Object.assign({t:new Date().toISOString()}, entry));
+  state.invest.history = state.invest.history.slice(0,INVEST_HISTORY_MAX);
+}
+function investPersistNow(){
+  investLastPersist = {at:Date.now(), value: state.invest ? investTotals().total : null};
+  persistAccount();
+}
+let investLastPersist = {at:0, value:null};
+function investMaybePersist(){
+  if (!state.invest) return;
+  const v = investTotals().total;
+  if (investLastPersist.value!=null && Math.abs(v-investLastPersist.value)<1) return;
+  if (Date.now()-investLastPersist.at < 60000) return;
+  investPersistNow();
+}
+// Fields added to persistAccount()'s payload (only once the space exists).
+function investPersistFields(){
+  if (!state.invest) return {};
+  const t = investTotals();
+  return {invest: state.invest, investValue: Math.round(t.total*100)/100, investPerf: Math.round(t.perf*1000)/1000,
+    investLines: t.pea.lines + t.cto.lines};
+}
+
+/* ---- operations ---- */
+function investMaxBuyQty(a, cash, px){
+  if (!px) return 0;
+  const raw = cash/(px*(1+INVEST_FEE_RATE));
+  return a.fractional ? Math.floor(raw*1e6)/1e6 : Math.floor(raw);
+}
+function investCheckOrder(id, env, side, qty){
+  const a = investAssetById(id);
+  const inv = state.invest;
+  if (!a || !inv) return {err:"Actif inconnu."};
+  if (env==="pea" && !a.pea) return {err:"Cet actif n'est pas éligible au PEA : passe par le CTO."};
+  const q = investQuote(a);
+  if (q.px==null) return {err:"Prix indisponible pour le moment, réessaie dans quelques secondes."};
+  const st = investVenueStatus(a);
+  if (!st.open) return {err:"Marché fermé ("+st.label.replace("Fermé · ","")+"). Les ordres ne passent que pendant les heures de cotation.", closed:true, px:q.px};
+  if (!(qty>0)) return {err:"Indique une quantité.", px:q.px};
+  if (!a.fractional && Math.floor(qty)!==qty) return {err:"Cet actif s'achète par unités entières.", px:q.px};
+  const gross = qty*q.px, fee = gross*INVEST_FEE_RATE;
+  if (side==="buy"){
+    const total = gross+fee;
+    if (total > inv[env].cash+1e-9) return {err:"Espèces insuffisantes dans le "+investEnvName(env)+" ("+fmtMoney(inv[env].cash)+"). Fais d'abord un versement.", px:q.px, gross, fee, total};
+    return {ok:true, px:q.px, gross, fee, total};
+  }
+  const h = inv[env].holdings[id];
+  if (!h || h.qty < qty-1e-9) return {err:"Tu n'as que "+investFmtQty(a, h?h.qty:0)+" "+a.short+" dans ce "+investEnvName(env)+".", px:q.px, gross, fee};
+  const costOut = h.cost*(qty/h.qty);
+  const net = gross-fee;
+  return {ok:true, px:q.px, gross, fee, total:net, pnl:net-costOut, costOut};
+}
+function investExecute(id, env, side, qty){
+  const chk = investCheckOrder(id, env, side, qty);
+  if (!chk.ok) return chk;
+  const inv = state.invest, e = inv[env], a = investAssetById(id);
+  if (side==="buy"){
+    e.cash -= chk.total;
+    const h = e.holdings[id] || {qty:0, cost:0, lastPx:chk.px};
+    h.qty = a.fractional ? Math.round((h.qty+qty)*1e6)/1e6 : h.qty+qty;
+    h.cost += chk.total; // fees are part of the cost basis (PRU), as in real French tax rules
+    h.lastPx = chk.px;
+    e.holdings[id] = h;
+    investLog({type:"buy", env, id, qty, px:chk.px, fee:chk.fee, amount:chk.total});
+    awardBadge("first_invest");
+    const distinct = new Set([].concat(Object.keys(inv.pea.holdings), Object.keys(inv.cto.holdings)));
+    if (distinct.size>=5) awardBadge("invest_diversified");
+  } else {
+    const h = e.holdings[id];
+    e.cash += chk.total;
+    h.cost -= chk.costOut;
+    h.qty = a.fractional ? Math.round((h.qty-qty)*1e6)/1e6 : h.qty-qty;
+    if (h.qty<=1e-9) delete e.holdings[id];
+    if (env==="cto"){
+      const y = String(new Date().getFullYear());
+      e.realized[y] = (e.realized[y]||0) + chk.pnl;
+    }
+    investLog({type:"sell", env, id, qty, px:chk.px, fee:chk.fee, amount:chk.total, pnl:chk.pnl});
+  }
+  inv.feesPaid += chk.fee;
+  investPersistNow();
+  return chk;
+}
+function investTransfer(kind, env, amount){
+  const inv = state.invest, e = inv[env];
+  amount = Math.round(amount*100)/100;
+  if (!(amount>0)) return {err:"Indique un montant."};
+  if (kind==="deposit"){
+    if (amount > inv.reserve+1e-9) return {err:"Tu n'as que "+fmtMoney(inv.reserve)+" de liquidités à placer."};
+    if (env==="pea" && e.deposits+amount > INVEST_PEA_CAP+1e-9) return {err:"Plafond de versements du PEA atteint ("+fmtMoney(INVEST_PEA_CAP)+")."};
+    inv.reserve -= amount; e.cash += amount; e.deposits += amount;
+    investLog({type:"deposit", env, amount});
+  } else {
+    if (amount > e.cash+1e-9) return {err:"Seulement "+fmtMoney(e.cash)+" d'espèces disponibles dans le "+investEnvName(env)+". Vends d'abord des titres pour en retirer plus."};
+    if (env==="pea"){
+      if (!investPeaAge().mature) return {err:"Avant 5 ans, un retrait clôture le PEA : utilise « Clôturer le PEA »."};
+      const before = investEnvTotals("pea").value;
+      e.deposits = Math.max(0, e.deposits*(1-amount/before));
+    } else {
+      e.deposits = Math.max(0, e.deposits-amount);
+    }
+    e.cash -= amount; inv.reserve += amount;
+    investLog({type:"withdraw", env, amount});
+  }
+  investPersistNow();
+  return {ok:true};
+}
+function investClosePea(){
+  const inv = state.invest;
+  if (Object.keys(inv.pea.holdings).length) return {err:"Vends d'abord toutes les lignes du PEA."};
+  const t = investEnvTotals("pea");
+  const gain = t.value - t.deposits;
+  const rate = investPeaAge().mature ? INVEST_PS_RATE : INVEST_PFU_RATE;
+  const amount = inv.pea.cash;
+  inv.reserve += amount;
+  investLog({type:"close", env:"pea", amount, taxInfo: Math.max(0,gain)*rate});
+  inv.pea = {openedAt:new Date().toISOString(), cash:0, deposits:0, holdings:{}};
+  investPersistNow();
+  return {ok:true};
+}
+
+/* ---- rendering ---- */
+let investFilter = "all";
+let investHistoryAll = false;
+function investMonogram(a){
+  const letters = a.cat==="crypto" ? a.short.slice(0,3) : a.short.replace(/[^A-Z]/g,"").slice(0,2) || a.short.slice(0,2);
+  return '<span class="inv-mono cat-'+a.cat+'" aria-hidden="true">'+escapeHtml(letters)+'</span>';
+}
+function investIntroHtml(){
+  return '<div class="card inv-intro">'+
+    '<div class="inv-eyebrow">Nouveau · sans levier</div>'+
+    '<h2>Investir sur le long terme</h2>'+
+    '<p class="inv-intro-lead">Un portefeuille fictif de <b>100 000 $</b>, séparé de ton compte de trading. Tu le répartis entre un <b>PEA</b> et un <b>compte-titres (CTO)</b>, comme un vrai investisseur français, et tu achètes des ETF, des actions américaines, des matières premières ou des cryptos.</p>'+
+    '<div class="inv-intro-grid">'+
+      '<div class="inv-intro-tile"><h4>PEA</h4><p>Enveloppe fiscale : uniquement des titres européens ou des ETF éligibles. Après 5 ans, les gains ne supportent que 18,6 % de prélèvements sociaux. Avant 5 ans, un retrait le clôture.</p></div>'+
+      '<div class="inv-intro-tile"><h4>Compte-titres</h4><p>Tout est permis (actions US, or, crypto…), sans plafond. En contrepartie, les plus-values sont taxées à la flat tax de 31,4 %.</p></div>'+
+      '<div class="inv-intro-tile"><h4>Comme en vrai</h4><p>Frais de 0,5 % par ordre, parts entières, ordres seulement quand la Bourse est ouverte, et une estimation de l\'impôt si tu retirais tout aujourd\'hui.</p></div>'+
+    '</div>'+
+    '<button class="btn-primary" data-inv-act="start">Ouvrir mon espace avec 100 000 $</button>'+
+    '<p class="chart-note" style="margin-top:12px;">Rien à voir avec ton compte de trading : ses gains et pertes ne changent rien ici, et inversement.</p>'+
+  '</div>';
+}
+function investHoldingsHtml(env){
+  const e = state.invest[env];
+  const ids = Object.keys(e.holdings);
+  if (!ids.length){
+    return '<div class="inv-empty">Aucune ligne pour l\'instant.'+
+      (e.cash>0 ? ' Choisis un actif dans le marché ci-dessous.' : ' Commence par un versement.')+'</div>';
+  }
+  return '<div class="inv-hold">'+
+    ids.map(id=>{
+      const a = investAssetById(id) || {id, name:id, short:id, cat:"etf"};
+      const h = e.holdings[id];
+      const k = env+"."+id;
+      return '<div class="inv-hold-row">'+
+        '<div class="inv-asset">'+investMonogram(a)+'<div><b>'+escapeHtml(a.name)+'</b>'+
+          '<span>'+investFmtQty(a,h.qty)+' '+(a.fractional ? escapeHtml(a.short) : "part"+(h.qty>1?"s":""))+' · PRU '+investFmtPx(h.cost/h.qty)+' · cours <em data-live="h.'+k+'.px">—</em></span></div></div>'+
+        '<div class="inv-hold-val"><b class="num" data-live="h.'+k+'.value">—</b><span class="num" data-live="h.'+k+'.gain">—</span></div>'+
+        '<span class="inv-row-acts">'+
+          '<button type="button" class="inv-mini" data-inv-act="order" data-id="'+id+'" data-env="'+env+'" data-side="buy">Acheter</button>'+
+          '<button type="button" class="inv-mini" data-inv-act="order" data-id="'+id+'" data-env="'+env+'" data-side="sell">Vendre</button>'+
+        '</span>'+
+      '</div>';
+    }).join("")+
+  '</div>';
+}
+function investEnvCardHtml(env){
+  const isPea = env==="pea";
+  let clock = "";
+  if (isPea){
+    const age = investPeaAge();
+    clock = '<div class="inv-pea-clock" title="La fiscalité avantageuse du PEA démarre 5 ans après son ouverture">'+
+      '<div class="inv-pea-clock-top"><span>Ouvert le '+investFmtDate(state.invest.pea.openedAt)+'</span><span>'+
+        (age.mature ? 'Plus de 5 ans : fiscalité allégée ✓' : 'Fiscalité allégée le '+investFmtDate(age.matures.toISOString()))+'</span></div>'+
+      '<div class="inv-pea-bar"><i style="width:'+(age.progress*100).toFixed(1)+'%"></i></div>'+
+    '</div>';
+  }
+  return '<div class="card inv-env inv-env-'+env+'">'+
+    '<div class="inv-env-head">'+
+      '<div><h3><i class="inv-dot '+env+'"></i>'+(isPea ? "PEA" : "Compte-titres (CTO)")+'</h3>'+
+        '<div class="inv-env-sub">'+(isPea ? "Plan d'épargne en actions · ETF éligibles uniquement" : "Ordinaire · tous les actifs, sans plafond")+'</div></div>'+
+      '<div class="inv-env-value"><b class="num" data-live="'+env+'.value">—</b><span class="num" data-live="'+env+'.gain">—</span></div>'+
+    '</div>'+
+    '<div class="inv-env-metrics">'+
+      '<div><span>Espèces</span><b class="num" data-live="'+env+'.cash">—</b></div>'+
+      '<div><span>Titres</span><b class="num" data-live="'+env+'.holdings">—</b></div>'+
+      '<div'+(isPea ? ' title="Plafond réel du PEA : 150 000 € de versements"' : '')+'><span>'+(isPea ? "Versements" : "Versements nets")+'</span><b class="num" data-live="'+env+'.deposits">—</b></div>'+
+    '</div>'+
+    clock+
+    investHoldingsHtml(env)+
+  '</div>';
+}
+function investMarketHtml(){
+  const list = INVEST_ASSETS.filter(a=>investFilter==="all" || a.cat===investFilter);
+  return '<div class="card inv-market">'+
+    '<div class="inv-sec-head"><h3>Marché</h3>'+
+      '<div class="inv-chips" role="tablist">'+INVEST_CATS.map(([k,l])=>'<button type="button" class="inv-chip'+(investFilter===k?" active":"")+'" data-inv-act="filter" data-cat="'+k+'">'+l+'</button>').join("")+'</div>'+
+    '</div>'+
+    '<p class="chart-note inv-mkt-note">Ordres au marché, exécutés au dernier cours, uniquement pendant les heures de Bourse · frais 0,5 % · '+
+      'actions US via des marchés qui suivent leur cours en continu'+(investXyzError ? ' · <span class="down">cours actions indisponibles ('+escapeHtml(investXyzError)+')</span>' : '')+'</p>'+
+    '<div class="inv-mkt">'+list.map(a=>
+      '<button type="button" class="inv-mkt-row" data-inv-act="order" data-id="'+a.id+'" data-side="buy">'+
+        '<span class="inv-asset">'+investMonogram(a)+'<span><b>'+escapeHtml(a.name)+'</b><span>'+escapeHtml(a.short)+(a.pea ? ' <em class="inv-tag-pea">PEA</em>' : '')+'</span></span></span>'+
+        '<span class="inv-mkt-status" data-live="st.'+a.id+'">—</span>'+
+        '<span class="r num inv-mkt-px" data-live="px.'+a.id+'">—</span>'+
+        '<span class="r num inv-mkt-chg" data-live="chg.'+a.id+'">—</span>'+
+      '</button>').join("")+
+    '</div>'+
+  '</div>';
+}
+function investFiscalHtml(){
+  const t = investTotals();
+  const y = String(new Date().getFullYear());
+  const realized = state.invest.cto.realized[y] || 0;
+  const ctoBase = realized + t.cto.gain;
+  const ctoTax = Math.max(0, ctoBase)*INVEST_PFU_RATE;
+  const age = investPeaAge();
+  const peaGain = t.pea.value - t.pea.deposits;
+  const peaRate = age.mature ? INVEST_PS_RATE : INVEST_PFU_RATE;
+  const peaTax = Math.max(0, peaGain)*peaRate;
+  const peaTaxLater = Math.max(0, peaGain)*INVEST_PS_RATE;
+  const net = t.total - ctoTax - peaTax;
+  const row = (l,v,cls)=>'<div class="inv-fx-row"><span>'+l+'</span><b class="num '+(cls||"")+'">'+v+'</b></div>';
+  return '<div class="inv-fx-grid">'+
+    '<div class="inv-fx-col"><h4><i class="inv-dot cto"></i>CTO · flat tax 31,4 %</h4>'+
+      row("Plus-values réalisées en "+y, fmtMoneySigned(realized), realized>=0?"up":"down")+
+      row("Plus-values latentes", fmtMoneySigned(t.cto.gain), t.cto.gain>=0?"up":"down")+
+      row("Impôt estimé", fmtMoney(ctoTax))+
+      '<p class="inv-fx-note">'+(ctoBase<0 ? "Moins-value nette : pas d'impôt, et elle serait reportable sur tes plus-values des 10 années suivantes." : "12,8 % d'impôt sur le revenu + 18,6 % de prélèvements sociaux, sur les gains nets de l'année.")+'</p>'+
+    '</div>'+
+    '<div class="inv-fx-col"><h4><i class="inv-dot pea"></i>PEA · '+(age.mature ? "18,6 %" : "31,4 % (moins de 5 ans)")+'</h4>'+
+      row("Gain (valeur − versements)", fmtMoneySigned(peaGain), peaGain>=0?"up":"down")+
+      row("Impôt estimé", fmtMoney(peaTax))+
+      (age.mature ? '' : row("Après le "+investFmtDate(age.matures.toISOString()), fmtMoney(peaTaxLater)))+
+      '<p class="inv-fx-note">'+(age.mature ? "Plus de 5 ans : seulement les prélèvements sociaux, et les retraits partiels ne clôturent plus le plan." : "Avant 5 ans, retirer clôture le PEA et les gains sont taxés comme en CTO."+(peaTax>0 ? " Patienter jusqu'à 5 ans économiserait "+fmtMoney(peaTax-peaTaxLater)+"." : ""))+'</p>'+
+    '</div>'+
+  '</div>'+
+  '<div class="inv-fx-total"><span>Net après impôt si tu retirais tout</span><b class="num">'+fmtMoney(net)+'</b></div>'+
+  '<p class="chart-note">Simulation pédagogique avec la fiscalité française 2026 (PFU à 31,4 %). Dividendes non simulés. Frais payés depuis l\'ouverture : '+fmtMoney(state.invest.feesPaid)+'.</p>';
+}
+function investHistoryHtml(){
+  const h = state.invest.history;
+  if (!h.length) return '<div class="inv-empty">Aucune opération pour l\'instant.</div>';
+  const rows = (investHistoryAll ? h : h.slice(0,8)).map(x=>{
+    const a = x.id ? (investAssetById(x.id) || {name:x.id, short:x.id}) : null;
+    const when = new Date(x.t).toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+    let what = "", amount = "", cls = "";
+    if (x.type==="buy"){ what = "Achat "+investFmtQty(a,x.qty)+" "+escapeHtml(a.short)+" à "+investFmtPx(x.px); amount = "−"+fmtMoney(x.amount); }
+    else if (x.type==="sell"){ what = "Vente "+investFmtQty(a,x.qty)+" "+escapeHtml(a.short)+" à "+investFmtPx(x.px)+' <span class="'+(x.pnl>=0?"up":"down")+'">('+fmtMoneySigned(x.pnl)+')</span>'; amount = "+"+fmtMoney(x.amount); }
+    else if (x.type==="deposit"){ what = "Versement sur le "+investEnvName(x.env); amount = fmtMoney(x.amount); cls = "inv-h-move"; }
+    else if (x.type==="withdraw"){ what = "Retrait du "+investEnvName(x.env); amount = fmtMoney(x.amount); cls = "inv-h-move"; }
+    else if (x.type==="close"){ what = "Clôture du PEA (impôt qui aurait été dû : "+fmtMoney(x.taxInfo||0)+")"; amount = fmtMoney(x.amount); cls = "inv-h-move"; }
+    return '<div class="inv-h-row '+cls+'"><span class="inv-h-when">'+when+'</span><span class="inv-h-env">'+(x.env ? investEnvName(x.env) : "")+'</span><span class="inv-h-what">'+what+(x.fee ? ' <span class="inv-h-fee">frais '+fmtMoney(x.fee)+'</span>' : '')+'</span><span class="r num">'+amount+'</span></div>';
+  }).join("");
+  return rows + (h.length>8 ? '<button type="button" class="inv-link" data-inv-act="history">'+(investHistoryAll ? "Réduire" : "Tout afficher ("+h.length+")")+'</button>' : "");
+}
+function renderInvest(){
+  const root = document.getElementById("invest-root");
+  if (!root) return;
+  if (!state.invest){ root.innerHTML = investIntroHtml(); return; }
+  root.innerHTML =
+    '<div class="card inv-hero">'+
+      '<div class="inv-hero-top">'+
+        '<div><div class="inv-eyebrow">Patrimoine total · ouvert le '+investFmtDate(state.invest.openedAt)+'</div>'+
+          '<div class="inv-total num" data-live="total">—</div>'+
+          '<div class="inv-perf num" data-live="perf">—</div></div>'+
+        '<div class="inv-hero-actions">'+
+          '<button type="button" class="btn-primary" data-inv-act="transfer" data-kind="deposit">Verser</button>'+
+          '<button type="button" class="btn-secondary" data-inv-act="transfer" data-kind="withdraw">Retirer</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="inv-alloc" id="inv-alloc"><i class="pea"></i><i class="cto"></i><i class="cash"></i></div>'+
+      '<div class="inv-alloc-legend">'+
+        '<span><i class="inv-dot pea"></i>PEA <b class="num" data-live="alloc.pea">—</b></span>'+
+        '<span><i class="inv-dot cto"></i>CTO <b class="num" data-live="alloc.cto">—</b></span>'+
+        '<span><i class="inv-dot cash"></i>Liquidités à placer <b class="num" data-live="alloc.reserve">—</b></span>'+
+      '</div>'+
+    '</div>'+
+    '<div class="inv-envs">'+investEnvCardHtml("pea")+investEnvCardHtml("cto")+'</div>'+
+    investMarketHtml()+
+    '<div class="inv-bottom">'+
+      '<div class="card inv-fiscal"><h3>Si tu retirais tout aujourd\'hui</h3><div id="inv-fiscal-body"></div></div>'+
+      '<div class="card inv-history"><h3>Opérations</h3><div id="inv-history-body">'+investHistoryHtml()+'</div></div>'+
+    '</div>';
+  renderInvestLive();
+}
+function investSignedCls(v){ return v>0.004 ? "up" : v<-0.004 ? "down" : "flat"; }
+function renderInvestLive(){
+  const root = document.getElementById("invest-root");
+  if (!root || !state.invest || !root.querySelector(".inv-hero")) return;
+  const t = investTotals();
+  const vals = {};
+  vals.total = [fmtMoney(t.total)];
+  vals.perf = [fmtMoneySigned(t.gain)+" ("+fmtPct(t.perf)+") depuis l'ouverture", investSignedCls(t.gain)];
+  ["pea","cto"].forEach(env=>{
+    const e = t[env];
+    vals[env+".value"] = [fmtMoney(e.value)];
+    const pct = e.cost>0 ? e.gain/e.cost*100 : 0;
+    vals[env+".gain"] = [e.lines ? fmtMoneySigned(e.gain)+" ("+fmtPct(pct)+")" : "Aucune ligne", e.lines ? investSignedCls(e.gain) : "flat"];
+    vals[env+".cash"] = [fmtMoney(e.cash)];
+    vals[env+".holdings"] = [fmtMoney(e.holdings)];
+    vals[env+".deposits"] = [fmtMoney(e.deposits)];
+    vals["alloc."+env] = [fmtMoney(e.value)];
+    Object.keys(state.invest[env].holdings).forEach(id=>{
+      const h = state.invest[env].holdings[id];
+      const px = investHoldingPx(id, h), value = h.qty*px, gain = value-h.cost;
+      vals["h."+env+"."+id+".px"] = [investFmtPx(px)];
+      vals["h."+env+"."+id+".value"] = [fmtMoney(value)];
+      vals["h."+env+"."+id+".gain"] = [fmtMoneySigned(gain)+" · "+fmtPct(h.cost ? gain/h.cost*100 : 0), investSignedCls(gain)];
+    });
+  });
+  vals["alloc.reserve"] = [fmtMoney(t.reserve)];
+  const now = new Date();
+  INVEST_ASSETS.forEach(a=>{
+    const q = investQuote(a);
+    vals["px."+a.id] = [investFmtPx(q.px)];
+    vals["chg."+a.id] = [q.chg==null ? "—" : fmtPct(q.chg), q.chg==null ? "flat" : investSignedCls(q.chg)];
+    const st = investVenueStatus(a, now);
+    vals["st."+a.id] = [st.label, st.open ? "open" : "closed"];
+  });
+  root.querySelectorAll("[data-live]").forEach(el=>{
+    const v = vals[el.dataset.live];
+    if (!v) return;
+    if (el.textContent!==v[0]) el.textContent = v[0];
+    if (v[1]!==undefined){
+      ["up","down","flat","open","closed"].forEach(c=>{ if (c!==v[1]) el.classList.remove(c); });
+      el.classList.add(v[1]);
+    }
+  });
+  const alloc = document.getElementById("inv-alloc");
+  if (alloc){
+    const tot = Math.max(1, t.total);
+    const segs = alloc.children;
+    segs[0].style.width = (t.pea.value/tot*100)+"%";
+    segs[1].style.width = (t.cto.value/tot*100)+"%";
+    segs[2].style.width = (t.reserve/tot*100)+"%";
+  }
+  const fx = document.getElementById("inv-fiscal-body");
+  if (fx){ const html = investFiscalHtml(); if (fx.innerHTML!==html) fx.innerHTML = html; }
+  investMaybePersist();
+}
+function investOnPrices(){
+  if (document.body.dataset.view==="invest") renderInvestLive();
+  if (investOrder && document.getElementById("inv-order")) updateInvestOrderPreview();
+  if (!document.body.dataset.view || document.body.dataset.view!=="invest") investMaybePersist();
+}
+
+/* ---- order modal ---- */
+let investOrder = null;
+function openInvestOrder(id, env, side){
+  const a = investAssetById(id);
+  if (!a || !state.invest) return;
+  if (!env){
+    // Default envelope: where it's already held, else PEA when eligible, else CTO.
+    env = state.invest.pea.holdings[id] ? "pea" : state.invest.cto.holdings[id] ? "cto" : (a.pea ? "pea" : "cto");
+  }
+  if (env==="pea" && !a.pea) env = "cto";
+  investOrder = {id, env, side: side||"buy", qty:""};
+  renderInvestOrderModal();
+}
+function renderInvestOrderModal(){
+  const o = investOrder, a = investAssetById(o.id);
+  const venue = INVEST_VENUES[a.venue];
+  const held = (env)=>{ const h = state.invest[env].holdings[o.id]; return h ? h.qty : 0; };
+  openModal(
+    '<div id="inv-order" class="inv-order">'+
+      '<div class="inv-om-head">'+investMonogram(a)+'<div><h3>'+escapeHtml(a.name)+'</h3>'+
+        '<div class="inv-om-sub">'+escapeHtml(a.short)+' · '+venue.label+' · <span id="inv-om-status"></span></div></div></div>'+
+      (a.desc ? '<p class="inv-om-desc">'+escapeHtml(a.desc)+'</p>' : '')+
+      '<div class="inv-om-px"><b class="num" id="inv-om-px">—</b><span class="num" id="inv-om-chg"></span></div>'+
+      '<div class="inv-om-label">Enveloppe</div>'+
+      '<div class="seg inv-om-seg">'+
+        '<button type="button" class="on-mode'+(o.env==="pea"?" active":"")+(a.pea?"":" disabled")+'" data-om-env="pea"'+(a.pea?"":' disabled title="Non éligible au PEA"')+'>PEA'+(held("pea")?" · "+investFmtQty(a,held("pea")):"")+'</button>'+
+        '<button type="button" class="on-mode'+(o.env==="cto"?" active":"")+'" data-om-env="cto">CTO'+(held("cto")?" · "+investFmtQty(a,held("cto")):"")+'</button>'+
+      '</div>'+
+      (a.pea ? '' : '<div class="inv-om-hint">'+(a.cat==="stock" ? "Actions américaines : non éligibles au PEA (réservé aux titres européens et aux ETF éligibles)." : a.cat==="crypto" ? "Les cryptos ne peuvent pas aller dans un PEA." : "Non éligible au PEA.")+'</div>')+
+      '<div class="inv-om-label">Sens</div>'+
+      '<div class="seg inv-om-seg">'+
+        '<button type="button" class="on-long'+(o.side==="buy"?" active":"")+'" data-om-side="buy">Acheter</button>'+
+        '<button type="button" class="on-short'+(o.side==="sell"?" active":"")+'" data-om-side="sell"'+(held(o.env)?"":" disabled")+'>Vendre</button>'+
+      '</div>'+
+      '<div class="inv-om-label">Quantité'+(a.fractional ? "" : " (parts entières)")+'</div>'+
+      '<div class="inv-om-qty"><input type="number" id="inv-om-qty" inputmode="decimal" min="0" step="'+(a.fractional?"0.000001":"1")+'" placeholder="0" value="'+escapeHtml(String(o.qty))+'">'+
+        '<button type="button" class="btn-secondary" id="inv-om-max">Max</button></div>'+
+      '<div class="inv-om-sum" id="inv-om-sum"></div>'+
+      '<div class="inv-om-err" id="inv-om-err" hidden></div>'+
+      '<button type="button" class="btn-primary inv-om-go" id="inv-om-go">'+(o.side==="buy" ? "Acheter" : "Vendre")+'</button>'+
+    '</div>'
+  );
+  modalCloseHook = ()=>{ investOrder = null; };
+  const box = document.getElementById("inv-order");
+  box.querySelectorAll("[data-om-env]").forEach(b=>b.addEventListener("click", ()=>{
+    if (b.disabled) return;
+    o.env = b.dataset.omEnv;
+    if (o.side==="sell" && !held(o.env)) o.side = "buy";
+    renderInvestOrderModal();
+  }));
+  box.querySelectorAll("[data-om-side]").forEach(b=>b.addEventListener("click", ()=>{ if (b.disabled) return; o.side = b.dataset.omSide; renderInvestOrderModal(); }));
+  const qtyEl = document.getElementById("inv-om-qty");
+  qtyEl.addEventListener("input", ()=>{ o.qty = qtyEl.value; updateInvestOrderPreview(); });
+  qtyEl.addEventListener("keydown", (e)=>{ if (e.key==="Enter") document.getElementById("inv-om-go").click(); });
+  document.getElementById("inv-om-max").addEventListener("click", ()=>{
+    const q = investQuote(a);
+    let max = 0;
+    if (o.side==="buy") max = investMaxBuyQty(a, state.invest[o.env].cash, q.px);
+    else max = held(o.env);
+    o.qty = max ? String(max) : "";
+    qtyEl.value = o.qty;
+    updateInvestOrderPreview();
+  });
+  document.getElementById("inv-om-go").addEventListener("click", ()=>{
+    const qty = parseFloat(String(o.qty).replace(",", "."));
+    const res = investExecute(o.id, o.env, o.side, qty);
+    if (!res.ok){ updateInvestOrderPreview(res.err); return; }
+    const msg = (o.side==="buy" ? "Achat" : "Vente")+" de "+investFmtQty(a,qty)+" "+a.short+" exécuté"+(o.side==="sell" ? " · "+fmtMoneySigned(res.pnl) : "");
+    closeModal();
+    renderInvest();
+    investToast(msg);
+  });
+  setTimeout(()=>qtyEl.focus(), 30);
+  updateInvestOrderPreview();
+}
+function updateInvestOrderPreview(forcedErr){
+  const o = investOrder;
+  if (!o) return;
+  const a = investAssetById(o.id);
+  const q = investQuote(a);
+  const st = investVenueStatus(a);
+  const pxEl = document.getElementById("inv-om-px"), chgEl = document.getElementById("inv-om-chg"), stEl = document.getElementById("inv-om-status");
+  if (!pxEl) return;
+  pxEl.textContent = investFmtPx(q.px);
+  chgEl.textContent = q.chg==null ? "" : fmtPct(q.chg)+" sur 24 h";
+  chgEl.className = "num "+(q.chg==null ? "" : investSignedCls(q.chg));
+  stEl.textContent = st.label;
+  stEl.className = st.open ? "up" : "down";
+  const qty = parseFloat(String(o.qty).replace(",", "."));
+  const chk = investCheckOrder(o.id, o.env, o.side, qty>0 ? qty : 0);
+  const gross = (qty>0 && q.px!=null) ? qty*q.px : 0, fee = gross*INVEST_FEE_RATE;
+  const e = state.invest[o.env];
+  const row = (l,v,cls)=>'<div><span>'+l+'</span><b class="num '+(cls||"")+'">'+v+'</b></div>';
+  let html = row("Montant", fmtMoney(gross)) + row("Frais (0,5 %)", fmtMoney(fee));
+  if (o.side==="buy"){
+    html += row("Total débité", fmtMoney(gross+fee));
+    html += row("Espèces "+investEnvName(o.env)+" après", fmtMoney(e.cash-(gross+fee)), (e.cash-(gross+fee))<0?"down":"");
+  } else {
+    const h = e.holdings[o.id];
+    const pnl = (h && qty>0) ? (gross-fee) - h.cost*(Math.min(qty,h.qty)/h.qty) : 0;
+    html += row("Montant crédité", fmtMoney(gross-fee));
+    if (h) html += row("PRU", investFmtPx(h.cost/h.qty));
+    html += row(o.env==="cto" ? "Plus-value réalisée (imposable)" : "Plus-value réalisée (reste dans le PEA)", fmtMoneySigned(pnl), investSignedCls(pnl));
+  }
+  document.getElementById("inv-om-sum").innerHTML = html;
+  const errEl = document.getElementById("inv-om-err");
+  const err = forcedErr || (qty>0 && !chk.ok ? chk.err : (chk.closed ? chk.err : ""));
+  errEl.hidden = !err;
+  errEl.textContent = err || "";
+  const go = document.getElementById("inv-om-go");
+  go.disabled = !chk.ok;
+  go.textContent = chk.closed ? "Marché fermé" : (o.side==="buy" ? "Acheter" : "Vendre")+(qty>0 ? " · "+fmtMoney(o.side==="buy" ? gross+fee : gross-fee) : "");
+}
+
+/* ---- transfer modal ---- */
+function openInvestTransfer(kind, env){
+  const inv = state.invest;
+  env = env || (kind==="deposit" ? (inv.pea.deposits<INVEST_PEA_CAP ? "pea" : "cto") : "cto");
+  const isDep = kind==="deposit";
+  const age = investPeaAge();
+  const peaLocked = !isDep && env==="pea" && !age.mature;
+  const avail = isDep ? inv.reserve : inv[env].cash;
+  openModal(
+    '<div id="inv-transfer" class="inv-order">'+
+      '<h3>'+(isDep ? "Verser sur une enveloppe" : "Retirer vers tes liquidités")+'</h3>'+
+      '<p class="inv-om-desc">'+(isDep ? "Déplace de l'argent de tes liquidités à placer ("+fmtMoney(inv.reserve)+") vers ton PEA ou ton CTO. Il faut verser avant de pouvoir acheter." : "Ramène des espèces d'une enveloppe vers tes liquidités à placer. Seules les espèces se retirent : vends d'abord des titres si besoin.")+'</p>'+
+      '<div class="inv-om-label">'+(isDep ? "Vers" : "Depuis")+'</div>'+
+      '<div class="seg inv-om-seg">'+
+        '<button type="button" class="on-mode'+(env==="pea"?" active":"")+'" data-tr-env="pea">PEA</button>'+
+        '<button type="button" class="on-mode'+(env==="cto"?" active":"")+'" data-tr-env="cto">CTO</button>'+
+      '</div>'+
+      (peaLocked
+        ? '<div class="inv-om-hint warn">Ton PEA a moins de 5 ans : dans la vraie vie, tout retrait le <b>clôture</b> et les gains sont taxés à 31,4 %. Ici aussi, la seule option est de le clôturer (après avoir vendu toutes ses lignes).</div>'+
+          '<div class="inv-om-sum">'+
+            '<div><span>Espèces du PEA</span><b class="num">'+fmtMoney(inv.pea.cash)+'</b></div>'+
+            '<div><span>Lignes encore ouvertes</span><b class="num">'+Object.keys(inv.pea.holdings).length+'</b></div>'+
+          '</div>'+
+          '<div class="inv-om-err" id="inv-tr-err" hidden></div>'+
+          '<button type="button" class="btn-secondary inv-om-go inv-danger" id="inv-tr-close">Clôturer le PEA</button>'
+        : '<div class="inv-om-label">Montant <span class="inv-om-avail">disponible : '+fmtMoney(avail)+'</span></div>'+
+          '<div class="inv-om-qty"><input type="number" id="inv-tr-amt" inputmode="decimal" min="0" step="0.01" placeholder="0">'+
+            '<button type="button" class="btn-secondary" id="inv-tr-max">Max</button></div>'+
+          (isDep && env==="pea" ? '<div class="inv-om-hint">Plafond réel du PEA : 150 000 € de versements (ici '+fmtMoney(INVEST_PEA_CAP-inv.pea.deposits)+' restants).</div>' : '')+
+          '<div class="inv-om-err" id="inv-tr-err" hidden></div>'+
+          '<button type="button" class="btn-primary inv-om-go" id="inv-tr-go">'+(isDep ? "Verser" : "Retirer")+'</button>')+
+    '</div>'
+  );
+  const box = document.getElementById("inv-transfer");
+  box.querySelectorAll("[data-tr-env]").forEach(b=>b.addEventListener("click", ()=>openInvestTransfer(kind, b.dataset.trEnv)));
+  const errEl = document.getElementById("inv-tr-err");
+  const showErr = (m)=>{ errEl.hidden = !m; errEl.textContent = m||""; };
+  const closeBtn = document.getElementById("inv-tr-close");
+  if (closeBtn) closeBtn.addEventListener("click", ()=>{
+    const r = investClosePea();
+    if (!r.ok){ showErr(r.err); return; }
+    closeModal(); renderInvest(); investToast("PEA clôturé · espèces ramenées dans tes liquidités");
+  });
+  const amtEl = document.getElementById("inv-tr-amt");
+  if (amtEl){
+    const maxAmt = isDep && env==="pea" ? Math.min(avail, INVEST_PEA_CAP-inv.pea.deposits) : avail;
+    document.getElementById("inv-tr-max").addEventListener("click", ()=>{ amtEl.value = (Math.floor(maxAmt*100)/100).toFixed(2); showErr(""); });
+    const go = ()=>{
+      const r = investTransfer(kind, env, parseFloat(String(amtEl.value).replace(",", ".")));
+      if (!r.ok){ showErr(r.err); return; }
+      closeModal(); renderInvest(); investToast(isDep ? "Versement effectué sur le "+investEnvName(env) : "Retrait effectué");
+    };
+    document.getElementById("inv-tr-go").addEventListener("click", go);
+    amtEl.addEventListener("keydown", (e)=>{ if (e.key==="Enter") go(); });
+    setTimeout(()=>amtEl.focus(), 30);
+  }
+}
+let investToastTimer = null;
+function investToast(msg){
+  let el = document.getElementById("inv-toast");
+  if (!el){ el = document.createElement("div"); el.id = "inv-toast"; el.className = "inv-toast"; el.setAttribute("role","status"); document.body.appendChild(el); }
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(investToastTimer);
+  investToastTimer = setTimeout(()=>el.classList.remove("show"), 2600);
+}
+function initInvest(){
+  const root = document.getElementById("invest-root");
+  if (!root) return;
+  root.addEventListener("click", (e)=>{
+    const btn = e.target.closest("[data-inv-act]");
+    if (!btn || !root.contains(btn)) return;
+    const act = btn.dataset.invAct;
+    if (act==="start"){
+      if (state.invest) return;
+      state.invest = investFresh();
+      investPersistNow();
+      renderInvest();
+      openInvestTransfer("deposit", "pea");
+    } else if (act==="transfer"){
+      openInvestTransfer(btn.dataset.kind);
+    } else if (act==="order"){
+      openInvestOrder(btn.dataset.id, btn.dataset.env || null, btn.dataset.side);
+    } else if (act==="filter"){
+      investFilter = btn.dataset.cat;
+      const mk = root.querySelector(".inv-market");
+      if (mk){ mk.outerHTML = investMarketHtml(); renderInvestLive(); }
+    } else if (act==="history"){
+      investHistoryAll = !investHistoryAll;
+      const hb = document.getElementById("inv-history-body");
+      if (hb) hb.innerHTML = investHistoryHtml();
+    }
+  });
+}
+
+/* ---- leaderboard ---- */
+let investLeaderboardDocsCache = {};
+function subscribeInvestLeaderboard(){
+  try{
+    return db.collection("traders").orderBy("investPerf","desc").limit(50).onSnapshot(
+      (snap)=>renderInvestLeaderboard(snap.docs),
+      (err)=>{ console.warn("invest lb error", err); renderInvestLeaderboardError(); }
+    );
+  }catch(e){ renderInvestLeaderboardError(); }
+}
+function renderInvestLeaderboard(docs){
+  const body = document.getElementById("invest-lb-body");
+  if (!body) return;
+  const rows = docs.filter(doc=>{ const d = doc.data(); return typeof d.investPerf==="number" && typeof d.investValue==="number"; })
+    .sort((a,b)=>b.data().investPerf - a.data().investPerf);
+  if (!rows.length){ body.innerHTML = '<tr><td colspan="5" class="empty-note">Personne n\'a encore ouvert son espace investissement : lance-toi depuis l\'onglet Investir.</td></tr>'; return; }
+  investLeaderboardDocsCache = {};
+  rows.forEach(doc=>{ investLeaderboardDocsCache[doc.id] = doc; });
+  body.innerHTML = rows.map((doc,i)=>{
+    const d = doc.data();
+    const rank = i+1;
+    const rankClass = rank===1?"rank-1":rank===2?"rank-2":rank===3?"rank-3":"";
+    const inv = d.invest || {};
+    const peaShare = (()=>{ // rough split, from the stored envelopes' cash + cost-basis-at-last-price
+      const envVal = (e)=>{ if (!e) return 0; let v = e.cash||0; Object.keys(e.holdings||{}).forEach(id=>{ const h = e.holdings[id]; v += (h.qty||0)*(h.lastPx!=null ? h.lastPx : (h.qty ? h.cost/h.qty : 0)); }); return v; };
+      const p = envVal(inv.pea), c = envVal(inv.cto);
+      return (p+c)>0 ? Math.round(p/(p+c)*100) : null;
+    })();
+    return '<tr class="lb-row-clickable '+(doc.id===clientId?"me":"")+'" data-trader-id="'+doc.id+'" title="Voir le profil">'+
+      '<td class="num '+rankClass+'">#'+rank+'</td>'+
+      '<td>'+avatarHtml(d.photoURL, d.username)+' '+escapeHtml(d.username||"Trader")+traderBadgesHtml(d)+traderBadgeIconsHtml(d)+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
+      '<td class="num lb-col-opt">'+(d.investLines||0)+(peaShare!=null ? ' <span class="inv-lb-split">· PEA '+peaShare+' %</span>' : '')+'</td>'+
+      '<td class="num">'+fmtMoney(d.investValue)+'</td>'+
+      '<td class="num '+(d.investPerf>=0?"up":"down")+'">'+fmtPct(d.investPerf)+'</td>'+
+    '</tr>';
+  }).join("");
+  body.querySelectorAll("tr[data-trader-id]").forEach(tr=>{
+    tr.addEventListener("click", ()=>openTraderProfileModal(tr.dataset.traderId));
+  });
+}
+function renderInvestLeaderboardError(){
+  const body = document.getElementById("invest-lb-body");
+  if (body) body.innerHTML = '<tr><td colspan="5" class="empty-note">Classement indisponible pour le moment.</td></tr>';
+}
+
 /* ============================= RENDER ALL ============================= */
 function renderAll(){
   // We're mid-swap, background-checking the PARKED book (see
@@ -12369,6 +13360,7 @@ function renderAll(){
   renderPendingOrders();
   renderHistory();
   renderPerfStats();
+  if (document.body.dataset.view==="invest") renderInvestLive();
 }
 
 /* ============================= EVENTS ============================= */
@@ -12394,7 +13386,7 @@ function initEvents(){
   if (ticketHelpBtn) ticketHelpBtn.addEventListener("click", openExecutionHelpModal);
 
   function setLbTab(tab){
-    ["normal","week","prop"].forEach(t=>{
+    ["normal","week","prop","invest"].forEach(t=>{
       document.getElementById("lb-tab-"+t).classList.toggle("active", t===tab);
       document.getElementById("lb-wrap-"+t).hidden = t!==tab;
     });
@@ -12402,6 +13394,8 @@ function initEvents(){
   document.getElementById("lb-tab-normal").addEventListener("click", ()=>setLbTab("normal"));
   document.getElementById("lb-tab-week").addEventListener("click", ()=>setLbTab("week"));
   document.getElementById("lb-tab-prop").addEventListener("click", ()=>setLbTab("prop"));
+  document.getElementById("lb-tab-invest").addEventListener("click", ()=>setLbTab("invest"));
+  initInvest();
 
   document.getElementById("quiz-tab-play").addEventListener("click", ()=>{
     document.getElementById("quiz-tab-play").classList.add("active");
@@ -13587,6 +14581,7 @@ async function adminResetTrader(id){
       // not trading-account state.
       propBook: null, propEquity: null, challenge: null, challengeHistory: [],
       copyNormalToProp: false, copyPropToNormal: false,
+      invest: null, investValue: null, investPerf: null, investLines: null,
       updatedAt: new Date().toISOString(), lastActiveAt: new Date().toISOString(),
     });
     if (id===clientId){
