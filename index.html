@@ -21,7 +21,7 @@
 <meta name="twitter:description" content="Terminal de trading simulé de l'École de la Bourse (ISG Bordeaux) — positions live, classement, challenge prop firm.">
 <meta name="twitter:image" content="https://edb-trading.github.io/paper-tape/og-image.png">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&display=swap');
 
   /* ---------- theme palette ----------
      3 selectable themes (Ember / Sage / Ink), swapped by [data-theme] on
@@ -1154,14 +1154,509 @@
   .tour-skip{background:none;border:none;color:var(--text-faint);font-size:11.5px;cursor:pointer;padding:4px 0;}
   .tour-skip:hover{color:var(--text);}
   .tour-nav{display:flex;gap:8px;}
+  /* =====================================================================
+     REFONTE 2026-09 — "Desk" shell
+     Everything below overrides the original styles above instead of
+     rewriting them in place, so the whole redesign lives in one block
+     (and the pre-redesign file stays available as a straight rollback).
+     ===================================================================== */
+  :root{
+    --sans:'Geist','IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --mono:'Geist Mono','IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --radius:14px;
+    --radius-sm:10px;
+    /* Ember, refined: a touch deeper/cleaner, same warm identity */
+    --bg:#12110f;
+    --bg-raised:#1c1a16;
+    --panel:#191714;
+    --panel-2:#23201b;
+    --border:#312c25;
+    --border-soft:#26231e;
+    --text:#f7f3ec;
+    --text-dim:#c3baaa;
+    --text-faint:#948a7b;
+    --sb-full:236px;
+    --sb-rail:76px;
+    --sb-w:var(--sb-full);
+    --topbar-h:64px;
+    --tabbar-h:64px;
+    --shadow-card:0 1px 0 rgba(255,255,255,.025) inset, 0 12px 32px -18px rgba(0,0,0,.6);
+  }
+  html.sb-rail{--sb-w:var(--sb-rail);}
+  body{font-size:14px;line-height:1.45;}
+  h1,h2,h3,h4{font-family:var(--sans);letter-spacing:-0.01em;}
+
+  /* ---------- shell ---------- */
+  #app{padding-left:var(--sb-w);transition:padding-left .2s ease;}
+  .brand-logo{width:30px;height:36px;flex:none;display:block;}
+  .wordmark{align-items:center;}
+  .wordmark .brand-logo{width:34px;height:42px;margin-right:4px;}
+
+  .sidebar{
+    position:fixed;left:0;top:0;bottom:0;width:var(--sb-w);z-index:30;
+    display:flex;flex-direction:column;gap:6px;
+    background:color-mix(in srgb, var(--bg) 88%, var(--panel) 12%);
+    border-right:1px solid var(--border-soft);
+    padding:16px 12px 12px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;
+    transition:width .2s ease, transform .25s ease;
+  }
+  .sidebar::-webkit-scrollbar{display:none;}
+  .sb-brand{display:flex;align-items:center;gap:10px;padding:2px 8px 14px;}
+  .sb-brand-text{display:flex;flex-direction:column;line-height:1.1;min-width:0;}
+  .sb-word{font-family:var(--sans);font-weight:700;font-size:17px;letter-spacing:-0.02em;white-space:nowrap;}
+  .sb-word b{color:var(--accent);font-weight:700;}
+  .sb-sub{font-size:11px;color:var(--text-faint);white-space:nowrap;margin-top:2px;}
+  .sb-close{display:none;margin-left:auto;background:none;border:none;color:var(--text-dim);cursor:pointer;padding:6px;border-radius:8px;}
+  .ic{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+
+  nav.tabs.sb-nav{
+    display:flex;flex-direction:column;align-items:stretch;gap:2px;
+    background:none;border:none;border-radius:0;padding:0;margin:0;overflow:visible;max-width:none;flex:1;
+  }
+  .sb-section{
+    font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);
+    padding:14px 10px 6px;white-space:nowrap;
+  }
+  .sb-section:first-child{padding-top:4px;}
+  nav.tabs.sb-nav button{
+    display:flex;align-items:center;gap:11px;width:100%;
+    background:transparent;border:none;color:var(--text-dim);
+    font-family:var(--sans);font-size:13.5px;font-weight:500;letter-spacing:0;text-transform:none;
+    padding:8px 10px;border-radius:10px;cursor:pointer;text-align:left;position:relative;
+    transition:background .15s,color .15s;
+  }
+  nav.tabs.sb-nav button[hidden]{display:none;}
+  nav.tabs.sb-nav button:hover{background:var(--panel-2);color:var(--text);}
+  nav.tabs.sb-nav button.active{
+    background:color-mix(in srgb, var(--accent) 14%, transparent);color:var(--text);font-weight:600;
+  }
+  nav.tabs.sb-nav button.active .ic{color:var(--accent);}
+  nav.tabs.sb-nav button.active::before{
+    content:"";position:absolute;left:-12px;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:var(--accent);
+  }
+  .sb-label{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .nav-lock-badge{margin-left:auto;display:inline-flex;align-items:center;opacity:.55;font-size:0;vertical-align:0;}
+  .nav-lock-badge .ic{width:13px;height:13px;}
+  nav.tabs.sb-nav button.sb-account{
+    margin-top:auto;padding:10px;gap:10px;border:1px solid var(--border-soft);background:var(--panel);
+  }
+  nav.tabs.sb-nav button.sb-account.active::before{display:none;}
+  nav.tabs.sb-nav button.sb-account.active{border-color:color-mix(in srgb, var(--accent) 45%, transparent);}
+  .sb-account-avatar{flex:none;display:flex;}
+  .sb-account-text{display:flex;flex-direction:column;min-width:0;line-height:1.2;}
+  .sb-account-name{font-weight:600;color:var(--text);font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .sb-account-sub{font-size:11.5px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .sb-account-sub .up,.sb-account-sub .down{font-family:var(--mono);}
+  .sb-collapse{
+    display:flex;align-items:center;gap:11px;background:none;border:none;color:var(--text-faint);
+    font-family:var(--sans);font-size:12.5px;padding:8px 10px;border-radius:10px;cursor:pointer;margin-top:4px;
+  }
+  .sb-collapse:hover{color:var(--text);background:var(--panel-2);}
+  .sb-scrim{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(2px);z-index:29;}
+  .sb-scrim[hidden]{display:none;}
+
+  /* Rail (collapsed) sidebar */
+  html.sb-rail .sidebar{padding:14px 8px 10px;}
+  html.sb-rail .sb-brand{justify-content:center;padding:2px 0 12px;}
+  html.sb-rail .sb-brand-text{display:none;}
+  html.sb-rail .sb-section{font-size:0;padding:8px 0 6px;margin:0 14px;border-top:1px solid var(--border-soft);}
+  html.sb-rail .sb-section:first-child{border-top:none;padding-top:0;}
+  html.sb-rail nav.tabs.sb-nav button{flex-direction:column;gap:4px;padding:8px 2px 7px;text-align:center;}
+  html.sb-rail nav.tabs.sb-nav button .sb-label{font-size:10px;font-weight:500;flex:none;width:100%;}
+  html.sb-rail nav.tabs.sb-nav button .ic{width:20px;height:20px;}
+  html.sb-rail nav.tabs.sb-nav button.active::before{left:-8px;}
+  html.sb-rail .nav-lock-badge{position:absolute;top:5px;right:9px;margin:0;}
+  html.sb-rail nav.tabs.sb-nav button.sb-account{padding:8px 4px;border:none;background:none;}
+  html.sb-rail .sb-account-text{display:none;}
+  html.sb-rail .sb-collapse{justify-content:center;padding:8px 0;}
+  html.sb-rail .sb-collapse .sb-label{display:none;}
+
+  /* Topbar */
+  header.topbar{
+    min-height:var(--topbar-h);padding:10px 24px;gap:16px;flex-wrap:nowrap;
+    background:color-mix(in srgb, var(--bg) 85%, transparent);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border-soft);
+  }
+  .tb-icon-btn{
+    display:inline-flex;align-items:center;justify-content:center;flex:none;
+    width:36px;height:36px;border-radius:10px;background:var(--panel);border:1px solid var(--border-soft);
+    color:var(--text-dim);cursor:pointer;padding:0;margin:0;font-size:0;
+  }
+  .tb-icon-btn:hover{color:var(--text);border-color:var(--border);}
+  .tb-icon-btn.is-open{color:var(--accent);border-color:var(--accent);}
+  .tb-menu,.tb-logo{display:none;}
+  .tb-title-wrap{display:flex;align-items:baseline;gap:14px;min-width:0;}
+  .tb-title{font-family:var(--sans);font-size:21px;font-weight:700;letter-spacing:-0.02em;white-space:nowrap;margin:0;}
+  .livewrap{font-family:var(--sans);font-size:11.5px;letter-spacing:0;text-transform:none;white-space:nowrap;}
+  .acct-strip{margin-left:auto;gap:20px;flex-wrap:nowrap;}
+  .uname-edit[hidden]{display:none;}
+  .acct-metric{align-items:flex-end;}
+  .acct-metric .lbl{font-family:var(--sans);font-size:11px;letter-spacing:0;text-transform:none;font-weight:500;}
+  .acct-metric .val{font-size:15px;font-weight:600;}
+  .tb-actions{display:flex;align-items:center;gap:8px;position:relative;}
+  body:not([data-view="terminal"]) #widget-panel-btn{display:none;}
+  .widget-panel-btn{margin-left:0;width:36px;height:36px;border-radius:10px;}
+  .widget-panel{top:calc(100% + 10px);right:0;border-radius:var(--radius);width:240px;}
+  .theme-popover{
+    position:absolute;top:calc(100% + 10px);right:44px;z-index:50;background:var(--panel);border:1px solid var(--border);
+    border-radius:var(--radius);padding:14px;box-shadow:0 16px 40px rgba(0,0,0,.45);
+  }
+  .theme-popover[hidden]{display:none;}
+  .theme-popover .theme-switch{margin:0;padding:0;border:none;gap:10px;}
+  .theme-popover .theme-dot{width:26px;height:26px;}
+  .widget-panel-title{font-family:var(--sans);letter-spacing:.06em;}
+
+  main{padding:24px 28px 40px;max-width:1560px;}
+  .live-banner{font-family:var(--sans);font-size:12.5px;}
+  .challenge-banner{padding:10px 24px;}
+
+  /* ---------- surfaces & type ---------- */
+  .card{border-color:var(--border-soft);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-card);}
+  .card > h3,.widget-head h3{
+    font-family:var(--sans);font-size:14.5px;font-weight:600;letter-spacing:-0.005em;text-transform:none;color:var(--text);
+  }
+  .card > h3{margin-bottom:12px;}
+  .widget-head{margin-bottom:12px;}
+  .widget-grip{opacity:.5;}
+  .widget-hide,.widget-free-toggle{opacity:.55;}
+  .widget-hide:hover,.widget-free-toggle:hover{opacity:1;}
+  .widget-vresize-bottom{margin:10px -18px -18px;}
+  .widget-vresize-top{margin:-18px -18px 10px;}
+  .widget-hresize-left{left:-18px;}
+  .widget-hresize-right{right:-18px;}
+  .cedb-bleed,.ap-bleed{margin:-18px;}
+  .chart-note{font-family:var(--sans);font-size:12.5px;line-height:1.5;color:var(--text-faint);}
+  .empty-note{font-family:var(--sans);font-size:13px;padding:18px 6px;}
+  .field-row label{font-family:var(--sans);font-size:12px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--text-dim);}
+  .help-row{font-size:13.5px;}
+
+  .btn-primary{
+    font-family:var(--sans);font-size:13.5px;font-weight:600;letter-spacing:0;text-transform:none;
+    padding:11px 20px;border-radius:var(--radius-sm);
+    background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 88%, white 12%), var(--accent));
+    box-shadow:0 1px 0 rgba(255,255,255,.15) inset, 0 6px 16px -8px color-mix(in srgb, var(--accent) 70%, transparent);
+  }
+  .btn-secondary{
+    font-family:var(--sans);font-size:13px;font-weight:500;color:var(--text);
+    background:var(--panel-2);border:1px solid var(--border);padding:10px 16px;border-radius:var(--radius-sm);
+  }
+  .btn-secondary:hover{border-color:color-mix(in srgb, var(--accent) 50%, var(--border));}
+  .pos-close,.pos-tpsl,.edbplus-copy-btn,.challenge-manage-btn{
+    font-family:var(--sans);font-size:12px;font-weight:500;padding:5px 10px;border-radius:8px;color:var(--text-dim);
+  }
+  .pos-close-main{font-family:var(--sans);font-size:12px;border-radius:8px;}
+  .tpsl-input,.tpsl-row input,.size-row input[type=number],.pending-edit-row input{
+    border-radius:var(--radius-sm);padding:10px 12px;border-color:var(--border);
+  }
+  .tpsl-input:focus-visible,.tpsl-row input:focus-visible,.size-row input[type=number]:focus-visible{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);}
+  textarea,select{font-family:var(--sans);}
+  .seg button,.tf-seg button,.lev-presets button,.unit-toggle button{font-family:var(--sans);letter-spacing:0;text-transform:none;}
+  .seg button{font-size:13px;padding:10px 6px;border-radius:var(--radius-sm);}
+  .tf-seg button{font-size:11.5px;border-radius:8px;}
+  .submit-btn{font-family:var(--sans);font-size:14.5px;letter-spacing:0;text-transform:none;border-radius:var(--radius-sm);padding:13px;}
+  .ticket-msg{font-family:var(--sans);}
+  .acct-summary .cell,.session-pill,.pos-card,.wl-row,.news-item{border-radius:var(--radius-sm);}
+  .acct-summary .cell .lbl{font-family:var(--sans);font-size:11px;letter-spacing:0;text-transform:none;font-weight:500;}
+  .acct-summary .cell .val{font-size:15px;}
+  .session-name{font-family:var(--sans);font-size:12.5px;}
+  .session-time{font-size:10.5px;}
+  .wl-row .name{font-size:11px;}
+  .wl-row .sym{font-size:13px;}
+  .wl-row .chg{font-size:10.5px;}
+  .pos-grid{font-size:11px;}
+  .readout .row{font-size:12.5px;}
+  .hist-row{font-size:12px;}
+  .hist-row-sub{font-size:10.5px;}
+  .hist-tag{font-family:var(--sans);font-size:10px;letter-spacing:.04em;}
+  .user-badge{font-family:var(--sans);font-size:10.5px;font-weight:600;border-radius:999px;padding:2px 8px;}
+  .news-tag{font-family:var(--sans);font-size:10px;font-weight:600;}
+  .quiz-cat{font-family:var(--sans);font-weight:600;letter-spacing:.04em;}
+  .quiz-progress,.quiz-quit,.quiz-resume-note{font-family:var(--sans);}
+  .challenge-banner,.challenge-manage-btn{font-family:var(--sans);}
+  .admin-detail-title{font-family:var(--sans);font-size:11px;font-weight:600;}
+  .admin-detail{font-size:12.5px;border-radius:var(--radius-sm);}
+
+  .lb-table{font-family:var(--sans);font-size:13.5px;}
+  .lb-table th{font-family:var(--sans);font-size:11px;letter-spacing:.05em;padding:10px 14px;border-bottom-color:var(--border-soft);}
+  .lb-table td{padding:12px 14px;}
+  .lb-table tbody tr{transition:background .12s;}
+  .lb-table tbody tr.lb-row-clickable:hover{background:color-mix(in srgb, var(--panel-2) 70%, transparent);}
+  .lb-table tr.me{background:color-mix(in srgb, var(--accent) 9%, transparent);}
+
+  .modal-overlay{backdrop-filter:blur(4px);}
+  .modal-box{border-radius:18px;padding:24px;border-color:var(--border);box-shadow:0 30px 80px rgba(0,0,0,.55);}
+  .auth-gate-card{border-radius:18px;}
+  .google-btn{border-radius:var(--radius-sm);padding:11px 16px;}
+  .feedback-fab{width:50px;height:50px;box-shadow:0 10px 26px -8px rgba(0,0,0,.6);}
+  .app-version-tag{left:calc(var(--sb-w) + 10px);}
+  .badges-grid{gap:12px;}
+  .badge-tile{border-radius:12px;}
+  .badge-tile-title{font-size:11.5px;}
+
+  /* ---------- mobile / tablet: bottom bar + drawer ---------- */
+  .mobile-tabbar{display:none;}
+  @media (max-width:1080px){
+    #app{padding-left:0;}
+    html.sb-rail{--sb-w:var(--sb-full);}
+    .sidebar{width:min(300px, 86vw);transform:translateX(-102%);box-shadow:0 0 60px rgba(0,0,0,.6);z-index:45;padding:16px 12px 12px;}
+    .sidebar.open{transform:none;}
+    html.sb-rail .sb-brand{justify-content:flex-start;padding:2px 8px 14px;}
+    html.sb-rail .sb-brand-text{display:flex;}
+    html.sb-rail .sb-section{font-size:10.5px;padding:14px 10px 6px;margin:0;border-top:none;}
+    html.sb-rail nav.tabs.sb-nav button{flex-direction:row;gap:11px;padding:8px 10px;text-align:left;}
+    html.sb-rail nav.tabs.sb-nav button .sb-label{font-size:13.5px;flex:1;width:auto;}
+    html.sb-rail .nav-lock-badge{position:static;margin-left:auto;}
+    html.sb-rail nav.tabs.sb-nav button.sb-account{padding:10px;border:1px solid var(--border-soft);background:var(--panel);}
+    html.sb-rail .sb-account-text{display:flex;}
+    .sb-close{display:inline-flex;}
+    .sb-collapse{display:none;}
+    .sb-scrim{z-index:44;}
+    header.topbar{padding:8px 14px;gap:10px;min-height:56px;}
+    .tb-logo{display:block;width:24px;height:30px;}
+    .tb-title{font-size:18px;}
+    .tb-title-wrap{gap:8px;align-items:center;}
+    .live-label{display:none;}
+    .acct-strip{gap:12px;}
+    .acct-metric .val{font-size:13px;}
+    .acct-metric .lbl{font-size:10px;}
+    .tb-icon-btn,.widget-panel-btn{width:34px;height:34px;}
+    main{padding:14px 12px calc(var(--tabbar-h) + 28px + env(safe-area-inset-bottom));}
+    .app-version-tag{display:none;}
+    .feedback-fab{bottom:calc(var(--tabbar-h) + 16px + env(safe-area-inset-bottom));right:14px;width:46px;height:46px;font-size:18px;}
+    .mobile-tabbar{
+      display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;
+      height:calc(var(--tabbar-h) + env(safe-area-inset-bottom));padding:0 6px env(safe-area-inset-bottom);
+      background:color-mix(in srgb, var(--bg) 90%, transparent);backdrop-filter:blur(14px);
+      border-top:1px solid var(--border-soft);
+    }
+    nav.tabs.mtb-nav{display:flex;flex:4;background:none;border:none;border-radius:0;padding:0;margin:0;overflow:visible;max-width:none;gap:0;}
+    nav.tabs.mtb-nav button,.mtb-more{
+      flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+      background:none;border:none;border-radius:0;color:var(--text-faint);cursor:pointer;
+      font-family:var(--sans);font-size:10.5px;font-weight:500;letter-spacing:0;text-transform:none;padding:6px 2px;position:relative;
+    }
+    .mtb-more{flex:1;}
+    nav.tabs.mtb-nav button .ic,.mtb-more .ic{width:22px;height:22px;}
+    nav.tabs.mtb-nav button.active{background:none;color:var(--accent);font-weight:600;}
+    nav.tabs.mtb-nav button.active::after{content:"";position:absolute;top:0;left:30%;right:30%;height:2px;border-radius:0 0 2px 2px;background:var(--accent);}
+    .mobile-tabbar .nav-lock-badge{display:none;}
+    .card{padding:14px;}
+    .widget-vresize-bottom{margin:8px -14px -14px;}
+    .widget-vresize-top{margin:-14px -14px 8px;}
+    .cedb-bleed,.ap-bleed{margin:-14px;}
+  }
+
+  /* rail: short label instead of an ellipsised long one */
+  .sb-short{display:none;}
+  html.sb-rail nav.tabs.sb-nav button:has(.sb-short) .sb-label{display:none;}
+  html.sb-rail nav.tabs.sb-nav button .sb-short{display:block;font-size:10px;font-weight:500;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  @media (max-width:1080px){
+    html.sb-rail nav.tabs.sb-nav button:has(.sb-short) .sb-label{display:block;}
+    html.sb-rail nav.tabs.sb-nav button .sb-short{display:none;}
+  }
+  /* The TP/SL inputs never shrank below their intrinsic width (flex items
+     default to min-width:auto), which pushed the whole page ~40px wider
+     than a phone screen — and every fixed element (chat bubble, bottom
+     bar) with it. */
+  .tpsl-row > *, .size-row > *{min-width:0;}
+  #app{overflow-x:clip;}
+
+  /* ---------- Profil: identity header ---------- */
+  .profile-hero{padding:22px;background:
+    radial-gradient(600px 220px at 0% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%), var(--panel);}
+  .ph-top{display:flex;gap:18px;align-items:center;}
+  .ph-avatar{position:relative;flex:none;border:none;background:none;padding:0;cursor:pointer;border-radius:50%;}
+  .ph-avatar .avatar-img,.ph-avatar .avatar-fallback{box-shadow:0 0 0 3px var(--panel),0 0 0 4px var(--border);}
+  .ph-avatar-edit{
+    position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);font-size:10.5px;font-weight:600;
+    background:var(--panel-2);border:1px solid var(--border);color:var(--text-dim);border-radius:999px;padding:1px 8px;
+    opacity:0;transition:opacity .15s;white-space:nowrap;
+  }
+  .ph-avatar:hover .ph-avatar-edit,.ph-avatar:focus-visible .ph-avatar-edit{opacity:1;}
+  .ph-id{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;}
+  .ph-name-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .ph-name-input{
+    font-family:var(--sans);font-size:26px;font-weight:700;letter-spacing:-0.02em;color:var(--text);
+    background:transparent;border:1px solid transparent;border-radius:10px;padding:2px 8px;margin-left:-9px;
+    width:auto;max-width:100%;min-width:0;field-sizing:content;
+  }
+  .ph-name-input:hover{border-color:var(--border-soft);}
+  .ph-name-input:focus{outline:none;border-color:var(--accent);background:var(--bg-raised);}
+  .ph-save{padding:7px 14px;font-size:12.5px;}
+  .ph-chips{display:flex;gap:6px;flex-wrap:wrap;}
+  .ph-chip{
+    font-size:12px;font-weight:500;color:var(--text-dim);background:var(--bg-raised);border:1px solid var(--border-soft);
+    border-radius:999px;padding:3px 10px;white-space:nowrap;
+  }
+  .ph-chip-admin{color:var(--warn);border-color:color-mix(in srgb, var(--warn) 45%, transparent);}
+  .ph-chip-gold{color:var(--gold);border-color:color-mix(in srgb, var(--gold) 50%, transparent);}
+  .ph-chip-cta{cursor:pointer;color:var(--gold);font-family:var(--sans);}
+  .ph-chip-cta:hover{border-color:var(--gold);}
+  .ph-email{margin-top:0;}
+  #profile-username-msg:empty,#profile-photo-msg:empty{display:none;}
+  .ph-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px;}
+  .ph-stat{background:color-mix(in srgb, var(--bg-raised) 80%, transparent);border:1px solid var(--border-soft);border-radius:12px;padding:12px 14px;}
+  .ph-stat-lbl{font-size:11.5px;color:var(--text-faint);font-weight:500;}
+  .ph-stat-val{font-size:18px;font-weight:600;margin-top:3px;letter-spacing:-0.01em;}
+  .ph-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;}
+  .ph-logout{margin-left:auto;}
+  .ph-logout:hover{border-color:var(--short);color:var(--short);}
+  @media (max-width:640px){
+    .ph-top{align-items:flex-start;gap:14px;}
+    .ph-name-input{font-size:21px;}
+    .ph-stats{grid-template-columns:repeat(2,1fr);}
+    .ph-logout{margin-left:0;}
+  }
+
+  /* ---------- Classement: podium + ranked table + unranked ---------- */
+  .lb-podium{display:grid;grid-template-columns:1fr 1.12fr 1fr;gap:12px;align-items:end;margin:4px 0 18px;}
+  .lb-podium[hidden]{display:none;}
+  .lb-pod{
+    display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;cursor:pointer;
+    background:linear-gradient(180deg, color-mix(in srgb, var(--pod) 14%, var(--panel-2)), var(--panel));
+    border:1px solid color-mix(in srgb, var(--pod) 40%, var(--border-soft));border-radius:16px;
+    padding:18px 12px 16px;color:var(--text);font-family:var(--sans);position:relative;transition:transform .15s,border-color .15s;
+  }
+  .lb-pod:hover{transform:translateY(-2px);border-color:var(--pod);}
+  .lb-pod-1{--pod:var(--gold);padding-top:26px;padding-bottom:22px;}
+  .lb-pod-2{--pod:#c7ccd6;}
+  .lb-pod-3{--pod:#c78a4f;}
+  .lb-pod.me{box-shadow:0 0 0 2px var(--accent);}
+  .lb-pod-rank{
+    position:absolute;top:10px;left:12px;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-size:12px;font-weight:700;color:#141210;background:var(--pod);
+  }
+  .lb-pod-avatar .avatar-img,.lb-pod-avatar .avatar-fallback{box-shadow:0 0 0 3px var(--panel),0 0 0 5px var(--pod);}
+  .lb-pod-name{font-weight:600;font-size:14.5px;margin-top:6px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lb-pod-badges .user-badge{margin:0 2px;}
+  .lb-pod-eq{font-size:17px;font-weight:600;}
+  .lb-pod-1 .lb-pod-eq{font-size:20px;}
+  .lb-pod-ret{font-size:13px;font-weight:600;}
+  .lb-rank{color:var(--text-faint);width:56px;}
+  .lb-trader{display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .lb-trader-name{font-weight:500;}
+  .lb-table th.num{text-align:right;}
+  .lb-table-main td.num{text-align:right;}
+  .lb-table-main td.lb-rank{text-align:left;}
+  .lb-unranked{margin-top:18px;padding-top:16px;border-top:1px dashed var(--border);}
+  .lb-unranked[hidden]{display:none;}
+  .lb-unranked-head{font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px;}
+  .lb-unranked-count{font-family:var(--mono);font-size:11px;color:var(--text-faint);background:var(--bg-raised);border:1px solid var(--border-soft);border-radius:999px;padding:1px 8px;}
+  .lb-unranked-list{display:flex;flex-wrap:wrap;gap:8px;}
+  .lb-chip{
+    display:inline-flex;align-items:center;gap:7px;background:var(--bg-raised);border:1px solid var(--border-soft);color:var(--text-dim);
+    border-radius:999px;padding:3px 12px 3px 3px;font-family:var(--sans);font-size:12.5px;cursor:pointer;
+  }
+  .lb-chip:hover{border-color:var(--border);color:var(--text);}
+  .lb-chip.me{border-color:var(--accent);color:var(--text);}
+  .lb-first-trade-cta{margin-top:14px;}
+  @media (max-width:640px){
+    .lb-podium{gap:8px;}
+    .lb-pod{padding:14px 6px 12px;border-radius:14px;}
+    .lb-pod-1{padding-top:20px;}
+    .lb-pod-name{font-size:12.5px;}
+    .lb-pod-eq{font-size:13px;}
+    .lb-pod-1 .lb-pod-eq{font-size:14.5px;}
+    .lb-pod-ret{font-size:11.5px;}
+    .lb-pod-badges{display:none;}
+    .lb-pod-avatar .avatar-img,.lb-pod-avatar .avatar-fallback{width:40px !important;height:40px !important;font-size:19px !important;}
+    .lb-pod-1 .lb-pod-avatar .avatar-img,.lb-pod-1 .lb-pod-avatar .avatar-fallback{width:50px !important;height:50px !important;font-size:23px !important;}
+    .lb-table .lb-col-opt{display:none;}
+    .lb-table td,.lb-table th{padding:10px 8px;}
+    .lb-rank{width:34px;}
+    .lb-table .lb-badge-icons{display:none;}
+  }
+
+  /* ---------- polish ---------- */
+  .wordmark .mark{font-family:var(--sans);font-size:18px;font-weight:700;letter-spacing:.02em;}
+  .auth-gate-title{font-family:var(--sans);font-size:clamp(28px,4vw,44px);font-weight:700;letter-spacing:-0.03em;line-height:1.08;margin:18px 0 14px;}
+  .auth-gate-title span{display:block;color:var(--accent);}
+  .auth-gate-tagline{font-size:15.5px;}
+  .auth-gate-feature-text{font-size:13.5px;}
+  .auth-gate-feature-icon{border-radius:10px;}
+  .chat-bubble-meta{font-family:var(--sans);font-size:11.5px;}
+  .chat-bubble{border-radius:14px;}
+  .seg.lb-seg[hidden]{display:none;}
+  .seg.lb-seg{display:flex;width:fit-content;max-width:100%;gap:2px;padding:3px;background:var(--bg-raised);border:1px solid var(--border-soft);border-radius:12px;}
+  .seg.lb-seg button{flex:none;background:none;border:none;border-radius:9px;padding:7px 14px;font-size:13px;color:var(--text-dim);white-space:nowrap;}
+  .seg.lb-seg button.on-mode.active{background:var(--panel-2);color:var(--text);border:none;box-shadow:0 1px 3px rgba(0,0,0,.35);}
+  @media (max-width:640px){
+    .seg.lb-seg{display:flex;width:100%;}
+    .seg.lb-seg button{flex:1;padding:7px 4px;font-size:12px;}
+    .lb-trader{flex-wrap:nowrap;min-width:0;}
+    .lb-table .user-badge{display:none;}
+    .lb-trader-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34vw;}
+    .ph-avatar .avatar-img,.ph-avatar .avatar-fallback{width:64px !important;height:64px !important;font-size:30px !important;}
+    .badges-grid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;}
+    .badge-tile{padding:10px 6px;}
+    .badge-tile-icon{font-size:22px;}
+    .badge-tile-title{font-size:11px;}
+    .auth-gate-title{margin-top:10px;}
+  }
+
+  .first-trade-empty{border:1px dashed color-mix(in srgb, var(--accent) 45%, var(--border));border-radius:12px;padding:14px 16px;background:color-mix(in srgb, var(--accent) 6%, transparent);}
+  .first-trade-title{font-weight:600;font-size:14px;margin-bottom:6px;}
+  .first-trade-steps{margin:0;padding-left:18px;font-size:13px;color:var(--text-dim);line-height:1.6;}
+  .first-trade-steps strong{color:var(--text);font-weight:600;}
+  .gate-last{font-size:12.5px;color:var(--text-dim);background:var(--bg-raised);border:1px solid var(--border-soft);border-radius:10px;padding:9px 12px;margin-bottom:12px;text-align:center;}
+  .gate-last strong{color:var(--text);}
+  .google-btn.gate-suggested{box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 55%, transparent);}
+  .btn-primary.gate-suggested{box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);}
+
+  .gate-card-brand{display:none;}
+  @media (max-width:820px){
+    .auth-gate{align-items:flex-start;padding:24px 16px;}
+    .auth-gate-card{order:-1;max-width:420px;margin:0 auto;}
+    .gate-card-brand{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;font-weight:700;font-size:19px;letter-spacing:-0.02em;}
+    .gate-card-brand b{color:var(--accent);}
+    .gate-card-brand .brand-logo{width:30px;height:36px;}
+    .auth-gate-pitch .wordmark{display:none;}
+    body[data-view="chat"] .feedback-fab{display:none;} /* would sit on top of the chat's Send button */
+  }
+  @media (max-width:520px){
+    .acct-metric:nth-child(3){display:none;} /* PnL ouvert: equity alone on very narrow phones */
+    .tb-title{font-size:17px;max-width:40vw;overflow:hidden;text-overflow:ellipsis;}
+  }
 </style>
 </head>
-<body>
+<body data-view="terminal">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="pt-logo" viewBox="452 432 540 660">
+      <path d="M 840 624 C 829.33 628 565.33 692 504 712 C 442.67 732 476 702.67 472 744 C 468 785.33 458.67 912 480 960 C 501.33 1008 558.67 1013.33 600 1032 C 641.33 1050.67 706.67 1084 728 1072 C 749.33 1060 764 1002.67 728 960 C 692 917.33 553.33 845.33 512 816 C 470.67 786.67 486.67 796 480 784 C 473.33 772 468 756 472 744 C 476 732 488 721.33 504 712 C 520 702.67 512 702.67 568 688 C 624 673.33 850.67 620 840 624 Z" fill="#F05A21"/>
+      <path d="M 768 448 C 740 458.67 741.33 533.33 768 560 C 794.67 586.67 894.67 593.33 928 608 C 961.33 622.67 961.33 610.67 968 648 C 974.67 685.33 973.33 794.67 968 832 C 962.67 869.33 946.67 864 936 872 C 925.33 880 904 880 904 880 C 904 880 924 881.33 936 872 C 948 862.67 969.33 881.33 976 824 C 982.67 766.67 982.67 582.67 976 528 C 969.33 473.33 970.67 509.33 936 496 C 901.33 482.67 796 437.33 768 448 Z" fill="#F05A21"/>
+      <line x1="592" y1="768" x2="592" y2="840" stroke="#E7414A" stroke-width="12" stroke-linecap="round"/><rect x="574" y="792" width="36" height="40" rx="9" fill="#E7414A"/>
+      <line x1="660" y1="728" x2="660" y2="872" stroke="#32C877" stroke-width="13" stroke-linecap="round"/><rect x="640" y="744" width="40" height="104" rx="11" fill="#32C877"/>
+      <line x1="732" y1="760" x2="732" y2="856" stroke="#E7414A" stroke-width="13" stroke-linecap="round"/><rect x="712" y="784" width="40" height="48" rx="11" fill="#E7414A"/>
+      <line x1="804" y1="696" x2="804" y2="872" stroke="#32C877" stroke-width="13" stroke-linecap="round"/><rect x="784" y="720" width="40" height="128" rx="11" fill="#32C877"/>
+      <line x1="876" y1="632" x2="876" y2="808" stroke="#32C877" stroke-width="13" stroke-linecap="round"/><rect x="856" y="664" width="40" height="112" rx="11" fill="#32C877"/>
+    </symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M8 6v3"/><rect x="6.5" y="9" width="3" height="5" rx="1"/><path d="M8 14v3"/><path d="M15 4v2"/><rect x="13.5" y="6" width="3" height="7" rx="1"/><path d="M15 13v3"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-gem" viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 12L2 9Z"/><path d="M11 3 8 9l4 12 4-12-3-6"/><path d="M2 9h20"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.7V17c0 .6-.5 1-1 1.2C7.9 18.8 7 20.2 7 22"/><path d="M14 14.7V17c0 .6.5 1 1 1.2 1.1.6 2 2 2 3.8"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></symbol>
+    <symbol id="i-news" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8z"/></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.7 9a1 1 0 0 1-.6 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.2-2.7a1.2 1.2 0 0 1 1.6 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r="1" fill="currentColor"/><circle cx="17.5" cy="10.5" r="1" fill="currentColor"/><circle cx="8.5" cy="7.5" r="1" fill="currentColor"/><circle cx="6.5" cy="12.5" r="1" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.6-.7 1.6-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1a1.6 1.6 0 0 1 1.6-1.7h2c3 0 5.6-2.5 5.6-5.5C22 6 17.5 2 12 2z"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="14" rx="1.5"/><rect width="7" height="7" x="3" y="14" rx="1.5"/></symbol>
+    <symbol id="i-panel" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2.5"/><path d="M9 3v18"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect width="16" height="10" x="4" y="11" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  </defs>
+</svg>
 
 <div id="auth-gate" class="auth-gate">
   <div class="auth-gate-inner">
     <div class="auth-gate-pitch">
-      <div class="wordmark"><span class="mark">PAPER <span>TAPE</span></span></div>
+      <div class="wordmark"><svg class="brand-logo" aria-hidden="true"><use href="#pt-logo"/></svg><span class="mark">PAPER <span>TAPE</span></span></div>
+      <h1 class="auth-gate-title">Apprends les marchés en tradant.<span>Sans risquer un euro.</span></h1>
       <p class="auth-gate-tagline">La plateforme de trading simulé de l'École de la Bourse — ouvre des positions sur crypto, or et indices avec de l'argent fictif, grimpe dans le classement de l'asso, et apprends en pratiquant.</p>
       <ul class="auth-gate-features">
         <li class="auth-gate-feature">
@@ -1186,7 +1681,9 @@
       </div>
     </div>
     <div class="auth-gate-card">
+      <div class="gate-card-brand"><svg class="brand-logo" aria-hidden="true"><use href="#pt-logo"/></svg><span>Paper <b>Tape</b></span></div>
       <div class="chart-note" style="text-align:center;margin-bottom:18px;">Connecte-toi — ton compte est créé automatiquement à la première connexion.</div>
+      <div class="gate-last" id="gate-last-hint" hidden></div>
       <button type="button" class="google-btn" id="gate-google-btn">
         <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path fill="#4285F4" d="M17.64 9.2045c0-.6381-.0573-1.2518-.1636-1.8409H9v3.4814h4.8436c-.2086 1.125-.8427 2.0782-1.7959 2.7164v2.2581h2.9087c1.7018-1.5668 2.6836-3.874 2.6836-6.615z"/>
@@ -1212,45 +1709,72 @@
 </div>
 
 <div id="app">
-  <header class="topbar">
-    <div class="wordmark"><span class="mark">PAPER <span>TAPE</span></span></div>
-    <div class="livewrap"><span class="livedot"></span>Live · Binance + Crypto.com</div>
-    <div class="theme-switch" id="theme-switch" role="group" aria-label="Thème">
-      <button type="button" class="theme-dot" data-theme-choice="ember" title="Ember" style="--dot:#E8552B"></button>
-      <button type="button" class="theme-dot" data-theme-choice="sage"  title="Sage"  style="--dot:#3E5C4B"></button>
-      <button type="button" class="theme-dot" data-theme-choice="ink"   title="Ink"   style="--dot:#1C1A17"></button>
-      <button type="button" class="theme-dot" data-theme-choice="noir"  title="Noir"  style="--dot:conic-gradient(#000 0 50%, #fff 50% 100%)"></button>
-      <button type="button" class="theme-dot" data-theme-choice="gold"  title="Gold — EDB+"  style="--dot:#D7B563"></button>
-      <button type="button" class="theme-dot" data-theme-choice="azure" title="Azure — EDB+" style="--dot:#37C7DB"></button>
-      <span class="theme-lock-badge" id="theme-lock-badge" title="Réservé aux membres EDB+" hidden>🔒</span>
+  <aside class="sidebar" id="sidebar" aria-label="Navigation principale">
+    <div class="sb-brand">
+      <svg class="brand-logo" aria-hidden="true"><use href="#pt-logo"/></svg>
+      <div class="sb-brand-text"><span class="sb-word">Paper <b>Tape</b></span><span class="sb-sub">École de la Bourse</span></div>
+      <button type="button" class="sb-close" id="sb-close-btn" aria-label="Fermer le menu"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>
     </div>
-    <button type="button" id="widget-panel-btn" class="widget-panel-btn" title="Gérer les widgets">🧩</button>
-    <div id="widget-panel" class="widget-panel" hidden>
-      <div class="widget-panel-title">Widgets affichés</div>
-      <div id="widget-panel-list"></div>
-      <button type="button" class="btn-secondary" id="widget-panel-reset" style="margin-top:8px;width:100%;">Réinitialiser la disposition</button>
-    </div>
-    <nav class="tabs">
-      <button data-view="terminal" class="active"><span class="tab-emoji">📟</span>Terminal</button>
-      <button data-view="news"><span class="tab-emoji">📰</span>News</button>
-      <button data-view="chat"><span class="tab-emoji">💬</span>Chat</button>
-      <button data-view="leaderboard"><span class="tab-emoji">🏆</span>Classement</button>
-      <button data-view="concoursedbplus"><span class="tab-emoji">💎</span>Concours EDB+</button>
-      <button data-view="challenge"><span class="tab-emoji">🏅</span>Challenge</button>
-      <button data-view="quiz"><span class="tab-emoji">📚</span>Connaissances</button>
-      <button data-view="resources"><span class="tab-emoji">🔗</span>Ressources</button>
-      <button data-view="edbplus"><span class="tab-emoji">💎</span>EDB+</button>
-      <button data-view="tradesedb"><span class="tab-emoji">📈</span>Trades EDB+</button>
-      <button data-view="profile"><span class="tab-emoji">👤</span>Profil</button>
-      <button data-view="admin" id="nav-admin-btn" hidden><span class="tab-emoji">🛡️</span>Admin</button>
+    <nav class="tabs sb-nav">
+      <div class="sb-section">Trading</div>
+      <button data-view="terminal" class="active"><svg class="ic" aria-hidden="true"><use href="#i-terminal"/></svg><span class="sb-label">Terminal</span></button>
+      <button data-view="challenge"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg><span class="sb-label">Challenge</span><span class="sb-short">Challenge</span></button>
+      <button data-view="concoursedbplus"><svg class="ic" aria-hidden="true"><use href="#i-gem"/></svg><span class="sb-label">Concours EDB+</span><span class="sb-short">Concours</span></button>
+      <div class="sb-section">Communauté</div>
+      <button data-view="leaderboard"><svg class="ic" aria-hidden="true"><use href="#i-trophy"/></svg><span class="sb-label">Classement</span><span class="sb-short">Classement</span></button>
+      <button data-view="chat"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg><span class="sb-label">Chat</span></button>
+      <div class="sb-section">Apprendre</div>
+      <button data-view="quiz"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg><span class="sb-label">Connaissances</span><span class="sb-short">Cours</span></button>
+      <button data-view="resources"><svg class="ic" aria-hidden="true"><use href="#i-link"/></svg><span class="sb-label">Ressources</span><span class="sb-short">Liens</span></button>
+      <button data-view="news"><svg class="ic" aria-hidden="true"><use href="#i-news"/></svg><span class="sb-label">News</span></button>
+      <div class="sb-section">EDB+</div>
+      <button data-view="edbplus"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg><span class="sb-label">EDB+</span></button>
+      <button data-view="tradesedb"><svg class="ic" aria-hidden="true"><use href="#i-trend"/></svg><span class="sb-label">Trades EDB+</span><span class="sb-short">Trades+</span></button>
+      <button data-view="admin" id="nav-admin-btn" hidden><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg><span class="sb-label">Admin</span></button>
+      <button data-view="profile" class="sb-account" id="sb-account">
+        <span class="sb-account-avatar" id="sb-account-avatar"></span>
+        <span class="sb-account-text"><span class="sb-account-name" id="sb-account-name">—</span><span class="sb-account-sub" id="sb-account-sub">Profil</span></span>
+      </button>
     </nav>
+    <button type="button" class="sb-collapse" id="sb-collapse-btn" title="Réduire / agrandir le menu"><svg class="ic" aria-hidden="true"><use href="#i-panel"/></svg><span class="sb-label">Réduire le menu</span></button>
+  </aside>
+  <div class="sb-scrim" id="sb-scrim" hidden></div>
+
+  <header class="topbar">
+    <button type="button" class="tb-icon-btn tb-menu" id="tb-menu-btn" aria-label="Ouvrir le menu"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg></button>
+    <svg class="brand-logo tb-logo" aria-hidden="true"><use href="#pt-logo"/></svg>
+    <div class="tb-title-wrap">
+      <h1 class="tb-title" id="tb-title">Terminal</h1>
+      <div class="livewrap"><span class="livedot"></span><span class="live-label">Live · Binance + Crypto.com</span></div>
+    </div>
     <div class="acct-strip">
-      <div class="uname-edit">
-        <span class="lbl" style="font-family:var(--mono);font-size:9px;color:var(--text-faint);">TRADER</span>
+      <div class="uname-edit" hidden>
+        <span class="lbl">TRADER</span>
         <input id="username-input" maxlength="16" spellcheck="false">
       </div>
       <div class="acct-metric"><span class="lbl">Équité</span><span class="val num" id="strip-equity">$100,000.00</span></div>
       <div class="acct-metric"><span class="lbl">PnL ouvert</span><span class="val num" id="strip-pnl">$0.00</span></div>
+    </div>
+    <div class="tb-actions">
+      <button type="button" class="tb-icon-btn" id="theme-popover-btn" title="Thème" aria-haspopup="true"><svg class="ic" aria-hidden="true"><use href="#i-palette"/></svg></button>
+      <div class="theme-popover" id="theme-popover" hidden>
+        <div class="widget-panel-title">Thème</div>
+        <div class="theme-switch" id="theme-switch" role="group" aria-label="Thème">
+          <button type="button" class="theme-dot" data-theme-choice="ember" title="Ember" style="--dot:#E8552B"></button>
+          <button type="button" class="theme-dot" data-theme-choice="sage"  title="Sage"  style="--dot:#3E5C4B"></button>
+          <button type="button" class="theme-dot" data-theme-choice="ink"   title="Ink"   style="--dot:#1C1A17"></button>
+          <button type="button" class="theme-dot" data-theme-choice="noir"  title="Noir"  style="--dot:conic-gradient(#000 0 50%, #fff 50% 100%)"></button>
+          <button type="button" class="theme-dot" data-theme-choice="gold"  title="Gold — EDB+"  style="--dot:#D7B563"></button>
+          <button type="button" class="theme-dot" data-theme-choice="azure" title="Azure — EDB+" style="--dot:#37C7DB"></button>
+          <span class="theme-lock-badge" id="theme-lock-badge" title="Réservé aux membres EDB+" hidden>🔒</span>
+        </div>
+      </div>
+      <button type="button" id="widget-panel-btn" class="tb-icon-btn widget-panel-btn" title="Gérer les widgets"><svg class="ic" aria-hidden="true"><use href="#i-grid"/></svg></button>
+      <div id="widget-panel" class="widget-panel" hidden>
+        <div class="widget-panel-title">Widgets affichés</div>
+        <div id="widget-panel-list"></div>
+        <button type="button" class="btn-secondary" id="widget-panel-reset" style="margin-top:8px;width:100%;">Réinitialiser la disposition</button>
+      </div>
     </div>
   </header>
 
@@ -1501,19 +2025,20 @@
     <!-- ================= LEADERBOARD ================= -->
     <section class="view" id="view-leaderboard">
       <div class="card">
-        <div class="seg" style="margin-bottom:14px;">
+        <div class="seg lb-seg" style="margin-bottom:14px;">
           <button type="button" id="lb-tab-normal" class="on-mode active">Compte normal</button>
           <button type="button" id="lb-tab-week" class="on-mode">Cette semaine</button>
           <button type="button" id="lb-tab-prop" class="on-mode">Prop Firm</button>
         </div>
         <div id="lb-wrap-normal">
-          <h3>Classement des traders</h3>
+          <div class="lb-podium" id="lb-podium"></div>
           <div style="overflow-x:auto;">
-            <table class="lb-table">
-              <thead><tr><th>Rang</th><th>Trader</th><th>Équité</th><th>Performance</th></tr></thead>
-              <tbody id="lb-body"><tr><td colspan="4" class="empty-note">Chargement du classement…</td></tr></tbody>
+            <table class="lb-table lb-table-main">
+              <thead><tr><th>Rang</th><th>Trader</th><th class="lb-col-opt num">Trades</th><th class="lb-col-opt num">Réussite</th><th class="num">Équité</th><th class="num">Perf.</th></tr></thead>
+              <tbody id="lb-body"><tr><td colspan="6" class="empty-note">Chargement du classement…</td></tr></tbody>
             </table>
           </div>
+          <div class="lb-unranked" id="lb-unranked" hidden></div>
         </div>
         <div id="lb-wrap-week" hidden>
           <h3>Classement de la semaine</h3>
@@ -1591,7 +2116,7 @@
 
     <!-- ================= CONNAISSANCES + QUIZ (fusionnés) ================= -->
     <section class="view" id="view-quiz">
-      <div class="seg" id="quiz-toplevel-seg" style="max-width:640px;margin:0 auto 14px;">
+      <div class="seg lb-seg" id="quiz-toplevel-seg" style="max-width:640px;margin:0 auto 14px;">
         <button id="quiz-tab-play" class="on-mode active">Cours &amp; Quiz</button>
         <button id="quiz-tab-lb" class="on-mode">Classement quiz</button>
         <button id="quiz-tab-flash" class="on-mode">Superflash</button>
@@ -1619,44 +2144,29 @@
     <!-- ================= PROFIL ================= -->
     <section class="view" id="view-profile">
       <div class="learn-wrap">
-        <div class="card">
-          <h3>Compte</h3>
-          <div id="account-logged-out">
-            <!-- In practice unreachable: the full-screen #auth-gate blocks
-                 the whole app (this page included) until Firebase Auth
-                 resolves a signed-in user, so this branch never has an
-                 audience — kept only as a harmless fallback note rather
-                 than an interactive (and now outdated) password form. -->
-            <p class="chart-note">Non connecté.</p>
-          </div>
-          <div id="account-logged-in" hidden>
-            <p class="chart-note">Connecté en tant que <strong id="auth-current-email"></strong> — ce compte est accessible depuis n'importe quel navigateur.</p>
-            <button class="btn-secondary" id="auth-logout-btn" style="margin-top:8px;">Se déconnecter</button>
-          </div>
-        </div>
-        <div class="card" style="margin-top:14px;">
-          <h3>Pseudo</h3>
-          <p class="chart-note" style="margin-bottom:10px;">Le nom affiché partout dans l'app (classement, chat, feed, historique…). Modifiable à tout moment.</p>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <input type="text" id="profile-username-input" class="tpsl-input" maxlength="16" spellcheck="false" style="max-width:220px;">
-            <button class="btn-secondary" id="profile-username-save-btn">Enregistrer</button>
-          </div>
-          <div class="chart-note" id="profile-username-msg" style="margin-top:6px;"></div>
-        </div>
-        <div class="card" style="margin-top:14px;">
-          <h3>Aide</h3>
-          <p class="chart-note" style="margin-bottom:10px;">La visite guidée s'affiche automatiquement une seule fois, à la toute première connexion d'un compte. Tu peux la revoir ici à tout moment.</p>
-          <button class="btn-secondary" id="tour-replay-btn">Revoir le tutoriel</button>
-        </div>
-        <div class="card" style="margin-top:14px;">
-          <h3>Photo de profil</h3>
-          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-            <div id="profile-avatar-preview"></div>
-            <div>
-              <input type="file" id="profile-photo-input" accept="image/*" hidden>
-              <button class="btn-secondary" id="profile-photo-btn">Changer la photo</button>
-              <div class="chart-note" id="profile-photo-msg" style="margin-top:6px;"></div>
+        <div class="card profile-hero">
+          <div class="ph-top">
+            <button type="button" class="ph-avatar" id="profile-photo-btn" title="Changer la photo de profil">
+              <span id="profile-avatar-preview"></span>
+              <span class="ph-avatar-edit">Modifier</span>
+            </button>
+            <input type="file" id="profile-photo-input" accept="image/*" hidden>
+            <div class="ph-id">
+              <div class="ph-name-row">
+                <input id="profile-username-input" class="ph-name-input" maxlength="16" spellcheck="false" aria-label="Pseudo" title="Clique pour modifier ton pseudo">
+                <button class="btn-primary ph-save" id="profile-username-save-btn" hidden>Enregistrer</button>
+              </div>
+              <div class="ph-chips" id="ph-chips"></div>
+              <div id="account-logged-out" hidden><p class="chart-note">Non connecté.</p></div>
+              <div id="account-logged-in" hidden><div class="chart-note ph-email">Connecté avec <strong id="auth-current-email"></strong></div></div>
+              <div class="chart-note" id="profile-username-msg"></div>
+              <div class="chart-note" id="profile-photo-msg"></div>
             </div>
+          </div>
+          <div class="ph-stats" id="ph-stats"></div>
+          <div class="ph-actions">
+            <button class="btn-secondary" id="tour-replay-btn">Revoir le tutoriel</button>
+            <button class="btn-secondary ph-logout" id="auth-logout-btn">Se déconnecter</button>
           </div>
         </div>
         <div class="card" style="margin-top:14px;">
@@ -1904,6 +2414,16 @@
       </div>
     </section>
   </main>
+
+  <div class="mobile-tabbar" id="mobile-tabbar">
+    <nav class="tabs mtb-nav" aria-label="Navigation rapide">
+      <button data-view="terminal" class="active"><svg class="ic" aria-hidden="true"><use href="#i-terminal"/></svg><span>Terminal</span></button>
+      <button data-view="leaderboard"><svg class="ic" aria-hidden="true"><use href="#i-trophy"/></svg><span>Classement</span></button>
+      <button data-view="chat"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg><span>Chat</span></button>
+      <button data-view="quiz"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg><span>Apprendre</span></button>
+    </nav>
+    <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
+  </div>
 
   <div class="app-version-tag" id="app-version-tag">v2026.09.14</div>
   <div class="badge-toast" id="badge-toast" hidden></div>
@@ -2252,19 +2772,20 @@ function goToEdbPlus(){
 function updateEdbPlusNavBadges(){
   const locked = !isEdbPlus();
   [["quiz","📚"],["news","📰"],["challenge","🏅"],["tradesedb","📈"],["resources","🔗"],["concoursedbplus","💎"]].forEach(([view,emoji])=>{
-    const btn = document.querySelector('nav.tabs button[data-view="'+view+'"]');
-    if (!btn) return;
-    let badge = btn.querySelector(".nav-lock-badge");
-    if (locked){
-      if (!badge){
-        badge = document.createElement("span");
-        badge.className = "nav-lock-badge";
-        badge.textContent = "🔒";
-        btn.appendChild(badge);
+    document.querySelectorAll('nav.tabs button[data-view="'+view+'"]').forEach(btn=>{
+      let badge = btn.querySelector(".nav-lock-badge");
+      if (locked){
+        if (!badge){
+          badge = document.createElement("span");
+          badge.className = "nav-lock-badge";
+          badge.title = "Réservé aux membres EDB+";
+          badge.innerHTML = '<svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg>';
+          btn.appendChild(badge);
+        }
+      } else if (badge){
+        badge.remove();
       }
-    } else if (badge){
-      badge.remove();
-    }
+    });
   });
 }
 // Renders the "#edbplus-card" in Profil into one of 3 states: active member,
@@ -3008,8 +3529,10 @@ async function loadAccountForClientId(id){
   const ref = db.collection("traders").doc(id);
   const snap = await ref.get();
   if (snap.exists){
+    accountDocExists = true;
     hydrateStateFromDoc(snap);
   } else {
+    accountDocExists = false;
     // No doc yet == this is the very first time this account has ever
     // logged in. That's the one-shot signal the onboarding tour hooks into
     // (see initAuth()'s onAuthStateChanged) — it fires exactly once per
@@ -3034,11 +3557,9 @@ async function initDb(){
     // photo/feed uploads (storage stays null, upload buttons show a message)
     // rather than breaking the rest of the app.
     try{ if (typeof firebase.storage==="function") storage = firebase.storage(); }catch(e){ storage = null; }
-    subscribeLeaderboard();
-    subscribeWeeklyLeaderboard();
-    subscribePropLeaderboard();
-    subscribeQuizLeaderboard();
-    subscribeSuperflashLeaderboard();
+    // Rankings are no longer listened to permanently — only while a view
+    // that shows them is open (see syncLeaderboardSubscriptions()).
+    syncLeaderboardSubscriptions(document.body.dataset.view || "terminal");
     initAuth();
   }catch(e){ console.warn("db init failed", e); hideAuthGate(); }
 }
@@ -3052,6 +3573,15 @@ async function uploadToStorage(file, path){
   return await snap.ref.getDownloadURL();
 }
 let persistTimer = null;
+// Whether this trader's Firestore doc is known to exist. Once it does,
+// persistAccount() switches from a full .set() to an .update() that never
+// includes the admin-owned fields (isAdmin / edbPlus / badges): before
+// this, a trader with the app open would silently overwrite an admin's
+// "Activer EDB+" / "Passer admin" / badge grant within 10-30s with their
+// own stale copy of those fields (the whole doc was re-.set() on every
+// persist). Badges are written individually by awardBadge() instead.
+let accountDocExists = false;
+const ADMIN_OWNED_FIELDS = ["isAdmin","edbPlus","badges"];
 function persistAccount(){
   if (!dbReady || !db) return Promise.resolve();
   clearTimeout(persistTimer);
@@ -3093,7 +3623,7 @@ function persistAccount(){
         // the current equity the very first time (pre-first-reset), which
         // correctly starts everyone at a 0 weekly PnL rather than a bogus one.
         const weekStartEquity = typeof state.weekStartEquity==="number" ? state.weekStartEquity : normalEquity;
-        await db.collection("traders").doc(clientId).set({
+        const payload = {
           username: state.username,
           cash: normal.cash,
           marginUsed: normal.marginUsed,
@@ -3149,7 +3679,27 @@ function persistAccount(){
           lastActiveAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           hasOpenActivity,
-        });
+        };
+        const ref = db.collection("traders").doc(clientId);
+        const createDoc = async ()=>{
+          // A brand-new doc (or one an admin deleted meanwhile) always starts
+          // non-admin / non-EDB+ — which is also exactly what firestore.rules
+          // enforces on a trader's own create.
+          await ref.set(Object.assign({}, payload, {isAdmin:false, edbPlus:false}));
+          accountDocExists = true;
+        };
+        if (!accountDocExists){
+          await createDoc();
+        } else {
+          const upd = Object.assign({}, payload);
+          ADMIN_OWNED_FIELDS.forEach(k=>{ delete upd[k]; });
+          try{ await ref.update(upd); }
+          catch(e){
+            const code = e && e.code || "";
+            if (code==="not-found" || code==="firestore/not-found"){ accountDocExists = false; await createDoc(); }
+            else throw e;
+          }
+        }
       }catch(e){ console.warn("persist failed", e); }
       resolve();
     }, 150);
@@ -3171,16 +3721,51 @@ function initSessionTimeTracking(){
       if (quizView && quizView.classList.contains("active")){
         state.timeSpentConnaissances = (state.timeSpentConnaissances||0) + 30;
       }
-      persistAccount();
+      // Counted every 30s but only written every 3 min (6 ticks) — or right
+      // away when the tab gets hidden, below. Positions/orders open already
+      // trigger their own 10s persist, which carries this counter too.
+      timeTrackTicks++;
+      if (timeTrackTicks % 6 === 0) persistAccount();
     }
   }, 30000);
+  document.addEventListener("visibilitychange", ()=>{
+    if (document.visibilityState==="hidden" && clientId) persistAccount();
+  });
 }
+let timeTrackTicks = 0;
 function quizGrandTotal(){
   return Object.values(state.quizProgress).reduce((s,p)=>s+(p&&p.earned||0),0);
 }
+// Every trader's persist re-sends their doc to every open listener whose
+// top-50 it belongs to — with 5 rankings listened to permanently by every
+// open tab, reads grew with (connected traders)² and ate the free
+// Firestore quota. Each ranking is now only listened to while a view that
+// actually shows it is on screen; the equity ranking also stays on during
+// Chat, whose author badges read its cache (traderStatusFromCaches()).
+const LB_SUB_DEFS = {
+  equity: {views:["leaderboard","chat"], start:()=>subscribeLeaderboard()},
+  weekly: {views:["leaderboard"],        start:()=>subscribeWeeklyLeaderboard()},
+  prop:   {views:["leaderboard"],        start:()=>subscribePropLeaderboard()},
+  quiz:   {views:["quiz"],               start:()=>subscribeQuizLeaderboard()},
+  flash:  {views:["quiz"],               start:()=>subscribeSuperflashLeaderboard()},
+};
+const lbSubs = {};
+function syncLeaderboardSubscriptions(view){
+  if (!dbReady || !db) return;
+  Object.keys(LB_SUB_DEFS).forEach(k=>{
+    const want = LB_SUB_DEFS[k].views.indexOf(view)>=0;
+    if (want && !lbSubs[k]){
+      const unsub = LB_SUB_DEFS[k].start();
+      lbSubs[k] = typeof unsub==="function" ? unsub : null;
+    } else if (!want && lbSubs[k]){
+      try{ lbSubs[k](); }catch(e){}
+      lbSubs[k] = null;
+    }
+  });
+}
 function subscribeLeaderboard(){
   try{
-    db.collection("traders").orderBy("equity","desc").limit(50).onSnapshot(
+    return db.collection("traders").orderBy("equity","desc").limit(50).onSnapshot(
       (snap)=>renderLeaderboard(snap.docs),
       (err)=>{ console.warn("lb error", err); renderLeaderboardError(); }
     );
@@ -3192,7 +3777,7 @@ function subscribeLeaderboard(){
 // so this stays correct against any backend, real or stubbed for tests.
 function subscribePropLeaderboard(){
   try{
-    db.collection("traders").orderBy("propEquity","desc").limit(50).onSnapshot(
+    return db.collection("traders").orderBy("propEquity","desc").limit(50).onSnapshot(
       (snap)=>renderPropLeaderboard(snap.docs),
       (err)=>{ console.warn("prop lb error", err); renderPropLeaderboardError(); }
     );
@@ -3206,7 +3791,7 @@ function subscribePropLeaderboard(){
 // them until their next persist, same transition behavior as hasOpenActivity.
 function subscribeWeeklyLeaderboard(){
   try{
-    db.collection("traders").orderBy("weeklyPnl","desc").limit(50).onSnapshot(
+    return db.collection("traders").orderBy("weeklyPnl","desc").limit(50).onSnapshot(
       (snap)=>renderWeeklyLeaderboard(snap.docs),
       (err)=>{ console.warn("week lb error", err); renderWeeklyLeaderboardError(); }
     );
@@ -3214,7 +3799,7 @@ function subscribeWeeklyLeaderboard(){
 }
 function subscribeQuizLeaderboard(){
   try{
-    db.collection("traders").orderBy("quizTotal","desc").limit(50).onSnapshot(
+    return db.collection("traders").orderBy("quizTotal","desc").limit(50).onSnapshot(
       (snap)=>renderQuizLeaderboard(snap.docs),
       (err)=>{ console.warn("quiz lb error", err); renderQuizLeaderboardError(); }
     );
@@ -3222,7 +3807,7 @@ function subscribeQuizLeaderboard(){
 }
 function subscribeSuperflashLeaderboard(){
   try{
-    db.collection("traders").orderBy("superflashBest","desc").limit(50).onSnapshot(
+    return db.collection("traders").orderBy("superflashBest","desc").limit(50).onSnapshot(
       (snap)=>renderSuperflashLeaderboardRows(snap.docs),
       (err)=>{ console.warn("flash lb error", err); }
     );
@@ -3283,6 +3868,46 @@ function authErrorMsg(e){
 function showAuthGate(){
   const gate = document.getElementById("auth-gate");
   if (gate) gate.hidden = false;
+  renderGateLastHint();
+}
+// "Tu t'étais connecté avec Google sur ce navigateur" — remembered per
+// browser after each successful sign-in. Using a different method than
+// last time is exactly how the duplicate-account mix-up happened (Google
+// and email/password create two separate accounts, even for the same
+// person), so the gate points back at the method used before.
+const LAST_AUTH_KEY = "paperTapeLastAuth";
+function rememberAuthMethod(user){
+  if (!user) return;
+  const providers = (user.providerData||[]).map(p=>p && p.providerId);
+  const method = providers.indexOf("google.com")>=0 ? "google" : "password";
+  try{ localStorage.setItem(LAST_AUTH_KEY, JSON.stringify({method, email:user.email||""})); }catch(e){}
+}
+function maskEmail(email){
+  const at = (email||"").indexOf("@");
+  if (at<1) return email||"";
+  return email.charAt(0)+"•••"+email.slice(at);
+}
+function renderGateLastHint(){
+  const hint = document.getElementById("gate-last-hint");
+  if (!hint) return;
+  let last = null;
+  try{ last = JSON.parse(localStorage.getItem(LAST_AUTH_KEY)||"null"); }catch(e){}
+  const googleBtn = document.getElementById("gate-google-btn");
+  const pwBtn = document.getElementById("gate-password-btn");
+  if (googleBtn) googleBtn.classList.remove("gate-suggested");
+  if (pwBtn) pwBtn.classList.remove("gate-suggested");
+  if (!last || !last.method){ hint.hidden = true; return; }
+  const who = last.email ? " (<strong>"+escapeHtml(maskEmail(last.email))+"</strong>)" : "";
+  hint.innerHTML = last.method==="google"
+    ? "Dernière connexion sur ce navigateur : <strong>Google</strong>"+who+" — reprends la même méthode pour retrouver ton compte."
+    : "Dernière connexion sur ce navigateur : <strong>email + mot de passe</strong>"+who+" — reprends la même méthode pour retrouver ton compte.";
+  hint.hidden = false;
+  if (last.method==="google" && googleBtn) googleBtn.classList.add("gate-suggested");
+  if (last.method==="password"){
+    if (pwBtn) pwBtn.classList.add("gate-suggested");
+    const emailInput = document.getElementById("gate-email-input");
+    if (emailInput && !emailInput.value && last.email) emailInput.value = last.email;
+  }
 }
 // Purely decorative — a static list of what's tradable, scrolling behind the
 // login card so the gate doesn't feel like an empty void. No live prices
@@ -3378,6 +4003,7 @@ function initAuth(){
       renderAccountCard();
       try{
         if (user){
+          rememberAuthMethod(user);
           state.email = user.email; // seeds a brand-new doc with the right email; hydrateStateFromDoc reconfirms it for existing ones
           await loadAccountForClientId(user.uid);
           hideAuthGate();
@@ -3386,10 +4012,11 @@ function initAuth(){
           if (isFreshAccount){
             isFreshAccount = false;
             switchView("terminal");
-            // Small delay so the terminal's widgets are actually laid out
-            // (post-view-switch reflow) before the tour measures their
-            // positions on screen.
-            setTimeout(startOnboardingTour, 400);
+            // First thing a brand-new account does: pick a real pseudo
+            // (instead of staying "Trader-1234", unrecognizable in the
+            // classement), then the tour. Small delay so the terminal's
+            // widgets are laid out before the tour measures them.
+            askFirstPseudo(()=>setTimeout(startOnboardingTour, 400));
           }
         } else {
           clientId = null;
@@ -3399,6 +4026,38 @@ function initAuth(){
     });
     checkGoogleRedirectResult();
   }catch(e){ console.warn("auth init failed", e); hideAuthGate(); }
+}
+function askFirstPseudo(done){
+  let finished = false;
+  const finish = ()=>{ if (finished) return; finished = true; done(); };
+  openModal(
+    '<div style="text-align:center;padding:4px 2px 2px;">'+
+      '<svg class="brand-logo" style="width:44px;height:54px;margin:0 auto 10px;" aria-hidden="true"><use href="#pt-logo"/></svg>'+
+      '<h3 style="margin:0 0 6px;font-size:20px;">Bienvenue sur Paper Tape 👋</h3>'+
+      '<p class="chart-note" style="margin:0 auto 16px;max-width:320px;">Choisis le pseudo qui apparaîtra dans le classement et le chat — tu pourras le changer à tout moment dans Profil.</p>'+
+      '<input type="text" id="first-pseudo-input" class="tpsl-input" maxlength="16" spellcheck="false" placeholder="Ton pseudo" style="text-align:center;font-family:var(--sans);font-size:16px;">'+
+      '<div class="chart-note" id="first-pseudo-msg" style="min-height:16px;"></div>'+
+      '<button class="btn-primary" id="first-pseudo-save" style="width:100%;margin-top:8px;">C\'est parti</button>'+
+      '<button type="button" id="first-pseudo-skip" style="background:none;border:none;color:var(--text-faint);font-family:var(--sans);font-size:12.5px;margin-top:10px;cursor:pointer;">Plus tard</button>'+
+    '</div>'
+  );
+  const input = document.getElementById("first-pseudo-input");
+  const msg = document.getElementById("first-pseudo-msg");
+  const save = ()=>{
+    const v = (input.value||"").trim();
+    if (v.length<2){ msg.style.color="var(--warn)"; msg.textContent = "2 caractères minimum."; return; }
+    state.username = v;
+    persistAccount();
+    renderAll();
+    closeModal();
+    finish();
+  };
+  document.getElementById("first-pseudo-save").addEventListener("click", save);
+  input.addEventListener("keydown", (e)=>{ if (e.key==="Enter") save(); });
+  document.getElementById("first-pseudo-skip").addEventListener("click", ()=>{ closeModal(); finish(); });
+  // However the modal gets closed (✕, click outside, Escape), the tour still starts.
+  modalCloseHook = finish;
+  setTimeout(()=>input.focus(), 50);
 }
 function renderAccountCard(){
   const out = document.getElementById("account-logged-out");
@@ -4986,7 +5645,15 @@ function renderAccount(){
 }
 function renderPositions(){
   const list = document.getElementById("positions-list");
-  if (state.positions.length===0){ list.innerHTML = '<div class="empty-note">Aucune position ouverte</div>'; return; }
+  if (state.positions.length===0){
+    const neverTraded = !((state.stats && state.stats.tradesOpened) > 0);
+    list.innerHTML = neverTraded
+      ? '<div class="first-trade-empty"><div class="first-trade-title">Prêt pour ton premier trade ?</div>'+
+        '<ol class="first-trade-steps"><li>Choisis un marché dans <strong>Marchés</strong></li><li>Choisis <strong>Long</strong> (hausse) ou <strong>Short</strong> (baisse) dans le ticket</li><li>Règle la taille, puis valide</li></ol>'+
+        '<div class="chart-note" style="margin-top:6px;">Argent fictif — aucun risque. Un seul trade et tu entres au classement.</div></div>'
+      : '<div class="empty-note">Aucune position ouverte</div>';
+    return;
+  }
   list.innerHTML = state.positions.map(p=>{
     const a = ASSETS.find(x=>x.symbol===p.symbol);
     const mp = markPrice(p.symbol);
@@ -6500,25 +7167,97 @@ function avatarHtml(photoURL, username, size){
   const initial = (username||"?").trim().charAt(0).toUpperCase() || "?";
   return '<span class="avatar-fallback" style="width:'+size+'px;height:'+size+'px;font-size:'+Math.round(size*0.48)+'px;">'+escapeHtml(initial)+'</span>';
 }
+// A trader counts as "classé" once they've actually traded — accounts that
+// never opened a single position (still exactly at the starting cash) are
+// listed separately below the ranking instead of sitting at "+0.00%" in
+// the middle of it, ahead of anyone who traded and lost a bit.
+function lbTraderIsActive(d){
+  const st = d.stats || {};
+  if ((st.tradesOpened||0)>0 || (st.tradesClosed||0)>0) return true;
+  if (Array.isArray(d.positions) && d.positions.length) return true;
+  if (Array.isArray(d.history) && d.history.length) return true;
+  return typeof d.equity==="number" && Math.abs(d.equity-START_CASH)>0.005;
+}
+function lbWinRate(d){
+  const st = d.stats || {};
+  const closed = st.tradesClosed||0;
+  return closed>0 ? ((st.wins||0)/closed)*100 : null;
+}
 function renderLeaderboard(docs){
   const body = document.getElementById("lb-body");
-  if (!docs.length){ body.innerHTML = '<tr><td colspan="4" class="empty-note">Aucun trader pour le moment — sois le premier.</td></tr>'; return; }
+  const podium = document.getElementById("lb-podium");
+  const unrankedEl = document.getElementById("lb-unranked");
   leaderboardDocsCache = {};
   docs.forEach(doc=>{ leaderboardDocsCache[doc.id] = doc; });
-  body.innerHTML = docs.map((doc,i)=>{
-    const d = doc.data();
-    const rank = i+1;
-    const ret = ((d.equity-START_CASH)/START_CASH)*100;
-    const rankClass = rank===1?"rank-1":rank===2?"rank-2":rank===3?"rank-3":"";
-    return '<tr class="lb-row-clickable '+(doc.id===clientId?"me":"")+'" data-trader-id="'+doc.id+'" title="Voir le profil">'+
-      '<td class="num '+rankClass+'">#'+rank+'</td>'+
-      '<td>'+avatarHtml(d.photoURL, d.username)+' '+escapeHtml(d.username||"Trader")+traderBadgesHtml(d)+traderBadgeIconsHtml(d)+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
-      '<td class="num">'+fmtMoney(d.equity||0)+'</td>'+
-      '<td class="num '+(ret>=0?"up":"down")+'">'+fmtPct(ret)+'</td>'+
-    '</tr>';
-  }).join("");
-  body.querySelectorAll("tr[data-trader-id]").forEach(tr=>{
-    tr.addEventListener("click", ()=>openTraderProfileModal(tr.dataset.traderId));
+  const active = docs.filter(doc=>lbTraderIsActive(doc.data()));
+  const inactive = docs.filter(doc=>!lbTraderIsActive(doc.data()));
+  if (!docs.length){
+    if (podium) podium.innerHTML = "";
+    body.innerHTML = '<tr><td colspan="6" class="empty-note">Aucun trader pour le moment — sois le premier.</td></tr>';
+    if (unrankedEl) unrankedEl.hidden = true;
+    return;
+  }
+  // Podium — top 3, displayed 2 · 1 · 3
+  if (podium){
+    const top = active.slice(0,3);
+    const order = [1,0,2].filter(i=>top[i]);
+    podium.innerHTML = top.length ? order.map(i=>{
+      const doc = top[i]; const d = doc.data(); const rank = i+1;
+      const ret = ((d.equity-START_CASH)/START_CASH)*100;
+      return '<button type="button" class="lb-pod lb-pod-'+rank+(doc.id===clientId?" me":"")+'" data-trader-id="'+doc.id+'" title="Voir le profil">'+
+        '<span class="lb-pod-rank">'+rank+'</span>'+
+        '<span class="lb-pod-avatar">'+avatarHtml(d.photoURL, d.username, rank===1?64:52)+'</span>'+
+        '<span class="lb-pod-name">'+escapeHtml(d.username||"Trader")+(doc.id===clientId?' <span class="hist-tag">toi</span>':'')+'</span>'+
+        '<span class="lb-pod-badges">'+traderBadgesHtml(d)+'</span>'+
+        '<span class="lb-pod-eq num">'+fmtMoney(d.equity||0)+'</span>'+
+        '<span class="lb-pod-ret num '+(ret>=0?"up":"down")+'">'+fmtPct(ret)+'</span>'+
+      '</button>';
+    }).join("") : "";
+    podium.hidden = !top.length;
+  }
+  const rest = active.slice(3);
+  if (!active.length){
+    body.innerHTML = '<tr><td colspan="6" class="empty-note">Personne n\'a encore tradé — ouvre le premier trade et prends la tête.</td></tr>';
+  } else if (!rest.length){
+    body.innerHTML = '<tr><td colspan="6" class="empty-note">Le reste du classement apparaîtra ici dès que d\'autres traders auront ouvert un trade.</td></tr>';
+  } else {
+    body.innerHTML = rest.map((doc,i)=>{
+      const d = doc.data();
+      const rank = i+4;
+      const ret = ((d.equity-START_CASH)/START_CASH)*100;
+      const st = d.stats || {};
+      const wr = lbWinRate(d);
+      return '<tr class="lb-row-clickable '+(doc.id===clientId?"me":"")+'" data-trader-id="'+doc.id+'" title="Voir le profil">'+
+        '<td class="num lb-rank">'+rank+'</td>'+
+        '<td><span class="lb-trader">'+avatarHtml(d.photoURL, d.username, 30)+'<span class="lb-trader-name">'+escapeHtml(d.username||"Trader")+(doc.id===clientId?' <span class="hist-tag">toi</span>':'')+'</span>'+traderBadgesHtml(d)+traderBadgeIconsHtml(d)+'</span></td>'+
+        '<td class="num lb-col-opt">'+(st.tradesClosed||0)+'</td>'+
+        '<td class="num lb-col-opt">'+(wr!=null ? wr.toFixed(0)+"%" : "—")+'</td>'+
+        '<td class="num">'+fmtMoney(d.equity||0)+'</td>'+
+        '<td class="num '+(ret>=0?"up":"down")+'">'+fmtPct(ret)+'</td>'+
+      '</tr>';
+    }).join("");
+  }
+  if (unrankedEl){
+    if (inactive.length){
+      const meInactive = inactive.some(doc=>doc.id===clientId);
+      unrankedEl.hidden = false;
+      unrankedEl.innerHTML =
+        '<div class="lb-unranked-head">Pas encore classés <span class="lb-unranked-count">'+inactive.length+'</span></div>'+
+        '<div class="chart-note" style="margin:2px 0 10px;">Un seul trade suffit pour entrer au classement.</div>'+
+        '<div class="lb-unranked-list">'+inactive.map(doc=>{
+          const d = doc.data();
+          return '<button type="button" class="lb-chip'+(doc.id===clientId?" me":"")+'" data-trader-id="'+doc.id+'">'+avatarHtml(d.photoURL, d.username, 22)+'<span>'+escapeHtml(d.username||"Trader")+'</span></button>';
+        }).join("")+'</div>'+
+        (meInactive ? '<button type="button" class="btn-primary lb-first-trade-cta" id="lb-first-trade-cta">Ouvrir mon premier trade</button>' : '');
+      const cta = document.getElementById("lb-first-trade-cta");
+      if (cta) cta.addEventListener("click", ()=>switchView("terminal"));
+    } else {
+      unrankedEl.hidden = true;
+      unrankedEl.innerHTML = "";
+    }
+  }
+  document.querySelectorAll("#lb-wrap-normal [data-trader-id]").forEach(el=>{
+    el.addEventListener("click", ()=>openTraderProfileModal(el.dataset.traderId));
   });
 }
 let weeklyLeaderboardDocsCache = {};
@@ -6691,6 +7430,7 @@ function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<
 
 /* ============================= MODAL ============================= */
 function openModal(html){
+  modalCloseHook = null;
   document.getElementById("modal-box").innerHTML = '<button class="modal-close-x" id="modal-close-x" aria-label="Fermer">✕</button>'+html;
   document.getElementById("modal-overlay").hidden = false;
   document.getElementById("modal-close-x").addEventListener("click", closeModal);
@@ -6865,10 +7605,12 @@ function initOnboardingTour(){
     if (e.key==="ArrowLeft" && !prevBtn.hidden) prevBtn.click();
   });
 }
+let modalCloseHook = null; // one-shot callback run whenever the modal closes, however it's closed (✕, overlay, Escape, code)
 function closeModal(){
   document.getElementById("modal-overlay").hidden = true;
   document.getElementById("modal-box").innerHTML = "";
   if (typeof teardownEdbPlusChatModal === "function") teardownEdbPlusChatModal();
+  if (modalCloseHook){ const f = modalCloseHook; modalCloseHook = null; try{ f(); }catch(e){ console.warn(e); } }
 }
 // Apple-marketing-style scroll reveal — any element with class "reveal"
 // (the Concours EDB+ page's hero/reward/rules sections, every EDB+ paywall
@@ -6934,6 +7676,11 @@ const BADGES = [
 function awardBadge(id, extra){
   if (state.badges[id]) return;
   state.badges[id] = Object.assign({earnedAt:new Date().toISOString()}, extra||{});
+  // Written as its own "badges.<id>" field (never the whole map) so it can't
+  // clobber a badge an admin granted/removed meanwhile — see ADMIN_OWNED_FIELDS.
+  if (dbReady && db && clientId && accountDocExists){
+    db.collection("traders").doc(clientId).update({["badges."+id]: state.badges[id]}).catch(e=>console.warn("badge write failed", e));
+  }
   persistAccount();
   showBadgeToast(id);
   renderBadgesGrid();
@@ -7670,7 +8417,42 @@ function openJournalNoteModal(h){
 function renderProfileAvatar(){
   const el = document.getElementById("profile-avatar-preview");
   if (!el) return;
-  el.innerHTML = avatarHtml(state.photoURL, state.username, 64);
+  el.innerHTML = avatarHtml(state.photoURL, state.username, 84);
+  renderProfileHero();
+}
+// Profil header: status chips + the numbers a trader actually checks
+// (normal account, whichever book is currently on screen).
+function renderProfileHero(){
+  const chips = document.getElementById("ph-chips");
+  const stats = document.getElementById("ph-stats");
+  if (!chips && !stats) return;
+  if (chips){
+    let html = "";
+    if (state.isAdmin) html += '<span class="ph-chip ph-chip-admin">🛡️ Admin</span>';
+    html += isEdbPlus() ? '<span class="ph-chip ph-chip-gold">💎 Membre EDB+</span>' : '<button type="button" class="ph-chip ph-chip-cta" data-goto-edbplus="1">Passer EDB+ →</button>';
+    const n = state.streakDays||0;
+    if (n>0) html += '<span class="ph-chip">🔥 '+n+' jour'+(n>1?"s":"")+' de suite</span>';
+    const nBadges = Object.keys(state.badges||{}).length;
+    html += '<span class="ph-chip">🏅 '+nBadges+' / '+BADGES.length+' badges</span>';
+    chips.innerHTML = html;
+    const cta = chips.querySelector("[data-goto-edbplus]");
+    if (cta) cta.addEventListener("click", goToEdbPlus);
+  }
+  if (stats){
+    let normal = null;
+    try{ normal = booksForPersist().normal; }catch(e){}
+    const st = (normal && normal.stats) || state.stats || {};
+    const eq = normal ? bookEquity(normal) : equity();
+    const ret = ((eq-START_CASH)/START_CASH)*100;
+    const closed = st.tradesClosed||0;
+    const wr = closed>0 ? ((st.wins||0)/closed)*100 : null;
+    const tile = (lbl, val, cls)=>'<div class="ph-stat"><div class="ph-stat-lbl">'+lbl+'</div><div class="ph-stat-val num '+(cls||"")+'">'+val+'</div></div>';
+    stats.innerHTML =
+      tile("Équité", fmtMoney(eq)) +
+      tile("Performance", fmtPct(ret), ret>0?"up":ret<0?"down":"") +
+      tile("Trades clôturés", String(closed)) +
+      tile("Taux de réussite", wr!=null ? wr.toFixed(0)+"%" : "—");
+  }
 }
 function initProfilePhoto(){
   const input = document.getElementById("profile-photo-input");
@@ -10758,9 +11540,101 @@ function renderSuperflashLeaderboardRows(rawDocs){
   }).join("");
 }
 
+/* ============================= SHELL (sidebar / topbar / mobile bar) ============================= */
+// Refonte 2026-09. The sidebar and the mobile bottom bar are both
+// <nav class="tabs"> so every existing "nav.tabs button" query (click
+// wiring in initEvents(), .active toggling in switchView(), EDB+ lock
+// badges, admin visibility) keeps working unchanged on both.
+const VIEW_TITLES = {
+  terminal:"Terminal", news:"News", chat:"Chat", leaderboard:"Classement", concoursedbplus:"Concours EDB+",
+  challenge:"Challenge Prop Firm", quiz:"Connaissances", resources:"Ressources", edbplus:"EDB+",
+  tradesedb:"Trades EDB+", profile:"Profil", admin:"Admin",
+};
+const SIDEBAR_KEY = "paperTapeSidebar"; // "full" | "rail" — per-browser preference, like the theme
+function applySidebarMode(mode){
+  document.documentElement.classList.toggle("sb-rail", mode==="rail");
+}
+function initShell(){
+  let mode = null;
+  try{ mode = localStorage.getItem(SIDEBAR_KEY); }catch(e){}
+  // No saved preference yet: full sidebar only on really wide screens, so
+  // the 3-column terminal keeps a wide chart on regular laptops.
+  if (mode!=="full" && mode!=="rail") mode = window.innerWidth>=1600 ? "full" : "rail";
+  applySidebarMode(mode);
+  const collapseBtn = document.getElementById("sb-collapse-btn");
+  if (collapseBtn) collapseBtn.addEventListener("click", ()=>{
+    const next = document.documentElement.classList.contains("sb-rail") ? "full" : "rail";
+    applySidebarMode(next);
+    try{ localStorage.setItem(SIDEBAR_KEY, next); }catch(e){}
+    // The terminal's column layout reads its own width — give it a nudge.
+    setTimeout(()=>window.dispatchEvent(new Event("resize")), 220);
+  });
+  const sidebar = document.getElementById("sidebar");
+  const scrim = document.getElementById("sb-scrim");
+  const openDrawer = ()=>{ if (sidebar){ sidebar.classList.add("open"); if (scrim) scrim.hidden = false; } };
+  const closeDrawer = ()=>{ if (sidebar){ sidebar.classList.remove("open"); if (scrim) scrim.hidden = true; } };
+  window.closeShellDrawer = closeDrawer;
+  ["mtb-more-btn","tb-menu-btn"].forEach(id=>{
+    const b = document.getElementById(id);
+    if (b) b.addEventListener("click", openDrawer);
+  });
+  const closeBtn = document.getElementById("sb-close-btn");
+  if (closeBtn) closeBtn.addEventListener("click", closeDrawer);
+  if (scrim) scrim.addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", (e)=>{ if (e.key==="Escape") closeDrawer(); });
+  // Theme picker now lives in a small popover (palette button) instead of
+  // six dots permanently sitting in the header.
+  const themeBtn = document.getElementById("theme-popover-btn");
+  const themePop = document.getElementById("theme-popover");
+  if (themeBtn && themePop){
+    themeBtn.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      themePop.hidden = !themePop.hidden;
+      themeBtn.classList.toggle("is-open", !themePop.hidden);
+      const wp = document.getElementById("widget-panel"); if (wp && !themePop.hidden) wp.hidden = true;
+    });
+    document.addEventListener("click", (e)=>{
+      if (!themePop.hidden && !themePop.contains(e.target)){ themePop.hidden = true; themeBtn.classList.remove("is-open"); }
+    });
+    themePop.addEventListener("click", (e)=>{
+      // A locked dot sends the trader to the EDB+ page — close the popover with it.
+      if (e.target.closest(".theme-dot") && !isEdbPlus()){ themePop.hidden = true; themeBtn.classList.remove("is-open"); }
+    });
+  }
+}
+// Sidebar account block (avatar + pseudo + equity) — cheap text updates,
+// called from renderAll() on every tick; the avatar markup is only
+// rebuilt when the photo/pseudo actually changes.
+let shellAvatarKey = null;
+function renderShellAccount(){
+  const nameEl = document.getElementById("sb-account-name");
+  if (!nameEl) return;
+  if (nameEl.textContent !== state.username) nameEl.textContent = state.username || "Trader";
+  const avEl = document.getElementById("sb-account-avatar");
+  const key = (state.photoURL||"")+"|"+(state.username||"");
+  if (avEl && key!==shellAvatarKey){ avEl.innerHTML = avatarHtml(state.photoURL, state.username, 32); shellAvatarKey = key; }
+  const sub = document.getElementById("sb-account-sub");
+  if (sub){
+    const eq = (typeof equity==="function") ? equity() : null;
+    const tag = state.isAdmin ? "Admin" : (isEdbPlus() ? "Membre EDB+" : "Profil");
+    const txt = (eq!=null && isFinite(eq)) ? tag+" · "+fmtMoney(eq) : tag;
+    if (sub.textContent !== txt) sub.textContent = txt;
+  }
+}
+function updateShellForView(name){
+  const t = document.getElementById("tb-title");
+  if (t) t.textContent = VIEW_TITLES[name] || "";
+  document.body.dataset.view = name;
+  if (typeof window.closeShellDrawer==="function") window.closeShellDrawer();
+}
+
 /* ============================= VIEW SWITCH ============================= */
 function switchView(name){
   pauseQuizIfActive(); // leaving to any other main tab pauses an in-progress quiz instead of losing it
+  const prevView = document.body.dataset.view;
+  updateShellForView(name);
+  syncLeaderboardSubscriptions(name);
+  if (prevView && prevView!==name) window.scrollTo(0,0);
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
   document.getElementById("view-"+name).classList.add("active");
   document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("active", b.dataset.view===name));
@@ -10865,6 +11739,7 @@ function renderAll(){
   if (unameEl && document.activeElement!==unameEl) unameEl.value = state.username;
   const profileUnameEl = document.getElementById("profile-username-input");
   if (profileUnameEl && document.activeElement!==profileUnameEl) profileUnameEl.value = state.username;
+  renderShellAccount();
   updateWatchlist();
   updateChart();
   updateOrderReadout();
@@ -10877,6 +11752,7 @@ function renderAll(){
 
 /* ============================= EVENTS ============================= */
 function initEvents(){
+  initShell();
   document.querySelectorAll("nav.tabs button").forEach(b=>{
     b.addEventListener("click", ()=>switchView(b.dataset.view));
   });
@@ -11066,9 +11942,13 @@ function initEvents(){
         setTimeout(()=>{ if (profileUnameMsg.textContent==="Pseudo mis à jour ✓") profileUnameMsg.textContent=""; }, 2500);
       }
     };
-    profileUnameBtn.addEventListener("click", saveProfileUsername);
+    profileUnameBtn.addEventListener("click", ()=>{ saveProfileUsername(); profileUnameBtn.hidden = true; renderProfileAvatar(); });
+    profileUnameInput.addEventListener("input", ()=>{
+      profileUnameBtn.hidden = profileUnameInput.value.trim()===state.username;
+    });
     profileUnameInput.addEventListener("keydown", (e)=>{
-      if (e.key==="Enter"){ e.preventDefault(); saveProfileUsername(); }
+      if (e.key==="Enter"){ e.preventDefault(); saveProfileUsername(); profileUnameBtn.hidden = true; profileUnameInput.blur(); renderProfileAvatar(); }
+      if (e.key==="Escape"){ profileUnameInput.value = state.username; profileUnameBtn.hidden = true; profileUnameInput.blur(); }
     });
   }
 }
