@@ -1972,6 +1972,31 @@
     .inv-h-row{grid-template-columns:62px minmax(0,1fr) auto;}
     .inv-h-env{display:none;}
   }
+
+  /* ---------- Connaissances : images illustratives par section ---------- */
+  .learn-figure{margin:12px 0 14px;}
+  .learn-figure img{width:100%;height:auto;border-radius:8px;display:block;}
+  .learn-figure.is-diagram img{max-height:360px;object-fit:contain;background:#fff;padding:10px;box-sizing:border-box;}
+  .learn-figure.is-photo img{object-fit:cover;aspect-ratio:16/8;max-height:320px;}
+  .learn-figure figcaption{font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.5;text-align:center;}
+  .learn-credit{display:block;font-size:11px;color:var(--text-faint);margin-top:2px;}
+  .learn-credit a{color:inherit;text-decoration:underline;text-underline-offset:2px;}
+
+  /* ---------- Ticket : champ prix limite masqué hors ordre limite + note de levier restreint ---------- */
+  .field-row[hidden]{display:none !important;}
+  .lev-lock-note{margin-top:8px;padding:10px 12px;border-radius:var(--radius);font-size:12.5px;line-height:1.45;color:var(--text-dim);
+    background:color-mix(in srgb, var(--gold) 9%, var(--panel-2));border:1px solid color-mix(in srgb, var(--gold) 40%, var(--border-soft));
+    display:flex;flex-direction:column;gap:6px;animation:levNoteIn .18s ease-out;}
+  .lev-lock-note[hidden]{display:none;}
+  .lev-lock-note > b{color:var(--gold);font-weight:600;}
+  .lev-lock-count b{color:var(--text);}
+  .lev-lock-bar{display:block;height:4px;border-radius:3px;background:var(--panel);overflow:hidden;}
+  .lev-lock-bar i{display:block;height:100%;background:var(--gold);border-radius:3px;min-width:3px;}
+  .lev-lock-ladder{display:flex;flex-wrap:wrap;gap:4px;}
+  .lev-lock-ladder span{font-family:var(--mono);font-size:10.5px;padding:2px 6px;border-radius:5px;border:1px solid var(--border-soft);color:var(--text-faint);}
+  .lev-lock-ladder span.ok{color:var(--long);border-color:color-mix(in srgb, var(--long) 40%, var(--border-soft));}
+  .lev-lock-why{font-size:11.5px;color:var(--text-faint);}
+  @keyframes levNoteIn{from{opacity:0;transform:translateY(-3px);}to{opacity:1;transform:none;}}
   @media (max-width:520px){
     .acct-metric:nth-child(3){display:none;} /* PnL ouvert: equity alone on very narrow phones */
     .tb-title{font-size:17px;max-width:40vw;overflow:hidden;text-overflow:ellipsis;}
@@ -2240,6 +2265,7 @@
                 <input type="range" id="lev-slider" min="1" max="200" value="10">
               </div>
               <div class="lev-presets" id="lev-presets"></div>
+              <div class="lev-lock-note" id="lev-lock-note" role="status" aria-live="polite" hidden></div>
             </div>
             <div class="field-row">
               <label>Taille de position <span class="size-slider-badge" id="size-slider-badge">0%</span></label>
@@ -11307,7 +11333,7 @@ const KNOWLEDGE = [
   title:"Mix Général",
   intro:`Les bases transversales : lecture du carnet, marge et levier, gestion du risque, et un premier contact avec les dérivés. C'est le socle commun à tous les autres quiz.`,
   sections:[
-   {h:"Carnet d'ordres et flux d'ordres",
+   {h:"Carnet d'ordres et flux d'ordres", img:["gen_orderbook"],
     p:[
      `L'<strong>absorption</strong> se produit quand un acteur important pose (ou défend) une grosse liquidité à un niveau de prix précis, empêchant le prix d'avancer malgré un volume agressif important en face. Le prix « bute » sur ce mur au lieu de le traverser.`,
      `Le <strong>delta de volume</strong> compare l'agressivité acheteuse (les exécutions qui se font au ask, donc initiées par des acheteurs pressés) à l'agressivité vendeuse (exécutions au bid). Un delta positif veut dire que les acheteurs ont été plus agressifs sur la période ; un delta négatif, l'inverse. C'est une mesure du déséquilibre du flux, pas du prix lui-même.`,
@@ -11321,7 +11347,7 @@ const KNOWLEDGE = [
      `Avec un <strong>levier de x200</strong>, la marge initiale ne représente que 0,5% du notionnel. Une fois la marge de maintenance déduite, il reste une marge de sécurité inférieure à 1% du prix d'entrée avant liquidation — un mouvement défavorable minime suffit donc à liquider.`,
      `Pourquoi un levier élevé (x100-200) reste risqué même si le gain potentiel est amplifié : le levier amplifie symétriquement gains ET pertes en % de la marge engagée, tout en réduisant drastiquement la distance de prix tolérable avant liquidation.`,
     ]},
-   {h:"Gestion du risque",
+   {h:"Gestion du risque", img:["gen_risk"],
     p:[
      `Le <strong>profit factor</strong> est le ratio (somme des gains) / (somme des pertes). Un profit factor de 1,93 veut dire que la stratégie génère 1,93$ de gains pour chaque 1$ perdu, toutes pertes confondues.`,
      `Un <strong>win rate</strong> de 51,7% avec un profit factor supérieur à 1 est parfaitement viable : la rentabilité dépend de l'espérance de gain (win rate × gain moyen par trade gagnant) comparée à (loss rate × perte moyenne par trade perdant), pas du seul taux de réussite. Beaucoup de stratégies profitables gagnent à peine plus d'une fois sur deux.`,
@@ -11333,7 +11359,7 @@ const KNOWLEDGE = [
      `Un mouvement <strong>« exhausted » (épuisé)</strong> se repère quand le prix continue nominalement dans un sens mais que le volume et l'agressivité faiblissent — signe que les acheteurs (ou vendeurs) marginaux manquent à l'appel.`,
      `Une stratégie <strong>« Exhaustion Fade »</strong> parie justement sur un retournement (mean-reversion) une fois qu'un mouvement directionnel montre ces signes d'essoufflement, plutôt que de suivre la tendance.`,
     ]},
-   {h:"Dérivés — premier contact",
+   {h:"Dérivés — premier contact", img:["gen_derivs"],
     p:[
      `Un <strong>future</strong> diffère d'une <strong>option</strong> : l'option donne un droit (mais pas une obligation) d'acheter/vendre ; le future oblige les deux parties (acheteur et vendeur) à honorer le contrat à l'échéance, sauf clôture avant terme.`,
      `Le <strong>funding rate</strong> sur un contrat perpétuel sert d'ancrage : n'ayant pas d'échéance, le perpétuel utilise ce mécanisme pour que, quand son prix diverge du spot, un camp (longs ou shorts) paie l'autre, ce qui ramène les deux prix l'un vers l'autre.`,
@@ -11345,13 +11371,13 @@ const KNOWLEDGE = [
   title:"Price Action",
   intro:`Lire un graphique à l'œil nu, sans indicateur : structure de marché, figures de bougies, cassures et pièges — et pourquoi rien de tout ça ne vaut grand-chose isolé de son contexte.`,
   sections:[
-   {h:"Structure de marché",
+   {h:"Structure de marché", img:["pa_trend"],
     p:[
      `Une <strong>structure haussière (uptrend)</strong> se lit à la répétition de sommets et de creux chacun plus haut que le précédent (higher highs, higher lows).`,
      `Une <strong>ligne de tendance haussière (trendline)</strong> se trace en reliant des creux de plus en plus hauts — elle sert de support dynamique visuel.`,
      `Analyser le prix sur une <strong>unité de temps supérieure (higher timeframe)</strong> avant de trader donne le contexte haut niveau (la tendance de fond), qui cadre l'interprétation des signaux pris sur une échéance plus courte.`,
     ]},
-   {h:"Figures de bougies",
+   {h:"Figures de bougies", img:["pa_anatomy", "pa_engulf"],
     p:[
      `Un <strong>pin bar</strong> (bougie à longue mèche) en bas d'un mouvement baissier signale généralement un rejet : le marché a testé des prix bas puis les a rejetés, signe d'un possible retour acheteur.`,
      `Une bougie <strong>engulfante haussière (bullish engulfing)</strong> apparaît quand le corps de la bougie efface entièrement le corps baissier de la bougie précédente — un retournement net d'agressivité en faveur des acheteurs.`,
@@ -11363,7 +11389,7 @@ const KNOWLEDGE = [
      `Un <strong>bull trap</strong> (piège à acheteurs) attire les acheteurs sur une fausse cassure haussière juste avant un retournement brutal à la baisse — symétrique du fakeout ci-dessus, côté psychologie des perdants.`,
      `Pourquoi la cassure d'un niveau clé est plus fiable avec un <strong>volume élevé</strong> : un volume élevé signale une participation large et convaincue, ce qui rend la cassure plus crédible qu'une cassure sur volume faible.`,
     ]},
-   {h:"Range et zones défendues",
+   {h:"Range et zones défendues", img:["pa_hammer"],
     p:[
      `Une phase de <strong>range (consolidation)</strong> se définit comme une phase d'indécision où le prix navigue entre deux bornes sans tendance dominante.`,
      `Quand plusieurs <strong>mèches successives</strong> touchent puis rejettent le même niveau de prix, cela suggère qu'un acteur défend activement ce prix — c'est une zone à surveiller, pas un hasard.`,
@@ -11454,28 +11480,28 @@ const KNOWLEDGE = [
   title:"Fondamental & News",
   intro:`Pourquoi lire au journal qu'il y a une guerre quelque part ne suffit pas pour justifier un trade — et comment l'analyse fondamentale devient réellement exploitable.`,
   sections:[
-   {h:"Le marché a déjà lu le journal avant toi",
+   {h:"Le marché a déjà lu le journal avant toi", img:["fu_paper"],
     p:[
      `Une nouvelle relayée largement dans la presse grand public a généralement déjà influencé les prix avant que tu ne la lises — c'est la raison centrale pour laquelle « il y a la guerre en Iran, donc je passe long le pétrole » ne suffit pas : le prix a probablement déjà bougé.`,
      `Le phénomène <strong>« sell the news »</strong> illustre ça : quand une issue était déjà anticipée et intégrée au prix, sa confirmation officielle peut déclencher des prises de profit plutôt qu'une poursuite du mouvement.`,
      `Un marché jugé <strong>« efficient »</strong> (l'information publique s'y reflète rapidement) implique surtout que l'edge vient davantage de l'exécution, du timing ou d'une analyse plus fine que du simple fait de connaître la nouvelle en premier.`,
     ]},
-   {h:"Ce qui bouge vraiment le marché : la surprise",
+   {h:"Ce qui bouge vraiment le marché : la surprise", img:["fu_calendar"],
     p:[
      `Lors d'une publication macro comme le NFP ou le CPI, ce qui bouge le marché est surtout <strong>la surprise par rapport au consensus</strong>, pas le chiffre en valeur absolue.`,
      `Une nouvelle a le plus de chances de déclencher un vrai mouvement quand la surprise se combine à un <strong>positionnement du marché qui doit se rajuster en urgence</strong> (beaucoup d'acteurs positionnés du mauvais côté doivent se couvrir vite).`,
     ]},
-   {h:"Prime de risque et narratif",
+   {h:"Prime de risque et narratif", img:["fu_riskoff"],
     p:[
      `Une <strong>« prime de risque géopolitique »</strong> déjà intégrée dans le prix du pétrole ou de l'or signifie que le marché anticipe et intègre une partie du risque avant même que l'événement redouté ne se matérialise pleinement.`,
      `Le narratif fondamental seul (« il y a la guerre, donc il faut acheter le pétrole ») est insuffisant pour décider du timing d'entrée : il donne une direction probable, mais ni le prix d'entrée, ni le risque, ni le fait que l'info soit déjà intégrée ou non.`,
     ]},
-   {h:"Macro, taux et devises",
+   {h:"Macro, taux et devises", img:["fu_fedfunds", "fu_yield"],
     p:[
      `La logique du <strong>carry trade</strong> sur le marché des changes repose sur l'écart de taux d'intérêt entre deux devises : on emprunte la devise la moins chère pour placer dans celle qui rapporte davantage.`,
      `Une banque centrale qui <strong>relève ses taux d'intérêt</strong> a, toutes choses égales par ailleurs, tendance à soutenir sa devise, car des taux plus élevés attirent des capitaux étrangers en quête de rendement.`,
     ]},
-   {h:"Exécution autour des annonces",
+   {h:"Exécution autour des annonces", img:["fu_fed"],
     p:[
      `Le risque de <strong>slippage</strong> est particulièrement élevé autour des publications macro majeures car les teneurs de marché retirent leurs cotations juste avant l'annonce, réduisant la liquidité et amplifiant les sauts de prix.`,
     ]},
@@ -11491,7 +11517,7 @@ const KNOWLEDGE = [
   title:"Offre & Demande",
   intro:`Ordres passifs contre ordres agressifs, market makers, spread — la mécanique concrète qui fait bouger un prix, niveau par niveau.`,
   sections:[
-   {h:"Ordres passifs et ordres agressifs",
+   {h:"Ordres passifs et ordres agressifs", img:["sd_depth"],
     p:[
      `Un <strong>ordre passif (ordre limite)</strong> se pose dans le carnet et attend d'être exécuté par un ordre venant en face — il apporte de la liquidité au marché.`,
      `Un <strong>ordre agressif (ordre au marché)</strong> va chercher la meilleure liquidité disponible et l'exécute tout de suite, sans attendre — il consomme de la liquidité.`,
@@ -11504,13 +11530,13 @@ const KNOWLEDGE = [
      `Le <strong>spread bid-ask</strong> correspond simplement à l'écart entre le meilleur bid (achat) et le meilleur ask (vente) affichés à l'instant.`,
      `Un ordre au marché de grande taille peut faire bouger le prix à lui seul (<strong>slippage</strong>) car il mange la liquidité niveau par niveau, chaque niveau consommé étant un peu plus cher (ou moins cher) que le précédent.`,
     ]},
-   {h:"Market makers et zones",
+   {h:"Market makers et zones", img:["sd_floor"],
     p:[
      `Un <strong>market maker (teneur de marché)</strong> gagne typiquement de l'argent en vivant du spread : il achète au bid et vend à l'ask qu'il cote lui-même en continu.`,
      `Une <strong>zone de demande (demand zone)</strong> désigne une zone où la demande a déjà montré sa force par le passé, souvent surveillée pour un futur rebond.`,
      `Retirer massivement des ordres passifs d'un côté du carnet juste avant une annonce a pour effet probable d'amplifier fortement le mouvement : moins de liquidité passive signifie qu'un même flux agressif déplace le prix beaucoup plus violemment.`,
     ]},
-   {h:"L'équilibre offre/demande",
+   {h:"L'équilibre offre/demande", img:["sd_curve"],
     p:[
      `L'équilibre offre/demande sur un marché financier signifie concrètement que le prix n'est rien d'autre que le dernier point de rencontre effectif entre un acheteur et un vendeur consentants — l'offre (vendeurs) et la demande (acheteurs) se rencontrent au prix qui équilibre les deux forces à un instant donné.`,
     ]},
@@ -11521,7 +11547,7 @@ const KNOWLEDGE = [
   title:"Exécution & Risque",
   intro:`Placer un ordre, poser un stop loss et un take profit — et surtout comprendre pourquoi le levier seul ne détermine jamais le risque réellement pris sur un trade.`,
   sections:[
-   {h:"Stop loss, take profit, trailing stop",
+   {h:"Stop loss, take profit, trailing stop", img:["ex_chart"],
     p:[
      `Un <strong>stop loss (SL)</strong> fixe à l'avance le point de sortie en cas de mouvement défavorable, pour plafonner la perte.`,
      `Un <strong>take profit (TP)</strong> clôture automatiquement la position une fois l'objectif de gain fixé atteint.`,
@@ -11534,7 +11560,7 @@ const KNOWLEDGE = [
      `Ce qui détermine réellement le risque en dollars d'un trade, c'est la <strong>taille de la position multipliée par l'écart de prix jusqu'au stop</strong> — point final, indépendamment du levier affiché.`,
      `Réduire la taille de position tout en augmentant le levier pour une même marge engagée permet de libérer du capital ailleurs (moins de marge immobilisée) sans changer le risque du trade lui-même — c'est un outil d'allocation de capital, pas un outil de risque.`,
     ]},
-   {h:"Types d'ordres d'exécution",
+   {h:"Types d'ordres d'exécution", img:["ex_orders"],
     p:[
      `Un ordre <strong>stop-limit</strong> diffère d'un ordre <strong>stop-market</strong> : une fois le niveau de déclenchement atteint, le stop-limit devient un ordre limite (pas garanti d'exécution), alors que le stop-market part directement au marché (exécution garantie, prix non garanti).`,
      `Un ordre limite placé pour <strong>ouvrir</strong> une position à un prix meilleur que le marché actuel attend patiemment son prix ; s'il n'est jamais atteint, il ne s'exécute simplement jamais.`,
@@ -11544,7 +11570,7 @@ const KNOWLEDGE = [
      `Le <strong>slippage</strong> lors de l'exécution d'un ordre au marché correspond à l'écart entre le prix visé et le prix effectivement obtenu, souvent lié au manque de liquidité au moment de l'exécution.`,
      `Placer un take profit à une distance correspondant à <strong>2 ou 3 fois la distance du stop loss</strong> (ratio risque/rendement) permet d'être profitable sur la durée même sans majorité de trades gagnants.`,
     ]},
-   {h:"Discipline de risque",
+   {h:"Discipline de risque", img:["ex_drawdown"],
     p:[
      `La gestion du risque par trade (par exemple ne jamais risquer plus de 1% du capital) a pour but principal de <strong>survivre à une mauvaise série</strong> — condition nécessaire pour rester en jeu sur la durée, bien avant l'idée de maximiser un gain ponctuel.`,
     ]},
@@ -11555,23 +11581,23 @@ const KNOWLEDGE = [
   title:"Options (Hardcore)",
   intro:`Un niveau au-dessus du simple call/put : les Grecques, la volatilité implicite, la décomposition de la prime et les stratégies qui en découlent.`,
   sections:[
-   {h:"Les Grecques",
+   {h:"Les Grecques", img:["op_bsvalue"],
     p:[
      `Le <strong>delta</strong> d'une option représente approximativement la sensibilité du prix de l'option au sous-jacent, et s'interprète aussi comme une probabilité approximative de finir dans la monnaie à l'échéance.`,
      `Le <strong>theta</strong> mesure l'érosion de la valeur temps de l'option au fil des jours qui passent — plus l'échéance approche, plus le theta pèse (toutes choses égales par ailleurs).`,
      `Le <strong>gamma</strong> est le plus élevé pour les options à la monnaie (ATM) proches de l'échéance, là où le delta peut varier très rapidement pour un petit mouvement du sous-jacent.`,
     ]},
-   {h:"Volatilité implicite",
+   {h:"Volatilité implicite", img:["op_smile"],
     p:[
      `La <strong>volatilité implicite (IV)</strong> reflète une anticipation forward-looking de la volatilité future, extraite directement du prix de marché de l'option elle-même (pas de la volatilité passée).`,
      `Une <strong>« volatility crush »</strong> après une publication de résultats d'entreprise désigne le fait qu'une fois l'incertitude de l'annonce levée, l'IV qui l'anticipait s'effondre rapidement, faisant chuter la valeur des options même si le sous-jacent ne bouge pas beaucoup.`,
     ]},
-   {h:"Valeur d'une option",
+   {h:"Valeur d'une option", img:["op_call"],
     p:[
      `Une option <strong>« in the money » (ITM)</strong> pour un call signifie que le sous-jacent cote au-dessus du strike, ce qui lui donne une valeur intrinsèque positive.`,
      `La valeur d'une option se décompose toujours en <strong>valeur intrinsèque + valeur temps</strong>, cette dernière s'érodant jusqu'à l'échéance (voir le theta ci-dessus).`,
     ]},
-   {h:"Stratégies et obligations du vendeur",
+   {h:"Stratégies et obligations du vendeur", img:["op_put"],
     p:[
      `Vendre un <strong>cash-secured put</strong> consiste à toucher la prime tout de suite, en échange de l'obligation potentielle d'acheter le sous-jacent au strike si l'acheteur exerce (assignation).`,
      `Une stratégie de <strong>covered call</strong> génère un revenu de prime sur une position déjà détenue, au prix d'un potentiel de hausse plafonné au-delà du strike vendu.`,
@@ -11589,7 +11615,7 @@ const KNOWLEDGE = [
   title:"Produits & Brokers",
   intro:`CFD, futures, perpétuels — et surtout comment ton broker exécute réellement tes ordres (A-book vs B-book). Comprendre ce que tu trades vraiment, pas juste le nom du produit.`,
   sections:[
-   {h:"CFD, futures et perpétuels",
+   {h:"CFD, futures et perpétuels", img:["pr_cbot"],
     p:[
      `Un <strong>CFD (Contract for Difference)</strong> permet de répliquer la variation de prix de l'actif sans jamais transférer la propriété du sous-jacent — tu ne détiens jamais l'actif réel.`,
      `Un contrat <strong>future</strong> classique, contrairement à un perpétuel, a une <strong>échéance ferme</strong> ; le perpétuel n'en a pas et utilise le funding rate à la place pour rester ancré au spot.`,
@@ -11598,7 +11624,7 @@ const KNOWLEDGE = [
      `Par rapport à un future classique, un CFD sur le même actif suit en continu le prix du sous-jacent <strong>sans date d'expiration à gérer</strong>.`,
      `Le <strong>rollover</strong> d'un future arrivant à échéance transfère l'exposition de l'échéance qui expire vers la suivante, sans interrompre la position économique globale.`,
     ]},
-   {h:"Comment un broker exécute vraiment tes ordres",
+   {h:"Comment un broker exécute vraiment tes ordres", img:["pr_floor"],
     p:[
      `Un broker fonctionnant en <strong>B-book</strong> devient la contrepartie interne du client au lieu de router l'ordre vers le marché réel — il « prend l'autre côté » de ton trade.`,
      `Un broker fonctionnant en <strong>A-book</strong> répercute (ou couvre) l'exposition sur le marché réel, ce qui aligne mieux ses intérêts avec ceux du client.`,
@@ -11737,6 +11763,202 @@ const OF_CONCEPT_IMAGES = {
     alt:"Carte des liquidations estimées par niveau de prix, colorée par palier de levier",
     credit:"py-liquidation-map, GitHub (licence MIT)"},
 };
+// Photos/diagrammes illustratifs des autres fiches (même principe que
+// OF_CONCEPT_IMAGES : images hotlinkées sous licence libre, créditées sous
+// chaque image avec un lien vers la page source). Wikimedia Commons n'accepte
+// que des fichiers sous licence libre ; Unsplash = licence Unsplash ; QuantStats
+// = Apache-2.0. Une image qui ne charge pas est masquée (onerror).
+const COURSE_IMAGES = {
+ "gen_orderbook": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Order_Book%2C_depth_of_market.jpg?width=800",
+  "page": "https://commons.wikimedia.org/wiki/File:Order_Book%2C_depth_of_market.jpg",
+  "alt": "Carnet d'ordres : liste des ordres d'achat et de vente en attente, niveau de prix par niveau de prix",
+  "credit": "Wikimedia Commons, licence libre",
+  "cap": "Un carnet d'ordres (profondeur de marché) : les ordres d'achat (bid) et de vente (ask) en attente, avec la quantité à chaque prix.",
+  "kind": "diagram"
+ },
+ "gen_risk": {
+  "url": "https://images.unsplash.com/photo-1707762890671-52ef6d6f51e7?w=900&q=75&auto=format&fit=crop",
+  "page": "https://unsplash.com/photos/U4-I4oH4xlg",
+  "alt": "Une personne calcule et prend des notes à côté d'un écran de cotations",
+  "credit": "Jakub Żerdzicki / Unsplash",
+  "cap": "La gestion du risque se prépare avant le trade : taille de position, stop et perte maximale acceptée."
+ },
+ "gen_derivs": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Chicago_Board_of_Trade_traders_cph.3d02368.jpg?width=800",
+  "page": "https://commons.wikimedia.org/wiki/File:Chicago_Board_of_Trade_traders_cph.3d02368.jpg",
+  "alt": "Traders sur le parquet historique du Chicago Board of Trade",
+  "credit": "Wikimedia Commons, licence libre",
+  "cap": "Le Chicago Board of Trade, berceau des contrats à terme (futures) standardisés."
+ },
+ "pa_trend": {
+  "url": "https://images.unsplash.com/photo-1745270917233-65e776a47547?w=900&q=75&auto=format&fit=crop",
+  "page": "https://unsplash.com/photos/Q_vhJv5im-8",
+  "alt": "Graphique boursier en tendance haussière sur un écran",
+  "credit": "Arturo Añez / Unsplash",
+  "cap": "Une tendance haussière : des sommets et des creux de plus en plus hauts."
+ },
+ "pa_anatomy": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Candlestick_chart_scheme_03-en.svg?width=800",
+  "page": "https://commons.wikimedia.org/wiki/File:Candlestick_chart_scheme_03-en.svg",
+  "alt": "Anatomie d'une bougie japonaise : corps, mèches, ouverture, clôture, plus haut et plus bas",
+  "credit": "Wikimedia Commons, licence libre",
+  "cap": "Anatomie d'une bougie : le corps va de l'ouverture à la clôture, les mèches montrent le plus haut et le plus bas."
+ },
+ "pa_engulf": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Candlestick_pattern_bullish_engulfing.svg?width=800",
+  "page": "https://commons.wikimedia.org/wiki/File:Candlestick_pattern_bullish_engulfing.svg",
+  "alt": "Figure d'avalement haussier (bullish engulfing)",
+  "credit": "Wikimedia Commons, licence libre",
+  "cap": "Avalement haussier : le corps vert efface entièrement le corps rouge précédent."
+ },
+ "pa_hammer": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Hammer-candlestick.svg?width=800",
+  "page": "https://commons.wikimedia.org/wiki/File:Hammer-candlestick.svg",
+  "alt": "Bougie marteau (pin bar) avec une longue mèche basse",
+  "credit": "Wikimedia Commons, licence libre",
+  "cap": "Marteau / pin bar : longue mèche basse = prix bas testés puis rejetés."
+ },
+ "fu_paper": {
+  "url": "https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=900&q=75&auto=format&fit=crop",
+  "page": "https://unsplash.com/photos/IT6aov1ScW0",
+  "alt": "Pages économiques d'un journal avec graphiques et cotations",
+  "credit": "Annie Spratt / Unsplash",
+  "cap": "Quand la nouvelle est dans le journal, le marché l'a en général déjà intégrée dans les prix."
+ },
+ "fu_calendar": {
+  "url": "https://images.unsplash.com/photo-1633526543814-9718c8922b7a?w=900&q=75&auto=format&fit=crop",
+  "page": "https://unsplash.com/photos/bwOAixLG0uc",
+  "alt": "Calendrier avec des punaises rouges sur des dates clés",
+  "credit": "Towfiqu barbhuiya / Unsplash",
+  "cap": "Le calendrier économique : ce qui compte, c'est l'écart entre le chiffre publié et le consensus."
+ },
+ "fu_riskoff": {
+  "url": "https://images.unsplash.com/photo-1745509267699-1b1db256601e?w=900&q=75&auto=format&fit=crop",
+  "page": "https://unsplash.com/photos/RxbkUG80Rag",
+  "alt": "Graphique boursier en forte baisse",
+  "credit": "Arturo Añez / Unsplash",
+  "cap": "Quand la peur monte, les investisseurs exigent une prime de risque plus élevée et les actifs risqués baissent."
+ },
+ "fu_fedfunds": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Federal_Funds_Rate_%28effective%29.svg?width=800",
+  "page": "https://commons.wikimedia.org/wiki/File:Federal_Funds_Rate_%28effective%29.svg",
+  "alt": "Historique du taux directeur effectif de la Réserve fédérale américaine",
+  "credit": "Wikimedia Commons, licence libre",
+  "cap": "Le taux directeur de la Fed dans le temps : chaque hausse ou baisse change le prix de l'argent pour tous les marchés."
+ },
+ "fu_yield": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/U.S._Treasury_Yield_Curves_-_v1.png?width=800",
+  "page": "https://commons.wikimedia.org/wiki/File:U.S._Treasury_Yield_Curves_-_v1.png",
+  "alt": "Courbes de taux des obligations du Trésor américain selon la maturité",
+  "credit": "Wikimedia Commons, licence libre",
+  "cap": "La courbe des taux : le rendement exigé selon la durée du prêt. Inversée, elle est souvent lue comme un signal de récession."
+ },
+ "fu_fed": {
+  "url": "https://images.unsplash.com/photo-1633059050703-0f1b50828402?w=900&q=75&auto=format&fit=crop",
+  "page": "https://unsplash.com/photos/Skfy8ljB7X4",
+  "alt": "Bâtiment de la Federal Reserve Bank de Chicago",
+  "credit": "Joshua Woroniecki / Unsplash",
+  "cap": "Les annonces des banques centrales font partie des moments où le spread s'élargit et le slippage explose."
+ },
+ "sd_depth": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Order_book_depth_chart.gif?width=800",
+  "page": "https://commons.wikimedia.org/wiki/File:Order_book_depth_chart.gif",
+  "alt": "Graphique de profondeur du carnet d'ordres : liquidité cumulée à l'achat et à la vente",
+  "credit": "Wikimedia Commons, licence libre",
+  "cap": "La profondeur de marché : les ordres passifs (limites) empilés de chaque côté du prix."
+ },
+ "sd_floor": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/NY_stock_exchange_traders_floor_LC-U9-10548-6.jpg?width=800",
+  "page": "https://commons.wikimedia.org/wiki/File:NY_stock_exchange_traders_floor_LC-U9-10548-6.jpg",
+  "alt": "Parquet historique de la Bourse de New York avec ses teneurs de marché",
+  "credit": "Wikimedia Commons, licence libre",
+  "cap": "Le parquet du NYSE : les « specialists » y jouaient le rôle de teneurs de marché (market makers)."
+ },
+ "sd_curve": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Offre-demande-equilibre.svg?width=800",
+  "page": "https://commons.wikimedia.org/wiki/File:Offre-demande-equilibre.svg",
+  "alt": "Courbes d'offre et de demande et leur point d'équilibre",
+  "credit": "Wikimedia Commons, licence libre",
+  "cap": "L'équilibre offre/demande : le prix se fixe là où les deux courbes se croisent."
+ },
+ "ex_chart": {
+  "url": "https://images.unsplash.com/photo-1589560989620-61bf48e97abb?w=900&q=75&auto=format&fit=crop",
+  "page": "https://unsplash.com/photos/eNStVITP_10",
+  "alt": "Graphique en chandeliers sur un écran sombre",
+  "credit": "Vladislav Maslow / Unsplash",
+  "cap": "Stop loss et take profit se placent sur des niveaux du graphique, jamais au hasard."
+ },
+ "ex_orders": {
+  "url": "https://images.unsplash.com/photo-1612178991541-b48cc8e92a4d?w=900&q=75&auto=format&fit=crop",
+  "page": "https://unsplash.com/photos/OmPqCwX422Y",
+  "alt": "Main pointant un smartphone affichant des cotations devant un ordinateur",
+  "credit": "Marga Santoso / Unsplash",
+  "cap": "Au marché, à cours limité ou stop : le type d'ordre décide du prix auquel tu es exécuté."
+ },
+ "ex_drawdown": {
+  "url": "https://raw.githubusercontent.com/ranaroussi/quantstats/main/docs/snapshot.webp",
+  "page": "https://github.com/ranaroussi/quantstats",
+  "alt": "Rendements cumulés, drawdown et rendements quotidiens d'une stratégie",
+  "credit": "QuantStats, GitHub (licence Apache-2.0)",
+  "cap": "Rendements cumulés et drawdown : la discipline de risque, c'est garder ces creux supportables."
+ },
+ "op_bsvalue": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Call_option%27s_value_diagram_of_the_Black-Scholes_model.svg?width=800",
+  "page": "https://commons.wikimedia.org/wiki/File:Call_option%27s_value_diagram_of_the_Black-Scholes_model.svg",
+  "alt": "Valeur d'un call selon le prix du sous-jacent dans le modèle de Black-Scholes",
+  "credit": "Wikimedia Commons, licence libre",
+  "cap": "Valeur d'un call selon le sous-jacent : la pente de la courbe est le delta, sa courbure le gamma."
+ },
+ "op_smile": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Volatility_smile.svg?width=800",
+  "page": "https://commons.wikimedia.org/wiki/File:Volatility_smile.svg",
+  "alt": "Smile de volatilité : volatilité implicite selon le prix d'exercice",
+  "credit": "Wikimedia Commons, licence libre",
+  "cap": "Le smile de volatilité : la volatilité implicite n'est pas la même pour tous les strikes."
+ },
+ "op_call": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Long_call_option.svg?width=800",
+  "page": "https://commons.wikimedia.org/wiki/File:Long_call_option.svg",
+  "alt": "Profil de gain à l'échéance d'un achat de call",
+  "credit": "Wikimedia Commons, licence libre",
+  "cap": "Achat de call : perte limitée à la prime, gain qui croît au-dessus du strike."
+ },
+ "op_put": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Payoff_put_option.svg?width=800",
+  "page": "https://commons.wikimedia.org/wiki/File:Payoff_put_option.svg",
+  "alt": "Profil de gain à l'échéance d'une option de vente (put)",
+  "credit": "Wikimedia Commons, licence libre",
+  "cap": "Profil d'un put à l'échéance : le vendeur encaisse la prime mais doit acheter au strike si l'option est exercée."
+ },
+ "pr_cbot": {
+  "url": "https://images.unsplash.com/photo-1630452605502-848cb6905881?w=900&q=75&auto=format&fit=crop",
+  "page": "https://unsplash.com/photos/mbywgz4kjm0",
+  "alt": "Le bâtiment du Chicago Board of Trade et son horloge",
+  "credit": "Dulcey Lima / Unsplash",
+  "cap": "Les futures se négocient sur des Bourses réglementées comme le CME/CBOT, les CFD et perpétuels de gré à gré ou sur des plateformes crypto."
+ },
+ "pr_floor": {
+  "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Stock-exchange-trading-floor.jpg?width=800",
+  "page": "https://commons.wikimedia.org/wiki/File:Stock-exchange-trading-floor.jpg",
+  "alt": "Salle de marché d'une Bourse",
+  "credit": "Wikimedia Commons, licence libre",
+  "cap": "Derrière ton bouton « acheter » : soit un vrai marché (A-book, ECN/STP), soit ton broker en contrepartie (B-book)."
+ }
+};
+function courseSectionImages(keys){
+  if (!Array.isArray(keys) || !keys.length) return "";
+  return keys.map(k=>{
+    const d = COURSE_IMAGES[k];
+    if (!d) return "";
+    const photo = d.kind ? d.kind==="photo" : /unsplash|\.jpe?g/i.test(d.url);
+    return '<figure class="learn-diagram learn-figure'+(photo ? ' is-photo' : ' is-diagram')+'">'+
+      '<img src="'+escapeHtml(d.url)+'" alt="'+escapeHtml(d.alt)+'" loading="lazy" referrerpolicy="no-referrer" '+
+        'onerror="this.parentElement.style.display=\'none\';">'+
+      '<figcaption>'+escapeHtml(d.cap)+' <span class="learn-credit">Source : <a href="'+escapeHtml(d.page)+'" target="_blank" rel="noopener">'+escapeHtml(d.credit)+'</a></span></figcaption>'+
+    '</figure>';
+  }).join("");
+}
 function ofSectionDiagram(key){
   var d = OF_CONCEPT_IMAGES[key];
   if (!d) return "";
@@ -12074,6 +12296,7 @@ function renderLearnDoc(k){
         '<div class="learn-section">'+
           '<h3>'+escapeHtml(s.h)+'</h3>'+
           (s.svg && typeof ofSectionDiagram==="function" ? ofSectionDiagram(s.svg) : '')+
+          (s.img ? courseSectionImages(s.img) : '')+
           s.p.map(par=>'<p>'+par+'</p>').join("")+
         '</div>'
       ).join("")+
@@ -13486,7 +13709,13 @@ function initEvents(){
       // Challenge's hard x20 ceiling already did.
       const cap = state.activeBookName==="prop" ? CHALLENGE_LEVERAGE_CAP : progressiveLeverageCap(state.stats && state.stats.tradesClosed);
       leverage=Math.min(v,cap); saveLeverage(leverage); setLevUI(); updateOrderReadout();
+      if (v>cap) showLeverageLockNote(v); else hideLeverageLockNote();
     });
+  });
+  // Dragging the slider all the way to its (capped) end also explains why it stops there.
+  document.getElementById("lev-slider").addEventListener("change", (e)=>{
+    const cap = parseInt(e.target.max,10);
+    if (parseInt(e.target.value,10)>=cap && cap<200) showLeverageLockNote(null);
   });
 
   document.getElementById("unit-usd").addEventListener("click", ()=>{ sizeUnit="usd"; setUnitUI(); updateOrderReadout(); });
@@ -13836,6 +14065,37 @@ function enforceWidgetAccess(){
 // (closePosition()/closePositionPartial(), so a newly-unlocked tier shows up
 // immediately), AND from renderChallengeBanner() (so it re-applies the
 // instant a trader switches into or out of the Challenge book).
+// Explains a locked leverage preset instead of silently clamping: which
+// tier the clicked value belongs to, how many closed trades unlock it, and
+// the whole ladder (or the Challenge's fixed x20 ceiling).
+let levLockNoteTimer = null;
+function showLeverageLockNote(wanted){
+  const el = document.getElementById("lev-lock-note");
+  if (!el) return;
+  const n = (state.stats && state.stats.tradesClosed) || 0;
+  let html;
+  if (state.activeBookName==="prop"){
+    html = '<b>🔒 Levier restreint à x'+CHALLENGE_LEVERAGE_CAP+'</b> sur le Challenge Prop Firm, comme chez les vraies prop firms crypto. Repasse sur ton compte normal pour utiliser plus de levier.';
+  } else {
+    const tier = wanted ? LEVERAGE_PROGRESSION.find(t=>t.cap>=wanted) : nextLeverageTier(n);
+    const need = tier ? Math.max(0, tier.trades-n) : 0;
+    const pct = tier ? Math.max(0, Math.min(100, n/Math.max(1, tier.trades)*100)) : 100;
+    html = '<b>🔒 Levier restreint'+(tier ? ' : x'+tier.cap+' se débloque à '+tier.trades+' trades clôturés' : '')+'</b>'+
+      (tier ? '<span class="lev-lock-count">Tu en as '+n+', encore <b>'+need+'</b> trade'+(need>1?'s':'')+'.</span>'+
+        '<span class="lev-lock-bar"><i style="width:'+pct.toFixed(0)+'%"></i></span>' : '')+
+      '<span class="lev-lock-ladder">'+LEVERAGE_PROGRESSION.map(t=>'<span class="'+(n>=t.trades?'ok':'')+'">x'+t.cap+(t.trades ? ' · '+t.trades+' trades' : ' · dès le début')+'</span>').join('')+'</span>'+
+      '<span class="lev-lock-why">Le levier se gagne avec l\'expérience : plus il est élevé, plus la liquidation est proche.</span>';
+  }
+  el.innerHTML = html;
+  el.hidden = false;
+  clearTimeout(levLockNoteTimer);
+  levLockNoteTimer = setTimeout(hideLeverageLockNote, 9000);
+}
+function hideLeverageLockNote(){
+  const el = document.getElementById("lev-lock-note");
+  if (el) el.hidden = true;
+  clearTimeout(levLockNoteTimer);
+}
 function enforceLeverageAccess(){
   const slider = document.getElementById("lev-slider");
   const badge = document.getElementById("lev-badge");
