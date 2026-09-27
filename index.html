@@ -1997,6 +1997,12 @@
   .lev-lock-ladder span.ok{color:var(--long);border-color:color-mix(in srgb, var(--long) 40%, var(--border-soft));}
   .lev-lock-why{font-size:11.5px;color:var(--text-faint);}
   @keyframes levNoteIn{from{opacity:0;transform:translateY(-3px);}to{opacity:1;transform:none;}}
+
+  /* ---------- Essai gratuit EDB+ ---------- */
+  .edbplus-trial-btn{display:block;margin:10px auto 0;border-color:color-mix(in srgb, var(--gold) 55%, var(--border));color:var(--gold);}
+  .edbplus-trial-btn:hover{border-color:var(--gold);}
+  .edbplus-trial-note{font-size:12px;color:var(--text-faint);margin-top:6px;text-align:center;}
+  .edbplus-trial-note.used{color:var(--text-dim);}
   @media (max-width:520px){
     .acct-metric:nth-child(3){display:none;} /* PnL ouvert: equity alone on very narrow phones */
     .tb-title{font-size:17px;max-width:40vw;overflow:hidden;text-overflow:ellipsis;}
@@ -3102,7 +3108,108 @@ const REFETCH_MS_VISIBLE_CHALLENGE = 2000;
    each feature's own render function for the actual gate. This block only
    holds the shared helpers: the access check, the reusable "paywall" card,
    and the label map used to word it per-feature. */
-function isEdbPlus(){ return !!state.edbPlus; }
+function isEdbPlus(){ return !!state.edbPlus || edbPlusTrialActive(); }
+/* ---- Essai gratuit EDB+ (24 h, une seule fois par compte) ----
+   Stored as `edbPlusTrialStartedAt` on the trader doc, written ONCE with a
+   server timestamp. firestore.rules only lets a trader set it when it was
+   still empty and only to request.time — so it can't be reset, back-dated
+   or pushed into the future from the browser console. persistAccount()
+   never sends this field (it uses update()), so it survives every save. */
+const EDB_PLUS_TRIAL_MS = 24*3600*1000;
+function edbPlusTrialStart(){ return typeof state.edbPlusTrialStartedAt==="number" ? state.edbPlusTrialStartedAt : null; }
+function edbPlusTrialUsed(){ return edbPlusTrialStart()!==null; }
+function edbPlusTrialActive(){ const t = edbPlusTrialStart(); return t!==null && Date.now() < t+EDB_PLUS_TRIAL_MS; }
+function edbPlusTrialRemainingLabel(){
+  const t = edbPlusTrialStart(); if (t===null) return "";
+  const ms = Math.max(0, t+EDB_PLUS_TRIAL_MS-Date.now());
+  const h = Math.floor(ms/3600000), m = Math.floor((ms%3600000)/60000);
+  return h>0 ? h+" h "+String(m).padStart(2,"0") : m+" min";
+}
+function trialTimestampToMs(v){
+  if (!v) return null;
+  if (typeof v==="number") return v;
+  if (typeof v.toMillis==="function") return v.toMillis();
+  if (typeof v.seconds==="number") return v.seconds*1000;
+  const t = Date.parse(v); return isNaN(t) ? null : t;
+}
+let edbPlusTrialTimer = null;
+function scheduleEdbPlusTrialExpiry(){
+  clearTimeout(edbPlusTrialTimer);
+  if (!edbPlusTrialActive() || state.edbPlus) return;
+  const left = edbPlusTrialStart()+EDB_PLUS_TRIAL_MS-Date.now();
+  // setTimeout can't wait more than ~24.8 days, and a trial is 24 h max — fine.
+  edbPlusTrialTimer = setTimeout(()=>{
+    refreshEdbPlusGates();
+    if (typeof investToast==="function") investToast("Ton essai gratuit EDB+ est terminé — abonne-toi pour garder l'accès.");
+  }, Math.max(1000, left+500));
+}
+// Re-applies everything gated by isEdbPlus() after the status changes
+// (trial started or ended) and repaints the view the trader is on.
+function refreshEdbPlusGates(){
+  if (typeof enforceThemeAccess==="function") enforceThemeAccess();
+  if (typeof enforceWidgetAccess==="function") enforceWidgetAccess();
+  if (typeof enforceLeverageAccess==="function") enforceLeverageAccess();
+  if (typeof updateEdbPlusNavBadges==="function") updateEdbPlusNavBadges();
+  if (typeof renderShellAccount==="function") renderShellAccount();
+  const v = document.body.dataset.view;
+  if (v && v!=="terminal" && typeof switchView==="function") switchView(v);
+}
+async function startEdbPlusTrial(){
+  if (state.edbPlus || edbPlusTrialUsed()) return {ok:false, error: state.edbPlus ? "Tu es déjà membre EDB+." : "Tu as déjà utilisé ton essai gratuit."};
+  try{
+    if (dbReady && db && clientId){
+      const ref = db.collection("traders").doc(clientId);
+      await ref.update({edbPlusTrialStartedAt: firebase.firestore.FieldValue.serverTimestamp()});
+      const snap = await ref.get();
+      state.edbPlusTrialStartedAt = trialTimestampToMs(snap.exists && snap.data().edbPlusTrialStartedAt) || Date.now();
+    } else {
+      state.edbPlusTrialStartedAt = Date.now();
+    }
+  }catch(e){
+    console.warn("trial start failed", e);
+    return {ok:false, error:"Impossible de démarrer l'essai pour le moment. Réessaie dans un instant."};
+  }
+  scheduleEdbPlusTrialExpiry();
+  refreshEdbPlusGates();
+  if (typeof investToast==="function") investToast("✨ Essai EDB+ activé pour 24 h — tout est débloqué !");
+  return {ok:true};
+}
+function openEdbPlusTrialModal(){
+  if (state.edbPlus) return;
+  if (edbPlusTrialUsed()){
+    openModal('<h3 style="margin-bottom:8px;">Essai gratuit déjà utilisé</h3><p class="chart-note">L\'essai de 24 h n\'est disponible qu\'une fois par compte'+(edbPlusTrialActive() ? ' — le tien est en cours, encore '+edbPlusTrialRemainingLabel()+'.' : ', et le tien est terminé.')+'</p>');
+    return;
+  }
+  openModal(
+    '<h3 style="margin-bottom:8px;">✨ Essayer EDB+ gratuitement pendant 24 h</h3>'+
+    '<p class="chart-note" style="margin-bottom:10px;">Challenge Prop Firm, Concours EDB+, quiz et fiches, Trades EDB+, Ressources, News et les 6 thèmes : tout est débloqué pendant 24 h, sans paiement ni engagement.</p>'+
+    '<p class="chart-note" style="margin-bottom:14px;"><strong>Une seule fois par compte</strong> : le compte à rebours démarre dès que tu confirmes. À la fin, tout se reverrouille automatiquement (ta progression est gardée).</p>'+
+    '<div class="chart-note" id="edbplus-trial-err" style="color:var(--short);margin-bottom:8px;" hidden></div>'+
+    '<button class="btn-primary" id="edbplus-trial-confirm" style="width:100%;">Démarrer mon essai de 24 h</button>'+
+    '<button class="btn-secondary" id="edbplus-trial-cancel" style="width:100%;margin-top:8px;">Plus tard</button>'
+  );
+  document.getElementById("edbplus-trial-cancel").addEventListener("click", closeModal);
+  const go = document.getElementById("edbplus-trial-confirm");
+  go.addEventListener("click", async ()=>{
+    go.disabled = true; go.textContent = "Activation…";
+    const r = await startEdbPlusTrial();
+    if (!r.ok){
+      const err = document.getElementById("edbplus-trial-err");
+      if (err){ err.hidden = false; err.textContent = r.error; }
+      go.disabled = false; go.textContent = "Démarrer mon essai de 24 h";
+      return;
+    }
+    closeModal();
+  });
+}
+// Small block added under every EDB+ CTA (paywalls + the EDB+ page).
+function edbPlusTrialCtaHtml(id){
+  if (state.edbPlus) return "";
+  if (edbPlusTrialActive()) return '<div class="edbplus-trial-note">✨ Essai EDB+ en cours — encore '+edbPlusTrialRemainingLabel()+'</div>';
+  if (edbPlusTrialUsed()) return '<div class="edbplus-trial-note used">Ton essai gratuit de 24 h a déjà été utilisé.</div>';
+  return '<button class="btn-secondary edbplus-trial-btn" id="'+id+'">✨ Essayer gratuitement 24 h</button>'+
+    '<div class="edbplus-trial-note">Sans paiement, une seule fois par compte.</div>';
+}
 // Payment details shown to a trader the instant their EDB+ request lands
 // (see sendEdbPlusPaymentInfoMessage below) — update these two values if
 // the bureau's Wero number or IBAN ever changes; nothing else references
@@ -3180,6 +3287,7 @@ function edbPlusPaywallHtml(key){
         '<div class="edbplus-price-sub">soit un peu plus de 2€ / mois</div>'+
       '</div>'+
       '<button class="btn-primary edbplus-cta-btn" id="edbplus-cta-'+key+'">🚀 Découvrir EDB+</button>'+
+      edbPlusTrialCtaHtml("edbplus-trial-"+key)+
     '</section>'+
     (f.img && f.img.indexOf("http")===0 ? '<p class="chart-note cedb-credit">Photo : Pexels (licence libre).</p>' : "")+
   '</div>';
@@ -3187,6 +3295,8 @@ function edbPlusPaywallHtml(key){
 function wireEdbPlusCta(key){
   const btn = document.getElementById("edbplus-cta-"+key);
   if (btn) btn.addEventListener("click", goToEdbPlus);
+  const trialBtn = document.getElementById("edbplus-trial-"+key);
+  if (trialBtn) trialBtn.addEventListener("click", openEdbPlusTrialModal);
   // Every call site does el.innerHTML = edbPlusPaywallHtml(key) right before
   // calling this — a single choke point to (re)start the scroll-reveal
   // animation on the `.reveal` sections that HTML just introduced (see
@@ -3230,6 +3340,15 @@ function updateEdbPlusNavBadges(){
 function renderEdbPlusProfileCard(){
   const el = document.getElementById("edbplus-card");
   if (!el) return;
+  if (!state.edbPlus && edbPlusTrialActive()){
+    el.innerHTML =
+      '<h3>EDB+ <span class="quiz-cat gold-badge" style="margin-left:6px;">Essai gratuit</span></h3>'+
+      '<p class="chart-note" style="margin-bottom:10px;">✨ Ton essai de 24 h est en cours : tout Paper Tape est débloqué pendant encore <strong>'+edbPlusTrialRemainingLabel()+'</strong>. Pour garder l\'accès ensuite, abonne-toi (25€/an) — ta progression reste intacte.</p>'+
+      '<button class="btn-primary" id="edbplus-request-btn">🚀 Je souhaite m\'abonner à EDB+</button>';
+    const rb = document.getElementById("edbplus-request-btn");
+    if (rb) rb.addEventListener("click", openEdbPlusRequestConfirmModal);
+    return;
+  }
   if (isEdbPlus()){
     el.innerHTML =
       '<h3>EDB+ <span class="quiz-cat gold-badge" style="margin-left:6px;">Actif</span></h3>'+
@@ -3311,12 +3430,15 @@ function renderEdbPlusProfileCard(){
         '</div>'+
         '<p class="chart-note" style="max-width:480px;margin:0 auto 16px;">Moins qu\'un café par semaine, pour soutenir l\'association et débloquer tout ça. Paiement à régler auprès du bureau EDB par Wero ou virement — clique ci-dessous pour envoyer ta demande, tu reçois aussitôt les coordonnées de paiement, et le bureau active ton compte dès réception.</p>'+
         '<button class="btn-primary edbplus-cta-btn" id="edbplus-request-btn">🚀 Je souhaite m\'abonner à EDB+</button>'+
+        edbPlusTrialCtaHtml("edbplus-trial-page")+
         '<div class="chart-note" id="edbplus-request-msg" style="margin-top:10px;"></div>'+
       '</section>'+
       '<p class="chart-note cedb-credit">Photos : Pexels (licence libre).</p>'+
     '</div>';
   const btn = document.getElementById("edbplus-request-btn");
   if (btn) btn.addEventListener("click", openEdbPlusRequestConfirmModal);
+  const trialBtn = document.getElementById("edbplus-trial-page");
+  if (trialBtn) trialBtn.addEventListener("click", openEdbPlusTrialModal);
   if (typeof initScrollReveal==="function") initScrollReveal();
 }
 // A quick confirmation step before firing off the request — explains what
@@ -3911,6 +4033,8 @@ function hydrateStateFromDoc(snap){
   state.edbPlus = !!d.edbPlus;
   state.edbPlusRequested = !!d.edbPlusRequested;
   state.edbPlusRequestedAt = d.edbPlusRequestedAt || null;
+  state.edbPlusTrialStartedAt = trialTimestampToMs(d.edbPlusTrialStartedAt);
+  scheduleEdbPlusTrialExpiry();
   state.totalTimeSpent = typeof d.totalTimeSpent==="number" ? d.totalTimeSpent : 0;
   state.timeSpentConnaissances = typeof d.timeSpentConnaissances==="number" ? d.timeSpentConnaissances : 0;
   state.connaissancesOpened = (d.connaissancesOpened && typeof d.connaissancesOpened==="object") ? d.connaissancesOpened : {};
@@ -6871,7 +6995,8 @@ function renderChallengeBanner(){
 function renderEdbPlusTeaser(){
   const el = document.getElementById("edbplus-teaser-body");
   if (!el) return;
-  if (isEdbPlus()) el.textContent = "✅ Membre actif — voir les avantages et contacter le bureau →";
+  if (!state.edbPlus && edbPlusTrialActive()) el.textContent = "✨ Essai gratuit en cours — encore "+edbPlusTrialRemainingLabel()+" →";
+  else if (isEdbPlus()) el.textContent = "✅ Membre actif — voir les avantages et contacter le bureau →";
   else if (state.edbPlusRequested) el.textContent = "⏳ Demande envoyée — voir la conversation →";
   else el.textContent = "Abonnement, avantages et discussion avec le bureau →";
 }
@@ -11333,6 +11458,12 @@ const KNOWLEDGE = [
   title:"Mix Général",
   intro:`Les bases transversales : lecture du carnet, marge et levier, gestion du risque, et un premier contact avec les dérivés. C'est le socle commun à tous les autres quiz.`,
   sections:[
+   {h:"Le carnet d'ordres : bid, ask et spread",
+    p:[
+     `Tout marché repose sur un <strong>carnet d'ordres</strong> : d'un côté les <strong>bids</strong> (ordres d'achat en attente, du plus haut au plus bas), de l'autre les <strong>asks</strong> (ordres de vente en attente, du plus bas au plus haut). Les meilleurs bid et ask forment le haut du carnet.`,
+     `L'écart entre le meilleur ask et le meilleur bid s'appelle le <strong>spread</strong>. Si le meilleur bid est à 99,98 $ et le meilleur ask à 100,02 $, le spread vaut 0,04 $ : c'est le coût implicite d'un aller-retour immédiat. Marché liquide, spread serré.`,
+     `Un <strong>ordre limite</strong> s'ajoute au carnet et attend qu'on vienne le prendre : il <em>fournit</em> de la liquidité (on parle de <strong>maker</strong>). Un <strong>ordre au marché</strong> s'exécute immédiatement contre les ordres déjà affichés : il <em>consomme</em> de la liquidité (<strong>taker</strong>).`,
+    ]},
    {h:"Carnet d'ordres et flux d'ordres", img:["gen_orderbook"],
     p:[
      `L'<strong>absorption</strong> se produit quand un acteur important pose (ou défend) une grosse liquidité à un niveau de prix précis, empêchant le prix d'avancer malgré un volume agressif important en face. Le prix « bute » sur ce mur au lieu de le traverser.`,
@@ -11341,28 +11472,65 @@ const KNOWLEDGE = [
     ]},
    {h:"Marge et levier",
     p:[
+     `La <strong>marge</strong> est la somme que tu bloques pour ouvrir une position ; le <strong>notionnel</strong> est la taille réelle de cette position. Avec 1 000 $ de marge et un levier x10, tu contrôles 10 000 $ de notionnel : un mouvement de 1 % du prix fait alors varier ta position de 100 $, soit 10 % de ta marge.`,
      `En marge <strong>isolée (isolated)</strong>, la perte maximale sur une position est plafonnée à la marge que tu as spécifiquement allouée à cette position — le reste de ton compte n'est jamais touché par cette position-là.`,
      `En marge <strong>croisée (cross)</strong>, toutes les positions en cross partagent le même pool de marge (ton solde disponible) : une grosse perte sur l'une peut faire liquider tout le groupe si le solde tombe sous le seuil de marge de maintenance cumulé.`,
      `La <strong>marge de maintenance</strong> est le seuil plancher d'équité de position en dessous duquel l'exchange liquide automatiquement pour se protéger (et te protéger d'un solde négatif).`,
+    ]},
+   {h:"Le levier en chiffres : la distance de liquidation",
+    p:[
+     `Règle de pouce : à un levier x<em>N</em>, la marge initiale vaut 1/<em>N</em> du notionnel, et la liquidation arrive à environ 1/<em>N</em> <strong>moins</strong> le taux de maintenance (hors frais). Avec la maintenance de 0,4 % du Terminal de Paper Tape : vers −9,6 % à x10, vers −1,6 % à x50, et à peine −0,1 % à x200. Doubler le levier divise à peu près par deux la distance tolérable.`,
      `Avec un <strong>levier de x200</strong>, la marge initiale ne représente que 0,5% du notionnel. Une fois la marge de maintenance déduite, il reste une marge de sécurité inférieure à 1% du prix d'entrée avant liquidation — un mouvement défavorable minime suffit donc à liquider.`,
      `Pourquoi un levier élevé (x100-200) reste risqué même si le gain potentiel est amplifié : le levier amplifie symétriquement gains ET pertes en % de la marge engagée, tout en réduisant drastiquement la distance de prix tolérable avant liquidation.`,
+     `Point souvent mal compris : le levier ne change pas le risque <em>en dollars</em> si tu fixes la taille du notionnel et le stop, et que ce stop reste plus proche que le prix de liquidation. Le vrai risque se décide par la taille de position et le stop.`,
     ]},
    {h:"Gestion du risque", img:["gen_risk"],
     p:[
      `Le <strong>profit factor</strong> est le ratio (somme des gains) / (somme des pertes). Un profit factor de 1,93 veut dire que la stratégie génère 1,93$ de gains pour chaque 1$ perdu, toutes pertes confondues.`,
      `Un <strong>win rate</strong> de 51,7% avec un profit factor supérieur à 1 est parfaitement viable : la rentabilité dépend de l'espérance de gain (win rate × gain moyen par trade gagnant) comparée à (loss rate × perte moyenne par trade perdant), pas du seul taux de réussite. Beaucoup de stratégies profitables gagnent à peine plus d'une fois sur deux.`,
+     `Exemple chiffré : avec 51,7 % de gagnants à +180 $ en moyenne et 48,3 % de perdants à −100 $ en moyenne, l'<strong>espérance</strong> vaut 0,517 × 180 − 0,483 × 100 ≈ <strong>+44,8 $ par trade</strong>. Le profit factor correspondant est d'environ 93,1 / 48,3 ≈ 1,93. À l'inverse, 70 % de gagnants à +50 $ et 30 % de perdants à −150 $ donnent −10 $ par trade : un win rate élevé ne garantit rien.`,
      `La <strong>taille de position optimale</strong> se calcule à partir du risque maximal accepté par trade (en $ ou en % du capital), divisé par la distance entre l'entrée et le stop (ou le prix de liquidation) — jamais au doigt mouillé.`,
+     `Application : sur un compte de 10 000 $, risquer 1 % = 100 $. Avec un stop placé à 2 % sous l'entrée, la position fait 100 / 0,02 = <strong>5 000 $</strong> de notionnel. Si le stop est à 0,5 %, la position peut monter à 20 000 $ pour le même risque de 100 $ — c'est là que le levier devient un outil, et non un pari.`,
     ]},
-   {h:"Ordres et stratégie",
+   {h:"Drawdown et survie du compte",
     p:[
+     `Le <strong>drawdown</strong> mesure la baisse du capital depuis son plus haut. Les pertes et les gains ne sont pas symétriques : après −10 %, il faut +11,1 % pour revenir à l'équilibre ; après −25 %, +33 % ; après −50 %, <strong>+100 %</strong>. Plus le trou est profond, plus il est difficile d'en sortir.`,
+     `Les séries de pertes arrivent même avec une bonne stratégie. Dix pertes d'affilée à 1 % du capital font perdre environ 9,6 % du compte ; dix pertes d'affilée à 10 % en font perdre environ 65 %. Le risque par trade décide donc si une mauvaise série est un simple creux ou la fin du compte.`,
+     `C'est aussi la logique du <strong>challenge prop firm</strong> de Paper Tape : ses limites de perte journalière et maximale obligent à risquer petit pour survivre à une mauvaise série.`,
+    ]},
+   {h:"Types d'ordres : marché, limite, stop",
+    p:[
+     `Un <strong>ordre au marché</strong> garantit l'exécution mais pas le prix : sur un carnet peu fourni, il peut « descendre » plusieurs niveaux et subir du <strong>slippage</strong> (écart entre le prix espéré et le prix obtenu). Un <strong>ordre limite</strong> garantit le prix (ou mieux) mais pas l'exécution : si le marché ne vient pas jusqu'à ton niveau, rien ne se passe.`,
      `Un <strong>ordre stop-market</strong> reste dormant jusqu'à ce que le prix touche le niveau défini ; il devient alors un ordre au marché, exécuté immédiatement au meilleur prix disponible (pas forcément le prix exact du stop).`,
+     `Exemple : tu es long à 100 $ avec un stop à 98 $. Sur une chute brutale, le stop peut s'exécuter à 97,80 $ : la perte réelle dépasse un peu la perte prévue. C'est pourquoi le <strong>Stop Loss (SL)</strong> et le <strong>Take Profit (TP)</strong> se posent dès l'entrée, et pas « quand ça bougera ».`,
+    ]},
+   {h:"Stratégie : épuisement et fade",
+    p:[
      `Un mouvement <strong>« exhausted » (épuisé)</strong> se repère quand le prix continue nominalement dans un sens mais que le volume et l'agressivité faiblissent — signe que les acheteurs (ou vendeurs) marginaux manquent à l'appel.`,
      `Une stratégie <strong>« Exhaustion Fade »</strong> parie justement sur un retournement (mean-reversion) une fois qu'un mouvement directionnel montre ces signes d'essoufflement, plutôt que de suivre la tendance.`,
+     `Le fade est une stratégie à contre-courant : elle a besoin d'une <strong>confirmation</strong> (rejet net, delta qui se retourne, retour sous un niveau) et d'un stop placé juste au-delà de l'extrême du mouvement. Vendre un marché simplement « parce qu'il a trop monté », sans signe d'épuisement, revient à se mettre devant un train.`,
     ]},
    {h:"Dérivés — premier contact", img:["gen_derivs"],
     p:[
+     `Un <strong>dérivé</strong> est un contrat dont la valeur dépend d'un actif sous-jacent (une action, un indice, du pétrole, du bitcoin…). Il permet de s'exposer à la hausse comme à la baisse, souvent avec levier, sans forcément détenir l'actif lui-même.`,
      `Un <strong>future</strong> diffère d'une <strong>option</strong> : l'option donne un droit (mais pas une obligation) d'acheter/vendre ; le future oblige les deux parties (acheteur et vendeur) à honorer le contrat à l'échéance, sauf clôture avant terme.`,
+     `Le <strong>perpétuel</strong>, très répandu en crypto, ressemble à un future sans date d'échéance : on peut garder la position indéfiniment tant que la marge suffit. Il faut donc un autre mécanisme pour qu'il reste collé au prix spot.`,
      `Le <strong>funding rate</strong> sur un contrat perpétuel sert d'ancrage : n'ayant pas d'échéance, le perpétuel utilise ce mécanisme pour que, quand son prix diverge du spot, un camp (longs ou shorts) paie l'autre, ce qui ramène les deux prix l'un vers l'autre.`,
+    ]},
+   {h:"Erreurs fréquentes de débutant",
+    p:[
+     `<strong>Choisir le levier avant le risque</strong> : prendre x100 « parce que c'est possible », puis subir une liquidation sur un mouvement banal. On fixe d'abord le risque en $, puis le stop, puis la taille ; le levier n'est qu'une conséquence.`,
+     `<strong>Trader sans stop</strong> ou déplacer son stop pour « laisser respirer » une position perdante. Une petite perte acceptée vaut mieux qu'une liquidation subie.`,
+     `<strong>Juger une stratégie sur le win rate seul</strong>, ou sur trois trades. Il faut regarder l'espérance, le profit factor et le drawdown sur un échantillon suffisant (plusieurs dizaines de trades au minimum).`,
+    ]},
+   {h:"À retenir",
+    p:[
+     `Le carnet montre l'offre et la demande ; le delta et l'absorption montrent qui agit vraiment.`,
+     `Levier x<em>N</em> = marge de 1/<em>N</em> du notionnel : plus il monte, plus la liquidation est proche.`,
+     `Isolée = perte plafonnée à la marge de la position ; croisée = tout le solde est en jeu.`,
+     `La rentabilité vient de l'espérance, pas du win rate.`,
+     `Taille de position = risque accepté ÷ distance au stop.`,
+     `Future = obligation, option = droit ; le funding ancre le perpétuel au spot.`,
     ]},
   ],
  },
@@ -11371,32 +11539,82 @@ const KNOWLEDGE = [
   title:"Price Action",
   intro:`Lire un graphique à l'œil nu, sans indicateur : structure de marché, figures de bougies, cassures et pièges — et pourquoi rien de tout ça ne vaut grand-chose isolé de son contexte.`,
   sections:[
+   {h:"Qu'est-ce que la price action ?",
+    p:[
+     `La <strong>price action</strong> consiste à prendre ses décisions à partir du seul mouvement du prix : l'enchaînement des bougies, les sommets et les creux, les niveaux où le marché a réagi. Pas de moyenne mobile ni d'oscillateur : le graphique brut suffit.`,
+     `L'idée de départ est simple : tout ce que font les acheteurs et les vendeurs finit par s'inscrire dans le prix. Un indicateur n'est qu'un calcul fait <em>à partir</em> du prix, donc toujours un peu en retard sur lui ; la price action cherche à lire directement la source.`,
+     `Ce n'est pas une méthode magique pour autant. Elle fournit des <strong>scénarios probables</strong> et des niveaux pour placer entrée, stop et objectif, jamais des certitudes. Elle se travaille sur toutes les unités de temps, de la minute au mensuel.`,
+    ]},
    {h:"Structure de marché", img:["pa_trend"],
     p:[
      `Une <strong>structure haussière (uptrend)</strong> se lit à la répétition de sommets et de creux chacun plus haut que le précédent (higher highs, higher lows).`,
+     `Symétriquement, une <strong>structure baissière (downtrend)</strong> enchaîne des sommets et des creux de plus en plus bas (lower highs, lower lows). Tant que la séquence se prolonge, la tendance est intacte ; quand un creux passe sous le creux précédent dans un uptrend, on parle de <strong>cassure de structure</strong>, premier avertissement que la tendance s'essouffle.`,
      `Une <strong>ligne de tendance haussière (trendline)</strong> se trace en reliant des creux de plus en plus hauts — elle sert de support dynamique visuel.`,
+     `Deux points suffisent pour tracer une trendline, mais c'est le <strong>troisième contact</strong> respecté qui la rend crédible. Plus la pente est raide, plus elle a de chances d'être cassée rapidement.`,
      `Analyser le prix sur une <strong>unité de temps supérieure (higher timeframe)</strong> avant de trader donne le contexte haut niveau (la tendance de fond), qui cadre l'interprétation des signaux pris sur une échéance plus courte.`,
+     `Exemple de lecture « top-down » : le graphique journalier montre une tendance haussière, le 4 heures montre un repli vers un ancien support, et c'est seulement sur le 15 minutes que tu cherches le signal d'entrée à l'achat. Un signal vendeur en 15 minutes, dans ce contexte, va contre la tendance de fond.`,
+    ]},
+   {h:"Supports et résistances",
+    p:[
+     `Un <strong>support</strong> est une zone où la demande a déjà suffi à stopper la baisse ; une <strong>résistance</strong>, une zone où l'offre a stoppé la hausse. Ce sont des <em>zones</em> plutôt que des lignes au centime près : trace-les sur les corps et les mèches qui se regroupent.`,
+     `Un niveau gagne en importance avec le nombre de réactions, l'unité de temps sur laquelle il apparaît et la violence des rebonds. Les <strong>chiffres ronds</strong> (100 $, 1,1000 sur EUR/USD) attirent aussi beaucoup d'ordres, simplement parce que tout le monde les regarde.`,
+     `Principe d'<strong>inversion de rôle</strong> : une résistance franchement cassée devient souvent un support, et un support cassé devient une résistance. C'est la base du retest, détaillé plus bas.`,
     ]},
    {h:"Figures de bougies", img:["pa_anatomy", "pa_engulf"],
     p:[
+     `Chaque bougie résume une période avec quatre prix : <strong>ouverture, plus haut, plus bas, clôture</strong>. Le <strong>corps</strong> relie ouverture et clôture (vert si la clôture est au-dessus, rouge sinon) ; les <strong>mèches</strong> montrent jusqu'où le prix est allé avant d'être repoussé.`,
      `Un <strong>pin bar</strong> (bougie à longue mèche) en bas d'un mouvement baissier signale généralement un rejet : le marché a testé des prix bas puis les a rejetés, signe d'un possible retour acheteur.`,
+     `Pour être lisible, la mèche d'un pin bar doit être nettement plus longue que le corps (souvent deux à trois fois) et pointer vers le niveau testé. Un pin bar au milieu de nulle part n'a pas la même valeur qu'un pin bar posé sur un support.`,
      `Une bougie <strong>engulfante haussière (bullish engulfing)</strong> apparaît quand le corps de la bougie efface entièrement le corps baissier de la bougie précédente — un retournement net d'agressivité en faveur des acheteurs.`,
+     `L'<strong>engulfing baissier</strong> est le miroir : un grand corps rouge qui englobe le corps vert précédent, idéalement sous une résistance, montre que les vendeurs ont repris la main.`,
+    ]},
+   {h:"Autres bougies à connaître", img:["pa_doji", "pa_shooting"],
+    p:[
+     `Un <strong>doji</strong> a une ouverture et une clôture quasi identiques : corps minuscule, mèches de part et d'autre. Il traduit l'<strong>indécision</strong> ; après une longue tendance, il peut annoncer une pause ou un retournement, mais il ne donne aucune direction à lui seul.`,
+     `L'<strong>étoile filante (shooting star)</strong> est le pendant baissier du pin bar : petit corps en bas, longue mèche haute, en fin de hausse. Les acheteurs ont poussé haut, puis les vendeurs ont tout ramené avant la clôture.`,
+     `L'<strong>inside bar</strong> est une bougie entièrement contenue dans le range de la précédente : une compression. Beaucoup de traders attendent la sortie de cette mini-zone pour prendre la direction, avec un stop de l'autre côté.`,
     ]},
    {h:"Cassures et pièges",
     p:[
      `Un <strong>faux breakout (fakeout)</strong> au-dessus d'une résistance casse le niveau puis échoue à confirmer : le prix retombe vite du mauvais côté.`,
      `Le <strong>retest</strong> d'un niveau de résistance cassé à la hausse consiste, une fois la résistance cassée, à voir le prix revenir la retester (elle devient alors un support) avant de poursuivre sa route.`,
      `Un <strong>bull trap</strong> (piège à acheteurs) attire les acheteurs sur une fausse cassure haussière juste avant un retournement brutal à la baisse — symétrique du fakeout ci-dessus, côté psychologie des perdants.`,
+     `Le <strong>bear trap</strong> est l'inverse : une fausse cassure sous un support piège les vendeurs, puis le prix remonte vivement, souvent alimenté par le rachat forcé de leurs positions.`,
      `Pourquoi la cassure d'un niveau clé est plus fiable avec un <strong>volume élevé</strong> : un volume élevé signale une participation large et convaincue, ce qui rend la cassure plus crédible qu'une cassure sur volume faible.`,
+     `Exemple : une résistance tient à 100 $. Une bougie <strong>clôture</strong> à 101 $ avec deux fois le volume moyen, puis le prix revient toucher 100 $ sans rentrer dedans : c'est une cassure suivie d'un retest réussi. Une mèche à 101 $ qui se referme à 99,50 $ sur volume faible ressemble au contraire à un fakeout. Attendre la clôture évite une bonne partie des pièges.`,
     ]},
    {h:"Range et zones défendues", img:["pa_hammer"],
     p:[
      `Une phase de <strong>range (consolidation)</strong> se définit comme une phase d'indécision où le prix navigue entre deux bornes sans tendance dominante.`,
+     `En range, l'approche classique consiste à acheter près du bas et vendre près du haut, avec un stop juste de l'autre côté de la borne. Au milieu du range, le rapport risque/rendement est mauvais : on n'y a pas d'avantage.`,
      `Quand plusieurs <strong>mèches successives</strong> touchent puis rejettent le même niveau de prix, cela suggère qu'un acteur défend activement ce prix — c'est une zone à surveiller, pas un hasard.`,
+     `Un range finit toujours par céder. Plus il dure et plus il est étroit, plus la cassure qui suit peut être violente — et plus les stops accumulés juste au-delà des bornes servent de carburant.`,
+    ]},
+   {h:"Construire un plan de trade",
+    p:[
+     `Une idée de trade en price action se construit dans l'ordre : <strong>contexte</strong> (tendance de fond), <strong>zone</strong> (support, résistance, borne de range), <strong>signal</strong> (pin bar, engulfing, retest), puis <strong>stop</strong> et <strong>objectif</strong>. Si une étape manque, on passe son tour.`,
+     `Exemple chiffré : compte de 10 000 $, risque de 1 % = 100 $. Entrée à 100 $ sur un pin bar posé sur support, stop à 98 $ sous la mèche : 2 $ de risque par unité, donc 50 unités, soit une position de 5 000 $. Objectif à 104 $, sous la résistance suivante : gain potentiel de 200 $, soit un rapport de <strong>2 pour 1</strong>.`,
+     `Le stop se place là où le scénario est invalidé (sous la mèche, sous le support), pas à un nombre de dollars arbitraire. Dans le Terminal de Paper Tape, pose le SL et le TP dès l'ouverture et vérifie que la liquidation est bien plus loin que ton stop.`,
     ]},
    {h:"Limite fondamentale de la price action",
     p:[
      `Une figure de price action seule (sans contexte de tendance ni de niveau) est peu fiable : une même bougie ou figure change de sens selon qu'elle apparaît en zone de support, de résistance ou en plein range. Le contexte prime toujours sur la figure.`,
+     `Même bien placées, les figures échouent régulièrement. La price action ne sert pas à avoir raison à chaque trade, mais à prendre des positions où la perte est petite et définie quand le scénario rate, et le gain plus large quand il fonctionne.`,
+    ]},
+   {h:"Erreurs fréquentes de débutant",
+    p:[
+     `<strong>Voir des figures partout</strong> : chercher un pin bar sur chaque bougie, sans zone ni contexte. Moins de signaux, mais sur les bons niveaux, valent mieux que beaucoup de signaux au hasard.`,
+     `<strong>Entrer avant la clôture</strong> de la bougie de cassure ou du signal. Une bougie n'est définitive qu'une fois fermée ; avant, un pin bar peut devenir une grosse bougie pleine.`,
+     `<strong>Surcharger le graphique</strong> de lignes tracées au centime près. Quelques zones majeures, tracées sur l'unité de temps supérieure, suffisent.`,
+     `<strong>Trader contre la tendance de fond</strong> sur une petite unité de temps sans s'en rendre compte, faute d'avoir regardé le graphique supérieur.`,
+    ]},
+   {h:"À retenir",
+    p:[
+     `Tendance haussière = sommets et creux plus hauts ; baissière = plus bas.`,
+     `Supports et résistances sont des zones, et changent de rôle une fois cassés.`,
+     `Une bougie se lit à son emplacement : pin bar sur support, étoile filante sous résistance.`,
+     `Une cassure crédible clôture au-delà du niveau avec du volume ; sinon, méfie-toi du piège.`,
+     `Contexte, zone, signal, stop, objectif : dans cet ordre.`,
     ]},
   ],
  },
@@ -11480,35 +11698,79 @@ const KNOWLEDGE = [
   title:"Fondamental & News",
   intro:`Pourquoi lire au journal qu'il y a une guerre quelque part ne suffit pas pour justifier un trade — et comment l'analyse fondamentale devient réellement exploitable.`,
   sections:[
+   {h:"C'est quoi, l'analyse fondamentale ?",
+    p:[
+     `L'<strong>analyse fondamentale</strong> cherche à comprendre <em>pourquoi</em> un actif devrait valoir plus ou moins cher : croissance, inflation, taux d'intérêt, bénéfices des entreprises, équilibre physique de l'offre et de la demande, contexte géopolitique. Là où l'analyse technique regarde le graphique, le fondamental regarde les causes.`,
+     `Les moteurs changent selon l'actif. Pour les <strong>indices actions</strong> (SPY, QQQ) : bénéfices des entreprises, taux d'intérêt et appétit pour le risque. Pour les <strong>devises</strong> (EUR/USD) : écart de taux et d'inflation entre les deux zones. Pour les <strong>matières premières</strong> (pétrole, or, argent) : production, stocks, demande mondiale et tensions géopolitiques. Pour la <strong>crypto</strong> : liquidité globale, régulation et flux entrants ou sortants.`,
+    ]},
    {h:"Le marché a déjà lu le journal avant toi", img:["fu_paper"],
     p:[
      `Une nouvelle relayée largement dans la presse grand public a généralement déjà influencé les prix avant que tu ne la lises — c'est la raison centrale pour laquelle « il y a la guerre en Iran, donc je passe long le pétrole » ne suffit pas : le prix a probablement déjà bougé.`,
      `Le phénomène <strong>« sell the news »</strong> illustre ça : quand une issue était déjà anticipée et intégrée au prix, sa confirmation officielle peut déclencher des prises de profit plutôt qu'une poursuite du mouvement.`,
+     `Exemple typique : pendant trois semaines, tout le monde anticipe une baisse de taux et l'indice monte de 6 %. Le jour de l'annonce, la baisse est confirmée… et l'indice recule de 1,5 %. Ceux qui avaient acheté la rumeur encaissent leurs gains, et il ne reste plus d'acheteur « surpris » pour pousser le prix plus haut. C'est le fameux <strong>« buy the rumor, sell the news »</strong>.`,
      `Un marché jugé <strong>« efficient »</strong> (l'information publique s'y reflète rapidement) implique surtout que l'edge vient davantage de l'exécution, du timing ou d'une analyse plus fine que du simple fait de connaître la nouvelle en premier.`,
+    ]},
+   {h:"Le calendrier économique", img:["fundamentals_cpi"],
+    p:[
+     `Les grandes publications macro sont programmées à l'avance, jour et heure compris, dans un <strong>calendrier économique</strong>. Les plus suivies aux États-Unis : le <strong>NFP</strong> (créations d'emplois non agricoles, en général le premier vendredi du mois), le <strong>CPI</strong> (indice des prix à la consommation, donc l'inflation), le <strong>PIB</strong> et les décisions de taux de la Fed (<strong>FOMC</strong>). En zone euro, les décisions de la <strong>BCE</strong> et l'inflation font bouger l'EUR/USD.`,
+     `Pour chaque chiffre, le calendrier affiche trois valeurs : le <strong>précédent</strong>, le <strong>consensus</strong> (la moyenne des prévisions des économistes) et le <strong>réel</strong> au moment de la publication. C'est la comparaison entre les deux dernières qui compte pour le trader.`,
+     `Regarde aussi le détail : l'<strong>inflation « core »</strong> (hors alimentation et énergie) est souvent plus scrutée que le chiffre global, et une forte <strong>révision</strong> du mois précédent peut changer complètement la lecture d'un chiffre qui semblait bon.`,
     ]},
    {h:"Ce qui bouge vraiment le marché : la surprise", img:["fu_calendar"],
     p:[
      `Lors d'une publication macro comme le NFP ou le CPI, ce qui bouge le marché est surtout <strong>la surprise par rapport au consensus</strong>, pas le chiffre en valeur absolue.`,
+     `Exemple : le consensus attend 200 000 créations d'emplois, le chiffre sort à 150 000. C'est pourtant une économie qui crée encore des emplois — mais c'est <strong>moins que prévu</strong>, donc le marché anticipe une banque centrale plus accommodante et le dollar peut reculer. À l'inverse, un CPI attendu à +0,3 % sur le mois qui sort à +0,5 % fait souvent monter les anticipations de taux : dollar plutôt soutenu, indices actions et or plutôt sous pression. Ce sont des réactions fréquentes, pas des règles automatiques.`,
      `Une nouvelle a le plus de chances de déclencher un vrai mouvement quand la surprise se combine à un <strong>positionnement du marché qui doit se rajuster en urgence</strong> (beaucoup d'acteurs positionnés du mauvais côté doivent se couvrir vite).`,
+     `C'est pour ça qu'une même surprise ne produit pas toujours le même effet : si le marché était déjà massivement short avant un chiffre décevant, il y a peu de vendeurs supplémentaires pour prolonger la baisse, et la réaction peut même s'inverser en quelques minutes.`,
     ]},
    {h:"Prime de risque et narratif", img:["fu_riskoff"],
     p:[
      `Une <strong>« prime de risque géopolitique »</strong> déjà intégrée dans le prix du pétrole ou de l'or signifie que le marché anticipe et intègre une partie du risque avant même que l'événement redouté ne se matérialise pleinement.`,
      `Le narratif fondamental seul (« il y a la guerre, donc il faut acheter le pétrole ») est insuffisant pour décider du timing d'entrée : il donne une direction probable, mais ni le prix d'entrée, ni le risque, ni le fait que l'info soit déjà intégrée ou non.`,
+     `Quand l'incertitude monte, le marché passe souvent en mode <strong>risk-off</strong> : les capitaux quittent les actifs risqués (actions technologiques, crypto) pour des <strong>valeurs refuges</strong> comme le dollar, le franc suisse, les obligations d'État de qualité ou l'or. Quand le stress retombe, on repasse en <strong>risk-on</strong> et le mouvement inverse peut être tout aussi rapide.`,
+    ]},
+   {h:"Pétrole, or et géopolitique", img:["fundamentals_brent"],
+    p:[
+     `Le <strong>pétrole</strong> dépend avant tout de l'équilibre physique : production (dont les décisions de l'<strong>OPEP+</strong>), niveau des stocks et demande mondiale, elle-même liée à la croissance. La géopolitique compte surtout quand elle menace réellement l'offre, par exemple une route d'approvisionnement ou une zone de production.`,
+     `Exemple chiffré : une tension fait passer le baril de 75 $ à 85 $ en quelques jours, sans qu'un seul baril de production n'ait encore été perdu. Ces 10 $ sont en grande partie une prime de risque. Si l'escalade redoutée n'arrive pas, cette prime peut se dégonfler vite — et le pétrole baisser alors même que le conflit continue.`,
+     `L'<strong>or</strong> ne verse ni intérêt ni dividende : il est souvent pénalisé quand les <strong>taux réels</strong> (taux d'intérêt moins inflation) montent, car détenir de l'or coûte alors plus cher en rendement perdu. Il est aussi souvent recherché comme refuge en période de stress. Ces deux forces peuvent se contredire, d'où des réactions parfois surprenantes.`,
     ]},
    {h:"Macro, taux et devises", img:["fu_fedfunds", "fu_yield"],
     p:[
      `La logique du <strong>carry trade</strong> sur le marché des changes repose sur l'écart de taux d'intérêt entre deux devises : on emprunte la devise la moins chère pour placer dans celle qui rapporte davantage.`,
+     `Exemple illustratif : emprunter à 0,5 % dans une devise et placer à 4,5 % dans une autre rapporte environ 4 % par an… tant que le taux de change reste stable. Si la devise à haut rendement perd 5 % face à celle empruntée, tout le gain est effacé et au-delà. Quand beaucoup d'acteurs débouclent leur carry en même temps, le mouvement de change peut être très brutal.`,
      `Une banque centrale qui <strong>relève ses taux d'intérêt</strong> a, toutes choses égales par ailleurs, tendance à soutenir sa devise, car des taux plus élevés attirent des capitaux étrangers en quête de rendement.`,
+     `Sur l'EUR/USD, ce qui compte est donc le <strong>différentiel</strong> : si le marché anticipe une Fed plus restrictive que la BCE, c'est plutôt un soutien pour le dollar, donc une pression sur l'EUR/USD. Et encore une fois, c'est le changement d'anticipation qui fait bouger le prix, pas le niveau des taux en soi.`,
     ]},
    {h:"Exécution autour des annonces", img:["fu_fed"],
     p:[
      `Le risque de <strong>slippage</strong> est particulièrement élevé autour des publications macro majeures car les teneurs de marché retirent leurs cotations juste avant l'annonce, réduisant la liquidité et amplifiant les sauts de prix.`,
+     `Concrètement, le spread s'élargit, et un stop loss peut être exécuté bien plus loin que prévu. Sur une position de 10 000 $ ouverte avec 100 $ de marge (levier x100), un stop exécuté 0,2 % plus loin que son niveau coûte 20 $ de plus, soit 20 % de la marge engagée.`,
+     `Avec un levier très élevé, l'annonce devient une loterie : à x200, un mouvement d'à peine 0,5 % contre toi suffit à effacer toute la marge d'une position, et la liquidation arrive même avant. Dans le Terminal de Paper Tape, prends l'habitude de consulter le calendrier avant d'ouvrir une position à fort levier.`,
+     `Les réflexes prudents : réduire la taille ou rester à plat quelques minutes avant et après le chiffre, éviter les ordres au marché pile à la publication, et laisser passer le premier mouvement, souvent chaotique, avant de juger la vraie direction.`,
     ]},
-   {h:"Bonne pratique",
+   {h:"Bonne pratique : construire un scénario",
     p:[
      `Une analyse fondamentale solide pèse les catalyseurs et leur probabilité, plutôt que de réagir à un seul titre de presse.`,
+     `Une méthode simple en quatre étapes : 1) lister les <strong>catalyseurs</strong> à venir (chiffres, décisions, événements) ; 2) estimer ce qui est <strong>déjà dans le prix</strong> (consensus, mouvement récent, positionnement) ; 3) écrire des scénarios <strong>« si… alors… »</strong> (si le CPI sort au-dessus du consensus, alors je m'attends plutôt à…) ; 4) fixer d'avance ce qui <strong>invaliderait</strong> ton idée.`,
      `Combiner analyse fondamentale et lecture technique/order flow est souvent recommandé : le fondamental explique la direction probable, la technique/order flow affine le moment et le prix d'exécution.`,
+     `En pratique : le fondamental te dit par exemple « biais plutôt haussier sur l'or ». Tu attends ensuite un niveau technique clair et une confirmation dans le flux d'ordres pour entrer, avec un stop placé là où ton scénario serait faux — pas au hasard.`,
+    ]},
+   {h:"Erreurs fréquentes de débutant",
+    p:[
+     `<strong>Trader le gros titre</strong> : acheter parce qu'une nouvelle « positive » vient de sortir, alors que le mouvement a déjà eu lieu. Pose-toi toujours la question : qui reste-t-il pour acheter après moi ?`,
+     `<strong>Confondre bonne nouvelle et chiffre au-dessus du consensus</strong> : un chiffre en hausse mais inférieur aux attentes est une déception pour le marché.`,
+     `<strong>Garder un levier élevé pendant une annonce</strong> : même avec la bonne analyse, un aller-retour violent de quelques secondes peut déclencher ton stop ou ta liquidation avant que le prix ne parte dans ton sens.`,
+     `<strong>S'accrocher au narratif</strong> : quand le prix contredit durablement ton scénario, c'est une information. Le marché n'a pas à avoir « tort » pour que ton trade soit perdant.`,
+    ]},
+   {h:"À retenir",
+    p:[
+     `Le prix intègre vite l'information publique : lire la nouvelle ne suffit pas.`,
+     `Ce qui fait bouger le marché, c'est la <strong>surprise</strong> par rapport au consensus.`,
+     `Une surprise frappe plus fort quand le marché est mal positionné.`,
+     `Taux et différentiels de taux guident les devises ; les taux réels pèsent sur l'or.`,
+     `Autour des annonces : spread large, slippage, levier réduit.`,
+     `Le fondamental donne le « pourquoi », la technique et l'order flow le « quand ».`,
     ]},
   ],
  },
@@ -11517,62 +11779,153 @@ const KNOWLEDGE = [
   title:"Offre & Demande",
   intro:`Ordres passifs contre ordres agressifs, market makers, spread — la mécanique concrète qui fait bouger un prix, niveau par niveau.`,
   sections:[
+   {h:"Le carnet d'ordres : qui attend, qui agit",
+    p:[
+     `Sur un marché électronique, tous les ordres en attente sont rangés dans un <strong>carnet d'ordres</strong>. D'un côté les <strong>bids</strong> : les acheteurs qui proposent un prix d'achat. De l'autre les <strong>asks</strong> (ou offers) : les vendeurs qui proposent un prix de vente. Le meilleur bid est le prix d'achat le plus élevé, le meilleur ask le prix de vente le plus bas.`,
+     `Exemple de carnet simplifié : à l'achat, 10 unités à 99,99 et 15 à 99,98 ; à la vente, 5 unités à 100,01, 8 à 100,02 et 20 à 100,03. Tant que personne ne décide de franchir l'écart, aucune transaction n'a lieu : acheteurs et vendeurs se regardent.`,
+     `Une transaction ne se produit que lorsqu'un participant accepte le prix affiché en face. Toute la mécanique de l'offre et de la demande se résume à cette question : <strong>qui est pressé</strong>, et de combien de liquidité dispose l'autre camp ?`,
+    ]},
    {h:"Ordres passifs et ordres agressifs", img:["sd_depth"],
     p:[
      `Un <strong>ordre passif (ordre limite)</strong> se pose dans le carnet et attend d'être exécuté par un ordre venant en face — il apporte de la liquidité au marché.`,
      `Un <strong>ordre agressif (ordre au marché)</strong> va chercher la meilleure liquidité disponible et l'exécute tout de suite, sans attendre — il consomme de la liquidité.`,
+     `Le compromis est simple : l'ordre limite te garantit ton prix mais pas l'exécution (le prix peut partir sans toi) ; l'ordre au marché te garantit l'exécution mais pas le prix exact. Un ordre limite reste modifiable ou annulable tant qu'il n'est pas exécuté.`,
      `Les <strong>frais maker</strong> sont généralement inférieurs aux <strong>frais taker</strong> sur un exchange car ce dernier encourage les ordres passifs (maker) qui apportent la liquidité que les ordres agressifs (taker) consomment.`,
+     `Exemple avec des frais illustratifs de 0,02 % maker et 0,05 % taker : sur une position de 10 000 $, entrer en taker coûte 5 $, en maker 2 $. Si cette position est ouverte avec seulement 100 $ de marge (levier x100), un aller-retour en taker coûte 10 $, soit 10 % de ta marge avant même que le prix ait bougé. Les frais se calculent sur la taille de la position, pas sur la marge.`,
     ]},
    {h:"Comment le prix bouge réellement",
     p:[
      `Le prix d'un actif ne monte que si des <strong>acheteurs agressifs épuisent l'offre passive disponible</strong>, forçant le prix au niveau suivant — sans ça, le prix reste bloqué.`,
+     `Reprends le carnet de l'exemple : un ordre d'achat au marché de 5 unités vide exactement le niveau 100,01. Le meilleur ask devient 100,02 et le prix a « monté » d'un cran, simplement parce qu'il n'y avait plus de vendeur au niveau précédent. À la baisse, c'est symétrique : des vendeurs agressifs vident les bids un par un.`,
      `Si le carnet affiche beaucoup plus de liquidité passive à la vente qu'à l'achat sur un niveau, cela forme un <strong>mur</strong> qu'il faut absorber avec un flux acheteur suffisant pour continuer à monter.`,
+     `Attention : un mur n'est pas une garantie. Les ordres limites peuvent être annulés à tout moment, et un mur qui disparaît juste avant d'être touché est un signal en soi. Ce qui compte, c'est la liquidité réellement exécutée, pas seulement celle affichée.`,
+    ]},
+   {h:"Spread, profondeur et slippage",
+    p:[
      `Le <strong>spread bid-ask</strong> correspond simplement à l'écart entre le meilleur bid (achat) et le meilleur ask (vente) affichés à l'instant.`,
+     `C'est un coût immédiat : si tu achètes à l'ask puis revends aussitôt au bid, tu perds le spread. Sur l'EUR/USD coté 1,0850 / 1,0851, l'écart est d'environ 0,01 % ; sur une petite crypto cotée 0,50 / 0,51, il atteint environ 2 %. Plus un marché est <strong>liquide</strong>, plus son spread est serré en temps normal.`,
      `Un ordre au marché de grande taille peut faire bouger le prix à lui seul (<strong>slippage</strong>) car il mange la liquidité niveau par niveau, chaque niveau consommé étant un peu plus cher (ou moins cher) que le précédent.`,
+     `Exemple : acheter 30 unités au marché dans le carnet ci-dessus, c'est 5 à 100,01, 8 à 100,02 et 17 à 100,03. Prix moyen : environ 100,024 au lieu des 100,01 affichés. La <strong>profondeur</strong> du carnet (la quantité disponible à chaque niveau) détermine donc la taille que tu peux traiter sans trop déplacer le prix.`,
     ]},
    {h:"Market makers et zones", img:["sd_floor"],
     p:[
      `Un <strong>market maker (teneur de marché)</strong> gagne typiquement de l'argent en vivant du spread : il achète au bid et vend à l'ask qu'il cote lui-même en continu.`,
+     `Exemple : il cote 99,98 à l'achat et 100,02 à la vente. S'il achète 100 unités à un client et en revend 100 à un autre, il capte 0,04 × 100 = 4 $. Son vrai risque est l'<strong>inventaire</strong> : s'il reste avec des unités achetées pendant que le prix chute, il perd. C'est pourquoi il élargit son spread ou réduit ses quantités quand la volatilité monte.`,
      `Une <strong>zone de demande (demand zone)</strong> désigne une zone où la demande a déjà montré sa force par le passé, souvent surveillée pour un futur rebond.`,
      `Retirer massivement des ordres passifs d'un côté du carnet juste avant une annonce a pour effet probable d'amplifier fortement le mouvement : moins de liquidité passive signifie qu'un même flux agressif déplace le prix beaucoup plus violemment.`,
     ]},
+   {h:"Zones d'offre et de demande sur un graphique",
+    p:[
+     `Symétrique de la zone de demande, une <strong>zone d'offre (supply zone)</strong> est une zone de prix d'où le marché est déjà reparti fortement à la baisse : des vendeurs y étaient assez nombreux pour stopper la hausse.`,
+     `On la repère souvent au <strong>départ impulsif</strong> : le prix consolide brièvement, puis s'en éloigne avec de grandes bougies. L'idée est qu'une partie des ordres qui ont provoqué ce départ n'a peut-être pas été exécutée et pourrait encore réagir au retour du prix.`,
+     `Trace une <strong>zone</strong>, pas une ligne au centime près : par exemple de 98,50 à 99,20 plutôt que 99,00 pile. Beaucoup de traders considèrent qu'une zone s'affaiblit à chaque nouveau test, car chaque passage consomme une partie des ordres qui la défendaient.`,
+     `Une zone de demande nettement cassée peut ensuite se comporter en zone d'offre lors d'un retour du prix (et inversement). Ce sont des repères de probabilité, jamais des niveaux où le prix « doit » rebondir.`,
+    ]},
    {h:"L'équilibre offre/demande", img:["sd_curve"],
     p:[
+     `L'<strong>offre</strong> désigne les vendeurs prêts à céder l'actif, la <strong>demande</strong> les acheteurs prêts à l'acquérir. Plus le prix monte, plus il y a de vendeurs intéressés et moins d'acheteurs ; plus il baisse, plus l'inverse est vrai.`,
      `L'équilibre offre/demande sur un marché financier signifie concrètement que le prix n'est rien d'autre que le dernier point de rencontre effectif entre un acheteur et un vendeur consentants — l'offre (vendeurs) et la demande (acheteurs) se rencontrent au prix qui équilibre les deux forces à un instant donné.`,
+     `Cet équilibre n'est jamais figé : il se recalcule à chaque transaction. C'est ce qu'on appelle la <strong>découverte du prix</strong>. Dire qu'il y a « plus d'acheteurs que de vendeurs » n'explique rien : chaque unité échangée a exactement un acheteur et un vendeur. C'est l'<strong>urgence</strong> d'un des deux camps, celui qui accepte le prix de l'autre, qui décide du sens.`,
+    ]},
+   {h:"Quand la demande ou l'offre se déplace", img:["supply_demand_demand_shift", "supply_demand_supply_shift"],
+    p:[
+     `En économie, une hausse de la demande <strong>déplace la courbe de demande vers la droite</strong> : à chaque prix, les acheteurs veulent davantage, et le nouvel équilibre se forme à un prix plus haut. Une hausse de l'offre fait l'inverse : plus de vendeurs à chaque prix, donc un équilibre plus bas, toutes choses égales par ailleurs.`,
+     `Sur les marchés, ces déplacements sont quasi instantanés et reposent sur des <strong>anticipations</strong>. Côté demande : une bonne nouvelle, l'arrivée de gros acheteurs. Côté offre : une augmentation de capital qui crée de nouvelles actions, un déblocage de tokens (unlock) en crypto, une hausse de production de pétrole annoncée.`,
+     `Retiens le lien avec le carnet : un déplacement de la demande se voit concrètement par des acheteurs qui deviennent agressifs et acceptent des prix plus élevés, niveau après niveau.`,
+    ]},
+   {h:"Erreurs fréquentes de débutant",
+    p:[
+     `<strong>Utiliser systématiquement des ordres au marché</strong> sur un actif peu liquide : entre spread large et slippage, le trade démarre déjà dans le rouge.`,
+     `<strong>Croire aveuglément un mur affiché</strong> dans le carnet : il peut être retiré en une fraction de seconde.`,
+     `<strong>Ignorer les frais avec un gros levier</strong> : ils sont proportionnels à la taille de la position, et à x100 ou x200 ils représentent une part énorme de la marge.`,
+     `<strong>Traiter une zone comme un mur infranchissable</strong> : place ton stop au-delà de la zone, pas en plein dedans, et accepte qu'elle puisse céder.`,
+    ]},
+   {h:"À retenir",
+    p:[
+     `Ordre limite = passif, apporte la liquidité ; ordre au marché = agressif, la consomme.`,
+     `Le prix bouge quand les agressifs vident un niveau de liquidité passive.`,
+     `Le spread est un coût immédiat ; le slippage grandit avec la taille de l'ordre.`,
+     `Le market maker vit du spread et se protège quand la volatilité monte.`,
+     `Les zones d'offre et de demande sont des repères de probabilité, pas des garanties.`,
     ]},
   ],
  },
  {
   id:"execution",
   title:"Exécution & Risque",
-  intro:`Placer un ordre, poser un stop loss et un take profit — et surtout comprendre pourquoi le levier seul ne détermine jamais le risque réellement pris sur un trade.`,
+  intro:`Placer un ordre, poser un stop loss et un take profit — et surtout comprendre pourquoi le levier seul ne détermine jamais le risque réellement pris sur un trade. Cette fiche couvre aussi le calcul de la taille de position, la liquidation, les frais cachés et les réflexes qui permettent de survivre à une série de pertes.`,
   sections:[
+   {h:"Types d'ordres d'exécution", img:["ex_orders"],
+    p:[
+     `Un <strong>ordre au marché</strong> s'exécute immédiatement contre la meilleure liquidité disponible dans le carnet : tu es sûr d'être servi, mais pas du prix exact. Un <strong>ordre limite</strong> fixe au contraire un prix maximum (à l'achat) ou minimum (à la vente) : le prix est garanti, l'exécution ne l'est pas.`,
+     `Un ordre limite placé pour <strong>ouvrir</strong> une position à un prix meilleur que le marché actuel attend patiemment son prix ; s'il n'est jamais atteint, il ne s'exécute simplement jamais.`,
+     `Un ordre <strong>stop-limit</strong> diffère d'un ordre <strong>stop-market</strong> : une fois le niveau de déclenchement atteint, le stop-limit devient un ordre limite (pas garanti d'exécution), alors que le stop-market part directement au marché (exécution garantie, prix non garanti).`,
+     `Pour un stop loss de protection, le <strong>stop-market</strong> est donc généralement le choix prudent : sur un mouvement violent, un stop-limit peut être « sauté » et te laisser dans une position qui continue de perdre. Dans le Terminal de Paper Tape, tu choisis entre marché et limite à l'ouverture, puis tu attaches ton TP/SL à la position.`,
+    ]},
    {h:"Stop loss, take profit, trailing stop", img:["ex_chart"],
     p:[
      `Un <strong>stop loss (SL)</strong> fixe à l'avance le point de sortie en cas de mouvement défavorable, pour plafonner la perte.`,
      `Un <strong>take profit (TP)</strong> clôture automatiquement la position une fois l'objectif de gain fixé atteint.`,
      `Un <strong>trailing stop</strong> se déplace avec le prix dans le sens favorable, sécurisant une partie du gain au fil du mouvement, sans figer un objectif fixe.`,
+     `Exemple : tu achètes à 100 $ avec un trailing stop à 5 $ de distance. Le prix monte à 112 $, le stop suit jusqu'à 107 $ ; si le prix redescend, il ne recule pas et tu sors vers 107 $, soit +7 $ sécurisés.`,
      `Trader sans aucun stop loss expose principalement au fait que rien ne limite la perte avant la liquidation ou l'épuisement de la marge disponible.`,
+     `Où placer le stop ? Là où ton idée de trade devient <strong>fausse</strong> (sous un support, au-dessus d'un plus haut), pas à un pourcentage choisi au hasard. Un stop trop serré, noyé dans le bruit normal du marché, se fait toucher avant que le scénario ait eu le temps de se jouer.`,
     ]},
    {h:"Le levier ne fait pas le risque — la règle centrale",
     p:[
      `Augmenter uniquement le levier, sans changer la taille de position ni la distance du stop, <strong>ne change pas le risque en dollars</strong> pris sur le trade : le levier change seulement la marge nécessaire pour ouvrir la position, pas l'exposition réelle.`,
      `Ce qui détermine réellement le risque en dollars d'un trade, c'est la <strong>taille de la position multipliée par l'écart de prix jusqu'au stop</strong> — point final, indépendamment du levier affiché.`,
+     `Exemple : une position de 5 000 $ sur l'or avec un stop à 2 % sous l'entrée risque 100 $. À x5, elle immobilise 1 000 $ de marge ; à x50, seulement 100 $. Dans les deux cas, si le stop est touché, tu perds <strong>les mêmes 100 $</strong>.`,
      `Réduire la taille de position tout en augmentant le levier pour une même marge engagée permet de libérer du capital ailleurs (moins de marge immobilisée) sans changer le risque du trade lui-même — c'est un outil d'allocation de capital, pas un outil de risque.`,
     ]},
-   {h:"Types d'ordres d'exécution", img:["ex_orders"],
+   {h:"Calculer sa taille de position",
     p:[
-     `Un ordre <strong>stop-limit</strong> diffère d'un ordre <strong>stop-market</strong> : une fois le niveau de déclenchement atteint, le stop-limit devient un ordre limite (pas garanti d'exécution), alors que le stop-market part directement au marché (exécution garantie, prix non garanti).`,
-     `Un ordre limite placé pour <strong>ouvrir</strong> une position à un prix meilleur que le marché actuel attend patiemment son prix ; s'il n'est jamais atteint, il ne s'exécute simplement jamais.`,
+     `La bonne démarche part du risque, jamais du levier : tu décides d'abord combien tu acceptes de perdre, puis tu en déduis la taille. La formule : <strong>taille de position = montant risqué ÷ distance au stop (en %)</strong>.`,
+     `Exemple : sur un compte de 10 000 $, risquer 1 % = 100 $ ; avec un stop à 2 % sous l'entrée, la position fait 5 000 $. Si ton analyse impose un stop plus large, à 4 %, la position tombe à 2 500 $ : le risque reste de 100 $.`,
+     `Ce n'est qu'ensuite que tu choisis le levier, uniquement pour ajuster la marge immobilisée. L'erreur classique du débutant est l'inverse : choisir « x50 » parce que ça paraît excitant, puis découvrir après coup quelle perte représente son stop.`,
+    ]},
+   {h:"Marge, levier et liquidation",
+    p:[
+     `En <strong>marge isolée</strong>, seule la marge allouée à la position peut être perdue : si elle est épuisée, la position est liquidée, mais le reste du compte est préservé. En <strong>marge croisée</strong>, tout le solde disponible sert de coussin : la liquidation arrive plus tard, mais une seule position peut entamer l'ensemble du compte.`,
+     `En marge isolée, la distance jusqu'à la liquidation est d'environ <strong>1 ÷ levier</strong>, un peu moins en pratique à cause de la marge de maintenance. À x10, un mouvement contraire d'un peu moins de 10 % suffit ; à x100, un peu moins de 1 % ; à x200, moins de 0,5 %.`,
+     `Règle simple : ton stop loss doit toujours se trouver <strong>bien avant</strong> ton prix de liquidation. Si le stop logique de ton analyse est plus loin que la liquidation, c'est que le levier est trop élevé pour ce trade, pas que le stop est de trop.`,
     ]},
    {h:"Slippage et ratio risque/rendement",
     p:[
      `Le <strong>slippage</strong> lors de l'exécution d'un ordre au marché correspond à l'écart entre le prix visé et le prix effectivement obtenu, souvent lié au manque de liquidité au moment de l'exécution.`,
+     `Il est plus fort sur les actifs peu liquides, les grosses tailles et les moments agités (annonces macro, ouverture, cascade de liquidations). Il s'applique aussi à ton stop-market : un stop à 2 % peut coûter 2,3 % dans un marché qui décroche.`,
      `Placer un take profit à une distance correspondant à <strong>2 ou 3 fois la distance du stop loss</strong> (ratio risque/rendement) permet d'être profitable sur la durée même sans majorité de trades gagnants.`,
+     `Le calcul : avec un ratio de 1:<em>R</em>, le taux de réussite minimum pour être à l'équilibre vaut <strong>1 ÷ (1 + R)</strong>. À 1:2, il faut gagner plus de 33 % des trades ; à 1:3, plus de 25 % (avant frais). Sur 10 trades à 100 $ de risque en 1:2, 4 gagnants (+800 $) et 6 perdants (−600 $) donnent +200 $.`,
+     `Attention : un ratio élevé n'a de valeur que si l'objectif est <strong>réaliste</strong>. Viser 1:10 sur chaque trade fait souvent chuter le taux de réussite bien plus vite que le gain ne compense.`,
+    ]},
+   {h:"Frais, spread et coûts cachés",
+    p:[
+     `Chaque trade paie le <strong>spread</strong> (écart entre meilleur achat et meilleure vente) et souvent une <strong>commission</strong>, calculée sur la taille totale de la position, pas sur la marge. Sur les perpétuels crypto s'ajoute le <strong>funding</strong>, payé ou reçu à intervalles réguliers tant que la position est ouverte.`,
+     `Exemple : 0,05 % de frais à l'ouverture et à la clôture sur une position de 5 000 $, c'est 5 $ par aller-retour, soit 5 % d'un risque de 100 $. Monter la taille grâce au levier gonfle les frais dans la même proportion.`,
+     `Conséquence : les stratégies à très petits objectifs (scalping de quelques ticks) sont celles que les frais et le slippage détruisent le plus vite. Intègre-les dans ton ratio avant de juger un setup rentable.`,
     ]},
    {h:"Discipline de risque", img:["ex_drawdown"],
     p:[
      `La gestion du risque par trade (par exemple ne jamais risquer plus de 1% du capital) a pour but principal de <strong>survivre à une mauvaise série</strong> — condition nécessaire pour rester en jeu sur la durée, bien avant l'idée de maximiser un gain ponctuel.`,
+     `Les pertes sont <strong>asymétriques</strong> : après −10 %, il faut +11 % pour revenir à zéro ; après −25 %, +33 % ; après −50 %, +100 %. Plus le trou est profond, plus il est difficile d'en sortir.`,
+     `Avec 1 % de risque, dix pertes d'affilée — une série banale sur des centaines de trades — coûtent environ 10 % du compte. Avec 10 % de risque par trade, la même série en efface environ 65 %.`,
+     `C'est exactement ce que teste le <strong>challenge prop firm</strong> de Paper Tape : des limites de perte journalière et de drawdown maximal. Le trader qui les respecte n'est pas celui qui gagne le plus vite, mais celui qui ne laisse jamais une journée ratée tout détruire.`,
+    ]},
+   {h:"Erreurs fréquentes de débutant",
+    p:[
+     `<strong>Déplacer son stop</strong> plus loin quand le prix s'en approche : la perte prévue de 100 $ devient 300 $, et la règle de risque n'existe plus. Un stop se resserre éventuellement, il ne s'élargit jamais.`,
+     `<strong>Moyenner à la baisse</strong> une position perdante sans plan, ou enchaîner un <strong>revenge trade</strong> juste après une perte pour « se refaire » : deux façons de doubler l'exposition au pire moment.`,
+     `Ouvrir plusieurs positions <strong>corrélées</strong> (SPY et QQQ, BTC et ETH) en pensant diversifier : si tout part dans le même sens, trois trades à 1 % peuvent se comporter comme un seul trade à 3 %.`,
+     `Trader sans plan écrit : entrée, stop, objectif et taille doivent être décidés <strong>avant</strong> de cliquer, pas improvisés pendant que le prix bouge.`,
+    ]},
+   {h:"À retenir",
+    p:[
+     `Le risque en dollars = taille × distance au stop. Le levier ne change que la marge.`,
+     `Pars du risque accepté (ex. 1 % du compte) pour en déduire la taille, puis choisis le levier.`,
+     `Le stop se place là où l'idée devient fausse, et toujours avant la liquidation.`,
+     `Un ratio de 1:2 ou 1:3 permet d'être rentable avec moins d'un trade gagnant sur deux, frais inclus.`,
+     `Ordre au marché : exécution garantie, prix non garanti. Ordre limite : l'inverse.`,
+     `Le premier objectif est de survivre aux séries de pertes, pas de maximiser un trade.`,
     ]},
   ],
  },
@@ -11581,48 +11934,132 @@ const KNOWLEDGE = [
   title:"Options (Hardcore)",
   intro:`Un niveau au-dessus du simple call/put : les Grecques, la volatilité implicite, la décomposition de la prime et les stratégies qui en découlent.`,
   sections:[
+   {h:"Rappel : droit, strike et prime",
+    p:[
+     `Un <strong>call</strong> donne le droit d'acheter le sous-jacent au <strong>strike</strong> (K), un <strong>put</strong> le droit de le vendre, à ou jusqu'à l'<strong>échéance</strong> selon le style d'exercice. L'acheteur paie une <strong>prime</strong> et ne risque qu'elle ; le vendeur l'encaisse et porte l'obligation. Sur les actions américaines, un contrat porte en général sur 100 titres : une prime de 2 $ coûte 200 $.`,
+     `Un call est <strong>ITM</strong> (dans la monnaie) quand le sous-jacent (S) cote au-dessus du strike, un put quand il cote <strong>en dessous</strong>. Une option est <strong>ATM</strong> (à la monnaie) quand S est proche de K, et <strong>OTM</strong> quand l'exercice immédiat ne rapporterait rien.`,
+    ]},
    {h:"Les Grecques", img:["op_bsvalue"],
     p:[
+     `Les <strong>Grecques</strong> mesurent la sensibilité de la prime à chaque paramètre (sous-jacent, temps, volatilité, taux), toutes choses égales par ailleurs. Ce sont des approximations locales, qui bougent avec le marché.`,
      `Le <strong>delta</strong> d'une option représente approximativement la sensibilité du prix de l'option au sous-jacent, et s'interprète aussi comme une probabilité approximative de finir dans la monnaie à l'échéance.`,
-     `Le <strong>theta</strong> mesure l'érosion de la valeur temps de l'option au fil des jours qui passent — plus l'échéance approche, plus le theta pèse (toutes choses égales par ailleurs).`,
+     `Le delta d'un call est compris entre <strong>0 et +1</strong>, celui d'un put entre <strong>−1 et 0</strong> ; une option ATM a un delta proche de ±0,5. Un call de delta 0,40 gagne environ 0,40 $ quand l'action monte de 1 $ (40 $ par contrat). Nuance : dans Black-Scholes, la probabilité risque-neutre de finir ITM est N(d2), un peu inférieure au delta N(d1).`,
      `Le <strong>gamma</strong> est le plus élevé pour les options à la monnaie (ATM) proches de l'échéance, là où le delta peut varier très rapidement pour un petit mouvement du sous-jacent.`,
+     `Le gamma mesure la variation du delta pour 1 $ de mouvement du sous-jacent ; il est <strong>positif pour l'acheteur</strong> d'un call comme d'un put.`,
+     `Le <strong>theta</strong> mesure l'érosion de la valeur temps de l'option au fil des jours qui passent — plus l'échéance approche, plus le theta pèse (toutes choses égales par ailleurs).`,
+     `Pour l'acheteur, le theta est presque toujours <strong>négatif</strong> : −0,05 signifie environ 0,05 $ perdu par jour. La valeur temps ATM évolue à peu près comme la <strong>racine carrée</strong> du temps restant : 4 $ à 60 jours, environ 2 $ à 15 jours si rien d'autre ne bouge.`,
+    ]},
+   {h:"Vega, rho et le compromis gamma/theta",
+    p:[
+     `Le <strong>vega</strong> mesure la variation du prix de l'option pour 1 point de volatilité implicite. Il est <strong>positif pour l'acheteur</strong> (call ou put) et plus élevé sur les échéances longues. Vega 0,12 et IV de 40 % à 30 % : environ −1,20 $ sur la prime.`,
+     `Le <strong>rho</strong> mesure la sensibilité au taux sans risque : <strong>positif pour un call</strong>, <strong>négatif pour un put</strong>.`,
+     `Acheter une option, c'est être <strong>long gamma et long vega</strong>, mais <strong>short theta</strong> : tu profites des grands mouvements et des hausses d'IV, et tu paies le temps qui passe. Le vendeur a le profil exactement inverse.`,
     ]},
    {h:"Volatilité implicite", img:["op_smile"],
     p:[
      `La <strong>volatilité implicite (IV)</strong> reflète une anticipation forward-looking de la volatilité future, extraite directement du prix de marché de l'option elle-même (pas de la volatilité passée).`,
+     `On l'obtient en cherchant la volatilité qui, injectée dans Black-Scholes, redonne la prime observée. La volatilité passée s'appelle <strong>volatilité historique</strong> (ou réalisée).`,
+     `L'IV est annualisée. Le mouvement attendu à un écart-type vaut environ <strong>S × IV × √(T)</strong>, avec T en années. Exemple : action à 100 $, IV de 20 %, 30 jours : 100 × 0,20 × √(30/365) ≈ 5,7 $.`,
+     `Tracée en fonction du strike, l'IV forme un <strong>smile</strong> ou un <strong>skew</strong>. Sur les indices actions, les puts OTM ont typiquement une IV plus élevée que les calls OTM (demande de protection).`,
      `Une <strong>« volatility crush »</strong> après une publication de résultats d'entreprise désigne le fait qu'une fois l'incertitude de l'annonce levée, l'IV qui l'anticipait s'effondre rapidement, faisant chuter la valeur des options même si le sous-jacent ne bouge pas beaucoup.`,
+     `Exemple : call ATM (delta 0,5, vega 0,10) acheté avant les résultats. L'action monte de 2 $ (environ +1 $) mais l'IV perd 30 points (environ −3 $) : tu perds en ayant eu « raison » sur le sens.`,
     ]},
    {h:"Valeur d'une option", img:["op_call"],
     p:[
      `Une option <strong>« in the money » (ITM)</strong> pour un call signifie que le sous-jacent cote au-dessus du strike, ce qui lui donne une valeur intrinsèque positive.`,
      `La valeur d'une option se décompose toujours en <strong>valeur intrinsèque + valeur temps</strong>, cette dernière s'érodant jusqu'à l'échéance (voir le theta ci-dessus).`,
+     `La valeur intrinsèque vaut <strong>max(S − K ; 0)</strong> pour un call et <strong>max(K − S ; 0)</strong> pour un put. Exemple : call de strike 100, action à 105, prime 7 $ : 5 $ de valeur intrinsèque, 2 $ de valeur temps. Une option OTM n'est faite <strong>que</strong> de valeur temps.`,
     ]},
-   {h:"Stratégies et obligations du vendeur", img:["op_put"],
+   {h:"Stratégies et obligations du vendeur", img:["op_put","options_short_put"],
     p:[
      `Vendre un <strong>cash-secured put</strong> consiste à toucher la prime tout de suite, en échange de l'obligation potentielle d'acheter le sous-jacent au strike si l'acheteur exerce (assignation).`,
+     `Exemple : put de strike 95 vendu 1,50 $, 9 500 $ bloqués en garantie. Au-dessus de 95, tu gardes 150 $ ; si tu es assigné, tu achètes 100 titres pour un coût net de 93,50 $ chacun, et la perte maximale (action à zéro) atteint 9 350 $.`,
      `Une stratégie de <strong>covered call</strong> génère un revenu de prime sur une position déjà détenue, au prix d'un potentiel de hausse plafonné au-delà du strike vendu.`,
+     `Exemple : 100 titres achetés à 100 $, call 110 vendu 2 $. Gain maximal : (110 − 100 + 2) × 100 = 1 200 $, même si l'action monte à 150 $ ; le risque baissier, lui, reste presque entier.`,
      `Le risque d'<strong>assignation</strong> sur une option vendue signifie que vendre une option, c'est accepter l'obligation d'honorer le contrat si l'acheteur décide de l'exercer — l'inverse de l'acheteur, qui a un droit mais jamais une obligation.`,
+    ]},
+   {h:"Naked call, spreads et stratégies de volatilité", img:["options_short_call"],
+    p:[
+     `Le cas le plus dangereux est le <strong>naked call</strong> (call vendu sans détenir le sous-jacent) : gain plafonné à la prime, perte théoriquement <strong>illimitée</strong>.`,
+     `Un <strong>spread vertical</strong> achète et vend deux options de même type et échéance, à des strikes différents. <strong>Bull call spread</strong> : achat du call 100 à 4 $, vente du call 110 à 1,50 $ ; coût 2,50 $, gain maximal 7,50 $.`,
+     `Le montage inverse, le <strong>bear call spread</strong>, encaisse 2,50 $ et plafonne la perte à 7,50 $ : la version à risque défini du naked call.`,
+     `Le <strong>straddle</strong> long (achat d'un call et d'un put au même strike ATM) et le <strong>strangle</strong> long (call et put OTM) parient sur un <strong>grand mouvement</strong>, peu importe le sens.`,
+     `Si le straddle ATM coûte 8 $ sur une action à 100 $, il faut un mouvement de plus de 8 % d'ici l'échéance pour que l'acheteur gagne : son prix mesure le mouvement anticipé.`,
     ]},
    {h:"Style d'exercice et parité",
     p:[
      `La différence entre une option de style <strong>américain</strong> et une option de style <strong>européen</strong> : l'américaine peut être exercée à tout moment jusqu'à l'échéance (flexible dans le temps), l'européenne se règle uniquement à l'échéance.`,
+     `Une européenne peut quand même être <strong>revendue</strong> avant l'échéance : seul l'exercice est restreint. L'américaine, qui donne plus de droits, vaut <strong>au moins autant</strong>.`,
+     `Exemple : les options sur l'ETF SPY sont américaines, celles sur l'indice SPX européennes et réglées en cash.`,
      `Le <strong>put-call parity</strong> relie mathématiquement le call, le put, le sous-jacent et le taux sans risque pour un même strike et une même échéance — une relation d'arbitrage fondamentale du pricing d'options.`,
+    ]},
+   {h:"La parité call-put en pratique",
+    p:[
+     `Pour des options <strong>européennes</strong> sur un sous-jacent sans dividende : <strong>C − P = S − K × e^(−rT)</strong> (C, P : primes ; r : taux sans risque ; T : durée en années). Avec un dividende continu q, S devient S × e^(−qT).`,
+     `Intuition : call acheté + put vendu = <strong>achat à terme</strong> au prix K, qui vaut S − K à l'échéance ; e^(−rT) actualise le paiement futur de K.`,
+     `Exemple avec r = 0, S = K = 100 : call et put doivent valoir autant. Si le call cote 5 $ et le put 4 $, vendre le call et acheter put + action coûte 99 $ et vaut 100 $ à l'échéance quoi qu'il arrive : 1 $ sans risque, vite effacé par les arbitragistes.`,
+     `En dérivant : <strong>delta du call − delta du put = 1</strong> (sans dividende), et gamma et vega sont identiques pour le call et le put. En américain, ce n'est plus qu'un encadrement : S − K ≤ C − P ≤ S − K × e^(−rT) (sans dividende).`,
+    ]},
+   {h:"Exercice anticipé : quand est-ce rationnel ?",
+    p:[
+     `Exercer tôt détruit la valeur temps : mieux vaut en général <strong>revendre</strong>. Pour un call américain sans dividende, l'exercice anticipé n'est jamais optimal : il vaut le prix du call européen.`,
+     `Exceptions : un call très ITM juste avant le <strong>détachement d'un dividende</strong>, et un put <strong>très ITM</strong>, où encaisser K plus tôt (et le placer) peut valoir plus que la valeur temps restante.`,
+     `C'est surtout dans ces cas qu'un vendeur d'option américaine subit une <strong>assignation anticipée</strong>.`,
+    ]},
+   {h:"Erreurs fréquentes de débutant",
+    p:[
+     `Acheter des calls très OTM parce qu'ils sont « pas chers » : leur delta est faible, leur valeur est entièrement du temps, et la plupart expirent sans valeur. Bon marché ne veut pas dire bonne affaire.`,
+     `Acheter des options juste avant un événement sans regarder l'IV : la volatility crush peut effacer le gain du mouvement. Oublier le multiplicateur de 100, ou vendre des options « pour le revenu » sans mesurer la perte possible dans le pire scénario.`,
+    ]},
+   {h:"À retenir",
+    p:[
+     `Prime = valeur intrinsèque + valeur temps ; la valeur temps fond jusqu'à l'échéance.`,
+     `Acheteur : long gamma, long vega, short theta. Vendeur : le profil inverse, avec l'obligation en plus.`,
+     `L'IV est le prix de l'incertitude future : elle monte avant un événement et s'effondre après.`,
+     `Parité européenne : C − P = S − K × e^(−rT) ; tout écart est une opportunité d'arbitrage.`,
+     `Américaine : exerçable à tout moment, vaut au moins l'européenne ; l'exercice anticipé est rarement optimal.`,
     ]},
   ],
  },
  {
   id:"products",
   title:"Produits & Brokers",
-  intro:`CFD, futures, perpétuels — et surtout comment ton broker exécute réellement tes ordres (A-book vs B-book). Comprendre ce que tu trades vraiment, pas juste le nom du produit.`,
+  intro:`CFD, futures, perpétuels — et surtout comment ton broker exécute réellement tes ordres (A-book vs B-book). Comprendre ce que tu trades vraiment, pas juste le nom du produit. On verra aussi les frais cachés, la régulation qui protège ton argent et les arnaques qui visent les débutants.`,
   sections:[
+   {h:"Spot ou dérivé : ce que tu possèdes vraiment",
+    p:[
+     `Sur le marché <strong>spot</strong> (au comptant), tu achètes l'actif lui-même : une action, un bitcoin, des euros contre des dollars. Tu en es propriétaire et, sans emprunt, ta perte maximale est ce que tu as payé.`,
+     `Un <strong>produit dérivé</strong> est un contrat dont la valeur dépend du prix d'un <strong>sous-jacent</strong>. Tu ne possèdes pas l'actif mais un engagement avec une contrepartie, ce qui permet de vendre à découvert et d'utiliser un <strong>effet de levier</strong>. Exemple : avec 1 000 $ de <strong>marge</strong> et un levier x10, tu tiens une position de 10 000 $ ; une baisse de 10 % efface toute ta marge.`,
+    ]},
+   {h:"Actions, ETF et obligations : les bases",
+    p:[
+     `Une <strong>action</strong> est une part de propriété d'une entreprise, qui peut verser un <strong>dividende</strong>. Un <strong>ETF</strong> est un panier coté qui réplique un indice : SPY et QQQ, que tu trades dans Paper Tape, suivent le S&P 500 et le Nasdaq-100. Son coût principal est le <strong>TER</strong> : 0,2 % par an sur 10 000 €, soit 20 € par an.`,
+     `Une <strong>obligation</strong> est un prêt à un État ou à une entreprise : 1 000 € de nominal avec un <strong>coupon</strong> de 4 % rapportent 40 € par an, puis le remboursement à l'échéance si l'émetteur ne fait pas défaut. Quand les taux du marché montent, le prix des obligations déjà émises <strong>baisse</strong>.`,
+    ]},
    {h:"CFD, futures et perpétuels", img:["pr_cbot"],
     p:[
      `Un <strong>CFD (Contract for Difference)</strong> permet de répliquer la variation de prix de l'actif sans jamais transférer la propriété du sous-jacent — tu ne détiens jamais l'actif réel.`,
+     `Exemple : achat de CFD sur 10 onces d'or à 2 000 $, clôture à 2 030 $ : le broker te verse 300 $. Si l'or tombe à 1 970 $, c'est toi qui paies 300 $. Pas de lingot, pas de droits d'actionnaire.`,
      `Un contrat <strong>future</strong> classique, contrairement à un perpétuel, a une <strong>échéance ferme</strong> ; le perpétuel n'en a pas et utilise le funding rate à la place pour rester ancré au spot.`,
+     `Par rapport à un future classique, un CFD sur le même actif suit en continu le prix du sous-jacent <strong>sans date d'expiration à gérer</strong>.`,
+     `Autre différence clé : futures et perpétuels s'échangent sur un <strong>exchange</strong> avec un carnet d'ordres public, alors qu'un CFD est un contrat <strong>de gré à gré</strong> avec ton broker, qui fixe lui-même ses prix et ses frais.`,
+    ]},
+   {h:"Futures : échéance, roll, contango et backwardation", img:["products_contango"],
+    p:[
+     `Un future est standardisé et a un <strong>multiplicateur</strong> : l'E-mini S&P 500 vaut 50 $ par point, donc à 5 000 points un contrat représente 250 000 $ de <strong>notionnel</strong>. Les micro-contrats (5 $ par point) existent pour les petits comptes.`,
+     `Le <strong>rollover</strong> d'un future arrivant à échéance transfère l'exposition de l'échéance qui expire vers la suivante, sans interrompre la position économique globale.`,
+     `Rouler coûte des frais d'exécution et l'<strong>écart de prix</strong> entre échéances. Un débutant qui oublie l'échéance peut être clôturé d'office par son broker, voire exposé à une livraison physique sur certains contrats.`,
+     `On parle de <strong>contango</strong> quand les échéances lointaines cotent plus cher que le spot (pétrole spot à 80 $, contrat à 3 mois à 82 $), situation courante quand stocker et financer l'actif coûte cher. La <strong>backwardation</strong> est l'inverse, souvent signe d'une tension sur l'offre immédiate. En contango, un acheteur qui roule chaque mois perd un peu à chaque roll, même si le spot ne bouge pas.`,
+    ]},
+   {h:"Perpétuels et funding rate",
+    p:[
      `Un contrat <strong>perpétuel (perpetual swap)</strong> maintient son prix proche du spot grâce au funding rate, qui rapproche périodiquement les deux prix en l'absence d'échéance.`,
      `Le prix d'un perpétuel peut temporairement s'écarter du spot, notamment juste avant que le funding rate n'ait eu le temps de rééquilibrer les positions.`,
-     `Par rapport à un future classique, un CFD sur le même actif suit en continu le prix du sous-jacent <strong>sans date d'expiration à gérer</strong>.`,
-     `Le <strong>rollover</strong> d'un future arrivant à échéance transfère l'exposition de l'échéance qui expire vers la suivante, sans interrompre la position économique globale.`,
+     `Le funding se calcule sur la <strong>taille de la position</strong>, pas sur ta marge. À +0,01 % toutes les 8 h, un long de 10 000 $ paie 3 $ par jour, environ 11 % du notionnel sur un an si le taux restait constant : avec un levier x10, c'est plus que ta marge entière. Garder un perpétuel longtemps n'est jamais gratuit.`,
+    ]},
+   {h:"Options : un produit à part",
+    p:[
+     `Une <strong>option</strong> donne le <strong>droit</strong>, pas l'obligation, d'acheter (call) ou de vendre (put) à un prix fixé jusqu'à une date donnée. L'acheteur paie une <strong>prime</strong> et ne peut perdre plus ; sa valeur dépend aussi du temps restant et de la volatilité. Tout est détaillé dans la fiche <em>Options</em>.`,
     ]},
    {h:"Comment un broker exécute vraiment tes ordres", img:["pr_floor"],
     p:[
@@ -11630,11 +12067,39 @@ const KNOWLEDGE = [
      `Un broker fonctionnant en <strong>A-book</strong> répercute (ou couvre) l'exposition sur le marché réel, ce qui aligne mieux ses intérêts avec ceux du client.`,
      `Le conflit d'intérêt potentiel du modèle <strong>B-book</strong> vient du fait que si le broker est la contrepartie du client, la perte du client peut mécaniquement devenir le gain du broker.`,
      `Un broker de type <strong>ECN/STP</strong> se distingue en routant les ordres vers de vrais fournisseurs de liquidité plutôt que de les garder en interne — proche dans l'esprit de l'A-book.`,
+     `Un <strong>market maker</strong> cote lui-même ses prix d'achat et de vente et sert de contrepartie : c'est le B-book vu sous l'angle de la cotation. Beaucoup de brokers CFD sont <strong>hybrides</strong> : petits comptes en B-book, gros comptes ou traders réguliers en A-book. Le B-book n'est pas illégal chez un broker régulé, qui reste tenu à une obligation de <strong>meilleure exécution</strong>.`,
+    ]},
+   {h:"Les frais : spread, commission, financement",
+    p:[
+     `Le <strong>spread</strong> est l'écart entre prix d'achat et prix de vente. Sur EUR/USD, 1 pip (0,0001) de spread sur un lot de 100 000 € coûte environ 10 $ : ta position démarre à −10 $. La <strong>commission</strong> s'y ajoute par ordre ; les comptes « sans commission » se paient via un spread plus large, compare donc le <strong>coût total</strong> d'un aller-retour.`,
+     `Le <strong>swap</strong> (financement overnight) s'applique aux positions à levier gardées d'un jour sur l'autre : à 5 % par an, une exposition de 20 000 € coûte environ 2,70 € par nuit. En forex, il est souvent triplé un jour de la semaine pour couvrir le week-end.`,
+     `Erreur de débutant : viser 5 pips de gain sur un actif à 2 pips de spread. Près de la moitié de l'objectif part en frais : plus ton horizon est court, plus les coûts pèsent.`,
+    ]},
+   {h:"Régulation : AMF, ESMA et protection des fonds",
+    p:[
+     `En France, l'<strong>AMF</strong> encadre les marchés et protège les investisseurs, avec l'<strong>ACPR</strong> pour l'agrément des prestataires ; l'<strong>ESMA</strong> coordonne les régulateurs européens. Grâce au <strong>passeport européen</strong>, un broker agréé ailleurs dans l'UE peut servir des clients français.`,
+     `Pour les <strong>particuliers</strong>, l'ESMA plafonne le levier sur CFD : <strong>30:1</strong> sur les devises majeures, <strong>20:1</strong> sur les autres devises, l'or et les grands indices, <strong>10:1</strong> sur les autres matières premières et indices, <strong>5:1</strong> sur les actions et <strong>2:1</strong> sur les cryptos. Le x200 du Terminal de Paper Tape n'existe que pour l'entraînement.`,
+     `Ces règles imposent aussi la <strong>protection contre le solde négatif</strong>, la clôture des positions quand la marge tombe à 50 % du minimum requis, et l'affichage du pourcentage de clients particuliers perdants. Les fonds clients doivent être <strong>ségrégués</strong> de ceux du broker, et un fonds d'indemnisation couvre une faillite jusqu'à un plafond propre à chaque pays. Rien de tout cela ne couvre tes pertes de trading.`,
     ]},
    {h:"Choisir son broker",
     p:[
      `Choisir un broker <strong>régulé</strong> par une autorité financière reconnue vise notamment à encadrer la protection des fonds clients et à offrir un cadre de recours — sans garantir aucune performance de trading.`,
      `Comparer les modèles A-book et B-book avant de choisir un broker est utile car comprendre comment le broker exécute réellement les ordres aide à juger si ses intérêts sont alignés avec ceux du client.`,
+     `Vérifie l'agrément sur le registre officiel (en France, <strong>REGAFI</strong> et les listes de l'AMF), pas via un logo sur le site. Compare ensuite le coût d'un aller-retour sur tes actifs, les frais de retrait et d'inactivité, et la qualité d'exécution. Bon réflexe : déposer un petit montant et tester un <strong>retrait</strong> d'abord.`,
+    ]},
+   {h:"Arnaques courantes et listes noires",
+    p:[
+     `L'<strong>AMF publie des listes noires</strong> de sites proposant sans autorisation du forex, des cryptos ou des CFD. Ne pas y figurer ne prouve rien : si un acteur n'apparaît dans aucun registre officiel, n'y dépose rien.`,
+     `Signaux d'alerte : <strong>rendement garanti</strong>, contact non sollicité sur les réseaux sociaux, « conseiller » qui presse de déposer, et <strong>frais à payer pour débloquer un retrait</strong>. Méfie-toi aussi des <strong>sociétés clones</strong> qui usurpent le nom d'un acteur régulé, et des offres de « récupération » de fonds perdus contre paiement.`,
+    ]},
+   {h:"À retenir",
+    p:[
+     `Spot = tu possèdes l'actif ; dérivé = tu possèdes un contrat, souvent avec levier.`,
+     `Future = échéance et roll ; perpétuel = funding payé sur toute la taille de la position.`,
+     `CFD = contrat avec ton broker : son modèle (A-book, B-book, ECN/STP) compte autant que le produit.`,
+     `Spread, commission et swap se cumulent : raisonne en coût total d'un aller-retour.`,
+     `Régulation = levier plafonné, fonds ségrégués, recours ; jamais une garantie de gain.`,
+     `Rendement garanti ou frais pour retirer : arnaque, vérifie les listes de l'AMF.`,
     ]},
   ],
  },
@@ -11769,6 +12234,15 @@ const OF_CONCEPT_IMAGES = {
 // que des fichiers sous licence libre ; Unsplash = licence Unsplash ; QuantStats
 // = Apache-2.0. Une image qui ne charge pas est masquée (onerror).
 const COURSE_IMAGES = {
+ "pa_doji": {"url": "https://commons.wikimedia.org/wiki/Special:FilePath/Candlestick_pattern_Doji_Star.svg?width=800", "page": "https://commons.wikimedia.org/wiki/File:Candlestick_pattern_Doji_Star.svg", "alt": "Schéma de la figure Doji Star", "credit": "Wikimedia Commons, licence libre", "cap": "Repère la bougie au corps quasi inexistant qui suit une grande bougie : ouverture et clôture presque confondues traduisent l'indécision après un mouvement fort.", "kind": "diagram"},
+ "pa_shooting": {"url": "https://commons.wikimedia.org/wiki/Special:FilePath/Candlestick_pattern_Shooting_Star.svg?width=800", "page": "https://commons.wikimedia.org/wiki/File:Candlestick_pattern_Shooting_Star.svg", "alt": "Schéma de la figure Shooting Star (étoile filante)", "credit": "Wikimedia Commons, licence libre", "cap": "Observe la longue mèche haute et le petit corps en bas de la bougie : la hausse a été entièrement repoussée avant la clôture, signal de rejet en fin de mouvement haussier.", "kind": "diagram"},
+ "fundamentals_cpi": {"url": "https://commons.wikimedia.org/wiki/Special:FilePath/US_inflation_rate%2C_expressed_as_YOY_CPI%2C_1948_thru_2018.png?width=800", "page": "https://commons.wikimedia.org/wiki/File:US_inflation_rate%2C_expressed_as_YOY_CPI%2C_1948_thru_2018.png", "alt": "Taux d'inflation américain (CPI sur un an) de 1948 à 2018", "credit": "Wikimedia Commons, licence libre", "cap": "L'inflation mesurée par le CPI varie fortement d'une époque à l'autre : c'est pour ça que chaque publication mensuelle est scrutée et comparée au consensus.", "kind": "diagram"},
+ "fundamentals_brent": {"url": "https://commons.wikimedia.org/wiki/Special:FilePath/Brent_crude_oil_price_1988-2015.svg?width=800", "page": "https://commons.wikimedia.org/wiki/File:Brent_crude_oil_price_1988-2015.svg", "alt": "Évolution du prix du pétrole Brent de 1988 à 2015", "credit": "Wikimedia Commons, licence libre", "cap": "Repère les pics et les chutes brutales du baril : ils reflètent des chocs d'offre, de demande ou de risque géopolitique, souvent intégrés au prix avant même que l'événement ne se matérialise.", "kind": "diagram"},
+ "supply_demand_demand_shift": {"url": "https://commons.wikimedia.org/wiki/Special:FilePath/Supply-demand-right-shift-demand.svg?width=800", "page": "https://commons.wikimedia.org/wiki/File:Supply-demand-right-shift-demand.svg", "alt": "Déplacement vers la droite de la courbe de demande", "credit": "Wikimedia Commons, licence libre", "cap": "Quand la courbe de demande se déplace vers la droite, le point d'équilibre avec l'offre se forme à un prix plus élevé.", "kind": "diagram"},
+ "supply_demand_supply_shift": {"url": "https://commons.wikimedia.org/wiki/Special:FilePath/Supply-demand-right-shift-supply.svg?width=800", "page": "https://commons.wikimedia.org/wiki/File:Supply-demand-right-shift-supply.svg", "alt": "Déplacement vers la droite de la courbe d'offre", "credit": "Wikimedia Commons, licence libre", "cap": "Quand la courbe d'offre se déplace vers la droite, davantage de vendeurs à chaque prix font baisser le prix d'équilibre.", "kind": "diagram"},
+ "options_short_put": {"url": "https://commons.wikimedia.org/wiki/Special:FilePath/Short_put_option.svg?width=800", "page": "https://commons.wikimedia.org/wiki/File:Short_put_option.svg", "alt": "Diagramme de gain d'un put vendu", "credit": "Wikimedia Commons, licence libre", "cap": "Profil du vendeur de put : le gain est plafonné à la prime encaissée, la perte grandit à mesure que le sous-jacent passe sous le strike — c'est le profil d'un cash-secured put.", "kind": "diagram"},
+ "options_short_call": {"url": "https://commons.wikimedia.org/wiki/Special:FilePath/Short_call_option.svg?width=800", "page": "https://commons.wikimedia.org/wiki/File:Short_call_option.svg", "alt": "Diagramme de gain d'un call vendu", "credit": "Wikimedia Commons, licence libre", "cap": "Profil du vendeur de call : gain limité à la prime, perte qui croît sans plafond au-dessus du strike — d'où le danger du naked call.", "kind": "diagram"},
+ "products_contango": {"url": "https://commons.wikimedia.org/wiki/Special:FilePath/Contango.png?width=800", "page": "https://commons.wikimedia.org/wiki/File:Contango.png", "alt": "Schéma illustrant le contango sur un marché à terme", "credit": "Wikimedia Commons, licence libre", "cap": "Le contango : repère comment le prix des contrats à terme se situe au-dessus du prix spot, un écart qui se réduit à mesure que l'échéance approche.", "kind": "diagram"},
  "gen_orderbook": {
   "url": "https://commons.wikimedia.org/wiki/Special:FilePath/Order_Book%2C_depth_of_market.jpg?width=800",
   "page": "https://commons.wikimedia.org/wiki/File:Order_Book%2C_depth_of_market.jpg",
@@ -12650,7 +13124,7 @@ function renderShellAccount(){
   const sub = document.getElementById("sb-account-sub");
   if (sub){
     const eq = (typeof equity==="function") ? equity() : null;
-    const tag = state.isAdmin ? "Admin" : (isEdbPlus() ? "Membre EDB+" : "Profil");
+    const tag = state.isAdmin ? "Admin" : (state.edbPlus ? "Membre EDB+" : edbPlusTrialActive() ? "Essai EDB+ · "+edbPlusTrialRemainingLabel() : "Profil");
     const txt = (eq!=null && isFinite(eq)) ? tag+" · "+fmtMoney(eq) : tag;
     if (sub.textContent !== txt) sub.textContent = txt;
   }
