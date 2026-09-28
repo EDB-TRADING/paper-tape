@@ -2003,6 +2003,112 @@
   .edbplus-trial-btn:hover{border-color:var(--gold);}
   .edbplus-trial-note{font-size:12px;color:var(--text-faint);margin-top:6px;text-align:center;}
   .edbplus-trial-note.used{color:var(--text-dim);}
+
+  /* ---------- Challenge Prop Firm : page pleine largeur ---------- */
+  #view-challenge .ch-wrap{max-width:1480px;}
+  #challenge-profile-card.ch-page{background:none;border:none;box-shadow:none;padding:0;}
+  .ch-page{display:block;}
+  #challenge-card-body > * + *{margin-top:18px;}
+  .ch-hero{border-radius:16px;border:1px solid var(--border-soft);overflow:hidden;position:relative;color:var(--text);
+    background:radial-gradient(900px 400px at 85% 30%, color-mix(in srgb, var(--long) 10%, transparent), transparent 65%), linear-gradient(135deg, var(--panel-2) 0%, var(--panel) 60%);}
+  .ch-hero-deco{position:absolute;right:32px;top:50%;transform:translateY(-50%);width:38%;height:auto;color:var(--text);}
+  .ch-hero::after{content:"";position:absolute;inset:0;background:radial-gradient(600px 260px at 12% 0%, color-mix(in srgb, var(--gold) 16%, transparent), transparent 70%);pointer-events:none;}
+  .ch-hero-inner{position:relative;z-index:1;padding:44px 44px 40px;max-width:58%;}
+  .ch-hero h1{font-size:40px;line-height:1.08;letter-spacing:-.02em;margin:16px 0 12px;color:var(--text);max-width:560px;}
+  .ch-hero-sub{color:var(--text-dim);font-size:15.5px;line-height:1.6;margin:0 0 22px;max-width:560px;}
+  .ch-hero-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;}
+  .ch-pill{background:color-mix(in srgb, var(--panel) 70%, transparent);border:1px solid var(--border-soft);backdrop-filter:blur(6px);border-radius:12px;padding:9px 13px;display:flex;flex-direction:column;gap:2px;}
+  .ch-pill b{font-family:var(--mono);font-size:14px;color:var(--text);}
+  .ch-pill span{font-size:11px;color:var(--text-faint);}
+  .ch-hero-cta{padding:13px 24px;font-size:14.5px;}
+  .ch-steps{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:stretch;}
+  .ch-step{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--border-soft);border-radius:14px;padding:18px;}
+  .ch-step.is-final{border-color:color-mix(in srgb, var(--long) 45%, var(--border-soft));background:linear-gradient(160deg, color-mix(in srgb, var(--long) 9%, var(--panel)), var(--panel));}
+  .ch-step-num{flex:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;background:var(--panel-2);border:1px solid var(--border);color:var(--gold);}
+  .ch-step.is-final .ch-step-num{color:var(--long);border-color:color-mix(in srgb, var(--long) 55%, var(--border));}
+  .ch-step-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;}
+  .ch-step-top b{font-size:15px;}
+  .ch-step-goal{font-family:var(--mono);font-size:13px;color:var(--long);font-weight:600;}
+  .ch-step p{margin:6px 0 0;font-size:13px;color:var(--text-dim);line-height:1.5;}
+  .ch-step-arrow{align-self:center;color:var(--text-faint);font-size:20px;}
+  .ch-steps-note{font-size:12.5px;color:var(--text-faint);margin-top:10px !important;text-align:center;}
+  .ch-section-head{margin-top:34px !important;}
+  .ch-section-head h2{font-size:22px;margin:0 0 4px;letter-spacing:-.01em;}
+  .ch-section-head p{margin:0;color:var(--text-dim);font-size:13.5px;}
+  .ch-tiers{display:grid;grid-template-columns:repeat(auto-fit, minmax(186px, 1fr));gap:12px;}
+  .ch-tier{position:relative;background:var(--panel);border:1px solid var(--border-soft);border-radius:14px;padding:20px 16px 16px;display:flex;flex-direction:column;transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;}
+  .ch-tier:hover{transform:translateY(-3px);border-color:color-mix(in srgb, var(--accent) 45%, var(--border-soft));box-shadow:0 14px 30px -18px rgba(0,0,0,.6);}
+  .ch-tier.is-popular{border-color:color-mix(in srgb, var(--gold) 70%, transparent);background:linear-gradient(170deg, color-mix(in srgb, var(--gold) 12%, var(--panel)) 0%, var(--panel) 55%);box-shadow:0 0 0 1px color-mix(in srgb, var(--gold) 25%, transparent), 0 18px 40px -22px color-mix(in srgb, var(--gold) 55%, transparent);}
+  .ch-tier.is-top{background:linear-gradient(170deg, color-mix(in srgb, var(--accent) 10%, var(--panel)) 0%, var(--panel) 55%);}
+  .ch-tier-badge{position:absolute;top:-10px;left:16px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--gold);color:#1a1408;border-radius:999px;padding:3px 9px;}
+  .ch-tier-badge.gem{background:var(--panel-2);color:var(--accent-light);border:1px solid color-mix(in srgb, var(--accent) 45%, var(--border));text-transform:none;letter-spacing:0;}
+  .ch-tier-label{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;}
+  .ch-tier-amount{font-family:var(--mono);font-size:28px;font-weight:700;letter-spacing:-.02em;margin:2px 0 14px;}
+  .ch-tier ul{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:7px;flex:1;}
+  .ch-tier li{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--text-dim);border-bottom:1px dashed var(--border-soft);padding-bottom:6px;}
+  .ch-tier li:last-child{border-bottom:none;}
+  .ch-tier li span{white-space:nowrap;}
+  .ch-tier li b{font-family:var(--mono);font-weight:600;color:var(--text);white-space:nowrap;}
+  .ch-tier li b.up{color:var(--long);} .ch-tier li b.down{color:var(--short);}
+  .ch-tier-cta{width:100%;border:none;border-radius:10px;padding:11px 12px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;background:var(--accent);color:var(--on-accent);transition:filter .15s;}
+  .ch-tier-cta:hover{filter:brightness(1.1);}
+  .ch-tier.is-popular .ch-tier-cta{background:var(--gold);color:#1a1408;}
+  .ch-tier-cta:disabled{opacity:.45;cursor:not-allowed;filter:none;}
+  .ch-tier-foot{font-size:11px;color:var(--text-faint);text-align:center;margin-top:8px;}
+  .ch-rules{display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:12px;margin-top:12px !important;}
+  .ch-rule{display:flex;gap:12px;background:var(--panel);border:1px solid var(--border-soft);border-radius:14px;padding:16px;}
+  .ch-rule-icon{font-size:20px;line-height:1;}
+  .ch-rule b{font-size:14px;}
+  .ch-rule p{margin:5px 0 0;font-size:12.5px;color:var(--text-dim);line-height:1.5;}
+  #challenge-card-body .challenge-history-head{margin-top:30px;}
+  /* running challenge */
+  .ch-status{border-radius:16px;border:1px solid var(--border-soft);padding:26px 28px;background:radial-gradient(700px 240px at 0% 0%, color-mix(in srgb, var(--gold) 12%, transparent), transparent 70%), var(--panel);}
+  .ch-status.is-funded{background:radial-gradient(700px 240px at 0% 0%, color-mix(in srgb, var(--long) 14%, transparent), transparent 70%), var(--panel);}
+  .ch-status.is-failed{background:radial-gradient(700px 240px at 0% 0%, color-mix(in srgb, var(--short) 14%, transparent), transparent 70%), var(--panel);}
+  .ch-status-top{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:flex-end;}
+  .ch-status h1{font-size:30px;margin:12px 0 4px;letter-spacing:-.02em;}
+  .ch-status-sub{font-size:13px;color:var(--text-dim);}
+  .ch-status-eq{text-align:right;display:flex;flex-direction:column;gap:2px;}
+  .ch-status-eq span{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;}
+  .ch-status-eq b{font-family:var(--mono);font-size:30px;}
+  .ch-status-eq em{font-style:normal;font-family:var(--mono);font-size:13px;}
+  .ch-status .up{color:var(--long);} .ch-status .down{color:var(--short);}
+  .ch-mini-steps{display:flex;align-items:center;gap:8px;margin:20px 0 4px;flex-wrap:wrap;}
+  .ch-mini-steps span{font-size:12.5px;padding:5px 11px;border-radius:999px;border:1px solid var(--border-soft);color:var(--text-faint);}
+  .ch-mini-steps span.done{color:var(--long);border-color:color-mix(in srgb, var(--long) 45%, var(--border-soft));}
+  .ch-mini-steps span.current{color:var(--text);border-color:var(--gold);background:color-mix(in srgb, var(--gold) 12%, transparent);}
+  .ch-mini-steps i{width:18px;height:1px;background:var(--border);}
+  .ch-meters{display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:14px;margin-top:16px;}
+  .ch-meter-top{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--text-dim);margin-bottom:6px;}
+  .ch-meter-top b{font-family:var(--mono);color:var(--text);font-weight:600;}
+  .ch-meter-bar{height:8px;border-radius:5px;background:var(--panel-2);overflow:hidden;}
+  .ch-meter-bar i{display:block;height:100%;border-radius:5px;min-width:2px;}
+  .ch-meter-bar i.up{background:var(--long);} .ch-meter-bar i.warn{background:var(--warn);} .ch-meter-bar i.down{background:var(--short);}
+  .ch-status-actions{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;}
+  .ch-two-col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:16px;align-items:start;}
+  .ch-panel{background:var(--panel);border:1px solid var(--border-soft);border-radius:14px;padding:18px;}
+  .ch-panel h3{margin:0 0 10px;font-size:15px;}
+  @media (max-width:1080px){
+    .ch-hero-inner{max-width:none;}
+    .ch-hero-deco{position:relative;right:auto;top:auto;transform:none;width:100%;max-width:560px;height:auto;display:block;padding:24px 24px 0;box-sizing:border-box;}
+    .ch-steps{grid-template-columns:1fr;}
+    .ch-step-arrow{transform:rotate(90deg);justify-self:center;}
+    .ch-two-col{grid-template-columns:minmax(0,1fr);}
+  }
+  @media (max-width:720px){
+    .ch-hero-inner{padding:26px 18px 24px;max-width:none;}
+    .ch-hero-deco{position:relative;right:auto;top:auto;transform:none;width:100%;height:auto;display:block;margin:0 0 -8px;padding:18px 18px 0;box-sizing:border-box;opacity:.85;}
+    .ch-hero h1{font-size:28px;}
+    .ch-hero-sub{font-size:14px;}
+    .ch-pill{padding:7px 10px;}
+    .ch-tiers{grid-template-columns:repeat(2, minmax(0,1fr));gap:10px;}
+    .ch-tier{padding:18px 12px 12px;}
+    .ch-tier-amount{font-size:22px;}
+    .ch-tier li{font-size:11.5px;flex-direction:column;gap:1px;}
+    .ch-status{padding:20px 16px;}
+    .ch-status h1{font-size:24px;}
+    .ch-status-eq{text-align:left;}
+  }
   @media (max-width:520px){
     .acct-metric:nth-child(3){display:none;} /* PnL ouvert: equity alone on very narrow phones */
     .tb-title{font-size:17px;max-width:40vw;overflow:hidden;text-overflow:ellipsis;}
@@ -2819,7 +2925,7 @@
 
     <!-- ================= CHALLENGE PROP FIRM (dedicated page) ================= -->
     <section class="view" id="view-challenge">
-      <div class="learn-wrap">
+      <div class="learn-wrap ch-wrap">
         <div class="card" id="challenge-profile-card">
           <h3 id="challenge-card-title">Challenge Prop Firm</h3>
           <div id="challenge-card-body"></div>
@@ -7020,47 +7126,141 @@ function renderChallengeProfileCard(){
     // otherwise its edge-to-edge photo section would sit awkwardly under an
     // already-indented heading.
     if (title) title.hidden = true;
+    const pc = document.getElementById("challenge-profile-card");
+    if (pc) pc.classList.remove("ch-page");
     body.innerHTML = edbPlusPaywallHtml("challenge");
     wireEdbPlusCta("challenge");
     return;
   }
-  if (title) title.hidden = false;
+  if (title) title.hidden = true;
+  const card = document.getElementById("challenge-profile-card");
+  if (card) card.classList.add("ch-page");
   const c = state.challenge;
   if (!c){
     body.innerHTML =
-      '<div class="challenge-hero-badge">🏆 PROP FIRM CHALLENGE</div>'+
-      '<p class="chart-note" style="margin:12px 0 4px;">Trade un compte démo calqué sur une vraie évaluation prop firm en 2 étapes (challenge puis vérification, avant le compte financé) — comptes de '+fmtMoney(CHALLENGE_TIERS[0])+' à '+fmtMoney(CHALLENGE_TIERS[CHALLENGE_TIERS.length-1])+'. Ton compte normal reste actif à côté — tu peux trader les deux et basculer entre eux à tout moment.</p>'+
-      '<p class="chart-note" style="margin:14px 0 8px;">Démarrer un challenge réinitialise ton solde, tes positions et tes ordres en attente sur le compte prop firm. 👇 <strong>Compare les comptes et clique sur une taille pour démarrer :</strong></p>'+
+      challengeHeroHtml()+
+      challengeStepsHtml()+
+      '<div class="ch-section-head" id="ch-pick"><h2>Choisis la taille de ton compte</h2><p>Mêmes règles pour toutes les tailles : seuls les montants changent. Démarrer réinitialise le compte prop firm, ton compte normal n\'est jamais touché.</p></div>'+
       challengeCompareGridHtml()+
+      challengeRulesHtml()+
       challengeAttemptsHistoryHtml();
     wireChallengeCompareGrid(confirmStartChallenge);
+    const go = document.getElementById("ch-hero-cta");
+    if (go) go.addEventListener("click", ()=>{ const t = document.getElementById("ch-pick"); if (t) t.scrollIntoView({behavior:"smooth", block:"start"}); });
   } else {
-    // A FUNDED challenge has nothing left to fail (no more profit target,
-    // just the ongoing daily-loss/drawdown floors) — previously the ONLY way
-    // to start a next one was the "Gérer" modal's "Recommencer", worded as
-    // abandoning the current account even though a funded run is a success,
-    // not a loss. It's already kept forever either way (archiveChallenge()
-    // tags it "funded", never "abandoned" — see challengeAttemptsHistoryHtml()
-    // below) — only the live, no-longer-relevant prop book itself is
-    // replaced. So for the funded case specifically, show the tier grid
-    // directly here too, wired to confirmStartChallengeAfterFunded() (honest
-    // wording, no "abandon" language) instead of routing through that modal.
+    // A FUNDED challenge has nothing left to fail except the loss floors, so
+    // the tier picker is shown here too (wired to the honest "after funded"
+    // flow) — see confirmStartChallengeAfterFunded().
     body.innerHTML =
-      '<p class="chart-note" style="margin-bottom:10px;">'+challengeStatusLabel(c)+' · '+fmtMoney(c.tier)+' · Équité '+fmtMoney(propEquity()||0)+(c.phase==="funded"?' · Valeur financée '+fmtMoney(c.fundedValue):'')+'</p>'+
-      '<button class="btn-secondary" id="challenge-manage-btn-2">Gérer ce challenge</button>'+
-      challengeTimelineHtml(c)+
-      '<h4 class="challenge-history-head">Historique du challenge</h4>'+
-      '<div id="challenge-history-list">'+challengeTradeHistoryHtml()+'</div>'+
+      challengeStatusPanelHtml(c)+
+      '<div class="ch-two-col">'+
+        '<div class="ch-panel"><h3>Chronologie</h3>'+(challengeTimelineHtml(c) || '<div class="empty-note">Rien pour l\'instant.</div>')+'</div>'+
+        '<div class="ch-panel"><h3>Trades de ce challenge</h3><div id="challenge-history-list">'+challengeTradeHistoryHtml()+'</div></div>'+
+      '</div>'+
       (c.phase==="funded" ?
-        '<h4 class="challenge-history-head">🎉 Compte financé conservé — démarrer un nouveau challenge</h4>'+
-        '<p class="chart-note" style="margin:4px 0 8px;">Ton compte financé actuel reste dans ton historique ci-dessous, il n\'est pas supprimé. 👇 Choisis une taille pour démarrer le prochain :</p>'+
+        '<div class="ch-section-head" id="ch-pick"><h2>🎉 Compte financé : démarre le suivant</h2><p>Ton compte financé actuel reste dans ton historique, il n\'est pas supprimé. Choisis une taille pour le prochain challenge.</p></div>'+
         challengeCompareGridHtml()
       : '')+
       challengeAttemptsHistoryHtml();
     const btn = document.getElementById("challenge-manage-btn-2");
     if (btn) btn.addEventListener("click", openChallengeManageModal);
+    const tb = document.getElementById("ch-go-terminal");
+    if (tb) tb.addEventListener("click", ()=>{ if (state.activeBookName!=="prop" && typeof switchActiveBook==="function") switchActiveBook("prop"); switchView("terminal"); });
     if (c.phase==="funded") wireChallengeCompareGrid(confirmStartChallengeAfterFunded);
   }
+}
+function challengeHeroHtml(){
+  const pills = [
+    ["2 étapes","Challenge puis vérification"],
+    ["+"+CHALLENGE_STEPS.step1.profitTargetPct+" % → +"+CHALLENGE_STEPS.step2.profitTargetPct+" %","Objectifs"],
+    ["−"+CHALLENGE_RULES.maxDailyLossPct+" %","Perte / jour max"],
+    ["−"+CHALLENGE_RULES.maxDrawdownPct+" %","Perte totale max"],
+    ["x"+CHALLENGE_LEVERAGE_CAP,"Levier max"],
+  ];
+  // Decorative equity curve on the right: starts at the balance, dips (but
+  // stays above the −10 % floor), then climbs through the +10 % target.
+  const pts = [[0,150],[40,142],[80,158],[120,150],[160,170],[200,160],[240,132],[280,140],[320,112],[360,120],[400,92],[440,70],[480,78],[520,48]];
+  const path = pts.map((p,i)=>(i?'L':'M')+p[0]+' '+p[1]).join(' ');
+  const deco = '<svg class="ch-hero-deco" viewBox="0 0 560 260" preserveAspectRatio="xMidYMid meet" aria-hidden="true">'+
+    '<defs><linearGradient id="chEqFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--long)" stop-opacity=".28"/><stop offset="1" stop-color="var(--long)" stop-opacity="0"/></linearGradient></defs>'+
+    [40,80,120,160,200,240].map(y=>'<line x1="0" x2="560" y1="'+y+'" y2="'+y+'" stroke="currentColor" stroke-opacity=".06"/>').join('')+
+    '<line x1="0" x2="560" y1="60" y2="60" stroke="var(--long)" stroke-dasharray="6 6" stroke-opacity=".7"/>'+
+    '<text x="6" y="52" fill="var(--long)" font-size="12" font-family="IBM Plex Mono, monospace">OBJECTIF +10 %</text>'+
+    '<line x1="0" x2="560" y1="150" y2="150" stroke="currentColor" stroke-opacity=".25" stroke-dasharray="2 5"/>'+
+    '<text x="6" y="176" fill="currentColor" fill-opacity=".45" font-size="11" font-family="IBM Plex Mono, monospace">DÉPART</text>'+
+    '<line x1="0" x2="560" y1="232" y2="232" stroke="var(--short)" stroke-dasharray="6 6" stroke-opacity=".7"/>'+
+    '<text x="6" y="250" fill="var(--short)" font-size="12" font-family="IBM Plex Mono, monospace">PERTE MAX −10 %</text>'+
+    '<path d="'+path+' L520 260 L0 260 Z" fill="url(#chEqFill)"/>'+
+    '<path d="'+path+'" fill="none" stroke="var(--long)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>'+
+    '<circle cx="520" cy="48" r="6" fill="var(--long)"/><circle cx="520" cy="48" r="13" fill="var(--long)" fill-opacity=".2"/>'+
+  '</svg>';
+  return '<section class="ch-hero">'+deco+
+    '<div class="ch-hero-inner">'+
+      '<div class="challenge-hero-badge">🏆 PROP FIRM CHALLENGE</div>'+
+      '<h1>Prouve que tu sais gérer un compte financé.</h1>'+
+      '<p class="ch-hero-sub">Un compte démo calqué sur une vraie évaluation prop firm en 2 étapes, de '+fmtMoney(CHALLENGE_TIERS[0]).replace(".00","")+' à '+fmtMoney(CHALLENGE_TIERS[CHALLENGE_TIERS.length-1]).replace(".00","")+'. Atteins l\'objectif sans jamais toucher les limites de perte. Ton compte normal reste actif à côté, tu bascules entre les deux quand tu veux.</p>'+
+      '<div class="ch-hero-pills">'+pills.map(p=>'<div class="ch-pill"><b>'+p[0]+'</b><span>'+p[1]+'</span></div>').join("")+'</div>'+
+      '<button type="button" class="btn-primary ch-hero-cta" id="ch-hero-cta">Choisir mon compte ↓</button>'+
+    '</div>'+
+  '</section>';
+}
+function challengeStepsHtml(){
+  const steps = [
+    {n:"1", t:"Challenge", g:"+"+CHALLENGE_STEPS.step1.profitTargetPct+" %", d:"Atteins +"+CHALLENGE_STEPS.step1.profitTargetPct+" % de gain sur ton solde de départ."},
+    {n:"2", t:"Vérification", g:"+"+CHALLENGE_STEPS.step2.profitTargetPct+" %", d:"Refais +"+CHALLENGE_STEPS.step2.profitTargetPct+" %, mesurés depuis ton équité de fin d'étape 1."},
+    {n:"✓", t:"Compte financé", g:"Simulation", d:"Plus d'objectif : il ne reste qu'à respecter les limites de perte, sans limite de durée."},
+  ];
+  return '<div class="ch-steps">'+steps.map((st,i)=>
+    '<div class="ch-step'+(i===2?' is-final':'')+'">'+
+      '<div class="ch-step-num">'+st.n+'</div>'+
+      '<div class="ch-step-body"><div class="ch-step-top"><b>'+st.t+'</b><span class="ch-step-goal">'+st.g+'</span></div><p>'+st.d+'</p></div>'+
+    '</div>'+(i<2 ? '<div class="ch-step-arrow" aria-hidden="true">→</div>' : '')
+  ).join("")+'</div>'+
+  '<p class="ch-steps-note">Pendant toute la vie du compte, étapes et compte financé compris : perte journalière max −'+CHALLENGE_RULES.maxDailyLossPct+' % et perte totale max −'+CHALLENGE_RULES.maxDrawdownPct+' %. Toucher l\'une des deux = échec.</p>';
+}
+function challengeRulesHtml(){
+  const rules = [
+    {i:"📉", t:"Perte journalière max −"+CHALLENGE_RULES.maxDailyLossPct+" %", d:"Mesurée depuis ton équité en début de journée (minuit UTC), positions ouvertes comprises. Une mauvaise journée ne doit jamais dépasser ce seuil."},
+    {i:"⚠️", t:"Perte max −"+CHALLENGE_RULES.maxDrawdownPct+" %", d:"Mesurée depuis le solde de départ du compte, pendant toute sa vie, même une fois financé. C'est le plancher absolu."},
+    {i:"⚡", t:"Levier plafonné à x"+CHALLENGE_LEVERAGE_CAP, d:"Comme chez les vraies prop firms crypto. Pour gagner, il faut gérer son risque, pas miser gros."},
+    {i:"🗓️", t:"Pas de durée minimum", d:"Aucun nombre minimum de jours de trading : tu passes l'étape dès que l'objectif est atteint."},
+  ];
+  return '<div class="ch-section-head"><h2>Les règles, en clair</h2></div>'+
+    '<div class="ch-rules">'+rules.map(r=>'<div class="ch-rule"><span class="ch-rule-icon">'+r.i+'</span><div><b>'+r.t+'</b><p>'+r.d+'</p></div></div>').join("")+'</div>';
+}
+function challengeStatusPanelHtml(c){
+  const eq = propEquity()||0;
+  const inStep = c.phase==="step1" || c.phase==="step2";
+  const stepCfg = inStep ? CHALLENGE_STEPS[c.phase] : null;
+  const target = inStep ? c.stepStartEquity*(1+stepCfg.profitTargetPct/100) : null;
+  const progressPct = inStep ? Math.max(0, Math.min(100, ((eq-c.stepStartEquity)/(target-c.stepStartEquity))*100)) : 100;
+  const dailyFloor = c.dailyStartEquity*(1-CHALLENGE_RULES.maxDailyLossPct/100);
+  const dailyUsedPct = Math.max(0, Math.min(100, ((c.dailyStartEquity-eq)/(c.dailyStartEquity-dailyFloor))*100));
+  const overallFloor = c.startCash*(1-CHALLENGE_RULES.maxDrawdownPct/100);
+  const ddUsedPct = Math.max(0, Math.min(100, ((c.startCash-eq)/(c.startCash-overallFloor))*100));
+  const pnl = eq - c.startCash;
+  const stepIdx = c.phase==="step1" ? 0 : c.phase==="step2" ? 1 : c.phase==="funded" ? 2 : -1;
+  const statusCls = c.phase==="failed" ? "is-failed" : c.phase==="funded" ? "is-funded" : "";
+  const meter = (lbl, val, pct, cls)=>'<div class="ch-meter"><div class="ch-meter-top"><span>'+lbl+'</span><b>'+val+'</b></div><div class="ch-meter-bar"><i class="'+cls+'" style="width:'+pct.toFixed(1)+'%"></i></div></div>';
+  return '<section class="ch-status '+statusCls+'">'+
+    '<div class="ch-status-top">'+
+      '<div><div class="challenge-hero-badge">🏆 CHALLENGE '+fmtMoney(c.tier).replace(".00","")+'</div>'+
+        '<h1>'+escapeHtml(challengeStatusLabel(c))+'</h1>'+
+        '<div class="ch-status-sub">Démarré le '+new Date(c.startedAt).toLocaleDateString("fr-FR")+(c.phase==="funded" && c.fundedValue ? ' · Valeur financée '+fmtMoney(c.fundedValue) : '')+'</div></div>'+
+      '<div class="ch-status-eq"><span>Équité</span><b class="num">'+fmtMoney(eq)+'</b><em class="num '+(pnl>=0?"up":"down")+'">'+fmtMoneySigned(pnl)+' ('+fmtPct(pnl/c.startCash*100)+')</em></div>'+
+    '</div>'+
+    '<div class="ch-mini-steps">'+["Challenge","Vérification","Financé"].map((l,i)=>'<span class="'+(c.phase==="failed" ? "" : i<stepIdx ? "done" : i===stepIdx ? "current" : "")+'">'+(i<stepIdx && c.phase!=="failed" ? "✓ " : "")+l+'</span>').join('<i></i>')+'</div>'+
+    (c.phase!=="failed" ?
+      '<div class="ch-meters">'+
+        (inStep ? meter("Objectif +"+stepCfg.profitTargetPct+" %", fmtMoney(Math.max(0,eq-c.stepStartEquity))+" / "+fmtMoney(target-c.stepStartEquity), progressPct, "up") : '')+
+        meter("Perte du jour (max −"+CHALLENGE_RULES.maxDailyLossPct+" %)", fmtMoney(Math.max(0,c.dailyStartEquity-eq))+" / "+fmtMoney(c.dailyStartEquity-dailyFloor), dailyUsedPct, dailyUsedPct>70?"down":"warn")+
+        meter("Perte totale (max −"+CHALLENGE_RULES.maxDrawdownPct+" %)", fmtMoney(Math.max(0,c.startCash-eq))+" / "+fmtMoney(c.startCash-overallFloor), ddUsedPct, ddUsedPct>70?"down":"warn")+
+      '</div>' : '<p class="ch-status-sub" style="margin-top:12px;">Ce compte est figé : les positions encore ouvertes peuvent être fermées, rien de nouveau ne peut être ouvert. Choisis « Gérer » pour recommencer.</p>')+
+    '<div class="ch-status-actions">'+
+      (c.phase!=="failed" ? '<button type="button" class="btn-primary" id="ch-go-terminal">Trader ce compte →</button>' : '')+
+      '<button type="button" class="btn-secondary" id="challenge-manage-btn-2">Gérer ce challenge</button>'+
+    '</div>'+
+  '</section>';
 }
 // List of PAST challenge attempts (most recent first) — see archiveChallenge()
 // for what gets recorded and when. Shown on the Challenge page regardless of
@@ -7134,25 +7334,28 @@ function challengeTradeHistoryHtml(){
 // the $ does. Returns markup only; wireChallengeCompareGrid() below wires
 // the "Commencer" buttons once it's actually in the DOM.
 function challengeCompareGridHtml(){
-  const compareRows = [
-    {icon:"🎯", label:"Objectif Étape 1", val:"+"+CHALLENGE_STEPS.step1.profitTargetPct+"%", cls:"rule-up"},
-    {icon:"🏁", label:"Objectif Étape 2", val:"+"+CHALLENGE_STEPS.step2.profitTargetPct+"%", cls:"rule-up"},
-    {icon:"📉", label:"Perte journalière max", val:"-"+CHALLENGE_RULES.maxDailyLossPct+"%", cls:"rule-down"},
-    {icon:"⚠️", label:"Perte max (drawdown)", val:"-"+CHALLENGE_RULES.maxDrawdownPct+"%", cls:"rule-down"},
-    {icon:"⚡", label:"Levier max", val:"x"+CHALLENGE_LEVERAGE_CAP, cls:"rule-neutral"},
-  ];
-  let gridCells = '<div class="cc-cell cc-label-cell"></div>'+
-    CHALLENGE_TIERS.map((t,i)=>'<div class="cc-cell cc-amount-cell'+(i===2?' cc-col-hl':'')+'">'+
-      (i===2 ? '<span class="cc-tier-badge">Populaire</span>' : '')+
-      '<span class="cc-amount">$'+t.toLocaleString("en-US")+'</span>'+
-    '</div>').join("");
-  compareRows.forEach(r=>{
-    gridCells += '<div class="cc-cell cc-label-cell"><span class="cc-row-icon">'+r.icon+'</span><span class="cc-row-label">'+r.label+'</span></div>'+
-      CHALLENGE_TIERS.map((t,i)=>'<div class="cc-cell cc-value-cell '+r.cls+(i===2?' cc-col-hl':'')+'">'+r.val+'</div>').join("");
-  });
-  gridCells += '<div class="cc-cell cc-label-cell cc-cta-cell"></div>'+
-    CHALLENGE_TIERS.map((t,i)=>'<div class="cc-cell cc-cta-cell'+(i===2?' cc-col-hl':'')+'"><button type="button" class="cc-cta-btn" data-tier="'+t+'">Commencer →</button></div>').join("");
-  return '<div class="challenge-compare-wrap"><div class="challenge-compare-grid" id="challenge-compare-grid" style="grid-template-columns:minmax(118px,150px) repeat('+CHALLENGE_TIERS.length+',minmax(84px,1fr));">'+gridCells+'</div></div>';
+  const m = (v)=>"$"+Math.round(v).toLocaleString("en-US");
+  const opensLeft = Math.max(0, CHALLENGE_200K_MAX_OPENS-(state.challenge200kOpens||0));
+  return '<div class="ch-tiers" id="challenge-compare-grid">'+CHALLENGE_TIERS.map((t,i)=>{
+    const popular = i===2, top = t===200000;
+    const s1 = t*CHALLENGE_STEPS.step1.profitTargetPct/100;
+    const s2 = t*(1+CHALLENGE_STEPS.step1.profitTargetPct/100)*CHALLENGE_STEPS.step2.profitTargetPct/100;
+    const row = (l,v,cls)=>'<li><span>'+l+'</span><b class="'+(cls||"")+'">'+v+'</b></li>';
+    return '<div class="ch-tier'+(popular?' is-popular':'')+(top?' is-top':'')+'">'+
+      (popular ? '<span class="ch-tier-badge">Populaire</span>' : top ? '<span class="ch-tier-badge gem">💎 Concours EDB+</span>' : '')+
+      '<div class="ch-tier-label">Compte</div>'+
+      '<div class="ch-tier-amount">'+m(t)+'</div>'+
+      '<ul>'+
+        row("Objectif étape 1", "+"+m(s1), "up")+
+        '<li title="Mesuré depuis ton équité de fin d\'étape 1 : au minimum ce montant"><span>Objectif étape 2</span><b class="up">+'+m(s2)+'</b></li>'+
+        row("Perte / jour max", "−"+m(t*CHALLENGE_RULES.maxDailyLossPct/100), "down")+
+        row("Perte totale max", "−"+m(t*CHALLENGE_RULES.maxDrawdownPct/100), "down")+
+        row("Levier max", "x"+CHALLENGE_LEVERAGE_CAP)+
+      '</ul>'+
+      '<button type="button" class="ch-tier-cta" data-tier="'+t+'"'+(top && opensLeft===0 ? ' disabled' : '')+'>'+(top && opensLeft===0 ? 'Limite atteinte' : 'Commencer →')+'</button>'+
+      '<div class="ch-tier-foot">'+(top ? opensLeft+' ouverture'+(opensLeft>1?'s':'')+' restante'+(opensLeft>1?'s':'')+' sur '+CHALLENGE_200K_MAX_OPENS : '&nbsp;')+'</div>'+
+    '</div>';
+  }).join("")+'</div>';
 }
 function wireChallengeCompareGrid(onPick){
   const cGrid = document.getElementById("challenge-compare-grid");
