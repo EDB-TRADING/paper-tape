@@ -2110,6 +2110,101 @@
     .ch-status-eq{text-align:left;}
   }
 
+  /* ---------- Ressources : page pleine largeur ---------- */
+  #view-resources .learn-wrap.wrap-wide{max-width:1480px;}
+  #resources-card.rs-page{background:none;border:none;box-shadow:none;padding:0;}
+  .rs-page > * + *{margin-top:20px;}
+  .rs-hero{position:relative;overflow:hidden;border-radius:16px;border:1px solid var(--border-soft);display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);align-items:center;
+    background:radial-gradient(800px 360px at 90% 20%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 65%), linear-gradient(135deg, var(--panel-2) 0%, var(--panel) 65%);}
+  .rs-hero::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(520px 240px at 8% 0%, color-mix(in srgb, #4a9de8 12%, transparent), transparent 70%);}
+  .rs-hero-inner{position:relative;z-index:1;padding:42px 44px 38px;}
+  .rs-kicker{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--accent-light, var(--accent));background:color-mix(in srgb, var(--accent) 12%, transparent);border:1px solid color-mix(in srgb, var(--accent) 35%, var(--border-soft));padding:5px 10px;border-radius:999px;}
+  .rs-kicker svg{width:13px;height:13px;}
+  .rs-hero h1{font-size:40px;line-height:1.08;letter-spacing:-.02em;margin:16px 0 12px;color:var(--text);}
+  .rs-hero-sub{color:var(--text-dim);font-size:15px;line-height:1.6;margin:0 0 22px;max-width:540px;}
+  .rs-hero-stats{display:flex;flex-wrap:wrap;gap:8px;}
+  .rs-stat{background:color-mix(in srgb, var(--panel) 70%, transparent);border:1px solid var(--border-soft);border-radius:12px;padding:9px 13px;display:flex;flex-direction:column;gap:2px;}
+  .rs-stat b{font-family:var(--mono);font-size:15px;color:var(--text);}
+  .rs-stat span{font-size:11px;color:var(--text-faint);}
+  .rs-mosaic{position:relative;z-index:1;height:100%;min-height:300px;}
+  .rs-mosaic img{position:absolute;width:62%;aspect-ratio:16/10;object-fit:cover;border-radius:12px;border:1px solid var(--border);box-shadow:0 22px 44px -20px rgba(0,0,0,.75);background:#0a0d13;}
+  .rs-mosaic img:nth-child(1){right:34%;top:22%;transform:rotate(-5deg);opacity:.9;}
+  .rs-mosaic img:nth-child(2){right:4%;top:10%;transform:rotate(4deg);opacity:.95;}
+  .rs-mosaic img:nth-child(3){right:16%;top:44%;transform:rotate(-1deg);z-index:2;}
+  .rs-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  .rs-chips{display:flex;gap:6px;flex-wrap:wrap;}
+  .rs-chip{font-family:var(--sans);font-size:13px;font-weight:500;color:var(--text-dim);background:var(--panel);border:1px solid var(--border-soft);border-radius:999px;padding:7px 13px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:border-color .15s, color .15s, background .15s;}
+  .rs-chip:hover{color:var(--text);border-color:var(--border);}
+  .rs-chip i{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--text-faint);background:var(--panel-2);border-radius:999px;padding:1px 7px;}
+  .rs-chip.is-active{color:var(--text);border-color:color-mix(in srgb, var(--accent) 60%, var(--border));background:color-mix(in srgb, var(--accent) 13%, var(--panel));}
+  .rs-chip .rs-dot{width:8px;height:8px;border-radius:50%;background:var(--dot);}
+  .rs-note{font-size:12px;color:var(--text-faint);}
+  .rs-feature{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);border-radius:16px;overflow:hidden;border:1px solid color-mix(in srgb, #e8874a 45%, var(--border-soft));background:linear-gradient(160deg, color-mix(in srgb, #e8874a 9%, var(--panel)) 0%, var(--panel) 60%);text-decoration:none;color:inherit;transition:transform .18s ease, box-shadow .18s ease;}
+  .rs-feature:hover{transform:translateY(-2px);box-shadow:0 20px 44px -24px color-mix(in srgb, #e8874a 60%, transparent);}
+  .rs-feature-media{position:relative;overflow:hidden;background:#0a0d13;min-height:260px;}
+  .rs-feature-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s ease;}
+  .rs-feature:hover .rs-feature-media img{transform:scale(1.03);}
+  .rs-feature-body{padding:30px 32px;display:flex;flex-direction:column;gap:12px;justify-content:center;}
+  .rs-feature-badges{display:flex;gap:6px;flex-wrap:wrap;}
+  .rs-badge{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;border-radius:999px;padding:4px 9px;border:1px solid var(--border);color:var(--text-dim);background:var(--panel-2);}
+  .rs-badge.hot{background:#e8874a;border-color:#e8874a;color:#1a1008;font-weight:700;}
+  .rs-feature h2{font-size:30px;margin:2px 0 0;letter-spacing:-.02em;}
+  .rs-feature p{margin:0;font-size:14.5px;color:var(--text-dim);line-height:1.6;}
+  .rs-feature-steps{margin:2px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;}
+  .rs-feature-steps li{font-size:13px;color:var(--text-dim);display:flex;gap:9px;align-items:baseline;}
+  .rs-feature-steps li b{font-family:var(--mono);font-size:11px;color:#e8874a;flex:none;}
+  .rs-cta{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;margin-top:6px;border-radius:10px;padding:11px 18px;font-weight:600;font-size:14px;background:#e8874a;color:#1a1008;}
+  .rs-domain{font-family:var(--mono);font-size:11.5px;color:var(--text-faint);}
+  .rs-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:34px !important;margin-bottom:12px;}
+  .rs-section-head h2{font-size:21px;margin:0 0 3px;letter-spacing:-.01em;display:flex;align-items:center;gap:10px;}
+  .rs-section-head h2::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--dot);}
+  .rs-section-head p{margin:0;color:var(--text-dim);font-size:13.5px;}
+  .rs-count{font-family:var(--mono);font-size:12px;color:var(--text-faint);white-space:nowrap;}
+  .rs-warn-banner{display:flex;gap:12px;align-items:flex-start;border:1px solid color-mix(in srgb, var(--warn) 45%, var(--border-soft));background:color-mix(in srgb, var(--warn) 8%, var(--panel));border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13px;color:var(--text-dim);line-height:1.5;}
+  .rs-warn-banner b{color:var(--warn);}
+  .rs-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(270px, 1fr));gap:14px;}
+  .rs-card{position:relative;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--border-soft);border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;}
+  .rs-card:hover{transform:translateY(-3px);border-color:color-mix(in srgb, var(--dot) 55%, var(--border-soft));box-shadow:0 16px 34px -20px rgba(0,0,0,.7);}
+  .rs-card:focus-visible, .rs-feature:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .rs-card-media{position:relative;aspect-ratio:16/9;overflow:hidden;background:#0a0d13;border-bottom:1px solid var(--border-soft);}
+  .rs-card-media img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .45s ease;}
+  .rs-card:hover .rs-card-media img{transform:scale(1.05);}
+  .rs-card-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, transparent 55%, rgba(0,0,0,.55));pointer-events:none;}
+  .rs-card-tag{position:absolute;left:10px;bottom:10px;z-index:1;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#fff;background:rgba(10,10,12,.62);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:4px 9px;display:inline-flex;align-items:center;gap:6px;}
+  .rs-card-tag::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--dot);}
+  .rs-card-arrow{position:absolute;right:10px;top:10px;z-index:1;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(10,10,12,.62);backdrop-filter:blur(6px);color:#fff;font-size:14px;opacity:0;transform:translateY(-4px);transition:opacity .18s, transform .18s;}
+  .rs-card:hover .rs-card-arrow{opacity:1;transform:none;}
+  .rs-card-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:7px;flex:1;}
+  .rs-card-title{font-size:15.5px;font-weight:600;color:var(--text);}
+  .rs-card-desc{font-size:12.5px;color:var(--text-dim);line-height:1.55;flex:1;}
+  .rs-card-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid var(--border-soft);padding-top:10px;margin-top:4px;}
+  .rs-card-open{font-size:12.5px;font-weight:600;color:var(--text);white-space:nowrap;}
+  .rs-card:hover .rs-card-open{color:var(--dot);}
+  .rs-card.is-real .rs-card-foot .rs-domain::after{content:" · argent réel";color:var(--warn);}
+  .rs-section[hidden], .rs-feature[hidden]{display:none !important;}
+  .rs-disclaimer{font-size:12px;color:var(--text-faint);text-align:center;margin-top:28px !important;line-height:1.5;}
+  @media (max-width:1080px){
+    .rs-hero{grid-template-columns:minmax(0,1fr);}
+    .rs-mosaic{display:none;}
+    .rs-feature{grid-template-columns:minmax(0,1fr);}
+    .rs-feature-media{min-height:0;aspect-ratio:16/9;}
+  }
+  @media (max-width:720px){
+    .rs-hero-inner{padding:26px 18px 24px;}
+    .rs-hero h1{font-size:28px;}
+    .rs-hero-sub{font-size:14px;}
+    .rs-stat{padding:7px 10px;}
+    .rs-chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -2px;padding:2px;}
+    .rs-chips::-webkit-scrollbar{display:none;}
+    .rs-chip{flex:none;}
+    .rs-feature-body{padding:20px 18px 22px;}
+    .rs-feature h2{font-size:24px;}
+    .rs-cta{align-self:stretch;justify-content:center;}
+    .rs-section-head{margin-top:26px !important;}
+    .rs-grid{grid-template-columns:minmax(0,1fr);}
+    .rs-card-arrow{opacity:1;transform:none;}
+  }
+
   /* ---------- Investissement : actions Europe + poids en % ---------- */
   .inv-mono.cat-eu{color:#8ab4ff;border-color:color-mix(in srgb, #5b8def 40%, var(--border-soft));}
   .inv-om-pcts{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;}
@@ -13008,65 +13103,131 @@ function renderLearnDoc(k){
 // Each entry mirrors a screenshot in RESOURCE_SHOTS (same `id`) so the card
 // shows a real preview of the tool before a trader clicks through.
 const RESOURCES = [
-  {id:"mmt", tag:"Order flow", title:"MMT Terminal", url:"https://app.mmt.gg/w/45e66204-8c9f-49b7-b9dd-03bea2451777", color:"#e8874a",
+  {id:"mmt", group:"orderflow", tag:"Order flow", title:"MMT Terminal", url:"https://app.mmt.gg/w/Zpb32fbTYe2mz89K", featured:true,
     desc:"Layout order flow prêt à l'emploi (Smart Money Concepts / ICT) sur MMT."},
-  {id:"cryexc", tag:"Order flow", title:"CryExc Terminal", url:"https://cryexc.josedonato.com/app", color:"#e8874a",
+  {id:"cryexc", group:"orderflow", tag:"Order flow", title:"CryExc Terminal", url:"https://cryexc.josedonato.com/app",
     desc:"Terminal order flow complet, entièrement gratuit."},
-  {id:"godel", tag:"Order flow · Fondamentale", title:"Godel Terminal", url:"https://app.godelterminal.com/?page=register", color:"#e8874a",
+  {id:"godel", group:"orderflow", tag:"Order flow · Fondamentale", title:"Godel Terminal", url:"https://app.godelterminal.com/?page=register",
     desc:"Terminal complet : bon à la fois pour l'analyse fondamentale et pour l'order flow."},
-  {id:"openmarket", tag:"Order flow", title:"OpenMarket", url:"https://openmarket.xyz/chart/", color:"#e8874a",
+  {id:"openmarket", group:"orderflow", tag:"Order flow", title:"OpenMarket", url:"https://openmarket.xyz/chart/",
     desc:"Terminal de graphiques / order flow, dans le même esprit que les autres ci-dessus."},
-  {id:"velo", tag:"Data · Graphiques", title:"Velo", url:"https://velo.xyz/chart", color:"#4a9de8",
+  {id:"velo", group:"data", tag:"Data · Graphiques", title:"Velo", url:"https://velo.xyz/chart",
     desc:"Charting et data crypto multi-exchanges en temps réel (funding, OI, volumes par plateforme)."},
-  {id:"coinglass", tag:"Data", title:"Coinglass", url:"https://www.coinglass.com", color:"#4a9de8",
+  {id:"coinglass", group:"data", tag:"Data", title:"Coinglass", url:"https://www.coinglass.com",
     desc:"Hub centralisé de data crypto : funding, open interest, liquidations…"},
-  {id:"coinglass_heatmap", tag:"Data", title:"Coinglass — Liquidation Heat Map", url:"https://www.coinglass.com/pro/futures/LiquidationHeatMap", color:"#4a9de8",
+  {id:"coinglass_heatmap", group:"data", tag:"Data", title:"Coinglass — Liquidation Heat Map", url:"https://www.coinglass.com/pro/futures/LiquidationHeatMap",
     desc:"Carte de chaleur des zones de liquidation en direct."},
-  {id:"tradingview", tag:"Graphiques", title:"TradingView", url:"https://www.tradingview.com", color:"var(--accent)",
+  {id:"tradingview", group:"data", tag:"Graphiques", title:"TradingView", url:"https://www.tradingview.com",
     desc:"La référence pour l'analyse technique et les graphiques."},
-  {id:"lighter", tag:"DEX · Argent réel", title:"Lighter", url:"https://lighter.xyz", color:"var(--warn)", warn:true,
+  {id:"lighter", group:"real", tag:"DEX", title:"Lighter", url:"https://lighter.xyz",
     desc:"DEX perpétuels sans aucun frais ni commission."},
-  {id:"breakout", tag:"Prop firm · Argent réel", title:"Breakout", url:"https://www.breakoutprop.com", color:"var(--warn)", warn:true,
+  {id:"breakout", group:"real", tag:"Prop firm", title:"Breakout", url:"https://www.breakoutprop.com",
     desc:"Prop firm 100% crypto (Bybit) — jusqu'à $200K. Les challenges 1-Step ont un drawdown statique (pas suiveur) ; le 2-Step reste en trailing 8%."},
-  {id:"ftmo", tag:"Prop firm · Argent réel", title:"FTMO", url:"https://ftmo.com", color:"var(--warn)", warn:true,
+  {id:"ftmo", group:"real", tag:"Prop firm", title:"FTMO", url:"https://ftmo.com",
     desc:"Une des prop firms les plus connues — challenge pour obtenir un compte financé."},
-  {id:"fundednext", tag:"Prop firm · Argent réel", title:"FundedNext", url:"https://fundednext.com", color:"var(--warn)", warn:true,
+  {id:"fundednext", group:"real", tag:"Prop firm", title:"FundedNext", url:"https://fundednext.com",
     desc:"Prop firm — challenge pour obtenir un compte financé."},
 ];
+const RESOURCE_GROUPS = [
+  {id:"orderflow", label:"Order flow", title:"Terminaux order flow", color:"#e8874a",
+    sub:"Carnet d'ordres, footprint, heatmaps : pour voir qui achète et qui vend, pas seulement le prix."},
+  {id:"data", label:"Data & graphiques", title:"Data & graphiques", color:"#4a9de8",
+    sub:"Funding, open interest, liquidations et analyse technique multi-exchanges."},
+  {id:"real", label:"Argent réel", title:"Argent réel — pour plus tard", color:"var(--warn)",
+    sub:"DEX et prop firms, pour le jour où tu seras régulièrement rentable sur Paper Tape."},
+];
+function resourceDomain(url){
+  try{ return new URL(url).hostname.replace(/^www\./,""); }catch(e){ return ""; }
+}
+function resourceCardHtml(r, color){
+  const shot = RESOURCE_SHOTS[r.id];
+  return '<a class="rs-card'+(r.group==="real"?" is-real":"")+'" style="--dot:'+color+';" href="'+escapeHtml(r.url)+'" target="_blank" rel="noopener noreferrer" data-res="'+r.id+'">'+
+    '<div class="rs-card-media">'+
+      (shot ? '<img src="'+shot+'" alt="Aperçu de '+escapeHtml(r.title)+'" loading="lazy">' : '')+
+      '<span class="rs-card-tag">'+escapeHtml(r.tag)+'</span>'+
+      '<span class="rs-card-arrow" aria-hidden="true">↗</span>'+
+    '</div>'+
+    '<div class="rs-card-body">'+
+      '<div class="rs-card-title">'+escapeHtml(r.title)+'</div>'+
+      '<div class="rs-card-desc">'+escapeHtml(r.desc)+'</div>'+
+      '<div class="rs-card-foot"><span class="rs-domain">'+escapeHtml(resourceDomain(r.url))+'</span><span class="rs-card-open">Ouvrir ↗</span></div>'+
+    '</div>'+
+  '</a>';
+}
 // Called from switchView("resources") — paywall for a non-member (same
 // pattern as News/Quiz/Connaissances/Challenge/Trades EDB+), otherwise
-// builds the intro + link grid (static content, no live data).
+// builds the page (hero + featured MMT layout + one section per group,
+// filterable by chips). Static content, no live data, no Firestore read.
 function renderResources(){
   const el = document.getElementById("resources-card");
   if (!el) return;
   if (!isEdbPlus()){
+    el.classList.remove("rs-page");
+    delete el.dataset.built;
     el.innerHTML = edbPlusPaywallHtml("resources");
     wireEdbPlusCta("resources");
     return;
   }
   if (el.dataset.built) return;
   el.dataset.built = "1";
-  el.innerHTML =
-    '<div class="quiz-intro" style="padding:20px 10px 24px;">'+
-      '<div class="quiz-cat">Liens externes</div>'+
-      '<h2>Ressources trading</h2>'+
-      '<p>Une sélection d\'outils externes utiles pour l\'order flow, la fondamentale et la data crypto — recommandés par EDB. Ces sites ne sont pas gérés par Paper Tape, ouvre-les avec ton propre jugement.</p>'+
-    '</div>'+
-    '<div class="resource-grid" id="resource-grid"></div>';
-  const grid = document.getElementById("resource-grid");
-  grid.innerHTML = RESOURCES.map(r=>{
-    const shot = RESOURCE_SHOTS[r.id];
-    const img = shot ? '<img class="resource-card-img" src="'+shot+'" alt="Aperçu de '+escapeHtml(r.title)+'" loading="lazy">' : '';
-    return '<a class="resource-card" style="border-left-color:'+r.color+';" href="'+r.url+'" target="_blank" rel="noopener noreferrer">'+
-      img+
-      '<div class="resource-card-body">'+
-        '<div class="resource-card-tag">'+escapeHtml(r.tag)+'</div>'+
-        '<div class="resource-card-head"><span class="resource-card-title">'+escapeHtml(r.title)+'</span><span class="resource-card-open">Ouvrir ↗</span></div>'+
-        '<div class="resource-card-desc">'+escapeHtml(r.desc)+'</div>'+
-        (r.warn ? '<div class="resource-card-warn">⚠️ Argent réel en jeu — ne commence pas à trader ici avant d\'être opérationnel sur le compte démo Paper Tape.</div>' : '')+
+  el.classList.add("rs-page");
+  const featured = RESOURCES.find(r=>r.featured);
+  const mosaic = ["velo","godel","mmt"].filter(id=>RESOURCE_SHOTS[id])
+    .map(id=>'<img src="'+RESOURCE_SHOTS[id]+'" alt="" aria-hidden="true">').join("");
+  const chips = [{id:"all", label:"Tout", n:RESOURCES.length, color:null}]
+    .concat(RESOURCE_GROUPS.map(g=>({id:g.id, label:g.label, n:RESOURCES.filter(r=>r.group===g.id).length, color:g.color})))
+    .map(c=>'<button type="button" class="rs-chip'+(c.id==="all"?" is-active":"")+'" data-rs-filter="'+c.id+'"'+(c.color?' style="--dot:'+c.color+';"':'')+'>'+
+      (c.color?'<span class="rs-dot"></span>':'')+escapeHtml(c.label)+'<i>'+c.n+'</i></button>').join("");
+  const featureHtml = featured ?
+    '<a class="rs-feature" id="rs-feature" href="'+escapeHtml(featured.url)+'" target="_blank" rel="noopener noreferrer" data-group="orderflow">'+
+      '<div class="rs-feature-media">'+(RESOURCE_SHOTS[featured.id]?'<img src="'+RESOURCE_SHOTS[featured.id]+'" alt="Aperçu du layout '+escapeHtml(featured.title)+'">':'')+'</div>'+
+      '<div class="rs-feature-body">'+
+        '<div class="rs-feature-badges"><span class="rs-badge hot">Layout EDB</span><span class="rs-badge">'+escapeHtml(featured.tag)+'</span></div>'+
+        '<h2>'+escapeHtml(featured.title)+'</h2>'+
+        '<p>'+escapeHtml(featured.desc)+'</p>'+
+        '<ul class="rs-feature-steps">'+
+          '<li><b>01</b>Ouvre le lien : le workspace partagé par EDB se charge dans MMT.</li>'+
+          '<li><b>02</b>Choisis ta paire et ton unité de temps.</li>'+
+          '<li><b>03</b>Repère tes zones sur MMT, puis passe l\'ordre sur ton compte démo Paper Tape.</li>'+
+        '</ul>'+
+        '<span class="rs-cta">Ouvrir le layout ↗</span>'+
+        '<span class="rs-domain">'+escapeHtml(resourceDomain(featured.url))+'</span>'+
       '</div>'+
-    '</a>';
+    '</a>' : '';
+  const sectionsHtml = RESOURCE_GROUPS.map(g=>{
+    const items = RESOURCES.filter(r=>r.group===g.id && !r.featured);
+    if (!items.length) return "";
+    return '<section class="rs-section" data-group="'+g.id+'">'+
+      '<div class="rs-section-head" style="--dot:'+g.color+';"><div><h2>'+escapeHtml(g.title)+'</h2><p>'+escapeHtml(g.sub)+'</p></div>'+
+        '<span class="rs-count">'+RESOURCES.filter(r=>r.group===g.id).length+' outils</span></div>'+
+      (g.id==="real" ? '<div class="rs-warn-banner"><span aria-hidden="true">⚠️</span><div><b>Argent réel en jeu.</b> Ne commence pas à trader sur ces plateformes avant d\'être opérationnel et régulier sur le compte démo Paper Tape.</div></div>' : '')+
+      '<div class="rs-grid">'+items.map(r=>resourceCardHtml(r, g.color)).join("")+'</div>'+
+    '</section>';
   }).join("");
+  el.innerHTML =
+    '<div class="rs-hero">'+
+      '<div class="rs-hero-inner">'+
+        '<span class="rs-kicker"><svg class="ico"><use href="#i-link"/></svg>Sélection EDB</span>'+
+        '<h1>Ressources trading</h1>'+
+        '<p class="rs-hero-sub">Les outils externes recommandés par EDB pour l\'order flow, la data crypto et l\'analyse. Ces sites ne sont pas gérés par Paper Tape : ouvre-les avec ton propre jugement.</p>'+
+        '<div class="rs-hero-stats">'+
+          '<div class="rs-stat"><b>'+RESOURCES.length+'</b><span>outils</span></div>'+
+          '<div class="rs-stat"><b>'+RESOURCE_GROUPS.length+'</b><span>catégories</span></div>'+
+          '<div class="rs-stat"><b>1</b><span>layout EDB prêt</span></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="rs-mosaic" aria-hidden="true">'+mosaic+'</div>'+
+    '</div>'+
+    '<div class="rs-toolbar"><div class="rs-chips" role="tablist" aria-label="Filtrer les ressources">'+chips+'</div>'+
+      '<span class="rs-note">Chaque lien s\'ouvre dans un nouvel onglet.</span></div>'+
+    featureHtml+
+    sectionsHtml+
+    '<p class="rs-disclaimer">Liens vers des sites tiers : vérifie toujours leurs conditions (frais, pays autorisés, règles) avant de t\'inscrire.</p>';
+  el.querySelectorAll("[data-rs-filter]").forEach(btn=>btn.addEventListener("click", ()=>{
+    const f = btn.dataset.rsFilter;
+    el.querySelectorAll("[data-rs-filter]").forEach(b=>b.classList.toggle("is-active", b===btn));
+    el.querySelectorAll(".rs-section, #rs-feature").forEach(sec=>{ sec.hidden = !(f==="all" || sec.dataset.group===f); });
+  }));
 }
 
 /* ============================= QUIZ LEADERBOARD ============================= */
