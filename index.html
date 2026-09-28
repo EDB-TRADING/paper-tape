@@ -2109,6 +2109,17 @@
     .ch-status h1{font-size:24px;}
     .ch-status-eq{text-align:left;}
   }
+
+  /* ---------- Investissement : actions Europe + poids en % ---------- */
+  .inv-mono.cat-eu{color:#8ab4ff;border-color:color-mix(in srgb, #5b8def 40%, var(--border-soft));}
+  .inv-om-pcts{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;}
+  .inv-om-pcts span{font-size:11.5px;color:var(--text-faint);margin-right:2px;}
+  .inv-om-pcts button{font-family:var(--mono);font-size:11.5px;padding:4px 9px;border-radius:7px;background:var(--panel-2);border:1px solid var(--border);color:var(--text-dim);cursor:pointer;}
+  .inv-om-pcts button:hover, .inv-om-pcts button.active{border-color:var(--accent);color:var(--text);}
+  .inv-om-w{font-family:var(--sans);font-size:11px;color:var(--text-faint);font-weight:400;}
+  .inv-om-sum b.warn{color:var(--warn);}
+  .inv-om-conc{font-size:11.5px;color:var(--warn);line-height:1.45;padding:6px 0 0;}
+  .inv-hold-w{font-size:10.5px;color:var(--text-faint);font-family:var(--sans);}
   @media (max-width:520px){
     .acct-metric:nth-child(3){display:none;} /* PnL ouvert: equity alone on very narrow phones */
     .tb-title{font-size:17px;max-width:40vw;overflow:hidden;text-overflow:ellipsis;}
@@ -13406,6 +13417,8 @@ function switchView(name){
   if (name==="invest"){
     renderInvest();
     investKick();
+  } else if (typeof syncInvestEuSubscription==="function"){
+    syncInvestEuSubscription();
   }
   if (name==="concoursedbplus" && typeof renderHardcoreChallenge==="function"){
     renderHardcoreChallenge(); // paints immediately instead of waiting for the next price tick
@@ -13468,9 +13481,11 @@ const INVEST_HISTORY_MAX = 100;
 const INVEST_VENUES = {
   euronext: {label:"Euronext Paris", sess:{name:"Euronext", timeZone:"Europe/Paris", openH:9, openM:0, closeH:17, closeM:30}},
   nyse:     {label:"NYSE / Nasdaq",  sess:{name:"NYSE", timeZone:"America/New_York", openH:9, openM:30, closeH:16, closeM:0}},
+  amsterdam:{label:"Euronext Amsterdam", sess:{name:"Amsterdam", timeZone:"Europe/Amsterdam", openH:9, openM:0, closeH:17, closeM:30}},
+  xetra:    {label:"Xetra (Francfort)", sess:{name:"Xetra", timeZone:"Europe/Berlin", openH:9, openM:0, closeH:17, closeM:30}},
   crypto:   {label:"Crypto 24/7",    sess:null},
 };
-const INVEST_CATS = [["all","Tout"],["etf","ETF"],["stock","Actions US"],["commodity","Matières premières"],["crypto","Crypto"]];
+const INVEST_CATS = [["all","Tout"],["etf","ETF"],["eu","Actions Europe"],["stock","Actions US"],["commodity","Matières premières"],["crypto","Crypto"]];
 // src.symbol → priced off the Terminal's own feed (market[symbol].last,
 // already in index points for SPY/QQQ) times `ratio`, so the ETF has a
 // realistic unit price but exactly the index's return. src.xyz → Hyperliquid
@@ -13484,6 +13499,36 @@ const INVEST_ASSETS = [
     desc:"ETF physique sur le S&P 500 : il détient vraiment les actions de l'indice. Non éligible au PEA (actions américaines), donc en CTO."},
   {id:"NDX100", name:"ETF Nasdaq-100", short:"NDX100", cat:"etf", pea:false, venue:"euronext", src:{symbol:"QQQ", ratio:1/44},
     desc:"ETF physique sur le Nasdaq-100. Non éligible au PEA, donc en CTO."},
+  // src.eu → real Euronext/Xetra quote (in EUR), fetched server-side by the
+  // euQuotesRefresh Cloud Function every 5 min and read from Firestore
+  // (marketData/euQuotes); converted to $ at the live EUR/USD rate.
+  {id:"CACETF", name:"ETF CAC 40", short:"CAC", cat:"etf", pea:true, venue:"euronext", src:{eu:"CAC.PA"},
+    desc:"Réplique le CAC 40, les 40 plus grandes capitalisations de la Bourse de Paris. Éligible au PEA."},
+  {id:"CW8", name:"ETF MSCI World", short:"CW8", cat:"etf", pea:true, venue:"euronext", src:{eu:"CW8.PA"},
+    desc:"Environ 1 400 grandes entreprises de 23 pays développés en un seul titre. Le grand classique du PEA « investi une fois, gardé longtemps »."},
+  {id:"STOXX600", name:"ETF Stoxx Europe 600", short:"MEUD", cat:"etf", pea:true, venue:"euronext", src:{eu:"MEUD.PA"},
+    desc:"600 entreprises européennes de toutes tailles. Éligible au PEA."},
+  {id:"EMERG", name:"ETF Marchés émergents (PEA)", short:"PAEEM", cat:"etf", pea:true, venue:"euronext", src:{eu:"PAEEM.PA"},
+    desc:"Chine, Inde, Taïwan, Brésil… en version synthétique éligible au PEA. Plus volatil que les marchés développés."},
+  {id:"MC",   name:"LVMH",               short:"MC",   cat:"eu", pea:true, venue:"euronext", src:{eu:"MC.PA"}},
+  {id:"RMS",  name:"Hermès",             short:"RMS",  cat:"eu", pea:true, venue:"euronext", src:{eu:"RMS.PA"}},
+  {id:"ORL",  name:"L'Oréal",            short:"OR",   cat:"eu", pea:true, venue:"euronext", src:{eu:"OR.PA"}},
+  {id:"TTE",  name:"TotalEnergies",      short:"TTE",  cat:"eu", pea:true, venue:"euronext", src:{eu:"TTE.PA"}},
+  {id:"AIR",  name:"Airbus",             short:"AIR",  cat:"eu", pea:true, venue:"euronext", src:{eu:"AIR.PA"}},
+  {id:"SAF",  name:"Safran",             short:"SAF",  cat:"eu", pea:true, venue:"euronext", src:{eu:"SAF.PA"}},
+  {id:"ORA",  name:"Orange",             short:"ORA",  cat:"eu", pea:true, venue:"euronext", src:{eu:"ORA.PA"}},
+  {id:"BNP",  name:"BNP Paribas",        short:"BNP",  cat:"eu", pea:true, venue:"euronext", src:{eu:"BNP.PA"}},
+  {id:"GLE",  name:"Société Générale",   short:"GLE",  cat:"eu", pea:true, venue:"euronext", src:{eu:"GLE.PA"}},
+  {id:"SANF", name:"Sanofi",             short:"SAN",  cat:"eu", pea:true, venue:"euronext", src:{eu:"SAN.PA"}},
+  {id:"SU",   name:"Schneider Electric", short:"SU",   cat:"eu", pea:true, venue:"euronext", src:{eu:"SU.PA"}},
+  {id:"AIL",  name:"Air Liquide",        short:"AI",   cat:"eu", pea:true, venue:"euronext", src:{eu:"AI.PA"}},
+  {id:"BN",   name:"Danone",             short:"BN",   cat:"eu", pea:true, venue:"euronext", src:{eu:"BN.PA"}},
+  {id:"KER",  name:"Kering",             short:"KER",  cat:"eu", pea:true, venue:"euronext", src:{eu:"KER.PA"}},
+  {id:"CAPG", name:"Capgemini",          short:"CAP",  cat:"eu", pea:true, venue:"euronext", src:{eu:"CAP.PA"}},
+  {id:"DSY",  name:"Dassault Systèmes",  short:"DSY",  cat:"eu", pea:true, venue:"euronext", src:{eu:"DSY.PA"}},
+  {id:"ASML", name:"ASML",               short:"ASML", cat:"eu", pea:true, venue:"amsterdam", src:{eu:"ASML.AS"}},
+  {id:"SAP",  name:"SAP",                short:"SAP",  cat:"eu", pea:true, venue:"xetra", src:{eu:"SAP.DE"}},
+  {id:"SIE",  name:"Siemens",            short:"SIE",  cat:"eu", pea:true, venue:"xetra", src:{eu:"SIE.DE"}},
   {id:"AAPL",  name:"Apple",      short:"AAPL",  cat:"stock", venue:"nyse", src:{xyz:"AAPL"}},
   {id:"MSFT",  name:"Microsoft",  short:"MSFT",  cat:"stock", venue:"nyse", src:{xyz:"MSFT"}},
   {id:"NVDA",  name:"Nvidia",     short:"NVDA",  cat:"stock", venue:"nyse", src:{xyz:"NVDA"}},
@@ -13548,8 +13593,45 @@ function scheduleInvestXyz(){
 function investKick(){
   if (Date.now()-investXyzLastAt > 10000 && (document.body.dataset.view==="invest" || investHoldsXyz())) pollInvestXyz();
   scheduleInvestXyz();
+  syncInvestEuSubscription();
 }
+/* European quotes: one Firestore doc (marketData/euQuotes) refreshed every
+   5 min by the euQuotesRefresh Cloud Function. Listened to only while the
+   Investissement page is open or the portfolio holds a European asset. */
+const investEu = {quotes:{}, updatedAt:0, error:null};
+let investEuUnsub = null;
+const INVEST_EU_STALE_MS = 20*60*1000;
+function investHoldsEu(){
+  const inv = state.invest;
+  if (!inv) return false;
+  return ["pea","cto"].some(env=>Object.keys(inv[env].holdings).some(id=>{ const a = investAssetById(id); return a && a.src.eu; }));
+}
+function syncInvestEuSubscription(){
+  const want = !!(dbReady && db) && (document.body.dataset.view==="invest" || investHoldsEu());
+  if (want && !investEuUnsub){
+    try{
+      investEuUnsub = db.collection("marketData").doc("euQuotes").onSnapshot(snap=>{
+        const d = snap && snap.exists ? snap.data() : null;
+        investEu.quotes = (d && d.quotes) || {};
+        investEu.updatedAt = d ? (trialTimestampToMs(d.updatedAt) || 0) : 0;
+        investEu.error = d ? null : "pas encore de cours";
+        investOnPrices();
+      }, err=>{ investEu.error = "indisponible"; console.warn("eu quotes", err); });
+    }catch(e){ investEu.error = "indisponible"; }
+  } else if (!want && investEuUnsub){
+    try{ investEuUnsub(); }catch(e){}
+    investEuUnsub = null;
+  }
+}
+function eurUsdRate(){ const m = market.EURUSD; return (m && m.last) ? m.last : null; }
 function investQuote(a){
+  if (a.src.eu){
+    const q = investEu.quotes[a.src.eu];
+    const fx = eurUsdRate();
+    if (!q || !(q.px>0)) return {px:null, chg:null};
+    const chg = q.prev>0 ? (q.px-q.prev)/q.prev*100 : null;
+    return {px: fx ? q.px*fx : null, chg, native:q.px, cur:q.cur||"EUR", fx};
+  }
   if (a.src.xyz){
     const q = investXyz[a.src.xyz];
     return q ? {px:q.last, chg:q.changePct} : {px:null, chg:null};
@@ -13634,6 +13716,10 @@ function investFmtPx(p){
   const d = p<1 ? 4 : 2;
   return "$"+p.toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
 }
+function investFmtEur(p){
+  if (p==null || !isFinite(p)) return "—";
+  return p.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})+" €";
+}
 function investFmtDate(iso){
   const d = new Date(iso);
   return isNaN(d) ? "—" : d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"});
@@ -13674,9 +13760,10 @@ function investCheckOrder(id, env, side, qty){
   if (!a || !inv) return {err:"Actif inconnu."};
   if (env==="pea" && !a.pea) return {err:"Cet actif n'est pas éligible au PEA : passe par le CTO."};
   const q = investQuote(a);
-  if (q.px==null) return {err:"Prix indisponible pour le moment, réessaie dans quelques secondes."};
+  if (q.px==null) return {err: a.src.eu ? "Cours européens pas encore disponibles (mis à jour toutes les 5 min pendant la séance)." : "Prix indisponible pour le moment, réessaie dans quelques secondes."};
   const st = investVenueStatus(a);
   if (!st.open) return {err:"Marché fermé ("+st.label.replace("Fermé · ","")+"). Les ordres ne passent que pendant les heures de cotation.", closed:true, px:q.px};
+  if (a.src.eu && Date.now()-investEu.updatedAt > INVEST_EU_STALE_MS) return {err:"Le cours n'a pas été mis à jour depuis plus de 20 min : ordre bloqué pour ne pas trader sur un prix périmé. Réessaie dans quelques minutes.", px:q.px};
   if (!(qty>0)) return {err:"Indique une quantité.", px:q.px};
   if (!a.fractional && Math.floor(qty)!==qty) return {err:"Cet actif s'achète par unités entières.", px:q.px};
   const gross = qty*q.px, fee = gross*INVEST_FEE_RATE;
@@ -13773,7 +13860,7 @@ function investIntroHtml(){
     '<h2>Investir sur le long terme</h2>'+
     '<p class="inv-intro-lead">Un portefeuille fictif de <b>100 000 $</b>, séparé de ton compte de trading. Tu le répartis entre un <b>PEA</b> et un <b>compte-titres (CTO)</b>, comme un vrai investisseur français, et tu achètes des ETF, des actions américaines, des matières premières ou des cryptos.</p>'+
     '<div class="inv-intro-grid">'+
-      '<div class="inv-intro-tile"><h4>PEA</h4><p>Enveloppe fiscale : uniquement des titres européens ou des ETF éligibles. Après 5 ans, les gains ne supportent que 18,6 % de prélèvements sociaux. Avant 5 ans, un retrait le clôture.</p></div>'+
+      '<div class="inv-intro-tile"><h4>PEA</h4><p>Enveloppe fiscale : actions européennes (LVMH, Orange, TotalEnergies…) et ETF éligibles (MSCI World, CAC 40…). Après 5 ans, les gains ne supportent que 18,6 % de prélèvements sociaux. Avant 5 ans, un retrait le clôture.</p></div>'+
       '<div class="inv-intro-tile"><h4>Compte-titres</h4><p>Tout est permis (actions US, or, crypto…), sans plafond. En contrepartie, les plus-values sont taxées à la flat tax de 31,4 %.</p></div>'+
       '<div class="inv-intro-tile"><h4>Comme en vrai</h4><p>Frais de 0,5 % par ordre, parts entières, ordres seulement quand la Bourse est ouverte, et une estimation de l\'impôt si tu retirais tout aujourd\'hui.</p></div>'+
     '</div>'+
@@ -13796,7 +13883,7 @@ function investHoldingsHtml(env){
       return '<div class="inv-hold-row">'+
         '<div class="inv-asset">'+investMonogram(a)+'<div><b>'+escapeHtml(a.name)+'</b>'+
           '<span>'+investFmtQty(a,h.qty)+' '+(a.fractional ? escapeHtml(a.short) : "part"+(h.qty>1?"s":""))+' · PRU '+investFmtPx(h.cost/h.qty)+' · cours <em data-live="h.'+k+'.px">—</em></span></div></div>'+
-        '<div class="inv-hold-val"><b class="num" data-live="h.'+k+'.value">—</b><span class="num" data-live="h.'+k+'.gain">—</span></div>'+
+        '<div class="inv-hold-val"><b class="num" data-live="h.'+k+'.value">—</b><span class="num" data-live="h.'+k+'.gain">—</span><span class="inv-hold-w" data-live="h.'+k+'.w">—</span></div>'+
         '<span class="inv-row-acts">'+
           '<button type="button" class="inv-mini" data-inv-act="order" data-id="'+id+'" data-env="'+env+'" data-side="buy">Acheter</button>'+
           '<button type="button" class="inv-mini" data-inv-act="order" data-id="'+id+'" data-env="'+env+'" data-side="sell">Vendre</button>'+
@@ -13819,7 +13906,7 @@ function investEnvCardHtml(env){
   return '<div class="card inv-env inv-env-'+env+'">'+
     '<div class="inv-env-head">'+
       '<div><h3><i class="inv-dot '+env+'"></i>'+(isPea ? "PEA" : "Compte-titres (CTO)")+'</h3>'+
-        '<div class="inv-env-sub">'+(isPea ? "Plan d'épargne en actions · ETF éligibles uniquement" : "Ordinaire · tous les actifs, sans plafond")+'</div></div>'+
+        '<div class="inv-env-sub">'+(isPea ? "Plan d'épargne en actions · actions européennes et ETF éligibles" : "Ordinaire · tous les actifs, sans plafond")+'</div></div>'+
       '<div class="inv-env-value"><b class="num" data-live="'+env+'.value">—</b><span class="num" data-live="'+env+'.gain">—</span></div>'+
     '</div>'+
     '<div class="inv-env-metrics">'+
@@ -13838,7 +13925,9 @@ function investMarketHtml(){
       '<div class="inv-chips" role="tablist">'+INVEST_CATS.map(([k,l])=>'<button type="button" class="inv-chip'+(investFilter===k?" active":"")+'" data-inv-act="filter" data-cat="'+k+'">'+l+'</button>').join("")+'</div>'+
     '</div>'+
     '<p class="chart-note inv-mkt-note">Ordres au marché, exécutés au dernier cours, uniquement pendant les heures de Bourse · frais 0,5 % · '+
-      'actions US via des marchés qui suivent leur cours en continu'+(investXyzError ? ' · <span class="down">cours actions indisponibles ('+escapeHtml(investXyzError)+')</span>' : '')+'</p>'+
+      'actions US via des marchés qui suivent leur cours en continu · actions et ETF européens cotés en €, convertis en $ au taux EUR/USD en direct, cours mis à jour toutes les 5 min'+
+      (investXyzError ? ' · <span class="down">cours actions US indisponibles ('+escapeHtml(investXyzError)+')</span>' : '')+
+      (investEu.error ? ' · <span class="down">cours européens : '+escapeHtml(investEu.error)+'</span>' : '')+'</p>'+
     '<div class="inv-mkt">'+list.map(a=>
       '<button type="button" class="inv-mkt-row" data-inv-act="order" data-id="'+a.id+'" data-side="buy">'+
         '<span class="inv-asset">'+investMonogram(a)+'<span><b>'+escapeHtml(a.name)+'</b><span>'+escapeHtml(a.short)+(a.pea ? ' <em class="inv-tag-pea">PEA</em>' : '')+'</span></span></span>'+
@@ -13948,13 +14037,14 @@ function renderInvestLive(){
       vals["h."+env+"."+id+".px"] = [investFmtPx(px)];
       vals["h."+env+"."+id+".value"] = [fmtMoney(value)];
       vals["h."+env+"."+id+".gain"] = [fmtMoneySigned(gain)+" · "+fmtPct(h.cost ? gain/h.cost*100 : 0), investSignedCls(gain)];
+      vals["h."+env+"."+id+".w"] = [(value/Math.max(1,t.total)*100).toLocaleString("fr-FR",{maximumFractionDigits:1})+" % du patrimoine"];
     });
   });
   vals["alloc.reserve"] = [fmtMoney(t.reserve)];
   const now = new Date();
   INVEST_ASSETS.forEach(a=>{
     const q = investQuote(a);
-    vals["px."+a.id] = [investFmtPx(q.px)];
+    vals["px."+a.id] = [q.native!=null ? investFmtEur(q.native) : investFmtPx(q.px)];
     vals["chg."+a.id] = [q.chg==null ? "—" : fmtPct(q.chg), q.chg==null ? "flat" : investSignedCls(q.chg)];
     const st = investVenueStatus(a, now);
     vals["st."+a.id] = [st.label, st.open ? "open" : "closed"];
@@ -14023,6 +14113,10 @@ function renderInvestOrderModal(){
       '<div class="inv-om-label">Quantité'+(a.fractional ? "" : " (parts entières)")+'</div>'+
       '<div class="inv-om-qty"><input type="number" id="inv-om-qty" inputmode="decimal" min="0" step="'+(a.fractional?"0.000001":"1")+'" placeholder="0" value="'+escapeHtml(String(o.qty))+'">'+
         '<button type="button" class="btn-secondary" id="inv-om-max">Max</button></div>'+
+      '<div class="inv-om-pcts">'+
+        '<span>'+(o.side==="buy" ? "% de ton patrimoine" : "% de ta ligne")+'</span>'+
+        (o.side==="buy" ? [2,5,10,20,50] : [25,50,75,100]).map(v=>'<button type="button" data-om-pct="'+v+'">'+v+' %</button>').join("")+
+      '</div>'+
       '<div class="inv-om-sum" id="inv-om-sum"></div>'+
       '<div class="inv-om-err" id="inv-om-err" hidden></div>'+
       '<button type="button" class="btn-primary inv-om-go" id="inv-om-go">'+(o.side==="buy" ? "Acheter" : "Vendre")+'</button>'+
@@ -14040,6 +14134,27 @@ function renderInvestOrderModal(){
   const qtyEl = document.getElementById("inv-om-qty");
   qtyEl.addEventListener("input", ()=>{ o.qty = qtyEl.value; updateInvestOrderPreview(); });
   qtyEl.addEventListener("keydown", (e)=>{ if (e.key==="Enter") document.getElementById("inv-om-go").click(); });
+  box.querySelectorAll("[data-om-pct]").forEach(b=>b.addEventListener("click", ()=>{
+    const pct = parseFloat(b.dataset.omPct)/100;
+    const q = investQuote(a);
+    if (!(q.px>0)) return;
+    let qty, hint = "";
+    if (o.side==="buy"){
+      // Sized on the WHOLE portfolio (not just this envelope's cash): if the
+      // envelope can't pay for it, the usual "espèces insuffisantes" message
+      // tells the trader to make a deposit first.
+      const budget = investTotals().total*pct;
+      qty = investMaxBuyQty(a, budget, q.px);
+      if (!qty) hint = pct*100+" % de ton patrimoine ("+fmtMoney(budget)+") ne suffit pas pour une part à "+investFmtPx(q.px*(1+INVEST_FEE_RATE))+".";
+    } else {
+      const h = held(o.env);
+      qty = a.fractional ? Math.floor(h*pct*1e6)/1e6 : (pct>=1 ? h : Math.floor(h*pct));
+    }
+    o.qty = qty>0 ? String(qty) : "";
+    qtyEl.value = o.qty;
+    box.querySelectorAll("[data-om-pct]").forEach(x=>x.classList.toggle("active", x===b));
+    updateInvestOrderPreview(hint || undefined);
+  }));
   document.getElementById("inv-om-max").addEventListener("click", ()=>{
     const q = investQuote(a);
     let max = 0;
@@ -14069,8 +14184,8 @@ function updateInvestOrderPreview(forcedErr){
   const st = investVenueStatus(a);
   const pxEl = document.getElementById("inv-om-px"), chgEl = document.getElementById("inv-om-chg"), stEl = document.getElementById("inv-om-status");
   if (!pxEl) return;
-  pxEl.textContent = investFmtPx(q.px);
-  chgEl.textContent = q.chg==null ? "" : fmtPct(q.chg)+" sur 24 h";
+  pxEl.textContent = q.native!=null ? investFmtEur(q.native)+" · ≈ "+investFmtPx(q.px) : investFmtPx(q.px);
+  chgEl.textContent = q.chg==null ? "" : fmtPct(q.chg)+(a.src.eu ? " aujourd'hui" : " sur 24 h");
   chgEl.className = "num "+(q.chg==null ? "" : investSignedCls(q.chg));
   stEl.textContent = st.label;
   stEl.className = st.open ? "up" : "down";
@@ -14079,16 +14194,28 @@ function updateInvestOrderPreview(forcedErr){
   const gross = (qty>0 && q.px!=null) ? qty*q.px : 0, fee = gross*INVEST_FEE_RATE;
   const e = state.invest[o.env];
   const row = (l,v,cls)=>'<div><span>'+l+'</span><b class="num '+(cls||"")+'">'+v+'</b></div>';
-  let html = row("Montant", fmtMoney(gross)) + row("Frais (0,5 %)", fmtMoney(fee));
+  // Weights in % of the WHOLE portfolio (reserve + PEA + CTO), so a trader
+  // sees how concentrated a line becomes before confirming.
+  const tot = investTotals().total || 1;
+  const hNow = e.holdings[o.id];
+  const lineNow = hNow ? hNow.qty*(q.px||0) : 0;
+  const pctTxt = (v)=>(v).toLocaleString("fr-FR",{maximumFractionDigits:1})+" %";
+  let html = row("Montant", fmtMoney(gross)+(gross>0 ? '  <span class="inv-om-w">'+pctTxt(gross/tot*100)+' du patrimoine</span>' : '')) + row("Frais (0,5 %)", fmtMoney(fee));
   if (o.side==="buy"){
     html += row("Total débité", fmtMoney(gross+fee));
     html += row("Espèces "+investEnvName(o.env)+" après", fmtMoney(e.cash-(gross+fee)), (e.cash-(gross+fee))<0?"down":"");
+    const lineAfter = lineNow + gross;
+    const wAfter = lineAfter/tot*100;
+    html += row("Poids de la ligne après achat", pctTxt(wAfter)+(lineNow>0 ? ' <span class="inv-om-w">(avant '+pctTxt(lineNow/tot*100)+')</span>' : ''), wAfter>25 ? "warn" : "");
+    if (wAfter>25) html += '<div class="inv-om-conc">Plus de 25 % du patrimoine sur une seule ligne : c\'est beaucoup de risque concentré. Les investisseurs long terme diversifient en général davantage.</div>';
   } else {
     const h = e.holdings[o.id];
     const pnl = (h && qty>0) ? (gross-fee) - h.cost*(Math.min(qty,h.qty)/h.qty) : 0;
     html += row("Montant crédité", fmtMoney(gross-fee));
     if (h) html += row("PRU", investFmtPx(h.cost/h.qty));
     html += row(o.env==="cto" ? "Plus-value réalisée (imposable)" : "Plus-value réalisée (reste dans le PEA)", fmtMoneySigned(pnl), investSignedCls(pnl));
+    const lineAfter = Math.max(0, lineNow - gross);
+    html += row("Poids de la ligne après vente", pctTxt(lineAfter/tot*100)+' <span class="inv-om-w">(avant '+pctTxt(lineNow/tot*100)+')</span>');
   }
   document.getElementById("inv-om-sum").innerHTML = html;
   const errEl = document.getElementById("inv-om-err");
