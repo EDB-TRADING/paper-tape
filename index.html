@@ -2086,6 +2086,122 @@
     .ch-status-eq{text-align:left;}
   }
 
+  /* ---------- Pages verrouillées EDB+ : version marketing ---------- */
+  /* Le paywall remplace le contenu de conteneurs très différents (carte
+     étroite du quiz, page Ressources, Challenge…) : on retire la carte et on
+     élargit le conteneur quand il contient un paywall. */
+  .card:has(.edbplus-paywall.pw){background:none;border:none;box-shadow:none;padding:0;}
+  .card:has(.edbplus-paywall.pw) .cedb-bleed, .card:has(.edbplus-paywall.pw) .ap-bleed{margin:0;}
+  .quiz-wrap:has(.edbplus-paywall.pw), .learn-wrap:has(.edbplus-paywall.pw), .ch-wrap:has(.edbplus-paywall.pw){max-width:1240px;}
+  .pw{--pw-gold:var(--gold);display:flex;flex-direction:column;gap:22px;}
+  .pw .reveal{transition-duration:.6s;}
+  .pw-hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:28px;align-items:center;padding:44px 44px 44px 48px;border-radius:20px;
+    border:1px solid color-mix(in srgb, var(--pw-gold) 35%, var(--border-soft));
+    background:radial-gradient(640px 320px at 0% 0%, color-mix(in srgb, var(--pw-gold) 20%, transparent), transparent 70%), radial-gradient(520px 300px at 100% 100%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%), linear-gradient(135deg, var(--panel-2), var(--panel) 70%);}
+  .pw-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#1a1408;background:var(--pw-gold);border-radius:999px;padding:5px 12px;}
+  .pw-hero h1{font-size:44px;line-height:1.06;letter-spacing:-.025em;margin:18px 0 14px;
+    background:linear-gradient(120deg, var(--text) 30%, color-mix(in srgb, var(--pw-gold) 85%, var(--text)));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .pw-hero-sub{font-size:16.5px;line-height:1.65;color:var(--text-dim);margin:0 0 26px;max-width:560px;}
+  .pw-ctas{display:flex;flex-wrap:wrap;gap:10px;}
+  .pw-btn{font-family:var(--sans);font-size:15px;font-weight:700;border-radius:12px;padding:14px 22px;cursor:pointer;border:1px solid transparent;transition:transform .15s, filter .15s, box-shadow .15s;}
+  .pw-btn:hover{transform:translateY(-1px);filter:brightness(1.06);}
+  .pw-btn-trial{color:#1a1408;background:linear-gradient(135deg, color-mix(in srgb, var(--pw-gold) 80%, #fff), var(--pw-gold));box-shadow:0 12px 30px -12px color-mix(in srgb, var(--pw-gold) 80%, transparent);}
+  .pw-btn-main{color:var(--on-accent, #fff);background:var(--accent);box-shadow:0 12px 30px -12px color-mix(in srgb, var(--accent) 80%, transparent);}
+  .pw-btn-ghost{color:var(--text);background:color-mix(in srgb, var(--panel) 70%, transparent);border-color:var(--border);}
+  .pw-btn-ghost:hover{border-color:color-mix(in srgb, var(--pw-gold) 60%, var(--border));}
+  .pw-cta-note{margin-top:12px;font-size:12.5px;color:var(--text-faint);}
+  .pw .edbplus-trial-note{margin-top:12px;}
+  .pw-preview{position:relative;padding:10px 10px 10px 0;}
+  .pw-window{border-radius:14px;overflow:hidden;border:1px solid var(--border);background:var(--panel);box-shadow:0 30px 60px -30px rgba(0,0,0,.85);transform:perspective(1200px) rotateY(-8deg) rotateX(3deg);}
+  .pw-window-bar{display:flex;align-items:center;gap:6px;padding:9px 12px;background:var(--panel-2);border-bottom:1px solid var(--border-soft);}
+  .pw-window-bar span{width:9px;height:9px;border-radius:50%;background:var(--border);}
+  .pw-window-bar em{font-style:normal;font-size:11px;color:var(--text-faint);margin-left:8px;font-family:var(--mono);}
+  .pw-window-body{position:relative;height:250px;overflow:hidden;background:var(--bg);}
+  .pw-window-body img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(3px) saturate(1.1);transform:scale(1.06);opacity:.9;z-index:1;}
+  .pw-window-body::after{content:"";position:absolute;inset:0;z-index:2;background:linear-gradient(180deg, transparent 30%, color-mix(in srgb, var(--bg) 70%, transparent));}
+  .pw-skel{position:absolute;inset:0;padding:22px;display:flex;flex-direction:column;gap:10px;color:var(--long);}
+  .pw-skel svg{width:100%;height:120px;}
+  .pw-skel i{display:block;height:10px;border-radius:5px;background:var(--panel-2);}
+  .pw-skel i.short{width:55%;}
+  .pw-lock{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);z-index:3;width:92px;height:92px;border-radius:26px;display:flex;align-items:center;justify-content:center;font-size:40px;
+    background:color-mix(in srgb, var(--panel) 80%, transparent);backdrop-filter:blur(10px);border:1px solid color-mix(in srgb, var(--pw-gold) 55%, var(--border));box-shadow:0 20px 50px -18px rgba(0,0,0,.8), 0 0 0 8px color-mix(in srgb, var(--pw-gold) 10%, transparent);}
+  .pw-lock b{position:absolute;right:-10px;bottom:-10px;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;background:var(--pw-gold);box-shadow:0 6px 16px rgba(0,0,0,.4);}
+  .pw-stats{display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:12px;}
+  .pw-stats > div{background:var(--panel);border:1px solid var(--border-soft);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:4px;}
+  .pw-stats b{font-family:var(--mono);font-size:22px;color:var(--pw-gold);letter-spacing:-.01em;}
+  .pw-stats span{font-size:12.5px;color:var(--text-dim);}
+  .pw-section{margin-top:18px;}
+  .pw-section-head{text-align:center;margin-bottom:18px;}
+  .pw-kicker{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--pw-gold);}
+  .pw-section-head h2{font-size:30px;letter-spacing:-.02em;margin:8px 0 0;}
+  .pw-bento{display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:12px;}
+  .pw-tile{position:relative;overflow:hidden;border-radius:16px;border:1px solid var(--border-soft);background:var(--panel);min-height:150px;display:flex;transition:transform .18s, border-color .18s;}
+  .pw-tile:hover{transform:translateY(-3px);border-color:color-mix(in srgb, var(--pw-gold) 45%, var(--border-soft));}
+  .pw-tile.is-big{grid-column:span 2;min-height:190px;}
+  .pw-tile-img{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.45;transition:transform .5s, opacity .3s;}
+  .pw-tile:hover .pw-tile-img{transform:scale(1.05);opacity:.7;}
+  .pw-tile-img + .pw-tile-body{background:linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--panel) 92%, transparent) 55%);}
+  .pw-tile-body{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding:18px;width:100%;}
+  .pw-tile-ico{font-size:24px;line-height:1;margin-bottom:4px;}
+  .pw-tile b{font-size:16px;}
+  .pw-tile-detail{font-size:13px;color:var(--text-dim);line-height:1.5;}
+  .pw-tile.is-here{border-color:color-mix(in srgb, var(--pw-gold) 65%, var(--border-soft));box-shadow:0 0 0 1px color-mix(in srgb, var(--pw-gold) 30%, transparent);}
+  .pw-tile-here{position:absolute;top:14px;right:14px;font-size:11px;font-weight:700;color:#1a1408;background:var(--pw-gold);border-radius:999px;padding:3px 9px;}
+  .pw-offer{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;align-items:stretch;}
+  .pw-compare{background:var(--panel);border:1px solid var(--border-soft);border-radius:16px;padding:10px 20px;}
+  .pw-compare-head, .pw-compare-row{display:grid;grid-template-columns:minmax(0,1fr) 70px 70px;align-items:center;gap:8px;padding:10px 0;}
+  .pw-compare-head{border-bottom:1px solid var(--border);font-size:13px;}
+  .pw-compare-head b{text-align:center;}
+  .pw-compare-head b.gold{color:var(--pw-gold);}
+  .pw-compare-row{border-bottom:1px dashed var(--border-soft);font-size:13.5px;color:var(--text-dim);}
+  .pw-compare-row:last-child{border-bottom:none;}
+  .pw-compare-row i{font-style:normal;text-align:center;font-weight:700;}
+  .pw-compare-row i.yes{color:var(--long);}
+  .pw-compare-row i.yes.gold{color:var(--pw-gold);}
+  .pw-compare-row i.no{color:var(--text-faint);}
+  .pw-price{position:relative;overflow:hidden;border-radius:16px;padding:26px;display:flex;flex-direction:column;gap:10px;
+    border:1px solid color-mix(in srgb, var(--pw-gold) 55%, var(--border-soft));
+    background:radial-gradient(420px 220px at 100% 0%, color-mix(in srgb, var(--pw-gold) 22%, transparent), transparent 70%), linear-gradient(160deg, color-mix(in srgb, var(--pw-gold) 8%, var(--panel)), var(--panel) 70%);}
+  .pw-price-amount{display:flex;align-items:baseline;gap:8px;}
+  .pw-price-amount b{font-family:var(--sans);font-weight:800;font-size:60px;line-height:1;color:var(--pw-gold);letter-spacing:-.03em;}
+  .pw-price-amount span{font-size:16px;color:var(--text-dim);}
+  .pw-price-sub{font-size:13px;color:var(--text-faint);}
+  .pw-price ul{list-style:none;margin:6px 0 10px;padding:0;display:flex;flex-direction:column;gap:9px;}
+  .pw-price li{font-size:14px;color:var(--text);display:flex;gap:10px;}
+  .pw-price li::before{content:"✓";color:var(--pw-gold);font-weight:700;}
+  .pw-price .pw-ctas{flex-direction:column;}
+  .pw-price .pw-btn{width:100%;}
+  .pw-faq{display:flex;flex-direction:column;gap:8px;max-width:860px;width:100%;margin-left:auto;margin-right:auto;}
+  .pw-faq details{background:var(--panel);border:1px solid var(--border-soft);border-radius:12px;padding:0 16px;}
+  .pw-faq summary{cursor:pointer;list-style:none;padding:14px 0;font-weight:600;font-size:14.5px;display:flex;justify-content:space-between;gap:10px;}
+  .pw-faq summary::after{content:"+";color:var(--pw-gold);font-size:18px;line-height:1;}
+  .pw-faq details[open] summary::after{content:"−";}
+  .pw-faq p{margin:0 0 14px;font-size:13.5px;color:var(--text-dim);line-height:1.6;}
+  @media (max-width:1080px){
+    .pw-hero{grid-template-columns:minmax(0,1fr);padding:34px 28px;}
+    .pw-preview{max-width:520px;}
+    .pw-stats{grid-template-columns:repeat(2, minmax(0,1fr));}
+    .pw-bento{grid-template-columns:repeat(2, minmax(0,1fr));}
+    .pw-offer{grid-template-columns:minmax(0,1fr);}
+  }
+  @media (max-width:720px){
+    .pw-hero{padding:26px 18px 22px;border-radius:16px;}
+    .pw-hero h1{font-size:30px;}
+    .pw-hero-sub{font-size:14.5px;}
+    .pw-ctas{flex-direction:column;}
+    .pw-btn{width:100%;}
+    .pw-window{transform:none;}
+    .pw-window-body{height:170px;}
+    .pw-lock{width:72px;height:72px;font-size:30px;border-radius:20px;}
+    .pw-stats b{font-size:18px;}
+    .pw-bento{grid-template-columns:minmax(0,1fr);}
+    .pw-tile.is-big{grid-column:auto;min-height:170px;}
+    .pw-section-head h2{font-size:23px;}
+    .pw-compare{padding:6px 12px;}
+    .pw-compare-head, .pw-compare-row{grid-template-columns:minmax(0,1fr) 48px 48px;font-size:12.5px;}
+    .pw-price-amount b{font-size:46px;}
+  }
+
   /* ---------- Connaissances & Quiz : mise en page v2 ---------- */
   .quiz-wrap.kn-wrap-home, .quiz-wrap.kn-wrap-course{max-width:1480px;}
   .quiz-wrap.kn-wrap-quiz{max-width:1160px;}
@@ -2391,6 +2507,19 @@
   }
 
   /* ---------- Terminal : redimensionnement v2 ---------- */
+  /* Molette : voir initWidgetWheel(). */
+  .card.widget.is-wheel-active{box-shadow:0 0 0 1px color-mix(in srgb, var(--accent) 38%, transparent), var(--shadow-card);}
+  .wz-wheel-hint{position:absolute;left:50%;bottom:16px;z-index:3;transform:translate(-50%,6px);opacity:0;pointer-events:none;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;
+    font-size:12px;font-weight:500;color:var(--text);background:color-mix(in srgb, var(--panel-2) 92%, transparent);border:1px solid var(--border);border-radius:999px;padding:6px 12px;box-shadow:0 8px 24px rgba(0,0,0,.45);transition:opacity .2s, transform .2s;}
+  .wz-wheel-hint.show{opacity:1;transform:translate(-50%,0);}
+  #tv-chart-wrap, #econcal-wrap{position:relative;}
+  .wz-shield{position:absolute;inset:0;z-index:2;background:transparent;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:14px;}
+  .wz-shield span{font-size:12px;font-weight:500;color:var(--text);background:color-mix(in srgb, var(--panel-2) 92%, transparent);border:1px solid var(--border);border-radius:999px;padding:6px 12px;opacity:0;transform:translateY(6px);transition:opacity .2s, transform .2s;pointer-events:none;}
+  .wz-shield:hover span{opacity:1;transform:none;}
+  .wz-shield.is-off{pointer-events:none;}
+  .wz-shield.is-off span{display:none;}
+  @media (hover:none){ .wz-shield{display:none;} }
+
   /* Espacement vertical géré par la colonne (gap) et non plus par un
      margin-top écrit à la main sur chaque widget : après un déplacement, le
      widget arrivé en tête de colonne gardait sa marge et la colonne se
@@ -2401,7 +2530,7 @@
   .card.widget[hidden]{display:none !important;}
   .card.widget > .widget-head{flex:none;}
   .widget-body{flex:1 1 auto;min-width:0;min-height:0;}
-  .card.widget.has-h > .widget-body{overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+  .card.widget.has-h > .widget-body{overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
   .card.widget.has-h > .widget-body::-webkit-scrollbar{width:6px;}
   .card.widget.has-h > .widget-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
   /* Graphique : avec une hauteur choisie, la zone de tracé remplit le widget. */
@@ -3633,6 +3762,13 @@ function initChartZoomControls(){
   if (svg){
     svg.addEventListener("wheel", (e)=>{
       if (chartSource!=="internal") return;
+      // Zoom à la molette seulement quand le widget Graphique a été cliqué
+      // (voir initWidgetWheel) ; sinon la molette fait défiler la page.
+      const w = svg.closest(".card.widget");
+      if (w && !w.classList.contains("is-wheel-active")){
+        if (typeof wzShowWheelHint==="function") wzShowWheelHint(w, "Clique sur le graphique, puis molette pour zoomer");
+        return;
+      }
       e.preventDefault();
       setChartZoomIndex(chartZoomIndex + (e.deltaY>0 ? 1 : -1));
     }, {passive:false});
@@ -3825,55 +3961,147 @@ const EDB_PLUS_FEATURE_ICONS = {quiz:"📚", news:"📰", challenge:"🏅", them
 // news, tradesedb, ressources, thèmes, concours — not just this one
 // feature), then the price + CTA. Every paywall page doubles as a mini
 // version of the full "Devenir EDB+" pitch (renderEdbPlusProfileCard()).
+// Accroche marketing par fonctionnalité verrouillée (titre + sous-titre du
+// bandeau). Les chiffres des cours sont calculés, pas écrits en dur.
+function edbPlusPitch(key){
+  const nCourses = (typeof KNOWLEDGE!=="undefined") ? KNOWLEDGE.length : 8;
+  const nQ = (typeof QUIZ_DECKS!=="undefined") ? QUIZ_DECKS.reduce((a,d)=>a+d.questions.length,0) : 100;
+  const P = {
+    quiz:      {title:"Deviens incollable sur les marchés", sub:nCourses+" cours complets et "+nQ+" questions de quiz, de la lecture du carnet d'ordres aux options. Apprends, teste-toi, grimpe au classement."},
+    news:      {title:"L'actu qui fait bouger les marchés, en direct", sub:"Macro, crypto, banques centrales : suis ce qui fait vraiment bouger les prix, sans quitter le terminal."},
+    challenge: {title:"Passe une évaluation prop firm, sans risquer un euro", sub:"Un compte démo calqué sur une vraie évaluation en 2 étapes : objectifs, perte max, règles. Entraîne-toi avant de payer un vrai challenge."},
+    theme:     {title:"Un terminal à ton image", sub:"Ember, Sage, Ink, Noir, Gold, Azure : choisis l'ambiance dans laquelle tu trades."},
+    tradesedb: {title:"Trade aux côtés du bureau EDB", sub:"Les trades partagés par le bureau, avec leur raisonnement, et le trade swing de la semaine."},
+    resources: {title:"Les outils des pros, triés pour toi", sub:"Terminaux order flow, data crypto, courtiers et prop firms : la sélection EDB, avec le layout MMT prêt à l'emploi."},
+    concoursedbplus: {title:"Gagne une vraie prop firm de 100 000 $", sub:"Le Challenge Hardcore à 200 000 $ : le meilleur trader EDB+ repart avec un vrai compte financé de 100 000 $ ou 400 €."},
+  };
+  return P[key] || {title:(EDB_PLUS_FEATURES[key]||{}).label || "Réservé aux membres EDB+", sub:""};
+}
+// Gratuit vs EDB+ — ce que chaque formule donne (tableau comparatif).
+const EDB_PLUS_COMPARE = [
+  ["Terminal de trading démo (crypto, forex, indices…)", true],
+  ["Investissement PEA / compte-titres fictif", true],
+  ["Classements, badges et chat de l'association", true],
+  ["Connaissances & Quiz : tous les cours et quiz", false],
+  ["Actualités marché en direct", false],
+  ["Challenge prop firm en 2 étapes", false],
+  ["Concours EDB+ : une vraie prop firm à gagner", false],
+  ["Trades EDB+ partagés par le bureau", false],
+  ["Ressources trading + layout MMT", false],
+  ["Widgets carnet d'ordres, calendrier éco, calculateur de taille", false],
+  ["6 thèmes d'interface", false],
+];
+function edbPlusCtaButtons(key, where){
+  const trialOk = !state.edbPlus && !edbPlusTrialActive() && !edbPlusTrialUsed();
+  const idTrial = where==="hero" ? ' id="edbplus-trial-'+key+'"' : '';
+  const idCta = where==="hero" ? ' id="edbplus-cta-'+key+'"' : '';
+  const trialBtn = '<button class="pw-btn pw-btn-trial"'+idTrial+' data-edbplus-trial="'+key+'">✨ Essayer gratuitement 24 h</button>';
+  const joinBtn = '<button class="pw-btn '+(trialOk?'pw-btn-ghost':'pw-btn-main')+'"'+idCta+' data-edbplus-cta="'+key+'">Devenir membre · 25 €/an</button>';
+  let note = "";
+  if (trialOk) note = '<div class="pw-cta-note">Sans paiement ni carte bancaire · une seule fois par compte</div>';
+  else if (edbPlusTrialActive()) note = '<div class="edbplus-trial-note pw-cta-note">✨ Essai EDB+ en cours — encore '+edbPlusTrialRemainingLabel()+'</div>';
+  else if (edbPlusTrialUsed()) note = '<div class="edbplus-trial-note used pw-cta-note">Ton essai gratuit de 24 h a déjà été utilisé : il ne reste plus que l\'adhésion.</div>';
+  return '<div class="pw-ctas">'+(trialOk ? trialBtn : '')+joinBtn+'</div>'+note;
+}
+// Aperçu flouté de ce que cache le cadenas, à droite du bandeau : la photo
+// de la fonctionnalité quand il y en a une, sinon un faux écran stylisé.
+function edbPlusPreviewHtml(key){
+  const f = EDB_PLUS_FEATURES[key] || {};
+  const img = (f.img && key!=="challenge") ? f.img : null; // propfirm-hero.jpg porte le logo d'une vraie prop firm : on ne l'affiche pas
+  const icon = EDB_PLUS_FEATURE_ICONS[key] || "✨";
+  const skeleton =
+    '<div class="pw-skel">'+
+      '<svg viewBox="0 0 320 120" preserveAspectRatio="none" aria-hidden="true"><path d="M0 95 L30 88 L55 92 L80 70 L110 76 L135 55 L160 60 L190 38 L215 46 L245 28 L270 34 L300 14 L320 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M0 95 L30 88 L55 92 L80 70 L110 76 L135 55 L160 60 L190 38 L215 46 L245 28 L270 34 L300 14 L320 18 L320 120 L0 120 Z" fill="currentColor" opacity=".12"/></svg>'+
+      '<i></i><i></i><i class="short"></i>'+
+    '</div>';
+  return '<div class="pw-preview" aria-hidden="true">'+
+    '<div class="pw-window">'+
+      '<div class="pw-window-bar"><span></span><span></span><span></span><em>'+escapeHtml(f.label||"EDB+")+'</em></div>'+
+      '<div class="pw-window-body">'+
+        (img ? '<img src="'+escapeHtml(img)+'" alt="" loading="lazy" onerror="this.remove()">' : '')+
+        skeleton+
+      '</div>'+
+    '</div>'+
+    '<div class="pw-lock"><span>'+icon+'</span><b>🔒</b></div>'+
+  '</div>';
+}
 function edbPlusPaywallHtml(key){
   const f = EDB_PLUS_FEATURES[key] || {label:"Cette fonctionnalité", detail:"débloquer cette fonctionnalité"};
-  const icon = EDB_PLUS_FEATURE_ICONS[key] || "✅";
-  const others = Object.entries(EDB_PLUS_FEATURES).filter(([k])=>k!==key);
-  const hero = f.img
-    ? '<section class="ap-photo ap-photo-first reveal" style="background-image:url(\''+f.img+'\');">'+
-        '<div class="ap-overlay"></div>'+
-        '<div class="ap-content">'+
-          '<div class="quiz-cat gold-badge">🔒 EDB+ requis</div>'+
-          '<h2 class="ap-hero-title">'+escapeHtml(f.label)+'</h2>'+
-          '<p class="ap-hero-sub">'+escapeHtml(f.detail)+'</p>'+
-        '</div>'+
-      '</section>'
-    : '<section class="ap-section reveal" style="padding-top:38px;">'+
-        '<div class="deck-big-icon" style="background:var(--gold)22;border:1px solid var(--gold)55;">'+icon+'</div>'+
-        '<div class="quiz-cat gold-badge" style="margin-top:14px;">🔒 EDB+ requis</div>'+
-        '<h2 style="margin:10px 0 6px;">'+escapeHtml(f.label)+'</h2>'+
-        '<p class="chart-note" style="max-width:420px;margin:0 auto;">'+escapeHtml(f.detail)+'</p>'+
-      '</section>';
-  return '<div class="ap-bleed edbplus-paywall">'+
-    hero+
-    '<section class="ap-section reveal">'+
-      '<p class="chart-note" style="max-width:520px;margin:0 auto 18px;">Réservé aux membres EDB+ — 25€/an pour '+escapeHtml(f.detail)+', et soutenir l\'association au passage. Et ce n\'est pas tout, EDB+ débloque aussi :</p>'+
-      '<div class="edbplus-feature-grid" style="max-width:560px;margin:0 auto;">'+
-        others.map(([k,of])=>
-          '<div class="edbplus-feature-row">'+
-            '<span class="edbplus-feature-icon">'+(EDB_PLUS_FEATURE_ICONS[k]||"✅")+'</span>'+
-            '<div><div class="edbplus-feature-label">'+escapeHtml(of.label)+'</div><div class="edbplus-feature-detail">'+escapeHtml(of.detail)+'</div></div>'+
-          '</div>'
+  const pitch = edbPlusPitch(key);
+  const nCourses = (typeof KNOWLEDGE!=="undefined") ? KNOWLEDGE.length : 8;
+  const nQ = (typeof QUIZ_DECKS!=="undefined") ? QUIZ_DECKS.reduce((a,d)=>a+d.questions.length,0) : 100;
+  const order = [key].concat(Object.keys(EDB_PLUS_FEATURES).filter(k=>k!==key));
+  return '<div class="edbplus-paywall pw" data-pw="'+escapeHtml(key)+'">'+
+    // 1. Bandeau
+    '<section class="pw-hero">'+
+      '<div class="pw-hero-main">'+
+        '<span class="pw-badge">🔒 Réservé aux membres EDB+</span>'+
+        '<h1>'+escapeHtml(pitch.title)+'</h1>'+
+        '<p class="pw-hero-sub">'+escapeHtml(pitch.sub)+'</p>'+
+        edbPlusCtaButtons(key, "hero")+
+      '</div>'+
+      edbPlusPreviewHtml(key)+
+    '</section>'+
+    // 2. Chiffres clés
+    '<section class="pw-stats reveal">'+
+      '<div><b class="num">'+Object.keys(EDB_PLUS_FEATURES).length+'</b><span>fonctionnalités débloquées</span></div>'+
+      '<div><b class="num">'+nCourses+' · '+nQ+'</b><span>cours · questions de quiz</span></div>'+
+      '<div><b class="num">100 000 $</b><span>de prop firm à gagner au Concours</span></div>'+
+      '<div><b class="num">2,08 €</b><span>par mois (25 € par an)</span></div>'+
+    '</section>'+
+    // 3. Tout ce que tu débloques
+    '<section class="pw-section reveal">'+
+      '<div class="pw-section-head"><span class="pw-kicker">Tout est inclus</span><h2>Une seule adhésion, tout EDB+</h2></div>'+
+      '<div class="pw-bento">'+
+        order.map((k,i)=>{
+          const of = EDB_PLUS_FEATURES[k];
+          const img = (of.img && k!=="challenge") ? of.img : null;
+          return '<div class="pw-tile'+(k===key?' is-here':'')+(i===0?' is-big':'')+'">'+
+            (img ? '<div class="pw-tile-img" style="background-image:url(\''+escapeHtml(img)+'\');"></div>' : '')+
+            '<div class="pw-tile-body">'+
+              '<span class="pw-tile-ico">'+(EDB_PLUS_FEATURE_ICONS[k]||"✅")+'</span>'+
+              (k===key ? '<span class="pw-tile-here">Tu es ici</span>' : '')+
+              '<b>'+escapeHtml(of.label)+'</b>'+
+              '<span class="pw-tile-detail">'+escapeHtml(of.detail.charAt(0).toUpperCase()+of.detail.slice(1))+'.</span>'+
+            '</div>'+
+          '</div>';
+        }).join("")+
+      '</div>'+
+    '</section>'+
+    // 4. Comparatif + prix
+    '<section class="pw-section pw-offer reveal">'+
+      '<div class="pw-compare">'+
+        '<div class="pw-compare-head"><span></span><b>Gratuit</b><b class="gold">EDB+</b></div>'+
+        EDB_PLUS_COMPARE.map(([lbl, free])=>
+          '<div class="pw-compare-row"><span>'+escapeHtml(lbl)+'</span>'+
+            '<i class="'+(free?'yes':'no')+'">'+(free?'✓':'—')+'</i><i class="yes gold">✓</i></div>'
         ).join("")+
       '</div>'+
-    '</section>'+
-    '<section class="ap-section reveal" style="padding-top:4px;">'+
-      '<div class="edbplus-price-box">'+
-        '<div class="edbplus-price-amount">25€</div>'+
-        '<div class="edbplus-price-period">par an</div>'+
-        '<div class="edbplus-price-sub">soit un peu plus de 2€ / mois</div>'+
+      '<div class="pw-price">'+
+        '<span class="pw-kicker">Adhésion EDB+</span>'+
+        '<div class="pw-price-amount"><b>25 €</b><span>/ an</span></div>'+
+        '<div class="pw-price-sub">soit 2,08 € par mois, pour tout débloquer</div>'+
+        '<ul>'+
+          '<li>Tous les cours, quiz et classements</li>'+
+          '<li>Challenge prop firm + Concours à 100 000 $</li>'+
+          '<li>Trades du bureau, actus, ressources</li>'+
+          '<li>Tu soutiens l\'association EDB</li>'+
+        '</ul>'+
+        edbPlusCtaButtons(key, "price")+
       '</div>'+
-      '<button class="btn-primary edbplus-cta-btn" id="edbplus-cta-'+key+'">🚀 Découvrir EDB+</button>'+
-      edbPlusTrialCtaHtml("edbplus-trial-"+key)+
     '</section>'+
-    (f.img && f.img.indexOf("http")===0 ? '<p class="chart-note cedb-credit">Photo : Pexels (licence libre).</p>' : "")+
+    // 5. Questions fréquentes
+    '<section class="pw-section pw-faq reveal">'+
+      '<details><summary>Comment je paie ?</summary><p>Clique sur « Devenir membre » : ta demande part au bureau et tu reçois aussitôt les coordonnées de paiement (Wero ou virement) dans la conversation. Le bureau active ton compte dès réception.</p></details>'+
+      '<details><summary>Comment marche l\'essai gratuit ?</summary><p>24 h d\'accès complet à EDB+, sans paiement, une seule fois par compte. À la fin, ton compte repasse simplement en gratuit : rien n\'est prélevé.</p></details>'+
+      '<details><summary>Mes progrès sont-ils gardés ?</summary><p>Oui : cours lus, quiz et scores restent sur ton compte, même après l\'essai.</p></details>'+
+    '</section>'+
+    (f.img && f.img.indexOf("http")===0 ? '<p class="chart-note cedb-credit">Photos : Pexels (licence libre).</p>' : "")+
   '</div>';
 }
 function wireEdbPlusCta(key){
-  const btn = document.getElementById("edbplus-cta-"+key);
-  if (btn) btn.addEventListener("click", goToEdbPlus);
-  const trialBtn = document.getElementById("edbplus-trial-"+key);
-  if (trialBtn) trialBtn.addEventListener("click", openEdbPlusTrialModal);
+  document.querySelectorAll('[data-edbplus-cta="'+key+'"]').forEach(b=>b.addEventListener("click", goToEdbPlus));
+  document.querySelectorAll('[data-edbplus-trial="'+key+'"]').forEach(b=>b.addEventListener("click", openEdbPlusTrialModal));
   // Every call site does el.innerHTML = edbPlusPaywallHtml(key) right before
   // calling this — a single choke point to (re)start the scroll-reveal
   // animation on the `.reveal` sections that HTML just introduced (see
@@ -6121,6 +6349,7 @@ function renderTradingViewChart(){
     hide_top_toolbar: false, hide_side_toolbar: false, allow_symbol_change: true, support_host: "https://www.tradingview.com",
   });
   wrap.querySelector(".tradingview-widget-container").appendChild(script);
+  armIframeShield(wrap, "Clique pour utiliser le graphique TradingView");
 }
 // Same no-API-key TradingView embed pattern as the chart widget above, using
 // their free "Economic Calendar" widget — loads once on init() and stays live
@@ -6140,6 +6369,7 @@ function renderEconCalendar(){
     locale: "fr", importanceFilter: "-1,0,1", countryFilter: "us,eu,gb,jp,fr,de,cn",
   });
   wrap.querySelector(".tradingview-widget-container").appendChild(script);
+  armIframeShield(wrap, "Clique pour faire défiler le calendrier");
 }
 // Shows/hides the internal-SVG-vs-TradingView panels (and their associated
 // toolbars) to match `eff` (the EFFECTIVE source — see effectiveChartSource()).
@@ -16160,6 +16390,83 @@ function wzStopAutoScroll(){
   if (wzScrollRaf) cancelAnimationFrame(wzScrollRaf);
   wzScrollRaf = 0;
 }
+// ---- Molette au-dessus d'un widget ----
+// Avant : la molette au-dessus d'un widget faisait défiler le widget (ou
+// zoomait le graphique) au lieu de la page, et une fois le widget en butée
+// la page restait bloquée (overscroll-behavior:contain + « verrouillage » du
+// défilement par le navigateur). Règle maintenant, comme sur Google Maps :
+//  - par défaut, la molette fait TOUJOURS défiler la page, où que soit le
+//    curseur ;
+//  - un clic dans un widget l'« active » : tant que le curseur reste dessus,
+//    la molette défile son contenu (ou zoome le graphique interne). En
+//    sortant du widget, il se désactive ;
+//  - les graphiques TradingView (iframes, que la page ne peut pas écouter)
+//    sont recouverts d'un voile transparent : la molette fait défiler la
+//    page, un clic retire le voile pour utiliser le graphique, et il revient
+//    dès que le curseur quitte le graphique.
+let wzWheelHintAt = 0, wzWheelHints = 0;
+function wzWheelDelta(e){
+  const k = e.deltaMode===1 ? 16 : e.deltaMode===2 ? window.innerHeight : 1;
+  return e.deltaY * k;
+}
+function wzHasScrollableBetween(node, stop){
+  for (let n = node; n && n!==stop.parentElement; n = n.parentElement){
+    if (n.nodeType!==1) continue;
+    const oy = getComputedStyle(n).overflowY;
+    if ((oy==="auto" || oy==="scroll") && n.scrollHeight > n.clientHeight + 1) return true;
+    if (n===stop) break;
+  }
+  return false;
+}
+function wzShowWheelHint(host, text){
+  const now = Date.now();
+  if (now - wzWheelHintAt < 6000 || wzWheelHints >= 4) return;
+  wzWheelHintAt = now; wzWheelHints++;
+  let h = host.querySelector(":scope > .wz-wheel-hint");
+  if (!h){ h = document.createElement("div"); h.className = "wz-wheel-hint"; host.appendChild(h); }
+  h.textContent = text;
+  h.classList.remove("show"); void h.offsetWidth; h.classList.add("show");
+  clearTimeout(h._t); h._t = setTimeout(()=>h.classList.remove("show"), 2200);
+}
+function setWheelActiveWidget(el){
+  document.querySelectorAll(".card.widget.is-wheel-active").forEach(w=>{ if (w!==el) w.classList.remove("is-wheel-active"); });
+  if (el) el.classList.add("is-wheel-active");
+}
+function initWidgetWheel(){
+  document.addEventListener("pointerdown", (e)=>{
+    const el = e.target.closest && e.target.closest(".card.widget");
+    setWheelActiveWidget(el || null);
+  }, true);
+  document.querySelectorAll(".card.widget").forEach(el=>{
+    el.addEventListener("pointerleave", ()=>el.classList.remove("is-wheel-active"));
+  });
+  document.addEventListener("wheel", (e)=>{
+    if (e.ctrlKey || e.defaultPrevented) return;
+    const el = e.target.closest && e.target.closest(".card.widget");
+    if (!el || el.classList.contains("is-wheel-active")) return;
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; // défilement horizontal (tableaux) : on laisse faire
+    if (!wzHasScrollableBetween(e.target, el)) return;     // rien à défiler dans le widget : la page défile d'elle-même
+    e.preventDefault();
+    window.scrollBy(0, wzWheelDelta(e));
+    wzShowWheelHint(el, "Clique dans le widget pour faire défiler son contenu");
+  }, {passive:false, capture:true});
+  // Voile des iframes : réarmé dès que le curseur bouge ailleurs dans la page
+  // (quand il est au-dessus de l'iframe, la page ne reçoit plus rien).
+  document.addEventListener("pointermove", (e)=>{
+    document.querySelectorAll(".wz-shield.is-off").forEach(sh=>{
+      const r = sh.parentElement.getBoundingClientRect();
+      if (e.clientX<r.left || e.clientX>r.right || e.clientY<r.top || e.clientY>r.bottom) sh.classList.remove("is-off");
+    });
+  }, {passive:true});
+}
+function armIframeShield(wrap, label){
+  if (!wrap || wrap.querySelector(":scope > .wz-shield")) return;
+  const sh = document.createElement("div");
+  sh.className = "wz-shield";
+  sh.innerHTML = '<span>'+escapeHtml(label || "Clique pour utiliser le graphique")+'</span>';
+  sh.addEventListener("pointerdown", (e)=>{ e.preventDefault(); sh.classList.add("is-off"); });
+  wrap.appendChild(sh);
+}
 let wzDrag = null;
 function initWidgetResize(){
   document.querySelectorAll(".card.widget").forEach(el=>{
@@ -16282,6 +16589,7 @@ function initWidgetResize(){
   }
   window.addEventListener("resize", ()=>{ applyWidgetFreeState(); updateFreeLayerExtent(); });
   updateFreeLayerExtent();
+  initWidgetWheel();
 }
 function initWidgets(){
   applyWidgetLayout(loadWidgetLayout());
