@@ -2202,6 +2202,159 @@
     .pw-price-amount b{font-size:46px;}
   }
 
+  /* ---------- Chat façon Discord ---------- */
+  .dc{display:grid;grid-template-columns:240px minmax(0,1fr) 240px;height:calc(100dvh - var(--topbar-h) - 50px);min-height:460px;border:1px solid var(--border-soft);border-radius:16px;overflow:hidden;background:var(--panel);box-shadow:var(--shadow-card);position:relative;}
+  body.dc-hide-members .dc{grid-template-columns:240px minmax(0,1fr) 0;}
+  body.dc-hide-members .dc-members{display:none;}
+  .dc-channels{display:flex;flex-direction:column;min-height:0;background:color-mix(in srgb, var(--bg) 55%, var(--panel));border-right:1px solid var(--border-soft);}
+  .dc-server{display:flex;align-items:center;gap:10px;padding:14px 14px;border-bottom:1px solid var(--border-soft);box-shadow:0 1px 0 rgba(0,0,0,.2);}
+  .dc-server-logo{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb, var(--accent) 16%, var(--panel-2));flex:none;}
+  .dc-server-logo .brand-logo{width:22px;height:26px;}
+  .dc-server-txt{display:flex;flex-direction:column;min-width:0;}
+  .dc-server-txt b{font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dc-server-txt span{font-size:11.5px;color:var(--text-faint);}
+  .dc-cat{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);padding:18px 16px 6px;}
+  .dc-channel-list{display:flex;flex-direction:column;gap:2px;padding:0 8px;overflow-y:auto;flex:1;min-height:0;}
+  .dc-chan{display:flex;align-items:center;gap:8px;width:100%;padding:7px 10px;border:none;border-radius:8px;background:none;color:var(--text-faint);font:inherit;font-size:14.5px;font-weight:500;cursor:pointer;text-align:left;position:relative;}
+  .dc-chan:hover{background:color-mix(in srgb, var(--panel-2) 80%, transparent);color:var(--text-dim);}
+  .dc-chan.is-active{background:var(--panel-2);color:var(--text);}
+  .dc-chan.is-unread{color:var(--text);font-weight:700;}
+  .dc-chan.is-unread::before{content:"";position:absolute;left:-8px;top:50%;width:4px;height:8px;margin-top:-4px;border-radius:0 4px 4px 0;background:var(--text);}
+  .dc-chan-hash{font-size:19px;line-height:1;color:var(--text-faint);width:16px;text-align:center;font-weight:400;}
+  .dc-chan-name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dc-chan-dot{width:8px;height:8px;border-radius:50%;background:var(--text-dim);}
+  .dc-chan-ping{font-size:11px;font-weight:700;color:#fff;background:var(--short);border-radius:999px;padding:1px 7px;}
+  .dc-me{display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--border-soft);background:color-mix(in srgb, var(--bg) 70%, var(--panel));}
+  .dc-me-txt{display:flex;flex-direction:column;min-width:0;}
+  .dc-me-txt b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dc-me-txt span{font-size:11.5px;color:var(--text-faint);display:flex;align-items:center;gap:5px;}
+  .dc-online{width:8px;height:8px;border-radius:50%;background:var(--long);display:inline-block;}
+  #view-chat .chat-shell.dc-main{max-width:none;margin:0;height:auto;min-height:0;border:none;border-radius:0;box-shadow:none;background:var(--panel);}
+  .dc-head{background:var(--panel) !important;box-shadow:0 1px 0 rgba(0,0,0,.25);padding:12px 16px !important;}
+  .dc-head-hash{font-size:26px;line-height:1;color:var(--text-faint);font-weight:300;}
+  .dc-head .chat-head-title{font-size:15.5px;}
+  .dc-head .chat-head-sub{font-size:12.5px;}
+  .dc-head-btn{margin-left:auto;width:36px;height:36px;border-radius:10px;border:none;background:none;color:var(--text-faint);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .dc-head-btn:hover{background:var(--panel-2);color:var(--text);}
+  body:not(.dc-hide-members) .dc-head-btn{color:var(--text);}
+  .dc-channel-strip{display:none;}
+  #view-chat .global-chat-messages{padding:0 0 12px;}
+  .dc-welcome{padding:26px 18px 10px;}
+  .dc-welcome-ico{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;background:var(--panel-2);margin-bottom:12px;}
+  .dc-welcome h2{font-size:26px;margin:0 0 6px;letter-spacing:-.01em;}
+  .dc-welcome p{margin:0;color:var(--text-faint);font-size:14px;}
+  .dc-empty{padding:18px;color:var(--text-faint);font-size:13.5px;}
+  .dc-day{margin:18px 16px 6px !important;font-size:12px !important;text-transform:none !important;}
+  .dc-msg{position:relative;display:flex;gap:14px;align-items:flex-start;padding:4px 18px 4px 16px;margin-top:14px;justify-content:flex-start !important;}
+  .dc-msg.grouped{margin-top:0;padding-top:1px;padding-bottom:1px;}
+  .dc-msg:hover, .dc-msg.show-tools{background:color-mix(in srgb, var(--panel-2) 55%, transparent);}
+  .dc-msg.mention{background:color-mix(in srgb, var(--gold) 9%, transparent);box-shadow:inset 3px 0 0 var(--gold);}
+  .dc-msg-gutter{width:40px;flex:none;display:flex;justify-content:center;}
+  .dc-msg-hm{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);opacity:0;padding-top:4px;}
+  .dc-msg:hover .dc-msg-hm{opacity:1;}
+  .dc-msg-body{flex:1;min-width:0;}
+  .dc-msg-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:2px;}
+  .dc-name{background:none;border:none;padding:0;font:inherit;font-size:15px;font-weight:600;color:var(--text);cursor:pointer;}
+  .dc-name:hover{text-decoration:underline;}
+  .dc-name.role-admin{color:var(--gold);}
+  .dc-name.role-plus{color:#6fc3ff;}
+  .dc-tag{font-size:9.5px;font-weight:800;letter-spacing:.04em;border-radius:4px;padding:1px 5px;position:relative;top:-1px;}
+  .dc-tag.admin{background:var(--gold);color:#1a1408;}
+  .dc-tag.plus{background:color-mix(in srgb, #6fc3ff 22%, transparent);color:#6fc3ff;}
+  .dc-time{font-size:11.5px;color:var(--text-faint);}
+  .dc-text{font-size:15px;line-height:1.5;color:color-mix(in srgb, var(--text) 92%, var(--text-dim));white-space:pre-wrap;word-break:break-word;}
+  .dc-text a{color:#6fc3ff;}
+  .dc-text .chat-mention{background:color-mix(in srgb, var(--accent) 22%, transparent);color:var(--accent-light, var(--accent));border-radius:4px;padding:0 3px;}
+  .dc-edited{font-size:11px;color:var(--text-faint);}
+  #view-chat .dc-img{display:block;max-width:min(420px,100%);max-height:340px;width:auto;height:auto;border-radius:10px;margin:6px 0 2px;cursor:zoom-in;border:1px solid var(--border-soft);}
+  .dc-embed{display:inline-block;margin-top:6px;border-left:4px solid var(--accent);border-radius:6px;background:var(--panel-2);padding:8px;max-width:100%;}
+  .dc-msg .chat-msg-react{padding:0;margin-top:4px;}
+  .dc-msg .chat-msg-react.is-empty{display:none !important;}
+  .dc-tools{position:absolute;right:16px;top:-14px;display:flex;gap:2px;padding:3px;border-radius:8px;background:var(--panel);border:1px solid var(--border);box-shadow:0 6px 16px -6px rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .1s;}
+  .dc-msg:hover .dc-tools, .dc-msg.show-tools .dc-tools{opacity:1;pointer-events:auto;}
+  .dc-tools .dc-tool-react{border:none;background:none;padding:4px 6px;}
+  .dc-tools .dc-tool-react .thumb-react-count{display:none;}
+  .dc-edit textarea{width:100%;font-size:14.5px;border-radius:8px;background:var(--bg-raised, var(--panel-2));border:1px solid var(--accent);color:var(--text);padding:8px 10px;resize:vertical;font-family:var(--sans);}
+  .dc-edit-hint{font-size:11.5px;color:var(--text-faint);margin-top:4px;}
+  .dc-edit-hint button{background:none;border:none;padding:0;color:#6fc3ff;cursor:pointer;font:inherit;}
+  .dc-composer{border-top:none !important;padding:0 16px 4px !important;background:var(--panel) !important;}
+  .dc-composer{position:relative;}
+  .dc-composer textarea{border-radius:10px !important;background:var(--bg-raised, var(--panel-2)) !important;border:1px solid transparent !important;padding:12px 14px !important;}
+  .dc-composer textarea:focus{border-color:color-mix(in srgb, var(--accent) 50%, transparent) !important;box-shadow:none !important;}
+  .dc-composer .chat-composer-btn, .dc-composer .chat-send-btn{width:44px;height:44px;border-radius:10px;}
+  .dc-hint{font-size:11px;color:var(--text-faint);padding:4px 18px 10px;}
+  .dc-hint b{color:var(--text-dim);font-weight:600;}
+  .dc-members{border-left:1px solid var(--border-soft);background:color-mix(in srgb, var(--bg) 55%, var(--panel));overflow-y:auto;padding:14px 10px;min-height:0;}
+  .dc-members-head{font-size:12px;font-weight:700;color:var(--text-dim);padding:2px 8px 6px;}
+  .dc-members-cat{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);padding:14px 8px 6px;}
+  .dc-member{display:flex;align-items:center;gap:10px;width:100%;padding:6px 8px;border:none;border-radius:8px;background:none;color:var(--text-dim);font:inherit;cursor:pointer;text-align:left;}
+  .dc-member:hover{background:var(--panel-2);color:var(--text);}
+  .dc-member.is-away{opacity:.55;}
+  .dc-member-av{position:relative;display:flex;flex:none;}
+  .dc-member-av i{position:absolute;right:-2px;bottom:-2px;width:12px;height:12px;border-radius:50%;background:var(--text-faint);border:3px solid color-mix(in srgb, var(--bg) 55%, var(--panel));}
+  .dc-member-av i.on{background:var(--long);}
+  .dc-member-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dc-member.role-admin .dc-member-name{color:var(--gold);}
+  .dc-member.role-plus .dc-member-name{color:#6fc3ff;}
+  @media (max-width:1280px){
+    .dc{grid-template-columns:220px minmax(0,1fr);}
+    .dc-members{position:absolute;right:0;top:0;bottom:0;width:260px;z-index:5;box-shadow:-20px 0 40px -20px rgba(0,0,0,.7);transform:translateX(100%);transition:transform .2s;display:block;}
+    body.dc-members-open .dc-members{transform:none;}
+    body.dc-hide-members .dc{grid-template-columns:220px minmax(0,1fr);}
+    body.dc-hide-members .dc-members{display:block;}
+    body:not(.dc-members-open) .dc-head-btn{color:var(--text-faint);}
+  }
+  @media (max-width:1080px){
+    .dc{grid-template-columns:minmax(0,1fr);height:calc(100dvh - 56px - var(--tabbar-h) - env(safe-area-inset-bottom) - 26px);border-radius:14px;}
+    body.dc-hide-members .dc{grid-template-columns:minmax(0,1fr);}
+    .dc-channels{display:none;}
+    .dc-channel-strip{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:8px 10px;border-bottom:1px solid var(--border-soft);flex:none;}
+    .dc-channel-strip::-webkit-scrollbar{display:none;}
+    .dc-channel-strip .dc-chan{width:auto;flex:none;padding:6px 11px;border-radius:999px;background:var(--panel-2);font-size:13px;}
+    .dc-channel-strip .dc-chan.is-active{background:color-mix(in srgb, var(--accent) 18%, var(--panel-2));color:var(--text);}
+    .dc-channel-strip .dc-chan.is-unread::before{display:none;}
+    .dc-channel-strip .dc-chan-hash{font-size:15px;width:auto;}
+    .dc-msg{padding:4px 10px;gap:10px;}
+    .dc-msg-gutter{width:34px;}
+    .dc-hint{display:none;}
+    .dc-composer{padding:8px 10px !important;}
+    .dc-composer textarea{font-size:16px !important;}
+    .dc-welcome h2{font-size:21px;}
+  }
+
+  /* ---------- Conditions d'utilisation ---------- */
+  .gate-consent{position:relative;display:flex;gap:11px;align-items:flex-start;margin:0 0 16px;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:var(--bg-raised, var(--panel-2));cursor:pointer;transition:border-color .15s, background .15s;}
+  .gate-consent:hover{border-color:color-mix(in srgb, var(--accent) 45%, var(--border));}
+  .gate-consent input{position:absolute;opacity:0;width:1px;height:1px;}
+  .gate-consent-box{flex:none;width:20px;height:20px;margin-top:1px;border-radius:6px;border:2px solid var(--text-faint);display:flex;align-items:center;justify-content:center;transition:background .15s, border-color .15s;}
+  .gate-consent input:checked + .gate-consent-box{background:var(--accent);border-color:var(--accent);}
+  .gate-consent input:checked + .gate-consent-box::after{content:"✓";color:var(--on-accent, #fff);font-size:13px;font-weight:800;line-height:1;}
+  .gate-consent input:focus-visible + .gate-consent-box{outline:2px solid var(--accent);outline-offset:2px;}
+  .gate-consent:has(input:checked){border-color:color-mix(in srgb, var(--accent) 55%, var(--border));background:color-mix(in srgb, var(--accent) 7%, var(--bg-raised, var(--panel-2)));}
+  .gate-consent-txt{font-size:12px;line-height:1.55;color:var(--text-dim);}
+  .gate-consent-txt a{color:var(--accent-light, var(--accent));font-weight:600;}
+  .gate-consent.is-error{border-color:var(--warn);background:color-mix(in srgb, var(--warn) 8%, var(--bg-raised, var(--panel-2)));}
+  .gate-consent.shake{animation:gateShake .4s;}
+  @keyframes gateShake{0%,100%{transform:none;}20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-4px);}80%{transform:translateX(4px);}}
+  .terms-overlay{position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);}
+  .terms-overlay[hidden]{display:none;}
+  .terms-box{position:relative;width:100%;max-width:760px;max-height:88vh;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.6);overflow:hidden;}
+  .terms-close{position:absolute;right:14px;top:14px;z-index:1;background:var(--panel-2);border:1px solid var(--border);color:var(--text-dim);width:32px;height:32px;border-radius:50%;cursor:pointer;}
+  .terms-scroll{overflow-y:auto;padding:28px 30px 18px;scrollbar-width:thin;}
+  .terms-kicker{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--accent);}
+  .terms-head h2{font-size:24px;letter-spacing:-.015em;margin:8px 40px 4px 0;line-height:1.25;}
+  .terms-version{font-size:12px;color:var(--text-faint);margin:0 0 16px;}
+  .terms-alert{font-size:13.5px;line-height:1.6;color:var(--text);padding:14px 16px;border-radius:12px;border:1px solid color-mix(in srgb, var(--warn) 50%, var(--border-soft));background:color-mix(in srgb, var(--warn) 9%, var(--panel));margin-bottom:18px;}
+  .terms-alert b{display:block;color:var(--warn);margin-bottom:4px;}
+  .terms-sec{padding:14px 0;border-top:1px solid var(--border-soft);}
+  .terms-sec h3{display:flex;align-items:center;gap:10px;font-size:15.5px;margin:0 0 8px;}
+  .terms-sec h3 span{font-family:var(--mono);font-size:11px;width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;background:var(--panel-2);color:var(--text-dim);flex:none;}
+  .terms-sec p{font-size:13.5px;line-height:1.65;color:var(--text-dim);margin:0 0 8px;}
+  .terms-sec strong{color:var(--text);}
+  .terms-foot{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--border-soft);background:var(--panel-2);}
+  .rs-disclaimer a, .ep-credits a{color:var(--text-dim);}
+  @media (max-width:720px){ .terms-scroll{padding:22px 18px 12px;} .terms-head h2{font-size:20px;} .terms-foot button{flex:1;} }
+
   /* ---------- Page EDB+ : version marketing ---------- */
   .learn-wrap:has(.ep){max-width:1240px;}
   .card:has(> .ep){background:none;border:none;box-shadow:none;padding:0;}
@@ -3035,6 +3188,11 @@
       <div class="gate-card-brand"><svg class="brand-logo" aria-hidden="true"><use href="#pt-logo"/></svg><span>Paper <b>Tape</b></span></div>
       <div class="chart-note" style="text-align:center;margin-bottom:18px;">Connecte-toi — ton compte est créé automatiquement à la première connexion.</div>
       <div class="gate-last" id="gate-last-hint" hidden></div>
+      <label class="gate-consent" id="gate-consent">
+        <input type="checkbox" id="gate-consent-cb">
+        <span class="gate-consent-box" aria-hidden="true"></span>
+        <span class="gate-consent-txt">J'ai lu et j'accepte les <a href="#" id="gate-terms-link">conditions d'utilisation et l'avertissement sur les risques</a> : l'EDB n'est pas conseiller en investissement, les performances passées ne préjugent pas des performances futures, et toute décision prise avec de l'argent réel relève de ma seule responsabilité.</span>
+      </label>
       <button type="button" class="google-btn" id="gate-google-btn">
         <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path fill="#4285F4" d="M17.64 9.2045c0-.6381-.0573-1.2518-.1636-1.8409H9v3.4814h4.8436c-.2086 1.125-.8427 2.0782-1.7959 2.7164v2.2581h2.9087c1.7018-1.5668 2.6836-3.874 2.6836-6.615z"/>
@@ -3789,26 +3947,41 @@
 
     <!-- ================= CHAT GLOBAL ================= -->
     <section class="view" id="view-chat">
-      <div class="chat-shell">
-        <div class="chat-head">
-          <div class="chat-head-icon"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg></div>
-          <div class="chat-head-text">
-            <div class="chat-head-title">Chat EDB</div>
-            <div class="chat-head-sub" id="global-chat-sub">Ouvert à tous les traders · visible par tout le monde, bureau compris</div>
+      <div class="dc">
+        <aside class="dc-channels">
+          <div class="dc-server">
+            <div class="dc-server-logo"><svg class="brand-logo" aria-hidden="true"><use href="#pt-logo"/></svg></div>
+            <div class="dc-server-txt"><b>École de la Bourse</b><span>Serveur Paper Tape</span></div>
           </div>
-          <div class="chat-head-avatars" id="global-chat-avatars"></div>
+          <div class="dc-cat">Salons textuels</div>
+          <nav class="dc-channel-list" id="dc-channel-list" aria-label="Salons"></nav>
+          <div class="dc-me" id="dc-me"></div>
+        </aside>
+        <div class="chat-shell dc-main">
+          <div class="chat-head dc-head">
+            <span class="dc-head-hash" aria-hidden="true">#</span>
+            <div class="chat-head-text">
+              <div class="chat-head-title" id="dc-channel-title">général</div>
+              <div class="chat-head-sub" id="global-chat-sub">Discussion libre entre les traders de l'EDB</div>
+            </div>
+            <div class="chat-head-avatars" id="global-chat-avatars" hidden></div>
+            <button type="button" class="dc-head-btn" id="dc-members-toggle" title="Afficher les membres" aria-label="Membres"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg></button>
+          </div>
+          <nav class="dc-channel-strip" id="dc-channel-strip" aria-label="Salons"></nav>
+          <div class="chat-scroll-wrap">
+            <div id="global-chat-messages" class="global-chat-messages"><div class="empty-note">Chargement…</div></div>
+            <button type="button" class="chat-new-pill" id="global-chat-new-pill" hidden><svg class="ic" aria-hidden="true"><use href="#i-down"/></svg><span>Nouveaux messages</span></button>
+          </div>
+          <div id="global-chat-image-preview" class="global-chat-image-preview" hidden></div>
+          <div class="chat-composer dc-composer">
+            <input type="file" id="global-chat-image-input" accept="image/*" hidden>
+            <button type="button" class="chat-composer-btn" id="global-chat-image-btn" title="Joindre une image" aria-label="Joindre une image"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg></button>
+            <textarea id="global-chat-input" rows="1" maxlength="500" placeholder="Envoyer un message dans #général" aria-label="Message"></textarea>
+            <button type="button" class="chat-send-btn" id="global-chat-send-btn" title="Envoyer (Entrée)" aria-label="Envoyer"><svg class="ic" aria-hidden="true"><use href="#i-send"/></svg></button>
+          </div>
+          <div class="dc-hint"><b>Entrée</b> pour envoyer · <b>Maj + Entrée</b> pour aller à la ligne · <b>@pseudo</b> pour mentionner</div>
         </div>
-        <div class="chat-scroll-wrap">
-          <div id="global-chat-messages" class="global-chat-messages"><div class="empty-note">Chargement…</div></div>
-          <button type="button" class="chat-new-pill" id="global-chat-new-pill" hidden><svg class="ic" aria-hidden="true"><use href="#i-down"/></svg><span>Nouveaux messages</span></button>
-        </div>
-        <div id="global-chat-image-preview" class="global-chat-image-preview" hidden></div>
-        <div class="chat-composer">
-          <input type="file" id="global-chat-image-input" accept="image/*" hidden>
-          <button type="button" class="chat-composer-btn" id="global-chat-image-btn" title="Joindre une image" aria-label="Joindre une image"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg></button>
-          <textarea id="global-chat-input" rows="1" maxlength="500" placeholder="Écris un message…" aria-label="Message"></textarea>
-          <button type="button" class="chat-send-btn" id="global-chat-send-btn" title="Envoyer (Entrée)" aria-label="Envoyer"><svg class="ic" aria-hidden="true"><use href="#i-send"/></svg></button>
-        </div>
+        <aside class="dc-members" id="dc-members" aria-label="Membres"></aside>
       </div>
     </section>
   </main>
@@ -4078,7 +4251,7 @@ const REFETCH_MS_VISIBLE_CHALLENGE = 2000;
    holds the shared helpers: the access check, the reusable "paywall" card,
    and the label map used to word it per-feature. */
 function isEdbPlus(){ return !!state.edbPlus || edbPlusTrialActive(); }
-/* ---- Essai gratuit EDB+ (24 h, une seule fois par compte) ----
+/* ---- Essai gratuit EDB+ (24 h, valable une seule fois) ----
    Stored as `edbPlusTrialStartedAt` on the trader doc, written ONCE with a
    server timestamp. firestore.rules only lets a trader set it when it was
    still empty and only to request.time — so it can't be reset, back-dated
@@ -4146,13 +4319,13 @@ async function startEdbPlusTrial(){
 function openEdbPlusTrialModal(){
   if (state.edbPlus) return;
   if (edbPlusTrialUsed()){
-    openModal('<h3 style="margin-bottom:8px;">Essai gratuit déjà utilisé</h3><p class="chart-note">L\'essai de 24 h n\'est disponible qu\'une fois par compte'+(edbPlusTrialActive() ? ' — le tien est en cours, encore '+edbPlusTrialRemainingLabel()+'.' : ', et le tien est terminé.')+'</p>');
+    openModal('<h3 style="margin-bottom:8px;">Essai gratuit déjà utilisé</h3><p class="chart-note">L\'essai de 24 h est valable une seule fois'+(edbPlusTrialActive() ? ' — le tien est en cours, encore '+edbPlusTrialRemainingLabel()+'.' : ', et le tien est terminé.')+'</p>');
     return;
   }
   openModal(
     '<h3 style="margin-bottom:8px;">✨ Essayer EDB+ gratuitement pendant 24 h</h3>'+
     '<p class="chart-note" style="margin-bottom:10px;">Challenge Prop Firm, Concours EDB+, quiz et fiches, Trades EDB+, Ressources, News et les 6 thèmes : tout est débloqué pendant 24 h, sans paiement ni engagement.</p>'+
-    '<p class="chart-note" style="margin-bottom:14px;"><strong>Une seule fois par compte</strong> : le compte à rebours démarre dès que tu confirmes. À la fin, tout se reverrouille automatiquement (ta progression est gardée).</p>'+
+    '<p class="chart-note" style="margin-bottom:14px;"><strong>Valable une seule fois</strong> : le compte à rebours démarre dès que tu confirmes. À la fin, tout se reverrouille automatiquement (ta progression est gardée).</p>'+
     '<div class="chart-note" id="edbplus-trial-err" style="color:var(--short);margin-bottom:8px;" hidden></div>'+
     '<button class="btn-primary" id="edbplus-trial-confirm" style="width:100%;">Démarrer mon essai de 24 h</button>'+
     '<button class="btn-secondary" id="edbplus-trial-cancel" style="width:100%;margin-top:8px;">Plus tard</button>'
@@ -4177,7 +4350,7 @@ function edbPlusTrialCtaHtml(id){
   if (edbPlusTrialActive()) return '<div class="edbplus-trial-note">✨ Essai EDB+ en cours — encore '+edbPlusTrialRemainingLabel()+'</div>';
   if (edbPlusTrialUsed()) return '<div class="edbplus-trial-note used">Ton essai gratuit de 24 h a déjà été utilisé.</div>';
   return '<button class="btn-secondary edbplus-trial-btn" id="'+id+'">✨ Essayer gratuitement 24 h</button>'+
-    '<div class="edbplus-trial-note">Sans paiement, une seule fois par compte.</div>';
+    '<div class="edbplus-trial-note">Sans paiement, valable une seule fois.</div>';
 }
 // Payment details shown to a trader the instant their EDB+ request lands
 // (see sendEdbPlusPaymentInfoMessage below) — update these two values if
@@ -4254,7 +4427,7 @@ function edbPlusCtaButtons(key, where){
   const trialBtn = '<button class="pw-btn pw-btn-trial"'+idTrial+' data-edbplus-trial="'+key+'">✨ Essayer gratuitement 24 h</button>';
   const joinBtn = '<button class="pw-btn '+(trialOk?'pw-btn-ghost':'pw-btn-main')+'"'+idCta+' data-edbplus-cta="'+key+'">Devenir membre · 25 €/an</button>';
   let note = "";
-  if (trialOk) note = '<div class="pw-cta-note">Sans paiement ni carte bancaire · une seule fois par compte</div>';
+  if (trialOk) note = '<div class="pw-cta-note">Sans paiement ni carte bancaire · valable une seule fois</div>';
   else if (edbPlusTrialActive()) note = '<div class="edbplus-trial-note pw-cta-note">✨ Essai EDB+ en cours — encore '+edbPlusTrialRemainingLabel()+'</div>';
   else if (edbPlusTrialUsed()) note = '<div class="edbplus-trial-note used pw-cta-note">Ton essai gratuit de 24 h a déjà été utilisé : il ne reste plus que l\'adhésion.</div>';
   return '<div class="pw-ctas">'+(trialOk ? trialBtn : '')+joinBtn+'</div>'+note;
@@ -4349,7 +4522,7 @@ function edbPlusPaywallHtml(key){
     // 5. Questions fréquentes
     '<section class="pw-section pw-faq reveal">'+
       '<details><summary>Comment je paie ?</summary><p>Clique sur « Devenir membre » : ta demande part au bureau et tu reçois aussitôt les coordonnées de paiement (Wero ou virement) dans la conversation. Le bureau active ton compte dès réception.</p></details>'+
-      '<details><summary>Comment marche l\'essai gratuit ?</summary><p>24 h d\'accès complet à EDB+, sans paiement, une seule fois par compte. À la fin, ton compte repasse simplement en gratuit : rien n\'est prélevé.</p></details>'+
+      '<details><summary>Comment marche l\'essai gratuit ?</summary><p>24 h d\'accès complet à EDB+, sans paiement, valable une seule fois. À la fin, ton compte repasse simplement en gratuit : rien n\'est prélevé.</p></details>'+
       '<details><summary>Mes progrès sont-ils gardés ?</summary><p>Oui : cours lus, quiz et scores restent sur ton compte, même après l\'essai.</p></details>'+
     '</section>'+
     '<p class="chart-note cedb-credit">Photos : Pexels et Unsplash (licences libres).</p>'+
@@ -4414,7 +4587,7 @@ const EP_PHOTOS = {
 };
 function epCredits(){
   const names = Array.from(new Set(Object.values(EP_PHOTOS).map(p=>p.by)));
-  return '<p class="ep-credits">Photos : '+names.map(escapeHtml).join(", ")+' sur Unsplash (licence Unsplash).</p>';
+  return '<p class="ep-credits">Photos : '+names.map(escapeHtml).join(", ")+' sur Unsplash (licence Unsplash). · <a href="#" data-open-terms>Conditions d\'utilisation et avertissement sur les risques</a></p>';
 }
 function epCtas(where){
   const trialOk = !state.edbPlus && !edbPlusTrialActive() && !edbPlusTrialUsed();
@@ -4423,7 +4596,7 @@ function epCtas(where){
     (trialOk ? '<button class="pw-btn pw-btn-trial"'+(first?' id="edbplus-trial-page"':'')+' data-ep-trial>✨ Essayer gratuitement 24 h</button>' : '')+
     '<button class="pw-btn '+(trialOk?'pw-btn-ghost':'pw-btn-main')+'"'+(first?' id="edbplus-request-btn"':'')+' data-ep-join>Devenir membre · 25 €/an</button>'+
   '</div>'+
-  (trialOk ? '<div class="pw-cta-note">Sans paiement ni carte bancaire · une seule fois par compte</div>'
+  (trialOk ? '<div class="pw-cta-note">Sans paiement ni carte bancaire · valable une seule fois</div>'
            : (edbPlusTrialUsed() ? '<div class="edbplus-trial-note used pw-cta-note">Ton essai gratuit a déjà été utilisé.</div>' : ''));
 }
 function epFeature(o, flip){
@@ -4528,7 +4701,7 @@ function epPitchHtml(){
       '</div>'+
     '</section>'+
     '<section class="pw-section pw-faq reveal">'+
-      '<details><summary>Comment marche l\'essai gratuit ?</summary><p>24 h d\'accès complet à EDB+, sans paiement, une seule fois par compte. À la fin, ton compte repasse simplement en gratuit : rien n\'est prélevé.</p></details>'+
+      '<details><summary>Comment marche l\'essai gratuit ?</summary><p>24 h d\'accès complet à EDB+, sans paiement, valable une seule fois. À la fin, ton compte repasse simplement en gratuit : rien n\'est prélevé.</p></details>'+
       '<details><summary>Mes progrès sont-ils gardés ?</summary><p>Oui : cours lus, quiz, scores et historique restent sur ton compte, pendant et après l\'essai.</p></details>'+
       '<details><summary>À quoi sert l\'argent ?</summary><p>L\'adhésion finance l\'association École de la Bourse et ses projets, dont les récompenses réelles du Concours EDB+.</p></details>'+
       '<details><summary>C\'est un abonnement reconduit automatiquement ?</summary><p>Non : tu paies 25 € au bureau pour un an, par Wero ou virement. Rien n\'est prélevé automatiquement.</p></details>'+
@@ -5249,6 +5422,7 @@ async function loadAccountForClientId(id){
     isFreshAccount = true;
     await persistAccount();
   }
+  recordTermsAcceptance(id);
 }
 async function initDb(){
   try{
@@ -5791,7 +5965,125 @@ function initAuthUI(){
     });
   }
 }
+/* ============================= CONDITIONS D'UTILISATION ============================= */
+// Texte affiché avant la connexion (case à cocher obligatoire) et
+// consultable ensuite depuis la page EDB+ et Ressources. Changer
+// TERMS_VERSION quand le texte change : l'acceptation enregistrée sur le
+// compte (termsAcceptedAt / termsVersion) porte la version acceptée.
+const TERMS_VERSION = "2026-09-28";
+const TERMS_PENDING_KEY = "paperTapeTermsPending";
+function termsHtml(){
+  const sec = (n, t, body)=>'<section class="terms-sec"><h3><span>'+n+'</span>'+t+'</h3>'+body+'</section>';
+  return ''+
+    '<div class="terms-head">'+
+      '<span class="terms-kicker">Paper Tape · École de la Bourse (EDB)</span>'+
+      '<h2>Conditions d\'utilisation et avertissement sur les risques</h2>'+
+      '<p class="terms-version">Version du '+new Date(TERMS_VERSION+"T12:00:00").toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"})+'</p>'+
+    '</div>'+
+    '<div class="terms-alert"><b>⚠️ À retenir</b> Paper Tape est un outil pédagogique d\'entraînement avec de l\'argent fictif. L\'EDB n\'est pas un conseiller en investissement, ne t\'incite pas à trader avec de l\'argent réel et ne peut être tenue responsable d\'aucune perte. Toute décision prise avec de l\'argent réel relève de ta seule responsabilité.</div>'+
+    sec(1, "Objet du service",
+      '<p>Paper Tape est une plateforme de <strong>trading simulé</strong> proposée par l\'association École de la Bourse (EDB) à des fins exclusivement <strong>pédagogiques</strong>. Tous les capitaux, positions, gains et pertes affichés sont <strong>fictifs</strong> : aucune transaction réelle n\'est passée sur un marché, et aucun argent réel n\'est déposé ni conservé par la plateforme.</p>')+
+    sec(2, "Aucun conseil en investissement",
+      '<p>L\'EDB, son bureau et ses membres <strong>ne sont pas conseillers en investissements financiers</strong> ni prestataires de services d\'investissement, et ne sont pas agréés à ce titre par l\'Autorité des marchés financiers (AMF).</p>'+
+      '<p>Les cours, quiz, analyses, « Trades EDB+ », actualités, ressources et échanges du chat sont des <strong>informations générales à but éducatif</strong>. Ils ne constituent ni un conseil personnalisé, ni une recommandation d\'achat ou de vente, ni une sollicitation à investir.</p>')+
+    sec(3, "Aucune incitation à trader en argent réel",
+      '<p>Paper Tape a justement pour but de s\'entraîner <strong>sans risquer d\'argent</strong>. L\'EDB n\'incite en aucun cas ses utilisateurs à ouvrir un compte réel, à déposer des fonds ou à trader avec de l\'argent réel.</p>')+
+    sec(4, "Risques des marchés financiers",
+      '<p>Le trading, en particulier avec <strong>effet de levier</strong> (produits dérivés, CFD, contrats à terme perpétuels, options) et sur les <strong>crypto-actifs</strong>, comporte un <strong>risque élevé de perte en capital</strong>, pouvant aller jusqu\'à la perte totale des sommes engagées, voire au-delà pour certains produits. Une majorité de particuliers perd de l\'argent sur ces produits. N\'investis jamais de l\'argent dont tu as besoin.</p>')+
+    sec(5, "Performances passées et résultats simulés",
+      '<p><strong>Les performances passées ne préjugent pas des performances futures.</strong> Les résultats obtenus sur Paper Tape (classements, challenges, badges) sont simulés et ne reflètent pas les conditions réelles de marché : liquidité, glissement de prix (slippage), frais réels, fiscalité, et surtout la pression psychologique de l\'argent réel. Réussir en simulation ne garantit en rien de réussir en réel.</p>')+
+    sec(6, "Sites et services tiers",
+      '<p>La plateforme mentionne ou renvoie vers des sites tiers (courtiers, plateformes d\'échange, DEX, prop firms, outils d\'analyse). Ces services sont indépendants de l\'EDB, qui n\'en garantit ni la fiabilité, ni la sécurité, ni la conformité réglementaire.</p>'+
+      '<p><strong>Toute décision d\'ouvrir un compte, de déposer de l\'argent ou de passer un ordre sur un site impliquant de l\'argent réel relève de ta seule et entière responsabilité.</strong> Avant tout engagement, vérifie que le prestataire est autorisé à opérer en France (registres et listes noires de l\'AMF) et lis ses conditions.</p>')+
+    sec(7, "Limitation de responsabilité",
+      '<p>Dans toute la mesure permise par la loi, l\'EDB, son bureau et ses membres <strong>ne pourront en aucun cas être tenus responsables</strong> d\'une perte financière, directe ou indirecte, ni d\'aucun autre dommage résultant de l\'utilisation de la plateforme, de ses contenus, des informations partagées par d\'autres utilisateurs ou de services tiers.</p>'+
+      '<p>La plateforme est fournie « en l\'état » : les prix affichés peuvent être retardés, inexacts ou momentanément indisponibles, et le service peut être interrompu ou modifié à tout moment.</p>')+
+    sec(8, "Concours et récompenses",
+      '<p>Les récompenses du Concours EDB+ sont attribuées par l\'association selon le règlement qu\'elle fixe. Elles récompensent un parcours pédagogique et ne constituent ni un placement ni une promesse de gain.</p>')+
+    sec(9, "Comportement dans la communauté",
+      '<p>Le chat et les espaces communautaires doivent rester respectueux. Sont interdits notamment : les propos haineux ou harcelants, la promotion de produits financiers, de « signaux » payants, de parrainages ou de schémas d\'investissement, et la diffusion de données personnelles d\'autrui. Le bureau peut supprimer un contenu ou suspendre un compte.</p>')+
+    sec(10, "Données personnelles",
+      '<p>Pour faire fonctionner le service, la plateforme enregistre ton adresse email, ton pseudonyme, ta photo de profil éventuelle et ton activité de trading simulé (via Firebase, un service de Google). Ton pseudonyme, tes performances simulées et tes messages sont visibles des autres utilisateurs (classements, chat). Tu peux demander l\'accès, la rectification ou la suppression de tes données en contactant le bureau de l\'EDB.</p>')+
+    sec(11, "Évolution des conditions",
+      '<p>Ces conditions peuvent évoluer. La version en vigueur est celle affichée dans l\'application. En continuant d\'utiliser Paper Tape, tu acceptes la version en vigueur.</p>');
+}
+function openTermsModal(onAccept){
+  let ov = document.getElementById("terms-overlay");
+  if (!ov){
+    ov = document.createElement("div");
+    ov.id = "terms-overlay";
+    ov.className = "terms-overlay";
+    document.body.appendChild(ov);
+  }
+  ov.innerHTML =
+    '<div class="terms-box" role="dialog" aria-modal="true" aria-labelledby="terms-title">'+
+      '<button type="button" class="terms-close" id="terms-close" aria-label="Fermer">✕</button>'+
+      '<div class="terms-scroll" id="terms-scroll">'+termsHtml()+'</div>'+
+      '<div class="terms-foot">'+
+        (onAccept ? '<button type="button" class="btn-secondary" id="terms-later">Fermer</button><button type="button" class="btn-primary" id="terms-accept">J\'ai lu et j\'accepte</button>'
+                  : '<button type="button" class="btn-primary" id="terms-later">Fermer</button>')+
+      '</div>'+
+    '</div>';
+  ov.hidden = false;
+  const h2 = ov.querySelector(".terms-head h2");
+  if (h2) h2.id = "terms-title";
+  const close = ()=>{ ov.hidden = true; document.removeEventListener("keydown", onKey); };
+  const onKey = (e)=>{ if (e.key==="Escape") close(); };
+  document.addEventListener("keydown", onKey);
+  ov.addEventListener("click", (e)=>{ if (e.target===ov) close(); });
+  document.getElementById("terms-close").addEventListener("click", close);
+  document.getElementById("terms-later").addEventListener("click", close);
+  const acc = document.getElementById("terms-accept");
+  if (acc) acc.addEventListener("click", ()=>{ close(); onAccept(); });
+}
+// Case à cocher de la page de connexion : obligatoire avant Google,
+// « Se connecter » et « Créer un compte ». Renvoie true si c'est coché ;
+// sinon affiche l'erreur et fait vibrer la case.
+function gateConsentOk(){
+  const cb = document.getElementById("gate-consent-cb");
+  if (!cb || cb.checked){
+    try{ localStorage.setItem(TERMS_PENDING_KEY, JSON.stringify({v:TERMS_VERSION, at:new Date().toISOString()})); }catch(e){}
+    return true;
+  }
+  const box = document.getElementById("gate-consent");
+  const msg = document.getElementById("gate-msg");
+  if (msg){ msg.style.color = "var(--warn)"; msg.textContent = "Coche la case pour accepter les conditions d'utilisation avant de te connecter."; }
+  if (box){ box.classList.remove("shake"); void box.offsetWidth; box.classList.add("shake", "is-error"); }
+  cb.focus();
+  return false;
+}
+document.addEventListener("click", (e)=>{
+  const a = e.target.closest && e.target.closest("[data-open-terms]");
+  if (!a) return;
+  e.preventDefault();
+  openTermsModal();
+});
+function initGateConsent(){
+  const cb = document.getElementById("gate-consent-cb");
+  const link = document.getElementById("gate-terms-link");
+  const box = document.getElementById("gate-consent");
+  if (link) link.addEventListener("click", (e)=>{ e.preventDefault(); openTermsModal(()=>{ if (cb){ cb.checked = true; if (box) box.classList.remove("is-error"); const msg = document.getElementById("gate-msg"); if (msg) msg.textContent = ""; } }); });
+  if (cb) cb.addEventListener("change", ()=>{ if (cb.checked && box){ box.classList.remove("is-error"); const msg = document.getElementById("gate-msg"); if (msg && /conditions/.test(msg.textContent)) msg.textContent = ""; } });
+}
+// Enregistre sur le compte l'acceptation faite sur la page de connexion
+// (date serveur + version du texte) : une preuve horodatée, visible des admins.
+async function recordTermsAcceptance(id){
+  let pending = null;
+  try{ pending = JSON.parse(localStorage.getItem(TERMS_PENDING_KEY)||"null"); }catch(e){}
+  if (!pending || !db) return;
+  const user = (typeof firebase!=="undefined" && firebase.auth) ? firebase.auth().currentUser : null;
+  if (!user || user.uid!==id) return;
+  try{
+    await db.collection("traders").doc(id).set({
+      termsAcceptedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      termsVersion: pending.v || TERMS_VERSION,
+    }, {merge:true});
+    state.termsVersion = pending.v || TERMS_VERSION;
+    localStorage.removeItem(TERMS_PENDING_KEY);
+  }catch(e){ console.warn("terms acceptance not recorded", e); }
+}
 function initGateUI(){
+  initGateConsent();
   const emailInput = document.getElementById("gate-email-input");
   const msg = document.getElementById("gate-msg");
   const passwordInput = document.getElementById("gate-password-input");
@@ -5835,6 +6127,7 @@ function initGateUI(){
   if (googleBtn){
     googleBtn.addEventListener("click", async ()=>{
       if (gateBusy) return;
+      if (!gateConsentOk()) return;
       setGateBusy(true);
       try{ await signInWithGoogle(); }
       finally{ setGateBusy(false); }
@@ -5848,6 +6141,7 @@ function initGateUI(){
     if (gateBusy) return;
     const cred = readCredentials();
     if (!cred) return;
+    if (!gateConsentOk()) return;
     setGateBusy(true);
     msg.style.color = "var(--text-dim)";
     msg.textContent = "Connexion en cours…";
@@ -5866,6 +6160,7 @@ function initGateUI(){
     if (gateBusy) return;
     const cred = readCredentials();
     if (!cred) return;
+    if (!gateConsentOk()) return;
     setGateBusy(true);
     msg.style.color = "var(--text-dim)";
     msg.textContent = "Création du compte en cours…";
@@ -11328,75 +11623,176 @@ function chatAuthorInfo(d){
   const photo = mine ? state.photoURL : (d.authorPhotoURL || (status && status.photoURL) || null);
   return {mine, status, name, photo};
 }
-function renderGlobalChatHeader(){
-  const av = document.getElementById("global-chat-avatars");
-  if (!av) return;
-  const seen = {}; const people = [];
+// ---- Chat façon Discord (refonte 2026-09-28) ----
+// Salons : un simple champ `channel` sur chaque message de globalChat (même
+// collection, même écouteur, aucune lecture Firestore en plus). Les anciens
+// messages sans salon vont dans #général, les cartes PnL dans #résultats.
+const CHAT_CHANNELS = [
+  {id:"general",   name:"général",            icon:"💬", desc:"Discussion libre entre les traders de l'EDB"},
+  {id:"setups",    name:"setups-et-analyses", icon:"📈", desc:"Partage tes setups, graphiques et analyses"},
+  {id:"resultats", name:"résultats",          icon:"🏆", desc:"Tes trades clôturés et tes cartes PnL"},
+  {id:"actus",     name:"actus-marchés",      icon:"📰", desc:"L'actu qui fait bouger les marchés"},
+  {id:"entraide",  name:"entraide",           icon:"🙋", desc:"Questions sur Paper Tape, les cours ou le trading"},
+];
+const CHAT_CHANNEL_KEY = "paperTapeChatChannel", CHAT_SEEN_KEY = "paperTapeChatSeen";
+let chatChannel = (()=>{ try{ const c = localStorage.getItem(CHAT_CHANNEL_KEY); return CHAT_CHANNELS.some(x=>x.id===c) ? c : "general"; }catch(e){ return "general"; } })();
+let chatSeen = (()=>{ try{ return JSON.parse(localStorage.getItem(CHAT_SEEN_KEY)||"{}")||{}; }catch(e){ return {}; } })();
+function chatMsgChannel(d){ return (d && CHAT_CHANNELS.some(c=>c.id===d.channel)) ? d.channel : (d && d.type==="pnlcard" ? "resultats" : "general"); }
+function chatChannelDef(id){ return CHAT_CHANNELS.find(c=>c.id===id) || CHAT_CHANNELS[0]; }
+function chatMentionsMe(d){ return !!(state.username && d.authorId!==clientId && (" "+(d.text||"")).toLowerCase().indexOf("@"+state.username.toLowerCase())>=0); }
+function markChatChannelSeen(id){
+  const docs = globalChatDocsCache.filter(doc=>chatMsgChannel(doc.data())===id);
+  const last = docs.length ? docs[0].data().createdAt : null; // cache trié du plus récent au plus ancien
+  if (last && (!chatSeen[id] || last>chatSeen[id])){
+    chatSeen[id] = last;
+    try{ localStorage.setItem(CHAT_SEEN_KEY, JSON.stringify(chatSeen)); }catch(e){}
+  }
+}
+function setChatChannel(id){
+  if (!CHAT_CHANNELS.some(c=>c.id===id)) return;
+  chatChannel = id;
+  try{ localStorage.setItem(CHAT_CHANNEL_KEY, id); }catch(e){}
+  globalChatEditingId = null;
+  globalChatForceScroll = true;
+  const list = document.getElementById("global-chat-messages");
+  if (list) list.dataset.count = "";
+  document.body.classList.remove("dc-show-channels");
+  renderGlobalChatMessages();
+  const input = document.getElementById("global-chat-input");
+  if (input && window.matchMedia("(hover:hover)").matches) input.focus();
+}
+function renderChatChannels(){
+  const counts = {}, pings = {};
   globalChatDocsCache.forEach(doc=>{
-    const d = doc.data();
-    if (!d.authorId || seen[d.authorId]) return;
-    seen[d.authorId] = true;
-    people.push(chatAuthorInfo(d));
+    const d = doc.data(); const ch = chatMsgChannel(d);
+    if (d.authorId===clientId || !d.createdAt) return;
+    if (!chatSeen[ch]) return; // jamais ouvert : pas de pastille pour tout l'historique
+    if (d.createdAt>chatSeen[ch]){ counts[ch] = (counts[ch]||0)+1; if (chatMentionsMe(d)) pings[ch] = (pings[ch]||0)+1; }
   });
-  av.innerHTML = people.slice(0,5).map(p=>'<span class="chat-head-av" title="'+escapeHtml(p.name)+'">'+avatarHtml(p.photo, p.name, 28)+'</span>').join("")+
-    (people.length ? '<span class="chat-head-count">'+people.length+' participant'+(people.length>1?"s":"")+'</span>' : '');
+  const html = CHAT_CHANNELS.map(c=>{
+    const n = c.id===chatChannel ? 0 : (counts[c.id]||0), p = c.id===chatChannel ? 0 : (pings[c.id]||0);
+    return '<button type="button" class="dc-chan'+(c.id===chatChannel?' is-active':'')+(n?' is-unread':'')+'" data-dc-chan="'+c.id+'">'+
+      '<span class="dc-chan-hash">#</span><span class="dc-chan-name">'+escapeHtml(c.name)+'</span>'+
+      (p ? '<span class="dc-chan-ping">@'+p+'</span>' : (n ? '<span class="dc-chan-dot"></span>' : ''))+
+    '</button>';
+  }).join("");
+  ["dc-channel-list", "dc-channel-strip"].forEach(id=>{
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = html;
+    el.querySelectorAll("[data-dc-chan]").forEach(b=>b.addEventListener("click", ()=>setChatChannel(b.dataset.dcChan)));
+  });
+  const me = document.getElementById("dc-me");
+  if (me) me.innerHTML = avatarHtml(state.photoURL, state.username||"Moi", 34)+
+    '<div class="dc-me-txt"><b>'+escapeHtml(state.username||"Moi")+'</b><span><i class="dc-online"></i>En ligne'+(isEdbPlus()?' · EDB+':'')+'</span></div>';
+}
+function chatRoleOf(status){ return status && status.isAdmin ? "admin" : (status && status.edbPlus ? "plus" : "member"); }
+function renderChatMembers(){
+  const el = document.getElementById("dc-members");
+  if (!el) return;
+  const seen = {}, people = [];
+  const now = Date.now();
+  const add = (id, info, lastAt)=>{
+    if (!id || seen[id]) return;
+    seen[id] = true;
+    people.push({id, name:info.name, photo:info.photo, role:chatRoleOf(info.status), online: lastAt ? (now-new Date(lastAt).getTime()) < 15*60000 : false});
+  };
+  if (clientId) add(clientId, {name:state.username||"Moi", photo:state.photoURL, status:state}, new Date().toISOString());
+  globalChatDocsCache.forEach(doc=>{ const d = doc.data(); add(d.authorId, chatAuthorInfo(d), d.createdAt); });
+  const groups = [["admin","Bureau EDB"],["plus","Membres EDB+"],["member","Membres"]];
+  el.innerHTML = '<div class="dc-members-head">Membres — '+people.length+'</div>'+
+    groups.map(([role,label])=>{
+      const list = people.filter(p=>p.role===role).sort((a,b)=>(b.online-a.online) || a.name.localeCompare(b.name));
+      if (!list.length) return "";
+      return '<div class="dc-members-cat">'+label+' — '+list.length+'</div>'+
+        list.map(p=>'<button type="button" class="dc-member role-'+p.role+(p.online?'':' is-away')+'" data-chat-profile="'+escapeHtml(p.id)+'">'+
+          '<span class="dc-member-av">'+avatarHtml(p.photo, p.name, 32)+'<i class="'+(p.online?'on':'')+'"></i></span>'+
+          '<span class="dc-member-name">'+escapeHtml(p.name)+'</span></button>').join("");
+    }).join("");
+  el.querySelectorAll("[data-chat-profile]").forEach(b=>b.addEventListener("click", ()=>{ if (b.dataset.chatProfile && b.dataset.chatProfile!==clientId) openTraderProfileModal(b.dataset.chatProfile); }));
+}
+function chatTimeLabel(iso){
+  if (!iso) return "";
+  const d = new Date(iso);
+  const hm = d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+  const lbl = chatDayLabel(iso);
+  if (lbl==="Aujourd'hui") return "Aujourd'hui à "+hm;
+  if (lbl==="Hier") return "Hier à "+hm;
+  return d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"})+" "+hm;
+}
+function renderGlobalChatHeader(){
+  const def = chatChannelDef(chatChannel);
+  const t = document.getElementById("dc-channel-title");
+  if (t) t.textContent = def.name;
+  const sub = document.getElementById("global-chat-sub");
+  if (sub) sub.textContent = def.desc;
+  const input = document.getElementById("global-chat-input");
+  if (input) input.placeholder = (window.innerWidth<=720 ? "Message #" : "Envoyer un message dans #")+def.name;
+  renderChatChannels();
+  renderChatMembers();
 }
 function chatMessageHtml(doc, d, grouped){
   const a = chatAuthorInfo(d);
   const canDelete = a.mine || state.isAdmin;
-  const time = d.createdAt ? new Date(d.createdAt).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}) : "";
-  const timeHtml = '<span class="chat-msg-time">'+(d.editedAt?'modifié · ':'')+time+'</span>';
-  const mentionsMe = !a.mine && state.username && (" "+(d.text||"")).toLowerCase().indexOf("@"+state.username.toLowerCase())>=0;
-  const isMedia = d.type==="image" || d.type==="pnlcard";
-  let bubble;
+  const hm = d.createdAt ? new Date(d.createdAt).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}) : "";
+  const role = chatRoleOf(a.status);
+  const mentionsMe = chatMentionsMe(d);
+  let content;
   if (globalChatEditingId===doc.id){
-    bubble = '<div class="chat-bubble '+(a.mine?"mine":"theirs")+' chat-edit-box">'+
+    content = '<div class="chat-edit-box dc-edit">'+
       '<textarea rows="2" maxlength="500" id="chat-edit-input-'+doc.id+'">'+escapeHtml(d.text||"")+'</textarea>'+
-      '<div class="chat-edit-actions"><button class="btn-secondary" data-chat-cancel-edit="1">Annuler</button><button class="btn-primary" data-chat-save-edit="'+doc.id+'">Enregistrer</button></div>'+
+      '<div class="dc-edit-hint">Échap pour <button type="button" data-chat-cancel-edit="1">annuler</button> · Entrée pour <button type="button" data-chat-save-edit="'+doc.id+'">enregistrer</button></div>'+
     '</div>';
+  } else if (d.type==="image"){
+    content = (d.text ? '<div class="dc-text">'+chatFormatText(d.text)+'</div>' : "")+
+      (d.imageUrl ? '<img class="chat-bubble-img dc-img" src="'+escapeHtml(d.imageUrl)+'" alt="Image partagée" loading="lazy">' : "");
+  } else if (d.type==="pnlcard" && d.pnlCard){
+    content = (d.text ? '<div class="dc-text">'+chatFormatText(d.text)+'</div>' : "")+'<div class="dc-embed">'+renderMiniPnlCardHtml(d.pnlCard)+'</div>';
   } else {
-    let body;
-    if (d.type==="image"){
-      body = (d.imageUrl ? '<img class="chat-bubble-img" src="'+escapeHtml(d.imageUrl)+'" alt="Image partagée" loading="lazy">' : "")+
-        (d.text ? '<div class="chat-bubble-text">'+chatFormatText(d.text)+'</div>' : "")+timeHtml;
-    } else if (d.type==="pnlcard" && d.pnlCard){
-      body = renderMiniPnlCardHtml(d.pnlCard)+(d.text ? '<div class="chat-bubble-text">'+chatFormatText(d.text)+'</div>' : "")+timeHtml;
-    } else {
-      body = '<div class="chat-bubble-text">'+chatFormatText(d.text)+timeHtml+'</div>';
-    }
-    bubble = '<div class="chat-bubble '+(a.mine?"mine":"theirs")+(isMedia?" media":"")+'">'+body+'</div>';
+    content = '<div class="dc-text">'+chatFormatText(d.text)+(d.editedAt?' <span class="dc-edited">(modifié)</span>':'')+'</div>';
   }
   const tools = (a.mine ? '<button type="button" class="chat-tool" data-chat-edit="'+doc.id+'" title="Modifier"><svg class="ic" aria-hidden="true"><use href="#i-edit"/></svg></button>' : '')+
     (canDelete ? '<button type="button" class="chat-tool danger" data-chat-delete="'+doc.id+'" title="Supprimer"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg></button>' : '');
   const nReact = d.reactions && typeof d.reactions==="object" ? Object.keys(d.reactions).length : 0;
-  return '<div class="chat-msg '+(a.mine?"mine":"theirs")+(grouped?" grouped":"")+(mentionsMe?" mention":"")+'" data-msg-id="'+doc.id+'">'+
-    (a.mine ? '' : '<div class="chat-msg-avatar">'+(grouped ? '' : '<button type="button" class="chat-av-btn" data-chat-profile="'+escapeHtml(d.authorId||"")+'" title="Voir le profil">'+avatarHtml(a.photo, a.name, 34)+'</button>')+'</div>')+
-    '<div class="chat-msg-main">'+
-      (grouped || a.mine ? '' : '<div class="chat-msg-author"><span>'+escapeHtml(a.name)+'</span>'+traderBadgesHtml(a.status)+'</div>')+
-      '<div class="chat-msg-row">'+bubble+(tools && globalChatEditingId!==doc.id ? '<div class="chat-msg-tools">'+tools+'</div>' : '')+'</div>'+
+  return '<div class="chat-msg dc-msg'+(grouped?" grouped":"")+(mentionsMe?" mention":"")+(a.mine?" mine":"")+'" data-msg-id="'+doc.id+'">'+
+    '<div class="dc-msg-gutter">'+(grouped
+      ? '<span class="dc-msg-hm">'+hm+'</span>'
+      : '<button type="button" class="chat-av-btn" data-chat-profile="'+escapeHtml(d.authorId||"")+'" title="Voir le profil">'+avatarHtml(a.photo, a.name, 40)+'</button>')+
+    '</div>'+
+    '<div class="dc-msg-body">'+
+      (grouped ? '' : '<div class="dc-msg-head"><button type="button" class="dc-name role-'+role+'" data-chat-profile="'+escapeHtml(d.authorId||"")+'">'+escapeHtml(a.name)+'</button>'+
+        (role==="admin" ? '<span class="dc-tag admin">BUREAU</span>' : role==="plus" ? '<span class="dc-tag plus">EDB+</span>' : '')+
+        '<span class="dc-time" title="'+escapeHtml(d.createdAt ? new Date(d.createdAt).toLocaleString("fr-FR") : "")+'">'+chatTimeLabel(d.createdAt)+'</span></div>')+
+      content+
       '<div class="chat-msg-react'+(nReact?'':' is-empty')+'">'+thumbReactionHtml("globalChat", doc.id, d.reactions)+'</div>'+
     '</div>'+
+    (globalChatEditingId!==doc.id ? '<div class="chat-msg-tools dc-tools">'+thumbReactionHtml("globalChat", doc.id, d.reactions).replace('thumb-react-btn','thumb-react-btn dc-tool-react')+tools+'</div>' : '')+
   '</div>';
 }
 function renderGlobalChatMessages(){
   const el = document.getElementById("global-chat-messages");
   if (!el) return;
+  const def = chatChannelDef(chatChannel);
   renderGlobalChatHeader();
   const pill = document.getElementById("global-chat-new-pill");
-  if (globalChatDocsCache.length===0){
-    el.innerHTML = '<div class="chat-empty"><div class="chat-empty-icon"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg></div><div class="chat-empty-title">Aucun message pour l\'instant</div><div class="chart-note">Lance la discussion : une question, un setup, une actu du marché…</div></div>';
+  const welcome = '<div class="dc-welcome"><div class="dc-welcome-ico">'+def.icon+'</div><h2>Bienvenue dans #'+escapeHtml(def.name)+' !</h2><p>C\'est le début du salon #'+escapeHtml(def.name)+'. '+escapeHtml(def.desc)+'.</p></div>';
+  const all = globalChatDocsCache.filter(doc=>chatMsgChannel(doc.data())===chatChannel);
+  if (all.length===0){
+    el.innerHTML = welcome+'<div class="dc-empty">Aucun message pour l\'instant — lance la discussion !</div>';
+    el.dataset.count = "0";
+    if (pill) pill.hidden = true;
     return;
   }
   const wasAtBottom = (el.scrollHeight - el.scrollTop - el.clientHeight) < 80;
   const prevCount = +(el.dataset.count||0);
-  const docs = globalChatDocsCache.slice().reverse(); // oldest first for a natural reading order
-  let html = ""; let prev = null; let lastDay = null;
+  const docs = all.slice().reverse(); // oldest first for a natural reading order
+  let html = (all.length<150 ? welcome : ""); let prev = null; let lastDay = null;
   docs.forEach(doc=>{
     const d = doc.data();
     const iso = d.createdAt || null;
     const day = iso ? chatDayKey(iso) : lastDay;
-    if (iso && day!==lastDay){ html += '<div class="chat-day"><span>'+escapeHtml(chatDayLabel(iso))+'</span></div>'; lastDay = day; prev = null; }
-    const grouped = !!(prev && prev.authorId===d.authorId && iso && prev.createdAt && (new Date(iso)-new Date(prev.createdAt)) < 6*60000);
+    if (iso && day!==lastDay){ html += '<div class="chat-day dc-day"><span>'+escapeHtml(chatDayLabel(iso))+'</span></div>'; lastDay = day; prev = null; }
+    const grouped = !!(prev && prev.authorId===d.authorId && iso && prev.createdAt && (new Date(iso)-new Date(prev.createdAt)) < 7*60000 && d.type==="text" && prev.type==="text");
     html += chatMessageHtml(doc, d, grouped);
     prev = d;
   });
@@ -11407,13 +11803,17 @@ function renderGlobalChatMessages(){
   el.querySelectorAll("[data-chat-save-edit]").forEach(btn=>btn.addEventListener("click", ()=>saveEditGlobalChatMessage(btn.dataset.chatSaveEdit)));
   el.querySelectorAll("[data-chat-cancel-edit]").forEach(btn=>btn.addEventListener("click", cancelEditGlobalChatMessage));
   el.querySelectorAll("[data-chat-profile]").forEach(btn=>btn.addEventListener("click", ()=>{ if (btn.dataset.chatProfile) openTraderProfileModal(btn.dataset.chatProfile); }));
+  const editTa = globalChatEditingId ? document.getElementById("chat-edit-input-"+globalChatEditingId) : null;
+  if (editTa) editTa.addEventListener("keydown", (e)=>{
+    if (e.key==="Escape"){ e.preventDefault(); cancelEditGlobalChatMessage(); }
+    else if (e.key==="Enter" && !e.shiftKey){ e.preventDefault(); saveEditGlobalChatMessage(globalChatEditingId); }
+  });
   wireThumbReactionButtons(el);
+  if (document.body.dataset.view==="chat") markChatChannelSeen(chatChannel);
   if (wasAtBottom || !prevCount || globalChatForceScroll){
     el.scrollTop = el.scrollHeight;
     globalChatForceScroll = false;
     if (pill) pill.hidden = true;
-    // Images arrive after this render and push the bottom further down —
-    // keep the view pinned to the latest message as each one loads.
     el.querySelectorAll("img").forEach(img=>{
       if (!img.complete) img.addEventListener("load", ()=>{ el.scrollTop = el.scrollHeight; }, {once:true});
     });
@@ -11466,6 +11866,16 @@ function initGlobalChat(){
   const imgBtn = document.getElementById("global-chat-image-btn");
   const imgInput = document.getElementById("global-chat-image-input");
   if (sendBtn) sendBtn.addEventListener("click", sendGlobalChatFromInput);
+  const memBtn = document.getElementById("dc-members-toggle");
+  if (memBtn) memBtn.addEventListener("click", ()=>{
+    if (window.innerWidth<=1280) document.body.classList.toggle("dc-members-open");
+    else document.body.classList.toggle("dc-hide-members");
+  });
+  document.addEventListener("click", (e)=>{
+    if (!document.body.classList.contains("dc-members-open")) return;
+    if (e.target.closest && (e.target.closest("#dc-members") || e.target.closest("#dc-members-toggle"))) return;
+    document.body.classList.remove("dc-members-open");
+  });
   const autoGrow = ()=>{ if (!input) return; input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 140)+"px"; };
   window.resetGlobalChatInputHeight = ()=>{ if (input){ input.style.height = "auto"; } };
   if (input){
@@ -11517,7 +11927,7 @@ async function sendGlobalChatFromInput(){
     const id = uid();
     const payload = {
       authorId: clientId, authorName: state.username, authorPhotoURL: state.photoURL || null,
-      createdAt: new Date().toISOString(), editedAt: null,
+      createdAt: new Date().toISOString(), editedAt: null, channel: chatChannel,
     };
     globalChatForceScroll = true;
     if (globalChatSelectedImage){
@@ -11546,7 +11956,7 @@ async function sendGlobalChatPnlCard(h){
   const id = uid();
   const payload = {
     authorId: clientId, authorName: state.username, authorPhotoURL: state.photoURL || null,
-    type: "pnlcard",
+    type: "pnlcard", channel: "resultats",
     pnlCard: {symbol:h.symbol, side:h.side, pnl:h.pnl, reason:h.reason, leverage:h.leverage, mode:h.mode, sizeUnits:h.sizeUnits, closedAt:h.closedAt},
     text: "",
     createdAt: new Date().toISOString(), editedAt: null,
@@ -11555,6 +11965,9 @@ async function sendGlobalChatPnlCard(h){
   catch(e){ console.warn("global chat pnlcard send failed", e); }
 }
 function openGlobalChatWithPnlCard(h){
+  chatChannel = "resultats";
+  try{ localStorage.setItem(CHAT_CHANNEL_KEY, chatChannel); }catch(e){}
+  globalChatForceScroll = true;
   switchView("chat");
   sendGlobalChatPnlCard(h);
 }
@@ -14595,7 +15008,7 @@ function renderResources(){
     featureHtml+
     sectionsHtml+
     (RESOURCES.some(r=>r.credit) ? '<p class="rs-disclaimer rs-credits">'+RESOURCES.filter(r=>r.credit).map(r=>'<a href="'+escapeHtml(r.credit.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(r.credit.label)+'</a>').join(" · ")+'</p>' : '')+
-    '<p class="rs-disclaimer">Liens vers des sites tiers : vérifie toujours leurs conditions (frais, pays autorisés, règles) avant de t\'inscrire.</p>';
+    '<p class="rs-disclaimer">Liens vers des sites tiers : vérifie toujours leurs conditions (frais, pays autorisés, règles) avant de t\'inscrire. Toute décision impliquant de l\'argent réel relève de ta seule responsabilité — <a href="#" data-open-terms>conditions d\'utilisation</a>.</p>';
   el.querySelectorAll("[data-rs-filter]").forEach(btn=>btn.addEventListener("click", ()=>{
     const f = btn.dataset.rsFilter;
     el.querySelectorAll("[data-rs-filter]").forEach(b=>b.classList.toggle("is-active", b===btn));
