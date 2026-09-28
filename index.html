@@ -2105,22 +2105,23 @@
   .widget[data-widget="chart"].has-h #chart-svg, .widget[data-widget="chart"].has-h #tv-chart-wrap{flex:1 1 auto;height:auto;min-height:150px;}
   svg.chart{height:300px;}
   /* Poignées : posées à cheval sur le bord, hors de la zone qui défile. */
-  .wz-grip{position:absolute;z-index:6;touch-action:none;outline:none;}
+  .wz-grip{position:absolute;z-index:2;touch-action:none;outline:none;} /* sous #widget-free-layer (z 5) : une poignée de widget docké ne doit jamais passer au-dessus d'un widget libre */
   .wz-grip-s{left:28px;right:28px;bottom:-7px;height:14px;cursor:ns-resize;}
+  .wz-grip-n{left:28px;right:28px;top:-7px;height:14px;cursor:ns-resize;}
   .wz-grip-e{top:28px;bottom:28px;right:-7px;width:14px;cursor:ew-resize;}
   .wz-grip-se{right:-5px;bottom:-5px;width:22px;height:22px;cursor:nwse-resize;}
-  .wz-grip-s::after, .wz-grip-e::after{content:"";position:absolute;left:50%;top:50%;border-radius:3px;background:var(--text-faint);opacity:0;transition:opacity .15s, background .15s, transform .15s;}
-  .wz-grip-s::after{width:40px;height:4px;transform:translate(-50%,-50%);}
+  .wz-grip-s::after, .wz-grip-n::after, .wz-grip-e::after{content:"";position:absolute;left:50%;top:50%;border-radius:3px;background:var(--text-faint);opacity:0;transition:opacity .15s, background .15s, transform .15s;}
+  .wz-grip-s::after, .wz-grip-n::after{width:40px;height:4px;transform:translate(-50%,-50%);}
   .wz-grip-e::after{width:4px;height:40px;transform:translate(-50%,-50%);}
-  .card.widget:hover > .wz-grip-s::after, .card.widget:hover > .wz-grip-e::after{opacity:.55;}
+  .card.widget:hover > .wz-grip-s::after, .card.widget:hover > .wz-grip-n::after, .card.widget:hover > .wz-grip-e::after{opacity:.55;}
   .wz-grip:hover::after, .wz-grip:focus-visible::after, .wz-grip.is-active::after{opacity:1 !important;background:var(--accent);}
-  .wz-grip-s:hover::after, .wz-grip-s.is-active::after{transform:translate(-50%,-50%) scaleX(1.4);}
+  .wz-grip-s:hover::after, .wz-grip-s.is-active::after, .wz-grip-n:hover::after, .wz-grip-n.is-active::after{transform:translate(-50%,-50%) scaleX(1.4);}
   .wz-grip-e:hover::after, .wz-grip-e.is-active::after{transform:translate(-50%,-50%) scaleY(1.4);}
   .wz-grip-se::after{content:"";position:absolute;right:9px;bottom:9px;width:8px;height:8px;border-right:2px solid var(--text-faint);border-bottom:2px solid var(--text-faint);border-bottom-right-radius:3px;opacity:.7;transition:border-color .15s, opacity .15s;}
   .wz-grip-se:hover::after, .wz-grip-se.is-active::after, .wz-grip-se:focus-visible::after{border-color:var(--accent);opacity:1;}
   .card.widget:not(.is-free) > .wz-grip-e, .card.widget:not(.is-free) > .wz-grip-se{display:none;}
   .card.widget.is-resizing{box-shadow:0 0 0 1px color-mix(in srgb, var(--accent) 70%, transparent), var(--shadow-card);transition:none;}
-  .wz-size-badge{position:absolute;right:12px;bottom:12px;z-index:7;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;background:var(--accent);color:var(--on-accent, #fff);pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.35);}
+  .wz-size-badge{position:absolute;right:12px;bottom:12px;z-index:3;font-family:var(--mono);font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;background:var(--accent);color:var(--on-accent, #fff);pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.35);}
   .card.widget.dragging{opacity:.5;box-shadow:0 0 0 1px var(--accent), 0 18px 40px -16px rgba(0,0,0,.7);}
   html.wz-busy, html.wz-busy *{user-select:none !important;-webkit-user-select:none !important;}
   html.wz-busy iframe{pointer-events:none !important;}
@@ -13196,7 +13197,7 @@ const RESOURCES = [
   {id:"ibkr", group:"real", tag:"Courtier", title:"Interactive Brokers", url:"https://www.interactivebrokers.com",
     img:"https://commons.wikimedia.org/wiki/Special:FilePath/Interactive_Brokers_War_Room.jpg?width=1200",
     credit:{label:"Photo Interactive Brokers : Wikimedia Commons", url:"https://commons.wikimedia.org/wiki/File:Interactive_Brokers_War_Room.jpg"},
-    desc:"Courtier international : actions, ETF, options, futures et forex sur des bourses du monde entier, avec des frais parmi les plus bas. C'est un compte-titres (pas de PEA). L'étape logique après le module Investissement de Paper Tape."},
+    desc:"Courtier international (actions, ETF, options, futures, forex sur 150 marchés) qui propose aussi un PEA depuis fin 2024 : commissions dès 0,05 %, sans frais d'ouverture, de garde ni de transfert. Le PEA et le compte-titres, comme dans le module Investissement de Paper Tape, mais en vrai."},
   {id:"lighter", group:"real", tag:"DEX", title:"Lighter", url:"https://lighter.xyz",
     desc:"DEX perpétuels sans aucun frais ni commission."},
   {id:"breakout", group:"real", tag:"Prop firm", title:"Breakout", url:"https://www.breakoutprop.com",
@@ -15465,10 +15466,13 @@ function ensureWidgetStructure(el){
   el.appendChild(body);
 }
 const WZ_GRIPS = [
+  {dir:"n",  label:"Hauteur du widget (bord haut)", title:"Glisser vers le haut pour agrandir, vers le bas pour réduire — double-clic : taille automatique"},
   {dir:"s",  label:"Hauteur du widget", title:"Glisser pour régler la hauteur — double-clic : taille automatique"},
   {dir:"e",  label:"Largeur du widget", title:"Glisser pour régler la largeur — double-clic : largeur par défaut"},
   {dir:"se", label:"Taille du widget",  title:"Glisser pour régler largeur et hauteur — double-clic : taille par défaut"},
 ];
+const wzAffectsH = dir => dir!=="e";
+const wzAffectsW = dir => dir==="e" || dir==="se";
 function addWidgetGrips(el){
   if (el.querySelector(":scope > .wz-grip")) return;
   WZ_GRIPS.forEach(g=>{
@@ -15576,8 +15580,10 @@ function initWidgetResize(){
     const el = grip.closest(".card.widget");
     if (!el) return;
     const r = el.getBoundingClientRect();
-    wzDrag = {el, id:el.dataset.widget, grip, dir:grip.dataset.wzDir, pid:e.pointerId,
-      x0:e.clientX, y0:e.clientY + window.scrollY, w0:r.width, h0:r.height, moved:false};
+    const id = el.dataset.widget;
+    wzDrag = {el, id, grip, dir:grip.dataset.wzDir, pid:e.pointerId,
+      x0:e.clientX, y0:e.clientY + window.scrollY, w0:r.width, h0:r.height, moved:false,
+      bottom0:r.bottom, freeY0:(isWidgetFree(id) && widgetFreePositions[id]) ? widgetFreePositions[id].y : 0};
     try{ grip.setPointerCapture(e.pointerId); }catch(err){}
     e.preventDefault();
     e.stopPropagation();
@@ -15590,18 +15596,40 @@ function initWidgetResize(){
       d.moved = true;
       d.grip.classList.add("is-active");
       d.el.classList.add("is-resizing");
-      setBusyCursor(d.dir==="s" ? "ns" : d.dir==="e" ? "ew" : "nwse");
+      setBusyCursor(d.dir==="s" || d.dir==="n" ? "ns" : d.dir==="e" ? "ew" : "nwse");
       if (isWidgetFree(d.id)) bringWidgetToFront(d.id);
     }
     e.preventDefault();
     const apply = (cx, cy)=>{
       if (!wzDrag) return;
       const dx = cx-d.x0, dy = cy+window.scrollY-d.y0; // coordonnées page : juste même si la page défile
-      setWidgetSize(d.el, d.id, {h: d.dir==="e" ? undefined : d.h0+dy, w: d.dir==="s" ? undefined : d.w0+dx});
+      if (d.dir==="n"){
+        // Bord HAUT : tirer vers le haut agrandit, le bord bas reste en place.
+        if (isWidgetFree(d.id)){
+          // Widget libre : il a une vraie position, on remonte son y d'autant
+          // que sa hauteur augmente (sans jamais passer au-dessus du terminal).
+          const maxH = d.h0 + d.freeY0;
+          setWidgetSize(d.el, d.id, {h: Math.min(maxH, d.h0-dy)});
+          const pos = widgetFreePositions[d.id];
+          pos.y = Math.max(0, Math.round(d.freeY0 - (d.el.getBoundingClientRect().height - d.h0)));
+          d.el.style.top = pos.y+"px";
+        } else {
+          // Widget docké : pas de marge négative (c'était le bug de la v1, le
+          // widget passait par-dessus celui du dessus). On change la hauteur
+          // puis on fait défiler la page pour garder le bord bas sous les
+          // yeux : tout ce qui est au-dessus remonte, comme si le bord haut
+          // suivait la souris.
+          setWidgetSize(d.el, d.id, {h: d.bottom0 - cy});
+          const drift = d.el.getBoundingClientRect().bottom - d.bottom0;
+          if (Math.abs(drift)>=1) window.scrollBy(0, drift);
+        }
+      } else {
+        setWidgetSize(d.el, d.id, {h: wzAffectsH(d.dir) ? d.h0+dy : undefined, w: wzAffectsW(d.dir) ? d.w0+dx : undefined});
+      }
       wzShowSize(d.el);
     };
     apply(e.clientX, e.clientY);
-    if (d.dir!=="e") wzAutoScroll(e.clientX, e.clientY, apply);
+    if (d.dir==="s" || d.dir==="se" || (d.dir==="n" && isWidgetFree(d.id))) wzAutoScroll(e.clientX, e.clientY, apply);
   });
   function end(e){
     if (!wzDrag || e.pointerId!==wzDrag.pid) return;
@@ -15624,7 +15652,7 @@ function initWidgetResize(){
     const dir = grip.dataset.wzDir;
     e.preventDefault();
     e.stopPropagation();
-    setWidgetSize(el, el.dataset.widget, {h: dir==="e" ? undefined : null, w: dir==="s" ? undefined : null});
+    setWidgetSize(el, el.dataset.widget, {h: wzAffectsH(dir) ? null : undefined, w: wzAffectsW(dir) ? null : undefined});
     commitWidgetSizes();
   });
   document.addEventListener("keydown", (e)=>{
@@ -15635,9 +15663,10 @@ function initWidgetResize(){
     const step = e.shiftKey ? 40 : 10;
     const r = el.getBoundingClientRect();
     const size = {};
-    if (dir!=="e" && (e.key==="ArrowUp" || e.key==="ArrowDown")) size.h = r.height + (e.key==="ArrowDown" ? step : -step);
-    else if (dir!=="s" && (e.key==="ArrowLeft" || e.key==="ArrowRight")) size.w = r.width + (e.key==="ArrowRight" ? step : -step);
-    else if (e.key==="Escape" || e.key==="Delete" || e.key==="Backspace"){ size.h = dir==="e" ? undefined : null; size.w = dir==="s" ? undefined : null; }
+    // Les flèches déplacent le bord saisi : ↓ agrandit par le bas, ↑ agrandit par le haut.
+    if (wzAffectsH(dir) && (e.key==="ArrowUp" || e.key==="ArrowDown")) size.h = r.height + ((e.key==="ArrowDown")===(dir!=="n") ? step : -step);
+    else if (wzAffectsW(dir) && (e.key==="ArrowLeft" || e.key==="ArrowRight")) size.w = r.width + (e.key==="ArrowRight" ? step : -step);
+    else if (e.key==="Escape" || e.key==="Delete" || e.key==="Backspace"){ size.h = wzAffectsH(dir) ? null : undefined; size.w = wzAffectsW(dir) ? null : undefined; }
     else return;
     e.preventDefault();
     setWidgetSize(el, el.dataset.widget, size);
