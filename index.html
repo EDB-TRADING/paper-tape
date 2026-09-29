@@ -2905,6 +2905,33 @@
     .kn-readbar{left:0;}
   }
 
+  /* Classement Prop Firm v2 */
+  .prop-funded{font-family:var(--mono);font-weight:700;color:var(--gold);margin-right:8px;}
+  .prop-funded-tiers{font-size:11.5px;color:var(--text-faint);font-family:var(--mono);}
+  .prop-phase{font-family:var(--sans);font-size:11px;font-weight:600;padding:2px 7px;border-radius:999px;background:var(--panel-2);color:var(--text-dim);margin-left:6px;}
+  .prop-phase.up{color:var(--long);background:color-mix(in srgb, var(--long) 12%, transparent);}
+
+  /* ---------- Widgets Positions / Ordres : cartes lisibles même étroites ---------- */
+  .widget[data-widget="positions"] > .widget-body, .widget[data-widget="pending"] > .widget-body, .widget[data-widget="history"] > .widget-body{container-type:inline-size;container-name:wbody;}
+  .pos-top > div:first-child{display:flex;align-items:center;flex-wrap:wrap;gap:4px 0;min-width:0;}
+  .pos-badge{white-space:nowrap;}
+  .pos-grid{grid-template-columns:repeat(3, minmax(0,1fr));}
+  .pos-grid > div{min-width:0;}
+  .pos-grid .k, .pos-grid .v{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  @container wbody (max-width: 330px){
+    .pos-top{flex-direction:column;align-items:stretch;}
+    .pos-actions{display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:5px;}
+    .pos-actions .pos-tpsl{padding:6px 0;text-align:center;font-size:14px;}
+    .pos-actions .pos-lbl{display:none;}
+    .pos-actions .pos-close-main{grid-column:1 / -1;padding:7px 12px;}
+    .pos-grid{grid-template-columns:repeat(2, minmax(0,1fr));gap:6px 10px;}
+  }
+  @container wbody (max-width: 210px){
+    .pos-grid{grid-template-columns:minmax(0,1fr);}
+    .pos-grid > div{display:flex;justify-content:space-between;gap:8px;}
+    .pos-grid .v{text-align:right;}
+  }
+
   /* ---------- Terminal : redimensionnement v2 ---------- */
   /* Molette : voir initWidgetWheel(). */
   .card.widget.is-wheel-active{box-shadow:0 0 0 1px color-mix(in srgb, var(--accent) 38%, transparent), var(--shadow-card);}
@@ -3186,12 +3213,11 @@
     </div>
     <div class="auth-gate-card">
       <div class="gate-card-brand"><svg class="brand-logo" aria-hidden="true"><use href="#pt-logo"/></svg><span>Paper <b>Tape</b></span></div>
-      <div class="chart-note" style="text-align:center;margin-bottom:18px;">Connecte-toi — ton compte est créé automatiquement à la première connexion.</div>
       <div class="gate-last" id="gate-last-hint" hidden></div>
       <label class="gate-consent" id="gate-consent">
         <input type="checkbox" id="gate-consent-cb">
         <span class="gate-consent-box" aria-hidden="true"></span>
-        <span class="gate-consent-txt">J'ai lu et j'accepte les <a href="#" id="gate-terms-link">conditions d'utilisation et l'avertissement sur les risques</a> : l'EDB n'est pas conseiller en investissement, les performances passées ne préjugent pas des performances futures, et toute décision prise avec de l'argent réel relève de ma seule responsabilité.</span>
+        <span class="gate-consent-txt">J'ai lu et j'accepte les <a href="#" id="gate-terms-link">conditions d'utilisation et l'avertissement sur les risques</a>.</span>
       </label>
       <button type="button" class="google-btn" id="gate-google-btn">
         <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -3570,10 +3596,10 @@
         </div>
         <div id="lb-wrap-prop" hidden>
           <h3>Classement Prop Firm</h3>
-          <p class="chart-note" style="margin-bottom:10px;">Classement séparé, réservé aux comptes challenge prop firm — indépendant du compte démo normal ci-dessus. Classé par <strong>performance (%)</strong> sur la taille du compte choisi, pas par équité brute — un 25k qui fait +8% passe devant un 200k qui fait +2%.</p>
+          <p class="chart-note" style="margin-bottom:10px;">Classé d'abord par <strong>nombre de comptes financés</strong> obtenus (un compte financé reste acquis même si tu l'abandonnes pour tenter un autre challenge), puis par <strong>performance (%)</strong> du challenge en cours sur sa propre taille — un 25k à +8 % passe devant un 200k à +2 %. Un challenge en échec (perte max dépassée) sort du classement.</p>
           <div style="overflow-x:auto;">
             <table class="lb-table">
-              <thead><tr><th>Rang</th><th>Trader</th><th>Compte</th><th>Étape</th><th>Équité</th><th>Performance</th></tr></thead>
+              <thead><tr><th>Rang</th><th>Trader</th><th>Comptes financés</th><th>Challenge en cours</th><th>Équité</th><th>Performance</th></tr></thead>
               <tbody id="prop-lb-body"><tr><td colspan="6" class="empty-note">Chargement du classement…</td></tr></tbody>
             </table>
           </div>
@@ -5528,6 +5554,8 @@ function persistAccount(){
             history: prop.history.slice(0,TRADE_HISTORY_RETAIN), stats: prop.stats,
           } : null,
           propEquity: prop ? bookEquity(prop) : null,
+          propRank: (()=>{ const r = propRankValue({challenge:state.challenge, challengeHistory:state.challengeHistory, propEquity: prop ? bookEquity(prop) : null});
+            return r===null ? (firebase.firestore.FieldValue && firebase.firestore.FieldValue.delete ? firebase.firestore.FieldValue.delete() : null) : r; })(),
           copyNormalToProp: !!state.copyNormalToProp,
           copyPropToNormal: !!state.copyPropToNormal,
           quizProgress: state.quizProgress,
@@ -5570,7 +5598,9 @@ function persistAccount(){
           // A brand-new doc (or one an admin deleted meanwhile) always starts
           // non-admin / non-EDB+ — which is also exactly what firestore.rules
           // enforces on a trader's own create.
-          await ref.set(Object.assign({}, payload, {isAdmin:false, edbPlus:false}));
+          const createPayload = Object.assign({}, payload, {isAdmin:false, edbPlus:false});
+          if (typeof createPayload.propRank!=="number") delete createPayload.propRank; // FieldValue.delete() est interdit dans un set() sans merge
+          await ref.set(createPayload);
           accountDocExists = true;
         };
         if (!accountDocExists){
@@ -5663,7 +5693,7 @@ function subscribeLeaderboard(){
 // so this stays correct against any backend, real or stubbed for tests.
 function subscribePropLeaderboard(){
   try{
-    return db.collection("traders").orderBy("propEquity","desc").limit(50).onSnapshot(
+    return db.collection("traders").orderBy("propRank","desc").limit(50).onSnapshot(
       (snap)=>renderPropLeaderboard(snap.docs),
       (err)=>{ console.warn("prop lb error", err); renderPropLeaderboardError(); }
     );
@@ -7816,10 +7846,10 @@ function renderPositions(){
           '<span class="pos-badge mode">'+(p.mode==="cross"?"Cross":"Isolated")+' · x'+fmtLev(p.leverage)+'</span>'+
         '</div>'+
         '<span class="pos-actions">'+
-          '<button class="pos-tpsl" data-tpsl="'+p.id+'">🎯 TP/SL</button>'+
-          '<button class="pos-tpsl" data-be="'+p.id+'">⚖️ BE</button>'+
-          '<button class="pos-tpsl" data-partial="'+p.id+'">✂️ Partiel</button>'+
-          '<button class="pos-tpsl" data-share="'+p.id+'">📤 Partager</button>'+
+          '<button class="pos-tpsl" data-tpsl="'+p.id+'" title="Take profit / stop loss">🎯<span class="pos-lbl"> TP/SL</span></button>'+
+          '<button class="pos-tpsl" data-be="'+p.id+'" title="Stop au point d\'entrée (break-even)">⚖️<span class="pos-lbl"> BE</span></button>'+
+          '<button class="pos-tpsl" data-partial="'+p.id+'" title="Clôture partielle">✂️<span class="pos-lbl"> Partiel</span></button>'+
+          '<button class="pos-tpsl" data-share="'+p.id+'" title="Partager">📤<span class="pos-lbl"> Partager</span></button>'+
           '<button class="pos-close-main" data-close="'+p.id+'">✕ Fermer</button>'+
         '</span>'+
       '</div>'+
@@ -7832,7 +7862,7 @@ function renderPositions(){
         '<div><div class="k">Liq.</div><div class="v '+(warn?"liq-warn":"")+'">'+fmtPrice(p.liqPrice,a.decimals)+'</div></div>'+
         '<div><div class="k">Take Profit</div><div class="v '+(p.takeProfit!=null?"tp-set":"")+'">'+(p.takeProfit!=null?fmtPrice(p.takeProfit,a.decimals)+' <span style="font-size:10px;font-weight:400;">('+fmtMoneySigned(pnlAtPrice(p,p.takeProfit))+')</span>':"—")+'</div></div>'+
         '<div><div class="k">Stop Loss</div><div class="v '+(p.stopLoss!=null?"sl-set":"")+'">'+(p.stopLoss!=null?fmtPrice(p.stopLoss,a.decimals)+' <span style="font-size:10px;font-weight:400;">('+fmtMoneySigned(pnlAtPrice(p,p.stopLoss))+')</span>':"—")+'</div></div>'+
-        '<div><div class="k">Commission payée</div><div class="v">'+fmtMoney(p.entryFee||0)+'</div></div>'+
+        '<div><div class="k">Frais</div><div class="v">'+fmtMoney(p.entryFee||0)+'</div></div>'+
       '</div>'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">'+
         '<span class="pos-pnl '+(pnl>=0?"up":"down")+'">'+fmtMoney(pnl)+' <span style="font-size:10px;font-weight:400;">('+fmtPct(pnlPct)+')</span></span>'+
@@ -9555,39 +9585,65 @@ function renderWeeklyLeaderboardError(){
   if (body) body.innerHTML = '<tr><td colspan="4" class="empty-note">Classement indisponible pour le moment.</td></tr>';
 }
 let propLeaderboardDocsCache = {};
+// Classement Prop Firm (v2) :
+//  - un challenge en ÉCHEC (perte max ou journalière dépassée) ne compte
+//    plus du tout : son équité flottante (position jamais coupée) ne veut
+//    plus rien dire, le compte est « breached » ;
+//  - chaque compte FINANCÉ obtenu reste acquis, même si le trader l'a
+//    ensuite abandonné pour tenter un autre challenge (il est gardé dans
+//    challengeHistory, voir archiveChallenge()) ;
+//  - ordre : nombre de comptes financés, puis performance (%) du challenge
+//    en cours sur sa propre taille (un 25k à +8 % passe devant un 200k à +2 %).
+// propRank (écrit par persistAccount) encode cet ordre pour la requête
+// Firestore ; il est supprimé du document quand le trader n'a ni challenge
+// actif ni compte financé, ce qui le retire du classement.
+function propFundedTiers(d){
+  const out = [];
+  (Array.isArray(d.challengeHistory) ? d.challengeHistory : []).forEach(a=>{
+    if (a && (a.fundedAt || a.outcome==="funded")) out.push(a.tier);
+  });
+  if (d.challenge && d.challenge.fundedAt) out.push(d.challenge.tier);
+  return out;
+}
+function propActivePerf(d){
+  const c = d.challenge;
+  if (!c || c.phase==="failed" || !c.tier || typeof d.propEquity!=="number") return null;
+  return ((d.propEquity-c.tier)/c.tier)*100;
+}
+function propRankValue(d){
+  const funded = propFundedTiers(d).length;
+  const perf = propActivePerf(d);
+  if (!funded && perf===null) return null;
+  const perfPart = perf===null ? 0 : 50000 + Math.max(-49999, Math.min(49999, perf));
+  return funded*100000 + perfPart;
+}
+function fmtTierShort(t){ return t>=1000 ? Math.round(t/1000)+"k" : String(t); }
 function renderPropLeaderboard(docs){
   const body = document.getElementById("prop-lb-body");
   if (!body) return;
-  // Ranked by RETURN % on the challenge's own tier size, not raw propEquity
-  // — otherwise a trader on a bigger account (e.g. 200k) would always rank
-  // above someone doing much better proportionally on a smaller one (e.g.
-  // 25k). The Firestore orderBy("propEquity") above is only there to bound
-  // the query to a sane page size; the actual ranking happens here.
-  function retPct(doc){
-    const d = doc.data();
-    const tier = d.challenge && d.challenge.tier;
-    return tier ? ((d.propEquity-tier)/tier)*100 : -Infinity;
-  }
-  const rows = docs.filter(doc=>{ const d = doc.data(); return d.propEquity!=null && d.challenge; })
-    .sort((a,b)=> retPct(b) - retPct(a));
-  if (!rows.length){ body.innerHTML = '<tr><td colspan="6" class="empty-note">Aucun challenge prop firm en cours pour le moment — sois le premier.</td></tr>'; return; }
+  const rows = docs.map(doc=>({doc, d:doc.data()}))
+    .map(r=>Object.assign(r, {funded:propFundedTiers(r.d), perf:propActivePerf(r.d)}))
+    .filter(r=>r.funded.length>0 || r.perf!==null)
+    .sort((a,b)=> (b.funded.length-a.funded.length) || ((b.perf===null?-Infinity:b.perf) - (a.perf===null?-Infinity:a.perf)));
+  if (!rows.length){ body.innerHTML = '<tr><td colspan="6" class="empty-note">Aucun challenge prop firm en cours ni compte financé pour le moment — sois le premier.</td></tr>'; return; }
   propLeaderboardDocsCache = {};
-  rows.forEach(doc=>{ propLeaderboardDocsCache[doc.id] = doc; });
-  body.innerHTML = rows.map((doc,i)=>{
-    const d = doc.data();
-    const c = d.challenge || {};
+  rows.forEach(r=>{ propLeaderboardDocsCache[r.doc.id] = r.doc; });
+  body.innerHTML = rows.map((r,i)=>{
+    const d = r.d, c = d.challenge || {};
     const rank = i+1;
-    const ret = c.tier ? ((d.propEquity-c.tier)/c.tier)*100 : 0;
     const rankClass = rank===1?"rank-1":rank===2?"rank-2":rank===3?"rank-3":"";
-    const phaseLabel = c.phase==="failed" ? "Échec" : c.phase==="funded" ? "Financé" : c.phase==="step2" ? "Étape 2" : "Étape 1";
-    const phaseClass = c.phase==="failed" ? "down" : c.phase==="funded" ? "up" : "";
-    return '<tr class="lb-row-clickable '+(doc.id===clientId?"me":"")+'" data-trader-id="'+doc.id+'" title="Voir le profil">'+
+    const active = r.perf!==null;
+    const phaseLabel = c.phase==="funded" ? "Financé" : c.phase==="step2" ? "Étape 2" : "Étape 1";
+    const fundedCell = r.funded.length
+      ? '<span class="prop-funded">🏆 '+r.funded.length+'</span><span class="prop-funded-tiers">'+r.funded.map(fmtTierShort).join(" · ")+'</span>'
+      : '<span class="chart-note" style="display:inline;">—</span>';
+    return '<tr class="lb-row-clickable '+(r.doc.id===clientId?"me":"")+'" data-trader-id="'+r.doc.id+'" title="Voir le profil">'+
       '<td class="num '+rankClass+'">#'+rank+'</td>'+
-      '<td>'+avatarHtml(d.photoURL, d.username)+' '+escapeHtml(d.username||"Trader")+traderBadgesHtml(d)+traderBadgeIconsHtml(d)+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
-      '<td class="num">'+fmtMoney(c.tier||0)+'</td>'+
-      '<td class="num '+phaseClass+'">'+phaseLabel+'</td>'+
-      '<td class="num">'+fmtMoney(d.propEquity||0)+'</td>'+
-      '<td class="num '+(ret>=0?"up":"down")+'">'+fmtPct(ret)+'</td>'+
+      '<td>'+avatarHtml(d.photoURL, d.username)+' '+escapeHtml(d.username||"Trader")+traderBadgesHtml(d)+traderBadgeIconsHtml(d)+(r.doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
+      '<td>'+fundedCell+'</td>'+
+      '<td class="num">'+(active ? fmtMoney(c.tier)+' <span class="prop-phase'+(c.phase==="funded"?' up':'')+'">'+phaseLabel+'</span>' : '<span class="chart-note" style="display:inline;">Aucun en cours</span>')+'</td>'+
+      '<td class="num">'+(active ? fmtMoney(d.propEquity) : '—')+'</td>'+
+      '<td class="num '+(active ? (r.perf>=0?"up":"down") : '')+'">'+(active ? fmtPct(r.perf) : '—')+'</td>'+
     '</tr>';
   }).join("");
   body.querySelectorAll("tr[data-trader-id]").forEach(tr=>{
@@ -14891,7 +14947,7 @@ const RESOURCES = [
   {id:"godel", group:"orderflow", tag:"Order flow · Fondamentale", title:"Godel Terminal", url:"https://app.godelterminal.com/?page=register",
     desc:"Terminal complet : bon à la fois pour l'analyse fondamentale et pour l'order flow."},
   {id:"openmarket", group:"orderflow", tag:"Order flow", title:"OpenMarket", url:"https://openmarket.xyz/chart/",
-    desc:"Terminal de graphiques / order flow, dans le même esprit que les autres ci-dessus."},
+    desc:"Terminal de graphiques et d'order flow, avec carnet d'ordres et flux des transactions."},
   {id:"velo", group:"data", tag:"Data · Graphiques", title:"Velo", url:"https://velo.xyz/chart",
     desc:"Charting et data crypto multi-exchanges en temps réel (funding, OI, volumes par plateforme)."},
   {id:"coinglass", group:"data", tag:"Data", title:"Coinglass", url:"https://www.coinglass.com",
@@ -17764,7 +17820,7 @@ async function adminResetTrader(id){
       // connaissancesOpened) is deliberately NOT touched here, same as
       // totalTimeSpent already wasn't — that's reading/engagement history,
       // not trading-account state.
-      propBook: null, propEquity: null, challenge: null, challengeHistory: [],
+      propBook: null, propEquity: null, challenge: null, challengeHistory: [], propRank: firebase.firestore.FieldValue.delete(),
       copyNormalToProp: false, copyPropToNormal: false,
       invest: null, investValue: null, investPerf: null, investLines: null,
       updatedAt: new Date().toISOString(), lastActiveAt: new Date().toISOString(),
