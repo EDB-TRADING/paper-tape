@@ -2323,6 +2323,85 @@
     .cz-rules li{padding-left:40px;font-size:14px;}
   }
   @media (prefers-reduced-motion:reduce){ .cz-step.current i{animation:none;} }
+  /* ---------- Trades EDB+ : fil du bureau (.tx-*) ---------- */
+  .learn-wrap:has(.tx){max-width:1240px;}
+  .card:has(> .tx){background:none;border:none;box-shadow:none;padding:0;}
+  .tx{display:flex;flex-direction:column;}
+  .tx-header{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;padding:28px 32px;border-radius:18px;border:1px solid var(--border-soft);
+    background:radial-gradient(620px 250px at 0% 0%, color-mix(in srgb, var(--gold) 15%, transparent), transparent 70%), linear-gradient(135deg, var(--panel-2), var(--panel) 70%);}
+  .tx-kicker{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);}
+  .tx-kicker i{width:7px;height:7px;border-radius:50%;background:var(--gold);}
+  .tx-header h1{font-size:34px;letter-spacing:-.02em;margin:8px 0 8px;}
+  .tx-stats{display:flex;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;color:var(--text-dim);}
+  .tx-stats b{color:var(--text);font-weight:600;}
+  .tx-dot{width:3px;height:3px;border-radius:50%;background:var(--text-faint);display:inline-block;}
+  .tx-tabs{min-width:300px;}
+  .tx-tabs button{white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px;}
+  .tx-tabs button i{font-style:normal;font-family:var(--mono);font-size:10.5px;padding:1px 7px;border-radius:999px;background:color-mix(in srgb, var(--text) 10%, transparent);color:inherit;}
+  .tx-tabs button i:empty{display:none;}
+  .tx-disclaimer{font-size:12px;color:var(--text-faint);margin:12px 6px 6px;}
+  .tx-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:24px 0 14px;}
+  .tx-section-title{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-faint);}
+  .tx-list{display:flex;flex-direction:column;gap:16px;}
+  #tradesedb-swing-wrap:not(:empty){margin-top:18px;}
+  .tx-card{position:relative;background:var(--panel);border:1px solid var(--border-soft);border-radius:18px;overflow:hidden;transition:border-color .2s ease, box-shadow .2s ease;}
+  .tx-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--side);opacity:.85;}
+  .tx-card:hover{border-color:color-mix(in srgb, var(--side) 35%, var(--border-soft));box-shadow:0 18px 40px -28px rgba(0,0,0,.8);}
+  .tx-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);}
+  .tx-card.no-img .tx-body{grid-template-columns:minmax(0,1fr);}
+  .tx-text{padding:24px 26px 20px 28px;display:flex;flex-direction:column;gap:16px;min-width:0;}
+  .tx-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .tx-coin{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:17px;background:color-mix(in srgb, var(--side) 14%, var(--panel-2));border:1px solid color-mix(in srgb, var(--side) 30%, transparent);}
+  .tx-sym{font-family:var(--mono);font-size:18px;font-weight:700;letter-spacing:.02em;}
+  .tx-side{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:4px 9px;border-radius:6px;}
+  .tx-side.long{color:var(--long);background:color-mix(in srgb, var(--long) 14%, transparent);}
+  .tx-side.short{color:var(--short);background:color-mix(in srgb, var(--short) 14%, transparent);}
+  .tx-kind{font-size:11px;font-weight:600;padding:4px 9px;border-radius:6px;background:var(--panel-2);color:var(--text-dim);}
+  .tx-kind.gold{color:var(--gold);background:color-mix(in srgb, var(--gold) 12%, transparent);}
+  .tx-head-right{margin-left:auto;}
+  .tx-result{font-family:var(--mono);font-size:15px;font-weight:700;padding:5px 11px;border-radius:8px;}
+  .tx-result.up{color:var(--long);background:color-mix(in srgb, var(--long) 12%, transparent);}
+  .tx-result.down{color:var(--short);background:color-mix(in srgb, var(--short) 12%, transparent);}
+  .tx-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-faint);border:1px solid var(--border);border-radius:999px;padding:4px 11px;}
+  .tx-status.live{color:var(--long);border-color:color-mix(in srgb, var(--long) 40%, transparent);}
+  .tx-status.live i{width:7px;height:7px;border-radius:50%;background:var(--long);animation:nwPulse 1.8s infinite;}
+  .tx-comment{margin:0;font-size:15.5px;line-height:1.72;color:var(--text);white-space:pre-wrap;overflow-wrap:anywhere;}
+  .tx-levels{display:flex;flex-wrap:wrap;gap:8px;}
+  .tx-level{display:inline-flex;flex-direction:column;gap:2px;padding:7px 12px;border-radius:10px;background:var(--panel-2);border:1px solid var(--border-soft);}
+  .tx-level i{font-style:normal;font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);}
+  .tx-level b{font-size:13px;font-weight:600;}
+  .tx-level.up b{color:var(--long);} .tx-level.down b{color:var(--short);}
+  .tx-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto;padding-top:14px;border-top:1px solid var(--border-soft);}
+  .tx-author{display:flex;align-items:center;gap:10px;min-width:0;}
+  .tx-avatar{width:32px;height:32px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--accent);background:color-mix(in srgb, var(--accent) 16%, var(--panel-2));}
+  .tx-author-txt{display:flex;flex-direction:column;min-width:0;}
+  .tx-author-txt b{font-size:13px;font-weight:600;}
+  .tx-author-txt em{font-style:normal;font-size:11.5px;color:var(--text-faint);}
+  .tx-gallery{background:color-mix(in srgb, var(--bg) 70%, var(--panel));padding:14px;display:flex;flex-direction:column;gap:10px;border-left:1px solid var(--border-soft);min-width:0;}
+  .tx-gallery .edbtrade-img{display:block;margin:0;max-height:none;width:100%;border-radius:12px;object-fit:cover;object-position:center top;border:1px solid var(--border-soft);cursor:zoom-in;transition:filter .2s ease, transform .2s ease;}
+  .tx-gallery .edbtrade-img:hover{filter:brightness(1.1);}
+  .tx-main{aspect-ratio:16/10;}
+  .tx-gallery.n1 .tx-main{aspect-ratio:auto;max-height:460px;object-fit:contain;background:var(--bg);}
+  .tx-thumbs{display:grid;grid-template-columns:repeat(auto-fill, minmax(120px,1fr));gap:10px;}
+  .tx-thumb{aspect-ratio:16/10;}
+  .tx-card.is-featured{border-color:color-mix(in srgb, var(--gold) 45%, var(--border-soft));background:linear-gradient(135deg, color-mix(in srgb, var(--gold) 8%, var(--panel)), var(--panel) 60%);}
+  .tx-ribbon{padding:10px 28px;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);border-bottom:1px solid color-mix(in srgb, var(--gold) 22%, transparent);background:color-mix(in srgb, var(--gold) 7%, transparent);}
+  .tx-empty{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:50px 20px;font-size:26px;color:var(--text-faint);border:1px dashed var(--border);border-radius:18px;margin-top:18px;}
+  .tx-empty b{font-size:15px;color:var(--text);}
+  .tx-empty span{font-size:13px;}
+  @media (max-width:900px){
+    .tx-body{grid-template-columns:minmax(0,1fr);}
+    .tx-gallery{border-left:0;border-top:1px solid var(--border-soft);}
+  }
+  @media (max-width:560px){
+    .tx-header{padding:20px 16px;}
+    .tx-header h1{font-size:28px;}
+    .tx-tabs{min-width:0;width:100%;}
+    .tx-text{padding:18px 16px 16px 18px;}
+    .tx-comment{font-size:15px;}
+    .tx-ribbon{padding:9px 18px;}
+    .tx-gallery{padding:10px;}
+  }
   /* ---------- Chat façon Discord ---------- */
   .dc{display:grid;grid-template-columns:240px minmax(0,1fr) 240px;height:calc(100dvh - var(--topbar-h) - 50px);min-height:460px;border:1px solid var(--border-soft);border-radius:16px;overflow:hidden;background:var(--panel);box-shadow:var(--shadow-card);position:relative;}
   body.dc-hide-members .dc{grid-template-columns:240px minmax(0,1fr) 0;}
@@ -11717,56 +11796,134 @@ function edbTradeMetaLine(d,a){
   if (typeof d.takeProfit==="number") parts.push("TP "+fmtPrice(d.takeProfit, a.decimals));
   return parts.join(" · ");
 }
-function edbTradeCardHtml(doc){
+// Résultat en R tiré du commentaire (« +4.5RR », « -1R », « 2,3 RR »)
+// quand le bureau n'a pas saisi de prix de sortie.
+function edbTradeRR(d){
+  const m = String(d.comment||"").match(/([+\-−]?\s?\d+(?:[.,]\d+)?)\s?R{1,2}\b/i);
+  if (!m) return null;
+  const v = parseFloat(m[1].replace(/\s/g,"").replace("−","-").replace(",","."));
+  return isFinite(v) ? v : null;
+}
+function edbTradeOutcome(d){
+  const pct = edbTradePnlPct(d);
+  if (pct!==null) return {v:pct, label:fmtPct(pct)};
+  const rr = edbTradeRR(d);
+  if (rr!==null) return {v:rr, label:(rr>0?"+":"")+String(rr).replace(".",",")+" R"};
+  return null;
+}
+function edbAuthorHtml(d){
+  const who = String(d.postedBy||"Bureau EDB");
+  return '<div class="tx-author"><span class="tx-avatar">'+escapeHtml(who.charAt(0).toUpperCase())+'</span>'+
+    '<span class="tx-author-txt"><b>'+escapeHtml(who)+'</b><em>'+escapeHtml(fmtWhen(d.createdAt))+'</em></span></div>';
+}
+function edbTradeLevelsHtml(d,a){
+  const lv = [];
+  if (typeof d.entryPrice==="number") lv.push(["Entrée", fmtPrice(d.entryPrice, a.decimals), ""]);
+  if (typeof d.stopLoss==="number") lv.push(["Stop", fmtPrice(d.stopLoss, a.decimals), "down"]);
+  if (typeof d.takeProfit==="number") lv.push(["Objectif", fmtPrice(d.takeProfit, a.decimals), "up"]);
+  if (typeof d.exitPrice==="number") lv.push(["Sortie", fmtPrice(d.exitPrice, a.decimals), ""]);
+  if (!lv.length) return "";
+  return '<div class="tx-levels">'+lv.map(([k,v,c])=>'<span class="tx-level '+c+'"><i>'+k+'</i><b class="num">'+v+'</b></span>').join("")+'</div>';
+}
+function edbTradeCardHtml(doc, featured){
   const d = doc.data();
   const a = edbTradeAssetMeta(d.symbol);
-  const pnlPct = edbTradePnlPct(d);
   const isSwing = d.kind==="swing";
-  return '<div class="edbtrade-card'+(isSwing?" swing":"")+'">'+
-    '<div class="edbtrade-head">'+
-      '<div>'+
-        (isSwing ? '<span class="quiz-cat gold-badge" style="margin-right:8px;">🌊 Swing hebdo</span>' : '')+
-        '<span class="edbtrade-sym">'+a.icon+' '+escapeHtml(d.symbol)+'</span> '+
-        '<span class="pos-badge '+(d.side==="short"?"short":"long")+'">'+(d.side==="short"?"Short":"Long")+'</span>'+
+  const out = edbTradeOutcome(d);
+  const side = d.side==="short" ? "short" : "long";
+  const status = (isSwing && d.status!=="closed") ? '<span class="tx-status live"><i></i>En cours</span>'
+    : (out ? '<span class="tx-result '+(out.v>=0?"up":"down")+'">'+escapeHtml(out.label)+'</span>'
+    : '<span class="tx-status">'+edbTradeStatusLabel(d, null)+'</span>');
+  const gallery = edbTradeImagesHtml(d);
+  return '<article class="tx-card'+(isSwing?" is-swing":"")+(featured?" is-featured":"")+(gallery?"":" no-img")+'" style="--side:var(--'+side+');">'+
+    (featured ? '<div class="tx-ribbon">🌊 Trade swing de la semaine</div>' : '')+
+    '<div class="tx-body">'+
+      '<div class="tx-text">'+
+        '<div class="tx-head">'+
+          '<span class="tx-coin">'+a.icon+'</span>'+
+          '<span class="tx-sym">'+escapeHtml(d.symbol||"")+'</span>'+
+          '<span class="tx-side '+side+'">'+(side==="short"?"Short":"Long")+'</span>'+
+          (isSwing && !featured ? '<span class="tx-kind">Swing</span>' : '')+
+          '<span class="tx-head-right">'+status+'</span>'+
+        '</div>'+
+        (d.comment ? '<p class="tx-comment">'+escapeHtml(d.comment)+'</p>' : '')+
+        edbTradeLevelsHtml(d,a)+
+        '<div class="tx-foot">'+edbAuthorHtml(d)+thumbReactionHtml("edbTrades", doc.id, d.reactions)+'</div>'+
       '</div>'+
-      (pnlPct!==null ? '<span class="edbtrade-pnl '+(pnlPct>=0?"up":"down")+'">'+fmtPct(pnlPct)+'</span>'
-        : '<span class="chart-note" style="display:inline;">'+edbTradeStatusLabel(d,pnlPct)+'</span>')+
+      gallery+
     '</div>'+
-    '<div class="edbtrade-meta">'+edbTradeMetaLine(d,a)+'</div>'+
-    (d.comment ? '<div class="edbtrade-comment">'+escapeHtml(d.comment)+'</div>' : '')+
-    edbTradeImagesHtml(d)+
-    '<div class="chart-note" style="margin-top:8px;">'+escapeHtml(d.postedBy||"Bureau EDB")+' · '+fmtWhen(d.createdAt)+'</div>'+
-    '<div class="chat-bubble-actions" style="margin-top:10px;">'+thumbReactionHtml("edbTrades", doc.id, d.reactions)+'</div>'+
-  '</div>';
+  '</article>';
 }
-// Renders 0+ screenshots for a trade. Newer docs carry imageUrls (array,
-// possibly just one long entry); older ones published before multi-image
-// support carry a single imageUrl — both are handled the same way here.
+// Captures : une grande image + vignettes. Toutes gardent la classe
+// .edbtrade-img, qui ouvre le plein écran (voir le délégué du lightbox).
+// Anciennes publications : imageUrl unique ; nouvelles : imageUrls[].
 function edbTradeImagesHtml(d){
   const urls = Array.isArray(d.imageUrls) ? d.imageUrls : (d.imageUrl ? [d.imageUrl] : []);
   if (urls.length===0) return "";
-  if (urls.length===1) return '<img class="edbtrade-img" src="'+escapeHtml(urls[0])+'" alt="Capture du trade">';
-  return '<div class="edbtrade-imgs">'+urls.map(u=>'<img class="edbtrade-img" src="'+escapeHtml(u)+'" alt="Capture du trade">').join("")+'</div>';
+  const img = (u, cls)=>'<img class="edbtrade-img '+cls+'" src="'+escapeHtml(u)+'" alt="Capture du trade" loading="lazy">';
+  return '<div class="tx-gallery n'+Math.min(urls.length,4)+'">'+
+    img(urls[0], "tx-main")+
+    (urls.length>1 ? '<div class="tx-thumbs">'+urls.slice(1).map(u=>img(u, "tx-thumb")).join("")+'</div>' : '')+
+  '</div>';
+}
+let tradesEdbFilter = {side:"all", sym:"all"};
+function paintTradesEdbHeader(){
+  const st = document.getElementById("tx-stats");
+  const tc = document.getElementById("tradesedb-count-trades");
+  const ac = document.getElementById("tradesedb-count-analyses");
+  const trades = tradesEdbDocsCache.map(x=>x.data());
+  if (tc) tc.textContent = trades.length ? String(trades.length) : "";
+  if (ac) ac.textContent = analysesEdbDocsCache.length ? String(analysesEdbDocsCache.length) : "";
+  if (!st) return;
+  const outs = trades.map(edbTradeOutcome).filter(Boolean);
+  const wins = outs.filter(o=>o.v>0).length;
+  const all = trades.concat(analysesEdbDocsCache.map(x=>x.data()));
+  const last = all.map(x=>x.createdAt).filter(Boolean).sort().pop();
+  const bits = [];
+  bits.push('<span><b class="num">'+trades.length+'</b> trade'+(trades.length>1?'s':'')+' partagé'+(trades.length>1?'s':'')+'</span>');
+  if (outs.length>=3) bits.push('<span><b class="num">'+Math.round(wins/outs.length*100)+' %</b> gagnants</span>');
+  bits.push('<span><b class="num">'+analysesEdbDocsCache.length+'</b> analyse'+(analysesEdbDocsCache.length>1?'s':'')+'</span>');
+  if (last) bits.push('<span>Dernier post '+escapeHtml(fmtWhen(last))+'</span>');
+  st.innerHTML = bits.join('<i class="tx-dot"></i>');
 }
 function renderTradesEdbFeed(){
   const swingWrap = document.getElementById("tradesedb-swing-wrap");
   const feedWrap = document.getElementById("tradesedb-feed-wrap");
   if (!feedWrap) return;
+  paintTradesEdbHeader();
   const swingDoc = tradesEdbDocsCache.find(doc=>doc.data().kind==="swing") || null;
   if (swingWrap){
-    swingWrap.innerHTML = swingDoc
-      ? '<div class="chart-note" style="margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em;font-size:10px;">Trade swing de la semaine</div>'+edbTradeCardHtml(swingDoc)
-      : '';
+    swingWrap.innerHTML = swingDoc ? edbTradeCardHtml(swingDoc, true) : '';
     wireThumbReactionButtons(swingWrap);
   }
   const rest = tradesEdbDocsCache.filter(doc=>!swingDoc || doc.id!==swingDoc.id);
   if (rest.length===0 && !swingDoc){
-    feedWrap.innerHTML = '<div class="empty-note">Aucun trade partagé pour le moment.</div>';
+    feedWrap.innerHTML = '<div class="tx-empty">📈<b>Aucun trade partagé pour le moment</b><span>Les trades du bureau apparaîtront ici dès leur publication.</span></div>';
     return;
   }
-  feedWrap.innerHTML =
-    '<div class="chart-note" style="margin:14px 0 8px;text-transform:uppercase;letter-spacing:0.06em;font-size:10px;">Trades du bureau</div>'+
-    (rest.length ? rest.map(doc=>edbTradeCardHtml(doc)).join("") : '<div class="empty-note">Aucun autre trade partagé pour le moment.</div>');
+  const syms = Array.from(new Set(rest.map(x=>x.data().symbol).filter(Boolean)));
+  if (tradesEdbFilter.sym!=="all" && syms.indexOf(tradesEdbFilter.sym)===-1) tradesEdbFilter.sym = "all";
+  const shown = rest.filter(x=>{ const d = x.data();
+    return (tradesEdbFilter.side==="all" || (d.side==="short"?"short":"long")===tradesEdbFilter.side) &&
+           (tradesEdbFilter.sym==="all" || d.symbol===tradesEdbFilter.sym); });
+  const chip = (kind,val,label,n)=>'<button type="button" class="nw-chip'+(tradesEdbFilter[kind]===val?' is-active':'')+'" data-tx-'+kind+'="'+escapeHtml(val)+'">'+escapeHtml(label)+(n!=null?'<i>'+n+'</i>':'')+'</button>';
+  const cnt = (f)=>rest.filter(x=>f(x.data())).length;
+  const toolbar = rest.length ?
+    '<div class="tx-toolbar">'+
+      '<div class="tx-section-title">Trades du bureau</div>'+
+      '<div class="nw-chips">'+
+        chip("side","all","Tous",rest.length)+
+        chip("side","long","Long",cnt(d=>d.side!=="short"))+
+        chip("side","short","Short",cnt(d=>d.side==="short"))+
+        (syms.length>1 ? '<span class="nw-sep"></span>'+chip("sym","all","Tous les actifs")+syms.map(sy=>chip("sym",sy,sy)).join("") : '')+
+      '</div>'+
+    '</div>' : '';
+  feedWrap.innerHTML = toolbar +
+    (rest.length===0 ? '' : shown.length
+      ? '<div class="tx-list">'+shown.map(doc=>edbTradeCardHtml(doc)).join("")+'</div>'
+      : '<div class="tx-empty">🔍<b>Aucun trade pour ce filtre</b><span>Essaie un autre actif ou un autre sens.</span></div>');
+  feedWrap.querySelectorAll("[data-tx-side]").forEach(b=>b.addEventListener("click", ()=>{ tradesEdbFilter.side = b.dataset.txSide; renderTradesEdbFeed(); }));
+  feedWrap.querySelectorAll("[data-tx-sym]").forEach(b=>b.addEventListener("click", ()=>{ tradesEdbFilter.sym = b.dataset.txSym; renderTradesEdbFeed(); }));
   wireThumbReactionButtons(feedWrap);
 }
 function subscribeTradesEdb(){
@@ -11817,22 +11974,28 @@ function renderTradesEdbPage(){
     return;
   }
   tradesEdbSubTab = "trades";
+  tradesEdbFilter = {side:"all", sym:"all"};
   el.innerHTML =
-    '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">'+
-      '<h3 style="margin:0;">Trades EDB+</h3>'+
-    '</div>'+
-    '<div class="seg" style="max-width:360px;margin-bottom:14px;">'+
-      '<button type="button" id="tradesedb-tab-trades" class="on-mode active">📈 Trades</button>'+
-      '<button type="button" id="tradesedb-tab-analyses" class="on-mode">🧠 Analyse</button>'+
-    '</div>'+
-    '<div id="tradesedb-trades-section">'+
-      '<div class="chart-note" style="margin-bottom:14px;">Les trades partagés ici sont ceux du bureau EDB, à titre pédagogique — ce ne sont pas des conseils en investissement. Le trade swing hebdomadaire est mis à jour chaque semaine par le bureau.</div>'+
-      '<div id="tradesedb-swing-wrap"></div>'+
-      '<div id="tradesedb-feed-wrap"><div class="empty-note">Chargement…</div></div>'+
-    '</div>'+
-    '<div id="tradesedb-analyses-section" hidden>'+
-      '<div class="chart-note" style="margin-bottom:14px;">La lecture du marché par le bureau — analyse du jour ou en HTF (higher timeframe) — à titre pédagogique, pas des conseils en investissement.</div>'+
-      '<div id="tradesedb-analyses-wrap"><div class="empty-note">Chargement…</div></div>'+
+    '<div class="tx">'+
+      '<header class="tx-header">'+
+        '<div class="tx-header-main">'+
+          '<span class="tx-kicker"><i></i>Bureau EDB · réservé EDB+</span>'+
+          '<h1>Trades EDB+</h1>'+
+          '<div class="tx-stats" id="tx-stats">Chargement…</div>'+
+        '</div>'+
+        '<div class="seg tx-tabs">'+
+          '<button type="button" id="tradesedb-tab-trades" class="on-mode active">📈 Trades <i id="tradesedb-count-trades"></i></button>'+
+          '<button type="button" id="tradesedb-tab-analyses" class="on-mode">🧠 Analyses <i id="tradesedb-count-analyses"></i></button>'+
+        '</div>'+
+      '</header>'+
+      '<p class="tx-disclaimer">ⓘ Trades et analyses partagés par le bureau à titre pédagogique, pas des conseils en investissement.</p>'+
+      '<div id="tradesedb-trades-section">'+
+        '<div id="tradesedb-swing-wrap"></div>'+
+        '<div id="tradesedb-feed-wrap"><div class="tx-empty">Chargement…</div></div>'+
+      '</div>'+
+      '<div id="tradesedb-analyses-section" hidden>'+
+        '<div id="tradesedb-analyses-wrap"><div class="tx-empty">Chargement…</div></div>'+
+      '</div>'+
     '</div>';
   document.getElementById("tradesedb-tab-trades").addEventListener("click", ()=>switchTradesEdbSubTab("trades"));
   document.getElementById("tradesedb-tab-analyses").addEventListener("click", ()=>switchTradesEdbSubTab("analyses"));
@@ -11856,27 +12019,32 @@ const EDB_ANALYSIS_TIMEFRAME_LABELS = {daily:"🕯️ Analyse du jour", htf:"�
 function edbAnalysisCardHtml(doc){
   const d = doc.data();
   const a = d.symbol ? edbTradeAssetMeta(d.symbol) : null;
-  return '<div class="edbanalysis-card">'+
-    '<div class="edbanalysis-head">'+
-      '<div>'+
-        '<span class="quiz-cat gold-badge" style="margin-right:8px;">'+(EDB_ANALYSIS_TIMEFRAME_LABELS[d.timeframe]||"Analyse")+'</span>'+
-        '<span class="edbtrade-sym">'+(a ? a.icon+' '+escapeHtml(d.symbol) : "Marché général")+'</span>'+
+  const gallery = edbTradeImagesHtml(d);
+  return '<article class="tx-card is-analysis'+(gallery?"":" no-img")+'" style="--side:var(--gold);">'+
+    '<div class="tx-body">'+
+      '<div class="tx-text">'+
+        '<div class="tx-head">'+
+          '<span class="tx-coin">'+(a ? a.icon : "🌐")+'</span>'+
+          '<span class="tx-sym">'+(a ? escapeHtml(d.symbol) : "Marché général")+'</span>'+
+          '<span class="tx-kind gold">'+(EDB_ANALYSIS_TIMEFRAME_LABELS[d.timeframe]||"Analyse")+'</span>'+
+        '</div>'+
+        (d.text ? '<p class="tx-comment">'+escapeHtml(d.text)+'</p>' : '')+
+        '<div class="tx-foot">'+edbAuthorHtml(d)+thumbReactionHtml("edbAnalyses", doc.id, d.reactions)+'</div>'+
       '</div>'+
+      gallery+
     '</div>'+
-    (d.text ? '<div class="edbanalysis-body">'+escapeHtml(d.text)+'</div>' : '')+
-    edbTradeImagesHtml(d)+
-    '<div class="chart-note" style="margin-top:8px;">'+escapeHtml(d.postedBy||"Bureau EDB")+' · '+fmtWhen(d.createdAt)+'</div>'+
-    '<div class="chat-bubble-actions" style="margin-top:10px;">'+thumbReactionHtml("edbAnalyses", doc.id, d.reactions)+'</div>'+
-  '</div>';
+  '</article>';
 }
 function renderAnalysesEdbFeed(){
   const wrap = document.getElementById("tradesedb-analyses-wrap");
   if (!wrap) return;
+  paintTradesEdbHeader();
   if (analysesEdbDocsCache.length===0){
-    wrap.innerHTML = '<div class="empty-note">Aucune analyse partagée pour le moment.</div>';
+    wrap.innerHTML = '<div class="tx-empty">🧠<b>Aucune analyse pour le moment</b><span>La lecture du marché par le bureau apparaîtra ici.</span></div>';
     return;
   }
-  wrap.innerHTML = analysesEdbDocsCache.map(doc=>edbAnalysisCardHtml(doc)).join("");
+  wrap.innerHTML = '<div class="tx-toolbar"><div class="tx-section-title">Lecture du marché par le bureau</div></div>'+
+    '<div class="tx-list">'+analysesEdbDocsCache.map(doc=>edbAnalysisCardHtml(doc)).join("")+'</div>';
   wireThumbReactionButtons(wrap);
 }
 function subscribeAnalysesEdb(){
