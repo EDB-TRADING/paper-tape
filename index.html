@@ -3582,7 +3582,7 @@
             </div>
             <div class="nw-header-actions">
               <div class="seg" id="news-lang-seg">
-                <button id="news-lang-intl" class="on-mode active" type="button">🌍 International</button>
+                <button id="news-lang-intl" class="on-mode active" type="button">🇬🇧 En anglais</button>
                 <button id="news-lang-fr" class="on-mode" type="button">🇫🇷 En français</button>
               </div>
               <button class="nw-refresh" id="news-refresh" type="button" title="Actualiser">↻ Actualiser</button>
@@ -6795,6 +6795,8 @@ const NEWS_FEEDS = [
   {name:"CoinDesk",       url:"https://www.coindesk.com/arc/outboundfeeds/rss/", tag:"Crypto"},
   {name:"Cointelegraph",  url:"https://cointelegraph.com/rss",                   tag:"Crypto"},
   {name:"Yahoo Finance",  url:"https://finance.yahoo.com/news/rssindex",         tag:"Marchés"},
+  {name:"BBC World",      url:"https://feeds.bbci.co.uk/news/world/rss.xml",     tag:"Géopolitique"},
+  {name:"BBC Business",   url:"https://feeds.bbci.co.uk/news/business/rss.xml",  tag:"Économie"},
 ];
 // Second "part" of the News tab, added on request: same kind of global
 // markets/crypto coverage as NEWS_FEEDS above, just in French — these
@@ -6804,6 +6806,8 @@ const NEWS_FEEDS_FR = [
   {name:"Cryptoast",     url:"https://cryptoast.fr/feed/",     tag:"Crypto"},
   {name:"Cointribune",   url:"https://www.cointribune.com/feed/", tag:"Crypto"},
   {name:"Coin Academy",  url:"https://coinacademy.fr/feed/",   tag:"Marchés"},
+  {name:"Le Monde International", url:"https://www.lemonde.fr/international/rss_full.xml", tag:"Géopolitique"},
+  {name:"Le Monde Économie",      url:"https://www.lemonde.fr/economie/rss_full.xml",      tag:"Économie"},
 ];
 const RSS2JSON_BASE = "https://api.rss2json.com/v1/api.json?rss_url=";
 async function fetchNewsFeed(feed){
@@ -6842,7 +6846,7 @@ function relTime(d){
   if (h<24) return "il y a "+h+" h";
   return "il y a "+Math.floor(h/24)+" j";
 }
-const NEWS_TAG_COLORS = {Crypto:"#f0a33a", "Marchés":"#4a9de8"};
+const NEWS_TAG_COLORS = {Crypto:"#f0a33a", "Marchés":"#4a9de8", "Géopolitique":"#a78bfa", "Économie":"#2fbfa8"};
 function newsMeta(it){
   const d = new Date(it.pubDate);
   const rel = isNaN(d.getTime()) ? "" : relTime(d);
@@ -6862,7 +6866,7 @@ function newsThumb(it, cls){
 function newsItemHtml(it){
   return '<a class="news-item nw-row" href="'+escapeHtml(it.link||"#")+'" target="_blank" rel="noopener noreferrer">'+newsMeta(it)+'<div class="nw-row-title">'+escapeHtml(it.title)+'</div></a>';
 }
-// Which of the two "parts" (International / En français) is on screen —
+// Which of the two "parts" (En anglais / En français) is on screen —
 // a plain UI toggle, not persisted. Each language keeps its own cached
 // items+status so switching tabs is instant and doesn't need a re-fetch;
 // refreshNews() below always fetches both in parallel so both stay current.
@@ -6906,7 +6910,7 @@ function paintNewsTab(){
     '<div class="nw-toolbar">'+
       '<div class="nw-chips">'+chip("tag","all","Tout",c.items.length)+tags.map(t=>chip("tag",t,t,c.items.filter(i=>i.tag===t).length)).join("")+
         '<span class="nw-sep"></span>'+chip("source","all","Toutes les sources")+sources.map(s=>chip("source",s,s)).join("")+'</div>'+
-      '<label class="nw-search"><span aria-hidden="true">⌕</span><input type="search" id="nw-q" placeholder="Rechercher (Fed, Bitcoin, ETF…)" value="'+escapeHtml(newsFilter.q)+'"></label>'+
+      '<label class="nw-search"><span aria-hidden="true">⌕</span><input type="search" id="nw-q" placeholder="Rechercher (Fed, Chine, Bitcoin…)" value="'+escapeHtml(newsFilter.q)+'"></label>'+
     '</div>' : '';
   const items = newsFiltered(c.items);
   let body;
@@ -6983,7 +6987,7 @@ async function fetchNewsSet(feeds){
   const results = await Promise.all(feeds.map(fetchNewsFeed));
   let items = [].concat(...results);
   items.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));
-  return items.slice(0,40);
+  return items.slice(0,60);
 }
 async function refreshNews(){
   if (!isEdbPlus()) return; // EDB+ gate — also protects the 5-minute setInterval below, not just the tab click
