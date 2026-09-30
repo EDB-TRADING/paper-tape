@@ -2347,9 +2347,15 @@
   .tx-card{position:relative;background:var(--panel);border:1px solid var(--border-soft);border-radius:18px;overflow:hidden;transition:border-color .2s ease, box-shadow .2s ease;}
   .tx-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--side);opacity:.85;}
   .tx-card:hover{border-color:color-mix(in srgb, var(--side) 35%, var(--border-soft));box-shadow:0 18px 40px -28px rgba(0,0,0,.8);}
-  .tx-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);}
-  .tx-card.no-img .tx-body{grid-template-columns:minmax(0,1fr);}
-  .tx-text{padding:24px 26px 20px 28px;display:flex;flex-direction:column;gap:16px;min-width:0;}
+  .tx-top{padding:24px 28px 18px 30px;display:flex;flex-direction:column;gap:16px;min-width:0;}
+  .tx-top.has-trend{position:relative;isolation:isolate;overflow:hidden;min-height:170px;}
+  .tx-top.has-trend > *:not(.tx-trend){position:relative;z-index:1;}
+  .tx-trend{position:absolute;left:0;right:0;bottom:0;height:100%;width:100%;z-index:0;pointer-events:none;opacity:.5;color:var(--side);
+    -webkit-mask-image:linear-gradient(to top, #000 25%, rgba(0,0,0,.55) 60%, transparent 100%), linear-gradient(to right, transparent 0%, #000 18%, #000 100%);
+    -webkit-mask-composite:source-in;mask-image:linear-gradient(to top, #000 25%, rgba(0,0,0,.55) 60%, transparent 100%), linear-gradient(to right, transparent 0%, #000 18%, #000 100%);mask-composite:intersect;transition:opacity .3s ease;}
+  .tx-card:hover .tx-trend{opacity:.68;}
+  .tx-trend-candles{opacity:.7;}
+  .tx-trend-line{filter:drop-shadow(0 0 6px currentColor);}
   .tx-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .tx-coin{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:17px;background:color-mix(in srgb, var(--side) 14%, var(--panel-2));border:1px solid color-mix(in srgb, var(--side) 30%, transparent);}
   .tx-sym{font-family:var(--mono);font-size:18px;font-weight:700;letter-spacing:.02em;}
@@ -2371,36 +2377,34 @@
   .tx-level i{font-style:normal;font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);}
   .tx-level b{font-size:13px;font-weight:600;}
   .tx-level.up b{color:var(--long);} .tx-level.down b{color:var(--short);}
-  .tx-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto;padding-top:14px;border-top:1px solid var(--border-soft);}
+  .tx-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 28px 16px 30px;border-top:1px solid var(--border-soft);}
   .tx-author{display:flex;align-items:center;gap:10px;min-width:0;}
   .tx-avatar{width:32px;height:32px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--accent);background:color-mix(in srgb, var(--accent) 16%, var(--panel-2));}
   .tx-author-txt{display:flex;flex-direction:column;min-width:0;}
   .tx-author-txt b{font-size:13px;font-weight:600;}
   .tx-author-txt em{font-style:normal;font-size:11.5px;color:var(--text-faint);}
-  .tx-gallery{background:color-mix(in srgb, var(--bg) 70%, var(--panel));padding:14px;display:flex;flex-direction:column;gap:10px;border-left:1px solid var(--border-soft);min-width:0;}
-  .tx-gallery .edbtrade-img{display:block;margin:0;max-height:none;width:100%;border-radius:12px;object-fit:cover;object-position:center top;border:1px solid var(--border-soft);cursor:zoom-in;transition:filter .2s ease, transform .2s ease;}
-  .tx-gallery .edbtrade-img:hover{filter:brightness(1.1);}
-  .tx-main{aspect-ratio:16/10;}
-  .tx-gallery.n1 .tx-main{aspect-ratio:auto;max-height:460px;object-fit:contain;background:var(--bg);}
-  .tx-thumbs{display:grid;grid-template-columns:repeat(auto-fill, minmax(120px,1fr));gap:10px;}
-  .tx-thumb{aspect-ratio:16/10;}
+  .tx-gallery{display:grid;grid-template-columns:repeat(var(--n,1), minmax(0,1fr));gap:12px;padding:4px 28px 20px 30px;}
+  .tx-gallery .edbtrade-img{display:block;margin:0;width:100%;max-height:none;aspect-ratio:16/10;object-fit:cover;object-position:center top;border-radius:12px;border:1px solid var(--border-soft);background:var(--bg);cursor:zoom-in;transition:filter .2s ease, transform .2s ease, border-color .2s ease;}
+  .tx-gallery .edbtrade-img:hover{filter:brightness(1.1);border-color:color-mix(in srgb, var(--side) 45%, var(--border-soft));}
+  .tx-gallery[style*="--n:1"] .edbtrade-img{aspect-ratio:16/9;max-width:760px;object-fit:contain;}
   .tx-card.is-featured{border-color:color-mix(in srgb, var(--gold) 45%, var(--border-soft));background:linear-gradient(135deg, color-mix(in srgb, var(--gold) 8%, var(--panel)), var(--panel) 60%);}
   .tx-ribbon{padding:10px 28px;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);border-bottom:1px solid color-mix(in srgb, var(--gold) 22%, transparent);background:color-mix(in srgb, var(--gold) 7%, transparent);}
   .tx-empty{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:50px 20px;font-size:26px;color:var(--text-faint);border:1px dashed var(--border);border-radius:18px;margin-top:18px;}
   .tx-empty b{font-size:15px;color:var(--text);}
   .tx-empty span{font-size:13px;}
-  @media (max-width:900px){
-    .tx-body{grid-template-columns:minmax(0,1fr);}
-    .tx-gallery{border-left:0;border-top:1px solid var(--border-soft);}
+  @media (max-width:760px){
+    .tx-gallery{grid-template-columns:repeat(2, minmax(0,1fr));}
+    .tx-gallery[style*="--n:1"]{grid-template-columns:minmax(0,1fr);}
   }
   @media (max-width:560px){
     .tx-header{padding:20px 16px;}
     .tx-header h1{font-size:28px;}
     .tx-tabs{min-width:0;width:100%;}
-    .tx-text{padding:18px 16px 16px 18px;}
+    .tx-top{padding:18px 16px 14px 18px;}
+    .tx-foot{padding:12px 16px 14px 18px;}
+    .tx-gallery{padding:2px 16px 16px 18px;gap:8px;}
     .tx-comment{font-size:15px;}
     .tx-ribbon{padding:9px 18px;}
-    .tx-gallery{padding:10px;}
   }
   /* ---------- Chat façon Discord ---------- */
   .dc{display:grid;grid-template-columns:240px minmax(0,1fr) 240px;height:calc(100dvh - var(--topbar-h) - 50px);min-height:460px;border:1px solid var(--border-soft);border-radius:16px;overflow:hidden;background:var(--panel);box-shadow:var(--shadow-card);position:relative;}
@@ -11825,6 +11829,45 @@ function edbTradeLevelsHtml(d,a){
   if (!lv.length) return "";
   return '<div class="tx-levels">'+lv.map(([k,v,c])=>'<span class="tx-level '+c+'"><i>'+k+'</i><b class="num">'+v+'</b></span>').join("")+'</div>';
 }
+// Fond décoratif des cartes de trade : un petit graphique en bougies qui
+// monte (long) ou descend (short). Série pseudo-aléatoire mais stable pour
+// un même trade (graine = id du document), pour ne pas « bouger » à chaque rendu.
+function txTrendSvg(side, seedStr){
+  let h = 2166136261;
+  for (const ch of String(seedStr||"x")) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0;
+  const rnd = ()=>{ h = (Math.imul(h, 1103515245) + 12345) >>> 0; return h/4294967296; };
+  const up = side!=="short", n = 34, W = 600, H = 240;
+  const drift = (up ? 1 : -1) * 0.9;
+  let p = 0; const c = [];
+  for (let i=0;i<n;i++){
+    const o = p;
+    const cl = o + drift + (rnd()-0.5)*4.2;
+    const hi = Math.max(o,cl) + rnd()*1.6, lo = Math.min(o,cl) - rnd()*1.6;
+    c.push({o, c:cl, h:hi, l:lo}); p = cl;
+  }
+  const mx = Math.max(...c.map(k=>k.h)), mn = Math.min(...c.map(k=>k.l));
+  const y = v => 14 + (1-(v-mn)/(mx-mn||1))*(H-28);
+  const step = W/n, bw = step*0.56;
+  const col = up ? "var(--long)" : "var(--short)";
+  const other = up ? "var(--short)" : "var(--long)";
+  let candles = "";
+  c.forEach((k,i)=>{
+    const x = i*step + step/2, isUp = k.c>=k.o, clr = (isUp===up) ? col : other;
+    const top = y(Math.max(k.o,k.c)), bot = y(Math.min(k.o,k.c));
+    candles += '<line x1="'+x.toFixed(1)+'" x2="'+x.toFixed(1)+'" y1="'+y(k.h).toFixed(1)+'" y2="'+y(k.l).toFixed(1)+'" stroke="'+clr+'" stroke-width="1.2" vector-effect="non-scaling-stroke"/>'+
+      '<rect x="'+(x-bw/2).toFixed(1)+'" y="'+top.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+Math.max(1.5, bot-top).toFixed(1)+'" rx="1.5" fill="'+clr+'" opacity="'+((isUp===up)?1:.7)+'"/>';
+  });
+  const pts = c.map((k,i)=>[(i*step+step/2), y((k.o+k.c)/2)]);
+  const line = pts.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ");
+  const area = line+" L"+pts[pts.length-1][0].toFixed(1)+" "+H+" L"+pts[0][0].toFixed(1)+" "+H+" Z";
+  const gid = "txg-"+(up?"u":"d")+"-"+String(seedStr||"x").replace(/[^a-z0-9]/gi,"").slice(0,12);
+  return '<svg class="tx-trend" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" aria-hidden="true">'+
+    '<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+col+'" stop-opacity=".35"/><stop offset="1" stop-color="'+col+'" stop-opacity="0"/></linearGradient></defs>'+
+    '<path d="'+area+'" fill="url(#'+gid+')"/>'+
+    '<g class="tx-trend-candles">'+candles+'</g>'+
+    '<path d="'+line+'" fill="none" stroke="'+col+'" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke" class="tx-trend-line"/>'+
+  '</svg>';
+}
 function edbTradeCardHtml(doc, featured){
   const d = doc.data();
   const a = edbTradeAssetMeta(d.symbol);
@@ -11835,23 +11878,22 @@ function edbTradeCardHtml(doc, featured){
     : (out ? '<span class="tx-result '+(out.v>=0?"up":"down")+'">'+escapeHtml(out.label)+'</span>'
     : '<span class="tx-status">'+edbTradeStatusLabel(d, null)+'</span>');
   const gallery = edbTradeImagesHtml(d);
-  return '<article class="tx-card'+(isSwing?" is-swing":"")+(featured?" is-featured":"")+(gallery?"":" no-img")+'" style="--side:var(--'+side+');">'+
+  return '<article class="tx-card'+(isSwing?" is-swing":"")+(featured?" is-featured":"")+'" style="--side:var(--'+side+');">'+
     (featured ? '<div class="tx-ribbon">🌊 Trade swing de la semaine</div>' : '')+
-    '<div class="tx-body">'+
-      '<div class="tx-text">'+
-        '<div class="tx-head">'+
-          '<span class="tx-coin">'+a.icon+'</span>'+
-          '<span class="tx-sym">'+escapeHtml(d.symbol||"")+'</span>'+
-          '<span class="tx-side '+side+'">'+(side==="short"?"Short":"Long")+'</span>'+
-          (isSwing && !featured ? '<span class="tx-kind">Swing</span>' : '')+
-          '<span class="tx-head-right">'+status+'</span>'+
-        '</div>'+
-        (d.comment ? '<p class="tx-comment">'+escapeHtml(d.comment)+'</p>' : '')+
-        edbTradeLevelsHtml(d,a)+
-        '<div class="tx-foot">'+edbAuthorHtml(d)+thumbReactionHtml("edbTrades", doc.id, d.reactions)+'</div>'+
+    '<div class="tx-top has-trend">'+
+      txTrendSvg(side, doc.id)+
+      '<div class="tx-head">'+
+        '<span class="tx-coin">'+a.icon+'</span>'+
+        '<span class="tx-sym">'+escapeHtml(d.symbol||"")+'</span>'+
+        '<span class="tx-side '+side+'">'+(side==="short"?"Short":"Long")+'</span>'+
+        (isSwing && !featured ? '<span class="tx-kind">Swing</span>' : '')+
+        '<span class="tx-head-right">'+status+'</span>'+
       '</div>'+
-      gallery+
+      (d.comment ? '<p class="tx-comment">'+escapeHtml(d.comment)+'</p>' : '')+
+      edbTradeLevelsHtml(d,a)+
     '</div>'+
+    gallery+
+    '<div class="tx-foot">'+edbAuthorHtml(d)+thumbReactionHtml("edbTrades", doc.id, d.reactions)+'</div>'+
   '</article>';
 }
 // Captures : une grande image + vignettes. Toutes gardent la classe
@@ -11860,10 +11902,10 @@ function edbTradeCardHtml(doc, featured){
 function edbTradeImagesHtml(d){
   const urls = Array.isArray(d.imageUrls) ? d.imageUrls : (d.imageUrl ? [d.imageUrl] : []);
   if (urls.length===0) return "";
-  const img = (u, cls)=>'<img class="edbtrade-img '+cls+'" src="'+escapeHtml(u)+'" alt="Capture du trade" loading="lazy">';
-  return '<div class="tx-gallery n'+Math.min(urls.length,4)+'">'+
-    img(urls[0], "tx-main")+
-    (urls.length>1 ? '<div class="tx-thumbs">'+urls.slice(1).map(u=>img(u, "tx-thumb")).join("")+'</div>' : '')+
+  // Toutes les captures à la même taille, côte à côte (3 par ligne max).
+  // Classe .edbtrade-img conservée : clic = plein écran (lightbox).
+  return '<div class="tx-gallery" style="--n:'+Math.min(urls.length,3)+';">'+
+    urls.map(u=>'<img class="edbtrade-img tx-shot" src="'+escapeHtml(u)+'" alt="Capture du trade" loading="lazy">').join("")+
   '</div>';
 }
 let tradesEdbFilter = {side:"all", sym:"all"};
@@ -12020,19 +12062,17 @@ function edbAnalysisCardHtml(doc){
   const d = doc.data();
   const a = d.symbol ? edbTradeAssetMeta(d.symbol) : null;
   const gallery = edbTradeImagesHtml(d);
-  return '<article class="tx-card is-analysis'+(gallery?"":" no-img")+'" style="--side:var(--gold);">'+
-    '<div class="tx-body">'+
-      '<div class="tx-text">'+
-        '<div class="tx-head">'+
-          '<span class="tx-coin">'+(a ? a.icon : "🌐")+'</span>'+
-          '<span class="tx-sym">'+(a ? escapeHtml(d.symbol) : "Marché général")+'</span>'+
-          '<span class="tx-kind gold">'+(EDB_ANALYSIS_TIMEFRAME_LABELS[d.timeframe]||"Analyse")+'</span>'+
-        '</div>'+
-        (d.text ? '<p class="tx-comment">'+escapeHtml(d.text)+'</p>' : '')+
-        '<div class="tx-foot">'+edbAuthorHtml(d)+thumbReactionHtml("edbAnalyses", doc.id, d.reactions)+'</div>'+
+  return '<article class="tx-card is-analysis" style="--side:var(--gold);">'+
+    '<div class="tx-top">'+
+      '<div class="tx-head">'+
+        '<span class="tx-coin">'+(a ? a.icon : "🌐")+'</span>'+
+        '<span class="tx-sym">'+(a ? escapeHtml(d.symbol) : "Marché général")+'</span>'+
+        '<span class="tx-kind gold">'+(EDB_ANALYSIS_TIMEFRAME_LABELS[d.timeframe]||"Analyse")+'</span>'+
       '</div>'+
-      gallery+
+      (d.text ? '<p class="tx-comment">'+escapeHtml(d.text)+'</p>' : '')+
     '</div>'+
+    gallery+
+    '<div class="tx-foot">'+edbAuthorHtml(d)+thumbReactionHtml("edbAnalyses", doc.id, d.reactions)+'</div>'+
   '</article>';
 }
 function renderAnalysesEdbFeed(){
