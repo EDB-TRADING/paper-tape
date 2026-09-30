@@ -2,14 +2,21 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Paper Tape</title>
 <!-- Favicon / app icon -->
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<meta name="theme-color" content="#1c1a17">
+<meta name="theme-color" content="#12110f">
+<!-- Application installable (PWA) : manifest + icônes + réglages iPhone -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="application-name" content="Paper Tape">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Paper Tape">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <!-- Link-preview card (Discord, WhatsApp, Twitter/X, iMessage, LinkedIn…) -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="Paper Tape — Terminal de trading simulé EDB">
@@ -2202,6 +2209,27 @@
     .pw-price-amount b{font-size:46px;}
   }
 
+  /* ---------- Application installable ---------- */
+  nav.tabs.sb-nav button.sb-install[hidden]{display:none;}
+  nav.tabs.sb-nav button.sb-install{color:var(--accent-light, var(--accent));}
+  .pwa-banner{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;z-index:900;display:flex;align-items:center;gap:12px;width:min(520px, calc(100vw - 24px));padding:12px 12px 12px 14px;border-radius:16px;
+    background:color-mix(in srgb, var(--panel) 94%, transparent);backdrop-filter:blur(12px);border:1px solid color-mix(in srgb, var(--accent) 35%, var(--border));box-shadow:0 20px 50px -18px rgba(0,0,0,.8);transition:opacity .25s, transform .25s;}
+  .pwa-banner.show{opacity:1;transform:translate(-50%,0);}
+  .pwa-banner-ico{width:44px;height:44px;border-radius:11px;flex:none;}
+  .pwa-banner-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+  .pwa-banner-txt b{font-size:14px;}
+  .pwa-banner-txt span{font-size:12.5px;color:var(--text-dim);line-height:1.4;}
+  .pwa-share{color:var(--accent-light, var(--accent));font-weight:600;}
+  .pwa-banner-go{flex:none;border:none;border-radius:10px;padding:9px 14px;font:inherit;font-weight:700;font-size:13.5px;background:var(--accent);color:var(--on-accent, #fff);cursor:pointer;}
+  .pwa-banner-x{flex:none;width:30px;height:30px;border-radius:50%;border:none;background:var(--panel-2);color:var(--text-faint);cursor:pointer;}
+  @media (max-width:1080px){ .pwa-banner{bottom:calc(var(--tabbar-h) + 12px + env(safe-area-inset-bottom));} }
+  .pwa-steps{margin:0 0 12px;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.5;}
+  /* App installée (plein écran) : laisser la place à l'encoche / barre d'état. */
+  @media (display-mode: standalone){
+    header.topbar{padding-top:max(10px, env(safe-area-inset-top));}
+    .sidebar{padding-top:max(16px, env(safe-area-inset-top));}
+  }
+
   /* ---------- Chat façon Discord ---------- */
   .dc{display:grid;grid-template-columns:240px minmax(0,1fr) 240px;height:calc(100dvh - var(--topbar-h) - 50px);min-height:460px;border:1px solid var(--border-soft);border-radius:16px;overflow:hidden;background:var(--panel);box-shadow:var(--shadow-card);position:relative;}
   body.dc-hide-members .dc{grid-template-columns:240px minmax(0,1fr) 0;}
@@ -3267,6 +3295,7 @@
       <button data-view="edbplus"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg><span class="sb-label">EDB+</span></button>
       <button data-view="tradesedb"><svg class="ic" aria-hidden="true"><use href="#i-trend"/></svg><span class="sb-label">Trades EDB+</span><span class="sb-short">Trades+</span></button>
       <button data-view="admin" id="nav-admin-btn" hidden><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg><span class="sb-label">Admin</span></button>
+      <button type="button" class="sb-install" id="pwa-install-btn" hidden><svg class="ic" aria-hidden="true"><use href="#i-down"/></svg><span class="sb-label">Installer l'app</span><span class="sb-short">Installer</span></button>
       <button data-view="profile" class="sb-account" id="sb-account">
         <span class="sb-account-avatar" id="sb-account-avatar"></span>
         <span class="sb-account-text"><span class="sb-account-name" id="sb-account-name">—</span><span class="sb-account-sub" id="sb-account-sub">Profil</span></span>
@@ -5934,6 +5963,10 @@ function initAuth(){
             // classement), then the tour. Small delay so the terminal's
             // widgets are laid out before the tour measures them.
             askFirstPseudo(()=>setTimeout(startOnboardingTour, 400));
+          } else if (window.__pwaStartView){
+            // Raccourci de l'app installée (?view=classement…) : une seule fois.
+            const v = window.__pwaStartView; window.__pwaStartView = null;
+            try{ switchView(v); }catch(e){}
           }
         } else {
           clientId = null;
@@ -5996,6 +6029,90 @@ function initAuthUI(){
     });
   }
 }
+/* ============================= APPLICATION INSTALLABLE (PWA) ============================= */
+// Service worker (sw.js, à côté d'index.html) + manifest.webmanifest : Paper
+// Tape s'installe sur l'écran d'accueil et s'ouvre en plein écran, comme une
+// app. Android / Chrome / Edge : on garde l'événement beforeinstallprompt pour
+// proposer « Installer l'app » (bouton du menu + bannière). iPhone / iPad :
+// pas d'installation automatique possible, la bannière explique le geste
+// (Partager → Sur l'écran d'accueil). Rien ne s'affiche si l'app est déjà
+// installée, et la bannière ne revient pas avant 14 jours si on la ferme.
+const PWA_DISMISS_KEY = "paperTapePwaDismissedAt";
+let pwaDeferredPrompt = null;
+function pwaIsStandalone(){ return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true; }
+function pwaIsIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1); }
+function pwaBannerDismissedRecently(){
+  try{ const t = +localStorage.getItem(PWA_DISMISS_KEY); return t && (Date.now()-t) < 14*864e5; }catch(e){ return false; }
+}
+function pwaUpdateInstallButton(){
+  const b = document.getElementById("pwa-install-btn");
+  if (b) b.hidden = pwaIsStandalone() || !(pwaDeferredPrompt || pwaIsIOS());
+}
+function pwaShowBanner(){
+  if (pwaIsStandalone() || pwaBannerDismissedRecently() || document.getElementById("pwa-banner")) return;
+  if (!pwaDeferredPrompt && !pwaIsIOS()) return;
+  const gate = document.getElementById("auth-gate");
+  if (gate && !gate.hidden) return; // pas par-dessus la page de connexion
+  const el = document.createElement("div");
+  el.id = "pwa-banner";
+  el.className = "pwa-banner";
+  el.innerHTML =
+    '<img src="icon-192.png" alt="" class="pwa-banner-ico">'+
+    '<div class="pwa-banner-txt"><b>Installe Paper Tape</b><span>'+(pwaDeferredPrompt
+      ? 'Sur ton écran d\'accueil, en plein écran, comme une vraie app.'
+      : 'Appuie sur <span class="pwa-share">⎋ Partager</span> puis « Sur l\'écran d\'accueil ».')+'</span></div>'+
+    (pwaDeferredPrompt ? '<button type="button" class="pwa-banner-go" id="pwa-banner-go">Installer</button>' : '')+
+    '<button type="button" class="pwa-banner-x" id="pwa-banner-x" aria-label="Fermer">✕</button>';
+  document.body.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add("show"));
+  const close = ()=>{ try{ localStorage.setItem(PWA_DISMISS_KEY, String(Date.now())); }catch(e){} el.classList.remove("show"); setTimeout(()=>el.remove(), 250); };
+  document.getElementById("pwa-banner-x").addEventListener("click", close);
+  const go = document.getElementById("pwa-banner-go");
+  if (go) go.addEventListener("click", ()=>{ el.remove(); pwaPromptInstall(); });
+}
+async function pwaPromptInstall(){
+  if (pwaDeferredPrompt){
+    const p = pwaDeferredPrompt;
+    pwaDeferredPrompt = null;
+    p.prompt();
+    try{ await p.userChoice; }catch(e){}
+    pwaUpdateInstallButton();
+    return;
+  }
+  if (pwaIsIOS()){
+    openModal(
+      '<h3 style="margin-bottom:8px;">Installer Paper Tape sur iPhone</h3>'+
+      '<ol class="pwa-steps"><li>Ouvre ce site dans <b>Safari</b>.</li><li>Appuie sur le bouton <b>Partager</b> (le carré avec une flèche vers le haut).</li><li>Choisis <b>« Sur l\'écran d\'accueil »</b>, puis <b>Ajouter</b>.</li></ol>'+
+      '<p class="chart-note">L\'icône Paper Tape apparaît sur ton écran d\'accueil et l\'app s\'ouvre en plein écran.</p>'
+    );
+  }
+}
+function initPwa(){
+  if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)){
+    window.addEventListener("load", ()=>{ navigator.serviceWorker.register("sw.js").catch(err=>console.warn("sw registration failed", err)); });
+  }
+  window.addEventListener("beforeinstallprompt", (e)=>{
+    e.preventDefault();
+    pwaDeferredPrompt = e;
+    pwaUpdateInstallButton();
+    setTimeout(pwaShowBanner, 20000); // pas dès l'arrivée : après 20 s d'utilisation
+  });
+  window.addEventListener("appinstalled", ()=>{
+    pwaDeferredPrompt = null;
+    pwaUpdateInstallButton();
+    const b = document.getElementById("pwa-banner"); if (b) b.remove();
+  });
+  const btn = document.getElementById("pwa-install-btn");
+  if (btn) btn.addEventListener("click", ()=>{ if (typeof window.closeShellDrawer==="function") window.closeShellDrawer(); pwaPromptInstall(); });
+  pwaUpdateInstallButton();
+  if (pwaIsIOS() && !pwaIsStandalone()) setTimeout(pwaShowBanner, 20000);
+  // Raccourcis de l'app installée (appui long sur l'icône) : ?view=terminal…
+  try{
+    const v = new URLSearchParams(location.search).get("view");
+    if (v && document.querySelector('nav.tabs button[data-view="'+v.replace(/[^a-z]/g,"")+'"]')) window.__pwaStartView = v.replace(/[^a-z]/g,"");
+  }catch(e){}
+}
+initPwa();
 /* ============================= CONDITIONS D'UTILISATION ============================= */
 // Texte affiché avant la connexion (case à cocher obligatoire) et
 // consultable ensuite depuis la page EDB+ et Ressources. Changer
@@ -16400,7 +16517,7 @@ function renderAll(){
 function initEvents(){
   initShell();
   initEquityCurve();
-  document.querySelectorAll("nav.tabs button").forEach(b=>{
+  document.querySelectorAll("nav.tabs button[data-view]").forEach(b=>{
     b.addEventListener("click", ()=>switchView(b.dataset.view));
   });
 
