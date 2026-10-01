@@ -2230,99 +2230,109 @@
     .sidebar{padding-top:max(16px, env(safe-area-inset-top));}
   }
 
-  /* ---------- Concours EDB+ v3 (.cz-*) : même langage que la page EDB+ ---------- */
-  .card:has(> .cz){background:none;border:none;box-shadow:none;padding:0;}
-  .cz{--pw-gold:var(--gold);max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:22px;}
-  .cz .reveal{transition-duration:.6s;}
-  .cz-hero{position:relative;overflow:hidden;border-radius:22px;min-height:600px;display:flex;flex-direction:column;justify-content:space-between;
-    border:1px solid color-mix(in srgb, var(--pw-gold) 30%, var(--border-soft));
-    background:linear-gradient(90deg, rgba(8,8,10,.95) 0%, rgba(8,8,10,.84) 40%, rgba(8,8,10,.30) 100%), var(--img) center right/cover no-repeat, #0b0b0e;}
-  .cz-hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(760px 380px at 0% 0%, color-mix(in srgb, var(--pw-gold) 22%, transparent), transparent 70%);}
-  .cz-hero > *{position:relative;z-index:1;}
-  .cz-hero-main{padding:64px 56px 36px;max-width:720px;}
-  .cz-hero h1{font-size:58px;line-height:1.03;letter-spacing:-.035em;margin:22px 0 18px;color:#fff;}
-  .cz-hero h1 span{background:linear-gradient(120deg, color-mix(in srgb, var(--pw-gold) 60%, #fff), var(--pw-gold));-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap;}
-  .cz-hero-sub{font-size:17px;line-height:1.65;color:rgba(255,255,255,.78);margin:0 0 30px;max-width:560px;}
-  .cz-hero .pw-btn-ghost{color:#fff;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.22);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
-  .cz-band{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;column-gap:40px;row-gap:14px;padding:24px 56px 26px;
-    border-top:1px solid rgba(255,255,255,.1);background:linear-gradient(180deg, rgba(8,8,10,.35), rgba(8,8,10,.78));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);}
-  .cz-band-k{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:4px;}
-  .cz-band b{font-size:34px;font-weight:600;color:#fff;letter-spacing:-.03em;line-height:1;}
-  .cz-band b em{font-style:normal;font-size:16px;color:rgba(255,255,255,.45);margin-left:2px;letter-spacing:0;}
-  .cz-band-side{text-align:right;}
-  .cz-won .cz-band-count b{color:var(--pw-gold);}
-  .cz-steps{display:flex;align-items:flex-start;gap:8px;}
-  .cz-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:9px;}
-  .cz-step i{display:block;width:100%;height:6px;border-radius:6px;background:rgba(255,255,255,.14);transition:background .4s ease, box-shadow .4s ease;}
-  .cz-step span{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.5);}
-  .cz-step.done i{background:linear-gradient(90deg, color-mix(in srgb, var(--pw-gold) 70%, #fff), var(--pw-gold));box-shadow:0 0 14px color-mix(in srgb, var(--pw-gold) 55%, transparent);}
-  .cz-step.done span{color:var(--pw-gold);}
-  .cz-step.current i{background:linear-gradient(90deg, color-mix(in srgb, var(--pw-gold) 45%, transparent) 0%, rgba(255,255,255,.14) 60%);background-size:200% 100%;animation:cz-slide 2.4s ease-in-out infinite;}
-  .cz-step.current span{color:#fff;}
-  .cz-step.live i{background:var(--long);box-shadow:0 0 12px color-mix(in srgb, var(--long) 55%, transparent);animation:none;}
-  @keyframes cz-slide{0%,100%{background-position:100% 0;}50%{background-position:0 0;}}
-  .cz-step-prize{flex:0 0 40px;}
-  .cz-step-prize i{background:none;box-shadow:none;}
-  .cz-step-prize span{font-size:20px;line-height:1;margin-top:-10px;filter:grayscale(1);opacity:.5;transition:all .4s ease;}
-  .cz-step-prize.done span{filter:none;opacity:1;}
-  .cz-band-live{grid-column:1 / -1;font-size:13px;color:rgba(255,255,255,.7);}
-  .cz-band-live.live{color:#7fe3b3;}
-  .cz-band-live.won{color:#f3d88f;}
-  .cz-band-live.warn{color:#f0c77a;}
-  .cz-band-live.fail{color:#ff9aa8;}
-  .cz-how{text-align:center;padding:48px 20px 34px;}
-  .cz-how h2,.cz-rules h2{font-size:36px;letter-spacing:-.03em;margin:10px 0 0;color:var(--text);line-height:1.1;}
-  .cz-how-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:40px;text-align:left;}
-  .cz-how-cols > div{padding:4px 32px;border-left:1px solid var(--border-soft);}
-  .cz-how-cols > div:first-child{border-left:0;}
-  .cz-how-cols b{font-family:var(--mono);font-size:13px;color:var(--pw-gold);letter-spacing:.06em;}
-  .cz-how-cols h3{font-size:19px;letter-spacing:-.015em;margin:12px 0 8px;color:var(--text);}
-  .cz-how-cols p{font-size:14.5px;line-height:1.65;color:var(--text-dim);margin:0;}
-  .cz-prize{position:relative;overflow:hidden;border-radius:22px;min-height:500px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:64px 22px;
-    border:1px solid color-mix(in srgb, var(--pw-gold) 30%, var(--border-soft));
-    background:radial-gradient(ellipse 60% 65% at 50% 50%, rgba(8,8,10,.55), rgba(8,8,10,.94) 78%), var(--img) center/cover no-repeat, #0b0b0e;}
-  .cz-prize .pw-kicker{color:color-mix(in srgb, var(--pw-gold) 75%, #fff);}
-  .cz-prize-big{font-size:clamp(64px,11vw,132px);font-weight:800;letter-spacing:-.05em;line-height:1;margin:18px 0 12px;background:linear-gradient(180deg,#fff5d6 0%, color-mix(in srgb, var(--pw-gold) 80%, #fff) 45%, var(--pw-gold) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 14px 40px rgba(215,181,99,.35));}
-  .cz-prize-sub{font-size:18px;color:#fff;margin:0;font-weight:500;}
-  .cz-prize-or{display:flex;align-items:center;gap:14px;width:220px;margin:26px auto 12px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.5);}
-  .cz-prize-or::before,.cz-prize-or::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.22);}
-  .cz-prize-alt{font-size:clamp(40px,6vw,60px);font-weight:800;letter-spacing:-.04em;color:#fff;line-height:1;}
-  .cz-prize-note{font-size:13.5px;color:rgba(255,255,255,.62);margin:26px 0 0;}
-  .cz-rules{position:relative;overflow:hidden;border-radius:22px;padding:60px 22px;border:1px solid var(--border-soft);
-    background:linear-gradient(180deg, rgba(8,8,10,.55), rgba(8,8,10,.9)), var(--img) center/cover no-repeat, #0b0b0e;scroll-margin-top:calc(var(--topbar-h) + 16px);}
-  .cz-rules-panel{max-width:780px;margin:0 auto;padding:38px 42px;border-radius:20px;background:rgba(12,11,9,.74);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);}
-  .cz-rules h2{color:#fff;}
-  .cz-rules ol{list-style:none;counter-reset:czr;margin:26px 0 0;padding:0;}
-  .cz-rules li{counter-increment:czr;position:relative;padding:16px 0 16px 50px;border-top:1px solid rgba(255,255,255,.09);font-size:14.5px;line-height:1.65;color:rgba(255,255,255,.72);}
-  .cz-rules li::before{content:counter(czr,decimal-leading-zero);position:absolute;left:0;top:17px;font-family:var(--mono);font-size:13px;color:var(--pw-gold);}
-  .cz-rules li strong{color:#fff;}
-  .cz-rules-foot{margin:18px 0 0;font-size:12.5px;color:rgba(255,255,255,.5);}
-  @media (max-width:980px){
-    .cz-hero{min-height:0;background:linear-gradient(180deg, rgba(8,8,10,.9) 0%, rgba(8,8,10,.8) 60%, rgba(8,8,10,.9) 100%), var(--img) center/cover no-repeat, #0b0b0e;}
-    .cz-hero h1{font-size:44px;}
-    .cz-hero-main{padding:44px 32px 30px;}
-    .cz-band{padding:22px 32px 24px;column-gap:24px;}
-    .cz-how-cols{grid-template-columns:1fr;gap:0;max-width:560px;margin-left:auto;margin-right:auto;}
-    .cz-how-cols > div{border-left:0;border-top:1px solid var(--border-soft);padding:22px 4px;}
-    .cz-how-cols > div:first-child{border-top:0;}
+  /* ---------- Concours EDB+ v4 (.cq-*) : sobre, pro ---------- */
+  .card:has(> .cq){background:none;border:none;box-shadow:none;padding:0;}
+  .cq{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:18px;}
+  .cq .reveal{transition-duration:.6s;}
+  .cq-hero{position:relative;overflow:hidden;isolation:isolate;border-radius:20px;border:1px solid var(--border-soft);background:#0c0c0b;
+    display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);align-items:center;gap:40px;padding:56px 56px 48px;}
+  .cq-hero::before{content:"";position:absolute;inset:0;z-index:-2;background:var(--img) center/cover no-repeat;filter:grayscale(1) contrast(1.05) brightness(.55);}
+  .cq-hero::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg, rgba(12,12,11,.97) 0%, rgba(12,12,11,.9) 45%, rgba(12,12,11,.72) 100%);}
+  .cq-kicker{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55);}
+  .cq-kicker::before{content:"";width:18px;height:1px;background:var(--accent);}
+  .cq-hero h1{font-size:52px;line-height:1.02;letter-spacing:-.04em;font-weight:600;color:#fff;margin:22px 0 18px;}
+  .cq-hero h1 span{color:rgba(255,255,255,.45);}
+  .cq-lead{font-size:16px;line-height:1.65;color:rgba(255,255,255,.66);max-width:500px;margin:0;}
+  .cq-actions{display:flex;align-items:center;flex-wrap:wrap;gap:18px;margin-top:30px;}
+  .cq-btn{font:600 14.5px var(--sans);color:var(--on-accent,#fff);background:var(--accent);border:0;border-radius:10px;padding:13px 20px;cursor:pointer;transition:filter .15s, transform .15s;}
+  .cq-btn:hover{filter:brightness(1.08);transform:translateY(-1px);}
+  .cq-link{font:500 14px var(--sans);color:rgba(255,255,255,.75);background:none;border:0;padding:6px 0;cursor:pointer;}
+  .cq-link:hover{color:#fff;}
+  .cq-link span{display:inline-block;transition:transform .15s;}
+  .cq-link:hover span{transform:translateX(3px);}
+  .cq-kpis{display:flex;margin:38px 0 0;padding:20px 0 0;border-top:1px solid rgba(255,255,255,.1);}
+  .cq-kpis > div{flex:1;padding-right:20px;}
+  .cq-kpis > div + div{padding-left:20px;border-left:1px solid rgba(255,255,255,.1);}
+  .cq-kpis dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.45);}
+  .cq-kpis dd{margin:8px 0 0;font-size:26px;font-weight:600;color:#fff;letter-spacing:-.02em;line-height:1.1;}
+  .cq-kpis dd em{font-style:normal;font-size:14px;color:rgba(255,255,255,.4);margin-left:2px;font-weight:500;}
+  #cq-run{font-size:15px;font-weight:500;padding-top:6px;color:rgba(255,255,255,.8);}
+  #cq-run.live{color:var(--long);}
+  #cq-run.fail{color:var(--short);}
+  .cq-card-wrap{perspective:1200px;display:flex;justify-content:center;}
+  .cq-card{position:relative;width:100%;max-width:400px;aspect-ratio:1.586;border-radius:18px;padding:22px 24px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;color:#fff;
+    background:linear-gradient(140deg, #2a2926 0%, #161614 45%, #0f0f0e 100%);border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 40px 80px -30px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.08);transform:rotateY(-10deg) rotateX(4deg);transition:transform .5s cubic-bezier(.22,.61,.36,1);}
+  .cq-card:hover{transform:rotateY(-4deg) rotateX(2deg);}
+  .cq-card::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg, transparent 30%, rgba(255,255,255,.07) 45%, transparent 60%);pointer-events:none;}
+  .cq-card::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg, rgba(255,255,255,.012) 0 1px, transparent 1px 3px);pointer-events:none;}
+  .cq-card > *{position:relative;z-index:1;}
+  .cq-card-top{display:flex;justify-content:space-between;align-items:center;}
+  .cq-card-brand{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.75);}
+  .cq-card-brand .brand-logo{width:16px;height:20px;}
+  .cq-card-chip{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);}
+  .cq-won .cq-card-chip{border-color:color-mix(in srgb, var(--long) 60%, transparent);color:var(--long);}
+  .cq-card-mid{display:flex;flex-direction:column;gap:4px;}
+  .cq-card-k{font-size:11.5px;color:rgba(255,255,255,.5);}
+  .cq-card-v{font-family:var(--mono);font-size:40px;font-weight:600;letter-spacing:-.03em;line-height:1;}
+  .cq-card-line{position:absolute !important;left:0;right:0;bottom:46px;width:100%;height:56px;color:var(--long);opacity:.35;z-index:0 !important;}
+  .cq-card-bot{display:flex;justify-content:space-between;align-items:flex-end;font-size:12px;color:rgba(255,255,255,.6);}
+  .cq-card-bot .num{font-family:var(--mono);font-size:13px;color:rgba(255,255,255,.85);}
+  .cq-panel{background:var(--panel);border:1px solid var(--border-soft);border-radius:20px;padding:30px 34px;}
+  .cq-panel h2{font-size:24px;font-weight:600;letter-spacing:-.02em;margin:6px 0 0;color:var(--text);}
+  .cq-eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);}
+  .cq-panel-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:30px;}
+  .cq-status{margin:0;font-size:13.5px;color:var(--text-dim);max-width:520px;text-align:right;}
+  .cq-status.live{color:var(--long);}
+  .cq-status.warn{color:var(--warn);}
+  .cq-status.fail{color:var(--short);}
+  .cq-status.won{color:var(--text);}
+  .cq-track{--cq-p:0;position:relative;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));}
+  .cq-track::before,.cq-track::after{content:"";position:absolute;top:14px;left:calc(100%/12);height:2px;border-radius:2px;}
+  .cq-track::before{right:calc(100%/12);background:var(--border);}
+  .cq-track::after{width:calc((100% - 100%/6) * var(--cq-p));background:var(--accent);transition:width .6s ease;}
+  .cq-node{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .cq-dot{width:31px;height:31px;border-radius:50%;display:grid;place-items:center;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text-faint);background:var(--panel);border:1px solid var(--border);transition:all .3s ease;}
+  .cq-dot .ic{width:15px;height:15px;}
+  .cq-lbl{font-size:12.5px;color:var(--text-faint);}
+  .cq-node.done .cq-dot{background:var(--accent);border-color:var(--accent);color:var(--on-accent,#fff);}
+  .cq-node.done .cq-lbl{color:var(--text);}
+  .cq-node.current .cq-dot{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 5px color-mix(in srgb, var(--accent) 14%, transparent);}
+  .cq-node.current .cq-lbl{color:var(--text);}
+  .cq-node.live .cq-dot{border-color:var(--long);color:var(--long);box-shadow:0 0 0 5px color-mix(in srgb, var(--long) 14%, transparent);}
+  .cq-node-end.done .cq-dot{background:var(--text);border-color:var(--text);color:var(--bg);}
+  .cq-rules{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);column-gap:48px;row-gap:24px;scroll-margin-top:calc(var(--topbar-h) + 16px);}
+  .cq-rules-intro p{font-size:14px;line-height:1.65;color:var(--text-dim);margin:14px 0 0;max-width:360px;}
+  .cq-spec{border-top:1px solid var(--border-soft);}
+  .cq-spec > div{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:13px 0;border-bottom:1px solid var(--border-soft);font-size:14px;}
+  .cq-spec span{color:var(--text-dim);}
+  .cq-spec b{font-family:var(--sans);font-variant-numeric:tabular-nums;font-weight:600;color:var(--text);text-align:right;}
+  .cq-spec b em{font-style:normal;font-weight:400;color:var(--text-faint);font-size:12.5px;}
+  .cq-notes{grid-column:2;margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;}
+  .cq-notes li{position:relative;padding-left:16px;font-size:13px;line-height:1.6;color:var(--text-faint);}
+  .cq-notes li::before{content:"";position:absolute;left:0;top:9px;width:5px;height:1px;background:var(--text-faint);}
+  @media (max-width:1020px){
+    .cq-hero{grid-template-columns:minmax(0,1fr);padding:40px 32px;}
+    .cq-card-wrap{justify-content:flex-start;}
+    .cq-card{transform:none;max-width:380px;}
+    .cq-rules{grid-template-columns:minmax(0,1fr);}
+    .cq-notes{grid-column:1;}
   }
-  @media (max-width:560px){
-    .cz{gap:16px;}
-    .cz-hero,.cz-prize,.cz-rules{border-radius:18px;}
-    .cz-hero h1{font-size:34px;}
-    .cz-hero-sub{font-size:15.5px;}
-    .cz-hero-main{padding:32px 20px 24px;}
-    .cz-band{grid-template-columns:1fr 1fr;padding:20px;}
-    .cz-steps{grid-column:1 / -1;order:3;}
-    .cz-band-live{order:4;}
-    .cz-how{padding:30px 6px 16px;}
-    .cz-how h2,.cz-rules h2{font-size:27px;}
-    .cz-prize{min-height:0;padding:48px 18px;}
-    .cz-rules{padding:22px 12px;}
-    .cz-rules-panel{padding:26px 20px;}
-    .cz-rules li{padding-left:40px;font-size:14px;}
+  @media (max-width:640px){
+    .cq{gap:14px;}
+    .cq-hero{padding:28px 20px;border-radius:16px;gap:28px;}
+    .cq-hero h1{font-size:34px;}
+    .cq-kpis{flex-direction:column;gap:14px;}
+    .cq-kpis > div + div{padding-left:0;border-left:0;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);}
+    .cq-panel{padding:22px 18px;border-radius:16px;}
+    .cq-status{text-align:left;}
+    .cq-track{grid-template-columns:minmax(0,1fr);gap:16px;}
+    .cq-track::before,.cq-track::after{top:15px;left:14px;right:auto;width:2px;height:auto;}
+    .cq-track::before{bottom:15px;}
+    .cq-track::after{height:calc((100% - 31px) * var(--cq-p));width:2px;transition:height .6s ease;}
+    .cq-node{flex-direction:row;}
+    .cq-card-v{font-size:32px;}
   }
-  @media (prefers-reduced-motion:reduce){ .cz-step.current i{animation:none;} }
   /* ---------- Trades EDB+ : fil du bureau (.tx-*) ---------- */
   .learn-wrap:has(.tx){max-width:1240px;}
   .card:has(> .tx){background:none;border:none;box-shadow:none;padding:0;}
@@ -3835,76 +3845,87 @@
            côté, avec un alt text resté d'un tout autre visuel). -->
       <div class="card" id="concoursedbplus-locked" hidden></div>
       <div class="card" id="concoursedbplus-unlocked" hidden>
-        <!-- Concours EDB+ v3 : même langage que la page EDB+ et les paywalls
-             (sections photo arrondies, gros titres, apparition au scroll),
-             sans grille de cartes. Squelette statique : renderHardcoreChallenge()
-             ne met à jour que les textes/classes (appelé à chaque tick). -->
-        <div class="cz">
-          <section class="cz-hero" style="--img:url('https://images.unsplash.com/photo-1555963153-11ff60182d08?auto=format&amp;fit=crop&amp;w=1800&amp;q=80');">
-            <div class="cz-hero-main">
-              <span class="pw-badge">💎 Concours EDB+</span>
-              <h1>Gagne une vraie prop firm à <span>100&nbsp;000&nbsp;$</span>.</h1>
-              <p class="cz-hero-sub">Ou 400 € si tu préfères. Pour l'obtenir : réussir le Challenge 200 000 $ cinq fois d'affilée. Un seul échec, et la série repart de zéro.</p>
-              <div class="pw-ctas">
-                <button type="button" class="pw-btn pw-btn-trial" id="cz-cta-start">Lancer mon Challenge 200k →</button>
-                <button type="button" class="pw-btn pw-btn-ghost" id="cz-cta-rules">Le règlement</button>
+        <!-- Concours EDB+ v4 : sobre et pro. Bandeau sombre (photo en noir et
+             blanc très atténuée) + « carte de compte financé » à droite, suivi
+             de la série en frise, puis règlement en tableau de spécifications.
+             renderHardcoreChallenge() ne met à jour que textes et classes. -->
+        <div class="cq">
+          <section class="cq-hero" style="--img:url('https://images.unsplash.com/photo-1555963153-11ff60182d08?auto=format&amp;fit=crop&amp;w=1800&amp;q=80');">
+            <div class="cq-hero-copy">
+              <span class="cq-kicker">Concours EDB+ · Challenge Hardcore</span>
+              <h1>Cinq challenges 200k.<br><span>D'affilée.</span></h1>
+              <p class="cq-lead">Réussis cinq fois de suite le Challenge 200 000 $ et l'EDB t'offre un vrai challenge prop firm de 100 000 $, ou 400 € si tu préfères.</p>
+              <div class="cq-actions">
+                <button type="button" class="cq-btn" id="cq-cta-start">Lancer un Challenge 200k</button>
+                <button type="button" class="cq-link" id="cq-cta-rules">Lire le règlement <span aria-hidden="true">→</span></button>
               </div>
+              <dl class="cq-kpis">
+                <div><dt>Série</dt><dd class="num"><span id="cq-n">0</span><em>/5</em></dd></div>
+                <div><dt>Tentatives restantes</dt><dd class="num"><span id="cq-left">30</span><em>/30</em></dd></div>
+                <div><dt>Passage en cours</dt><dd id="cq-run">Aucun</dd></div>
+              </dl>
             </div>
-            <div class="cz-band">
-              <div class="cz-band-count">
-                <span class="cz-band-k">Ta série</span>
-                <b class="num"><span id="cz-n">0</span><em>/5</em></b>
+            <div class="cq-card-wrap" aria-hidden="true">
+              <div class="cq-card" id="cq-card">
+                <div class="cq-card-top">
+                  <span class="cq-card-brand"><svg class="brand-logo" aria-hidden="true"><use href="#pt-logo"/></svg>Paper Tape</span>
+                  <span class="cq-card-chip" id="cq-card-chip">À gagner</span>
+                </div>
+                <div class="cq-card-mid">
+                  <span class="cq-card-k">Compte prop firm</span>
+                  <span class="cq-card-v num">$100,000</span>
+                </div>
+                <svg class="cq-card-line" viewBox="0 0 300 60" preserveAspectRatio="none"><path d="M0 52 L22 48 L40 50 L62 41 L84 44 L104 33 L126 37 L150 26 L172 29 L196 18 L220 22 L246 11 L270 14 L300 4" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>
+                <div class="cq-card-bot">
+                  <span>Challenge offert par l'EDB</span>
+                  <span class="num">ou 400 €</span>
+                </div>
               </div>
-              <div class="cz-steps" id="cz-steps">
-                <div class="cz-step" data-i="0"><i></i><span>1</span></div>
-                <div class="cz-step" data-i="1"><i></i><span>2</span></div>
-                <div class="cz-step" data-i="2"><i></i><span>3</span></div>
-                <div class="cz-step" data-i="3"><i></i><span>4</span></div>
-                <div class="cz-step" data-i="4"><i></i><span>5</span></div>
-                <div class="cz-step cz-step-prize"><i></i><span>🏆</span></div>
-              </div>
-              <div class="cz-band-side">
-                <span class="cz-band-k">Tentatives</span>
-                <b class="num"><span id="cz-left">30</span><em>/30</em></b>
-              </div>
-              <div class="cz-band-live" id="cz-live"></div>
             </div>
           </section>
 
-          <section class="cz-how reveal">
-            <span class="pw-kicker">Comment ça marche</span>
-            <h2>Trois étapes. Cinq fois de suite.</h2>
-            <div class="cz-how-cols">
-              <div><b>01</b><h3>Ouvre un Challenge 200 000 $</h3><p>Depuis l'onglet Challenge. Seul ce palier compte pour le concours.</p></div>
-              <div><b>02</b><h3>Passe les deux étapes</h3><p>+10 % puis +5 %, sans dépasser −5 % sur la journée ni −10 % au total, avec au moins 5 trades qualifiés.</p></div>
-              <div><b>03</b><h3>Recommence, sans faute</h3><p>Cinq passages réussis d'affilée et la récompense est à toi. Un échec remet le compteur à zéro.</p></div>
+          <section class="cq-panel reveal">
+            <div class="cq-panel-head">
+              <div>
+                <span class="cq-eyebrow">Ta progression</span>
+                <h2>La série</h2>
+              </div>
+              <p class="cq-status" id="cq-live"></p>
             </div>
+            <ol class="cq-track" id="cq-track">
+              <li class="cq-node" data-i="0"><span class="cq-dot">1</span><span class="cq-lbl">Passage 1</span></li>
+              <li class="cq-node" data-i="1"><span class="cq-dot">2</span><span class="cq-lbl">Passage 2</span></li>
+              <li class="cq-node" data-i="2"><span class="cq-dot">3</span><span class="cq-lbl">Passage 3</span></li>
+              <li class="cq-node" data-i="3"><span class="cq-dot">4</span><span class="cq-lbl">Passage 4</span></li>
+              <li class="cq-node" data-i="4"><span class="cq-dot">5</span><span class="cq-lbl">Passage 5</span></li>
+              <li class="cq-node cq-node-end"><span class="cq-dot"><svg class="ic" aria-hidden="true"><use href="#i-trophy"/></svg></span><span class="cq-lbl">Récompense</span></li>
+            </ol>
           </section>
 
-          <section class="cz-prize reveal" style="--img:url('https://images.unsplash.com/photo-1762463176318-3cc33ec64ba2?auto=format&amp;fit=crop&amp;w=1800&amp;q=80');">
-            <span class="pw-kicker">Ce que tu gagnes</span>
-            <div class="cz-prize-big">100 000 $</div>
-            <p class="cz-prize-sub">de capital sur une vraie prop firm, challenge offert par l'EDB</p>
-            <div class="cz-prize-or">ou</div>
-            <div class="cz-prize-alt">400 €</div>
-            <p class="cz-prize-note" id="cz-prize-note">Série validée ? Contacte le bureau pour récupérer ta récompense.</p>
-          </section>
-
-          <section class="cz-rules reveal" id="cz-rules" style="--img:url('https://images.unsplash.com/photo-1640459958548-56c1c6717a40?auto=format&amp;fit=crop&amp;w=1800&amp;q=80');">
-            <div class="cz-rules-panel">
-              <span class="pw-kicker">Règlement</span>
-              <h2>Les règles du jeu</h2>
-              <ol>
-                <li>Palier <strong>200 000 $</strong> uniquement. Les autres tailles de challenge ne comptent pas pour ce concours, ni en positif ni en négatif : elles restent valables pour les badges Prop Firm, mais n'avancent ni ne cassent la série.</li>
-                <li>Passer les <strong>2 étapes</strong> du Challenge Prop Firm, avec les mêmes règles que le Challenge classique : objectifs +10 % puis +5 %, perte journalière −5 %, drawdown −10 %, levier max x20.</li>
-                <li>Au moins <strong>5 positions clôturées « qualifiées »</strong> sur ce passage (PnL, gain ou perte, d'au moins 1 000 $). Un passage financé avec moins de 5 trades qualifiés ne compte pas : les badges restent acquis, mais <strong>la série repart à zéro</strong>, comme un échec.</li>
-                <li>Les 5 réussites doivent s'enchaîner <strong>d'affilée</strong> : le moindre échec du Challenge 200 000 $ remet immédiatement le compteur à 0.</li>
-                <li>Maximum <strong>30 ouvertures</strong> du Challenge 200 000 $ au total, à vie. Choisis bien tes tentatives.</li>
-              </ol>
-              <p class="cz-rules-foot">Sur Paper Tape, tout se joue en simulation : aucun argent réel n'est engagé.</p>
+          <section class="cq-panel cq-rules reveal" id="cq-rules">
+            <div class="cq-rules-intro">
+              <span class="cq-eyebrow">Règlement</span>
+              <h2>Les conditions</h2>
+              <p>Mêmes règles que le Challenge classique, sur le seul palier 200 000 $. La série doit être parfaite : le moindre échec la remet à zéro.</p>
             </div>
+            <div class="cq-spec">
+              <div><span>Palier</span><b class="num">200 000 $ uniquement</b></div>
+              <div><span>Objectif étape 1</span><b class="num">+10 %</b></div>
+              <div><span>Objectif étape 2</span><b class="num">+5 %</b></div>
+              <div><span>Perte journalière max</span><b class="num">−5 %</b></div>
+              <div><span>Drawdown max</span><b class="num">−10 %</b></div>
+              <div><span>Levier max</span><b class="num">x20</b></div>
+              <div><span>Trades qualifiés par passage</span><b class="num">≥ 5 <em>(PnL ≥ 1 000 $)</em></b></div>
+              <div><span>Série requise</span><b class="num">5 d'affilée</b></div>
+              <div><span>Ouvertures du 200k</span><b class="num">30 max, à vie</b></div>
+            </div>
+            <ul class="cq-notes">
+              <li>Les autres paliers ne comptent pas pour le concours, ni en positif ni en négatif.</li>
+              <li>Un passage financé avec moins de 5 trades qualifiés ne compte pas et remet la série à zéro, comme un échec.</li>
+              <li>Série validée : contacte le bureau pour récupérer ta récompense. Sur Paper Tape, tout se joue en simulation, sans argent réel.</li>
+            </ul>
           </section>
-          <p class="chart-note cedb-credit">Photos : Unsplash (Oğuzhan Akdoğan, Scottsdale Mint, Aedrian Salazar).</p>
+          <p class="chart-note cedb-credit">Photo : Unsplash (Oğuzhan Akdoğan).</p>
         </div>
       </div>
     </section>
@@ -8894,7 +8915,7 @@ function renderHardcoreChallenge(){
   const runLive = !!(run && (run.phase==="step1" || run.phase==="step2"));
   if (unlocked.dataset.wired!=="1"){
     unlocked.dataset.wired = "1";
-    const start = $("cz-cta-start");
+    const start = $("cq-cta-start");
     if (start) start.addEventListener("click", ()=>{
       const cc = state.challenge;
       if (cc && cc.tier===200000 && (cc.phase==="step1"||cc.phase==="step2")){
@@ -8902,44 +8923,49 @@ function renderHardcoreChallenge(){
         switchView("terminal");
       } else switchView("challenge");
     });
-    const rules = $("cz-cta-rules");
-    if (rules) rules.addEventListener("click", ()=>{ const r = $("cz-rules"); if (r){ r.classList.add("is-visible"); r.scrollIntoView({behavior:"smooth", block:"start"}); } });
+    const rules = $("cq-cta-rules");
+    if (rules) rules.addEventListener("click", ()=>{ const r = $("cq-rules"); if (r){ r.classList.add("is-visible"); r.scrollIntoView({behavior:"smooth", block:"start"}); } });
   }
-  unlocked.classList.toggle("cz-won", done);
-  setText($("cz-n"), String(n));
-  setText($("cz-left"), String(left));
-  unlocked.querySelectorAll(".cz-step").forEach(st=>{
-    if (st.classList.contains("cz-step-prize")){ st.classList.toggle("done", done); return; }
-    const i = +st.dataset.i;
-    st.classList.toggle("done", i<n);
-    st.classList.toggle("current", i===n && !done);
-    st.classList.toggle("live", i===n && !done && runLive);
+  unlocked.classList.toggle("cq-won", done);
+  setText($("cq-n"), String(n));
+  setText($("cq-left"), String(left));
+  setText($("cq-card-chip"), done ? "Débloqué" : "À gagner");
+  setText($("cq-cta-start"), runLive ? "Continuer mon passage" : (done ? "Voir mes challenges" : "Lancer un Challenge 200k"));
+  // Passage en cours
+  let runTxt = "Aucun", runCls = "", pct = 0, qual = 0;
+  if (runLive){
+    const cfg = CHALLENGE_STEPS[run.phase];
+    const eq = propEquity();
+    const target = run.stepStartEquity*(1+cfg.profitTargetPct/100);
+    pct = Math.max(0, Math.min(100, ((eq-run.stepStartEquity)/(target-run.stepStartEquity))*100));
+    try{ qual = ((propBookData()||{}).history||[]).filter(h=>typeof h.pnl==="number" && Math.abs(h.pnl)>=CONTEST_QUALIFY_PNL).length; }catch(e){}
+    runTxt = (run.phase==="step1"?"Étape 1":"Étape 2")+" · "+Math.round(pct)+" %"; runCls = "live";
+  } else if (run && run.phase==="failed"){ runTxt = "Échoué"; runCls = "fail"; }
+  else if (run && run.phase==="funded"){ runTxt = "Financé"; }
+  const runEl = $("cq-run");
+  if (runEl){ setText(runEl, runTxt); runEl.className = runCls; }
+  // Frise
+  unlocked.querySelectorAll(".cq-node").forEach(nd=>{
+    if (nd.classList.contains("cq-node-end")){ nd.classList.toggle("done", done); return; }
+    const i = +nd.dataset.i;
+    nd.classList.toggle("done", i<n);
+    nd.classList.toggle("current", i===n && !done);
+    nd.classList.toggle("live", i===n && !done && runLive);
   });
-  const startBtn = $("cz-cta-start");
-  setText(startBtn, runLive ? "Continuer mon passage →" : (done ? "Voir mes challenges →" : "Lancer mon Challenge 200k →"));
-  // Ligne d'état sous la série
-  const live = $("cz-live");
+  const track = $("cq-track");
+  if (track) track.style.setProperty("--cq-p", (n/HARDCORE_200K_TARGET).toFixed(3));
+  const live = $("cq-live");
   if (live){
-    let txt = "", cls = "";
-    if (done){ cls = "won"; txt = "🏆 Série complète : contacte le bureau pour récupérer "+HARDCORE_REWARD_LABEL+"."; }
-    else if (runLive){
-      const cfg = CHALLENGE_STEPS[run.phase];
-      const eq = propEquity();
-      const target = run.stepStartEquity*(1+cfg.profitTargetPct/100);
-      const pct = Math.max(0, Math.min(100, ((eq-run.stepStartEquity)/(target-run.stepStartEquity))*100));
-      let qual = 0;
-      try{ qual = ((propBookData()||{}).history||[]).filter(h=>typeof h.pnl==="number" && Math.abs(h.pnl)>=CONTEST_QUALIFY_PNL).length; }catch(e){}
-      cls = "live";
-      txt = "Passage "+(n+1)+" en cours · "+(run.phase==="step1"?"Étape 1":"Étape 2")+" · "+Math.round(pct)+" % de l'objectif · "+Math.min(qual,HARDCORE_MIN_QUALIFYING_TRADES)+"/"+HARDCORE_MIN_QUALIFYING_TRADES+" trades qualifiés";
-    }
+    let txt, cls = "";
+    if (done){ cls = "won"; txt = "Série complète. Contacte le bureau pour récupérer "+HARDCORE_REWARD_LABEL+"."; }
+    else if (runLive){ cls = "live"; txt = "Passage "+(n+1)+" en cours · "+Math.round(pct)+" % de l'objectif · "+Math.min(qual,HARDCORE_MIN_QUALIFYING_TRADES)+"/"+HARDCORE_MIN_QUALIFYING_TRADES+" trades qualifiés"; }
     else if (left<=0){ cls = "warn"; txt = "Les "+CHALLENGE_200K_MAX_OPENS+" ouvertures du Challenge 200k sont utilisées."; }
-    else if (run && run.phase==="failed" && n===0){ cls = "fail"; txt = "Dernier passage échoué : la série est repartie à 0. Relance un Challenge 200k."; }
-    else if (n>0){ txt = "Encore "+(HARDCORE_200K_TARGET-n)+" passage"+(HARDCORE_200K_TARGET-n>1?"s":"")+" d'affilée. Lance le suivant quand tu es prêt."; }
-    else { txt = "Aucun passage en cours. Ta série commence au premier Challenge 200k réussi."; }
+    else if (run && run.phase==="failed" && n===0){ cls = "fail"; txt = "Dernier passage échoué : la série est repartie à 0."; }
+    else if (n>0){ txt = "Encore "+(HARDCORE_200K_TARGET-n)+" passage"+(HARDCORE_200K_TARGET-n>1?"s":"")+" d'affilée."; }
+    else { txt = "Ta série commence au premier Challenge 200k réussi."; }
     setText(live, txt);
-    live.className = "cz-band-live"+(cls?" "+cls:"");
+    live.className = "cq-status"+(cls?" "+cls:"");
   }
-  setText($("cz-prize-note"), done ? "🏆 Tu as réussi la série. Contacte le bureau pour récupérer ta récompense." : "Série validée ? Contacte le bureau pour récupérer ta récompense.");
 }
 function renderChallengeBanner(){
   renderHardcoreChallenge();
