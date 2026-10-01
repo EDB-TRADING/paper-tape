@@ -2301,22 +2301,29 @@
   .cq-node.current .cq-lbl{color:var(--text);}
   .cq-node.live .cq-dot{border-color:var(--long);color:var(--long);box-shadow:0 0 0 5px color-mix(in srgb, var(--long) 14%, transparent);}
   .cq-node-end.done .cq-dot{background:var(--text);border-color:var(--text);color:var(--bg);}
-  .cq-rules{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);column-gap:48px;row-gap:24px;scroll-margin-top:calc(var(--topbar-h) + 16px);}
-  .cq-rules-intro p{font-size:14px;line-height:1.65;color:var(--text-dim);margin:14px 0 0;max-width:360px;}
-  .cq-spec{border-top:1px solid var(--border-soft);}
-  .cq-spec > div{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:13px 0;border-bottom:1px solid var(--border-soft);font-size:14px;}
-  .cq-spec span{color:var(--text-dim);}
-  .cq-spec b{font-family:var(--sans);font-variant-numeric:tabular-nums;font-weight:600;color:var(--text);text-align:right;}
-  .cq-spec b em{font-style:normal;font-weight:400;color:var(--text-faint);font-size:12.5px;}
-  .cq-notes{grid-column:2;margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;}
-  .cq-notes li{position:relative;padding-left:16px;font-size:13px;line-height:1.6;color:var(--text-faint);}
-  .cq-notes li::before{content:"";position:absolute;left:0;top:9px;width:5px;height:1px;background:var(--text-faint);}
+  .cq-rules{scroll-margin-top:calc(var(--topbar-h) + 16px);}
+  .cq-rules-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px 48px;flex-wrap:wrap;margin-bottom:26px;}
+  .cq-rules-head p{margin:0;font-size:14px;line-height:1.65;color:var(--text-dim);max-width:440px;}
+  .cq-groups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+  .cq-group{background:var(--panel-2);border:1px solid var(--border-soft);border-radius:14px;padding:18px 20px 16px;display:flex;flex-direction:column;}
+  .cq-group-h{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:var(--text);padding-bottom:12px;margin-bottom:2px;border-bottom:1px solid var(--border-soft);}
+  .cq-group-h .num{font-family:var(--mono);font-size:10.5px;font-weight:500;color:var(--text-faint);padding:2px 6px;border:1px solid var(--border);border-radius:5px;}
+  .cq-row{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:11px 0;border-bottom:1px dashed color-mix(in srgb, var(--border) 70%, transparent);font-size:13.5px;}
+  .cq-row span{color:var(--text-dim);}
+  .cq-row b{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--text);white-space:nowrap;letter-spacing:-.01em;}
+  .cq-row b.up{color:var(--long);}
+  .cq-row b.down{color:var(--short);}
+  .cq-group-note{margin:auto 0 0;padding-top:12px;font-size:12px;line-height:1.55;color:var(--text-faint);}
+  .cq-callout{display:flex;gap:14px;align-items:flex-start;margin-top:14px;padding:16px 20px;border-radius:14px;border:1px solid var(--border-soft);background:color-mix(in srgb, var(--accent) 5%, transparent);}
+  .cq-callout .ic{flex:none;width:18px;height:18px;color:var(--accent);margin-top:1px;}
+  .cq-callout ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 28px;}
+  .cq-callout li{font-size:12.5px;line-height:1.55;color:var(--text-dim);}
   @media (max-width:1020px){
     .cq-hero{grid-template-columns:minmax(0,1fr);padding:40px 32px;}
     .cq-card-wrap{justify-content:flex-start;}
     .cq-card{transform:none;max-width:380px;}
-    .cq-rules{grid-template-columns:minmax(0,1fr);}
-    .cq-notes{grid-column:1;}
+    .cq-groups{grid-template-columns:minmax(0,1fr);}
+    .cq-callout ul{grid-template-columns:minmax(0,1fr);}
   }
   @media (max-width:640px){
     .cq{gap:14px;}
@@ -2415,6 +2422,63 @@
     .tx-gallery{padding:2px 16px 16px 18px;gap:8px;}
     .tx-comment{font-size:15px;}
     .tx-ribbon{padding:9px 18px;}
+  }
+  /* ---------- Panneau admin simplifié (.adm-*) ---------- */
+  .adm{max-width:1320px;margin:0 auto;display:flex;flex-direction:column;gap:14px;}
+  .adm .card{margin:0;}
+  .adm-head{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;padding:24px 28px;border-radius:18px;border:1px solid var(--border-soft);
+    background:radial-gradient(600px 240px at 0% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%), linear-gradient(135deg, var(--panel-2), var(--panel) 70%);}
+  .adm-head h1{font-size:30px;letter-spacing:-.02em;margin:6px 0 14px;}
+  .adm-kpis{display:flex;flex-wrap:wrap;gap:10px;}
+  .adm-kpis > div{display:flex;align-items:baseline;gap:8px;padding:9px 14px;border-radius:12px;background:color-mix(in srgb, var(--bg) 40%, transparent);border:1px solid var(--border-soft);}
+  .adm-kpis b{font-size:20px;font-weight:600;}
+  .adm-kpis span{font-size:12.5px;color:var(--text-faint);}
+  .adm-tabs{max-width:720px;}
+  .adm-tabs button{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;}
+  .adm-tabs button i{font-style:normal;font-family:var(--mono);font-size:10.5px;padding:1px 7px;border-radius:999px;background:var(--accent);color:var(--on-accent,#fff);}
+  .adm-tabs button i:empty{display:none;}
+  .adm-subtabs{max-width:420px;margin-bottom:14px;}
+  .adm-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+  .adm-search{display:flex;align-items:center;gap:8px;background:var(--panel-2);border:1px solid var(--border-soft);border-radius:10px;padding:0 12px;flex:1;min-width:220px;max-width:380px;}
+  .adm-search span{color:var(--text-faint);font-size:16px;}
+  .adm-search input{flex:1;background:none;border:none;outline:none;color:var(--text);font:inherit;font-size:13.5px;padding:9px 0;min-width:0;}
+  .adm-search:focus-within{border-color:var(--accent);}
+  .adm-filters{display:flex;gap:6px;flex-wrap:wrap;flex:1;}
+  .adm-table-wrap{overflow-x:auto;}
+  .adm-table td{vertical-align:middle !important;}
+  .adm-row:hover td{background:color-mix(in srgb, var(--text) 3%, transparent);}
+  .adm-user{display:flex;align-items:center;gap:10px;min-width:180px;}
+  .adm-user b{display:block;font-size:13.5px;font-weight:600;}
+  .adm-user b em{font-style:normal;font-weight:400;color:var(--text-faint);font-size:12px;}
+  .adm-user small{display:block;font-size:11.5px;color:var(--text-faint);}
+  .adm-tags{display:flex;gap:5px;flex-wrap:wrap;}
+  .adm-tag{font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:6px;background:var(--panel-2);color:var(--text-dim);white-space:nowrap;}
+  .adm-tag.plus{color:var(--gold);background:color-mix(in srgb, var(--gold) 13%, transparent);}
+  .adm-tag.req{color:var(--warn);background:color-mix(in srgb, var(--warn) 13%, transparent);}
+  .adm-tag.admin{color:var(--long);background:color-mix(in srgb, var(--long) 13%, transparent);}
+  .adm-cell-btn{text-align:right;}
+  .adm-manage{font:600 12.5px var(--sans);color:var(--text);background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;cursor:pointer;}
+  .adm-manage:hover,.adm-manage.is-open{border-color:var(--accent);color:var(--accent);}
+  .adm-actions{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
+  .adm-act-group{display:flex;align-items:center;flex-wrap:wrap;gap:6px;padding:8px 10px;border:1px solid var(--border-soft);border-radius:12px;background:var(--panel-2);}
+  .adm-act-group > span{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-right:4px;}
+  .adm-act{font:500 12.5px var(--sans);color:var(--text);background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:6px 11px;cursor:pointer;}
+  .adm-act:hover{border-color:var(--text-faint);}
+  .adm-act.gold{color:var(--gold);}
+  .adm-act.warn{color:var(--warn);}
+  .adm-act.danger{color:var(--short);border-color:color-mix(in srgb, var(--short) 40%, var(--border));}
+  .adm-act.danger:hover{background:color-mix(in srgb, var(--short) 12%, var(--panel));}
+  .adm-act-group.danger{margin-left:auto;}
+  .adm-foot{margin-top:10px;}
+  .adm .admin-detail{max-height:620px;padding:16px 18px;}
+  @media (max-width:720px){
+    .adm-head{padding:20px 16px;}
+    .adm-col-opt{display:none;}
+    .adm-act-group.danger{margin-left:0;}
+    .adm-search{max-width:none;flex-basis:100%;}
+    .adm-filters{flex:1 1 auto;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;}
+    .adm-tabs{overflow-x:auto;scrollbar-width:none;}
+    .adm-tabs button{flex:0 0 auto;}
   }
   /* ---------- Chat façon Discord ---------- */
   .dc{display:grid;grid-template-columns:240px minmax(0,1fr) 240px;height:calc(100dvh - var(--topbar-h) - 50px);min-height:460px;border:1px solid var(--border-soft);border-radius:16px;overflow:hidden;background:var(--panel);box-shadow:var(--shadow-card);position:relative;}
@@ -3903,27 +3967,44 @@
           </section>
 
           <section class="cq-panel cq-rules reveal" id="cq-rules">
-            <div class="cq-rules-intro">
-              <span class="cq-eyebrow">Règlement</span>
-              <h2>Les conditions</h2>
-              <p>Mêmes règles que le Challenge classique, sur le seul palier 200 000 $. La série doit être parfaite : le moindre échec la remet à zéro.</p>
+            <div class="cq-rules-head">
+              <div>
+                <span class="cq-eyebrow">Règlement</span>
+                <h2>Les conditions</h2>
+              </div>
+              <p>Mêmes règles que le Challenge classique, sur le seul palier 200&nbsp;000&nbsp;$. La série doit être parfaite : le moindre échec la remet à zéro.</p>
             </div>
-            <div class="cq-spec">
-              <div><span>Palier</span><b class="num">200 000 $ uniquement</b></div>
-              <div><span>Objectif étape 1</span><b class="num">+10 %</b></div>
-              <div><span>Objectif étape 2</span><b class="num">+5 %</b></div>
-              <div><span>Perte journalière max</span><b class="num">−5 %</b></div>
-              <div><span>Drawdown max</span><b class="num">−10 %</b></div>
-              <div><span>Levier max</span><b class="num">x20</b></div>
-              <div><span>Trades qualifiés par passage</span><b class="num">≥ 5 <em>(PnL ≥ 1 000 $)</em></b></div>
-              <div><span>Série requise</span><b class="num">5 d'affilée</b></div>
-              <div><span>Ouvertures du 200k</span><b class="num">30 max, à vie</b></div>
+            <div class="cq-groups">
+              <div class="cq-group">
+                <div class="cq-group-h"><span class="num">01</span>Objectifs</div>
+                <div class="cq-row"><span>Étape 1 · Challenge</span><b class="up">+10 %</b></div>
+                <div class="cq-row"><span>Étape 2 · Vérification</span><b class="up">+5 %</b></div>
+                <p class="cq-group-note">Le second objectif part de l'équité atteinte à la fin de l'étape 1.</p>
+              </div>
+              <div class="cq-group">
+                <div class="cq-group-h"><span class="num">02</span>Limites de risque</div>
+                <div class="cq-row"><span>Perte journalière max</span><b class="down">−5 %</b></div>
+                <div class="cq-row"><span>Drawdown max</span><b class="down">−10 %</b></div>
+                <div class="cq-row"><span>Levier max</span><b>x20</b></div>
+                <p class="cq-group-note">Un seul dépassement et le passage est perdu.</p>
+              </div>
+              <div class="cq-group">
+                <div class="cq-group-h"><span class="num">03</span>Pour le concours</div>
+                <div class="cq-row"><span>Palier</span><b>200 000 $</b></div>
+                <div class="cq-row"><span>Trades qualifiés / passage</span><b>≥ 5</b></div>
+                <div class="cq-row"><span>Série requise</span><b>5 d'affilée</b></div>
+                <div class="cq-row"><span>Ouvertures du 200k</span><b>30 max</b></div>
+                <p class="cq-group-note">Trade qualifié : PnL d'au moins 1 000 $, gain ou perte.</p>
+              </div>
             </div>
-            <ul class="cq-notes">
-              <li>Les autres paliers ne comptent pas pour le concours, ni en positif ni en négatif.</li>
-              <li>Un passage financé avec moins de 5 trades qualifiés ne compte pas et remet la série à zéro, comme un échec.</li>
-              <li>Série validée : contacte le bureau pour récupérer ta récompense. Sur Paper Tape, tout se joue en simulation, sans argent réel.</li>
-            </ul>
+            <div class="cq-callout">
+              <svg class="ic" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              <ul>
+                <li>Les autres paliers ne comptent pas, ni en positif ni en négatif.</li>
+                <li>Un passage financé avec moins de 5 trades qualifiés remet la série à zéro, comme un échec.</li>
+                <li>Série validée : contacte le bureau pour ta récompense. Tout se joue en simulation, sans argent réel.</li>
+              </ul>
+            </div>
           </section>
           <p class="chart-note cedb-credit">Photo : Unsplash (Oğuzhan Akdoğan).</p>
         </div>
@@ -4046,21 +4127,50 @@
 
     <!-- ================= ADMIN ================= -->
     <section class="view" id="view-admin">
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
-          <h3 style="margin:0;">Panneau admin — tous les traders</h3>
+      <div class="adm">
+        <header class="adm-head">
+          <div class="adm-head-main">
+            <span class="tx-kicker"><i></i>Bureau EDB</span>
+            <h1>Admin</h1>
+            <div class="adm-kpis">
+              <div><b class="num" id="adm-k-traders">—</b><span>traders</span></div>
+              <div><b class="num" id="adm-k-plus">—</b><span>membres EDB+</span></div>
+              <div><b class="num" id="adm-k-req">—</b><span>demandes en attente</span></div>
+              <div><b class="num" id="adm-k-fb">—</b><span>retours</span></div>
+            </div>
+          </div>
+          <button type="button" class="nw-refresh" id="adm-refresh-all">↻ Tout actualiser</button>
+        </header>
+        <div class="seg adm-tabs" id="adm-tabs">
+          <button type="button" class="on-mode active" data-adm-tab="traders">👥 Traders</button>
+          <button type="button" class="on-mode" data-adm-tab="requests">💬 Demandes EDB+ <i id="adm-t-req"></i></button>
+          <button type="button" class="on-mode" data-adm-tab="publish">📈 Publier</button>
+          <button type="button" class="on-mode" data-adm-tab="feedback">🐞 Retours <i id="adm-t-fb"></i></button>
+        </div>
+        <div class="adm-pane" data-adm-pane="traders">
+      <div class="card adm-card">
+        <div class="adm-toolbar">
+          <label class="adm-search"><span aria-hidden="true">⌕</span><input type="search" id="adm-search" placeholder="Rechercher un pseudo ou un email"></label>
+          <div class="adm-filters" id="adm-filters">
+            <button type="button" class="nw-chip is-active" data-adm-filter="all">Tous</button>
+            <button type="button" class="nw-chip" data-adm-filter="plus">EDB+</button>
+            <button type="button" class="nw-chip" data-adm-filter="req">Demandes</button>
+            <button type="button" class="nw-chip" data-adm-filter="admin">Admins</button>
+          </div>
           <button class="pos-close" id="admin-refresh">🔄 Actualiser</button>
         </div>
-        <div class="chart-note" style="margin-bottom:10px;">Vue et contrôle de tous les comptes EDB. Réinitialiser et ajuster un solde sont irréversibles — une confirmation est demandée à chaque fois.</div>
         <div id="admin-status" class="chart-note"></div>
-        <div style="overflow-x:auto;">
-          <table class="lb-table">
-            <thead><tr><th>Trader</th><th>Email</th><th>Équité</th><th>Cash</th><th>PnL ouvert</th><th>Positions</th><th>Dernière activité</th><th>Temps passé</th><th>EDB+</th><th>Actions</th></tr></thead>
-            <tbody id="admin-body"><tr><td colspan="10" class="empty-note">Clique sur Actualiser pour charger la liste.</td></tr></tbody>
+        <div class="adm-table-wrap">
+          <table class="lb-table adm-table">
+            <thead><tr><th>Trader</th><th class="num">Équité</th><th>Dernière activité</th><th class="adm-col-opt">Temps passé</th><th>Statut</th><th></th></tr></thead>
+            <tbody id="admin-body"><tr><td colspan="6" class="empty-note">Chargement…</td></tr></tbody>
           </table>
         </div>
+        <p class="chart-note adm-foot">Clique sur « Gérer » pour voir le détail d'un trader et agir sur son compte. Chaque action irréversible demande une confirmation.</p>
       </div>
-      <div class="card" style="margin-top:14px;">
+        </div>
+        <div class="adm-pane" data-adm-pane="requests" hidden>
+      <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
           <h3 style="margin:0;">Discussions EDB+</h3>
           <button class="pos-close" id="admin-edbplus-chat-refresh">🔄 Actualiser</button>
@@ -4074,7 +4184,14 @@
           </table>
         </div>
       </div>
-      <div class="card" style="margin-top:14px;">
+        </div>
+        <div class="adm-pane" data-adm-pane="publish" hidden>
+          <div class="seg adm-subtabs" id="adm-pub-tabs">
+            <button type="button" class="on-mode active" data-adm-pub="trade">Publier un trade</button>
+            <button type="button" class="on-mode" data-adm-pub="analysis">Publier une analyse</button>
+          </div>
+          <div data-adm-pub-pane="trade">
+      <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
           <h3 style="margin:0;">Trades EDB+ — publier un trade</h3>
           <button class="pos-close" id="admin-trades-refresh">🔄 Actualiser</button>
@@ -4140,7 +4257,9 @@
           </table>
         </div>
       </div>
-      <div class="card" style="margin-top:14px;">
+          </div>
+          <div data-adm-pub-pane="analysis" hidden>
+      <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
           <h3 style="margin:0;">Analyses EDB+ — publier une analyse</h3>
           <button class="pos-close" id="admin-analyses-refresh">🔄 Actualiser</button>
@@ -4181,7 +4300,10 @@
           </table>
         </div>
       </div>
-      <div class="card" style="margin-top:14px;">
+          </div>
+        </div>
+        <div class="adm-pane" data-adm-pane="feedback" hidden>
+      <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
           <h3 style="margin:0;">Retours — bugs &amp; idées</h3>
           <button class="pos-close" id="admin-feedback-refresh">🔄 Actualiser</button>
@@ -4193,6 +4315,8 @@
             <thead><tr><th>Type</th><th>Trader</th><th>Visibilité</th><th>Message</th><th>Date</th><th>Actions</th></tr></thead>
             <tbody id="admin-feedback-body"><tr><td colspan="6" class="empty-note">Clique sur Actualiser pour charger les retours.</td></tr></tbody>
           </table>
+        </div>
+      </div>
         </div>
       </div>
     </section>
@@ -18287,47 +18411,106 @@ async function loadAdminTraders(){
   }catch(e){
     console.warn("admin load failed", e);
     if (status) status.textContent = "Erreur de chargement (vérifie les règles Firestore — voir SERVER_SETUP.md).";
-    if (body) body.innerHTML = '<tr><td colspan="10" class="empty-note">Impossible de charger la liste.</td></tr>';
+    if (body) body.innerHTML = '<tr><td colspan="6" class="empty-note">Impossible de charger la liste.</td></tr>';
   }
+}
+let adminFilter = "all", adminQuery = "";
+function adminFilteredDocs(){
+  const q = adminQuery.trim().toLowerCase();
+  return adminDocs.filter(doc=>{
+    const d = doc.data();
+    if (adminFilter==="plus" && !d.edbPlus) return false;
+    if (adminFilter==="req" && !(d.edbPlusRequested && !d.edbPlus)) return false;
+    if (adminFilter==="admin" && !d.isAdmin) return false;
+    if (q && !((d.username||"")+" "+(d.email||"")).toLowerCase().includes(q)) return false;
+    return true;
+  });
 }
 function renderAdminTable(){
   const body = document.getElementById("admin-body");
+  adminUpdateKpis();
   if (!body) return;
-  if (adminDocs.length===0){ body.innerHTML = '<tr><td colspan="10" class="empty-note">Aucun trader.</td></tr>'; return; }
-  body.innerHTML = adminDocs.map(doc=>{
+  if (adminDocs.length===0){ body.innerHTML = '<tr><td colspan="6" class="empty-note">Aucun trader.</td></tr>'; return; }
+  const docs = adminFilteredDocs();
+  if (docs.length===0){ body.innerHTML = '<tr><td colspan="6" class="empty-note">Aucun trader ne correspond.</td></tr>'; return; }
+  body.innerHTML = docs.map(doc=>{
     const d = doc.data();
     const id = doc.id;
     const eq = typeof d.equity==="number" ? d.equity : (typeof d.cash==="number" ? d.cash : null);
-    const cash = typeof d.cash==="number" ? d.cash : null;
-    const openPnl = (eq!=null && cash!=null) ? eq-cash : null;
-    const nPos = Array.isArray(d.positions) ? d.positions.length : 0;
-    const edbPlusCell = d.edbPlus
-      ? '<span style="color:var(--gold);">✅ Actif</span>'
-      : (d.edbPlusRequested ? '<span style="color:var(--warn);">⏳ Demande</span>' : '<span class="chart-note" style="display:inline;">—</span>');
+    const tags = [];
+    if (d.isAdmin) tags.push('<span class="adm-tag admin">Admin</span>');
+    if (d.edbPlus) tags.push('<span class="adm-tag plus">EDB+</span>');
+    else if (d.edbPlusRequested) tags.push('<span class="adm-tag req">Demande EDB+</span>');
+    if (d.challenge && d.challenge.phase && d.challenge.phase!=="failed") tags.push('<span class="adm-tag">Challenge</span>');
+    const name = String(d.username||"—");
     return ''+
-      '<tr>'+
-        '<td>'+escapeHtml(d.username||"—")+(id===clientId?' <span class="chart-note" style="display:inline;">(toi)</span>':'')+'</td>'+
-        '<td>'+escapeHtml(d.email||"invité")+'</td>'+
+      '<tr class="adm-row">'+
+        '<td><div class="adm-user"><span class="tx-avatar">'+escapeHtml(name.charAt(0).toUpperCase())+'</span><span><b>'+escapeHtml(name)+(id===clientId?' <em>(toi)</em>':'')+'</b><small>'+escapeHtml(d.email||"invité")+'</small></span></div></td>'+
         '<td class="num">'+fmtMoney(eq)+'</td>'+
-        '<td class="num">'+fmtMoney(cash)+'</td>'+
-        '<td class="num '+(openPnl>0?"up":openPnl<0?"down":"")+'">'+(openPnl!=null?fmtMoney(openPnl):"—")+'</td>'+
-        '<td>'+nPos+'</td>'+
         '<td>'+fmtWhen(d.lastActiveAt)+'</td>'+
-        '<td class="num">'+fmtDuration(d.totalTimeSpent)+'</td>'+
-        '<td>'+edbPlusCell+'</td>'+
-        '<td class="admin-actions">'+
-          '<button class="pos-close" data-admin-view="'+id+'">Détails</button>'+
-          '<button class="pos-close" data-admin-adjust="'+id+'">Solde</button>'+
-          '<button class="pos-close" data-admin-badges="'+id+'">Badges</button>'+
-          '<button class="pos-close" data-admin-edbplus="'+id+'" style="color:var(--gold);">'+(d.edbPlus?"Retirer EDB+":"Activer EDB+")+'</button>'+
-          '<button class="pos-close" data-admin-isadmin="'+id+'" style="color:var(--long);">'+(d.isAdmin?"Retirer admin":"Passer admin")+'</button>'+
-          '<button class="pos-close" data-admin-reset-quiz="'+id+'" style="color:var(--warn);">Reset quiz</button>'+
-          '<button class="pos-close" data-admin-reset="'+id+'" style="color:var(--warn);">Reset</button>'+
-          '<button class="pos-close" data-admin-delete="'+id+'" style="color:var(--short);">Supprimer</button>'+
-        '</td>'+
+        '<td class="num adm-col-opt">'+fmtDuration(d.totalTimeSpent)+'</td>'+
+        '<td><div class="adm-tags">'+(tags.join("")||'<span class="chart-note" style="display:inline;">—</span>')+'</div></td>'+
+        '<td class="adm-cell-btn"><button class="adm-manage" data-admin-view="'+id+'">Gérer</button></td>'+
       '</tr>'+
-      '<tr class="admin-detail-toggle-row" id="admin-detail-'+id+'" hidden><td colspan="10"><div class="admin-detail"></div></td></tr>';
+      '<tr class="admin-detail-toggle-row" id="admin-detail-'+id+'" hidden><td colspan="6"><div class="admin-detail"></div></td></tr>';
   }).join("");
+}
+// Actions sur un trader, rangées par thème (affichées dans le panneau « Gérer »).
+function adminActionsHtml(id, d){
+  const btn = (attr, label, cls)=>'<button type="button" class="adm-act'+(cls?" "+cls:"")+'" '+attr+'="'+id+'">'+label+'</button>';
+  const hasInvest = !!(d.invest || typeof d.investValue==="number");
+  return '<div class="adm-actions">'+
+    '<div class="adm-act-group"><span>Accès</span>'+
+      btn("data-admin-edbplus", d.edbPlus?"Retirer EDB+":"Activer EDB+", "gold")+
+      btn("data-admin-isadmin", d.isAdmin?"Retirer admin":"Passer admin")+
+    '</div>'+
+    '<div class="adm-act-group"><span>Compte</span>'+
+      btn("data-admin-adjust","Ajuster le solde")+
+      btn("data-admin-badges","Badges")+
+    '</div>'+
+    '<div class="adm-act-group"><span>Réinitialiser</span>'+
+      btn("data-admin-reset-quiz","Quiz")+
+      btn("data-admin-reset-invest","Investissement"+(hasInvest?"":" (vide)"), "warn")+
+      btn("data-admin-reset","Tout le compte", "warn")+
+    '</div>'+
+    '<div class="adm-act-group danger"><span>Danger</span>'+
+      btn("data-admin-delete","Supprimer le trader", "danger")+
+    '</div>'+
+  '</div>';
+}
+function adminUpdateKpis(){
+  const set = (id,v)=>{ const el = document.getElementById(id); if (el) el.textContent = v; };
+  const chats = (typeof adminEdbPlusChatDocs!=="undefined") ? adminEdbPlusChatDocs : [];
+  const fbs = (typeof adminFeedbackDocs!=="undefined") ? adminFeedbackDocs : [];
+  const pending = chats.filter(x=>{ const d = x.data(); return d.lastMessageBy==="trader" && d.status!=="closed"; }).length;
+  if (adminDocs.length){ set("adm-k-traders", String(adminDocs.length)); set("adm-k-plus", String(adminDocs.filter(x=>x.data().edbPlus).length)); }
+  set("adm-k-req", String(pending));
+  set("adm-k-fb", String(fbs.length));
+  set("adm-t-req", pending ? String(pending) : "");
+  set("adm-t-fb", fbs.length ? String(fbs.length) : "");
+}
+// Remet à zéro uniquement l'espace Investir (PEA + CTO) : portefeuilles,
+// historique et place au classement Investissement. Le compte de trading,
+// le challenge, les quiz et le reste du profil ne sont pas touchés. Au
+// prochain passage sur Investir, le trader repart d'un espace neuf.
+async function adminResetTraderInvest(id){
+  const doc = adminFindDoc(id);
+  const label = doc ? (doc.data().username||id) : id;
+  if (!confirm('Réinitialiser l\'espace Investissement (PEA + CTO) de "'+label+'" ? Positions, historique et classement Investissement repartent à zéro. Son compte de trading, son challenge et ses quiz ne sont pas touchés. Si le trader est connecté en ce moment, il doit recharger la page. Irréversible.')) return;
+  try{
+    const del = firebase.firestore.FieldValue.delete();
+    await db.collection("traders").doc(id).update({invest: del, investValue: del, investPerf: del, investLines: del, updatedAt: new Date().toISOString()});
+    if (id===clientId){
+      state.invest = null;
+      hydrateStateFromDoc(await db.collection("traders").doc(id).get());
+      renderAll();
+      if (typeof renderInvest==="function") renderInvest();
+    }
+    loadAdminTraders();
+  }catch(e){
+    console.warn("admin invest reset failed", e);
+    alert("Échec de la réinitialisation de l'investissement — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).");
+  }
 }
 function adminFindDoc(id){ return adminDocs.find(d=>d.id===id); }
 async function adminResetTrader(id){
@@ -18795,12 +18978,16 @@ function adminDetailHtml(d){
 function adminToggleDetail(id){
   const row = document.getElementById("admin-detail-"+id);
   if (!row) return;
-  row.hidden = !row.hidden;
-  if (!row.hidden){
-    const doc = adminFindDoc(id);
-    const box = row.querySelector(".admin-detail");
-    if (doc && box) box.innerHTML = adminDetailHtml(doc.data());
-  }
+  const opening = row.hidden;
+  document.querySelectorAll("#admin-body .admin-detail-toggle-row").forEach(r=>{ r.hidden = true; });
+  document.querySelectorAll("#admin-body .adm-manage").forEach(b=>{ b.classList.remove("is-open"); b.textContent = "Gérer"; });
+  if (!opening) return;
+  row.hidden = false;
+  const btn = document.querySelector('#admin-body [data-admin-view="'+id+'"]');
+  if (btn){ btn.classList.add("is-open"); btn.textContent = "Fermer"; }
+  const doc = adminFindDoc(id);
+  const box = row.querySelector(".admin-detail");
+  if (doc && box) box.innerHTML = adminActionsHtml(id, doc.data()) + adminDetailHtml(doc.data());
 }
 let adminEdbPlusChatDocs = [];
 async function loadAdminEdbPlusChats(){
@@ -18814,6 +19001,7 @@ async function loadAdminEdbPlusChats(){
     const pending = adminEdbPlusChatDocs.filter(d=>d.data().lastMessageBy==="trader" && d.data().status!=="closed").length;
     if (status) status.textContent = adminEdbPlusChatDocs.length+(adminEdbPlusChatDocs.length>1?" discussions":" discussion")+(pending>0?" — "+pending+" en attente de réponse":"")+" — dernière actualisation "+new Date().toLocaleTimeString("fr-FR");
     renderAdminEdbPlusChats();
+    adminUpdateKpis();
   }catch(e){
     console.warn("admin edbplus chats load failed", e);
     if (status) status.textContent = "Erreur de chargement — vérifie que les règles Firestore edbplusChats sont bien déployées (SERVER_SETUP.md).";
@@ -18874,6 +19062,7 @@ async function loadAdminFeedback(){
     adminFeedbackDocs = snap.docs;
     if (status) status.textContent = adminFeedbackDocs.length+(adminFeedbackDocs.length>1?" retours":" retour")+" — dernière actualisation "+new Date().toLocaleTimeString("fr-FR");
     renderAdminFeedback();
+    adminUpdateKpis();
   }catch(e){
     console.warn("admin feedback load failed", e);
     if (status) status.textContent = "Erreur de chargement.";
@@ -19287,6 +19476,7 @@ function initAdminUI(){
       else if (t.dataset.adminEdbplus) adminToggleEdbPlus(t.dataset.adminEdbplus);
       else if (t.dataset.adminIsadmin) adminToggleIsAdmin(t.dataset.adminIsadmin);
       else if (t.dataset.adminResetQuiz) adminResetTraderQuiz(t.dataset.adminResetQuiz);
+      else if (t.dataset.adminResetInvest) adminResetTraderInvest(t.dataset.adminResetInvest);
       else if (t.dataset.adminReset) adminResetTrader(t.dataset.adminReset);
       else if (t.dataset.adminDelete) adminDeleteTrader(t.dataset.adminDelete);
     });
@@ -19405,6 +19595,25 @@ function initAdminUI(){
       if (t && t.dataset && t.dataset.adminAnalysisDelete) adminDeleteAnalysis(t.dataset.adminAnalysisDelete);
     });
   }
+  // Onglets du panneau admin
+  document.querySelectorAll("#adm-tabs [data-adm-tab]").forEach(b=>b.addEventListener("click", ()=>{
+    const tab = b.dataset.admTab;
+    document.querySelectorAll("#adm-tabs [data-adm-tab]").forEach(x=>x.classList.toggle("active", x===b));
+    document.querySelectorAll("#view-admin [data-adm-pane]").forEach(p=>{ p.hidden = p.dataset.admPane!==tab; });
+  }));
+  document.querySelectorAll("#adm-pub-tabs [data-adm-pub]").forEach(b=>b.addEventListener("click", ()=>{
+    document.querySelectorAll("#adm-pub-tabs [data-adm-pub]").forEach(x=>x.classList.toggle("active", x===b));
+    document.querySelectorAll("#view-admin [data-adm-pub-pane]").forEach(p=>{ p.hidden = p.dataset.admPubPane!==b.dataset.admPub; });
+  }));
+  const admSearch = document.getElementById("adm-search");
+  if (admSearch) admSearch.addEventListener("input", ()=>{ adminQuery = admSearch.value; renderAdminTable(); });
+  document.querySelectorAll("#adm-filters [data-adm-filter]").forEach(b=>b.addEventListener("click", ()=>{
+    adminFilter = b.dataset.admFilter;
+    document.querySelectorAll("#adm-filters [data-adm-filter]").forEach(x=>x.classList.toggle("is-active", x===b));
+    renderAdminTable();
+  }));
+  const admAll = document.getElementById("adm-refresh-all");
+  if (admAll) admAll.addEventListener("click", ()=>{ loadAdminTraders(); loadAdminEdbPlusChats(); loadAdminFeedback(); loadAdminTrades(); loadAdminAnalyses(); });
   document.querySelectorAll('nav.tabs button[data-view="admin"]').forEach(b=>{
     b.addEventListener("click", ()=>{
       if (adminDocs.length===0) loadAdminTraders();
