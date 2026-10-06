@@ -3210,6 +3210,40 @@
     .pos-grid .v{text-align:right;}
   }
 
+  /* ---------- Positions ouvertes v2 (.pos-v2) ---------- */
+  .pos-v2{position:relative;padding:12px 12px 11px 14px;border-left:2px solid var(--long);}
+  .pos-v2.side-short{border-left-color:var(--short);}
+  .pos-v2.is-warn{box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--warn) 35%, transparent);}
+  .pos-v2 .pos-head{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .pos-v2 .pos-id{display:flex;align-items:center;flex-wrap:wrap;gap:5px;min-width:0;}
+  .pos-v2 .pos-sym{font-size:13.5px;margin-right:2px;}
+  .pos-v2 .pos-badge{margin-left:0;font-size:9.5px;padding:2px 6px;}
+  .pos-v2 .pos-pnl{display:flex;flex-direction:column;align-items:flex-end;font-size:14px;line-height:1.15;white-space:nowrap;}
+  .pos-v2 .pos-pnl.up{color:var(--long);} .pos-v2 .pos-pnl.down{color:var(--short);}
+  .pos-v2 .pos-pnl small{font-size:10.5px;font-weight:500;opacity:.8;}
+  .pos-v2 .pos-grid{margin-top:10px;}
+  .pos-warn{margin-top:8px;font-size:11px;font-weight:600;color:var(--warn);}
+  .pos-bar{display:flex;align-items:stretch;gap:8px;margin-top:11px;}
+  .pos-tools{display:flex;flex:1;min-width:0;border:1px solid var(--border);border-radius:9px;overflow:hidden;background:var(--panel);}
+  .pos-tools .pos-tpsl{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:0;border:0;border-right:1px solid var(--border-soft);border-radius:0;background:none;padding:7px 6px;font:500 11.5px var(--sans);color:var(--text-dim);position:relative;}
+  .pos-tools .pos-tpsl:last-child{border-right:0;}
+  .pos-tools .pos-tpsl:hover{background:var(--panel-2);color:var(--text);}
+  .pos-tools .pos-tpsl.is-set{color:var(--accent);}
+  .pos-tools .pos-tpsl.is-set::after{content:"";position:absolute;top:5px;right:6px;width:5px;height:5px;border-radius:50%;background:var(--accent);}
+  .pos-ic{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+  .pos-v2 .pos-close-main{display:inline-flex;align-items:center;justify-content:center;gap:6px;flex:none;background:color-mix(in srgb, var(--short) 12%, transparent);border:1px solid color-mix(in srgb, var(--short) 45%, transparent);color:var(--short);border-radius:9px;padding:6px 12px;font:600 12px var(--sans);}
+  .pos-v2 .pos-close-main:hover{background:var(--short);color:#fff;filter:none;}
+  @container wbody (max-width: 460px){
+    .pos-tools .pos-lbl{display:none;}
+    .pos-tools .pos-tpsl{padding:8px 4px;}
+  }
+  @container wbody (max-width: 260px){
+    .pos-bar{flex-wrap:wrap;}
+    .pos-tools{flex-basis:100%;}
+    .pos-v2 .pos-close-main{flex:1 1 100%;}
+    .pos-v2 .pos-head{flex-wrap:wrap;}
+    .pos-v2 .pos-pnl{flex-direction:row;align-items:baseline;gap:6px;}
+  }
   /* ---------- Terminal : redimensionnement v2 ---------- */
   /* Molette : voir initWidgetWheel(). */
   .card.widget.is-wheel-active{box-shadow:0 0 0 1px color-mix(in srgb, var(--accent) 38%, transparent), var(--shadow-card);}
@@ -5462,6 +5496,7 @@ const LEVERAGE_PROGRESSION = [
   {trades:150, cap:200},
 ];
 function progressiveLeverageCap(tradesClosed){
+  if (typeof state!=="undefined" && state && state.isAdmin) return 200; // admins : x200 débloqué d'office (hors Challenge, plafonné à x20)
   const n = typeof tradesClosed==="number" ? tradesClosed : 0;
   let cap = LEVERAGE_PROGRESSION[0].cap;
   LEVERAGE_PROGRESSION.forEach(tier=>{ if (n>=tier.trades) cap = tier.cap; });
@@ -5729,6 +5764,7 @@ function hydrateStateFromDoc(snap){
   // fully mutable copy.
   const d = deepClone(snap.data()) || {};
   state.username = d.username || state.username;
+  state.usernameDirty = !d.username; // pas encore de pseudo enregistré : on l'écrira au prochain persist
   state.cash = typeof d.cash==="number" ? d.cash : state.cash;
   state.marginUsed = typeof d.marginUsed==="number" ? d.marginUsed : 0;
   state.positions = Array.isArray(d.positions) ? d.positions : [];
@@ -5995,7 +6031,11 @@ function persistAccount(){
         } else {
           const upd = Object.assign({}, payload);
           ADMIN_OWNED_FIELDS.forEach(k=>{ delete upd[k]; });
-          try{ await ref.update(upd); }
+          // Le pseudo n'est réécrit que quand le trader le change lui-même :
+          // sinon un renommage fait par un admin serait écrasé au prochain persist.
+          const nameDirty = !!state.usernameDirty;
+          if (!nameDirty) delete upd.username;
+          try{ await ref.update(upd); if (nameDirty) state.usernameDirty = false; }
           catch(e){
             const code = e && e.code || "";
             if (code==="not-found" || code==="firestore/not-found"){ accountDocExists = false; await createDoc(); }
@@ -6354,6 +6394,7 @@ function askFirstPseudo(done){
     const v = (input.value||"").trim();
     if (v.length<2){ msg.style.color="var(--warn)"; msg.textContent = "2 caractères minimum."; return; }
     state.username = v;
+    state.usernameDirty = true;
     persistAccount();
     renderAll();
     closeModal();
@@ -8320,20 +8361,18 @@ function renderPositions(){
     const pnl = posUnrealized(p);
     const pnlPct = (pnl/p.initMargin)*100;
     const distToLiq = p.side==="long" ? ((mp-p.liqPrice)/mp)*100 : ((p.liqPrice-mp)/mp)*100;
-    const warn = distToLiq<15;
-    return '<div class="pos-card">'+
-      '<div class="pos-top">'+
-        '<div><span class="pos-sym">'+p.symbol+'</span>'+
+    // Alerte quand le prix a parcouru plus de la moitié du chemin vers la
+    // liquidation (avant : <15 % fixe, donc toujours allumé dès x10).
+    const warn = distToLiq < Math.min(15, 50/(p.leverage||1));
+    const ic = (d)=>'<svg class="pos-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="'+d+'"/></svg>';
+    const hasTpsl = p.takeProfit!=null || p.stopLoss!=null;
+    return '<div class="pos-card pos-v2 side-'+p.side+(warn?' is-warn':'')+'">'+
+      '<div class="pos-head">'+
+        '<div class="pos-id"><span class="pos-sym">'+p.symbol+'</span>'+
           '<span class="pos-badge '+p.side+'">'+(p.side==="long"?"Long":"Short")+'</span>'+
-          '<span class="pos-badge mode">'+(p.mode==="cross"?"Cross":"Isolated")+' · x'+fmtLev(p.leverage)+'</span>'+
+          '<span class="pos-badge mode">'+(p.mode==="cross"?"Cross":"Iso")+' · x'+fmtLev(p.leverage)+'</span>'+
         '</div>'+
-        '<span class="pos-actions">'+
-          '<button class="pos-tpsl" data-tpsl="'+p.id+'" title="Take profit / stop loss">🎯<span class="pos-lbl"> TP/SL</span></button>'+
-          '<button class="pos-tpsl" data-be="'+p.id+'" title="Stop au point d\'entrée (break-even)">⚖️<span class="pos-lbl"> BE</span></button>'+
-          '<button class="pos-tpsl" data-partial="'+p.id+'" title="Clôture partielle">✂️<span class="pos-lbl"> Partiel</span></button>'+
-          '<button class="pos-tpsl" data-share="'+p.id+'" title="Partager">📤<span class="pos-lbl"> Partager</span></button>'+
-          '<button class="pos-close-main" data-close="'+p.id+'">✕ Fermer</button>'+
-        '</span>'+
+        '<div class="pos-pnl '+(pnl>=0?"up":"down")+'">'+fmtMoney(pnl)+'<small>'+fmtPct(pnlPct)+'</small></div>'+
       '</div>'+
       '<div class="pos-grid">'+
         '<div><div class="k">Taille</div><div class="v">'+fmtQty(p.sizeUnits)+' '+p.symbol+'</div></div>'+
@@ -8346,9 +8385,15 @@ function renderPositions(){
         '<div><div class="k">Stop Loss</div><div class="v '+(p.stopLoss!=null?"sl-set":"")+'">'+(p.stopLoss!=null?fmtPrice(p.stopLoss,a.decimals)+' <span style="font-size:10px;font-weight:400;">('+fmtMoneySigned(pnlAtPrice(p,p.stopLoss))+')</span>':"—")+'</div></div>'+
         '<div><div class="k">Frais</div><div class="v">'+fmtMoney(p.entryFee||0)+'</div></div>'+
       '</div>'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">'+
-        '<span class="pos-pnl '+(pnl>=0?"up":"down")+'">'+fmtMoney(pnl)+' <span style="font-size:10px;font-weight:400;">('+fmtPct(pnlPct)+')</span></span>'+
-        (warn?'<span class="hist-tag liq-warn">liquidation proche</span>':'')+
+      (warn?'<div class="pos-warn">⚠ Liquidation proche</div>':'')+
+      '<div class="pos-bar">'+
+        '<div class="pos-tools">'+
+          '<button class="pos-tpsl'+(hasTpsl?' is-set':'')+'" data-tpsl="'+p.id+'" title="Take profit / stop loss">'+ic("M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 12h.01")+'<span class="pos-lbl">TP/SL</span></button>'+
+          '<button class="pos-tpsl" data-be="'+p.id+'" title="Stop au point d\'entrée (break-even)">'+ic("M3 12h5M16 12h5M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z")+'<span class="pos-lbl">BE</span></button>'+
+          '<button class="pos-tpsl" data-partial="'+p.id+'" title="Clôture partielle">'+ic("M6 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12")+'<span class="pos-lbl">Partiel</span></button>'+
+          '<button class="pos-tpsl" data-share="'+p.id+'" title="Partager">'+ic("M12 15V3M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6")+'<span class="pos-lbl">Partager</span></button>'+
+        '</div>'+
+        '<button class="pos-close-main" data-close="'+p.id+'" title="Fermer la position">'+ic("M18 6 6 18M6 6l12 12")+'<span>Fermer</span></button>'+
       '</div>'+
     '</div>';
   }).join("");
@@ -17222,6 +17267,7 @@ function initEvents(){
   unameInput.addEventListener("change", ()=>{
     const v = unameInput.value.trim();
     state.username = v || randHandle();
+    state.usernameDirty = true;
     unameInput.value = state.username;
     const profileEcho = document.getElementById("profile-username-input");
     if (profileEcho && document.activeElement!==profileEcho) profileEcho.value = state.username;
@@ -17243,6 +17289,7 @@ function initEvents(){
     const saveProfileUsername = ()=>{
       const v = profileUnameInput.value.trim();
       state.username = v || randHandle();
+      state.usernameDirty = true;
       profileUnameInput.value = state.username;
       unameInput.value = state.username;
       persistAccount();
@@ -18465,6 +18512,7 @@ function adminActionsHtml(id, d){
       btn("data-admin-isadmin", d.isAdmin?"Retirer admin":"Passer admin")+
     '</div>'+
     '<div class="adm-act-group"><span>Compte</span>'+
+      btn("data-admin-rename","Renommer")+
       btn("data-admin-adjust","Ajuster le solde")+
       btn("data-admin-badges","Badges")+
     '</div>'+
@@ -18588,6 +18636,52 @@ async function adminResetTraderQuiz(id){
     console.warn("admin quiz reset failed", e);
     alert("Échec de la réinitialisation des quiz — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).");
   }
+}
+// Renommer un trader (pseudo affiché dans le classement, le chat, etc.).
+// Le client du trader ne réécrit plus son pseudo à chaque sauvegarde (voir
+// state.usernameDirty dans persistAccount), donc le renommage tient même
+// s'il est connecté ; il voit son nouveau pseudo au prochain chargement.
+function adminRenameTrader(id){
+  const doc = adminFindDoc(id);
+  if (!doc) return;
+  const d = doc.data();
+  const current = String(d.username||"");
+  openModal(
+    '<h3 style="margin-bottom:14px;">Renommer — '+escapeHtml(current||id)+'</h3>'+
+    '<div class="field-row"><label>Nouveau pseudo</label><input type="text" id="admin-rename-input" class="tpsl-input" maxlength="16" spellcheck="false" value="'+escapeHtml(current)+'" style="font-family:var(--sans);"></div>'+
+    '<div class="chart-note" id="admin-rename-msg" style="margin:8px 0;min-height:14px;">2 à 16 caractères. Les anciens messages du chat gardent l\'ancien nom.</div>'+
+    '<button class="btn-primary" id="admin-rename-confirm" style="width:100%;margin-top:6px;">Renommer</button>'
+  );
+  const input = document.getElementById("admin-rename-input");
+  const msg = document.getElementById("admin-rename-msg");
+  const btnOk = document.getElementById("admin-rename-confirm");
+  async function submit(){
+    const v = (input.value||"").trim().replace(/\s+/g," ");
+    if (v.length<2 || v.length>16){ msg.style.color="var(--warn)"; msg.textContent="Le pseudo doit faire entre 2 et 16 caractères."; return; }
+    if (v===current){ closeModal(); return; }
+    const lower = v.toLowerCase();
+    if (adminDocs.some(x=>x.id!==id && String(x.data().username||"").toLowerCase()===lower)){
+      msg.style.color="var(--warn)"; msg.textContent="Ce pseudo est déjà utilisé par un autre trader."; return;
+    }
+    btnOk.disabled = true;
+    try{
+      await db.collection("traders").doc(id).update({username: v, updatedAt: new Date().toISOString()});
+      if (id===clientId){
+        state.username = v; state.usernameDirty = false;
+        ["username-input","profile-username-input"].forEach(i=>{ const el = document.getElementById(i); if (el) el.value = v; });
+        renderAll();
+      }
+      closeModal();
+      loadAdminTraders();
+    }catch(e){
+      console.warn("admin rename failed", e);
+      msg.style.color="var(--warn)"; msg.textContent="Échec — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).";
+      btnOk.disabled = false;
+    }
+  }
+  btnOk.addEventListener("click", submit);
+  input.addEventListener("keydown", (e)=>{ if (e.key==="Enter") submit(); });
+  input.focus(); input.select();
 }
 function adminAdjustCash(id){
   const doc = adminFindDoc(id);
@@ -19472,6 +19566,7 @@ function initAdminUI(){
       if (!t || !t.dataset) return;
       if (t.dataset.adminView) adminToggleDetail(t.dataset.adminView);
       else if (t.dataset.adminAdjust) adminAdjustCash(t.dataset.adminAdjust);
+      else if (t.dataset.adminRename) adminRenameTrader(t.dataset.adminRename);
       else if (t.dataset.adminBadges) adminManageBadges(t.dataset.adminBadges);
       else if (t.dataset.adminEdbplus) adminToggleEdbPlus(t.dataset.adminEdbplus);
       else if (t.dataset.adminIsadmin) adminToggleIsAdmin(t.dataset.adminIsadmin);
