@@ -2460,6 +2460,15 @@
   .adm-manage{font:600 12.5px var(--sans);color:var(--text);background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;cursor:pointer;}
   .adm-manage:hover,.adm-manage.is-open{border-color:var(--accent);color:var(--accent);}
   .adm-actions{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
+  .adm-q-list{display:flex;flex-direction:column;gap:6px;max-height:min(440px, 60vh);overflow-y:auto;}
+  .adm-q-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border-soft);border-radius:10px;background:var(--panel-2);}
+  .adm-q-row.is-empty{opacity:.6;}
+  .adm-q-sf{margin-top:4px;border-color:color-mix(in srgb, var(--accent) 35%, var(--border-soft));}
+  .adm-q-ico{flex:none;width:28px;text-align:center;font-size:18px;}
+  .adm-q-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+  .adm-q-main b{font-size:13px;font-weight:600;}
+  .adm-q-main span{font-size:11.5px;color:var(--text-faint);}
+  .adm-act:disabled{opacity:.45;cursor:default;}
   .adm-act-group{display:flex;align-items:center;flex-wrap:wrap;gap:6px;padding:8px 10px;border:1px solid var(--border-soft);border-radius:12px;background:var(--panel-2);}
   .adm-act-group > span{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-right:4px;}
   .adm-act{font:500 12.5px var(--sans);color:var(--text);background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:6px 11px;cursor:pointer;}
@@ -5938,6 +5947,7 @@ function hydrateStateFromDoc(snap){
   state.username = d.username || state.username;
   state.usernameDirty = !d.username; // pas encore de pseudo enregistré : on l'écrira au prochain persist
   accountRev = typeof d.rev==="number" ? d.rev : 0;
+  ownAdminEpoch = typeof d.adminEpoch==="number" ? d.adminEpoch : 0;
   baseSig = tradingSig(d);
   state.cash = typeof d.cash==="number" ? d.cash : state.cash;
   state.marginUsed = typeof d.marginUsed==="number" ? d.marginUsed : 0;
@@ -6102,6 +6112,7 @@ async function resyncOwnTraderDoc(){
     const snap = await db.collection("traders").doc(id).get();
     if (id!==clientId || !snap.exists) return;
     const d = snap.data() || {};
+    if ((d.adminEpoch||0)!==ownAdminEpoch){ adoptAdminChanges(d); return; }
     const fromOtherTab = !!(d.writerTab && d.writerTab!==TAB_ID);
     const fromServer = !!(d.serverMarkedAt && d.serverMarkedAt!==ownLastServerMark);
     if (d.serverMarkedAt) ownLastServerMark = d.serverMarkedAt;
@@ -6194,6 +6205,11 @@ let persistForceHidden = false;
 // version dépassée (autre appareil passé entre-temps). Voir
 // resolvePersistConflict().
 let accountRev = 0;
+// Compteur des interventions admin (réinitialisations, ajustement du solde) :
+// chaque écriture admin de ce type fait +1 (et rev +2, voir
+// adminOverridePatch). Si l'appli voit un adminEpoch différent du sien, elle
+// reprend tout le document au lieu de renvoyer son ancien état.
+let ownAdminEpoch = 0;
 let baseSig = "";        // empreinte de l'état de trading au dernier accord avec le serveur
 let writeChain = Promise.resolve(); // une seule écriture à la fois, dans l'ordre
 // Empreinte de ce qui compte vraiment (positions, ordres, historique récent,
@@ -6208,6 +6224,20 @@ function tradingSig(d){
   const c = d.challenge, inv = d.invest;
   return [book(d), book(d.propBook), c ? [c.tier,c.phase,c.startedAt].join(":") : "-",
     inv ? arr(inv.history).length+":"+Math.round((+inv.reserve||0)*100) : "-"].join("#");
+}
+function adoptAdminChanges(raw, silent){
+  if (inBackgroundBookCheck || __liveBookNameOverride){ setTimeout(()=>adoptAdminChanges(raw, silent), 400); return; }
+  clearTimeout(persistTimer); persistPendingRun = null;
+  if (typeof sfAbort==="function") sfAbort();
+  quizScreenActive = false; // l'essai en cours vise peut-être un quiz qui vient d'être remis à zéro
+  hydrateStateFromDoc({data:()=>raw});
+  renderAll();
+  if (typeof renderBadgesGrid==="function") renderBadgesGrid();
+  if (typeof renderPnlCalendar==="function") renderPnlCalendar();
+  if (typeof renderPnlCalendarProp==="function") renderPnlCalendarProp();
+  const v = document.body.dataset.view;
+  if (v && v!=="admin" && document.getElementById("view-"+v)) switchView(v);
+  if (!silent) appToast("Un admin vient de réinitialiser une partie de ton compte : l'affichage a été mis à jour.");
 }
 function appToast(msg){
   let t = document.getElementById("app-toast");
@@ -6229,6 +6259,7 @@ async function resolvePersistConflict(ref, payload, upd, nameDirty){
   let snap = await ref.get();
   if (!snap.exists) return;
   let d = snap.data() || {};
+  if ((d.adminEpoch||0)!==ownAdminEpoch){ adoptAdminChanges(d); return; }
   const localSig = tradingSig(payload);
   if (tradingSig(d)===baseSig){
     upd.rev = (d.rev||0)+1;
@@ -6241,6 +6272,7 @@ async function resolvePersistConflict(ref, payload, upd, nameDirty){
       snap = await ref.get();
       if (!snap.exists) return;
       d = snap.data() || {};
+      if ((d.adminEpoch||0)!==ownAdminEpoch){ adoptAdminChanges(d); return; }
     }
   }
   const localChanged = localSig!==baseSig;
@@ -19239,6 +19271,9 @@ function renderAdminTable(){
       '</tr>'+
       '<tr class="admin-detail-toggle-row" id="admin-detail-'+id+'" hidden><td colspan="6"><div class="admin-detail"></div></td></tr>';
   }).join("");
+  // Après une action (réinitialisation, renommage…), le panneau du trader
+  // reste ouvert avec les chiffres à jour.
+  if (adminOpenId && document.getElementById("admin-detail-"+adminOpenId)) adminToggleDetail(adminOpenId);
 }
 // Actions sur un trader, rangées par thème (affichées dans le panneau « Gérer »).
 function adminActionsHtml(id, d){
@@ -19255,7 +19290,8 @@ function adminActionsHtml(id, d){
       btn("data-admin-badges","Badges")+
     '</div>'+
     '<div class="adm-act-group"><span>Réinitialiser</span>'+
-      btn("data-admin-reset-quiz","Quiz")+
+      btn("data-admin-reset-trading","Trading", "warn")+
+      btn("data-admin-quiz-menu","Quiz…")+
       btn("data-admin-reset-invest","Investissement"+(hasInvest?"":" (vide)"), "warn")+
       btn("data-admin-reset","Tout le compte", "warn")+
     '</div>'+
@@ -19285,11 +19321,10 @@ async function adminResetTraderInvest(id){
   if (!confirm('Réinitialiser l\'espace Investissement (PEA + CTO) de "'+label+'" ? Positions, historique et classement Investissement repartent à zéro. Son compte de trading, son challenge et ses quiz ne sont pas touchés. Si le trader est connecté en ce moment, il doit recharger la page. Irréversible.')) return;
   try{
     const del = firebase.firestore.FieldValue.delete();
-    await db.collection("traders").doc(id).update({invest: del, investValue: del, investPerf: del, investLines: del, updatedAt: new Date().toISOString()});
+    await db.collection("traders").doc(id).update(adminOverridePatch({invest: del, investValue: del, investPerf: del, investLines: del}));
     if (id===clientId){
       state.invest = null;
-      hydrateStateFromDoc(await db.collection("traders").doc(id).get());
-      renderAll();
+      await adminRefreshSelf(id);
       if (typeof renderInvest==="function") renderInvest();
     }
     loadAdminTraders();
@@ -19304,7 +19339,7 @@ async function adminResetTrader(id){
   const label = doc ? (doc.data().username||id) : id;
   if (!confirm('Réinitialiser intégralement le compte de "'+label+'" ? Cash, positions, ordres, historique (+ calendrier PnL), badges, journal, scores quiz/superflash ET le challenge prop firm (compte, historique de trades, statut, ET l\'historique des tentatives passées) repartent à zéro. Irréversible.')) return;
   try{
-    await db.collection("traders").doc(id).update({
+    await db.collection("traders").doc(id).update(adminOverridePatch({
       cash: START_CASH, marginUsed: 0, equity: START_CASH,
       positions: [], pendingOrders: [], history: [],
       badges: {}, journal: [],
@@ -19325,11 +19360,11 @@ async function adminResetTrader(id){
       propBook: null, propEquity: null, challenge: null, challengeHistory: [], propRank: firebase.firestore.FieldValue.delete(),
       copyNormalToProp: false, copyPropToNormal: false,
       invest: null, investValue: null, investPerf: null, investLines: null,
-      updatedAt: new Date().toISOString(), lastActiveAt: new Date().toISOString(),
-    });
+      weekStartEquity: START_CASH, weeklyPnl: 0, hasOpenActivity: false,
+      lastActiveAt: new Date().toISOString(),
+    }));
     if (id===clientId){
-      hydrateStateFromDoc(await db.collection("traders").doc(id).get());
-      renderAll();
+      await adminRefreshSelf(id);
       // The PnL calendar isn't part of renderAll() (it only normally
       // re-renders on navigating into Profil) — refresh it explicitly so a
       // self-reset while already sitting on Profil clears it immediately.
@@ -19363,16 +19398,154 @@ async function adminResetTraderQuiz(id){
       updatedAt: new Date().toISOString(),
     };
     QUIZ_ONLY_BADGE_IDS.forEach(bid=>{ patch["badges."+bid] = firebase.firestore.FieldValue.delete(); });
-    await db.collection("traders").doc(id).update(patch);
-    if (id===clientId){
-      hydrateStateFromDoc(await db.collection("traders").doc(id).get());
-      renderAll();
-      if (typeof renderBadgesGrid==="function") renderBadgesGrid();
-    }
+    await db.collection("traders").doc(id).update(adminOverridePatch(patch));
+    await adminRefreshSelf(id);
+    closeModal();
     loadAdminTraders();
   }catch(e){
     console.warn("admin quiz reset failed", e);
     alert("Échec de la réinitialisation des quiz — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).");
+  }
+}
+// Écriture admin qui doit l'emporter sur l'appli du trader si elle est
+// ouverte en ce moment : rev +2 (sa prochaine sauvegarde, partie de
+// l'ancienne version, est refusée par les règles même si elle ne touche pas
+// au trading — sinon elle réécrirait par exemple ses anciens scores de quiz)
+// et adminEpoch +1 (son appli voit alors qu'un admin est passé et recharge
+// tout le compte, voir adoptAdminChanges()).
+function adminOverridePatch(patch){
+  const inc = firebase.firestore.FieldValue.increment;
+  return Object.assign(patch, {rev: inc(2), adminEpoch: inc(1), updatedAt: new Date().toISOString()});
+}
+// L'admin agit sur son propre compte : on recharge l'état local tout de suite.
+async function adminRefreshSelf(id){
+  if (id!==clientId) return;
+  const snap = await db.collection("traders").doc(id).get();
+  if (snap.exists) adoptAdminChanges(snap.data(), true);
+}
+// Remet à zéro uniquement le compte de trading normal : cash, positions,
+// ordres, historique (donc calendrier PnL), statistiques et PnL de la
+// semaine. Challenge prop firm, investissement, quiz, badges, journal et
+// profil ne sont pas touchés.
+async function adminResetTraderTrading(id){
+  const doc = adminFindDoc(id);
+  const d = doc ? doc.data() : {};
+  const label = d.username || id;
+  if (!confirm('Réinitialiser le compte de trading de "'+label+'" ?\n\nCash remis à '+fmtMoney(START_CASH)+', positions et ordres supprimés, historique, statistiques et calendrier PnL vidés, PnL de la semaine remis à 0.\n\nNon touchés : challenge prop firm, investissement, quiz, badges, journal et profil. Irréversible.')) return;
+  const pb = d.propBook;
+  const propActive = !!(pb && ((Array.isArray(pb.positions) && pb.positions.length) || (Array.isArray(pb.pendingOrders) && pb.pendingOrders.length)));
+  try{
+    await db.collection("traders").doc(id).update(adminOverridePatch({
+      cash: START_CASH, marginUsed: 0, equity: START_CASH,
+      positions: [], pendingOrders: [], history: [],
+      stats: freshBookStats(),
+      weekStartEquity: START_CASH, weeklyPnl: 0,
+      hasOpenActivity: propActive,
+    }));
+    await adminRefreshSelf(id);
+    loadAdminTraders();
+  }catch(e){
+    console.warn("admin trading reset failed", e);
+    alert("Échec de la réinitialisation du trading — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).");
+  }
+}
+// Fenêtre « Quiz » de l'admin : chaque quiz se remet à zéro séparément, le
+// Superflash aussi, et un bouton remet tout à zéro (adminResetTraderQuiz).
+function adminOpenQuizReset(id){
+  const doc = adminFindDoc(id);
+  if (!doc) return;
+  const d = doc.data();
+  const qp = (d.quizProgress && typeof d.quizProgress==="object") ? d.quizProgress : {};
+  const rows = QUIZ_DECKS.map(deck=>{
+    const p = qp[deck.id];
+    const n = deck.questions.length;
+    const solved = p && Array.isArray(p.solved) ? p.solved.filter(Boolean).length : 0;
+    const has = !!(p && ((p.attempts||0)>0 || (p.earned||0)>0 || solved>0 || p.inProgress));
+    const meta = deckMeta(deck.id);
+    return '<div class="adm-q-row'+(has?'':' is-empty')+'">'+
+      '<span class="adm-q-ico">'+meta.icon+'</span>'+
+      '<div class="adm-q-main"><b>'+escapeHtml(deck.title)+'</b>'+
+        '<span>'+(has
+          ? solved+'/'+n+' maîtrisées · '+fmtMoney(p.earned||0)+' · '+(p.attempts||0)+' essai'+((p.attempts||0)>1?'s':'')+(p.perfectAttempt!=null?' · 🏆':'')+(p.inProgress?' · en cours':'')
+          : 'Pas encore joué')+'</span></div>'+
+      '<button type="button" class="adm-act warn" data-q-reset-deck="'+deck.id+'"'+(has?'':' disabled')+'>Réinitialiser</button>'+
+    '</div>';
+  }).join("");
+  const sfBest = d.superflashBest||0, sfAtt = d.superflashAttempts||0;
+  const sfHas = sfBest>0 || sfAtt>0;
+  openModal(
+    '<h3 style="margin-bottom:6px;">Quiz — '+escapeHtml(d.username||id)+'</h3>'+
+    '<div class="chart-note" style="margin-bottom:12px;">Remets à zéro un quiz à la fois. Les autres quiz, le trading et le reste du compte ne sont pas touchés.</div>'+
+    '<div class="adm-q-list" id="adm-q-list">'+rows+
+      '<div class="adm-q-row adm-q-sf'+(sfHas?'':' is-empty')+'">'+
+        '<span class="adm-q-ico">⚡</span>'+
+        '<div class="adm-q-main"><b>Superflash</b><span>'+(sfHas ? 'Record '+sfBest+' pts · '+(d.superflashBestCorrect||0)+'/24 · '+sfAtt+' partie'+(sfAtt>1?'s':'') : 'Pas encore joué')+'</span></div>'+
+        '<button type="button" class="adm-act warn" data-q-reset-sf="1"'+(sfHas?'':' disabled')+'>Réinitialiser</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="chart-note" id="adm-q-msg" style="margin:10px 0;min-height:14px;"></div>'+
+    '<button type="button" class="adm-act danger" id="adm-q-all" style="width:100%;padding:10px;">Tout réinitialiser (tous les quiz + Superflash + badges quiz)</button>'
+  );
+  const list = document.getElementById("adm-q-list");
+  list.addEventListener("click", (e)=>{
+    const b = e.target.closest("button");
+    if (!b || b.disabled) return;
+    if (b.dataset.qResetDeck) adminResetTraderDeck(id, b.dataset.qResetDeck);
+    else if (b.dataset.qResetSf) adminResetTraderSuperflash(id);
+  });
+  document.getElementById("adm-q-all").addEventListener("click", ()=>adminResetTraderQuiz(id));
+}
+async function adminQuizResetDone(id, okMsg){
+  await adminRefreshSelf(id);
+  await loadAdminTraders();
+  if (document.getElementById("adm-q-list")){
+    adminOpenQuizReset(id); // ré-affiche la fenêtre avec les chiffres à jour
+    const m = document.getElementById("adm-q-msg");
+    if (m){ m.style.color = "var(--long)"; m.textContent = okMsg; }
+  }
+}
+async function adminResetTraderDeck(id, deckId){
+  const doc = adminFindDoc(id);
+  const deck = QUIZ_DECKS.find(x=>x.id===deckId);
+  if (!doc || !deck) return;
+  const d = doc.data();
+  const label = d.username || id;
+  if (!confirm('Réinitialiser le quiz « '+deck.title+' » de "'+label+'" ?\n\nSon score, ses questions maîtrisées et ses essais sur ce quiz repartent à zéro. Les autres quiz, le Superflash et le reste du compte ne sont pas touchés. Irréversible.')) return;
+  const del = firebase.firestore.FieldValue.delete();
+  const rest = Object.assign({}, d.quizProgress||{});
+  delete rest[deckId];
+  const patch = {
+    ["quizProgress."+deckId]: del,
+    quizTotal: Object.values(rest).reduce((s,p)=>s+(p && p.earned || 0), 0),
+  };
+  // Badges qui dépendent de ce quiz.
+  const badges = d.badges || {};
+  if (badges.all_quizzes_perfect) patch["badges.all_quizzes_perfect"] = del;
+  if (deckId==="options" && badges.options_master) patch["badges.options_master"] = del;
+  if (badges.first_quiz_perfect && !Object.values(rest).some(p=>p && p.perfectAttempt!=null)) patch["badges.first_quiz_perfect"] = del;
+  const m = document.getElementById("adm-q-msg");
+  try{
+    await db.collection("traders").doc(id).update(adminOverridePatch(patch));
+    await adminQuizResetDone(id, "Quiz « "+deck.title+" » réinitialisé.");
+  }catch(e){
+    console.warn("admin deck reset failed", e);
+    if (m){ m.style.color = "var(--warn)"; m.textContent = "Échec — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md)."; }
+  }
+}
+async function adminResetTraderSuperflash(id){
+  const doc = adminFindDoc(id);
+  if (!doc) return;
+  const d = doc.data();
+  if (!confirm('Réinitialiser le Superflash de "'+(d.username||id)+'" ?\n\nRecord, bonnes réponses, nombre de parties et badge Speedrunner repartent à zéro. Les quiz et le reste du compte ne sont pas touchés. Irréversible.')) return;
+  const patch = {superflashBest: 0, superflashBestCorrect: 0, superflashAttempts: 0};
+  if (d.badges && d.badges.first_superflash) patch["badges.first_superflash"] = firebase.firestore.FieldValue.delete();
+  const m = document.getElementById("adm-q-msg");
+  try{
+    await db.collection("traders").doc(id).update(adminOverridePatch(patch));
+    await adminQuizResetDone(id, "Superflash réinitialisé.");
+  }catch(e){
+    console.warn("admin superflash reset failed", e);
+    if (m){ m.style.color = "var(--warn)"; m.textContent = "Échec — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md)."; }
   }
 }
 // Renommer un trader (pseudo affiché dans le classement, le chat, etc.).
@@ -19446,8 +19619,8 @@ function adminAdjustCash(id){
     try{
       const patch = {cash: val, updatedAt: new Date().toISOString()};
       if (!hasOpenPositions) patch.equity = val; // no open positions: equity == cash immediately
-      await db.collection("traders").doc(id).update(patch);
-      if (id===clientId){ hydrateStateFromDoc(await db.collection("traders").doc(id).get()); renderAll(); }
+      await db.collection("traders").doc(id).update(adminOverridePatch(patch));
+      await adminRefreshSelf(id);
       closeModal();
       loadAdminTraders();
     }catch(e){
@@ -19807,10 +19980,12 @@ function adminDetailHtml(d){
 
   return html;
 }
+let adminOpenId = null;
 function adminToggleDetail(id){
   const row = document.getElementById("admin-detail-"+id);
   if (!row) return;
   const opening = row.hidden;
+  adminOpenId = opening ? id : null;
   document.querySelectorAll("#admin-body .admin-detail-toggle-row").forEach(r=>{ r.hidden = true; });
   document.querySelectorAll("#admin-body .adm-manage").forEach(b=>{ b.classList.remove("is-open"); b.textContent = "Gérer"; });
   if (!opening) return;
@@ -20309,6 +20484,8 @@ function initAdminUI(){
       else if (t.dataset.adminEdbplus) adminToggleEdbPlus(t.dataset.adminEdbplus);
       else if (t.dataset.adminIsadmin) adminToggleIsAdmin(t.dataset.adminIsadmin);
       else if (t.dataset.adminResetQuiz) adminResetTraderQuiz(t.dataset.adminResetQuiz);
+      else if (t.dataset.adminQuizMenu) adminOpenQuizReset(t.dataset.adminQuizMenu);
+      else if (t.dataset.adminResetTrading) adminResetTraderTrading(t.dataset.adminResetTrading);
       else if (t.dataset.adminResetInvest) adminResetTraderInvest(t.dataset.adminResetInvest);
       else if (t.dataset.adminReset) adminResetTrader(t.dataset.adminReset);
       else if (t.dataset.adminDelete) adminDeleteTrader(t.dataset.adminDelete);
