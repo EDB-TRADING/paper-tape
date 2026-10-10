@@ -3454,6 +3454,167 @@
     .acct-metric:nth-child(3){display:none;} /* PnL ouvert: equity alone on very narrow phones */
     .tb-title{font-size:17px;max-width:40vw;overflow:hidden;text-overflow:ellipsis;}
   }
+  /* ---------- Superflash v2 (mode chrono du quiz) ---------- */
+  #flash-wrap{max-width:1100px;}
+  #flash-card.sf-page{background:none;border:none;box-shadow:none;padding:0;}
+  .sf{--c:var(--accent);}
+  .sf-bolt{width:1em;height:1em;flex:none;vertical-align:-.12em;}
+  .sf .kn-kicker .sf-bolt{width:13px;height:13px;}
+  /* Accueil */
+  .sf-hero{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:0;border:1px solid var(--border-soft);border-radius:18px;overflow:hidden;
+    background:radial-gradient(620px 300px at 0% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
+      repeating-linear-gradient(115deg, transparent 0 26px, color-mix(in srgb, var(--text) 3%, transparent) 26px 27px),
+      linear-gradient(135deg, var(--panel-2), var(--panel) 70%);}
+  .sf-hero-main{padding:34px 36px 30px;position:relative;}
+  .sf-hero-main::after{content:"";position:absolute;right:-30px;top:18px;width:190px;height:190px;opacity:.06;pointer-events:none;
+    background:currentColor;color:var(--accent);
+    -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M13.5 2 4.5 13.5h6.2L9.8 22l9.7-12.4h-6.3L13.5 2Z'/%3E%3C/svg%3E") center/contain no-repeat;
+            mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M13.5 2 4.5 13.5h6.2L9.8 22l9.7-12.4h-6.3L13.5 2Z'/%3E%3C/svg%3E") center/contain no-repeat;}
+  .sf-hero-main h1{font-size:44px;letter-spacing:-.03em;margin:10px 0 10px;line-height:1.05;}
+  .sf-lead{font-size:15.5px;line-height:1.65;color:var(--text-dim);margin:0 0 20px;max-width:560px;}
+  .sf-rules{position:relative;z-index:1;}
+  .sf-rules div{background:color-mix(in srgb, var(--panel) 80%, transparent);}
+  .sf-cta{display:inline-flex;align-items:center;gap:8px;}
+  .sf .btn-primary .sf-bolt{margin-right:6px;}
+  .sf-cta .sf-bolt{margin-right:0;}
+  .sf-hint{text-align:left;margin-top:16px;}
+  .sf-side{border-left:1px solid var(--border-soft);background:color-mix(in srgb, var(--panel) 70%, transparent);padding:24px 22px;display:flex;flex-direction:column;gap:12px;}
+  .sf-side .kn-rail-title{margin:0;}
+  .sf-side .kn-rail-title + #sf-intro-top{margin-top:-2px;}
+  .sf-best{display:flex;align-items:baseline;gap:8px;}
+  .sf-best b{font-family:var(--mono);font-size:40px;letter-spacing:-.02em;line-height:1;}
+  .sf-best span{font-size:13px;color:var(--text-faint);}
+  .sf-best.is-empty b{color:var(--text-faint);}
+  .sf-top{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;}
+  .sf-top li{display:flex;align-items:center;gap:10px;font-size:13px;padding:7px 10px;border-radius:10px;background:var(--panel-2);border:1px solid var(--border-soft);}
+  .sf-top li.is-me{border-color:color-mix(in srgb, var(--accent) 55%, var(--border-soft));}
+  .sf-top-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .sf-top b{font-family:var(--mono);font-size:13px;}
+  .sf-rk{flex:none;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;background:var(--panel);border:1px solid var(--border);color:var(--text-dim);}
+  .sf-rk-1{background:var(--gold);border-color:var(--gold);color:#1a1408;}
+  .sf-rk-2{background:#c3c9d4;border-color:#c3c9d4;color:#15181d;}
+  .sf-rk-3{background:#c58a5a;border-color:#c58a5a;color:#1a0f06;}
+  .sf-empty{margin:0;font-size:12.5px;color:var(--text-faint);line-height:1.5;}
+  /* Compte à rebours */
+  .sf-countdown{min-height:420px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border:1px solid var(--border-soft);border-radius:18px;
+    background:radial-gradient(420px 260px at 50% 45%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%), var(--panel);}
+  .sf-count-n{font-family:var(--mono);font-size:120px;font-weight:700;line-height:1;color:var(--accent);animation:sfCount .65s ease-out both;}
+  .sf-countdown p{margin:0;color:var(--text-dim);font-size:14px;}
+  @keyframes sfCount{0%{transform:scale(1.5);opacity:0;}35%{transform:scale(1);opacity:1;}100%{transform:scale(.92);opacity:.85;}}
+  /* Partie */
+  .sf-game{max-width:880px;margin:0 auto;}
+  .sf-ico{flex:none;width:30px;height:30px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;color:var(--accent);background:color-mix(in srgb, var(--accent) 14%, var(--panel));border:1px solid color-mix(in srgb, var(--accent) 35%, var(--border-soft));}
+  .sf-ico .sf-bolt{width:16px;height:16px;}
+  .sf-streak{font-size:13px;white-space:nowrap;padding:4px 10px;border-radius:999px;color:var(--text-faint);background:var(--panel-2);opacity:.55;transition:opacity .2s, color .2s, background .2s;}
+  .sf-streak.is-on{opacity:1;color:var(--warn);background:color-mix(in srgb, var(--warn) 14%, transparent);}
+  .sf-streak.bump{animation:sfBump .35s ease;}
+  @keyframes sfBump{40%{transform:scale(1.18);}}
+  .sf-score{position:relative;font-size:13px;color:var(--text-dim);white-space:nowrap;padding:4px 11px;border-radius:999px;background:color-mix(in srgb, var(--accent) 12%, transparent);}
+  .sf-score b{font-family:var(--mono);font-size:15px;color:var(--text);}
+  .sf-pop{position:absolute;right:6px;top:-4px;font-family:var(--mono);font-weight:700;font-size:13px;color:var(--long);pointer-events:none;animation:sfPop .9s ease-out forwards;}
+  @keyframes sfPop{0%{opacity:0;transform:translateY(4px);}20%{opacity:1;}100%{opacity:0;transform:translateY(-22px);}}
+  .sf-qcard{position:relative;overflow:hidden;transition:border-color .2s;}
+  .sf-qcard.is-ok{border-color:color-mix(in srgb, var(--long) 45%, var(--border-soft));}
+  .sf-qcard.is-ko{border-color:color-mix(in srgb, var(--short) 45%, var(--border-soft));}
+  .sf-tbar{position:absolute;left:0;right:0;top:0;height:4px;background:var(--panel-2);}
+  .sf-tbar i{display:block;height:100%;transform-origin:left center;background:var(--long);transition:background .3s;}
+  .sf-tbar i[data-tone="mid"]{background:var(--warn);}
+  .sf-tbar i[data-tone="low"]{background:var(--short);}
+  .sf-qhead{display:flex;align-items:center;gap:14px;}
+  .sf-qhead .kn-quiz-cat{margin-right:auto;}
+  .sf-stake{display:flex;flex-direction:column;align-items:flex-end;line-height:1.15;}
+  .sf-stake span{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);font-family:var(--mono);}
+  .sf-stake b{font-family:var(--mono);font-size:17px;color:var(--long);}
+  .sf-qcard.is-ko .sf-stake b{color:var(--text-faint);}
+  .sf-clock{position:relative;flex:none;width:52px;height:52px;}
+  .sf-clock svg{width:52px;height:52px;display:block;}
+  .sf-clock-track{fill:none;stroke:var(--panel-2);stroke-width:4;}
+  .sf-clock-fill{fill:none;stroke:var(--long);stroke-width:4;stroke-linecap:round;transition:stroke .3s;}
+  .sf-clock[data-tone="mid"] .sf-clock-fill{stroke:var(--warn);}
+  .sf-clock[data-tone="low"] .sf-clock-fill{stroke:var(--short);}
+  .sf-clock b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:14px;font-weight:700;}
+  .sf-clock[data-tone="low"] b{color:var(--short);}
+  .sf-fb-t{font-weight:500;font-size:12.5px;color:var(--text-faint);}
+  .sf-next{position:relative;overflow:hidden;}
+  .sf-next span{position:relative;z-index:1;}
+  .sf-next{scroll-margin-bottom:96px;}
+  .sf-next.is-auto::before{content:"";position:absolute;inset:0;background:rgba(255,255,255,.18);transform-origin:left center;transform:scaleX(0);animation:sfAuto var(--auto) linear forwards;}
+  @keyframes sfAuto{to{transform:scaleX(1);}}
+  /* Fin de partie */
+  .sf-result{max-width:920px;margin:0 auto;}
+  .sf-result-hero .kn-result-txt h1{font-family:var(--mono);font-size:44px;letter-spacing:-.03em;}
+  .sf-result-hero .kn-result-txt h1 small{font-family:var(--sans);font-size:18px;color:var(--text-faint);font-weight:500;letter-spacing:0;}
+  .sf-result-hero .kn-kicker .sf-bolt{width:13px;height:13px;}
+  .sf-rec-note{margin-top:14px;font-size:13px;color:var(--text-dim);}
+  .sf-rec-note b{color:var(--text);}
+  .sf-tiles{grid-template-columns:repeat(4, minmax(0,1fr));}
+  .sf-chart{margin-top:14px;background:var(--panel);border:1px solid var(--border-soft);border-radius:14px;padding:16px 18px 12px;}
+  .sf-chart-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+  .sf-chart-head h2{font-size:15px;margin:0;}
+  .sf-legend{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-faint);}
+  .sf-legend i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-left:6px;}
+  .sf-legend i.ok{background:var(--long);}
+  .sf-legend i.ko{background:var(--short);}
+  .sf-bars{display:flex;align-items:flex-end;gap:2px;height:110px;border-bottom:1px solid var(--border-soft);}
+  .sf-bcol{position:relative;flex:1;height:100%;display:flex;align-items:flex-end;cursor:default;}
+  .sf-bcol i{display:block;width:100%;border-radius:4px 4px 0 0;background:var(--long);min-height:4px;transition:opacity .15s;}
+  .sf-bcol.ko i{background:var(--short);}
+  .sf-bars:hover .sf-bcol i{opacity:.45;}
+  .sf-bars .sf-bcol:hover i{opacity:1;}
+  .sf-btip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);white-space:nowrap;font-size:11.5px;font-family:var(--mono);background:var(--bg-raised, var(--panel-2));border:1px solid var(--border);border-radius:7px;padding:4px 8px;color:var(--text);pointer-events:none;opacity:0;transition:opacity .12s;z-index:2;}
+  .sf-bcol:hover .sf-btip{opacity:1;}
+  .sf-bcol:first-child .sf-btip{left:0;transform:none;}
+  .sf-bcol:last-child .sf-btip{left:auto;right:0;transform:none;}
+  .sf-bars-axis{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:var(--text-faint);margin-top:6px;}
+  .sf-review-you{margin-top:8px;color:var(--short);font-size:14px;}
+  .sf-review-you + .kn-review-a{margin-top:4px;}
+  /* Classement */
+  .sf-lb{max-width:920px;margin:0 auto;}
+  .sf-lb-head{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+  .sf-lb-title{flex:1;min-width:0;}
+  .sf-lb-title h2{margin:4px 0 0;font-size:26px;letter-spacing:-.02em;}
+  .sf-podium{display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:12px;align-items:end;margin-bottom:14px;}
+  .sf-pod{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;background:var(--panel);border:1px solid var(--border-soft);border-radius:16px;padding:18px 12px 16px;}
+  .sf-pod-1{padding-top:28px;padding-bottom:24px;border-color:color-mix(in srgb, var(--gold) 50%, var(--border-soft));background:radial-gradient(260px 140px at 50% 0%, color-mix(in srgb, var(--gold) 14%, transparent), transparent 70%), var(--panel);}
+  .sf-pod.is-me{box-shadow:inset 0 0 0 1px var(--accent);}
+  .sf-pod-empty{visibility:hidden;}
+  .sf-pod .sf-rk{width:30px;height:30px;font-size:13px;}
+  .sf-pod-name{font-weight:600;font-size:14px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .sf-pod b{font-family:var(--mono);font-size:18px;}
+  .sf-pod-1 b{font-size:22px;}
+  .sf-pod em{font-style:normal;font-size:12px;color:var(--text-faint);}
+  .sf-lb-table{overflow-x:auto;background:var(--panel);border:1px solid var(--border-soft);border-radius:14px;padding:6px 10px;margin-bottom:12px;}
+  .sf-lb-score{white-space:nowrap;}
+  .sf-lb-score span{display:inline-block;min-width:48px;}
+  .sf-lb-score i{display:inline-block;vertical-align:middle;margin-left:8px;width:80px;height:4px;border-radius:2px;background:linear-gradient(90deg, var(--accent) var(--w), var(--panel-2) var(--w));}
+  @media (max-width:900px){
+    .sf-hero{grid-template-columns:minmax(0,1fr);}
+    .sf-side{border-left:none;border-top:1px solid var(--border-soft);}
+    .sf-tiles{grid-template-columns:repeat(2, minmax(0,1fr));}
+  }
+  @media (max-width:640px){
+    .sf-hero-main{padding:22px 18px 20px;}
+    .sf-hero-main h1{font-size:32px;}
+    .sf-hero-main::after{width:120px;height:120px;right:-20px;}
+    .sf-hint{display:none;}
+    .sf-side{padding:18px;}
+    .sf-game .kn-quiz-deck{display:none;}
+    .sf-streak, .sf-score{padding:3px 8px;}
+    .sf-qhead{gap:10px;}
+    .sf-clock, .sf-clock svg{width:44px;height:44px;}
+    .sf-countdown{min-height:300px;}
+    .sf-count-n{font-size:96px;}
+    .sf-result-hero .kn-result-txt h1{font-size:34px;}
+    .sf-tiles{grid-template-columns:repeat(2, minmax(0,1fr));}
+    .sf-lb-head{flex-wrap:wrap;}
+    .sf-lb-head .btn-primary{order:3;width:100%;}
+    .sf-podium{gap:6px;}
+    .sf-pod{padding:12px 6px;}
+    .sf-pod-1{padding-top:20px;}
+    .sf-pod b{font-size:15px;}
+    .sf-pod-1 b{font-size:17px;}
+    .sf-lb-score i{display:none;}
+  }
 </style>
 </head>
 <body data-view="terminal">
@@ -15870,6 +16031,8 @@ document.addEventListener("keydown", (e)=>{
   if (!view || !view.classList.contains("active")) return;
   const t = e.target;
   if (t && (t.tagName==="INPUT" || t.tagName==="TEXTAREA" || t.isContentEditable)) return;
+  const playWrap = document.getElementById("quiz-play-wrap");
+  if (playWrap && playWrap.hidden) return; // onglet Superflash ou classement affiché
   const card = document.getElementById("quiz-card");
   if (!card || !card.querySelector(".kn-quiz")) return;
   if (e.key==="Enter"){
@@ -16068,8 +16231,18 @@ function renderQuizLeaderboardError(){
 // timed per question. A correct answer scores more the faster you answer;
 // a wrong answer or timeout scores 0 — so the dedicated leaderboard rewards
 // speed WITHOUT rewarding blind fast-clicking.
+// v2 (2026-10) : même barème qu'avant (les records existants restent
+// comparables), mais écran d'accueil avec record/rang/top 3, compte à
+// rebours, chrono en anneau + « points en jeu » qui baissent en direct,
+// série 🔥, passage automatique après une bonne réponse, raccourcis
+// clavier, écran de fin détaillé (précision, temps moyen, meilleure série,
+// graphe question par question, questions à revoir) et classement avec
+// podium. Le chrono se calcule sur Date.now() (pas de dérive si l'onglet
+// ralentit) et la partie s'arrête si on quitte l'onglet Superflash.
 const SUPERFLASH_TIME_LIMIT = 12; // seconds per question
 const SUPERFLASH_MAX_POINTS = 100;
+const SF_AUTO_NEXT_MS = 1100;
+const SF_BOLT = '<svg class="sf-bolt" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2 4.5 13.5h6.2L9.8 22l9.7-12.4h-6.3L13.5 2Z" fill="currentColor"/></svg>';
 function buildSuperflashPool(){
   const pa = QUIZ_DECKS.find(d=>d.id==="price_action");
   const of = QUIZ_DECKS.find(d=>d.id==="order_flow");
@@ -16083,139 +16256,454 @@ function shuffleArray(arr){
   }
   return a;
 }
-let flashQueue = [], flashIdx = 0, flashScore = 0, flashCorrectCount = 0;
-let flashTimer = null, flashTimeLeft = 0, flashAnswered = false, flashQStart = 0;
-function renderFlashIntro(){
-  clearInterval(flashTimer);
+let sfRun = null;        // partie en cours
+let sfScreen = "intro";  // intro | count | question | feedback | result | lb
+let sfTimer = null, sfAdvTimer = null, sfCountTimer = null;
+let sfLbCache = null;    // dernier instantané du classement [{id, d}]
+function sfFmt(n){ return String(Math.round(n||0)); } // ≤ 2 400 pts : pas de séparateur de milliers
+function sfSec(s){ return (Math.round(s*10)/10).toLocaleString("fr-FR", {minimumFractionDigits:1, maximumFractionDigits:1}); }
+function sfPointsAt(elapsed){
+  const frac = Math.max(0, 1 - (elapsed/SUPERFLASH_TIME_LIMIT));
+  return Math.round(SUPERFLASH_MAX_POINTS * (0.4 + 0.6*frac)); // floor 40 pts for any timely correct answer, up to 100 pts if instant
+}
+function sfClearTimers(){
+  clearInterval(sfTimer); clearTimeout(sfAdvTimer); clearInterval(sfCountTimer);
+  sfTimer = sfAdvTimer = sfCountTimer = null;
+}
+function sfVisible(){
+  const v = document.getElementById("view-quiz"), w = document.getElementById("flash-wrap");
+  return !!(v && w && v.classList.contains("active") && !w.hidden);
+}
+// Partie abandonnée (onglet quitté) : rien n'est compté. Le prochain clic
+// sur l'onglet Superflash réaffiche l'accueil.
+function sfAbort(){ sfClearTimers(); sfRun = null; sfScreen = "intro"; }
+function sfCard(){
   const card = document.getElementById("flash-card");
+  if (card) card.classList.add("sf-page");
+  return card;
+}
+function sfRankFor(score){
+  if (!sfLbCache || !(score>0)) return null;
+  const better = sfLbCache.filter(r=>r.id!==clientId && (r.d.superflashBest||0)>score).length;
+  if (better>=sfLbCache.length && sfLbCache.length>=50) return "50+";
+  return better+1;
+}
+function sfPodiumHtml(n){
+  const rows = (sfLbCache||[]).filter(r=>(r.d.superflashBest||0)>0).slice(0, n);
+  if (!sfLbCache) return '<p class="sf-empty">Chargement…</p>';
+  if (!rows.length) return '<p class="sf-empty">Personne n\'a encore joué : la première place est libre.</p>';
+  return '<ol class="sf-top">'+rows.map((r,i)=>
+    '<li class="'+(r.id===clientId?'is-me':'')+'"><span class="sf-rk sf-rk-'+(i+1)+'">'+(i+1)+'</span>'+
+    '<span class="sf-top-name">'+escapeHtml(r.d.username||"Trader")+'</span><b class="num">'+sfFmt(r.d.superflashBest)+'</b></li>'
+  ).join("")+'</ol>';
+}
+
+/* ---------- Accueil ---------- */
+function renderFlashIntro(){
+  sfAbort();
+  const card = sfCard();
   if (!card) return;
-  const best = state.superflash.bestScore;
+  const sf = state.superflash || {};
+  const best = sf.bestScore || 0;
+  const n = buildSuperflashPool().length;
+  const rank = sfRankFor(best);
   card.innerHTML =
-    '<div class="quiz-intro">'+
-      '<div class="quiz-cat">Price Action + Order Flow</div>'+
-      '<h2>Superflash ⚡</h2>'+
-      '<p>24 questions, '+SUPERFLASH_TIME_LIMIT+' secondes chacune. Une bonne réponse rapporte plus si tu réponds vite ; une mauvaise réponse (ou le temps écoulé) ne rapporte rien — le classement dédié récompense la vitesse ET la précision.</p>'+
-      (best>0 ? '<p style="color:var(--gold);">Meilleur score : '+best+' pts ('+state.superflash.bestCorrect+'/24 bonnes réponses)</p>' : '')+
-      '<div class="quiz-intro-actions">'+
-        '<button class="btn-primary" id="flash-start">Lancer le Superflash</button>'+
-      '</div>'+
+    '<div class="sf sf-intro">'+
+      '<section class="sf-hero">'+
+        '<div class="sf-hero-main">'+
+          '<span class="kn-kicker">'+SF_BOLT+'Mode chrono · Price Action + Order Flow</span>'+
+          '<h1>Superflash</h1>'+
+          '<p class="sf-lead">'+n+' questions, '+SUPERFLASH_TIME_LIMIT+' secondes chacune. Plus tu réponds vite, plus tu marques. Une erreur ou le temps écoulé ne rapporte rien : la vitesse ne paie que si tu as juste.</p>'+
+          '<div class="kn-rules sf-rules">'+
+            '<div><b class="num">'+n+'</b><span>questions tirées au hasard</span></div>'+
+            '<div><b class="num">'+SUPERFLASH_TIME_LIMIT+' s</b><span>par question, chrono visible</span></div>'+
+            '<div><b class="num">40 → 100</b><span>points par bonne réponse, selon ta vitesse</span></div>'+
+          '</div>'+
+          '<div class="kn-qintro-actions">'+
+            '<button class="btn-primary kn-cta sf-cta" id="flash-start">'+SF_BOLT+'Lancer le Superflash</button>'+
+            '<button class="btn-secondary" id="flash-open-lb">Voir le classement</button>'+
+          '</div>'+
+          '<p class="kn-quiz-hint sf-hint"><kbd>Entrée</kbd> pour lancer · <kbd>A</kbd>–<kbd>D</kbd> ou <kbd>1</kbd>–<kbd>4</kbd> pour répondre</p>'+
+        '</div>'+
+        '<aside class="sf-side">'+
+          '<span class="kn-rail-title">Ton record</span>'+
+          (best>0
+            ? '<div class="sf-best"><b class="num">'+sfFmt(best)+'</b><span>pts</span></div>'
+            : '<div class="sf-best is-empty"><b>—</b><span>pas encore de partie</span></div>')+
+          '<ul class="kn-side-list">'+
+            '<li><span>Bonnes réponses</span><b class="num">'+(best>0 ? (sf.bestCorrect||0)+'/'+n : '—')+'</b></li>'+
+            '<li><span>Ton rang</span><b class="num" id="sf-intro-rank">'+(rank ? '#'+rank : '—')+'</b></li>'+
+            '<li><span>Parties jouées</span><b class="num">'+(sf.attempts||0)+'</b></li>'+
+          '</ul>'+
+          '<span class="kn-rail-title">Top 3</span>'+
+          '<div id="sf-intro-top">'+sfPodiumHtml(3)+'</div>'+
+        '</aside>'+
+      '</section>'+
     '</div>';
   document.getElementById("flash-start").addEventListener("click", startFlash);
+  document.getElementById("flash-open-lb").addEventListener("click", renderFlashLeaderboard);
 }
+
+/* ---------- Partie ---------- */
 function startFlash(){
-  flashQueue = shuffleArray(buildSuperflashPool());
-  flashIdx = 0;
-  flashScore = 0;
-  flashCorrectCount = 0;
-  renderFlashQuestion();
-}
-function renderFlashQuestion(){
-  clearInterval(flashTimer);
-  const card = document.getElementById("flash-card");
+  sfClearTimers();
+  const card = sfCard();
   if (!card) return;
-  if (flashIdx>=flashQueue.length){ finishFlash(); return; }
-  const item = flashQueue[flashIdx];
-  flashAnswered = false;
-  flashTimeLeft = SUPERFLASH_TIME_LIMIT;
-  flashQStart = Date.now();
+  sfRun = {queue:shuffleArray(buildSuperflashPool()), idx:0, score:0, correct:0, streak:0, bestStreak:0, log:[], qStart:0, answered:false};
+  sfScreen = "count";
+  let k = 3;
+  const paint = ()=>{
+    card.innerHTML =
+      '<div class="sf sf-countdown">'+
+        '<div class="sf-count-n num">'+k+'</div>'+
+        '<p>Prêt ? '+sfRun.queue.length+' questions, '+SUPERFLASH_TIME_LIMIT+' s chacune.</p>'+
+      '</div>';
+  };
+  paint();
+  window.scrollTo(0, 0);
+  sfCountTimer = setInterval(()=>{
+    if (!sfVisible()){ sfAbort(); return; }
+    k--;
+    if (k<=0){ clearInterval(sfCountTimer); sfCountTimer = null; renderFlashQuestion(); }
+    else paint();
+  }, 650);
+}
+const SF_CLOCK_C = 2*Math.PI*22;
+function renderFlashQuestion(){
+  sfClearTimers();
+  const run = sfRun, card = sfCard();
+  if (!run || !card) return;
+  if (run.idx>=run.queue.length){ finishFlash(); return; }
+  const item = run.queue[run.idx];
+  const n = run.queue.length;
+  const letters = ["A","B","C","D","E","F"];
+  run.answered = false;
+  sfScreen = "question";
   card.innerHTML =
-    '<div class="quiz-progress"><span class="quiz-cat">'+item.cat+'</span><span>Question '+(flashIdx+1)+' / '+flashQueue.length+' · Score '+flashScore+'</span></div>'+
-    '<div class="quiz-track"><i id="flash-timer-bar" style="width:100%"></i></div>'+
-    '<div class="quiz-q">'+item.q+'</div>'+
-    '<div class="quiz-choices">'+item.choices.map((c,i)=>'<button class="quiz-choice" data-i="'+i+'">'+c+'</button>').join("")+'</div>'+
-    '<div id="flash-explain"></div>';
-  card.querySelectorAll(".quiz-choice").forEach(btn=>{
+    '<div class="sf sf-game">'+
+      '<div class="kn-quiz-top">'+
+        '<div class="kn-quiz-deck"><span class="sf-ico">'+SF_BOLT+'</span><b>Superflash</b></div>'+
+        '<div class="kn-quiz-count">Question <b class="num">'+(run.idx+1)+'</b><span> / '+n+'</span></div>'+
+        '<div class="sf-streak'+(run.streak>=2?' is-on':'')+'" id="sf-streak" title="Bonnes réponses d\'affilée">🔥 <b class="num">'+run.streak+'</b></div>'+
+        '<div class="sf-score" id="sf-score-pill"><b class="num" id="sf-score">'+sfFmt(run.score)+'</b> pts</div>'+
+        '<button class="kn-quiz-quit" id="flash-quit">Quitter</button>'+
+      '</div>'+
+      '<div class="kn-quiz-dots" id="sf-dots" aria-hidden="true">'+
+        run.queue.map((_,i)=>{ const r = run.log[i]; return '<i class="'+(i===run.idx?'cur':r?(r.ok?'ok':'ko'):'')+'"></i>'; }).join("")+
+      '</div>'+
+      '<div class="kn-quiz-card sf-qcard">'+
+        '<div class="sf-tbar"><i id="flash-timer-bar" data-tone="ok"></i></div>'+
+        '<div class="sf-qhead">'+
+          '<span class="kn-quiz-cat">'+item.cat+'</span>'+
+          '<div class="sf-stake"><span>En jeu</span><b class="num" id="sf-stake">+'+SUPERFLASH_MAX_POINTS+'</b></div>'+
+          '<div class="sf-clock" id="sf-clock" data-tone="ok">'+
+            '<svg viewBox="0 0 52 52" aria-hidden="true"><circle class="sf-clock-track" cx="26" cy="26" r="22"/>'+
+            '<circle class="sf-clock-fill" id="sf-clock-fill" cx="26" cy="26" r="22" stroke-dasharray="'+SF_CLOCK_C.toFixed(2)+'" stroke-dashoffset="0" transform="rotate(-90 26 26)"/></svg>'+
+            '<b class="num" id="sf-secs">'+SUPERFLASH_TIME_LIMIT+'</b>'+
+          '</div>'+
+        '</div>'+
+        '<h2 class="kn-quiz-q">'+item.q+'</h2>'+
+        '<div class="kn-quiz-choices">'+item.choices.map((c,i)=>
+          '<button class="quiz-choice kn-choice" data-i="'+i+'"><span class="kn-choice-key">'+letters[i]+'</span><span class="kn-choice-txt">'+c+'</span><span class="kn-choice-mark" aria-hidden="true"></span></button>'
+        ).join("")+'</div>'+
+        '<div id="flash-explain"></div>'+
+        '<div class="kn-quiz-next" id="flash-next-wrap"></div>'+
+      '</div>'+
+      '<p class="kn-quiz-hint"><kbd>A</kbd>–<kbd>D</kbd> ou <kbd>1</kbd>–<kbd>4</kbd> pour répondre · <kbd>Entrée</kbd> pour passer à la suite</p>'+
+    '</div>';
+  card.querySelectorAll(".kn-choice").forEach(btn=>{
     btn.addEventListener("click", ()=>answerFlash(parseInt(btn.dataset.i,10)));
   });
-  flashTimer = setInterval(()=>{
-    flashTimeLeft -= 0.1;
-    const bar = document.getElementById("flash-timer-bar");
-    if (bar){
-      const pct = Math.max(0,(flashTimeLeft/SUPERFLASH_TIME_LIMIT*100));
-      bar.style.width = pct.toFixed(1)+"%";
-      bar.style.background = pct>55 ? "var(--long)" : pct>25 ? "var(--warn)" : "var(--short)";
-    }
-    if (flashTimeLeft<=0) answerFlash(-1);
-  }, 100);
+  document.getElementById("flash-quit").addEventListener("click", ()=>{
+    renderFlashIntro();
+    if (typeof appToast==="function") appToast("Partie abandonnée : elle ne compte pas.");
+  });
+  // Sur mobile, on remonte au chrono si la question précédente avait fait défiler.
+  const top = card.getBoundingClientRect().top + window.scrollY - 90;
+  if (window.scrollY > top) window.scrollTo(0, Math.max(0, top));
+  run.qStart = Date.now();
+  sfTimer = setInterval(sfTick, 50);
+  sfTick();
+}
+function sfTick(){
+  const run = sfRun;
+  if (!run || run.answered || sfScreen!=="question") return;
+  if (!sfVisible()){ sfAbort(); return; }
+  const el = (Date.now()-run.qStart)/1000;
+  const left = Math.max(0, SUPERFLASH_TIME_LIMIT-el);
+  const f = left/SUPERFLASH_TIME_LIMIT;
+  const tone = f>0.55 ? "ok" : f>0.25 ? "mid" : "low";
+  const bar = document.getElementById("flash-timer-bar");
+  if (bar){ bar.style.transform = "scaleX("+f.toFixed(4)+")"; bar.dataset.tone = tone; }
+  const clock = document.getElementById("sf-clock");
+  if (clock) clock.dataset.tone = tone;
+  const fill = document.getElementById("sf-clock-fill");
+  if (fill) fill.style.strokeDashoffset = (SF_CLOCK_C*(1-f)).toFixed(2);
+  const secs = document.getElementById("sf-secs");
+  if (secs) secs.textContent = left<5 ? sfSec(left) : String(Math.ceil(left));
+  const stake = document.getElementById("sf-stake");
+  if (stake) stake.textContent = "+"+sfPointsAt(el);
+  if (left<=0) answerFlash(-1);
 }
 function answerFlash(i){
-  if (flashAnswered) return;
-  flashAnswered = true;
-  clearInterval(flashTimer);
-  const item = flashQueue[flashIdx];
-  const elapsed = (Date.now()-flashQStart)/1000;
-  const correct = i===item.correct;
+  const run = sfRun;
+  if (!run || run.answered || sfScreen!=="question") return;
+  run.answered = true;
+  clearInterval(sfTimer); sfTimer = null;
+  const item = run.queue[run.idx];
+  const el = Math.min(SUPERFLASH_TIME_LIMIT, (Date.now()-run.qStart)/1000);
+  const timeout = i<0;
+  const ok = !timeout && i===item.correct;
+  const broken = !ok && run.streak>=3 ? run.streak : 0;
   let pts = 0;
-  if (correct){
-    flashCorrectCount++;
-    const frac = Math.max(0, 1 - (elapsed/SUPERFLASH_TIME_LIMIT));
-    pts = Math.round(SUPERFLASH_MAX_POINTS * (0.4 + 0.6*frac)); // floor 40 pts for any timely correct answer, up to 100 pts if instant
-    flashScore += pts;
+  if (ok){
+    pts = sfPointsAt(el);
+    run.score += pts;
+    run.correct++;
+    run.streak++;
+    run.bestStreak = Math.max(run.bestStreak, run.streak);
+  } else {
+    run.streak = 0;
   }
+  run.log[run.idx] = {ok, pts, t:el, timeout, choice:i};
+  sfScreen = "feedback";
   const card = document.getElementById("flash-card");
-  card.querySelectorAll(".quiz-choice").forEach((b,bi)=>{
+  if (!card) return;
+  card.querySelectorAll(".kn-choice").forEach((b,bi)=>{
     b.disabled = true;
     if (bi===item.correct) b.classList.add("correct");
     else if (bi===i) b.classList.add("wrong");
+    else b.classList.add("dim");
   });
-  document.getElementById("flash-explain").innerHTML =
-    '<div class="quiz-explain">'+item.explain+(correct ? ' <strong style="color:var(--long);">+'+pts+' pts</strong>' : ' <span style="color:var(--text-faint);">0 pt</span>')+'</div>'+
-    '<div class="quiz-next"><button class="btn-primary" id="flash-next">'+(flashIdx+1<flashQueue.length?"Suivant":"Voir le score")+'</button></div>';
-  document.getElementById("flash-next").addEventListener("click", ()=>{ flashIdx++; renderFlashQuestion(); });
+  const qc = card.querySelector(".sf-qcard");
+  if (qc) qc.classList.add(ok ? "is-ok" : "is-ko");
+  if (timeout){
+    const bar = document.getElementById("flash-timer-bar");
+    if (bar) bar.style.transform = "scaleX(0)";
+    const secs = document.getElementById("sf-secs");
+    if (secs) secs.textContent = "0";
+  }
+  const stake = document.getElementById("sf-stake");
+  if (stake) stake.textContent = ok ? "+"+pts : "0";
+  const sc = document.getElementById("sf-score");
+  if (sc) sc.textContent = sfFmt(run.score);
+  const pill = document.getElementById("sf-score-pill");
+  if (pill && ok){
+    const pop = document.createElement("span");
+    pop.className = "sf-pop num"; pop.textContent = "+"+pts;
+    pill.appendChild(pop);
+    setTimeout(()=>pop.remove(), 900);
+  }
+  const st = document.getElementById("sf-streak");
+  if (st){ st.classList.toggle("is-on", run.streak>=2); st.querySelector("b").textContent = run.streak; if (ok && run.streak>=2){ st.classList.remove("bump"); void st.offsetWidth; st.classList.add("bump"); } }
+  const dot = document.querySelectorAll("#sf-dots i")[run.idx];
+  if (dot) dot.className = ok ? "ok" : "ko";
+  const last = run.idx+1>=run.queue.length;
+  document.getElementById("flash-explain").innerHTML = ok
+    ? '<div class="kn-explain is-ok sf-fb"><div class="kn-explain-head">✓ Bonne réponse <span class="sf-fb-t">en '+sfSec(el)+' s</span><span class="kn-explain-gain">+'+pts+' pts</span></div></div>'
+    : '<div class="kn-explain is-ko"><div class="kn-explain-head">'+(timeout ? '⏱ Temps écoulé' : '✗ Raté')+
+        '<span class="kn-explain-muted">'+(broken ? 'série de '+broken+' cassée · 0 pt' : '0 pt')+'</span></div>'+
+        (item.explain ? '<div class="kn-explain-body">'+item.explain+'</div>' : '')+
+      '</div>';
+  document.getElementById("flash-next-wrap").innerHTML =
+    '<button class="btn-primary sf-next'+(ok?' is-auto':'')+'" id="flash-next" style="--auto:'+SF_AUTO_NEXT_MS+'ms"><span>'+(last ? 'Voir mon score' : 'Question suivante')+' →</span></button>';
+  document.getElementById("flash-next").addEventListener("click", sfNext);
+  if (ok) sfAdvTimer = setTimeout(sfNext, SF_AUTO_NEXT_MS);
+  else {
+    const nx = document.getElementById("flash-next");
+    const r = nx.getBoundingClientRect();
+    if (r.bottom > window.innerHeight - 80) nx.scrollIntoView({block:"end", behavior:"smooth"});
+  }
+}
+function sfNext(){
+  if (!sfRun || sfScreen!=="feedback") return;
+  clearTimeout(sfAdvTimer); sfAdvTimer = null;
+  if (!sfVisible()){ sfAbort(); return; }
+  sfRun.idx++;
+  renderFlashQuestion();
+}
+
+/* ---------- Fin de partie ---------- */
+function sfMessage(ratio, avgT){
+  if (ratio>=0.9 && avgT!=null && avgT<4) return "Réflexes de pro : précis et rapide.";
+  if (ratio>=0.9) return "Presque tout juste. Gagne quelques secondes par question pour grimper au classement.";
+  if (ratio>=0.7) return "Solide. Les questions ratées sont juste en dessous, avec l'explication.";
+  if (ratio>=0.4) return "Pas mal. Relis les explications ci-dessous puis relance une partie.";
+  return "Dur, ce chrono. Un tour par Cours & Quiz et la prochaine partie ira mieux.";
 }
 function finishFlash(){
-  state.superflash.attempts = (state.superflash.attempts||0)+1;
-  const isNewBest = flashScore>state.superflash.bestScore;
+  sfClearTimers();
+  const run = sfRun, card = sfCard();
+  if (!run) return;
+  sfScreen = "result";
+  const n = run.queue.length;
+  const sf = state.superflash;
+  const prevBest = sf.bestScore || 0;
+  sf.attempts = (sf.attempts||0)+1;
+  const isNewBest = run.score>prevBest;
   if (isNewBest){
-    state.superflash.bestScore = flashScore;
-    state.superflash.bestCorrect = flashCorrectCount;
+    sf.bestScore = run.score;
+    sf.bestCorrect = run.correct;
   }
   persistAccount();
   awardBadge('first_superflash');
-  const card = document.getElementById("flash-card");
   if (!card) return;
+  const ratio = run.correct/n;
+  const okLog = run.log.filter(r=>r && r.ok);
+  const avgT = okLog.length ? okLog.reduce((s,r)=>s+r.t,0)/okLog.length : null;
+  const rank = sfRankFor(sf.bestScore);
+  const wrong = run.log.map((r,i)=>r && !r.ok ? i : -1).filter(i=>i>=0);
+  const letters = ["A","B","C","D","E","F"];
   card.innerHTML =
-    '<div class="quiz-score">'+
-      '<div class="quiz-cat">Superflash terminé</div>'+
-      '<div class="big">'+flashScore+' pts</div>'+
-      '<div class="bonus">'+flashCorrectCount+' / '+flashQueue.length+' bonnes réponses'+(isNewBest?' — nouveau record 🏆':'')+'</div>'+
-      '<div class="chart-note" style="margin-top:2px;">Classé sur le classement Superflash dédié, indépendant de ton équité et des autres quiz.</div>'+
-      '<div style="margin-top:20px;display:flex;gap:10px;justify-content:center;">'+
-        '<button class="btn-secondary" id="flash-retry">Relancer</button>'+
-        '<button class="btn-primary" id="flash-see-lb">Classement Superflash</button>'+
+    '<div class="sf sf-result">'+
+      '<div class="kn-result-hero sf-result-hero'+(isNewBest?' is-perfect':'')+'">'+
+        '<div class="kn-result-ring">'+progressRingSvg(ratio, 150, 12, isNewBest?"gold":"")+
+          '<div class="kn-overall-txt"><b class="num">'+run.correct+'/'+n+'</b><span>bonnes réponses</span></div></div>'+
+        '<div class="kn-result-txt">'+
+          '<span class="kn-kicker">'+SF_BOLT+'Superflash · partie n°'+sf.attempts+'</span>'+
+          '<h1><span class="num" id="sf-final">0</span> <small>pts</small></h1>'+
+          '<p>'+sfMessage(ratio, avgT)+'</p>'+
+          (isNewBest
+            ? '<div class="kn-result-badge">🏆 Nouveau record'+(prevBest>0 ? ' · +'+sfFmt(run.score-prevBest)+' pts' : '')+'</div>'
+            : '<div class="sf-rec-note">Ton record : <b class="num">'+sfFmt(prevBest)+' pts</b> · encore '+sfFmt(prevBest-run.score+1)+' pts pour le battre</div>')+
+        '</div>'+
       '</div>'+
+      '<div class="kn-result-tiles sf-tiles">'+
+        '<div><span>Précision</span><b class="num">'+Math.round(ratio*100)+' %</b></div>'+
+        '<div><span>Temps moyen (bonnes réponses)</span><b class="num">'+(avgT!=null ? sfSec(avgT)+' s' : '—')+'</b></div>'+
+        '<div><span>Meilleure série</span><b class="num">'+(run.bestStreak>=2 ? '🔥 ' : '')+run.bestStreak+'</b></div>'+
+        '<div><span>Ton rang</span><b class="num" id="sf-res-rank">'+(rank ? '#'+rank : '—')+'</b></div>'+
+      '</div>'+
+      '<section class="sf-chart">'+
+        '<div class="sf-chart-head"><h2>Question par question</h2>'+
+          '<span class="sf-legend"><i class="ok"></i>points marqués <i class="ko"></i>raté ou temps écoulé</span></div>'+
+        '<div class="sf-bars" role="img" aria-label="Points marqués à chaque question">'+
+          run.log.map((r,i)=>{
+            const tip = 'Q'+(i+1)+' · '+(r.ok ? '+'+r.pts+' pts en '+sfSec(r.t)+' s' : r.timeout ? 'temps écoulé' : 'raté');
+            return '<div class="sf-bcol '+(r.ok?'ok':'ko')+'" title="'+tip+'"><i style="height:'+(r.ok ? r.pts : 6)+'%"></i><span class="sf-btip">'+tip+'</span></div>';
+          }).join("")+
+        '</div>'+
+        '<div class="sf-bars-axis"><span>Q1</span><span>Q'+n+'</span></div>'+
+      '</section>'+
+      '<div class="kn-result-actions">'+
+        '<button class="btn-primary" id="flash-retry">'+SF_BOLT+'Rejouer</button>'+
+        '<button class="btn-secondary" id="flash-see-lb">Classement Superflash</button>'+
+      '</div>'+
+      (wrong.length ? '<div class="kn-review"><h2>À revoir <span>'+wrong.length+'</span></h2>'+
+        wrong.map(i=>{
+          const it = run.queue[i], r = run.log[i];
+          return '<div class="kn-review-item"><div class="kn-review-q"><span class="num">Q'+(i+1)+'</span>'+it.q+'</div>'+
+            '<div class="sf-review-you">'+(r.timeout ? '⏱ Pas de réponse à temps' : '✗ Ta réponse : '+letters[r.choice]+'. '+it.choices[r.choice])+'</div>'+
+            '<div class="kn-review-a">✓ '+letters[it.correct]+'. '+it.choices[it.correct]+'</div>'+
+            (it.explain ? '<div class="kn-review-x">'+it.explain+'</div>' : '')+
+          '</div>';
+        }).join("")+
+      '</div>' : '')+
+      '<p class="kn-qintro-note" style="text-align:center;">Seul ton meilleur score compte au classement Superflash, indépendant de ton équité et des autres quiz.</p>'+
     '</div>';
+  window.scrollTo(0, 0);
   document.getElementById("flash-retry").addEventListener("click", startFlash);
   document.getElementById("flash-see-lb").addEventListener("click", renderFlashLeaderboard);
+  // Compteur animé du score final.
+  const out = document.getElementById("sf-final"), target = run.score, t0 = performance.now();
+  const step = (now)=>{
+    if (!out.isConnected) return;
+    const p = Math.min(1, (now-t0)/900);
+    out.textContent = sfFmt(target*(1-Math.pow(1-p, 3)));
+    if (p<1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
 }
+
+/* ---------- Classement ---------- */
 function renderFlashLeaderboard(){
-  const card = document.getElementById("flash-card");
+  sfAbort();
+  sfScreen = "lb";
+  const card = sfCard();
   if (!card) return;
   card.innerHTML =
-    '<div style="margin-bottom:10px;"><button class="btn-secondary" id="flash-back-intro">◀ Retour</button></div>'+
-    '<div style="overflow-x:auto;">'+
-      '<table class="lb-table"><thead><tr><th>Rang</th><th>Trader</th><th>Score</th><th>Bonnes réponses</th></tr></thead>'+
-      '<tbody id="flash-lb-body"><tr><td colspan="4" class="empty-note">Chargement…</td></tr></tbody></table>'+
+    '<div class="sf sf-lb">'+
+      '<div class="sf-lb-head">'+
+        '<button class="kn-quiz-quit" id="flash-back-intro">← Retour</button>'+
+        '<div class="sf-lb-title"><span class="kn-kicker">'+SF_BOLT+'Superflash</span><h2>Classement</h2></div>'+
+        '<button class="btn-primary" id="flash-start">'+SF_BOLT+'Jouer</button>'+
+      '</div>'+
+      '<div id="sf-podium"></div>'+
+      '<div class="sf-lb-table"><table class="lb-table"><thead><tr><th>Rang</th><th>Trader</th><th>Score</th><th>Bonnes réponses</th></tr></thead>'+
+        '<tbody id="flash-lb-body"><tr><td colspan="4" class="empty-note">Chargement…</td></tr></tbody></table></div>'+
+      '<p class="kn-qintro-note">Meilleur score de chaque trader sur une partie (max '+sfFmt(SUPERFLASH_MAX_POINTS*buildSuperflashPool().length)+' pts). Indépendant de ton équité et des autres quiz.</p>'+
     '</div>';
   document.getElementById("flash-back-intro").addEventListener("click", renderFlashIntro);
+  document.getElementById("flash-start").addEventListener("click", startFlash);
+  sfPaintLb();
 }
-function renderSuperflashLeaderboardRows(rawDocs){
+function sfPaintLb(){
   const body = document.getElementById("flash-lb-body");
-  if (!body) return;
-  const docs = rawDocs.filter(doc=>(doc.data().superflashBest||0)>0);
-  if (!docs.length){ body.innerHTML = '<tr><td colspan="4" class="empty-note">Aucun score pour le moment.</td></tr>'; return; }
-  body.innerHTML = docs.map((doc,i)=>{
-    const d = doc.data();
-    const rank = i+1;
+  if (!body || !sfLbCache) return;
+  const n = buildSuperflashPool().length || 24;
+  const max = SUPERFLASH_MAX_POINTS*n;
+  const rows = sfLbCache.filter(r=>(r.d.superflashBest||0)>0);
+  const pod = document.getElementById("sf-podium");
+  if (pod){
+    pod.innerHTML = rows.length ? '<div class="sf-podium">'+[1,0,2].map(i=>{
+      const r = rows[i];
+      if (!r) return '<div class="sf-pod sf-pod-empty"></div>';
+      return '<div class="sf-pod sf-pod-'+(i+1)+(r.id===clientId?' is-me':'')+'">'+
+        '<span class="sf-rk sf-rk-'+(i+1)+'">'+(i+1)+'</span>'+
+        '<span class="sf-pod-name">'+escapeHtml(r.d.username||"Trader")+'</span>'+
+        '<b class="num">'+sfFmt(r.d.superflashBest)+' pts</b>'+
+        '<em>'+(r.d.superflashBestCorrect||0)+'/'+n+' justes</em>'+
+      '</div>';
+    }).join("")+'</div>' : '';
+  }
+  if (!rows.length){ body.innerHTML = '<tr><td colspan="4" class="empty-note">Aucun score pour le moment. Lance la première partie !</td></tr>'; return; }
+  body.innerHTML = rows.map((r,i)=>{
+    const d = r.d, rank = i+1;
     const rankClass = rank===1?"rank-1":rank===2?"rank-2":rank===3?"rank-3":"";
-    return '<tr class="'+(doc.id===clientId?"me":"")+'">'+
+    const me = r.id===clientId;
+    return '<tr class="'+(me?"me":"")+'">'+
       '<td class="num '+rankClass+'">#'+rank+'</td>'+
-      '<td>'+escapeHtml(d.username||"Trader")+(doc.id===clientId?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
-      '<td class="num">'+(d.superflashBest||0)+'</td>'+
-      '<td class="num">'+(d.superflashBestCorrect||0)+'/24</td>'+
+      '<td>'+escapeHtml(d.username||"Trader")+(me?' <span class="hist-tag">(toi)</span>':'')+'</td>'+
+      '<td class="num sf-lb-score"><span>'+sfFmt(d.superflashBest)+'</span><i style="--w:'+Math.min(100, Math.round((d.superflashBest||0)/max*100))+'%"></i></td>'+
+      '<td class="num">'+(d.superflashBestCorrect||0)+'/'+n+'</td>'+
     '</tr>';
   }).join("");
 }
+function renderSuperflashLeaderboardRows(rawDocs){
+  sfLbCache = rawDocs.map(doc=>({id:doc.id, d:doc.data()||{}}));
+  sfPaintLb();
+  const rk = document.getElementById("sf-intro-rank");
+  if (rk){ const r = sfRankFor(state.superflash.bestScore); rk.textContent = r ? '#'+r : '—'; }
+  const rr = document.getElementById("sf-res-rank");
+  if (rr){ const r = sfRankFor(state.superflash.bestScore); rr.textContent = r ? '#'+r : '—'; }
+  const top = document.getElementById("sf-intro-top");
+  if (top) top.innerHTML = sfPodiumHtml(3);
+}
+// Raccourcis : Entrée lance / passe à la suite / rejoue, A–D ou 1–4 répondent.
+document.addEventListener("keydown", (e)=>{
+  if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+  if (!sfVisible()) return;
+  const t = e.target;
+  if (t && (t.tagName==="INPUT" || t.tagName==="TEXTAREA" || t.tagName==="SELECT" || t.isContentEditable)) return;
+  if (e.key==="Enter"){
+    const id = sfScreen==="feedback" ? "flash-next" : (sfScreen==="intro" || sfScreen==="lb") ? "flash-start" : sfScreen==="result" ? "flash-retry" : null;
+    const btn = id && document.getElementById(id);
+    if (!btn) return;
+    const card = document.getElementById("flash-card");
+    if (t && t.tagName==="BUTTON" && t!==btn && !t.disabled && card && card.contains(t)) return; // laisse Entrée activer le bouton qui a le focus
+    e.preventDefault();
+    btn.click();
+    return;
+  }
+  if (sfScreen!=="question") return;
+  const key = e.key.toLowerCase();
+  let idx = -1;
+  if (/^[1-6]$/.test(key)) idx = parseInt(key,10)-1;
+  else if (/^[a-f]$/.test(key)) idx = key.charCodeAt(0)-97;
+  if (idx<0) return;
+  const btn = document.querySelectorAll("#flash-card .kn-choice")[idx];
+  if (btn && !btn.disabled){ e.preventDefault(); answerFlash(idx); }
+});
 
 /* ============================= SHELL (sidebar / topbar / mobile bar) ============================= */
 // Refonte 2026-09. The sidebar and the mobile bottom bar are both
