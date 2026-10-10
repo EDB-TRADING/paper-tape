@@ -5462,6 +5462,17 @@ const state = {
   copyNormalToProp: false,  // mirror new orders opened on Normal onto Prop too
   copyPropToNormal: false,  // mirror new orders opened on Prop onto Normal too
 };
+// Copie de l'état « compte neuf », pour repartir proprement quand on change
+// de compte dans le même onglet (sinon les positions du compte précédent
+// pouvaient être écrites dans le nouveau).
+const STATE_DEFAULTS = JSON.parse(JSON.stringify(state));
+function resetLocalAccountState(){
+  Object.keys(STATE_DEFAULTS).forEach(k=>{ state[k] = JSON.parse(JSON.stringify(STATE_DEFAULTS[k])); });
+  state.username = randHandle();
+  ["weekStartEquity","weekKey","lastActiveDateKey","edbPlusTrialStartedAt","termsVersion"].forEach(k=>{ state[k] = null; });
+  state.streakDays = 0; state.hardcore200kPasses = 0; state.challenge200kOpens = 0;
+  state.usernameDirty = true;
+}
 let selectedSymbol = "BTC";
 let side = "long";
 let orderType = "market";
@@ -5765,6 +5776,8 @@ function hydrateStateFromDoc(snap){
   const d = deepClone(snap.data()) || {};
   state.username = d.username || state.username;
   state.usernameDirty = !d.username; // pas encore de pseudo enregistré : on l'écrira au prochain persist
+  accountRev = typeof d.rev==="number" ? d.rev : 0;
+  baseSig = tradingSig(d);
   state.cash = typeof d.cash==="number" ? d.cash : state.cash;
   state.marginUsed = typeof d.marginUsed==="number" ? d.marginUsed : 0;
   state.positions = Array.isArray(d.positions) ? d.positions : [];
@@ -5855,23 +5868,117 @@ function hydrateStateFromDoc(snap){
 // Loads (or creates) the trader doc for `id` into `state`. Used at boot for
 // the local anonymous id, and again by the auth flow whenever `clientId`
 // switches identity (login/logout/migration).
+// Chargement du compte à la connexion (Google ou email), sans risque de
+// réinitialisation :
+//  - pendant le chargement, AUCUNE sauvegarde n'est envoyée (avant, une
+//    sauvegarde partie à ce moment-là pouvait écrire un compte neuf par-dessus
+//    le vrai compte) ;
+//  - si deux connexions se suivent (ex. Google puis email), seule la dernière
+//    est prise en compte (numéro de chargement) ;
+//  - un compte n'est créé que s'il n'existe vraiment pas (transaction : on ne
+//    remplace jamais un document existant) ;
+//  - en cas de souci réseau, on réessaie au lieu de créer un compte vide.
+let accountLoading = false, accountLoadSeq = 0, lastLoadedId = null, accountCreateAllowed = false;
 async function loadAccountForClientId(id){
+  const seq = ++accountLoadSeq;
+  accountLoading = true;
+  clearTimeout(persistTimer); persistPendingRun = null;
+  if (lastLoadedId && lastLoadedId!==id){
+    const email = state.email;
+    resetLocalAccountState();
+    state.email = email;
+  }
   clientId = id; // persistAccount() always writes to the *current* clientId
+  accountDocExists = false; accountCreateAllowed = false; accountRev = 0;
   const ref = db.collection("traders").doc(id);
-  const snap = await ref.get();
+  let snap = null;
+  for (let attempt=0; attempt<4 && !snap; attempt++){
+    try{ snap = await ref.get(); }
+    catch(e){ console.warn("account load failed (attempt "+(attempt+1)+")", e); await new Promise(r=>setTimeout(r, 1500*(attempt+1))); }
+    if (seq!==accountLoadSeq) return;
+  }
+  if (!snap){ accountLoading = false; throw new Error("account_load_failed"); } // ni écriture ni création : on réessaiera à la prochaine connexion
   if (snap.exists){
     accountDocExists = true;
     hydrateStateFromDoc(snap);
+    ownLastServerMark = (snap.data()||{}).serverMarkedAt || null;
+    lastLoadedId = id;
+    accountLoading = false;
   } else {
-    accountDocExists = false;
     // No doc yet == this is the very first time this account has ever
     // logged in. That's the one-shot signal the onboarding tour hooks into
     // (see initAuth()'s onAuthStateChanged) — it fires exactly once per
     // account, ever, regardless of how many devices/browsers they use after.
     isFreshAccount = true;
-    await persistAccount();
+    lastLoadedId = id;
+    accountCreateAllowed = true;
+    accountLoading = false;
+    const p = persistAccount();
+    flushPersist(true);
+    await p;
+    if (seq!==accountLoadSeq) return;
   }
   recordTermsAcceptance(id);
+}
+// Plusieurs onglets / appareils sur le même compte (ex. l'app installée sur
+// le téléphone + le PC) : un onglet resté en arrière-plan gardait en mémoire
+// une position déjà fermée ailleurs et la réécrivait — elle « revenait » au
+// rechargement. Règle, sans écoute permanente (pour ne pas payer une lecture
+// à chaque sauvegarde) :
+//  - un onglet caché n'écrit plus (sauf la sauvegarde finale au moment où il
+//    passe en arrière-plan) ; c'est le serveur (paperTapeMark) qui prend le
+//    relais des ordres au bout de 60 s, comme prévu ;
+//  - quand l'onglet redevient visible ou reprend le focus, il relit son
+//    document UNE fois (1 lecture) et reprend l'état le plus récent si
+//    quelqu'un d'autre (autre onglet, appareil ou serveur) l'a modifié.
+let ownResyncAt = 0;
+async function resyncOwnTraderDoc(){
+  if (!dbReady || !db || !clientId || !accountDocExists) return;
+  if (Date.now()-ownResyncAt < 15000) return; // au plus une relecture toutes les 15 s
+  ownResyncAt = Date.now();
+  const id = clientId;
+  try{
+    const snap = await db.collection("traders").doc(id).get();
+    if (id!==clientId || !snap.exists) return;
+    const d = snap.data() || {};
+    const fromOtherTab = !!(d.writerTab && d.writerTab!==TAB_ID);
+    const fromServer = !!(d.serverMarkedAt && d.serverMarkedAt!==ownLastServerMark);
+    if (d.serverMarkedAt) ownLastServerMark = d.serverMarkedAt;
+    if (fromOtherTab || fromServer) applyRemoteTradingState(d);
+  }catch(e){ console.warn("own doc resync failed", e); }
+}
+// Reprend uniquement l'état de trading (compte normal, compte prop,
+// challenge, investissement) depuis le document, en gardant le compte
+// actuellement affiché.
+function applyRemoteTradingState(raw){
+  if (inBackgroundBookCheck || __liveBookNameOverride) return; // jamais au milieu d'un échange de comptes
+  const d = deepClone(raw) || {};
+  const arr = (v)=>Array.isArray(v) ? v : [];
+  const normal = {
+    cash: typeof d.cash==="number" ? d.cash : state.cash,
+    marginUsed: typeof d.marginUsed==="number" ? d.marginUsed : 0,
+    positions: arr(d.positions), pendingOrders: arr(d.pendingOrders), history: arr(d.history),
+    stats: (d.stats && typeof d.stats==="object") ? Object.assign(freshBookStats(), d.stats) : freshBookStats(),
+  };
+  const pb = (d.propBook && typeof d.propBook==="object") ? d.propBook : null;
+  const prop = pb ? {
+    cash: typeof pb.cash==="number" ? pb.cash : 0,
+    marginUsed: typeof pb.marginUsed==="number" ? pb.marginUsed : 0,
+    positions: arr(pb.positions), pendingOrders: arr(pb.pendingOrders), history: arr(pb.history),
+    stats: (pb.stats && typeof pb.stats==="object") ? pb.stats : freshBookStats(),
+  } : null;
+  if (state.activeBookName==="prop" && prop){ loadBookSnapshot(prop); state.parked = normal; }
+  else { state.activeBookName = "normal"; loadBookSnapshot(normal); state.parked = prop; }
+  state.challenge = (d.challenge && typeof d.challenge==="object") ? d.challenge : null;
+  state.challengeHistory = arr(d.challengeHistory);
+  if (typeof d.hardcore200kPasses==="number") state.hardcore200kPasses = d.hardcore200kPasses;
+  if (typeof d.challenge200kOpens==="number") state.challenge200kOpens = d.challenge200kOpens;
+  if ("invest" in d) state.invest = investSanitize(d.invest);
+  if (typeof d.rev==="number") accountRev = d.rev;
+  baseSig = tradingSig(d);
+  if (typeof enforceLeverageAccess==="function") enforceLeverageAccess();
+  renderAll();
+  if (typeof renderChallengeBanner==="function") renderChallengeBanner();
 }
 async function initDb(){
   try{
@@ -5905,6 +6012,80 @@ async function uploadToStorage(file, path){
   return await snap.ref.getDownloadURL();
 }
 let persistTimer = null;
+let persistPendingRun = null;
+// Sauvegarde immédiate de ce qui attend encore dans le délai de 150 ms
+// (fermeture d'onglet, rechargement, fermeture d'une position…).
+function flushPersist(force){
+  if (!persistPendingRun) return;
+  clearTimeout(persistTimer);
+  const run = persistPendingRun;
+  if (force) persistForceHidden = true;
+  run();
+}
+// Identifiant de CET onglet : écrit avec chaque sauvegarde (writerTab) pour
+// reconnaître, dans le suivi en direct du document, les changements venus
+// d'un autre onglet / appareil (voir resyncOwnTraderDoc()).
+const TAB_ID = Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
+let ownLastServerMark = null;
+let persistForceHidden = false;
+// Numéro de version du compte (champ `rev`) : chaque sauvegarde envoie
+// rev + 1, et les règles Firestore refusent une sauvegarde partie d'une
+// version dépassée (autre appareil passé entre-temps). Voir
+// resolvePersistConflict().
+let accountRev = 0;
+let baseSig = "";        // empreinte de l'état de trading au dernier accord avec le serveur
+let writeChain = Promise.resolve(); // une seule écriture à la fois, dans l'ordre
+// Empreinte de ce qui compte vraiment (positions, ordres, historique récent,
+// cash, compte prop, challenge, investissement) — pas l'équité ni l'heure.
+function tradingSig(d){
+  if (!d) return "";
+  const arr = v=>Array.isArray(v) ? v : [];
+  const pos = a=>arr(a).map(p=>[p.id,p.sizeUnits,p.takeProfit,p.stopLoss].join(":")).join(",");
+  const po = a=>arr(a).map(o=>[o.id,o.limitPrice,o.notional,o.takeProfit,o.stopLoss].join(":")).join(",");
+  const hi = a=>arr(a).slice(0,3).map(h=>h && h.id).join(",");
+  const book = b=>b ? [Math.round((+b.cash||0)*100), pos(b.positions), po(b.pendingOrders), hi(b.history)].join("|") : "-";
+  const c = d.challenge, inv = d.invest;
+  return [book(d), book(d.propBook), c ? [c.tier,c.phase,c.startedAt].join(":") : "-",
+    inv ? arr(inv.history).length+":"+Math.round((+inv.reserve||0)*100) : "-"].join("#");
+}
+function appToast(msg){
+  let t = document.getElementById("app-toast");
+  if (!t){
+    t = document.createElement("div"); t.id = "app-toast";
+    t.style.cssText = "position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:9999;max-width:min(560px,92vw);background:var(--panel-2);color:var(--text);border:1px solid var(--warn);border-radius:12px;padding:12px 16px;font:500 13.5px var(--sans);box-shadow:0 16px 40px -12px rgba(0,0,0,.7);transition:opacity .3s;";
+    document.body.appendChild(t);
+  }
+  t.textContent = msg; t.style.opacity = "1";
+  clearTimeout(t._h); t._h = setTimeout(()=>{ t.style.opacity = "0"; }, 7000);
+}
+// Sauvegarde refusée par Firestore : un autre appareil (ou le serveur) a
+// enregistré entre-temps. On relit le compte (1 lecture) :
+//  - si l'autre écriture n'a rien changé d'important (simple mise à jour de
+//    l'équité), on renvoie notre sauvegarde avec le bon numéro de version ;
+//  - sinon on reprend l'état du serveur (jamais d'écrasement silencieux) et,
+//    si on avait nous-mêmes une action en attente, on prévient le joueur.
+async function resolvePersistConflict(ref, payload, upd, nameDirty){
+  let snap = await ref.get();
+  if (!snap.exists) return;
+  let d = snap.data() || {};
+  const localSig = tradingSig(payload);
+  if (tradingSig(d)===baseSig){
+    upd.rev = (d.rev||0)+1;
+    try{
+      await ref.update(upd);
+      accountRev = upd.rev; baseSig = localSig;
+      if (nameDirty) state.usernameDirty = false;
+      return;
+    }catch(e){
+      snap = await ref.get();
+      if (!snap.exists) return;
+      d = snap.data() || {};
+    }
+  }
+  const localChanged = localSig!==baseSig;
+  applyRemoteTradingState(d);
+  if (localChanged) appToast("Ton compte a été modifié sur un autre appareil : ta dernière action n'a pas été enregistrée. Vérifie tes positions et refais-la si besoin.");
+}
 // Whether this trader's Firestore doc is known to exist. Once it does,
 // persistAccount() switches from a full .set() to an .update() that never
 // includes the admin-owned fields (isAdmin / edbPlus / badges): before
@@ -5917,8 +6098,24 @@ const ADMIN_OWNED_FIELDS = ["isAdmin","edbPlus","badges"];
 function persistAccount(){
   if (!dbReady || !db) return Promise.resolve();
   clearTimeout(persistTimer);
+  const targetId = clientId;
   return new Promise((resolve)=>{
-    persistTimer = setTimeout(async ()=>{
+    const run = async ()=>{
+      persistTimer = null; persistPendingRun = null;
+      const forced = persistForceHidden; persistForceHidden = false;
+      // Jamais pendant un chargement de compte, ni pour un autre compte que
+      // celui qui était connecté au moment de la demande.
+      if (accountLoading || !clientId || clientId!==targetId){ resolve(); return; }
+      // Le document n'est créé que par loadAccountForClientId (compte neuf).
+      if (!accountDocExists && !accountCreateAllowed){ resolve(); return; }
+      // Onglet caché : on n'écrit pas (voir resyncOwnTraderDoc), sauf la
+      // sauvegarde forcée au moment de passer en arrière-plan / de quitter.
+      if (accountDocExists && !forced && typeof document!=="undefined" && document.visibilityState==="hidden"){ resolve(); return; }
+      const prevWrite = writeChain;
+      let releaseWrite = ()=>{};
+      writeChain = new Promise(r=>{ releaseWrite = r; });
+      try{ await prevWrite; }catch(e){}
+      if (accountLoading || clientId!==targetId){ releaseWrite(); resolve(); return; }
       try{
         // The "normal" book keeps writing to the SAME top-level fields the
         // doc has always used (cash/marginUsed/positions/.../equity), so the
@@ -6012,6 +6209,8 @@ function persistAccount(){
           // so it never races the client that's already handling it.
           lastActiveAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
+          writerTab: TAB_ID,
+          rev: accountRev+1,
           hasOpenActivity,
           // Investissement space (PEA + CTO) — only once opened, see investPersistFields().
           ...investPersistFields(),
@@ -6021,10 +6220,28 @@ function persistAccount(){
           // A brand-new doc (or one an admin deleted meanwhile) always starts
           // non-admin / non-EDB+ — which is also exactly what firestore.rules
           // enforces on a trader's own create.
-          const createPayload = Object.assign({}, payload, {isAdmin:false, edbPlus:false});
+          const createPayload = Object.assign({}, payload, {isAdmin:false, edbPlus:false, rev:1});
           if (typeof createPayload.propRank!=="number") delete createPayload.propRank; // FieldValue.delete() est interdit dans un set() sans merge
-          await ref.set(createPayload);
-          accountDocExists = true;
+          // Création seulement si le document n'existe vraiment pas
+          // (transaction) : on ne remplace jamais un compte existant.
+          let created = true;
+          if (typeof db.runTransaction==="function"){
+            created = await db.runTransaction(async (tx)=>{
+              const cur = await tx.get(ref);
+              if (cur.exists) return false;
+              tx.set(ref, createPayload);
+              return true;
+            });
+          } else {
+            await ref.set(createPayload);
+          }
+          accountDocExists = true; accountCreateAllowed = false;
+          if (created){ accountRev = 1; baseSig = tradingSig(createPayload); }
+          else {
+            // Le compte existait déjà (créé entre-temps sur un autre appareil) : on le reprend.
+            const cur = await ref.get();
+            if (cur.exists && clientId===targetId){ hydrateStateFromDoc(cur); isFreshAccount = false; renderAll(); }
+          }
         };
         if (!accountDocExists){
           await createDoc();
@@ -6035,16 +6252,24 @@ function persistAccount(){
           // sinon un renommage fait par un admin serait écrasé au prochain persist.
           const nameDirty = !!state.usernameDirty;
           if (!nameDirty) delete upd.username;
-          try{ await ref.update(upd); if (nameDirty) state.usernameDirty = false; }
+          try{
+            await ref.update(upd);
+            accountRev = upd.rev; baseSig = tradingSig(payload);
+            if (nameDirty) state.usernameDirty = false;
+          }
           catch(e){
             const code = e && e.code || "";
-            if (code==="not-found" || code==="firestore/not-found"){ accountDocExists = false; await createDoc(); }
+            if (code==="not-found" || code==="firestore/not-found"){ accountDocExists = false; accountCreateAllowed = true; await createDoc(); }
+            else if (code==="permission-denied" || code==="firestore/permission-denied"){ await resolvePersistConflict(ref, payload, upd, nameDirty); }
             else throw e;
           }
         }
       }catch(e){ console.warn("persist failed", e); }
+      releaseWrite();
       resolve();
-    }, 150);
+    };
+    persistPendingRun = run;
+    persistTimer = setTimeout(run, 150);
   });
 }
 // Counts only time the tab is actually open & visible (paused when the
@@ -6071,8 +6296,11 @@ function initSessionTimeTracking(){
     }
   }, 30000);
   document.addEventListener("visibilitychange", ()=>{
-    if (document.visibilityState==="hidden" && clientId) persistAccount();
+    if (document.visibilityState==="hidden" && clientId){ persistAccount(); flushPersist(true); }
+    else if (document.visibilityState==="visible") resyncOwnTraderDoc();
   });
+  window.addEventListener("pagehide", ()=>{ if (clientId) flushPersist(true); });
+  window.addEventListener("focus", ()=>resyncOwnTraderDoc());
 }
 let timeTrackTicks = 0;
 function quizGrandTotal(){
@@ -6211,6 +6439,7 @@ function authErrorMsg(e){
 function showAuthGate(){
   const gate = document.getElementById("auth-gate");
   if (gate) gate.hidden = false;
+  if (typeof window.__setGateBusy==="function") window.__setGateBusy(false);
   renderGateLastHint();
 }
 // "Tu t'étais connecté avec Google sur ce navigateur" — remembered per
@@ -6264,6 +6493,7 @@ function initGateTicker(){
 function hideAuthGate(){
   const gate = document.getElementById("auth-gate");
   if (gate) gate.hidden = true;
+  if (typeof window.__setGateBusy==="function") window.__setGateBusy(false); // page de connexion fermée : on la déverrouille pour la prochaine fois
 }
 // "Continuer avec Google" — the other login option alongside email +
 // password, wired to the #gate-google-btn click in initGateUI(). Popup is
@@ -6308,9 +6538,15 @@ async function signInWithGoogle(){
 // to always call from initAuth().
 async function checkGoogleRedirectResult(){
   if (typeof firebase.auth !== "function") return;
+  // Retour d'une connexion Google par redirection : la page de connexion
+  // reste verrouillée le temps que Firebase termine.
+  const setBusy = (b)=>{ if (typeof window.__setGateBusy==="function") window.__setGateBusy(b); };
+  setBusy(true);
   try{
     await firebase.auth().getRedirectResult();
+    if (!firebase.auth().currentUser) setBusy(false);
   }catch(e){
+    setBusy(false);
     const msg = document.getElementById("gate-msg");
     if (msg){ msg.style.color = "var(--warn)"; msg.textContent = authErrorMsg(e); }
   }
@@ -6366,7 +6602,9 @@ function initAuth(){
             try{ switchView(v); }catch(e){}
           }
         } else {
-          clientId = null;
+          accountLoadSeq++; // annule un chargement en cours
+          clearTimeout(persistTimer); persistPendingRun = null;
+          clientId = null; accountDocExists = false; accountLoading = false;
           showAuthGate();
         }
       }catch(e){ console.warn("auth state sync failed", e); }
@@ -6423,7 +6661,11 @@ function initAuthUI(){
   const logoutBtn = document.getElementById("auth-logout-btn");
   if (logoutBtn){
     logoutBtn.addEventListener("click", async ()=>{
+      flushPersist(true);
+      try{ await writeChain; }catch(e){}
       try{ await firebase.auth().signOut(); }catch(e){ console.warn("signOut failed", e); }
+      // Page rechargée : rien du compte précédent ne reste en mémoire.
+      try{ location.reload(); }catch(e){}
     });
   }
 }
@@ -6653,10 +6895,17 @@ function initGateUI(){
   // through, e.g. via the Enter-key shortcut below) closes the race.
   let gateBusy = false;
   const gateButtons = [googleBtn, passwordBtn, signupBtn, forgotBtn].filter(Boolean);
+  const gateInputs = [emailInput, passwordInput, document.getElementById("gate-consent-cb")].filter(Boolean);
   function setGateBusy(busy){
     gateBusy = busy;
     gateButtons.forEach(b=>{ b.disabled = busy; });
+    gateInputs.forEach(i=>{ i.disabled = busy; });
   }
+  // Une fois une connexion réussie, la page de connexion reste verrouillée
+  // jusqu'à ce que le compte soit chargé et la page fermée : impossible de
+  // lancer une 2e connexion (autre email / Google) pendant ce temps.
+  const signedIn = ()=>{ try{ return !!firebase.auth().currentUser; }catch(e){ return false; } };
+  window.__setGateBusy = setGateBusy;
   function readEmail(){
     const email = (emailInput.value||"").trim();
     if (!email || email.indexOf("@")<0){ msg.style.color="var(--warn)"; msg.textContent = "Adresse email invalide."; return null; }
@@ -6676,7 +6925,7 @@ function initGateUI(){
       if (!gateConsentOk()) return;
       setGateBusy(true);
       try{ await signInWithGoogle(); }
-      finally{ setGateBusy(false); }
+      finally{ if (!signedIn()) setGateBusy(false); }
     });
   }
 
@@ -6699,7 +6948,7 @@ function initGateUI(){
       msg.style.color = "var(--warn)";
       msg.textContent = authErrorMsg(e);
     }finally{
-      setGateBusy(false);
+      if (!signedIn()) setGateBusy(false);
     }
   }
   async function submitSignup(){
@@ -6716,7 +6965,7 @@ function initGateUI(){
       msg.style.color = "var(--warn)";
       msg.textContent = authErrorMsg(e);
     }finally{
-      setGateBusy(false);
+      if (!signedIn()) setGateBusy(false);
     }
   }
   passwordBtn.addEventListener("click", submitLogin);
@@ -9879,6 +10128,7 @@ function closePosition(id, reason){
     if (typeof enforceLeverageAccess==="function") enforceLeverageAccess(); // stats.tradesClosed just moved — a new leverage tier may have unlocked
     renderAll();
     persistAccount();
+    flushPersist(); // pas de délai : une fermeture doit être enregistrée tout de suite
     if (reason==="liquidated") awardBadge('first_liquidation');
     else if (pnl>=500) awardBadge('big_win');
   }catch(e){
