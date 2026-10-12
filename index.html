@@ -3787,7 +3787,7 @@
     <svg class="brand-logo tb-logo" aria-hidden="true"><use href="#pt-logo"/></svg>
     <div class="tb-title-wrap">
       <h1 class="tb-title" id="tb-title">Terminal</h1>
-      <div class="livewrap"><span class="livedot"></span><span class="live-label">Live · Binance + Crypto.com</span></div>
+      <div class="livewrap"><span class="livedot"></span><span class="live-label">Live · Binance + Hyperliquid</span></div>
     </div>
     <div class="acct-strip">
       <div class="uname-edit" hidden>
@@ -4696,7 +4696,9 @@ const ASSETS = [
   {symbol:"BTC",  name:"Bitcoin",              instrument:"BTC_USD",     binanceSymbol:"BTCUSDT",  decimals:2, icon:"₿", color:"#f7931a", cat:"crypto"},
   {symbol:"ETH",  name:"Ethereum",             instrument:"ETH_USD",     binanceSymbol:"ETHUSDT",  decimals:2, icon:"Ξ", color:"#8c9eff", cat:"crypto"},
   {symbol:"SOL",  name:"Solana",               instrument:"SOL_USD",     binanceSymbol:"SOLUSDT",  decimals:2, icon:"◎", color:"#14f195", cat:"crypto"},
-  {symbol:"HYPE", name:"Hyperliquid",          instrument:"HYPE_USD",    binanceSymbol:"HYPEUSDT", decimals:3, icon:"🐡", color:"#37c7db", cat:"crypto"},
+  // HYPE : prix du perp Binance (USDⓈ-M), comme le graphique TradingView
+  // BINANCE:HYPEUSDT.P ; secours spot Binance puis Crypto.com.
+  {symbol:"HYPE", name:"Hyperliquid",          instrument:"HYPE_USD",    binanceFutures:"HYPEUSDT", binanceSymbol:"HYPEUSDT", decimals:3, icon:"🐡", color:"#37c7db", cat:"crypto"},
   // Cryptos ajoutées 2026-10. Binance d'abord (comme BTC/ETH…), puis :
   //  - Crypto.com en secours pour XRP/SUI/DOGE/LINK/AVAX (paires *_USD vérifiées) ;
   //  - ZEC et ASTER ne sont pas sur Crypto.com : secours sur les perps
@@ -4724,13 +4726,19 @@ const ASSETS = [
   // mais le garde pour qu'une éventuelle position déjà ouverte reste valorisée
   // et puisse être fermée.
   {symbol:"DXY",    name:"Indice dollar (DXY)",hyperliquid:{dex:"xyz", coin:"DXY"}, decimals:3, icon:"💵", color:"#6fbf73", cat:"forex", optional:true, delisted:true},
-  {symbol:"SPY",  name:"S&P 500",              instrument:"SPYUSD-PERP", decimals:2, indexRatio:10.08, icon:"📈", color:"#31c882", cat:"index"},
-  {symbol:"QQQ",  name:"Nasdaq",               instrument:"QQQUSD-PERP",decimals:2, indexRatio:41.07, icon:"💻", color:"#d7b563", cat:"index"},
-  {symbol:"GOLD", name:"Or", instrument:"PAXG_USD", binanceSymbol:"PAXGUSDT", decimals:2, icon:"🥇", color:"#d7b563", cat:"commodity"},
+  // 2026-10 : SPY/QQQ/GOLD/SILVER s'exécutent désormais au prix des perps
+  // Hyperliquid « xyz » (SP500, XYZ100, GOLD, SILVER), exactement la source
+  // du graphique TradingView (HIP3XYZ:…USDC.P). Plus de ratio fixe ETF → indice
+  // en temps normal. Secours si Hyperliquid ne répond pas : perps Crypto.com
+  // (SPY/QQQ × cdcRatio, recalé en direct sur le dernier prix Hyperliquid
+  // pour éviter un saut de prix), PAXG pour l'or, XAGUSD pour l'argent.
+  {symbol:"SPY",  name:"S&P 500",              hyperliquid:{dex:"xyz", coin:"SP500"},  instrument:"SPYUSD-PERP", cdcRatio:10.08, decimals:2, icon:"📈", color:"#31c882", cat:"index"},
+  {symbol:"QQQ",  name:"Nasdaq",               hyperliquid:{dex:"xyz", coin:"XYZ100"}, instrument:"QQQUSD-PERP", cdcRatio:41.07, decimals:2, icon:"💻", color:"#d7b563", cat:"index"},
+  {symbol:"GOLD", name:"Or", hyperliquid:{dex:"xyz", coin:"GOLD"}, instrument:"PAXG_USD", binanceSymbol:"PAXGUSDT", decimals:2, icon:"🥇", color:"#d7b563", cat:"commodity"},
   // SILVER: Crypto.com's own XAGUSD perpetual (real spot-silver-tracking
   // instrument, same family as the SPY/QQQ perps above) — no Binance
   // equivalent, no rescaling needed (already 1:1 on the troy ounce spot price).
-  {symbol:"SILVER", name:"Argent (indice, perp. XAGUSD — once troy)", instrument:"XAGUSD-PERP", decimals:2, icon:"🥈", color:"#c7cdd6", cat:"commodity"},
+  {symbol:"SILVER", name:"Argent (once troy)", hyperliquid:{dex:"xyz", coin:"SILVER"}, instrument:"XAGUSD-PERP", decimals:2, icon:"🥈", color:"#c7cdd6", cat:"commodity"},
   // OIL: NOT Crypto.com — this one is priced directly off Hyperliquid's own
   // perp DEX, specifically the "xyz" HIP-3 builder-deployed dex (trade[xyz]),
   // whose WTI crude market's coin ticker is "CL". `hyperliquid:{dex,coin}`
@@ -4805,6 +4813,7 @@ function saveWatchlistOrder(order){
 // means this endpoint shape needs a tweak (see FIREBASE_SETUP.md).
 const CRYPTO_API_BASE = "https://api.crypto.com/exchange/v1/public";
 const BINANCE_API_BASE = "https://api.binance.com/api/v3";
+const BINANCE_FAPI_BASE = "https://fapi.binance.com/fapi/v1"; // perps USDⓈ-M (HYPE)
 // OIL only (see ASSETS) — Hyperliquid's public "info" endpoint, a single
 // POST+JSON URL (not a REST-per-verb API like the two above). No API key,
 // no auth (public market data), but every request needs a `type` field
@@ -5513,8 +5522,9 @@ function processTicker(symbol, payload){
   // market[symbol].last/bid/ask and so is automatically computed on the
   // rescaled index-point price, not the raw ETF price. Everything else
   // (BTC/ETH/SOL/HYPE) has no indexRatio and passes through unscaled.
-  const a = ASSETS.find(x=>x.symbol===symbol);
-  const scale = (a && a.indexRatio) || 1;
+  // Le rescaling éventuel (secours Crypto.com de SPY/QQQ) est déjà fait par
+  // source dans fetchTickerRest() : ici tout arrive au bon niveau de prix.
+  const scale = 1;
   const last = parseFloat(payload.last);
   if (!isFinite(last)) return;
   m.prevLast = m.last;
@@ -5550,7 +5560,7 @@ async function fetchCandles(symbol, tf){
   if (selectedSymbol===symbol) updateChart();
   try{
     const raw = await fetchCandlesRest(a, tf);
-    const scale = a.indexRatio || 1;
+    const scale = 1; // déjà à l'échelle (voir fetchCandlesRest)
     let parsed = raw.map(c=>({
       o: parseFloat(c.open)*scale, h: parseFloat(c.high)*scale,
       l: parseFloat(c.low)*scale, c: parseFloat(c.close)*scale,
@@ -7268,6 +7278,24 @@ async function fetchTickerCryptoCom(instrument){
     timestamp: raw.t ? new Date(Number(raw.t)).toISOString() : new Date().toISOString(),
   };
 }
+// Perp Binance USDⓈ-M (HYPE) : même prix que BINANCE:HYPEUSDT.P sur
+// TradingView. Le 24 h ne donne pas le bid/ask : on lit aussi bookTicker.
+async function fetchTickerBinanceFutures(sym){
+  const get = async (path)=>{
+    const res = await fetch(BINANCE_FAPI_BASE+path+"?symbol="+encodeURIComponent(sym), {signal:AbortSignal.timeout(8000)});
+    if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
+    return res.json();
+  };
+  const [raw, book] = await Promise.all([get("/ticker/24hr"), get("/ticker/bookTicker").catch(()=>null)]);
+  if (!raw || raw.lastPrice==null){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
+  return {
+    last: raw.lastPrice,
+    best_bid: book && book.bidPrice || raw.lastPrice, best_ask: book && book.askPrice || raw.lastPrice,
+    change: (parseFloat(raw.priceChangePercent)||0)/100,
+    high: raw.highPrice, low: raw.lowPrice,
+    timestamp: raw.closeTime ? new Date(Number(raw.closeTime)).toISOString() : new Date().toISOString(),
+  };
+}
 async function fetchTickerBinance(binanceSymbol){
   const url = BINANCE_API_BASE+"/ticker/24hr?symbol="+encodeURIComponent(binanceSymbol);
   const res = await fetch(url, {signal:AbortSignal.timeout(8000)});
@@ -7308,6 +7336,7 @@ function hlCoinName(hl){ return hl.dex ? hl.dex+":"+hl.coin : hl.coin; }
 // Plusieurs marchés du même dex (pétrole + forex sur « xyz ») : un seul appel
 // metaAndAssetCtxs par dex et par rafraîchissement, partagé 1,5 s.
 const hlCtxCache = {};
+const hlSpreadCache = {}; // demi-spread relatif par marché Hyperliquid, relu toutes les 15 s
 function hlMetaCtxs(dex){
   const key = dex || "_main", now = Date.now(), c = hlCtxCache[key];
   if (c && now-c.t < 1500) return c.p;
@@ -7358,10 +7387,22 @@ async function fetchTickerHyperliquid(hl){
   if (hlInverted(hl, last)){ last = 1/last; if (prev) prev = 1/prev; }
   const change = (prev && isFinite(prev) && prev!==0) ? (last-prev)/prev : 0;
   let bid = last, ask = last;
+  // Le spread réel (carnet l2Book) n'est relu que toutes les 15 s par marché et
+  // appliqué au prix courant : 7 marchés Hyperliquid × un carnet à chaque
+  // rafraîchissement (toutes les 2 s en challenge) approcheraient la limite de
+  // requêtes de Hyperliquid.
+  const key = hlCoinName(hl), sc = hlSpreadCache[key];
   try{
-    const book = await fetchDepthHyperliquid(hl, 1); // déjà inversé si besoin
-    if (book.bids[0]) bid = book.bids[0].price;
-    if (book.asks[0]) ask = book.asks[0].price;
+    if (!sc || Date.now()-sc.t > 15000){
+      const book = await fetchDepthHyperliquid(hl, 1); // déjà inversé si besoin
+      const b0 = book.bids[0] && book.bids[0].price, a0 = book.asks[0] && book.asks[0].price;
+      if (b0 && a0 && a0>=b0){
+        const mid = (a0+b0)/2;
+        hlSpreadCache[key] = {t:Date.now(), half:Math.min((a0-b0)/2/mid, 0.01)};
+      }
+    }
+    const c = hlSpreadCache[key];
+    if (c){ bid = last*(1-c.half); ask = last*(1+c.half); }
   }catch(e){ /* keep the mark-price fallback above */ }
   return {last:String(last), best_bid:String(bid), best_ask:String(ask), change, timestamp:new Date().toISOString()};
 }
@@ -7383,14 +7424,51 @@ async function fetchCandlesHyperliquid(hl, tf){
     timestamp: c.t ? new Date(Number(c.t)).toISOString() : null,
   });
 }
-async function fetchTickerRest(a){
-  if (a.hyperliquid) return fetchTickerHyperliquid(a.hyperliquid);
-  if (a.binanceSymbol){
-    try{ return await fetchTickerBinance(a.binanceSymbol); }
-    catch(e){ if (!a.instrument && !a.hlFallback) throw e; /* sinon : secours ci-dessous */ }
+// Sources d'un marché, dans l'ordre d'essai : la première qui répond gagne.
+// Ordre : Hyperliquid (marché principal), perp Binance, spot Binance,
+// Crypto.com, puis Hyperliquid en secours (ZEC/ASTER).
+function priceSources(a){
+  const s = [];
+  if (a.hyperliquid) s.push(["hl", a.hyperliquid]);
+  if (a.binanceFutures) s.push(["bf", a.binanceFutures]);
+  if (a.binanceSymbol) s.push(["bn", a.binanceSymbol]);
+  if (a.instrument) s.push(["cdc", a.instrument]);
+  if (a.hlFallback) s.push(["hl", a.hlFallback]);
+  return s;
+}
+// Ratio du secours Crypto.com (SPY/QQQ cotés en ETF) : recalé sur le dernier
+// prix Hyperliquid reçu (moins de 10 min) pour ne pas créer de saut de prix
+// qui déclencherait des TP/SL/liquidations à tort ; sinon ratio par défaut.
+function cdcRatioFor(a, rawLast){
+  if (!a.cdcRatio) return 1;
+  const m = market[a.symbol];
+  if (m && m.lastHlPx && Date.now()-m.lastHlAt < 600000 && isFinite(rawLast) && rawLast>0 && !a._cdcCal){
+    const r = m.lastHlPx/rawLast;
+    if (r > a.cdcRatio*0.8 && r < a.cdcRatio*1.2) a._cdcCal = r; // garde-fou : ratio cohérent
   }
-  if (a.instrument) return fetchTickerCryptoCom(a.instrument);
-  return fetchTickerHyperliquid(a.hlFallback);
+  return a._cdcCal || a.cdcRatio;
+}
+function scaleTicker(p, k){
+  if (k===1) return p;
+  const f = v=>v==null||v==="" ? v : String(parseFloat(v)*k);
+  return Object.assign({}, p, {last:f(p.last), best_bid:f(p.best_bid), best_ask:f(p.best_ask), high:f(p.high), low:f(p.low)});
+}
+async function fetchTickerRest(a){
+  const src = priceSources(a);
+  let lastErr = null;
+  for (const [kind, ref] of src){
+    try{
+      if (kind==="hl"){
+        const p = await fetchTickerHyperliquid(ref);
+        if (ref===a.hyperliquid && market[a.symbol]){ market[a.symbol].lastHlPx = parseFloat(p.last); market[a.symbol].lastHlAt = Date.now(); a._cdcCal = null; }
+        return p;
+      }
+      if (kind==="bf") return await fetchTickerBinanceFutures(ref);
+      if (kind==="bn") return await fetchTickerBinance(ref);
+      if (kind==="cdc"){ const p = await fetchTickerCryptoCom(ref); return scaleTicker(p, cdcRatioFor(a, parseFloat(p.last))); }
+    }catch(e){ lastErr = e; }
+  }
+  throw lastErr || Object.assign(new Error("no_source"), {code:"no_source"});
 }
 async function fetchCandlesCryptoCom(instrument, tf){
   // count matches CHART_ZOOM_MAX — same reasoning as the Binance limit above.
@@ -7405,12 +7483,12 @@ async function fetchCandlesCryptoCom(instrument, tf){
     timestamp: c.t ? new Date(Number(c.t)).toISOString() : null,
   }));
 }
-async function fetchCandlesBinance(binanceSymbol, tf){
+async function fetchCandlesBinance(binanceSymbol, tf, base){
   // Binance's interval strings ("1m","5m","15m","1h") already match ours.
   // limit matches CHART_ZOOM_MAX (the most zoomed-out chart view) so the
   // zoom-out control has real history to reveal instead of stretching the
   // same ~50 candles thinner.
-  const url = BINANCE_API_BASE+"/klines?symbol="+encodeURIComponent(binanceSymbol)+"&interval="+encodeURIComponent(tf)+"&limit="+CHART_ZOOM_MAX;
+  const url = (base||BINANCE_API_BASE)+"/klines?symbol="+encodeURIComponent(binanceSymbol)+"&interval="+encodeURIComponent(tf)+"&limit="+CHART_ZOOM_MAX;
   const res = await fetch(url, {signal:AbortSignal.timeout(8000)});
   if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
   const raw = await res.json();
@@ -7422,17 +7500,26 @@ async function fetchCandlesBinance(binanceSymbol, tf){
   }));
 }
 async function fetchCandlesRest(a, tf){
-  if (a.hyperliquid) return fetchCandlesHyperliquid(a.hyperliquid, tf);
-  if (a.binanceSymbol){
-    try{ return await fetchCandlesBinance(a.binanceSymbol, tf); }
-    catch(e){ if (!a.instrument && !a.hlFallback) throw e; }
+  let lastErr = null;
+  for (const [kind, ref] of priceSources(a)){
+    try{
+      if (kind==="hl") return await fetchCandlesHyperliquid(ref, tf);
+      if (kind==="bf") return await fetchCandlesBinance(ref, tf, BINANCE_FAPI_BASE);
+      if (kind==="bn") return await fetchCandlesBinance(ref, tf);
+      if (kind==="cdc"){
+        const raw = await fetchCandlesCryptoCom(ref, tf);
+        const k = a.cdcRatio ? (a._cdcCal || a.cdcRatio) : 1;
+        return k===1 ? raw : raw.map(c=>({open:c.open*k, high:c.high*k, low:c.low*k, close:c.close*k, timestamp:c.timestamp}));
+      }
+    }catch(e){ lastErr = e; }
   }
-  if (a.instrument) return fetchCandlesCryptoCom(a.instrument, tf);
-  return fetchCandlesHyperliquid(a.hlFallback, tf);
+  throw lastErr || Object.assign(new Error("no_source"), {code:"no_source"});
 }
 /* ---- DOM (order book depth) — same Binance-first, Crypto.com-fallback pattern as tickers ---- */
-async function fetchDepthBinance(binanceSymbol, limit){
-  const url = BINANCE_API_BASE+"/depth?symbol="+encodeURIComponent(binanceSymbol)+"&limit="+limit;
+async function fetchDepthBinance(binanceSymbol, limit, base){
+  // L'API futures n'accepte que certaines profondeurs (5, 10, 20, 50…).
+  const lim = base ? ([5,10,20,50,100,500,1000].find(n=>n>=limit) || 1000) : limit;
+  const url = (base||BINANCE_API_BASE)+"/depth?symbol="+encodeURIComponent(binanceSymbol)+"&limit="+lim;
   const res = await fetch(url, {signal:AbortSignal.timeout(8000)});
   if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
   const raw = await res.json();
@@ -7457,13 +7544,20 @@ async function fetchDepthCryptoCom(instrument, depth){
   };
 }
 async function fetchDepthRest(a, limit){
-  if (a.hyperliquid) return fetchDepthHyperliquid(a.hyperliquid, limit);
-  if (a.binanceSymbol){
-    try{ return await fetchDepthBinance(a.binanceSymbol, limit); }
-    catch(e){ if (!a.instrument && !a.hlFallback) throw e; }
+  let lastErr = null;
+  for (const [kind, ref] of priceSources(a)){
+    try{
+      if (kind==="hl") return await fetchDepthHyperliquid(ref, limit);
+      if (kind==="bf") return await fetchDepthBinance(ref, limit, BINANCE_FAPI_BASE);
+      if (kind==="bn") return await fetchDepthBinance(ref, limit);
+      if (kind==="cdc"){
+        const d = await fetchDepthCryptoCom(ref, limit);
+        const k = a.cdcRatio ? (a._cdcCal || a.cdcRatio) : 1;
+        return k===1 ? d : {bids:d.bids.map(l=>({price:l.price*k, size:l.size/k})), asks:d.asks.map(l=>({price:l.price*k, size:l.size/k}))};
+      }
+    }catch(e){ lastErr = e; }
   }
-  if (a.instrument) return fetchDepthCryptoCom(a.instrument, limit);
-  return fetchDepthHyperliquid(a.hlFallback, limit);
+  throw lastErr || Object.assign(new Error("no_source"), {code:"no_source"});
 }
 let domData = {bids:[], asks:[], error:null};
 let domTimer = null;
@@ -7574,14 +7668,14 @@ async function pollAllAssets(){
   // Après 3 échecs d'affilée (ex. un symbole refusé par Binance), on repasse
   // au mode « un appel par marché » pour le reste de la session.
   if (binanceBatchFails<3){
-    const syms = ASSETS.filter(a=>a.binanceSymbol && !a.hyperliquid).map(a=>a.binanceSymbol);
+    const syms = ASSETS.filter(a=>a.binanceSymbol && !a.hyperliquid && !a.binanceFutures).map(a=>a.binanceSymbol);
     try{ got = await fetchTickersBinanceBatch(syms); binanceBatchFails = 0; }
     catch(e){ got = {}; binanceBatchFails++; }
   }
   const rest = [];
   let any = false;
   ASSETS.forEach(a=>{
-    const p = a.binanceSymbol && got[a.binanceSymbol];
+    const p = a.binanceSymbol && !a.hyperliquid && !a.binanceFutures && got[a.binanceSymbol];
     if (p){ processTicker(a.symbol, p); any = true; }
     else rest.push(a);
   });
