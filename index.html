@@ -4711,6 +4711,16 @@ const ASSETS = [
   // EURUSD: real spot forex, priced off Binance's own EURUSDT pair (confirmed
   // live on Binance Spot) — no rescaling needed, it already trades in $ per €.
   {symbol:"EURUSD", name:"Euro / Dollar",      instrument:"EUR_USDT",    binanceSymbol:"EURUSDT",  decimals:4, icon:"💶", color:"#5b8def", cat:"forex"},
+  // Forex ajouté 2026-10 : perps FX du dex HIP-3 « xyz » de Hyperliquid
+  // (trade[XYZ], comme le pétrole), cotés 24 h/24. `invertBelow` : si le prix
+  // arrive sous ce seuil (convention « dollar par yen », ex. 0,0067), il est
+  // inversé pour afficher la convention habituelle USD/JPY (≈ 150). `optional` :
+  // si le flux ne répond jamais, la ligne est masquée du widget Marchés au lieu
+  // d'afficher « hors ligne » en permanence (et sans bandeau d'erreur global).
+  {symbol:"GBPUSD", name:"Livre / Dollar",     hyperliquid:{dex:"xyz", coin:"GBP"}, decimals:4, icon:"💷", color:"#8e7cf0", cat:"forex", optional:true},
+  {symbol:"USDJPY", name:"Dollar / Yen",       hyperliquid:{dex:"xyz", coin:"JPY", invertBelow:1}, decimals:3, icon:"💴", color:"#e06c75", cat:"forex", optional:true},
+  {symbol:"USDKRW", name:"Dollar / Won coréen",hyperliquid:{dex:"xyz", coin:"KRW", invertBelow:1}, decimals:2, icon:"🇰🇷", color:"#5fb3c9", cat:"forex", optional:true},
+  {symbol:"DXY",    name:"Indice dollar (DXY)",hyperliquid:{dex:"xyz", coin:"DXY"}, decimals:3, icon:"💵", color:"#6fbf73", cat:"forex", optional:true},
   {symbol:"SPY",  name:"S&P 500",              instrument:"SPYUSD-PERP", decimals:2, indexRatio:10.08, icon:"📈", color:"#31c882", cat:"index"},
   {symbol:"QQQ",  name:"Nasdaq",               instrument:"QQQUSD-PERP",decimals:2, indexRatio:41.07, icon:"💻", color:"#d7b563", cat:"index"},
   {symbol:"GOLD", name:"Or", instrument:"PAXG_USD", binanceSymbol:"PAXGUSDT", decimals:2, icon:"🥇", color:"#d7b563", cat:"commodity"},
@@ -7279,14 +7289,34 @@ async function hlInfoPost(body){
 // Network) if oil's order book/spread ever looks wrong after deploying.
 // Dex principal (dex "") : le coin s'écrit sans préfixe ("ZEC") ; dex HIP-3 : "xyz:CL".
 function hlCoinName(hl){ return hl.dex ? hl.dex+":"+hl.coin : hl.coin; }
+// Plusieurs marchés du même dex (pétrole + forex sur « xyz ») : un seul appel
+// metaAndAssetCtxs par dex et par rafraîchissement, partagé 1,5 s.
+const hlCtxCache = {};
+function hlMetaCtxs(dex){
+  const key = dex || "_main", now = Date.now(), c = hlCtxCache[key];
+  if (c && now-c.t < 1500) return c.p;
+  const p = hlInfoPost(dex ? {type:"metaAndAssetCtxs", dex} : {type:"metaAndAssetCtxs"});
+  hlCtxCache[key] = {t:now, p};
+  p.catch(()=>{ if (hlCtxCache[key] && hlCtxCache[key].p===p) delete hlCtxCache[key]; });
+  return p;
+}
+// Faut-il inverser ce marché (voir `invertBelow` dans ASSETS) ? Décidé sur le
+// prix lui-même, donc correct quelle que soit la convention de cotation.
+function hlInverted(hl, px){ return !!(hl.invertBelow && isFinite(px) && px>0 && px<hl.invertBelow); }
 async function fetchDepthHyperliquid(hl, limit){
   const raw = await hlInfoPost({type:"l2Book", coin: hlCoinName(hl)});
   const levels = raw && Array.isArray(raw.levels) ? raw.levels : null;
   if (!levels || !Array.isArray(levels[0]) || !Array.isArray(levels[1])){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
-  return {
-    bids: levels[0].slice(0,limit).map(l=>({price:parseFloat(l.px), size:parseFloat(l.sz)})),
-    asks: levels[1].slice(0,limit).map(l=>({price:parseFloat(l.px), size:parseFloat(l.sz)})),
-  };
+  let bids = levels[0].slice(0,limit).map(l=>({price:parseFloat(l.px), size:parseFloat(l.sz)}));
+  let asks = levels[1].slice(0,limit).map(l=>({price:parseFloat(l.px), size:parseFloat(l.sz)}));
+  const ref = (bids[0]||asks[0]||{}).price;
+  if (hlInverted(hl, ref)){
+    // Inversé : les acheteurs de yen sont les vendeurs de USD/JPY.
+    const inv = l=>({price:1/l.price, size:l.size*l.price});
+    const nb = asks.map(inv), na = bids.map(inv);
+    bids = nb; asks = na;
+  }
+  return {bids, asks};
 }
 // `metaAndAssetCtxs` (with a top-level `dex` field — this one IS spelled out
 // explicitly in Hyperliquid's docs, unlike l2Book above) returns [meta,
@@ -7302,17 +7332,18 @@ async function fetchDepthHyperliquid(hl, limit){
 // bare "CL" the docs' own non-HIP-3 examples use — match either form so a
 // dex that behaves the documented (unprefixed) way still works too.
 async function fetchTickerHyperliquid(hl){
-  const [meta, ctxs] = await hlInfoPost(hl.dex ? {type:"metaAndAssetCtxs", dex: hl.dex} : {type:"metaAndAssetCtxs"});
+  const [meta, ctxs] = await hlMetaCtxs(hl.dex);
   const prefixed = hlCoinName(hl);
   const idx = (meta && Array.isArray(meta.universe)) ? meta.universe.findIndex(u=>u && (u.name===hl.coin || u.name===prefixed)) : -1;
   const ctx = (idx>=0 && Array.isArray(ctxs)) ? ctxs[idx] : null;
   if (!ctx || ctx.markPx==null){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
-  const last = parseFloat(ctx.markPx);
-  const prev = ctx.prevDayPx!=null ? parseFloat(ctx.prevDayPx) : null;
+  let last = parseFloat(ctx.markPx);
+  let prev = ctx.prevDayPx!=null ? parseFloat(ctx.prevDayPx) : null;
+  if (hlInverted(hl, last)){ last = 1/last; if (prev) prev = 1/prev; }
   const change = (prev && isFinite(prev) && prev!==0) ? (last-prev)/prev : 0;
   let bid = last, ask = last;
   try{
-    const book = await fetchDepthHyperliquid(hl, 1);
+    const book = await fetchDepthHyperliquid(hl, 1); // déjà inversé si besoin
     if (book.bids[0]) bid = book.bids[0].price;
     if (book.asks[0]) ask = book.asks[0].price;
   }catch(e){ /* keep the mark-price fallback above */ }
@@ -7327,10 +7358,14 @@ async function fetchCandlesHyperliquid(hl, tf){
   const startTime = endTime - CHART_ZOOM_MAX*(HL_INTERVAL_MS[tf]||60000);
   const raw = await hlInfoPost({type:"candleSnapshot", req:{coin: hlCoinName(hl), interval: tf, startTime, endTime}});
   if (!Array.isArray(raw)){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
-  return raw.map(c=>({
+  const inv = raw.length && hlInverted(hl, parseFloat(raw[raw.length-1].c));
+  return raw.map(c=>inv ? {
+    open:1/c.o, high:1/c.l, low:1/c.h, close:1/c.c, // inversé : le plus haut devient le plus bas
+    timestamp: c.t ? new Date(Number(c.t)).toISOString() : null,
+  } : {
     open:c.o, high:c.h, low:c.l, close:c.c,
     timestamp: c.t ? new Date(Number(c.t)).toISOString() : null,
-  }));
+  });
 }
 async function fetchTickerRest(a){
   if (a.hyperliquid) return fetchTickerHyperliquid(a.hyperliquid);
@@ -7469,6 +7504,7 @@ async function pollAsset(a){
   try{
     const payload = await fetchTickerRest(a);
     processTicker(a.symbol, payload);
+    if (a.unavailable){ a.unavailable = false; market[a.symbol].failCount = 0; if (typeof applyWatchlistFilter==="function") applyWatchlistFilter(); }
     clearLiveBanner();
     checkPendingOrders();
     checkTPSL();
@@ -7479,8 +7515,13 @@ async function pollAsset(a){
     withParkedBook(()=>{ checkPendingOrders(); checkTPSL(); checkLiquidations(); });
   }catch(err){
     const code = (err && err.code) || "upstream_error";
-    market[a.symbol].error = code;
-    if (!hasLive(a.symbol)) setLiveBanner(code);
+    const m = market[a.symbol];
+    m.error = code;
+    if (a.optional){
+      // Marché « optionnel » jamais reçu : masqué après 3 échecs, sans bandeau global.
+      m.failCount = (m.failCount||0)+1;
+      if (!hasLive(a.symbol) && m.failCount>=3 && !a.unavailable){ a.unavailable = true; if (typeof applyWatchlistFilter==="function") applyWatchlistFilter(); }
+    } else if (!hasLive(a.symbol)) setLiveBanner(code);
   }
   // Book-independent — reads the prop book directly wherever it lives, so
   // this stays correct regardless of which book is currently on screen.
@@ -8028,11 +8069,18 @@ function applyWatchlistFilter(){
     const a = ASSETS.find(x=>x.symbol===row.dataset.symbol);
     const okCat = wlCat==="all" || row.dataset.cat===wlCat;
     const okQ = !wlQuery || (a && (a.symbol+" "+a.name).toLowerCase().includes(wlQuery));
-    row.hidden = !(okCat && okQ);
+    const ok = !(a && a.unavailable && !hasLive(a.symbol));
+    row.hidden = !(okCat && okQ && ok);
     if (!row.hidden) shown++;
   });
   const empty = document.getElementById("wl-empty");
   if (empty) empty.hidden = shown>0;
+  // Compteurs des filtres sans les marchés optionnels masqués (flux absent).
+  const live = visibleAssets().filter(x=>!(x.unavailable && !hasLive(x.symbol)));
+  document.querySelectorAll("#wl-cats [data-wl-cat]").forEach(b=>{
+    const c = b.dataset.wlCat, n = c==="all" ? live.length : live.filter(x=>(x.cat||"crypto")===c).length;
+    const sp = b.querySelector("span"); if (sp) sp.textContent = n;
+  });
 }
 // Pointer-based drag reordering for the watchlist rows — same technique as
 // the widget-layout drag system (initWidgets(), below): Pointer Events
@@ -8207,7 +8255,7 @@ const TV_SYMBOL_MAP = {
   BTC:"BINANCE:BTCUSDT", ETH:"BINANCE:ETHUSDT", SOL:"BINANCE:SOLUSDT", HYPE:"BINANCE:HYPEUSDT.P",
   XRP:"BINANCE:XRPUSDT", ZEC:"BINANCE:ZECUSDT", ASTER:"BINANCE:ASTERUSDT", SUI:"BINANCE:SUIUSDT",
   DOGE:"BINANCE:DOGEUSDT", LINK:"BINANCE:LINKUSDT", AVAX:"BINANCE:AVAXUSDT",
-  EURUSD:"OANDA:EURUSD",
+  EURUSD:"OANDA:EURUSD", GBPUSD:"OANDA:GBPUSD", USDJPY:"OANDA:USDJPY", USDKRW:"FX_IDC:USDKRW", DXY:"TVC:DXY",
   SPY:"HIP3XYZ:SP500USDC.P", QQQ:"HIP3XYZ:XYZ100USDC.P", GOLD:"HIP3XYZ:GOLDUSDC.P", SILVER:"HIP3XYZ:SILVERUSDC.P",
   // OIL: the actual Trade[XYZ]/Hyperliquid-listed symbol for the exact "xyz:CL"
   // market this app trades OIL on (same dex, same coin) — NOT a different
