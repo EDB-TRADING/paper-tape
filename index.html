@@ -554,7 +554,7 @@
     border:1px solid var(--border);border-radius:10px;background:var(--panel);
     overflow:hidden;padding:10px 0;width:100%;max-width:100%;min-width:0;box-sizing:border-box;
   }
-  .auth-gate-ticker-track{display:flex;gap:28px;width:max-content;animation:auth-gate-marquee 22s linear infinite;}
+  .auth-gate-ticker-track{display:flex;gap:28px;width:max-content;animation:auth-gate-marquee 40s linear infinite;}
   .auth-gate-ticker-item{
     font-family:var(--mono);font-size:11px;letter-spacing:0.03em;color:var(--text-faint);
     display:flex;align-items:center;gap:6px;white-space:nowrap;padding:0 4px;
@@ -586,12 +586,36 @@
   .admin-actions{display:flex;gap:6px;flex-wrap:wrap;}
 
   /* watchlist */
-  .watchlist{display:flex;flex-direction:column;gap:4px;}
+  .watchlist{display:flex;flex-direction:column;gap:3px;max-height:min(420px, 60vh);overflow-y:auto;overflow-x:hidden;container-type:inline-size;
+    scrollbar-width:thin;scrollbar-color:var(--border) transparent;margin-right:-4px;padding-right:4px;}
+  .watchlist::-webkit-scrollbar{width:6px;}
+  .watchlist::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+  .card.widget.has-h .watchlist{max-height:none;overflow:visible;}
   .wl-row{
-    display:grid;grid-template-columns:14px 1fr auto;align-items:center;gap:8px;
-    padding:8px 8px;border-radius:6px;cursor:pointer;border:1px solid transparent;
-    background:var(--bg-raised);
+    display:grid;grid-template-columns:12px 18px minmax(0,1fr) 56px auto;align-items:center;gap:8px;
+    padding:6px 8px 6px 6px;border-radius:6px;cursor:pointer;border:1px solid transparent;
+    background:var(--bg-raised);box-shadow:inset 3px 0 0 var(--wl-c, transparent);min-height:40px;
   }
+  .wl-row[hidden]{display:none;}
+  .wl-row .wl-icon{text-align:center;line-height:1;}
+  .wl-row .sym{min-width:0;line-height:1.2;}
+  .wl-row .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .wl-row canvas{width:56px;height:20px;display:block;opacity:.9;}
+  .wl-px{text-align:right;line-height:1.25;min-width:0;}
+  @container (max-width:250px){
+    .wl-row{grid-template-columns:12px 18px minmax(0,1fr) auto;}
+    .wl-row canvas{display:none;}
+  }
+  .wl-tools{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;}
+  .wl-search{width:100%;box-sizing:border-box;font:500 12.5px var(--sans);color:var(--text);background:var(--bg-raised);border:1px solid var(--border-soft);border-radius:8px;padding:7px 10px;outline:none;}
+  .wl-search:focus{border-color:var(--accent);}
+  .wl-cats{display:flex;flex-wrap:wrap;gap:4px;}
+  .wl-cats::-webkit-scrollbar{display:none;}
+  .wl-cat{flex:none;display:inline-flex;align-items:center;gap:5px;font:500 11.5px var(--sans);color:var(--text-dim);background:transparent;border:1px solid var(--border-soft);border-radius:999px;padding:3px 9px;cursor:pointer;white-space:nowrap;}
+  .wl-cat span{font-family:var(--mono);font-size:10px;color:var(--text-faint);}
+  .wl-cat:hover{color:var(--text);border-color:var(--border);}
+  .wl-cat.is-on{color:var(--text);background:var(--panel-2);border-color:var(--accent);}
+  .wl-empty{font-size:12px;color:var(--text-faint);text-align:center;padding:14px 0;}
   .wl-row:hover{border-color:var(--border);}
   .wl-row.selected{border-color:var(--accent);background:var(--panel-2);}
   .wl-row.dragging{opacity:.35;}
@@ -602,7 +626,6 @@
   .wl-row .name{font-family:var(--sans);font-size:9.5px;color:var(--text-faint);}
   .wl-row .price{font-family:var(--mono);font-size:12px;text-align:right;white-space:nowrap;transition:color .3s;}
   .wl-row .chg{font-family:var(--mono);font-size:9.5px;text-align:right;}
-  .wl-row canvas{grid-column:1 / span 3;width:100%;height:22px;display:block;margin-top:2px;}
   .up{color:var(--long);}
   .down{color:var(--short);}
   .flat{color:var(--text-dim);}
@@ -3812,7 +3835,11 @@
           </div>
           <div class="card widget" draggable="true" data-widget="watchlist" style="margin-top:14px;">
             <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Marchés</h3><button type="button" class="widget-free-toggle" data-widget-free="watchlist" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="watchlist" title="Masquer ce widget">✕</button></div>
-            <div id="market-status" class="chart-note" style="margin-bottom:10px;">initialisation…</div>
+            <div id="market-status" class="chart-note" style="margin-bottom:8px;">initialisation…</div>
+            <div class="wl-tools">
+              <input type="search" class="wl-search" id="wl-search" placeholder="Rechercher un marché…" autocomplete="off" spellcheck="false" aria-label="Rechercher un marché">
+              <div class="wl-cats" id="wl-cats" role="tablist"></div>
+            </div>
             <div class="watchlist" id="watchlist"></div>
           </div>
 
@@ -4666,20 +4693,31 @@
 // slowly over time (dividends, index rebalances) — an approximation, but the
 // number ON the price, not a separate one next to it.
 const ASSETS = [
-  {symbol:"BTC",  name:"Bitcoin",              instrument:"BTC_USD",     binanceSymbol:"BTCUSDT",  decimals:2, icon:"₿", color:"#f7931a"},
-  {symbol:"ETH",  name:"Ethereum",             instrument:"ETH_USD",     binanceSymbol:"ETHUSDT",  decimals:2, icon:"Ξ", color:"#8c9eff"},
-  {symbol:"SOL",  name:"Solana",               instrument:"SOL_USD",     binanceSymbol:"SOLUSDT",  decimals:2, icon:"◎", color:"#14f195"},
-  {symbol:"HYPE", name:"Hyperliquid",          instrument:"HYPE_USD",    binanceSymbol:"HYPEUSDT", decimals:3, icon:"🐡", color:"#37c7db"},
+  {symbol:"BTC",  name:"Bitcoin",              instrument:"BTC_USD",     binanceSymbol:"BTCUSDT",  decimals:2, icon:"₿", color:"#f7931a", cat:"crypto"},
+  {symbol:"ETH",  name:"Ethereum",             instrument:"ETH_USD",     binanceSymbol:"ETHUSDT",  decimals:2, icon:"Ξ", color:"#8c9eff", cat:"crypto"},
+  {symbol:"SOL",  name:"Solana",               instrument:"SOL_USD",     binanceSymbol:"SOLUSDT",  decimals:2, icon:"◎", color:"#14f195", cat:"crypto"},
+  {symbol:"HYPE", name:"Hyperliquid",          instrument:"HYPE_USD",    binanceSymbol:"HYPEUSDT", decimals:3, icon:"🐡", color:"#37c7db", cat:"crypto"},
+  // Cryptos ajoutées 2026-10. Binance d'abord (comme BTC/ETH…), puis :
+  //  - Crypto.com en secours pour XRP/SUI/DOGE/LINK/AVAX (paires *_USD vérifiées) ;
+  //  - ZEC et ASTER ne sont pas sur Crypto.com : secours sur les perps
+  //    Hyperliquid (dex principal, `hlFallback`), même source que le pétrole.
+  {symbol:"XRP",  name:"XRP",                  instrument:"XRP_USD",     binanceSymbol:"XRPUSDT",  decimals:4, icon:"✕", color:"#9fb3c8", cat:"crypto"},
+  {symbol:"ZEC",  name:"Zcash",                binanceSymbol:"ZECUSDT",  hlFallback:{dex:"", coin:"ZEC"},   decimals:2, icon:"ⓩ", color:"#f4b728", cat:"crypto"},
+  {symbol:"ASTER",name:"Aster",                binanceSymbol:"ASTERUSDT",hlFallback:{dex:"", coin:"ASTER"}, decimals:4, icon:"✳", color:"#e0a46a", cat:"crypto"},
+  {symbol:"SUI",  name:"Sui",                  instrument:"SUI_USD",     binanceSymbol:"SUIUSDT",  decimals:4, icon:"💧", color:"#4da2ff", cat:"crypto"},
+  {symbol:"DOGE", name:"Dogecoin",             instrument:"DOGE_USD",    binanceSymbol:"DOGEUSDT", decimals:5, icon:"Ð", color:"#c9a633", cat:"crypto"},
+  {symbol:"LINK", name:"Chainlink",            instrument:"LINK_USD",    binanceSymbol:"LINKUSDT", decimals:3, icon:"⬡", color:"#5b7cfa", cat:"crypto"},
+  {symbol:"AVAX", name:"Avalanche",            instrument:"AVAX_USD",    binanceSymbol:"AVAXUSDT", decimals:3, icon:"▲", color:"#e84142", cat:"crypto"},
   // EURUSD: real spot forex, priced off Binance's own EURUSDT pair (confirmed
   // live on Binance Spot) — no rescaling needed, it already trades in $ per €.
-  {symbol:"EURUSD", name:"Euro / Dollar",      instrument:"EUR_USDT",    binanceSymbol:"EURUSDT",  decimals:4, icon:"💶", color:"#5b8def"},
-  {symbol:"SPY",  name:"S&P 500",              instrument:"SPYUSD-PERP", decimals:2, indexRatio:10.08, icon:"📈", color:"#31c882"},
-  {symbol:"QQQ",  name:"Nasdaq",               instrument:"QQQUSD-PERP",decimals:2, indexRatio:41.07, icon:"💻", color:"#d7b563"},
-  {symbol:"GOLD", name:"Or", instrument:"PAXG_USD", binanceSymbol:"PAXGUSDT", decimals:2, icon:"🥇", color:"#d7b563"},
+  {symbol:"EURUSD", name:"Euro / Dollar",      instrument:"EUR_USDT",    binanceSymbol:"EURUSDT",  decimals:4, icon:"💶", color:"#5b8def", cat:"forex"},
+  {symbol:"SPY",  name:"S&P 500",              instrument:"SPYUSD-PERP", decimals:2, indexRatio:10.08, icon:"📈", color:"#31c882", cat:"index"},
+  {symbol:"QQQ",  name:"Nasdaq",               instrument:"QQQUSD-PERP",decimals:2, indexRatio:41.07, icon:"💻", color:"#d7b563", cat:"index"},
+  {symbol:"GOLD", name:"Or", instrument:"PAXG_USD", binanceSymbol:"PAXGUSDT", decimals:2, icon:"🥇", color:"#d7b563", cat:"commodity"},
   // SILVER: Crypto.com's own XAGUSD perpetual (real spot-silver-tracking
   // instrument, same family as the SPY/QQQ perps above) — no Binance
   // equivalent, no rescaling needed (already 1:1 on the troy ounce spot price).
-  {symbol:"SILVER", name:"Argent (indice, perp. XAGUSD — once troy)", instrument:"XAGUSD-PERP", decimals:2, icon:"🥈", color:"#c7cdd6"},
+  {symbol:"SILVER", name:"Argent (indice, perp. XAGUSD — once troy)", instrument:"XAGUSD-PERP", decimals:2, icon:"🥈", color:"#c7cdd6", cat:"commodity"},
   // OIL: NOT Crypto.com — this one is priced directly off Hyperliquid's own
   // perp DEX, specifically the "xyz" HIP-3 builder-deployed dex (trade[xyz]),
   // whose WTI crude market's coin ticker is "CL". `hyperliquid:{dex,coin}`
@@ -4696,7 +4734,7 @@ const ASSETS = [
   // underlying Hyperliquid market is live and trading (confirmed directly
   // against the real API) — that gap is on TradingView's data-feed side, not
   // this app; switch to the "Interne" chart toggle for a live-updating chart.
-  {symbol:"OIL", name:"Pétrole (WTI, perp. Hyperliquid xyz:CL)", hyperliquid:{dex:"xyz", coin:"CL"}, decimals:2, icon:"🛢️", color:"#8b5e3c"},
+  {symbol:"OIL", name:"Pétrole (WTI, perp. Hyperliquid xyz:CL)", hyperliquid:{dex:"xyz", coin:"CL"}, decimals:2, icon:"🛢️", color:"#8b5e3c", cat:"commodity"},
 ];
 // Assets flagged `delisted` stay in ASSETS (price polling, mark-to-market,
 // liquidation checks and closing an existing position all still need to
@@ -7239,8 +7277,10 @@ async function hlInfoPost(body){
 // HIP-3 naming convention used elsewhere, so it's used here too, but treat
 // this one function as the spot most worth checking first (devtools →
 // Network) if oil's order book/spread ever looks wrong after deploying.
+// Dex principal (dex "") : le coin s'écrit sans préfixe ("ZEC") ; dex HIP-3 : "xyz:CL".
+function hlCoinName(hl){ return hl.dex ? hl.dex+":"+hl.coin : hl.coin; }
 async function fetchDepthHyperliquid(hl, limit){
-  const raw = await hlInfoPost({type:"l2Book", coin: hl.dex+":"+hl.coin});
+  const raw = await hlInfoPost({type:"l2Book", coin: hlCoinName(hl)});
   const levels = raw && Array.isArray(raw.levels) ? raw.levels : null;
   if (!levels || !Array.isArray(levels[0]) || !Array.isArray(levels[1])){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
   return {
@@ -7262,8 +7302,8 @@ async function fetchDepthHyperliquid(hl, limit){
 // bare "CL" the docs' own non-HIP-3 examples use — match either form so a
 // dex that behaves the documented (unprefixed) way still works too.
 async function fetchTickerHyperliquid(hl){
-  const [meta, ctxs] = await hlInfoPost({type:"metaAndAssetCtxs", dex: hl.dex});
-  const prefixed = hl.dex+":"+hl.coin;
+  const [meta, ctxs] = await hlInfoPost(hl.dex ? {type:"metaAndAssetCtxs", dex: hl.dex} : {type:"metaAndAssetCtxs"});
+  const prefixed = hlCoinName(hl);
   const idx = (meta && Array.isArray(meta.universe)) ? meta.universe.findIndex(u=>u && (u.name===hl.coin || u.name===prefixed)) : -1;
   const ctx = (idx>=0 && Array.isArray(ctxs)) ? ctxs[idx] : null;
   if (!ctx || ctx.markPx==null){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
@@ -7285,7 +7325,7 @@ async function fetchCandlesHyperliquid(hl, tf){
   // passed straight through with no translation table needed.
   const endTime = Date.now();
   const startTime = endTime - CHART_ZOOM_MAX*(HL_INTERVAL_MS[tf]||60000);
-  const raw = await hlInfoPost({type:"candleSnapshot", req:{coin: hl.dex+":"+hl.coin, interval: tf, startTime, endTime}});
+  const raw = await hlInfoPost({type:"candleSnapshot", req:{coin: hlCoinName(hl), interval: tf, startTime, endTime}});
   if (!Array.isArray(raw)){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
   return raw.map(c=>({
     open:c.o, high:c.h, low:c.l, close:c.c,
@@ -7296,9 +7336,10 @@ async function fetchTickerRest(a){
   if (a.hyperliquid) return fetchTickerHyperliquid(a.hyperliquid);
   if (a.binanceSymbol){
     try{ return await fetchTickerBinance(a.binanceSymbol); }
-    catch(e){ /* fall through to Crypto.com below */ }
+    catch(e){ if (!a.instrument && !a.hlFallback) throw e; /* sinon : secours ci-dessous */ }
   }
-  return fetchTickerCryptoCom(a.instrument);
+  if (a.instrument) return fetchTickerCryptoCom(a.instrument);
+  return fetchTickerHyperliquid(a.hlFallback);
 }
 async function fetchCandlesCryptoCom(instrument, tf){
   // count matches CHART_ZOOM_MAX — same reasoning as the Binance limit above.
@@ -7333,9 +7374,10 @@ async function fetchCandlesRest(a, tf){
   if (a.hyperliquid) return fetchCandlesHyperliquid(a.hyperliquid, tf);
   if (a.binanceSymbol){
     try{ return await fetchCandlesBinance(a.binanceSymbol, tf); }
-    catch(e){ /* fall through to Crypto.com below */ }
+    catch(e){ if (!a.instrument && !a.hlFallback) throw e; }
   }
-  return fetchCandlesCryptoCom(a.instrument, tf);
+  if (a.instrument) return fetchCandlesCryptoCom(a.instrument, tf);
+  return fetchCandlesHyperliquid(a.hlFallback, tf);
 }
 /* ---- DOM (order book depth) — same Binance-first, Crypto.com-fallback pattern as tickers ---- */
 async function fetchDepthBinance(binanceSymbol, limit){
@@ -7367,9 +7409,10 @@ async function fetchDepthRest(a, limit){
   if (a.hyperliquid) return fetchDepthHyperliquid(a.hyperliquid, limit);
   if (a.binanceSymbol){
     try{ return await fetchDepthBinance(a.binanceSymbol, limit); }
-    catch(e){ /* fall through to Crypto.com below */ }
+    catch(e){ if (!a.instrument && !a.hlFallback) throw e; }
   }
-  return fetchDepthCryptoCom(a.instrument, limit);
+  if (a.instrument) return fetchDepthCryptoCom(a.instrument, limit);
+  return fetchDepthHyperliquid(a.hlFallback, limit);
 }
 let domData = {bids:[], asks:[], error:null};
 let domTimer = null;
@@ -7445,8 +7488,55 @@ async function pollAsset(a){
   renderChallengeBanner();
   renderAll();
 }
-function pollAllAssets(){
-  ASSETS.forEach((a,i)=>{ setTimeout(()=>pollAsset(a), i*180); });
+// Un seul appel Binance (/ticker/24hr?symbols=[…]) pour tous les marchés
+// cotés là-bas, au lieu d'une requête par marché toutes les 2 à 5 s — avec
+// 17 marchés, ça divise le nombre de requêtes par ~5. Les marchés absents de
+// la réponse (ou tous, si l'appel groupé échoue) repassent par pollAsset()
+// et ses replis habituels (Crypto.com, Hyperliquid).
+let binanceBatchFails = 0;
+async function fetchTickersBinanceBatch(symbols){
+  const url = BINANCE_API_BASE+"/ticker/24hr?symbols="+encodeURIComponent(JSON.stringify(symbols));
+  const res = await fetch(url, {signal:AbortSignal.timeout(8000)});
+  if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
+  const raw = await res.json();
+  if (!Array.isArray(raw)){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
+  const out = {};
+  raw.forEach(r=>{
+    if (!r || r.lastPrice==null || !r.symbol) return;
+    out[r.symbol] = {
+      last: r.lastPrice, best_bid: r.bidPrice, best_ask: r.askPrice,
+      change: (parseFloat(r.priceChangePercent)||0)/100, // voir fetchTickerBinance()
+      high: r.highPrice, low: r.lowPrice,
+      timestamp: r.closeTime ? new Date(Number(r.closeTime)).toISOString() : new Date().toISOString(),
+    };
+  });
+  return out;
+}
+async function pollAllAssets(){
+  let got = {};
+  // Après 3 échecs d'affilée (ex. un symbole refusé par Binance), on repasse
+  // au mode « un appel par marché » pour le reste de la session.
+  if (binanceBatchFails<3){
+    const syms = ASSETS.filter(a=>a.binanceSymbol && !a.hyperliquid).map(a=>a.binanceSymbol);
+    try{ got = await fetchTickersBinanceBatch(syms); binanceBatchFails = 0; }
+    catch(e){ got = {}; binanceBatchFails++; }
+  }
+  const rest = [];
+  let any = false;
+  ASSETS.forEach(a=>{
+    const p = a.binanceSymbol && got[a.binanceSymbol];
+    if (p){ processTicker(a.symbol, p); any = true; }
+    else rest.push(a);
+  });
+  if (any){
+    clearLiveBanner();
+    checkPendingOrders(); checkTPSL(); checkLiquidations();
+    withParkedBook(()=>{ checkPendingOrders(); checkTPSL(); checkLiquidations(); });
+    updateChallengeStatus();
+    renderChallengeBanner();
+    renderAll();
+  }
+  rest.forEach((a,i)=>{ setTimeout(()=>pollAsset(a), i*180); });
 }
 // Self-rescheduling (setTimeout, not setInterval) so the delay can be
 // re-read fresh before every single cycle: fast (REFETCH_MS_VISIBLE) while
@@ -7872,19 +7962,77 @@ function buildWatchlist(){
     const row = document.createElement("div");
     row.className = "wl-row"+(a.symbol===selectedSymbol?" selected":"");
     row.dataset.symbol = a.symbol;
-    row.style.borderLeft = "3px solid "+(a.color||"transparent");
+    row.dataset.cat = a.cat || "crypto";
+    row.style.setProperty("--wl-c", a.color||"transparent");
+    row.title = a.symbol+" — "+a.name;
     row.innerHTML =
       '<span class="wl-grip" title="Glisser pour réordonner">⠿</span>'+
-      '<div class="sym"><span class="wl-icon" style="color:'+(a.color||"inherit")+';">'+(a.icon||"")+'</span> '+a.symbol+'<div class="name">'+a.name+'</div></div>'+
-      '<div class="price num flat" data-price>—</div>'+
-      '<canvas width="180" height="22"></canvas>'+
-      '<div class="chg num flat" data-chg style="grid-column:1/span 3;">en attente du flux…</div>';
+      '<span class="wl-icon" style="color:'+(a.color||"inherit")+';">'+(a.icon||"")+'</span>'+
+      '<div class="sym">'+a.symbol+'<div class="name">'+escapeHtml(a.name)+'</div></div>'+
+      '<canvas width="112" height="40"></canvas>'+
+      '<div class="wl-px"><div class="price num flat" data-price>—</div><div class="chg num flat" data-chg>…</div></div>';
     row.addEventListener("click", (e)=>{ if (e.target.closest(".wl-grip")) return; selectSymbol(a.symbol); });
     wl.appendChild(row);
     sparkCanvases[a.symbol] = row.querySelector("canvas");
   });
+  wl.insertAdjacentHTML("beforeend", '<div class="wl-empty" id="wl-empty" hidden>Aucun marché ne correspond.</div>');
   updateWatchlist();
   initWatchlistDrag();
+  initWatchlistFilters();
+  applyWatchlistFilter();
+}
+// Filtres du widget Marchés : catégorie (mémorisée dans le navigateur) +
+// recherche par symbole ou nom. La liste elle-même a une hauteur maximale
+// et défile, pour ne pas faire une colonne sans fin.
+const WL_CATS = [["all","Tout"],["crypto","Crypto"],["index","Indices"],["commodity","Matières"],["forex","Forex"]];
+const WL_CAT_KEY = "paperTapeWatchlistCat";
+let wlCat = (()=>{ try{ const v = localStorage.getItem(WL_CAT_KEY); return WL_CATS.some(c=>c[0]===v) ? v : "all"; }catch(e){ return "all"; } })();
+let wlQuery = "";
+let wlFiltersBound = false;
+function initWatchlistFilters(){
+  const cats = document.getElementById("wl-cats");
+  if (cats){
+    const counts = {};
+    visibleAssets().forEach(a=>{ const c = a.cat||"crypto"; counts[c] = (counts[c]||0)+1; });
+    cats.innerHTML = WL_CATS.filter(c=>c[0]==="all" || counts[c[0]]).map(c=>
+      '<button type="button" class="wl-cat'+(c[0]===wlCat?' is-on':'')+'" data-wl-cat="'+c[0]+'" role="tab" aria-selected="'+(c[0]===wlCat)+'">'+c[1]+
+      '<span>'+(c[0]==="all" ? visibleAssets().length : counts[c[0]])+'</span></button>'
+    ).join("");
+  }
+  if (wlFiltersBound) return;
+  wlFiltersBound = true;
+  if (cats) cats.addEventListener("click", (e)=>{
+    const b = e.target.closest("[data-wl-cat]");
+    if (!b) return;
+    wlCat = b.dataset.wlCat;
+    try{ localStorage.setItem(WL_CAT_KEY, wlCat); }catch(err){}
+    cats.querySelectorAll(".wl-cat").forEach(x=>{ const on = x.dataset.wlCat===wlCat; x.classList.toggle("is-on", on); x.setAttribute("aria-selected", on); });
+    applyWatchlistFilter();
+  });
+  const search = document.getElementById("wl-search");
+  if (search){
+    search.addEventListener("input", ()=>{ wlQuery = search.value.trim().toLowerCase(); applyWatchlistFilter(); });
+    // Entrée : ouvre le premier marché trouvé.
+    search.addEventListener("keydown", (e)=>{
+      if (e.key==="Enter"){ const r = document.querySelector("#watchlist .wl-row:not([hidden])"); if (r){ e.preventDefault(); selectSymbol(r.dataset.symbol); } }
+      else if (e.key==="Escape"){ search.value = ""; wlQuery = ""; applyWatchlistFilter(); }
+    });
+    // Le widget est déplaçable (draggable) : on évite qu'une sélection de
+    // texte dans le champ ne lance le déplacement du widget.
+    search.addEventListener("dragstart", (e)=>{ e.preventDefault(); e.stopPropagation(); });
+  }
+}
+function applyWatchlistFilter(){
+  let shown = 0;
+  document.querySelectorAll("#watchlist .wl-row").forEach(row=>{
+    const a = ASSETS.find(x=>x.symbol===row.dataset.symbol);
+    const okCat = wlCat==="all" || row.dataset.cat===wlCat;
+    const okQ = !wlQuery || (a && (a.symbol+" "+a.name).toLowerCase().includes(wlQuery));
+    row.hidden = !(okCat && okQ);
+    if (!row.hidden) shown++;
+  });
+  const empty = document.getElementById("wl-empty");
+  if (empty) empty.hidden = shown>0;
 }
 // Pointer-based drag reordering for the watchlist rows — same technique as
 // the widget-layout drag system (initWidgets(), below): Pointer Events
@@ -7969,7 +8117,7 @@ function drawSpark(canvas, hist, up){
     if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
   });
   ctx.strokeStyle = up ? "#31c882" : "#f0546a";
-  ctx.lineWidth = 1.4;
+  ctx.lineWidth = 2.4; // canvas dessiné en 2x (112×40 affiché en 56×20)
   ctx.stroke();
 }
 function updateWatchlist(){
@@ -7983,13 +8131,14 @@ function updateWatchlist(){
     if (m.last===null){
       priceEl.textContent = m.error ? "hors ligne" : "—";
       priceEl.className = "price num flat";
-      chgEl.textContent = m.error ? "flux indisponible" : "en attente du flux…";
+      chgEl.textContent = m.error ? "indisponible" : "…";
       chgEl.className = "chg num flat";
       return;
     }
     priceEl.textContent = fmtPrice(m.last,a.decimals);
     priceEl.className = "price num "+(m.prevLast===null?"flat":(m.last>m.prevLast?"up":(m.last<m.prevLast?"down":"flat")));
-    chgEl.textContent = fmtPct(m.changePct)+" (24h)";
+    chgEl.textContent = fmtPct(m.changePct);
+    chgEl.title = "Variation sur 24 h";
     chgEl.className = "chg num "+(m.changePct>=0?"up":"down");
     drawSpark(sparkCanvases[sym], m.history, m.changePct>=0);
   });
@@ -8056,6 +8205,8 @@ function initCandleTheme(){
 // changes here.
 const TV_SYMBOL_MAP = {
   BTC:"BINANCE:BTCUSDT", ETH:"BINANCE:ETHUSDT", SOL:"BINANCE:SOLUSDT", HYPE:"BINANCE:HYPEUSDT.P",
+  XRP:"BINANCE:XRPUSDT", ZEC:"BINANCE:ZECUSDT", ASTER:"BINANCE:ASTERUSDT", SUI:"BINANCE:SUIUSDT",
+  DOGE:"BINANCE:DOGEUSDT", LINK:"BINANCE:LINKUSDT", AVAX:"BINANCE:AVAXUSDT",
   EURUSD:"OANDA:EURUSD",
   SPY:"HIP3XYZ:SP500USDC.P", QQQ:"HIP3XYZ:XYZ100USDC.P", GOLD:"HIP3XYZ:GOLDUSDC.P", SILVER:"HIP3XYZ:SILVERUSDC.P",
   // OIL: the actual Trade[XYZ]/Hyperliquid-listed symbol for the exact "xyz:CL"
