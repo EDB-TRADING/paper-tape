@@ -4720,7 +4720,10 @@ const ASSETS = [
   {symbol:"GBPUSD", name:"Livre / Dollar",     hyperliquid:{dex:"xyz", coin:"GBP"}, decimals:4, icon:"💷", color:"#8e7cf0", cat:"forex", optional:true},
   {symbol:"USDJPY", name:"Dollar / Yen",       hyperliquid:{dex:"xyz", coin:"JPY", invertBelow:1}, decimals:3, icon:"💴", color:"#e06c75", cat:"forex", optional:true},
   {symbol:"USDKRW", name:"Dollar / Won coréen",hyperliquid:{dex:"xyz", coin:"KRW", invertBelow:1}, decimals:2, icon:"🇰🇷", color:"#5fb3c9", cat:"forex", optional:true},
-  {symbol:"DXY",    name:"Indice dollar (DXY)",hyperliquid:{dex:"xyz", coin:"DXY"}, decimals:3, icon:"💵", color:"#6fbf73", cat:"forex", optional:true},
+  // DXY retiré (2026-10, ne fonctionnait pas) : `delisted` le masque partout,
+  // mais le garde pour qu'une éventuelle position déjà ouverte reste valorisée
+  // et puisse être fermée.
+  {symbol:"DXY",    name:"Indice dollar (DXY)",hyperliquid:{dex:"xyz", coin:"DXY"}, decimals:3, icon:"💵", color:"#6fbf73", cat:"forex", optional:true, delisted:true},
   {symbol:"SPY",  name:"S&P 500",              instrument:"SPYUSD-PERP", decimals:2, indexRatio:10.08, icon:"📈", color:"#31c882", cat:"index"},
   {symbol:"QQQ",  name:"Nasdaq",               instrument:"QQQUSD-PERP",decimals:2, indexRatio:41.07, icon:"💻", color:"#d7b563", cat:"index"},
   {symbol:"GOLD", name:"Or", instrument:"PAXG_USD", binanceSymbol:"PAXGUSDT", decimals:2, icon:"🥇", color:"#d7b563", cat:"commodity"},
@@ -6813,7 +6816,20 @@ async function createAccountWithPassword(email, password){
 // doubles as "set a password on my account" — not just a reset for
 // someone who forgot one.
 async function sendPasswordReset(email){
-  await firebase.auth().sendPasswordResetEmail(email);
+  const auth = firebase.auth();
+  // E-mail envoyé en français (modèle « fr » de Firebase), et bouton
+  // « Continuer » qui ramène sur Paper Tape une fois le mot de passe changé.
+  auth.languageCode = "fr";
+  const back = /^https?:/.test(location.href) ? {url: location.origin+location.pathname, handleCodeInApp:false} : null;
+  try{
+    if (back) await auth.sendPasswordResetEmail(email, back);
+    else await auth.sendPasswordResetEmail(email);
+  }catch(e){
+    // Domaine du site absent des « domaines autorisés » de Firebase : on renvoie sans lien de retour.
+    const code = e && e.code || "";
+    if (back && /unauthorized-continue-uri|invalid-continue-uri|missing-continue-uri/.test(code)) await auth.sendPasswordResetEmail(email);
+    else throw e;
+  }
 }
 function initAuth(){
   try{
@@ -8255,7 +8271,7 @@ const TV_SYMBOL_MAP = {
   BTC:"BINANCE:BTCUSDT", ETH:"BINANCE:ETHUSDT", SOL:"BINANCE:SOLUSDT", HYPE:"BINANCE:HYPEUSDT.P",
   XRP:"BINANCE:XRPUSDT", ZEC:"BINANCE:ZECUSDT", ASTER:"BINANCE:ASTERUSDT", SUI:"BINANCE:SUIUSDT",
   DOGE:"BINANCE:DOGEUSDT", LINK:"BINANCE:LINKUSDT", AVAX:"BINANCE:AVAXUSDT",
-  EURUSD:"OANDA:EURUSD", GBPUSD:"OANDA:GBPUSD", USDJPY:"OANDA:USDJPY", USDKRW:"FX_IDC:USDKRW", DXY:"TVC:DXY",
+  EURUSD:"OANDA:EURUSD", GBPUSD:"OANDA:GBPUSD", USDJPY:"OANDA:USDJPY", USDKRW:"FX_IDC:USDKRW",
   SPY:"HIP3XYZ:SP500USDC.P", QQQ:"HIP3XYZ:XYZ100USDC.P", GOLD:"HIP3XYZ:GOLDUSDC.P", SILVER:"HIP3XYZ:SILVERUSDC.P",
   // OIL: the actual Trade[XYZ]/Hyperliquid-listed symbol for the exact "xyz:CL"
   // market this app trades OIL on (same dex, same coin) — NOT a different
