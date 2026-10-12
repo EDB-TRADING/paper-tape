@@ -8550,15 +8550,20 @@ function chartPriceFromClientY(clientY, svgEl){
   return Math.max(price, 0.0001);
 }
 // Clamps a candidate TP/SL price so it stays strictly on the valid side of
-// the entry price for that leg/side — same rule openTPSLModal() enforces
-// (TP above entry & SL below for a long, mirrored for a short) — with a
-// tiny epsilon so it's never exactly at entry (a TP/SL at entry would
-// trigger instantly). Shared by both "move an existing line" and "create a
-// new one by dragging away from entry".
-function clampTpSlPrice(price, leg, side, entryPrice){
-  const eps = Math.max(entryPrice*0.0005, 0.0001);
-  const aboveEntryOnly = (leg==="tp") === (side==="long"); // tp+long or sl+short => must be ABOVE entry
-  return aboveEntryOnly ? Math.max(price, entryPrice+eps) : Math.min(price, entryPrice-eps);
+// the CURRENT market price (prix de sortie actuel), not the entry price :
+// TP au-dessus du marché et SL en dessous pour un long, l'inverse pour un
+// short. Un SL peut donc passer en profit (break-even, stop suiveur) tant
+// qu'il reste du bon côté du prix actuel — sinon il se déclencherait tout
+// de suite. Même règle que openTPSLModal(). Sans prix live, on retombe sur
+// le prix d'entrée.
+function tpSlRefPrice(p){
+  const x = (typeof exitFill==="function") ? exitFill(p.symbol, p.side) : null;
+  return (x!=null && isFinite(x) && x>0) ? x : p.entryPrice;
+}
+function clampTpSlPrice(price, leg, side, refPrice){
+  const eps = Math.max(refPrice*0.0005, 0.0001);
+  const aboveOnly = (leg==="tp") === (side==="long"); // tp+long or sl+short => must be ABOVE the market
+  return aboveOnly ? Math.max(price, refPrice+eps) : Math.min(price, refPrice-eps);
 }
 // Current drag, or null. {positionId, leg:"tp"|"sl", mode:"move"|"create",
 // pointerId, price, startClientY} — `price` is always the live (already
@@ -8589,7 +8594,7 @@ function initChartLineDrag(){
     if (!p){ chartLineDrag = null; return; }
     const raw = chartPriceFromClientY(e.clientY, svg);
     if (raw==null) return;
-    const price = clampTpSlPrice(raw, chartLineDrag.leg, p.side, p.entryPrice);
+    const price = clampTpSlPrice(raw, chartLineDrag.leg, p.side, tpSlRefPrice(p));
     chartLineDrag.price = price;
     // If the drag has gone beyond what's currently drawn (chartScale's
     // min/max — no longer pixel-clamped in chartPriceFromClientY, see
@@ -11917,16 +11922,18 @@ function openTPSLModal(p){
     const tpPct = tpToPct();
     const slPct = slToPct();
     const msg = document.getElementById("tpsl-msg");
+    const ref = tpSlRefPrice(p); // prix de sortie actuel (le SL peut être en profit tant qu'il reste du bon côté)
+    const dec = (ASSETS.find(x=>x.symbol===p.symbol)||{}).decimals;
     if (tpVal!=null && !(tpVal>0)){ msg.textContent = "Take Profit invalide."; return null; }
     if (slVal!=null && !(slVal>0)){ msg.textContent = "Stop Loss invalide."; return null; }
     if (!(tpPct>0 && tpPct<=100)){ msg.textContent = "La taille du TP dépasse la position ou est invalide."; return null; }
     if (!(slPct>0 && slPct<=100)){ msg.textContent = "La taille du SL dépasse la position ou est invalide."; return null; }
     if (p.side==="long"){
-      if (tpVal!=null && tpVal<=p.entryPrice){ msg.textContent = "Le Take Profit doit être au-dessus du prix d'entrée pour un long."; return null; }
-      if (slVal!=null && slVal>=p.entryPrice){ msg.textContent = "Le Stop Loss doit être en-dessous du prix d'entrée pour un long."; return null; }
+      if (tpVal!=null && tpVal<=ref){ msg.textContent = "Le Take Profit doit être au-dessus du prix actuel ("+fmtPrice(ref, dec)+") pour un long."; return null; }
+      if (slVal!=null && slVal>=ref){ msg.textContent = "Le Stop Loss doit être en dessous du prix actuel ("+fmtPrice(ref, dec)+") pour un long."; return null; }
     } else {
-      if (tpVal!=null && tpVal>=p.entryPrice){ msg.textContent = "Le Take Profit doit être en-dessous du prix d'entrée pour un short."; return null; }
-      if (slVal!=null && slVal<=p.entryPrice){ msg.textContent = "Le Stop Loss doit être au-dessus du prix d'entrée pour un short."; return null; }
+      if (tpVal!=null && tpVal>=ref){ msg.textContent = "Le Take Profit doit être en dessous du prix actuel ("+fmtPrice(ref, dec)+") pour un short."; return null; }
+      if (slVal!=null && slVal<=ref){ msg.textContent = "Le Stop Loss doit être au-dessus du prix actuel ("+fmtPrice(ref, dec)+") pour un short."; return null; }
     }
     msg.textContent = "";
     return {tpVal, slVal, tpPct, slPct};
@@ -11941,6 +11948,7 @@ function openTPSLModal(p){
     persistAccount();
     renderPositions();
     closeModal();
+    if (typeof updateChart==="function") updateChart(); // lignes TP/SL du graphique interne à jour tout de suite
   });
   document.getElementById("tpsl-clear").addEventListener("click", ()=>{
     p.takeProfit = null;
@@ -11950,6 +11958,7 @@ function openTPSLModal(p){
     persistAccount();
     renderPositions();
     closeModal();
+    if (typeof updateChart==="function") updateChart();
   });
 }
 
