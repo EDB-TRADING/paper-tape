@@ -3340,6 +3340,10 @@
   .col-resizer-grip{width:2px;background:var(--border-soft);transition:background .15s, width .15s;}
   .col-resizer:hover .col-resizer-grip, .col-resizer:focus-visible .col-resizer-grip, .col-resizer.resizing .col-resizer-grip{background:var(--accent);width:3px;}
   @media (max-width:1080px){
+    /* Une seule colonne sur mobile/tablette : pas de poignée d'élargissement.
+       (La règle « display:none » plus haut était écrasée par le
+       « .col-resizer{display:flex} » déclaré après elle.) */
+    .col-resizer{display:none !important;}
     .wz-grip{display:none !important;}
     .card.widget.has-h{height:auto !important;}
     .card.widget.has-h > .widget-body{overflow:visible;}
@@ -18562,6 +18566,7 @@ function initColumnResizers(){
     handle.title = "Glisser pour élargir/rétrécir la colonne — double-clic : largeur par défaut";
     handle.addEventListener("pointerdown", (e)=>{
       if (e.button !== 0 && e.pointerType==="mouse") return;
+      if (window.innerWidth<=1080) return; // disposition à une colonne : rien à élargir
       dragPointerId = e.pointerId;
       startX = e.clientX;
       startWidth = effectiveColumnWidths()[side];
@@ -18589,6 +18594,7 @@ function initColumnResizers(){
     handle.addEventListener("pointercancel", endDrag);
     // Double-click/tap resets just that column back to its default width.
     handle.addEventListener("dblclick", ()=>{
+      if (window.innerWidth<=1080) return;
       columnWidths[side] = COL_WIDTH_DEFAULTS[side];
       applyColumnWidths();
       saveColumnWidths();
