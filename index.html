@@ -5662,6 +5662,7 @@ const state = {
   badges: {},      // {[badgeId]: {earnedAt}}
   journal: [],     // [{id, text, symbol?, side?, pnl?, createdAt}]
   superflash: {bestScore:0, bestCorrect:0, attempts:0},
+  tradesOpenedTotal: 0, // compteur à vie des positions ouvertes, tous comptes confondus (badges)
   stats: {
     tradesOpened:0, tradesClosed:0, wins:0, losses:0,
     grossProfit:0, grossLoss:0, bestTrade:0, worstTrade:0,
@@ -6089,6 +6090,7 @@ function hydrateStateFromDoc(snap){
   state.streakDays = typeof d.streakDays==="number" ? d.streakDays : 0;
   state.lastActiveDateKey = d.lastActiveDateKey || null;
   state.hardcore200kPasses = typeof d.hardcore200kPasses==="number" ? d.hardcore200kPasses : 0;
+  state.tradesOpenedTotal = typeof d.tradesOpenedTotal==="number" ? d.tradesOpenedTotal : 0;
   state.challenge200kOpens = typeof d.challenge200kOpens==="number" ? d.challenge200kOpens : 0;
   // Now that we actually know this trader's EDB+ status, re-check anything
   // gated by it: the display theme (may need to snap back to Ember, or be
@@ -6155,6 +6157,9 @@ async function loadAccountForClientId(id){
     if (seq!==accountLoadSeq) return;
   }
   recordTermsAcceptance(id);
+  // Rattrapage : un trader qui a déjà 10 positions ou plus (tous comptes
+  // confondus) reçoit le badge dès la connexion, sans attendre un nouveau trade.
+  if (seq===accountLoadSeq) setTimeout(()=>{ if (clientId===id && !accountLoading) checkTradeBadges(); }, 0);
 }
 // Plusieurs onglets / appareils sur le même compte (ex. l'app installée sur
 // le téléphone + le PC) : un onglet resté en arrière-plan gardait en mémoire
@@ -6421,6 +6426,7 @@ function persistAccount(){
           streakDays: state.streakDays||0,
           lastActiveDateKey: state.lastActiveDateKey || null,
           hardcore200kPasses: state.hardcore200kPasses||0,
+          tradesOpenedTotal: lifetimeTradesOpened(),
           challenge200kOpens: state.challenge200kOpens||0,
           positions: normal.positions.slice(0,20),
           pendingOrders: normal.pendingOrders.slice(0,20),
@@ -10383,6 +10389,7 @@ function openPositionCore(o){ // o: {symbol,side,mode,leverage,entry,notional,in
     });
   }
   state.stats.tradesOpened = (state.stats.tradesOpened||0)+1;
+  state.tradesOpenedTotal = Math.max((state.tradesOpenedTotal||0)+1, statsTradesOpenedSum());
   if (currentBookName()==="prop") recordChallengeTradingDay();
 }
 // Copy-trading: after an order opens (market) or queues (limit) on the
@@ -10492,8 +10499,7 @@ function submitOrder(){
     document.getElementById("sl-input").value = "";
     renderAll();
     persistAccount();
-    awardBadge('first_trade');
-    if (state.stats.tradesOpened>=10) awardBadge('ten_trades');
+    checkTradeBadges();
   }catch(e){
     console.error("submitOrder failed", e);
     msg.textContent = "Erreur inattendue à l'ouverture de la position : "+((e&&e.message)||e)+" — réessaie, et préviens si ça persiste.";
@@ -10593,8 +10599,7 @@ function checkPendingOrders(){
     state.cash -= o.entryFeeEst;
     renderAll();
     persistAccount();
-    awardBadge('first_trade');
-    if (state.stats.tradesOpened>=10) awardBadge('ten_trades');
+    checkTradeBadges();
   });
 }
 function closePosition(id, reason){
@@ -11334,6 +11339,26 @@ const BADGES = [
 // `extra` (optional) is merged into the stored badge entry — used by the
 // prop firm challenge to keep the account tier + the equity value at the
 // moment the badge was earned (shown on the tile and in the toast).
+// Badges « Premier trade » / « Trader régulier » : comptés sur la vie du
+// compte, tous comptes confondus (normal + prop firm, challenges passés
+// inclus). Avant, seul le compteur du compte affiché était regardé : les
+// trades passés en challenge (compteur remis à zéro à chaque nouveau
+// challenge) ou sur l'autre compte ne comptaient pas.
+function statsTradesOpenedSum(){
+  try{
+    const bk = booksForPersist();
+    const n = b=>(b && b.stats && b.stats.tradesOpened) || 0;
+    return n(bk.normal) + n(bk.prop);
+  }catch(e){ return (state.stats && state.stats.tradesOpened) || 0; }
+}
+function lifetimeTradesOpened(){
+  return Math.max(state.tradesOpenedTotal||0, statsTradesOpenedSum());
+}
+function checkTradeBadges(){
+  const n = lifetimeTradesOpened();
+  if (n>=1) awardBadge('first_trade');
+  if (n>=10) awardBadge('ten_trades');
+}
 function awardBadge(id, extra){
   if (state.badges[id]) return;
   state.badges[id] = Object.assign({earnedAt:new Date().toISOString()}, extra||{});
@@ -19666,7 +19691,7 @@ async function adminResetTrader(id){
     await db.collection("traders").doc(id).update(adminOverridePatch({
       cash: START_CASH, marginUsed: 0, equity: START_CASH,
       positions: [], pendingOrders: [], history: [],
-      badges: {}, journal: [],
+      badges: {}, journal: [], tradesOpenedTotal: 0,
       quizProgress: {}, quizTotal: 0,
       superflashBest: 0, superflashBestCorrect: 0, superflashAttempts: 0,
       stats: {tradesOpened:0,tradesClosed:0,wins:0,losses:0,grossProfit:0,grossLoss:0,bestTrade:0,worstTrade:0,currentStreak:0,streakType:null,bestWinStreak:0,bestLossStreak:0},
