@@ -5891,8 +5891,14 @@ function processTicker(symbol, payload){
   m.high = (parseFloat(payload.high) || last)*scale;
   m.low = (parseFloat(payload.low) || last)*scale;
   m.updatedAt = payload.timestamp || new Date().toISOString();
-  m.history.push(m.last);
-  if (m.history.length>HIST_LEN) m.history.shift();
+  // Prix reçus jusqu'à chaque seconde (flux en direct) : la mini-courbe garde
+  // un point toutes les ~5 s comme avant, le dernier point suit le prix.
+  const histNow = Date.now();
+  if (!m.histAt || histNow-m.histAt >= 4500 || m.history.length<2){
+    m.history.push(m.last);
+    m.histAt = histNow;
+    if (m.history.length>HIST_LEN) m.history.shift();
+  } else m.history[m.history.length-1] = m.last;
   m.error = null;
   // Live-patch the still-forming (most recent) candle between candle refetches,
   // so the chart visibly breathes with every tick instead of only updating
@@ -7793,10 +7799,21 @@ function hlCoinName(hl){ return hl.dex ? hl.dex+":"+hl.coin : hl.coin; }
 // Plusieurs marchés du même dex (pétrole + forex sur « xyz ») : un seul appel
 // metaAndAssetCtxs par dex et par rafraîchissement, partagé 1,5 s.
 const hlCtxCache = {};
-const hlSpreadCache = {}; // demi-spread relatif par marché Hyperliquid, relu toutes les 15 s
-function hlMetaCtxs(dex){
+const hlSpreadCache = {}; // demi-spread relatif par marché Hyperliquid (relu toutes les 15 à 60 s)
+const hlMidsCache = {};
+// allMids d'un dex (prix milieu de tous ses marchés en un appel, poids 2),
+// partagé ~0,9 s entre les marchés du même dex.
+function hlAllMids(dex){
+  const key = dex || "_main", now = Date.now(), c = hlMidsCache[key];
+  if (c && now-c.t < 900) return c.p;
+  const p = hlInfoPost(dex ? {type:"allMids", dex} : {type:"allMids"});
+  hlMidsCache[key] = {t:now, p};
+  p.catch(()=>{ if (hlMidsCache[key] && hlMidsCache[key].p===p) delete hlMidsCache[key]; });
+  return p;
+}
+function hlMetaCtxs(dex, maxAge){
   const key = dex || "_main", now = Date.now(), c = hlCtxCache[key];
-  if (c && now-c.t < 1500) return c.p;
+  if (c && now-c.t < (maxAge||1500)) return c.p;
   const p = hlInfoPost(dex ? {type:"metaAndAssetCtxs", dex} : {type:"metaAndAssetCtxs"});
   hlCtxCache[key] = {t:now, p};
   p.catch(()=>{ if (hlCtxCache[key] && hlCtxCache[key].p===p) delete hlCtxCache[key]; });
@@ -7834,33 +7851,54 @@ async function fetchDepthHyperliquid(hl, limit){
 // bare "CL" the docs' own non-HIP-3 examples use — match either form so a
 // dex that behaves the documented (unprefixed) way still works too.
 async function fetchTickerHyperliquid(hl){
-  const [meta, ctxs] = await hlMetaCtxs(hl.dex);
+  // Prix : allMids (poids 2 dans la limite Hyperliquid de 1 200 / min / IP,
+  // contre 20 pour metaAndAssetCtxs), relu toutes les ~1,5 s. La variation du
+  // jour (prevDayPx) vient de metaAndAssetCtxs, relu seulement toutes les 30 s.
+  // Si allMids ne répond pas pour ce marché, on retombe sur le prix « mark »
+  // de metaAndAssetCtxs (relu alors toutes les 3 s).
   const prefixed = hlCoinName(hl);
-  const idx = (meta && Array.isArray(meta.universe)) ? meta.universe.findIndex(u=>u && (u.name===hl.coin || u.name===prefixed)) : -1;
-  const ctx = (idx>=0 && Array.isArray(ctxs)) ? ctxs[idx] : null;
-  if (!ctx || ctx.markPx==null){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
-  let last = parseFloat(ctx.markPx);
-  let prev = ctx.prevDayPx!=null ? parseFloat(ctx.prevDayPx) : null;
+  let mid = null, midsOk = false;
+  try{
+    const mids = await hlAllMids(hl.dex);
+    midsOk = !!mids && typeof mids==="object";
+    const v = mids ? (mids[prefixed]!=null ? mids[prefixed] : mids[hl.coin]) : null;
+    mid = v!=null ? parseFloat(v) : null;
+    if (!(isFinite(mid) && mid>0)) mid = null;
+  }catch(e){ mid = null; }
+  let ctx = null;
+  try{
+    // allMids a répondu (même sans ce marché) : la mise à jour lente suffit.
+    const [meta, ctxs] = await hlMetaCtxs(hl.dex, midsOk ? 30000 : 3000);
+    const idx = (meta && Array.isArray(meta.universe)) ? meta.universe.findIndex(u=>u && (u.name===hl.coin || u.name===prefixed)) : -1;
+    ctx = (idx>=0 && Array.isArray(ctxs)) ? ctxs[idx] : null;
+  }catch(e){ if (mid==null) throw e; }
+  let last = mid!=null ? mid : (ctx && ctx.markPx!=null ? parseFloat(ctx.markPx) : NaN);
+  if (!(isFinite(last) && last>0)){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
+  let prev = ctx && ctx.prevDayPx!=null ? parseFloat(ctx.prevDayPx) : null;
   if (hlInverted(hl, last)){ last = 1/last; if (prev) prev = 1/prev; }
   const change = (prev && isFinite(prev) && prev!==0) ? (last-prev)/prev : 0;
   let bid = last, ask = last;
-  // Le spread réel (carnet l2Book) n'est relu que toutes les 15 s par marché et
-  // appliqué au prix courant : 7 marchés Hyperliquid × un carnet à chaque
-  // rafraîchissement (toutes les 2 s en challenge) approcheraient la limite de
-  // requêtes de Hyperliquid.
-  const key = hlCoinName(hl), sc = hlSpreadCache[key];
+  // Spread réel (carnet l2Book) appliqué au prix courant : relu toutes les
+  // 15 s pour le marché affiché ou un marché où l'on a une position / un
+  // ordre, toutes les 60 s sinon.
+  const key = prefixed, sc = hlSpreadCache[key];
+  const asset = ASSETS.find(a=>a.hyperliquid===hl || a.hlFallback===hl);
+  const sym = asset && asset.symbol;
+  const hot = sym && (sym===selectedSymbol || (state.positions||[]).some(p=>p.symbol===sym) || (state.pendingOrders||[]).some(o=>o.symbol===sym));
   try{
-    if (!sc || Date.now()-sc.t > 15000){
+    if (!sc || Date.now()-sc.t > (hot ? 15000 : 60000)){
       const book = await fetchDepthHyperliquid(hl, 1); // déjà inversé si besoin
       const b0 = book.bids[0] && book.bids[0].price, a0 = book.asks[0] && book.asks[0].price;
       if (b0 && a0 && a0>=b0){
-        const mid = (a0+b0)/2;
-        hlSpreadCache[key] = {t:Date.now(), half:Math.min((a0-b0)/2/mid, 0.01)};
-      }
+        const m = (a0+b0)/2;
+        hlSpreadCache[key] = {t:Date.now(), half:Math.min((a0-b0)/2/m, 0.01)};
+      } else hlSpreadCache[key] = {t:Date.now(), half:(sc && sc.half) || 0};
     }
     const c = hlSpreadCache[key];
     if (c){ bid = last*(1-c.half); ask = last*(1+c.half); }
-  }catch(e){ /* keep the mark-price fallback above */ }
+  }catch(e){
+    if (sc) hlSpreadCache[key] = {t:Date.now(), half:sc.half}; // pas de nouvel essai avant le prochain délai
+  }
   return {last:String(last), best_bid:String(bid), best_ask:String(ask), change, timestamp:new Date().toISOString()};
 }
 const HL_INTERVAL_MS = {"1m":60000, "5m":5*60000, "15m":15*60000, "1h":3600000};
@@ -8067,6 +8105,157 @@ function initDom(){
   refreshDom();
   domTimer = setInterval(refreshDom, 3000);
 }
+/* ---------- Prix en direct : flux Binance + Hyperliquid rapide ----------
+   - Binance (cryptos cotées en spot, et HYPE en perp) : une connexion
+     WebSocket par marché-type reçoit le ticker de chaque crypto chaque
+     seconde, poussé par Binance — plus besoin de redemander toutes les 5 s.
+     Gratuit, et sans compter dans la limite de requêtes Binance.
+   - Hyperliquid (indices, matières premières, forex) : relu toutes les
+     1,5 s via allMids (poids 2), voir fetchTickerHyperliquid().
+   - Le rafraîchissement classique (pollAllAssets, toutes les 5 s) ne
+     s'occupe plus que des marchés qui n'ont rien reçu par ces deux voies
+     depuis quelques secondes : il sert de secours automatique si le flux
+     se coupe (réseau, onglet en veille).
+   L'affichage (PnL, positions, graphique…) et les vérifications TP / SL /
+   liquidations suivent, au plus deux fois par seconde. */
+const BINANCE_WS_SPOT = "wss://stream.binance.com:9443/stream?streams=";
+const BINANCE_WS_FUT = "wss://fstream.binance.com/stream?streams=";
+const HL_FAST_MS = 1500;
+const binanceWs = {spot:null, fut:null};
+const binanceWsBackoff = {spot:2000, fut:2000};
+const binanceWsBook = {};
+let priceRenderTimer = null, priceRenderLastAt = 0;
+function afterPriceUpdate(){
+  if (priceRenderTimer) return;
+  const wait = Math.max(0, 500-(Date.now()-priceRenderLastAt));
+  priceRenderTimer = setTimeout(()=>{
+    priceRenderTimer = null;
+    priceRenderLastAt = Date.now();
+    clearLiveBanner();
+    checkPendingOrders(); checkTPSL(); checkLiquidations();
+    withParkedBook(()=>{ checkPendingOrders(); checkTPSL(); checkLiquidations(); });
+    updateChallengeStatus();
+    renderChallengeBanner();
+    renderAll();
+  }, wait);
+}
+function priceFeedFresh(a){
+  const m = market[a.symbol];
+  if (!m) return false;
+  const now = Date.now();
+  return !!((m.wsAt && now-m.wsAt < 6000) || (m.fastAt && now-m.fastAt < 4000));
+}
+function openBinanceWs(kind){
+  if (typeof WebSocket==="undefined" || binanceWs[kind]) return;
+  const assets = ASSETS.filter(a=>!a.delisted && (kind==="spot" ? (a.binanceSymbol && !a.hyperliquid && !a.binanceFutures) : a.binanceFutures));
+  if (!assets.length) return;
+  const map = {}, streams = [];
+  assets.forEach(a=>{
+    const s = (kind==="spot" ? a.binanceSymbol : a.binanceFutures).toLowerCase();
+    map[s.toUpperCase()] = a.symbol;
+    streams.push(s+"@ticker");
+    if (kind==="fut") streams.push(s+"@bookTicker"); // le ticker perp ne donne pas bid / ask
+  });
+  let ws;
+  try{ ws = new WebSocket((kind==="spot" ? BINANCE_WS_SPOT : BINANCE_WS_FUT)+streams.join("/")); }
+  catch(e){ scheduleBinanceWsReconnect(kind); return; }
+  binanceWs[kind] = ws;
+  ws.onopen = ()=>{ binanceWsBackoff[kind] = 2000; };
+  ws.onmessage = (ev)=>{
+    let msg; try{ msg = JSON.parse(ev.data); }catch(e){ return; }
+    const d = msg && (msg.data || msg);
+    if (!d || !d.s) return;
+    const sym = map[d.s];
+    if (!sym || !market[sym]) return;
+    if (d.e==="bookTicker" || (d.e==null && d.b!=null && d.a!=null && d.c==null)){ binanceWsBook[sym] = {b:d.b, a:d.a}; return; }
+    if (d.e!=="24hrTicker" || d.c==null) return;
+    const book = binanceWsBook[sym];
+    processTicker(sym, {
+      last: d.c,
+      best_bid: d.b!=null ? d.b : (book ? book.b : d.c),
+      best_ask: d.a!=null ? d.a : (book ? book.a : d.c),
+      change: (parseFloat(d.P)||0)/100,
+      high: d.h, low: d.l,
+      timestamp: new Date(Number(d.E)||Date.now()).toISOString(),
+    });
+    market[sym].wsAt = Date.now();
+    const a = ASSETS.find(x=>x.symbol===sym);
+    if (a && a.unavailable){ a.unavailable = false; market[sym].failCount = 0; if (typeof applyWatchlistFilter==="function") applyWatchlistFilter(); }
+    afterPriceUpdate();
+  };
+  ws.onclose = ()=>{ if (binanceWs[kind]===ws){ binanceWs[kind] = null; scheduleBinanceWsReconnect(kind); } };
+  ws.onerror = ()=>{ try{ ws.close(); }catch(e){} };
+}
+function scheduleBinanceWsReconnect(kind){
+  const d = binanceWsBackoff[kind];
+  binanceWsBackoff[kind] = Math.min(60000, d*2);
+  setTimeout(()=>{ if (!binanceWs[kind]) openBinanceWs(kind); }, d);
+}
+let hlFastBusy = false;
+async function pollHlFast(){
+  if (hlFastBusy || document.visibilityState==="hidden") return;
+  const list = ASSETS.filter(a=>a.hyperliquid && !a.delisted && !a.unavailable);
+  if (!list.length) return;
+  hlFastBusy = true;
+  try{
+    const res = await Promise.all(list.map(a=>fetchTickerHyperliquid(a.hyperliquid).then(p=>[a,p]).catch(()=>[a,null])));
+    let any = false;
+    res.forEach(r=>{
+      if (!r[1]){
+        // Même règle que pollAsset() : un marché optionnel jamais reçu est masqué après 3 échecs.
+        const a = r[0], m = market[a.symbol];
+        if (a.optional && m){ m.failCount = (m.failCount||0)+1; if (!hasLive(a.symbol) && m.failCount>=3 && !a.unavailable){ a.unavailable = true; if (typeof applyWatchlistFilter==="function") applyWatchlistFilter(); } }
+        return;
+      }
+      const [a, p] = r;
+      processTicker(a.symbol, p);
+      const m = market[a.symbol];
+      m.fastAt = Date.now();
+      m.lastHlPx = parseFloat(p.last); m.lastHlAt = Date.now(); a._cdcCal = null;
+      any = true;
+    });
+    if (any) afterPriceUpdate();
+  }finally{ hlFastBusy = false; }
+}
+function initLivePrices(){
+  openBinanceWs("spot");
+  openBinanceWs("fut");
+  setInterval(pollHlFast, HL_FAST_MS);
+  // Retour au premier plan : relance tout de suite un flux coupé pendant la veille.
+  document.addEventListener("visibilitychange", ()=>{
+    if (document.visibilityState!=="visible") return;
+    ["spot","fut"].forEach(k=>{ if (!binanceWs[k]){ binanceWsBackoff[k] = 2000; openBinanceWs(k); } });
+    pollHlFast();
+  });
+}
+// Listes reconstruites à chaque rafraîchissement (positions, ordres,
+// historique) : on ne les remplace pas pendant qu'on appuie dessus (sinon,
+// avec un rafraîchissement chaque seconde, un clic sur « Fermer » pouvait
+// tomber entre deux versions de la liste et ne rien faire) ni pendant qu'on
+// tape dans un champ qu'elles contiennent. Elles se mettent à jour juste après.
+let uiPressTarget = null, uiListsDeferred = false;
+function uiListBusy(list){
+  if (!list) return false;
+  const ae = document.activeElement;
+  if ((uiPressTarget && list.contains(uiPressTarget)) || (ae && ae!==document.body && list.contains(ae) && /^(INPUT|SELECT|TEXTAREA)$/.test(ae.tagName))){
+    uiListsDeferred = true;
+    return true;
+  }
+  return false;
+}
+(function(){
+  if (typeof document==="undefined") return;
+  document.addEventListener("pointerdown", (e)=>{ uiPressTarget = e.target; }, true);
+  const release = ()=>{
+    uiPressTarget = null;
+    if (!uiListsDeferred) return;
+    uiListsDeferred = false;
+    setTimeout(()=>{ if (!uiPressTarget){ renderPositions(); renderPendingOrders(); renderHistory(); } }, 0);
+  };
+  document.addEventListener("pointerup", release, true);
+  document.addEventListener("pointercancel", release, true);
+  document.addEventListener("focusout", ()=>setTimeout(()=>{ if (uiListsDeferred && !uiPressTarget){ uiListsDeferred = false; renderPositions(); renderPendingOrders(); renderHistory(); } }, 0), true);
+})();
 async function pollAsset(a){
   try{
     const payload = await fetchTickerRest(a);
@@ -8125,13 +8314,16 @@ async function pollAllAssets(){
   // Après 3 échecs d'affilée (ex. un symbole refusé par Binance), on repasse
   // au mode « un appel par marché » pour le reste de la session.
   if (binanceBatchFails<3){
-    const syms = ASSETS.filter(a=>a.binanceSymbol && !a.hyperliquid && !a.binanceFutures).map(a=>a.binanceSymbol);
-    try{ got = await fetchTickersBinanceBatch(syms); binanceBatchFails = 0; }
-    catch(e){ got = {}; binanceBatchFails++; }
+    const syms = ASSETS.filter(a=>a.binanceSymbol && !a.hyperliquid && !a.binanceFutures && !priceFeedFresh(a)).map(a=>a.binanceSymbol);
+    if (syms.length){
+      try{ got = await fetchTickersBinanceBatch(syms); binanceBatchFails = 0; }
+      catch(e){ got = {}; binanceBatchFails++; }
+    }
   }
   const rest = [];
   let any = false;
   ASSETS.forEach(a=>{
+    if (priceFeedFresh(a)) return; // déjà à jour par le flux en direct
     const p = a.binanceSymbol && !a.hyperliquid && !a.binanceFutures && got[a.binanceSymbol];
     if (p){ processTicker(a.symbol, p); any = true; }
     else rest.push(a);
@@ -8170,6 +8362,7 @@ async function initPriceFeed(){
   pollAllAssets();
   schedulePriceRefresh();
   scheduleCandleRefresh();
+  initLivePrices();
 }
 function setLiveBanner(code){
   liveGloballyDown = true;
@@ -10051,6 +10244,7 @@ function renderAccount(){
 }
 function renderPositions(){
   const list = document.getElementById("positions-list");
+  if (uiListBusy(list)) return;
   if (state.positions.length===0){
     const neverTraded = !((state.stats && state.stats.tradesOpened) > 0);
     list.innerHTML = neverTraded
@@ -10446,6 +10640,7 @@ function histSubLine(h){
 }
 function renderHistory(){
   const list = document.getElementById("history-list");
+  if (uiListBusy(list)) return;
   if (state.history.length===0){ list.innerHTML = '<div class="empty-note">Pas encore de trade clôturé</div>'; return; }
   list.innerHTML = state.history.slice(0,15).map(h=>{
     const feeNote = h.feesPaid ? ' <span style="font-size:9.5px;color:var(--text-faint);font-weight:400;">(frais '+fmtMoney(h.feesPaid)+')</span>' : '';
@@ -10477,6 +10672,7 @@ function renderHistory(){
 function renderPendingOrders(){
   const list = document.getElementById("pending-orders-list");
   if (!list) return;
+  if (uiListBusy(list)) return;
   if (state.pendingOrders.length===0){ list.innerHTML = '<div class="empty-note">Aucun ordre en attente</div>'; return; }
   list.innerHTML = state.pendingOrders.map(o=>{
     const a = ASSETS.find(x=>x.symbol===o.symbol);
