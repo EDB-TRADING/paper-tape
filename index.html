@@ -812,6 +812,12 @@
 
   .hist-row{display:flex;flex-direction:column;gap:2px;padding:5px 0;border-bottom:1px solid var(--border-soft);font-size:10.5px;}
   .hist-row:last-child{border-bottom:none;}
+  /* Historique récent : hauteur bornée, on fait défiler au lieu d'allonger le widget. */
+  #history-list{max-height:min(300px, 45vh);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+    scrollbar-width:thin;scrollbar-color:var(--border) transparent;margin-right:-4px;padding-right:6px;}
+  #history-list::-webkit-scrollbar{width:6px;}
+  #history-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+  .card.widget.has-h #history-list{max-height:none;overflow:visible;}
   .hist-tag{font-family:var(--mono);font-size:8.5px;color:var(--text-faint);text-transform:uppercase;}
   .user-badge{font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:4px;letter-spacing:.02em;margin-left:5px;white-space:nowrap;display:inline-block;vertical-align:1px;}
   .user-badge.admin-badge{background:color-mix(in srgb, var(--warn) 20%, var(--bg) 80%);color:var(--warn);border:1px solid var(--warn);}
@@ -10641,8 +10647,8 @@ function histSubLine(h){
 function renderHistory(){
   const list = document.getElementById("history-list");
   if (uiListBusy(list)) return;
-  if (state.history.length===0){ list.innerHTML = '<div class="empty-note">Pas encore de trade clôturé</div>'; return; }
-  list.innerHTML = state.history.slice(0,15).map(h=>{
+  if (state.history.length===0){ list.innerHTML = '<div class="empty-note">Pas encore de trade clôturé</div>'; list.__html = null; return; }
+  const html = state.history.slice(0,50).map(h=>{
     const feeNote = h.feesPaid ? ' <span style="font-size:9.5px;color:var(--text-faint);font-weight:400;">(frais '+fmtMoney(h.feesPaid)+')</span>' : '';
     const partialNote = h.partial ? ' <span class="hist-tag">'+h.closedPct+'% partiel</span>' : '';
     return '<div class="hist-row">'+
@@ -10656,6 +10662,12 @@ function renderHistory(){
       '<div class="hist-row-sub">'+histSubLine(h)+'</div>'+
     '</div>';
   }).join("");
+  // Rien de nouveau : on ne touche pas à la liste (garde la position de défilement).
+  if (list.__html===html) return;
+  const st = list.scrollTop;
+  list.innerHTML = html;
+  list.__html = html;
+  list.scrollTop = st;
   list.querySelectorAll("[data-card-hist]").forEach(btn=>{
     btn.addEventListener("click", ()=>{
       const h = state.history.find(x=>x.id===btn.dataset.cardHist);
