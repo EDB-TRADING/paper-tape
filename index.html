@@ -3710,6 +3710,8 @@
   .rp-tbtn{font:600 12.5px var(--sans);color:var(--text);background:var(--panel-2);border:1px solid var(--border-soft);border-radius:10px;padding:8px 12px;cursor:pointer;}
   .rp-tbtn:hover{border-color:var(--border);}
   .rp-end{margin-left:auto;color:var(--text-dim);}
+  .rp-speeds-lbl{align-self:center;font-size:11px;color:var(--text-faint);padding:0 6px 0 8px;white-space:nowrap;}
+  .rp-speeds button{min-width:32px;}
   .rp-speeds{display:flex;gap:2px;background:var(--panel-2);border:1px solid var(--border-soft);border-radius:10px;padding:2px;}
   .rp-speeds button{font:600 12px var(--mono);color:var(--text-dim);background:none;border:none;border-radius:8px;padding:6px 9px;cursor:pointer;}
   .rp-speeds button.is-on{background:var(--panel);color:var(--text);box-shadow:inset 0 0 0 1px var(--accent);}
@@ -17619,18 +17621,38 @@ function rpUpnl(price){
   return p.side==="long" ? (price-p.entry)*p.units : (p.entry-price)*p.units;
 }
 function rpEquity(price){ return rp.cash + (rp.pos ? rp.pos.margin + rpUpnl(price) : 0); }
+// Long alors qu'on est déjà long (ou short sur short) : RENFORCE la position
+// (prix d'entrée moyen, marge et taille cumulées, levier effectif recalculé).
+// Ordre opposé : ferme la position en cours puis ouvre dans l'autre sens.
 function rpOpen(side){
   if (!rp || rp.done) return;
-  if (rp.pos && rp.pos.side===side) return;
-  if (rp.pos) rpClose("reverse");
   const price = rpPrice();
-  const margin = Math.min(rp.cash, rpEquity(price)*rp.sizePct/100);
-  if (margin < 10){ rpFlash("Pas assez de capital disponible."); return; }
+  let note = "";
+  if (rp.pos && rp.pos.side!==side){
+    const before = rp.trades.length;
+    rpClose("reverse");
+    const t = rp.trades[before];
+    note = (t.side==="long"?"Long":"Short")+" fermé ("+fmtMoneySigned(t.pnl)+"), ";
+  }
+  // Marge prise sur le cash disponible, frais d'ouverture compris.
+  const margin = Math.min(rp.cash/(1+rp.lev*REPLAY_FEE), rpEquity(price)*rp.sizePct/100);
+  if (margin < 10){ rpFlash(rp.pos ? "Plus de capital disponible pour renforcer la position." : "Pas assez de capital disponible."); rpPaint(); return; }
   const notional = margin*rp.lev;
   const fee = notional*REPLAY_FEE;
   rp.cash -= margin + fee;
-  const liq = side==="long" ? price*(1-1/rp.lev) : price*(1+1/rp.lev);
-  rp.pos = {side, entry:price, units:notional/price, margin, notional, lev:rp.lev, liq, openI:rp.i, fees:fee};
+  const liqOf = (entry, m, n)=> side==="long" ? entry*(1-m/n) : entry*(1+m/n);
+  if (rp.pos){
+    const p = rp.pos, units = notional/price;
+    p.entry = (p.entry*p.units + price*units)/(p.units+units);
+    p.units += units; p.margin += margin; p.notional += notional; p.fees += fee;
+    p.lev = Math.round(p.notional/p.margin*10)/10;
+    p.liq = liqOf(p.entry, p.margin, p.notional);
+    p.adds = (p.adds||0)+1;
+    rpFlash("Position renforcée : entrée moyenne "+rpPx(p.entry)+", levier effectif x"+String(p.lev).replace(".",",")+".");
+  } else {
+    rp.pos = {side, entry:price, units:notional/price, margin, notional, lev:rp.lev, liq:liqOf(price, margin, notional), openI:rp.i, fees:fee, adds:0};
+    if (note) rpFlash(note+(side==="long"?"Long":"Short")+" ouvert.");
+  }
   if (!rp.playing) rpTogglePlay(); // ouvrir une position lance la lecture
   rpPaint();
 }
@@ -17646,7 +17668,7 @@ function rpClose(reason, atPrice){
   if (reason==="liq") rpFlash("Liquidé ! La perte a atteint ta marge (levier x"+p.lev+").");
   rpPaint();
 }
-function rpStep(){
+function rpStep(noPaint){
   if (!rp || rp.done) return;
   if (rp.i >= rp.candles.length-1){ rpFinish(); return; }
   rp.i++;
@@ -17660,18 +17682,29 @@ function rpStep(){
   rp.peak = Math.max(rp.peak, eq);
   rp.maxDD = Math.max(rp.maxDD, (rp.peak-eq)/rp.peak);
   if (rp.i >= rp.candles.length-1){ rpPaint(); rpFinish(); return; }
-  rpPaint();
+  if (!noPaint) rpPaint();
+}
+// « +1 » / flèche droite : avance d'une bougie de l'unité affichée (15 min en 15m).
+function rpStepBar(){
+  const n = rp ? (rp.tf||1) : 1;
+  for (let k=0; k<n && rp && !rp.done; k++) rpStep(k<n-1);
 }
 function rpTogglePlay(){
   if (!rp || rp.done) return;
   if (rp.playing){ replayPause(); return; }
   rp.playing = true;
   clearInterval(rpTimer);
+  // Vitesse = bougies AFFICHÉES par seconde, dans l'unité de temps choisie
+  // (« 3/s » en 15m = 3 bougies de 15 min par seconde). La séance avançant
+  // minute par minute, on fait plusieurs pas d'une minute par tic si besoin.
+  const perSec = REPLAY_SPEEDS[rp.speedIdx] * (rp.tf||1);
+  const interval = Math.max(20, 1000/perSec);
+  const stepsPerTick = Math.max(1, Math.round(perSec*interval/1000));
   rpTimer = setInterval(()=>{
     const v = document.getElementById("view-replay");
     if (!v || !v.classList.contains("active")){ replayPause(); return; }
-    rpStep();
-  }, 1000/REPLAY_SPEEDS[rp.speedIdx]);
+    for (let k=0; k<stepsPerTick && rp && !rp.done; k++) rpStep(k<stepsPerTick-1);
+  }, interval);
   const b = document.getElementById("rp-play");
   if (b) b.innerHTML = rpPlayIcon(true);
 }
@@ -17709,8 +17742,8 @@ function renderReplaySession(){
           '<canvas id="rp-canvas"></canvas>'+
           '<div class="rp-transport">'+
             '<button type="button" class="rp-play" id="rp-play">'+rpPlayIcon(false)+'</button>'+
-            '<button type="button" class="rp-tbtn" id="rp-next" title="Bougie suivante (→)">+1</button>'+
-            '<div class="rp-speeds">'+REPLAY_SPEEDS.map((s,i)=>'<button type="button" data-rp-speed="'+i+'" class="'+(i===rp.speedIdx?'is-on':'')+'">x'+(s*60)+'</button>').join("")+'</div>'+
+            '<button type="button" class="rp-tbtn" id="rp-next" title="Bougie suivante, dans l\'unité affichée (→)">+1</button>'+
+            '<div class="rp-speeds" title="Nombre de bougies affichées par seconde, dans l\'unité de temps choisie"><span class="rp-speeds-lbl">Bougies / s</span>'+REPLAY_SPEEDS.map((s,i)=>'<button type="button" data-rp-speed="'+i+'" class="'+(i===rp.speedIdx?'is-on':'')+'">'+s+'</button>').join("")+'</div>'+
             '<button type="button" class="rp-tbtn rp-end" id="rp-end">Terminer</button>'+
           '</div>'+
           // Mobile : boutons d'ordre juste sous le graphique (le panneau passe dessous).
@@ -17741,7 +17774,7 @@ function renderReplaySession(){
     replayPause(); rp = null; renderReplay();
   });
   document.getElementById("rp-play").addEventListener("click", rpTogglePlay);
-  document.getElementById("rp-next").addEventListener("click", ()=>{ replayPause(); rpStep(); });
+  document.getElementById("rp-next").addEventListener("click", ()=>{ replayPause(); rpStepBar(); });
   document.getElementById("rp-end").addEventListener("click", ()=>{ if (confirm("Terminer la séance maintenant ? Ta position éventuelle sera fermée au prix actuel.")) rpFinish(); });
   root.querySelectorAll("[data-rp-speed]").forEach(b=>b.addEventListener("click", ()=>rpSetSpeed(+b.dataset.rpSpeed)));
   root.querySelectorAll("[data-rp-tf]").forEach(b=>b.addEventListener("click", ()=>rpSetTf(+b.dataset.rpTf)));
@@ -17774,7 +17807,7 @@ function rpPaint(){
     if (!p) pb.innerHTML = '<div class="rp-flat">Aucune position. Choisis Long ou Short.</div>';
     else {
       const u = rpUpnl(price), pct = u/p.margin*100;
-      pb.innerHTML = '<div class="rp-pos '+p.side+'"><div><b>'+(p.side==="long"?"Long":"Short")+' x'+p.lev+'</b><span>Entrée '+rpPx(p.entry)+' · Liq. '+rpPx(p.liq)+'</span></div>'+
+      pb.innerHTML = '<div class="rp-pos '+p.side+'"><div><b>'+(p.side==="long"?"Long":"Short")+' x'+String(p.lev).replace(".",",")+(p.adds ? ' · renforcée ×'+(p.adds+1) : '')+'</b><span>Entrée '+rpPx(p.entry)+' · Liq. '+rpPx(p.liq)+'</span></div>'+
         '<div class="rp-pos-pnl num '+(u>=0?'up':'down')+'">'+fmtMoneySigned(u)+'<em>'+rpFmtPct(pct)+'</em></div></div>';
     }
   }
@@ -17798,6 +17831,7 @@ const REPLAY_TFS = [[1,"1m"],[5,"5m"],[15,"15m"],[60,"1h"]];
 async function rpSetTf(tf){
   if (!rp) return;
   rp.tf = tf;
+  if (rp.playing){ rp.playing = false; rpTogglePlay(); }
   document.querySelectorAll("[data-rp-tf]").forEach(b=>b.classList.toggle("is-on", +b.dataset.rpTf===tf));
   if (tf>1 && !rp.pre[tf]){
     rp.pre[tf] = [];
@@ -17843,7 +17877,7 @@ function rpDraw(){
   const cUp = (css.getPropertyValue("--long")||"#31c882").trim(), cDn = (css.getPropertyValue("--short")||"#f0546a").trim();
   const cGrid = (css.getPropertyValue("--border-soft")||"#333").trim(), cTxt = (css.getPropertyValue("--text-faint")||"#888").trim();
   const mono = (css.getPropertyValue("--mono")||"monospace");
-  const padB = 6, padT = 8;
+  const padB = 20, padT = 8; // padB : place pour l'axe des heures
   const tfMs = (rp.tf||1)*60000;
   const bars = rpBars();
   // Échelle de prix sans « $ », largeur calculée sur le libellé le plus long.
@@ -17875,6 +17909,30 @@ function rpDraw(){
     ctx.fillStyle = cGrid; ctx.globalAlpha = .25;
     ctx.fillRect(0, 0, Math.min(W-padR, ctxBars*step), H);
     ctx.globalAlpha = 1;
+  }
+  // Axe des heures (bas) : un repère tous les ~80 px, aligné sur des heures rondes.
+  {
+    const fmtT = (t)=>{
+      if (rp.mystery){ const m = Math.round((t-tradeStart)/60000); return (m<0?"−":"T+")+Math.floor(Math.abs(m)/60)+"h"+String(Math.abs(m)%60).padStart(2,"0"); }
+      const opt = {hour:"2-digit", minute:"2-digit"};
+      if (!rp.custom) opt.timeZone = "UTC";
+      return new Date(t).toLocaleTimeString("fr-FR", opt);
+    };
+    const every = Math.max(1, Math.ceil(80/step));
+    const niceMins = [1,2,5,10,15,30,60,120,240,360,720,1440];
+    const wantMin = every*(rp.tf||1);
+    const unit = (niceMins.find(m=>m>=wantMin)||1440)*60000;
+    ctx.font = "10px "+mono; ctx.fillStyle = cTxt; ctx.strokeStyle = cGrid; ctx.textAlign = "center";
+    let lastX = -1e9;
+    vis.forEach((c, k)=>{
+      if (c.t % unit !== 0 && !(rp.mystery && (c.t-tradeStart) % unit === 0)) return;
+      const x = k*step + step/2;
+      if (x < 20 || x - lastX < 60 || x > W-padR-20) return;
+      lastX = x;
+      ctx.globalAlpha = .35; ctx.beginPath(); ctx.moveTo(Math.round(x)+0.5, padT); ctx.lineTo(Math.round(x)+0.5, H-padB); ctx.stroke(); ctx.globalAlpha = 1;
+      ctx.fillText(fmtT(c.t), x, H-5);
+    });
+    ctx.textAlign = "start";
   }
   vis.forEach((c, k)=>{
     const x = k*step + step/2, up = c.c>=c.o;
@@ -18013,7 +18071,7 @@ document.addEventListener("keydown", (e)=>{
   if (t && (t.tagName==="INPUT" || t.tagName==="TEXTAREA" || t.isContentEditable)) return;
   const k = e.key.toLowerCase();
   if (k===" "){ e.preventDefault(); rpTogglePlay(); }
-  else if (k==="arrowright"){ e.preventDefault(); replayPause(); rpStep(); }
+  else if (k==="arrowright"){ e.preventDefault(); replayPause(); rpStepBar(); }
   else if (k==="l"){ e.preventDefault(); rpOpen("long"); }
   else if (k==="s"){ e.preventDefault(); rpOpen("short"); }
   else if (k==="c"){ e.preventDefault(); rpClose("manual"); }
