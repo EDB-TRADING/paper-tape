@@ -5119,59 +5119,120 @@ const HYPERLIQUID_API_BASE = "https://api.hyperliquid.xyz/info";
 const CANDLE_TIMEFRAMES = ["1m","5m","15m","1h"];
 let currentTimeframe = "1m";
 let candleTimer = null;
-// How many of the fetched candles are actually drawn on the internal chart —
-// the "zoom" level. Fewer candles = wider bodies, zoomed in on recent price
-// action; more candles = thinner bodies, zoomed out to see more history. The
-// zoom-in/out buttons and the mouse wheel over the chart step through this
-// list; persisted per-browser like the theme/widget layout so it survives a
-// reload. CHART_ZOOM_MAX also caps how many candles are worth fetching from
-// the API (see fetchCandlesBinance/fetchCandlesCryptoCom) — no point asking
-// for more than the most zoomed-out view could ever show.
-const CHART_ZOOM_STEPS = [15,25,40,60,100,150,200,300];
-const CHART_ZOOM_DEFAULT_INDEX = 3; // 60 candles — matches the old fixed window
-const CHART_ZOOM_MAX = CHART_ZOOM_STEPS[CHART_ZOOM_STEPS.length-1];
+// Zoom du graphique interne : nombre de bougies affichées, en continu (plus
+// de paliers fixes). Molette / pincement du trackpad / pincement à deux
+// doigts / boutons −/+ ; le zoom suit le curseur quand on regarde
+// l'historique, et reste collé au direct sinon. CHART_ZOOM_MAX plafonne
+// aussi le nombre de bougies demandées aux API (fetchCandles*).
+const CHART_ZOOM_MIN = 12;
+const CHART_ZOOM_MAX = 300;
+const CHART_ZOOM_STEPS = [15,25,40,60,100,150,200,300]; // ancienne préférence (index) : reprise une fois
 const CHART_ZOOM_KEY = "paperTapeChartZoomIndex";
-function loadChartZoomIndex(){
+const CHART_ZOOM_COUNT_KEY = "paperTapeChartZoomCount";
+const CHART_GAP = 4; // bougies d'espace vide à droite de la dernière, en direct
+let chartZoomCount = (function(){
   try{
-    const raw = localStorage.getItem(CHART_ZOOM_KEY);
-    const n = raw==null ? NaN : parseInt(raw,10);
-    return (isFinite(n) && n>=0 && n<CHART_ZOOM_STEPS.length) ? n : CHART_ZOOM_DEFAULT_INDEX;
-  }catch(e){ return CHART_ZOOM_DEFAULT_INDEX; }
+    const v = parseFloat(localStorage.getItem(CHART_ZOOM_COUNT_KEY));
+    if (isFinite(v) && v>=CHART_ZOOM_MIN && v<=CHART_ZOOM_MAX) return v;
+    const i = parseInt(localStorage.getItem(CHART_ZOOM_KEY), 10);
+    if (isFinite(i) && CHART_ZOOM_STEPS[i]) return CHART_ZOOM_STEPS[i];
+  }catch(e){}
+  return 60;
+})();
+let chartAnimUntil = 0;       // pendant une interaction : l'échelle des prix glisse au lieu de sauter
+let chartRaf = 0, chartZoomTweenRaf = 0, chartZoomSaveTimer = null;
+function chartVisibleCandleCount(){ return chartZoomCount; }
+function scheduleChartFrame(){
+  if (chartRaf) return;
+  chartRaf = requestAnimationFrame(()=>{ chartRaf = 0; updateChart(); });
 }
-let chartZoomIndex = loadChartZoomIndex();
-function chartVisibleCandleCount(){ return CHART_ZOOM_STEPS[chartZoomIndex]; }
-function setChartZoomIndex(i){
-  chartZoomIndex = Math.max(0, Math.min(CHART_ZOOM_STEPS.length-1, i));
-  try{ localStorage.setItem(CHART_ZOOM_KEY, String(chartZoomIndex)); }catch(e){}
+function chartBumpAnim(){ chartAnimUntil = performance.now()+350; }
+// Zoome vers `count` bougies. anchorX (unités du viewBox) = point qui reste
+// fixe sous le curseur ; null = bord droit (direct) ou centre (historique).
+function chartZoomTo(count, anchorX){
+  const v = chartView;
+  const nAll = v && v.all ? v.all.length : 0;
+  const maxCount = nAll ? Math.max(CHART_ZOOM_MIN, Math.min(CHART_ZOOM_MAX, nAll+CHART_GAP)) : CHART_ZOOM_MAX;
+  const next = Math.max(CHART_ZOOM_MIN, Math.min(maxCount, count));
+  if (v && v.n && chartPan>0.01){
+    const ax = anchorX==null ? v.padL+v.plotW/2 : anchorX;
+    const frac = Math.max(0, Math.min(1, (ax-v.padL)/v.plotW));
+    const anchorSlot = v.left + frac*v.count;
+    const newRight = anchorSlot + (1-frac)*next;
+    chartPan = Math.max(0, v.liveRight - newRight);
+  }
+  if (Math.abs(next-chartZoomCount) < 1e-6 && !(v && chartPan>0.01)) return;
+  chartZoomCount = next;
+  chartBumpAnim();
   updateChartZoomLabel();
-  updateChart();
+  scheduleChartFrame();
+  clearTimeout(chartZoomSaveTimer);
+  chartZoomSaveTimer = setTimeout(()=>{ try{ localStorage.setItem(CHART_ZOOM_COUNT_KEY, String(Math.round(chartZoomCount*10)/10)); }catch(e){} }, 400);
+}
+// Boutons −/+ : zoom animé (×1,6) sur ~180 ms.
+function chartZoomAnimate(factor){
+  cancelAnimationFrame(chartZoomTweenRaf);
+  const from = chartZoomCount;
+  const to = Math.max(CHART_ZOOM_MIN, Math.min(CHART_ZOOM_MAX, from*factor));
+  if (Math.abs(to-from)<0.01) return;
+  const t0 = performance.now();
+  const step = (t)=>{
+    const p = Math.min(1, (t-t0)/180);
+    const e = 1-Math.pow(1-p, 3);
+    chartZoomTo(from*Math.pow(to/from, e), null);
+    if (p<1) chartZoomTweenRaf = requestAnimationFrame(step);
+  };
+  chartZoomTweenRaf = requestAnimationFrame(step);
+}
+// Défilement horizontal (glisser, trackpad) en bougies, décimal = fluide.
+function chartPanBy(slots){
+  const v = chartView;
+  const maxPan = (v && v.liveRight!=null) ? Math.max(0, v.liveRight - v.count) : Infinity;
+  chartPan = Math.max(0, Math.min(maxPan, chartPan + slots));
+  chartBumpAnim();
+  scheduleChartFrame();
 }
 function updateChartZoomLabel(){
   const el = document.getElementById("chart-zoom-label");
-  if (el) el.textContent = chartVisibleCandleCount()+" bougies";
+  if (el) el.textContent = Math.round(chartZoomCount)+" bougies";
   const outBtn = document.getElementById("chart-zoom-out");
   const inBtn = document.getElementById("chart-zoom-in");
-  if (outBtn) outBtn.disabled = chartZoomIndex>=CHART_ZOOM_STEPS.length-1;
-  if (inBtn) inBtn.disabled = chartZoomIndex<=0;
+  const nAll = chartView && chartView.all ? chartView.all.length : 0;
+  const maxCount = nAll ? Math.max(CHART_ZOOM_MIN, Math.min(CHART_ZOOM_MAX, nAll+CHART_GAP)) : CHART_ZOOM_MAX;
+  if (outBtn) outBtn.disabled = chartZoomCount>=maxCount-0.5;
+  if (inBtn) inBtn.disabled = chartZoomCount<=CHART_ZOOM_MIN+0.5;
 }
 function initChartZoomControls(){
   const outBtn = document.getElementById("chart-zoom-out");
   const inBtn = document.getElementById("chart-zoom-in");
   const svg = document.getElementById("chart-svg");
-  if (outBtn) outBtn.addEventListener("click", ()=>setChartZoomIndex(chartZoomIndex+1)); // more candles = zoomed out
-  if (inBtn) inBtn.addEventListener("click", ()=>setChartZoomIndex(chartZoomIndex-1));   // fewer candles = zoomed in
+  if (outBtn) outBtn.addEventListener("click", ()=>chartZoomAnimate(1.6)); // plus de bougies = dézoom
+  if (inBtn) inBtn.addEventListener("click", ()=>chartZoomAnimate(1/1.6));
   if (svg){
     svg.addEventListener("wheel", (e)=>{
-      if (chartSource!=="internal") return;
-      // Zoom à la molette seulement quand le widget Graphique a été cliqué
-      // (voir initWidgetWheel) ; sinon la molette fait défiler la page.
+      if (chartSource!=="internal" || !chartView) return;
+      const unit = e.deltaMode===1 ? 16 : e.deltaMode===2 ? 400 : 1;
+      const dx = e.deltaX*unit, dy = e.deltaY*unit;
+      const horizontal = !e.ctrlKey && Math.abs(dx) > Math.abs(dy);
+      // Molette verticale : seulement quand le widget Graphique a été cliqué
+      // (voir initWidgetWheel), sinon elle fait défiler la page. Le pincement
+      // du trackpad (ctrlKey) et le glissement horizontal marchent toujours.
       const w = svg.closest(".card.widget");
-      if (w && !w.classList.contains("is-wheel-active")){
+      if (!e.ctrlKey && !horizontal && w && !w.classList.contains("is-wheel-active")){
         if (typeof wzShowWheelHint==="function") wzShowWheelHint(w, "Clique sur le graphique, puis molette pour zoomer");
         return;
       }
       e.preventDefault();
-      setChartZoomIndex(chartZoomIndex + (e.deltaY>0 ? 1 : -1));
+      const r = svg.getBoundingClientRect();
+      const v = chartView;
+      if (horizontal){
+        const pxPerSlot = v.slotW*r.width/v.W;
+        if (pxPerSlot>0) chartPanBy(-dx/pxPerSlot);
+        return;
+      }
+      const ax = (e.clientX-r.left)/r.width*v.W;
+      const k = e.ctrlKey ? 0.012 : 0.0022;
+      chartZoomTo(chartZoomCount*Math.exp(Math.max(-60, Math.min(60, dy))*k), ax);
     }, {passive:false});
   }
   updateChartZoomLabel();
@@ -9075,6 +9136,7 @@ let chartPan = 0;          // nombre de bougies masquées à droite (0 = collé 
 let chartHover = null;     // {x,y} en unités du viewBox, ou null
 let chartPanDrag = null;   // glissement horizontal en cours
 let chartView = null;      // géométrie du dernier rendu (réticule, glisser TP/SL)
+let chartYDisp = null;     // échelle des prix affichée (lissée pendant les interactions)
 const CHART_FONT = 'font-family="IBM Plex Mono,monospace"';
 const CHART_MONTHS = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
 const CHART_TP_COLOR = "#31c882", CHART_SL_COLOR = "#f0546a";
@@ -9287,11 +9349,17 @@ function chartRenderCandles(svg, a, m, W, H, all){
   const pal = chartPalette();
   const cc = candleColors();
   const dec = a.decimals;
-  const count = chartVisibleCandleCount();
-  chartPan = Math.max(0, Math.min(Math.max(0, all.length-count), chartPan));
-  const end = all.length - chartPan;
-  const start = Math.max(0, end-count);
-  const vis = all.slice(start, end);
+  // Fenêtre visible en « emplacements » de bougie, décimale : zoom et
+  // défilement glissent au pixel près au lieu d'avancer bougie par bougie.
+  const nAll = all.length;
+  const liveRight = nAll + CHART_GAP;
+  const count = Math.max(CHART_ZOOM_MIN, Math.min(chartZoomCount, Math.max(liveRight, CHART_ZOOM_MIN)));
+  chartPan = Math.max(0, Math.min(Math.max(0, liveRight-count), chartPan));
+  if (chartPan<0.02) chartPan = 0;
+  const right = liveRight - chartPan, left = right - count;
+  const start = Math.max(0, Math.floor(left));
+  const end = Math.min(nAll, Math.ceil(right));
+  const vis = all.slice(start, Math.max(start, end));
   const n = vis.length;
   const live = chartPan===0;
   const tf = (m.candles && m.candles.tf) || currentTimeframe;
@@ -9307,19 +9375,33 @@ function chartRenderCandles(svg, a, m, W, H, all){
   if (!(span>0)) span = Math.abs(hi)*0.002 || 1;
   const volMax = Math.max(0, ...vis.map(c=>c.v||0));
   const volOn = chartInd.vol && volMax>0;
-  const max = hi + span*0.06;
-  const min = lo - span*(volOn ? 0.30 : 0.06);
+  let max = hi + span*0.06;
+  let min = lo - span*(volOn ? 0.30 : 0.06);
+  // Pendant un zoom / défilement, l'échelle des prix rejoint sa cible en
+  // douceur (quelques images) au lieu de sauter quand une mèche entre ou sort.
+  const yKey = selectedSymbol+"|"+tf;
+  if (chartYDisp && chartYDisp.key===yKey && performance.now()<chartAnimUntil && !chartLineDrag){
+    const k = 0.32;
+    const dMin = chartYDisp.min + (min-chartYDisp.min)*k, dMax = chartYDisp.max + (max-chartYDisp.max)*k;
+    if (Math.abs(dMin-min) > (max-min)*0.002 || Math.abs(dMax-max) > (max-min)*0.002){
+      min = dMin; max = dMax;
+      scheduleChartFrame();
+    }
+  }
+  chartYDisp = {key:yKey, min, max};
   const range = max-min;
 
   const padL = 0, padT = 6, padB = 22;
-  const padR = Math.max(56, Math.round(Math.max(chartNum(hi,dec).length, chartNum(lo,dec).length)*6.1)+14);
+  let hiAll = hi; for (let i=0;i<nAll;i++) if (all[i].h>hiAll) hiAll = all[i].h; // largeur d'axe stable pendant le zoom
+  const padR = Math.max(56, Math.round(Math.max(chartNum(hiAll,dec).length, chartNum(lo,dec).length)*6.1)+14);
   const plotW = W-padL-padR, plotH = H-padT-padB;
   const y = v => padT + (1-(v-min)/range)*plotH;
-  const slotW = plotW/Math.max(n + (live ? 4 : 0), 8);
-  const xAt = i => padL + slotW*i + slotW/2;
-  const bodyW = Math.max(1, Math.min(16, slotW*0.68));
+  const slotW = plotW/count;
+  const xAt = i => padL + (start+i-left+0.5)*slotW; // i = rang dans `vis`
+  const bodyW = Math.max(1, Math.min(18, slotW*0.68));
   chartScale = {min, max, padT, H, padB, W, padL, padR};
-  const g = chartView = {min, max, padT, padB, padL, padR, W, H, plotW, plotH, slotW, n, vis, all, start, dec, live, tfMs, tf, pal, cc, y, xAt, emas:{}};
+  const g = chartView = {min, max, padT, padB, padL, padR, W, H, plotW, plotH, slotW, n, vis, all, start, left, right, count, liveRight, dec, live, tfMs, tf, pal, cc, y, xAt, emas:{}};
+  updateChartZoomLabel();
 
   // Grille + axe des prix
   const nT = Math.max(2, Math.floor(plotH/38));
@@ -9358,28 +9440,44 @@ function chartRenderCandles(svg, a, m, W, H, all){
           '<line x1="'+(W-padR+0.5)+'" y1="'+padT+'" x2="'+(W-padR+0.5)+'" y2="'+(H-padB)+'" stroke="'+pal.grid+'" stroke-width="1"/>';
 
   // Volume (bas du graphique)
+  // (dessinés en quelques <path> au lieu de centaines d'éléments : rendu
+  // bien plus rapide, donc zoom / défilement fluides)
   let vol = "";
   if (volOn){
     const vH = plotH*0.17, base = H-padB;
+    let vu = "", vd = "";
     vis.forEach((c,i)=>{
       const h = (c.v||0)/volMax*vH;
       if (h<0.5) return;
-      vol += '<rect x="'+(xAt(i)-bodyW/2).toFixed(1)+'" y="'+(base-h).toFixed(1)+'" width="'+bodyW.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+(c.c>=c.o?cc.up:cc.down)+'" opacity="0.26"/>';
+      const d = "M"+(xAt(i)-bodyW/2).toFixed(1)+" "+(base-h).toFixed(1)+"h"+bodyW.toFixed(1)+"v"+h.toFixed(1)+"h"+(-bodyW).toFixed(1)+"Z";
+      if (c.c>=c.o) vu += d; else vd += d;
     });
+    vol = (vu?'<path d="'+vu+'" fill="'+cc.up+'" opacity="0.26"/>':'')+(vd?'<path d="'+vd+'" fill="'+cc.down+'" opacity="0.26"/>':'');
   }
   // Bougies
-  let bars = "";
+  let wu = "", wd = "", bu = "", bd = "", lu = "", ld = "";
   vis.forEach((c,i)=>{
     const cx = xAt(i);
     const up = c.c>=c.o;
-    const stroke = up ? cc.up : cc.down;
-    const fill = up ? cc.upFill : cc.downFill;
     const yO = y(c.o), yC = y(c.c);
-    const bodyTop = Math.min(yO,yC), bodyH = Math.max(1, Math.abs(yC-yO));
-    bars += '<line x1="'+cx.toFixed(1)+'" y1="'+y(c.h).toFixed(1)+'" x2="'+cx.toFixed(1)+'" y2="'+y(c.l).toFixed(1)+'" stroke="'+stroke+'" stroke-width="1"/>';
-    if (bodyW>=2.5) bars += '<rect x="'+(cx-bodyW/2).toFixed(1)+'" y="'+bodyTop.toFixed(1)+'" width="'+bodyW.toFixed(1)+'" height="'+bodyH.toFixed(1)+'" rx="'+(bodyW>=6?1:0)+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="1"/>';
-    else bars += '<line x1="'+cx.toFixed(1)+'" y1="'+yO.toFixed(1)+'" x2="'+cx.toFixed(1)+'" y2="'+(yC+(yC===yO?1:0)).toFixed(1)+'" stroke="'+stroke+'" stroke-width="2"/>';
+    const wick = "M"+cx.toFixed(1)+" "+y(c.h).toFixed(1)+"V"+y(c.l).toFixed(1);
+    if (up) wu += wick; else wd += wick;
+    if (bodyW>=2.5){
+      const top = Math.min(yO,yC), h = Math.max(1, Math.abs(yC-yO));
+      const b = "M"+(cx-bodyW/2).toFixed(1)+" "+top.toFixed(1)+"h"+bodyW.toFixed(1)+"v"+h.toFixed(1)+"h"+(-bodyW).toFixed(1)+"Z";
+      if (up) bu += b; else bd += b;
+    } else {
+      const l = "M"+cx.toFixed(1)+" "+yO.toFixed(1)+"V"+(yC+(Math.abs(yC-yO)<1?1:0)).toFixed(1);
+      if (up) lu += l; else ld += l;
+    }
   });
+  const bars =
+    (wu?'<path d="'+wu+'" stroke="'+cc.up+'" stroke-width="1" fill="none"/>':'')+
+    (wd?'<path d="'+wd+'" stroke="'+cc.down+'" stroke-width="1" fill="none"/>':'')+
+    (bu?'<path d="'+bu+'" fill="'+cc.upFill+'" stroke="'+cc.up+'" stroke-width="1"/>':'')+
+    (bd?'<path d="'+bd+'" fill="'+cc.downFill+'" stroke="'+cc.down+'" stroke-width="1"/>':'')+
+    (lu?'<path d="'+lu+'" stroke="'+cc.up+'" stroke-width="2" fill="none"/>':'')+
+    (ld?'<path d="'+ld+'" stroke="'+cc.down+'" stroke-width="2" fill="none"/>':'');
   // Moyennes mobiles exponentielles
   let emas = "";
   Object.keys(CHART_EMA).forEach(k=>{
@@ -9429,7 +9527,8 @@ function chartRenderCandles(svg, a, m, W, H, all){
       '<text x="'+(bx+bw/2)+'" y="'+(by+13.6)+'" fill="'+chartInkOn(pal.strong)+'" font-size="10" font-weight="700" '+CHART_FONT+' text-anchor="middle">Direct ⇥</text></g>';
   }
   svg.style.touchAction = positions.length ? "none" : "pan-y";
-  svg.innerHTML = grid+vol+bars+emas+marks+axis+
+  const clip = '<defs><clipPath id="chart-plot-clip"><rect x="'+padL+'" y="0" width="'+plotW+'" height="'+(H-padB)+'"/></clipPath></defs>';
+  svg.innerHTML = clip+grid+'<g clip-path="url(#chart-plot-clip)">'+vol+bars+emas+marks+'</g>'+axis+
     '<g id="chart-levels">'+positionLinesHtml(g, positions, pending)+'</g>'+
     lastTag+liveBtn+'<g id="chart-legend" pointer-events="none"></g><g id="chart-xh" pointer-events="none"></g>';
   chartDrawOverlay();
@@ -9444,7 +9543,7 @@ function chartDrawOverlay(){
   const h = (chartHover && !chartLineDrag && !(chartPanDrag && chartPanDrag.moved)) ? chartHover : null;
   let i = v.n-1, xs = "";
   if (h && h.x>=v.padL && h.x<=v.W-v.padR && h.y>=v.padT && h.y<=v.H-v.padB){
-    i = Math.max(0, Math.min(v.n-1, Math.floor((h.x-v.padL)/v.slotW)));
+    i = Math.max(0, Math.min(v.n-1, Math.floor(v.left + (h.x-v.padL)/v.slotW) - v.start));
     const cx = v.xAt(i);
     const price = v.min + (1-(h.y-v.padT)/v.plotH)*(v.max-v.min);
     const tagFill = v.pal.strong, ink = chartInkOn(tagFill);
@@ -9495,38 +9594,104 @@ function initChartInteractions(){
     if (!r.width || !r.height || !chartView) return null;
     return {x:(e.clientX-r.left)/r.width*chartView.W, y:(e.clientY-r.top)/r.height*chartView.H};
   };
-  let raf = 0;
-  const redraw = ()=>{ if (raf) return; raf = requestAnimationFrame(()=>{ raf = 0; updateChart(); }); };
+  const pxPerSlot = ()=>{ const r = svg.getBoundingClientRect(); return chartView ? Math.max(0.5, chartView.slotW*r.width/chartView.W) : 8; };
+  // Inertie : après un glissé rapide, le graphique continue un peu sur sa lancée.
+  let glideRaf = 0;
+  const stopGlide = ()=>{ cancelAnimationFrame(glideRaf); glideRaf = 0; };
+  const glide = (vel)=>{ // vel en bougies / ms
+    stopGlide();
+    let last = performance.now();
+    const step = (t)=>{
+      const dt = Math.min(40, t-last); last = t;
+      const before = chartPan;
+      chartPanBy(vel*dt);
+      if (chartPan===before && dt>0){ glideRaf = 0; return; } // butée (direct ou début de l'historique)
+      vel *= Math.pow(0.94, dt/16);
+      if (Math.abs(vel) > 0.0004 && chartPan>0) glideRaf = requestAnimationFrame(step); else glideRaf = 0;
+    };
+    glideRaf = requestAnimationFrame(step);
+  };
+  // Retour au direct animé (bouton « Direct », double-clic).
+  const backToLive = ()=>{
+    stopGlide();
+    const from = chartPan; if (!from) return;
+    const t0 = performance.now();
+    const step = (t)=>{
+      const p = Math.min(1, (t-t0)/260), e = 1-Math.pow(1-p, 3);
+      chartPan = from*(1-e); chartBumpAnim(); updateChart();
+      if (p<1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+  const touches = new Map(); // pincement à deux doigts (mobile / tablette)
+  let pinch = null;
   svg.addEventListener("pointerdown", (e)=>{
     if (chartLineDrag || !chartView || effectiveChartSource()!=="internal") return;
     const t = e.target;
     if (t.closest && t.closest("[data-tpsl-pos]")) return;
-    if (t.closest && t.closest("[data-chart-live]")){ chartPan = 0; chartHover = null; updateChart(); e.preventDefault(); return; }
+    if (t.closest && t.closest("[data-chart-live]")){ chartHover = null; backToLive(); e.preventDefault(); return; }
     if (e.pointerType==="mouse" && e.button!==0) return;
-    chartPanDrag = {pid:e.pointerId, x0:e.clientX, pan0:chartPan, moved:false, touch:e.pointerType!=="mouse", p:toView(e)};
+    stopGlide();
+    if (e.pointerType==="touch"){
+      touches.set(e.pointerId, {x:e.clientX, y:e.clientY});
+      if (touches.size===2){
+        const [a, b] = [...touches.values()];
+        const r = svg.getBoundingClientRect();
+        pinch = {d0: Math.max(20, Math.hypot(a.x-b.x, a.y-b.y)), c0: chartZoomCount, mid: ((a.x+b.x)/2-r.left)/r.width*chartView.W};
+        chartPanDrag = null; svg.classList.remove("chart-panning"); chartHover = null; chartDrawOverlay();
+        try{ svg.setPointerCapture(e.pointerId); }catch(err){}
+        e.preventDefault();
+        return;
+      }
+    }
+    chartPanDrag = {pid:e.pointerId, x0:e.clientX, pan0:chartPan, moved:false, touch:e.pointerType!=="mouse", p:toView(e), samples:[{t:performance.now(), x:e.clientX}]};
     try{ svg.setPointerCapture(e.pointerId); }catch(err){}
   });
   svg.addEventListener("pointermove", (e)=>{
     if (chartLineDrag) return;
+    if (touches.has(e.pointerId)) touches.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if (pinch && touches.size>=2){
+      const [a, b] = [...touches.values()];
+      const d = Math.max(20, Math.hypot(a.x-b.x, a.y-b.y));
+      chartZoomTo(pinch.c0*pinch.d0/d, pinch.mid);
+      e.preventDefault();
+      return;
+    }
     if (chartPanDrag && e.pointerId===chartPanDrag.pid){
       const dx = e.clientX - chartPanDrag.x0;
-      if (!chartPanDrag.moved && Math.abs(dx)<6) return;
+      if (!chartPanDrag.moved && Math.abs(dx)<5) return;
       if (!chartPanDrag.moved){ chartPanDrag.moved = true; svg.classList.add("chart-panning"); chartHover = null; chartDrawOverlay(); }
-      const r = svg.getBoundingClientRect();
-      const pxPerSlot = chartView ? chartView.slotW*r.width/chartView.W : 8;
-      const next = Math.max(0, chartPanDrag.pan0 + Math.round(dx/Math.max(1,pxPerSlot)));
-      if (next!==chartPan){ chartPan = next; redraw(); }
+      chartPan = Math.max(0, chartPanDrag.pan0 + dx/pxPerSlot());
+      const s = chartPanDrag.samples; s.push({t:performance.now(), x:e.clientX}); if (s.length>6) s.shift();
+      chartBumpAnim();
+      scheduleChartFrame();
       e.preventDefault();
       return;
     }
     if (e.pointerType==="mouse"){ chartHover = toView(e); chartDrawOverlay(); }
   });
+  const endTouch = (e)=>{
+    touches.delete(e.pointerId);
+    if (pinch && touches.size<2){ pinch = null; chartPanDrag = null; return true; }
+    return false;
+  };
   svg.addEventListener("pointerup", (e)=>{
+    if (endTouch(e)) return;
     if (!chartPanDrag || e.pointerId!==chartPanDrag.pid) return;
     const d = chartPanDrag;
     chartPanDrag = null;
     svg.classList.remove("chart-panning");
-    if (d.moved){ updateChart(); return; }
+    if (d.moved){
+      const s = d.samples, now = performance.now();
+      const recent = s.filter(x=>now-x.t<120);
+      if (recent.length>=2){
+        const a = recent[0], b = recent[recent.length-1];
+        const v = (b.x-a.x)/Math.max(8, b.t-a.t)/pxPerSlot(); // bougies / ms
+        if (Math.abs(v) > 0.004) glide(v);
+      }
+      scheduleChartFrame();
+      return;
+    }
     if (d.touch && d.p){
       // Appui court sur mobile : affiche le réticule à cet endroit (ou le masque).
       chartHover = (chartHover && Math.hypot(chartHover.x-d.p.x, chartHover.y-d.p.y)<16) ? null : d.p;
@@ -9534,6 +9699,7 @@ function initChartInteractions(){
     chartDrawOverlay();
   });
   svg.addEventListener("pointercancel", (e)=>{
+    endTouch(e);
     if (!chartPanDrag || e.pointerId!==chartPanDrag.pid) return;
     chartPanDrag = null;
     svg.classList.remove("chart-panning");
@@ -9543,8 +9709,9 @@ function initChartInteractions(){
   });
   svg.addEventListener("dblclick", (e)=>{
     if (e.target.closest && e.target.closest("[data-tpsl-pos]")) return;
-    if (chartPan){ chartPan = 0; updateChart(); }
+    if (chartPan) backToLive();
   });
+  svg.addEventListener("wheel", stopGlide, {passive:true});
   setInterval(chartTickCountdown, 1000);
 }
 function initChartIndicators(){
