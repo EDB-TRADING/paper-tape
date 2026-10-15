@@ -229,6 +229,16 @@
   nav.tabs .tab-emoji{margin-right:5px;filter:grayscale(0.15);}
 
   .acct-strip{margin-left:auto;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+  .save-pill{order:-1;font-family:var(--mono);font-size:10.5px;font-weight:600;padding:4px 9px;border-radius:999px;border:1px solid var(--border-soft);background:transparent;color:var(--text-faint);cursor:default;white-space:nowrap;transition:color .2s,border-color .2s,background .2s;}
+  .save-pill[data-state="saved"]{color:var(--long);border-color:color-mix(in srgb, var(--long) 30%, transparent);}
+  .save-pill[data-state="saving"]{color:var(--text-dim);animation:savePulse 1.1s ease-in-out infinite;}
+  .save-pill[data-state="slow"]{color:var(--warn);border-color:color-mix(in srgb, var(--warn) 45%, transparent);}
+  .save-pill[data-state="error"]{color:var(--short);border-color:var(--short);background:color-mix(in srgb, var(--short) 12%, transparent);cursor:pointer;}
+  @keyframes savePulse{50%{opacity:.45;}}
+  @media (max-width:700px){
+    .save-pill{font-size:0;padding:3px 8px;}
+    .save-pill::before{content:attr(data-icon);font-size:12px;}
+  }
   .acct-metric{display:flex;flex-direction:column;gap:1px;line-height:1.1;}
   .acct-metric .lbl{font-family:var(--mono);font-size:9px;letter-spacing:0.09em;color:var(--text-faint);text-transform:uppercase;}
   .acct-metric .val{font-family:var(--mono);font-size:13px;font-weight:600;}
@@ -4065,6 +4075,7 @@
       </div>
       <div class="acct-metric"><span class="lbl">Équité</span><span class="val num" id="strip-equity">$100,000.00</span></div>
       <div class="acct-metric"><span class="lbl">PnL ouvert</span><span class="val num" id="strip-pnl">$0.00</span></div>
+      <button type="button" class="save-pill" id="save-pill" data-state="saved" data-icon="✓">✓ Enregistré</button>
     </div>
     <div class="tb-actions">
       <button type="button" class="tb-icon-btn" id="theme-popover-btn" title="Thème" aria-haspopup="true"><svg class="ic" aria-hidden="true"><use href="#i-palette"/></svg></button>
@@ -5887,6 +5898,7 @@ function fmtMoneySigned(v){
   return (v>=0?"+":"")+fmtMoney(v);
 }
 function fmtPrice(v,decimals){
+  if (typeof v!=="number" || !isFinite(v)) return "—"; // prix pas encore reçu (ex. juste après le chargement du compte)
   return "$"+v.toLocaleString("en-US",{minimumFractionDigits:decimals,maximumFractionDigits:decimals});
 }
 function fmtPct(v){
@@ -6420,6 +6432,9 @@ async function loadAccountForClientId(id){
     accountDocExists = true;
     hydrateStateFromDoc(snap);
     ownLastServerMark = (snap.data()||{}).serverMarkedAt || null;
+    // Rattrapage des TP/SL touchés pendant l'absence (voir runOfflineCatchup).
+    const lastSeen = (snap.data()||{}).lastActiveAt || null;
+    if (lastSeen) setTimeout(()=>{ if (clientId===id && !accountLoading) runOfflineCatchup(lastSeen); }, 0);
     lastLoadedId = id;
     accountLoading = false;
   } else {
@@ -6467,6 +6482,8 @@ async function resyncOwnTraderDoc(){
     const fromServer = !!(d.serverMarkedAt && d.serverMarkedAt!==ownLastServerMark);
     if (d.serverMarkedAt) ownLastServerMark = d.serverMarkedAt;
     if (fromOtherTab || fromServer) applyRemoteTradingState(d);
+    // Retour après veille / arrière-plan : rejoue la période d'absence.
+    if (d.lastActiveAt) runOfflineCatchup(d.lastActiveAt);
   }catch(e){ console.warn("own doc resync failed", e); }
 }
 // Reprend uniquement l'état de trading (compte normal, compte prop,
@@ -6501,6 +6518,7 @@ function applyRemoteTradingState(raw){
   if (typeof enforceLeverageAccess==="function") enforceLeverageAccess();
   renderAll();
   if (typeof renderChallengeBanner==="function") renderChallengeBanner();
+  if (typeof setSaveState==="function") setSaveState("saved");
 }
 async function initDb(){
   try{
@@ -6629,6 +6647,78 @@ async function resolvePersistConflict(ref, payload, upd, nameDirty){
   applyRemoteTradingState(d);
   if (localChanged) appToast("Ton compte a été modifié sur un autre appareil : ta dernière action n'a pas été enregistrée. Vérifie tes positions et refais-la si besoin.");
 }
+/* ---------- Statut d'enregistrement (pastille « Enregistré ») ----------
+   Une action de trading (ouverture, fermeture, TP/SL, ordre marché ou
+   limite) n'est considérée comme enregistrée que quand Firestore a accepté
+   l'écriture. Tant que ce n'est pas le cas : pastille « Enregistrement… »,
+   nouvel essai automatique en cas d'échec (3 s, 6 s… jusqu'à 30 s), et
+   avertissement du navigateur si on recharge / ferme la page avant. */
+let saveState = "saved";      // saved | saving | error
+let saveRetryTimer = null, saveRetryDelay = 3000, saveSavingSince = 0;
+function persistSigNow(){
+  const b = booksForPersist();
+  const normal = b.normal || freshBookObj(START_CASH);
+  const prop = b.prop || null;
+  return tradingSig(Object.assign({
+    cash: normal.cash, positions: normal.positions.slice(0,20), pendingOrders: normal.pendingOrders.slice(0,20),
+    history: normal.history.slice(0,TRADE_HISTORY_RETAIN),
+    propBook: prop ? {cash:prop.cash, positions:prop.positions.slice(0,20), pendingOrders:prop.pendingOrders.slice(0,20), history:prop.history.slice(0,TRADE_HISTORY_RETAIN)} : null,
+    challenge: state.challenge || null,
+  }, investPersistFields()));
+}
+function tradingUnsaved(){
+  if (!dbReady || !db || !clientId || !accountDocExists || accountLoading) return false;
+  if (inBackgroundBookCheck || __liveBookNameOverride) return false;
+  try{ return persistSigNow()!==baseSig; }catch(e){ return false; }
+}
+function setSaveState(s){
+  saveState = s;
+  if (s==="saving" && !saveSavingSince) saveSavingSince = Date.now();
+  if (s!=="saving") saveSavingSince = 0;
+  renderSavePill();
+}
+function renderSavePill(){
+  const el = document.getElementById("save-pill");
+  if (!el) return;
+  const slow = saveState==="saving" && saveSavingSince && Date.now()-saveSavingSince > 6000;
+  const st = saveState==="error" ? "error" : slow ? "slow" : saveState;
+  el.dataset.state = st;
+  el.dataset.icon = st==="saved" ? "✓" : st==="saving" ? "…" : st==="slow" ? "⏳" : "⚠";
+  el.textContent = st==="saved" ? "✓ Enregistré" : st==="saving" ? "Enregistrement…" : st==="slow" ? "⏳ En attente de connexion…" : "⚠ Non enregistré · réessayer";
+  el.title = st==="saved" ? "Ton compte est à jour sur le serveur."
+    : st==="error" ? "La dernière sauvegarde a échoué. Nouvel essai automatique — clique pour réessayer tout de suite."
+    : "Sauvegarde en cours : attends le ✓ avant de recharger la page.";
+}
+function scheduleSaveRetry(){
+  clearTimeout(saveRetryTimer);
+  saveRetryTimer = setTimeout(()=>{
+    if (tradingUnsaved()){ persistAccount(); flushPersist(); }
+    else setSaveState("saved");
+  }, saveRetryDelay);
+  saveRetryDelay = Math.min(30000, saveRetryDelay*2);
+}
+function initSaveStatus(){
+  const el = document.getElementById("save-pill");
+  if (el) el.addEventListener("click", ()=>{ saveRetryDelay = 3000; persistAccount(); flushPersist(); });
+  renderSavePill();
+  // Filet de sécurité : toute modification de trading pas encore envoyée
+  // (quel que soit le chemin qui l'a produite) part dans les 4 s.
+  setInterval(()=>{
+    if (document.visibilityState==="hidden") return;
+    if (saveState==="saving"){ renderSavePill(); return; }
+    if (persistPendingRun || saveRetryTimer && saveState==="error") return;
+    if (tradingUnsaved()){ persistAccount(); flushPersist(); }
+    else if (saveState!=="saved") setSaveState("saved");
+  }, 4000);
+  window.addEventListener("beforeunload", (e)=>{
+    if (saveState==="saving" || saveState==="error" || tradingUnsaved()){
+      if (persistPendingRun) flushPersist(true);
+      e.preventDefault();
+      e.returnValue = "";
+      return "";
+    }
+  });
+}
 // Whether this trader's Firestore doc is known to exist. Once it does,
 // persistAccount() switches from a full .set() to an .update() that never
 // includes the admin-owned fields (isAdmin / edbPlus / badges): before
@@ -6659,6 +6749,9 @@ function persistAccount(){
       writeChain = new Promise(r=>{ releaseWrite = r; });
       try{ await prevWrite; }catch(e){}
       if (accountLoading || clientId!==targetId){ releaseWrite(); resolve(); return; }
+      const wasUnsaved = tradingUnsaved();
+      if (wasUnsaved && saveState!=="error") setSaveState("saving");
+      let writeOk = false;
       try{
         // The "normal" book keeps writing to the SAME top-level fields the
         // doc has always used (cash/marginUsed/positions/.../equity), so the
@@ -6802,16 +6895,27 @@ function persistAccount(){
             await ref.update(upd);
             accountRev = upd.rev; baseSig = tradingSig(payload);
             if (nameDirty) state.usernameDirty = false;
+            writeOk = true;
           }
           catch(e){
             const code = e && e.code || "";
             if (code==="not-found" || code==="firestore/not-found"){ accountDocExists = false; accountCreateAllowed = true; await createDoc(); }
-            else if (code==="permission-denied" || code==="firestore/permission-denied"){ await resolvePersistConflict(ref, payload, upd, nameDirty); }
+            else if (code==="permission-denied" || code==="firestore/permission-denied"){ await resolvePersistConflict(ref, payload, upd, nameDirty); writeOk = true; }
             else throw e;
           }
         }
-      }catch(e){ console.warn("persist failed", e); }
+        if (!accountDocExists) throw new Error("account_doc_missing");
+        writeOk = true;
+      }catch(e){ console.warn("persist failed", e); writeOk = false; }
       releaseWrite();
+      if (writeOk){
+        saveRetryDelay = 3000; clearTimeout(saveRetryTimer); saveRetryTimer = null;
+        if (!tradingUnsaved()) setSaveState("saved");
+        else if (!persistPendingRun){ persistAccount(); } // modifié pendant l'envoi : on renvoie
+      } else if (wasUnsaved || tradingUnsaved()){
+        setSaveState("error");
+        scheduleSaveRetry();
+      }
       resolve();
     };
     persistPendingRun = run;
@@ -11298,14 +11402,19 @@ function closePosition(id, reason){
       pnl = pnlAtPrice(p, exitPrice) - exitFee;
     } else {
       exitFee = p.notional*TAKER_FEE_RATE;
-      pnl = posUnrealized(p) - exitFee;
-      exitPrice = exitFill(p.symbol, p.side);
+      if (tpSlOverride){ // rattrapage hors ligne : clôture au niveau de l'ordre
+        exitPrice = tpSlOverride.price;
+        pnl = pnlAtPrice(p, exitPrice) - exitFee;
+      } else {
+        pnl = posUnrealized(p) - exitFee;
+        exitPrice = exitFill(p.symbol, p.side);
+      }
     }
     state.cash = Math.max(0, state.cash + pnl);
     state.marginUsed = Math.max(0, state.marginUsed - p.initMargin);
     state.positions.splice(idx,1);
     const feesPaid = (p.entryFee||0) + exitFee;
-    state.history.unshift({id:p.id, symbol:p.symbol, side:p.side, pnl, reason, exitFee, feesPaid, closedAt:new Date().toISOString(),
+    state.history.unshift({id:p.id, symbol:p.symbol, side:p.side, pnl, reason, exitFee, feesPaid, closedAt:(tpSlOverride && tpSlOverride.at) || new Date().toISOString(),
       sizeUnits:p.sizeUnits, leverage:p.leverage, mode:p.mode, entryPrice:p.entryPrice, exitPrice, notional:p.notional, openedAt:p.openedAt});
     state.history = state.history.slice(0,TRADE_HISTORY_RETAIN);
     updatePerfStats(pnl);
@@ -11339,7 +11448,7 @@ function closePositionPartial(id, fraction, reason){
     const closedMargin = p.initMargin*f;
     const closedEntryFee = (p.entryFee||0)*f;
 
-    const exit = exitFill(p.symbol, p.side);
+    const exit = tpSlOverride ? tpSlOverride.price : exitFill(p.symbol, p.side);
     if (exit===null) return;
     const grossPnl = p.side==="long" ? (exit-p.entryPrice)*closedSizeUnits : (p.entryPrice-exit)*closedSizeUnits;
     const exitFee = closedNotional*TAKER_FEE_RATE;
@@ -11355,7 +11464,7 @@ function closePositionPartial(id, fraction, reason){
     p.entryFee = (p.entryFee||0) - closedEntryFee;
 
     const feesPaid = closedEntryFee + exitFee;
-    state.history.unshift({id:uid(), symbol:p.symbol, side:p.side, pnl, reason, exitFee, feesPaid, closedAt:new Date().toISOString(), partial:true, closedPct:Math.round(f*100),
+    state.history.unshift({id:uid(), symbol:p.symbol, side:p.side, pnl, reason, exitFee, feesPaid, closedAt:(tpSlOverride && tpSlOverride.at) || new Date().toISOString(), partial:true, closedPct:Math.round(f*100),
       sizeUnits:closedSizeUnits, leverage:p.leverage, mode:p.mode, entryPrice:p.entryPrice, exitPrice:exit, notional:closedNotional, openedAt:p.openedAt});
     state.history = state.history.slice(0,TRADE_HISTORY_RETAIN);
     updatePerfStats(pnl);
@@ -11440,6 +11549,144 @@ function checkTPSL(){
       if (p.stopLoss!=null && exit>=p.stopLoss){ triggerTpSl(p,"sl"); return; }
     }
   });
+}
+/* ---------- Rattrapage hors ligne des TP / SL / liquidations ----------
+   Quand l'appli était fermée, en veille ou en arrière-plan, les ordres sont
+   suivis par le serveur (paperTapeMark), qui ne voit qu'un prix par minute.
+   Au retour, on rejoue les bougies de la période d'absence (depuis la
+   dernière activité enregistrée, lastActiveAt) : si un TP, un SL ou une
+   liquidation (marge isolée) a été touché, la position est clôturée au
+   niveau de l'ordre, à l'heure où il a été touché — comme sur un vrai
+   exchange, où un stop part même si on n'est pas devant l'écran.
+   Cas ambigu (TP et SL touchés dans la même bougie) : on retient le SL. */
+let tpSlOverride = null; // {price, at} : prix et heure imposés à la clôture (rattrapage)
+const OFFLINE_CATCHUP_MIN_MS = 90*1000;
+let offlineCatchupBusy = false;
+async function fetchCandlesRange(a, tf, startMs, endMs){
+  for (const [kind, ref] of priceSources(a)){
+    try{
+      if (kind==="hl"){
+        const raw = await hlInfoPost({type:"candleSnapshot", req:{coin:hlCoinName(ref), interval:tf, startTime:startMs, endTime:endMs}});
+        if (!Array.isArray(raw) || !raw.length) continue;
+        const inv = hlInverted(ref, parseFloat(raw[raw.length-1].c));
+        return raw.map(c=>{
+          const o = +c.o, h = +c.h, l = +c.l, cl = +c.c;
+          return inv ? {t:+c.t, o:1/o, h:1/l, l:1/h, c:1/cl} : {t:+c.t, o, h, l, c:cl};
+        }).filter(c=>isFinite(c.t) && isFinite(c.h) && isFinite(c.l));
+      }
+      if (kind==="bf" || kind==="bn"){
+        const base = kind==="bf" ? BINANCE_FAPI_BASE : BINANCE_API_BASE;
+        const url = base+"/klines?symbol="+encodeURIComponent(ref)+"&interval="+tf+"&startTime="+Math.floor(startMs)+"&endTime="+Math.floor(endMs)+"&limit=1000";
+        const res = await fetch(url, {signal:AbortSignal.timeout(10000)});
+        if (!res.ok) continue;
+        const raw = await res.json();
+        if (!Array.isArray(raw) || !raw.length) continue;
+        return raw.map(r=>({t:+r[0], o:+r[1], h:+r[2], l:+r[3], c:+r[4]})).filter(c=>isFinite(c.t) && isFinite(c.h) && isFinite(c.l));
+      }
+    }catch(e){ /* source suivante */ }
+  }
+  return null; // marché sans historique par plage (ex. Crypto.com seul) : le serveur reste seul juge
+}
+// Premier niveau touché par `p` dans `candles` à partir de fromMs, ou null.
+function catchupScanPosition(p, candles, fromMs){
+  const opened = Date.parse(p.openedAt||"");
+  const startMs = Math.max(fromMs, isFinite(opened) ? opened : 0);
+  const long = p.side==="long";
+  const liq = (p.mode==="isolated" && typeof p.liqPrice==="number" && isFinite(p.liqPrice) && p.liqPrice>0) ? p.liqPrice : null;
+  const sl = typeof p.stopLoss==="number" ? p.stopLoss : null;
+  const tp = typeof p.takeProfit==="number" ? p.takeProfit : null;
+  for (const c of candles){
+    if (c.t < startMs-30000) continue;
+    if (long){
+      const downs = [];
+      if (sl!=null && c.l<=sl) downs.push({kind:"sl", lvl:sl});
+      if (liq!=null && c.l<=liq) downs.push({kind:"liq", lvl:liq});
+      if (downs.length){
+        downs.sort((x,y)=>y.lvl-x.lvl); // en baissant, on touche d'abord le niveau le plus haut
+        const d = downs[0];
+        return {kind:d.kind, price: d.kind==="liq" ? liq : Math.min(d.lvl, c.o), at:c.t};
+      }
+      if (tp!=null && c.h>=tp) return {kind:"tp", price:Math.max(tp, c.o), at:c.t};
+    } else {
+      const ups = [];
+      if (sl!=null && c.h>=sl) ups.push({kind:"sl", lvl:sl});
+      if (liq!=null && c.h>=liq) ups.push({kind:"liq", lvl:liq});
+      if (ups.length){
+        ups.sort((x,y)=>x.lvl-y.lvl);
+        const u = ups[0];
+        return {kind:u.kind, price: u.kind==="liq" ? liq : Math.max(u.lvl, c.o), at:c.t};
+      }
+      if (tp!=null && c.l<=tp) return {kind:"tp", price:Math.min(tp, c.o), at:c.t};
+    }
+  }
+  return null;
+}
+async function runOfflineCatchup(fromIso){
+  const fromMs = Date.parse(fromIso||"");
+  const nowMs = Date.now();
+  if (!isFinite(fromMs) || nowMs-fromMs < OFFLINE_CATCHUP_MIN_MS || offlineCatchupBusy) return [];
+  const watched = p=>p && (p.stopLoss!=null || p.takeProfit!=null || p.mode==="isolated");
+  const all = [...(state.positions||[]), ...((state.parked && state.parked.positions)||[])].filter(watched);
+  const syms = [...new Set(all.map(p=>p.symbol))];
+  if (!syms.length) return [];
+  offlineCatchupBusy = true;
+  const id = clientId;
+  try{
+    const span = nowMs-fromMs;
+    const tf = span<=16*3600e3 ? "1m" : span<=3.4*86400e3 ? "5m" : span<=10*86400e3 ? "15m" : "1h";
+    const tfMs = HL_INTERVAL_MS[tf];
+    const start = Math.max(fromMs-tfMs, nowMs-990*tfMs);
+    const data = {};
+    await Promise.all(syms.map(async s=>{
+      const a = ASSETS.find(x=>x.symbol===s);
+      if (a) data[s] = await fetchCandlesRange(a, tf, start, nowMs);
+    }));
+    if (id!==clientId || accountLoading) return [];
+    const done = [];
+    const runBook = (bookName)=>{
+      [...(state.positions||[])].forEach(p0=>{
+        let from = fromMs;
+        for (let guard=0; guard<6; guard++){
+          const p = state.positions.find(x=>x.id===p0.id);
+          if (!p) break;
+          const candles = data[p.symbol];
+          if (!candles || !candles.length) break;
+          const hit = catchupScanPosition(p, candles, from);
+          if (!hit) break;
+          const before = (state.history||[]).length;
+          tpSlOverride = {price:hit.price, at:new Date(hit.at).toISOString()};
+          try{
+            if (hit.kind==="liq") closePosition(p.id, "liquidated");
+            else triggerTpSl(p, hit.kind);
+          } finally { tpSlOverride = null; }
+          const h = (state.history||[])[0];
+          done.push({sym:p.symbol, kind:hit.kind, price:hit.price, at:hit.at, book:bookName, pnl:(h && (state.history.length>before || h.id===p.id)) ? h.pnl : null});
+          from = hit.at + tfMs;
+        }
+      });
+    };
+    runBook(state.activeBookName==="prop" ? "prop" : "normal");
+    if (state.parked) withParkedBook(()=>runBook(state.activeBookName==="prop" ? "normal" : "prop"));
+    if (done.length){
+      renderAll();
+      persistAccount();
+      flushPersist();
+      const today = new Date().toDateString();
+      const label = {sl:"Stop loss", tp:"Take profit", liq:"Liquidation"};
+      appToast("Pendant ton absence : "+done.map(x=>{
+        const a = ASSETS.find(z=>z.symbol===x.sym) || {};
+        const d = new Date(x.at);
+        const when = (d.toDateString()===today ? "" : d.toLocaleDateString("fr-FR",{day:"numeric",month:"short"})+" ")+d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+        return label[x.kind]+" "+x.sym+" touché à "+fmtPrice(x.price, a.decimals)+" ("+when+")"+(x.pnl!=null ? " · "+fmtMoneySigned(x.pnl) : "")+(x.book==="prop" ? " [prop]" : "");
+      }).join(" · ")+".");
+    }
+    return done;
+  }catch(e){
+    console.warn("offline catch-up failed", e);
+    return [];
+  }finally{
+    offlineCatchupBusy = false;
+  }
 }
 /* ============================= LEADERBOARD RENDER ============================= */
 // Cache of the docs behind the last equity-leaderboard render, keyed by
@@ -22582,6 +22829,7 @@ async function init(){
   initChartLineDrag();
   initChartInteractions();
   initChartIndicators();
+  initSaveStatus();
   setChartSource(chartSource); // sync the static markup (buttons/svg/tv-wrap) to the "tv" default above
   initAuthUI();
   initGateUI();
