@@ -691,6 +691,21 @@
   .tpsl-hit{cursor:ns-resize;}
   .tpsl-chip{cursor:ns-resize;}
   #chart-svg.tpsl-dragging{cursor:ns-resize;}
+  #chart-svg{cursor:crosshair;user-select:none;-webkit-user-select:none;}
+  #chart-svg.chart-panning{cursor:grabbing;}
+  #chart-svg [data-chart-live]{cursor:pointer;}
+  .chart-ind{position:relative;}
+  .chart-ind[hidden]{display:none;}
+  .chart-ind-btn{background:var(--bg-raised);border:1px solid var(--border);color:var(--text-faint);font-family:var(--mono);font-size:10px;font-weight:600;padding:4px 9px;border-radius:5px;cursor:pointer;transition:.15s;white-space:nowrap;}
+  .chart-ind-btn:hover, .chart-ind-btn[aria-expanded="true"]{color:var(--accent);border-color:var(--accent);}
+  .chart-ind-pop{position:absolute;top:calc(100% + 6px);right:0;z-index:40;width:250px;max-width:80vw;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:6px;box-shadow:0 14px 34px -12px rgba(0,0,0,.65);display:flex;flex-direction:column;gap:1px;}
+  .chart-ind-pop[hidden]{display:none;}
+  .chart-ind-pop label{display:flex;align-items:center;gap:9px;font-family:var(--sans);font-size:12px;color:var(--text-dim);padding:6px 7px;border-radius:5px;cursor:pointer;}
+  .chart-ind-pop label:hover{background:var(--bg-raised);color:var(--text);}
+  .chart-ind-pop input{accent-color:var(--accent);margin:0;flex:none;}
+  .chart-ind-pop i{width:14px;height:3px;border-radius:2px;flex:none;}
+  .chart-ind-pop i.tri{height:0;width:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:8px solid var(--long);border-radius:0;margin:0 2px;}
+  .chart-ind-tip{font-family:var(--sans);font-size:10.5px;color:var(--text-faint);border-top:1px solid var(--border-soft);margin-top:4px;padding:7px 7px 3px;line-height:1.45;}
 
   /* order ticket */
   .ticket{margin-top:14px;}
@@ -3347,9 +3362,9 @@
     .wz-grip{display:none !important;}
     .card.widget.has-h{height:auto !important;}
     .card.widget.has-h > .widget-body{overflow:visible;}
-    .widget[data-widget="chart"].has-h #chart-svg{flex:none;height:240px;}
+    .widget[data-widget="chart"].has-h #chart-svg{flex:none;height:290px;}
     .widget[data-widget="chart"].has-h #tv-chart-wrap{flex:none;height:420px;}
-    svg.chart{height:240px;}
+    svg.chart{height:290px;}
   }
 
   /* ---------- Widget Compte : pas de débordement quand il est étroit ---------- */
@@ -4128,6 +4143,16 @@
                 <button type="button" class="candle-dot active" data-candle-theme="classic"  title="Classique"    style="--dot:conic-gradient(#31c882 0 50%, #f0546a 50% 100%)"></button>
                 <button type="button" class="candle-dot"        data-candle-theme="contrast" title="Contraste"    style="--dot:conic-gradient(#00e676 0 50%, #ff1744 50% 100%)"></button>
                 <button type="button" class="candle-dot"        data-candle-theme="mono"     title="Noir & Blanc" style="--dot:conic-gradient(#fff 0 50%, #000 50% 100%)"></button>
+              </div>
+              <div class="chart-ind" id="chart-ind">
+                <button type="button" class="chart-ind-btn" id="chart-ind-btn" aria-expanded="false" aria-haspopup="true" title="Indicateurs du graphique">ƒx <span>Indicateurs</span></button>
+                <div class="chart-ind-pop" id="chart-ind-pop" hidden>
+                  <label><input type="checkbox" data-chart-ind="vol"><i style="background:linear-gradient(90deg,#31c882 50%,#f0546a 50%)"></i>Volume</label>
+                  <label><input type="checkbox" data-chart-ind="ema20"><i style="background:#f2b33d"></i>Moyenne mobile 20 (MME)</label>
+                  <label><input type="checkbox" data-chart-ind="ema50"><i style="background:#5aa9e6"></i>Moyenne mobile 50 (MME)</label>
+                  <label><input type="checkbox" data-chart-ind="trades"><i class="tri"></i>Mes trades (▲ achat ▼ vente)</label>
+                  <div class="chart-ind-tip">Glisse le graphique vers la droite pour remonter le temps · double-clic pour revenir au direct · survole une bougie pour voir ses prix.</div>
+                </div>
               </div>
               <div class="seg" id="chart-source-seg" style="margin-left:auto;">
                 <button type="button" id="chart-src-internal" class="on-mode active">Interne</button>
@@ -5800,12 +5825,9 @@ function processTicker(symbol, payload){
   // Live-patch the still-forming (most recent) candle between candle refetches,
   // so the chart visibly breathes with every tick instead of only updating
   // once per fetchCandles() cycle.
-  if (m.candles && m.candles.data && m.candles.data.length){
-    const lastCandle = m.candles.data[m.candles.data.length-1];
-    lastCandle.h = Math.max(lastCandle.h, m.last);
-    lastCandle.l = Math.min(lastCandle.l, m.last);
-    lastCandle.c = m.last;
-  }
+  // (patchLiveCandle ouvre aussi la bougie suivante quand la période est
+  // écoulée ; si on regarde l'historique, la vue reste sur les mêmes bougies.)
+  if (patchLiveCandle(m, m.last) && symbol===selectedSymbol && chartPan>0) chartPan++;
 }
 // Fetch up to 50 real OHLC candles for a symbol at a given timeframe via a
 // direct call to fetchCandlesRest() (Crypto.com's public REST API — see
@@ -5823,7 +5845,7 @@ async function fetchCandles(symbol, tf){
     let parsed = raw.map(c=>({
       o: parseFloat(c.open)*scale, h: parseFloat(c.high)*scale,
       l: parseFloat(c.low)*scale, c: parseFloat(c.close)*scale,
-      t: c.timestamp,
+      t: c.timestamp, ms: Date.parse(c.timestamp), v: parseFloat(c.volume)||0,
     })).filter(c=>isFinite(c.o)&&isFinite(c.h)&&isFinite(c.l)&&isFinite(c.c));
     m.candles = {tf, data:parsed, loading:false, error: parsed.length?null:"empty"};
   }catch(err){
@@ -5836,6 +5858,7 @@ async function fetchCandles(symbol, tf){
 // assets) to keep API usage proportional to what's actually being looked at.
 function scheduleCandleRefresh(){
   clearInterval(candleTimer);
+  chartPan = 0; chartHover = null; // nouveau marché / unité de temps : retour au direct
   fetchCandles(selectedSymbol, currentTimeframe);
   candleTimer = setInterval(()=>fetchCandles(selectedSymbol, currentTimeframe), 45000);
 }
@@ -7687,10 +7710,10 @@ async function fetchCandlesHyperliquid(hl, tf){
   const inv = raw.length && hlInverted(hl, parseFloat(raw[raw.length-1].c));
   return raw.map(c=>inv ? {
     open:1/c.o, high:1/c.l, low:1/c.h, close:1/c.c, // inversé : le plus haut devient le plus bas
-    timestamp: c.t ? new Date(Number(c.t)).toISOString() : null,
+    timestamp: c.t ? new Date(Number(c.t)).toISOString() : null, volume:c.v,
   } : {
     open:c.o, high:c.h, low:c.l, close:c.c,
-    timestamp: c.t ? new Date(Number(c.t)).toISOString() : null,
+    timestamp: c.t ? new Date(Number(c.t)).toISOString() : null, volume:c.v,
   });
 }
 // Sources d'un marché, dans l'ordre d'essai : la première qui répond gagne.
@@ -7749,7 +7772,7 @@ async function fetchCandlesCryptoCom(instrument, tf){
     : (json && Array.isArray(json.data)) ? json.data : [];
   return raw.map(c=>({
     open:c.o, high:c.h, low:c.l, close:c.c,
-    timestamp: c.t ? new Date(Number(c.t)).toISOString() : null,
+    timestamp: c.t ? new Date(Number(c.t)).toISOString() : null, volume:c.v,
   }));
 }
 async function fetchCandlesBinance(binanceSymbol, tf, base){
@@ -7764,7 +7787,7 @@ async function fetchCandlesBinance(binanceSymbol, tf, base){
   if (!Array.isArray(raw)){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
   // Each row: [openTime, open, high, low, close, volume, closeTime, ...]
   return raw.map(row=>({
-    open:row[1], high:row[2], low:row[3], close:row[4],
+    open:row[1], high:row[2], low:row[3], close:row[4], volume:row[5],
     timestamp: new Date(Number(row[0])).toISOString(),
   }));
 }
@@ -7778,7 +7801,7 @@ async function fetchCandlesRest(a, tf){
       if (kind==="cdc"){
         const raw = await fetchCandlesCryptoCom(ref, tf);
         const k = a.cdcRatio ? (a._cdcCal || a.cdcRatio) : 1;
-        return k===1 ? raw : raw.map(c=>({open:c.open*k, high:c.high*k, low:c.low*k, close:c.close*k, timestamp:c.timestamp}));
+        return k===1 ? raw : raw.map(c=>({open:c.open*k, high:c.high*k, low:c.low*k, close:c.close*k, timestamp:c.timestamp, volume:c.volume}));
       }
     }catch(e){ lastErr = e; }
   }
@@ -8739,6 +8762,8 @@ function applyChartSourceVisibility(eff){
   tfSeg.hidden = eff==="tv"; tfSeg.style.display = eff==="tv" ? "none" : "";
   themeSeg.hidden = eff==="tv"; themeSeg.style.display = eff==="tv" ? "none" : "";
   if (zoomSeg){ zoomSeg.hidden = eff==="tv"; zoomSeg.style.display = eff==="tv" ? "none" : ""; }
+  const indWrap = document.getElementById("chart-ind");
+  if (indWrap){ indWrap.hidden = eff==="tv"; indWrap.style.display = eff==="tv" ? "none" : ""; }
   if (eff==="tv"){
     svg.hidden = true; svg.style.display = "none";
     tvWrap.hidden = false; tvWrap.style.display = "";
@@ -8901,41 +8926,21 @@ function initChartLineDrag(){
   svg.addEventListener("pointerup", endDrag);
   svg.addEventListener("pointercancel", endDrag);
 }
-// Moves just the dragged line/label/chip during an active drag, instead of
-// a full updateChart() rebuild (which is paused for the whole gesture —
-// see the guard at the top of updateChart()). Keeps the OTHER leg/entry
-// line untouched so a fast drag doesn't flicker the rest of the chart.
+// Pendant un glisser TP/SL, on ne reconstruit pas tout le graphique : on
+// remplace seulement le groupe <g> de la ligne déplacée (ou l'aperçu d'une
+// ligne en cours de création), dessiné par le même code que le rendu normal.
 function chartLineDragPatchDom(svg, p){
-  if (!chartLineDrag || !chartScale) return;
+  if (!chartLineDrag || !chartView) return;
   const {leg, price, mode} = chartLineDrag;
-  const y = v => chartScale.padT + (1-((v-chartScale.min)/((chartScale.max-chartScale.min)||1)))*(chartScale.H-chartScale.padT-chartScale.padB);
-  const yPix = y(price);
-  const color = leg==="tp" ? "#31c882" : "#f0546a";
-  const label = (leg==="tp"?"TP ":"SL ")+fmtPrice(price, (ASSETS.find(a=>a.symbol===p.symbol)||{}).decimals)+" · "+fmtMoneySigned(pnlAtPrice(p,price));
-  if (mode==="move"){
-    const line = document.getElementById("tpsl-line-"+p.id+"-"+leg);
-    const text = document.getElementById("tpsl-label-"+p.id+"-"+leg);
-    if (line){ line.setAttribute("y1", yPix.toFixed(1)); line.setAttribute("y2", yPix.toFixed(1)); }
-    if (text){
-      const labelY = Math.max(chartScale.padT+9, Math.min(chartScale.H-chartScale.padB-2, yPix-3));
-      text.setAttribute("y", labelY.toFixed(1));
-      text.textContent = label;
-    }
-  } else {
-    // "create" — draw a live preview line growing out from the entry price,
-    // appended fresh each move (cheap: it's one line + one text node).
-    let preview = document.getElementById("tpsl-drag-preview");
-    if (!preview){
-      preview = document.createElementNS("http://www.w3.org/2000/svg","g");
-      preview.setAttribute("id","tpsl-drag-preview");
-      svg.appendChild(preview);
-    }
-    const entryY = y(p.entryPrice);
-    preview.innerHTML =
-      '<line x1="'+chartScale.padL+'" y1="'+yPix.toFixed(1)+'" x2="'+(chartScale.W-chartScale.padR)+'" y2="'+yPix.toFixed(1)+'" stroke="'+color+'" stroke-width="1" stroke-dasharray="4,3" opacity="0.9"/>'+
-      '<text x="'+(chartScale.padL+3)+'" y="'+Math.max(chartScale.padT+9, Math.min(chartScale.H-chartScale.padB-2, yPix-3)).toFixed(1)+'" fill="'+color+'" font-size="9" font-family="IBM Plex Mono,monospace">'+label+'</text>'+
-      '<line x1="'+chartScale.padL+'" y1="'+entryY.toFixed(1)+'" x2="'+chartScale.padL+'" y2="'+yPix.toFixed(1)+'" stroke="'+color+'" stroke-width="1" opacity="0.35"/>';
-  }
+  const id = mode==="move" ? "tpsl-g-"+p.id+"-"+leg : "tpsl-drag-preview";
+  const html = chartTpSlLevelHtml(chartView, p, leg, price, mode==="move" ? null : "tpsl-drag-preview");
+  const tmp = document.createElementNS("http://www.w3.org/2000/svg","g");
+  tmp.innerHTML = html;
+  const node = tmp.firstElementChild;
+  if (!node) return;
+  const old = document.getElementById(id);
+  if (old) old.replaceWith(node);
+  else (document.getElementById("chart-levels") || svg).appendChild(node);
 }
 // Open position(s) on `sym`, straight off the live/active book — the chart
 // widget always reflects whichever account (normal/prop) is currently on
@@ -8944,61 +8949,183 @@ function chartLineDragPatchDom(svg, p){
 function openPositionsForChart(sym){
   return (state.positions||[]).filter(p=>p.symbol===sym);
 }
-// SVG markup for a single dashed/solid horizontal price line + label, used
-// for a position's entry/TP/SL on the internal chart. `y` is the chart's
-// price→pixel mapper (see updateChart()); label sits just above the line,
-// clamped inside the plot area so it doesn't get cut off at the very
-// top/bottom edge. When `posId`+`leg` are given (leg: "tp"|"sl", never for
-// the entry line itself — entry price isn't editable by dragging) the line
-// gets a fat, mostly-invisible hit-strip on top of it (`.tpsl-hit`) so it's
-// draggable — see initChartLineDrag() — with a stable id so an in-progress
-// drag can move just this line/label without a full chart re-render.
-function chartPriceLineHtml(price, y, W, padL, padR, padT, H, padB, color, label, dashed, posId, leg){
-  const yPix = y(price);
-  const labelY = Math.max(padT+9, Math.min(H-padB-2, yPix-3));
-  const draggable = posId!=null && leg!=null;
-  const idAttr = draggable ? ' id="tpsl-line-'+posId+'-'+leg+'"' : "";
-  const labelIdAttr = draggable ? ' id="tpsl-label-'+posId+'-'+leg+'"' : "";
-  const hit = draggable
-    ? '<rect class="tpsl-hit" data-tpsl-pos="'+posId+'" data-tpsl-leg="'+leg+'" data-tpsl-mode="move" x="'+padL+'" y="'+(yPix-6).toFixed(1)+'" width="'+(W-padL-padR)+'" height="12" fill="transparent"/>'
-    : "";
-  return '<line'+idAttr+' x1="'+padL+'" y1="'+yPix.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+yPix.toFixed(1)+'" stroke="'+color+'" stroke-width="1"'+(dashed?' stroke-dasharray="4,3"':'')+' opacity="0.85"/>'+
-    '<text'+labelIdAttr+' x="'+(padL+3)+'" y="'+labelY.toFixed(1)+'" fill="'+color+'" font-size="9" font-family="IBM Plex Mono,monospace">'+escapeHtml(label)+'</text>'+
-    hit;
+
+/* ---------------- Graphique interne v2 ----------------
+   Axe des prix gradué, axe du temps, réticule + valeurs OHLC, volume,
+   moyennes mobiles exponentielles, marqueurs de mes trades, étiquette du
+   dernier prix avec compte à rebours de la bougie, lignes de position
+   (entrée / TP / SL / liquidation / ordres limites) avec étiquettes sur
+   l'axe, et défilement dans l'historique (glisser, double-clic = direct). */
+const CHART_IND_KEY = "paperTapeChartInd";
+const CHART_EMA = {ema20:{p:20, color:"#f2b33d", label:"MME 20"}, ema50:{p:50, color:"#5aa9e6", label:"MME 50"}};
+let chartInd = (function(){
+  const d = {vol:true, ema20:true, ema50:false, trades:true};
+  try{
+    const s = JSON.parse(localStorage.getItem(CHART_IND_KEY)||"null");
+    if (s && typeof s==="object") Object.keys(d).forEach(k=>{ if (typeof s[k]==="boolean") d[k]=s[k]; });
+  }catch(e){}
+  return d;
+})();
+function saveChartInd(){ try{ localStorage.setItem(CHART_IND_KEY, JSON.stringify(chartInd)); }catch(e){} }
+let chartPan = 0;          // nombre de bougies masquées à droite (0 = collé au direct)
+let chartHover = null;     // {x,y} en unités du viewBox, ou null
+let chartPanDrag = null;   // glissement horizontal en cours
+let chartView = null;      // géométrie du dernier rendu (réticule, glisser TP/SL)
+const CHART_FONT = 'font-family="IBM Plex Mono,monospace"';
+const CHART_MONTHS = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+const CHART_TP_COLOR = "#31c882", CHART_SL_COLOR = "#f0546a";
+
+function chartPalette(){
+  const cs = getComputedStyle(document.documentElement);
+  const g = (n, d)=>((cs.getPropertyValue(n)||"").trim() || d);
+  return {grid:g("--border-soft","#2d2820"), axis:g("--text-faint","#8a8072"), text:g("--text-dim","#c9bfa9"),
+    strong:g("--text","#fbf7f0"), bg:g("--panel","#211d18"), warn:g("--warn","#e3ac4b"), accent:g("--accent","#e8552b")};
 }
-// A small draggable "+ TP"/"+ SL" chip anchored near the entry line, shown
-// only when that leg isn't set yet — grabbing it and dragging away from
-// entry creates it (see initChartLineDrag()'s "create" mode). Placed a
-// fixed pixel offset from the entry line, on whichever side is actually
-// valid for a long vs a short, so the two chips (when both legs are empty)
-// never overlap each other or the entry line itself.
-function chartCreateChipHtml(entryY, padL, W, padR, color, label, posId, leg, dir){
-  const y = entryY + dir*14;
-  const w = 34, h = 13;
-  const x = padL+4;
+// Texte lisible (noir ou blanc) posé sur une pastille de couleur `c`.
+function chartInkOn(c){
+  const m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(c||"").trim());
+  if (!m) return "#ffffff";
+  let h = m[1]; if (h.length===3) h = h.split("").map(x=>x+x).join("");
+  const r = parseInt(h.slice(0,2),16)/255, g = parseInt(h.slice(2,4),16)/255, b = parseInt(h.slice(4,6),16)/255;
+  return (0.2126*r+0.7152*g+0.0722*b) > 0.55 ? "#111111" : "#ffffff";
+}
+function chartNum(v, dec){ return v.toLocaleString("en-US",{minimumFractionDigits:dec, maximumFractionDigits:dec}); }
+function chartTextW(s, size){ return String(s).length*size*0.6; }
+function chartNiceStep(raw){
+  if (!(raw>0) || !isFinite(raw)) return 1;
+  const p = Math.pow(10, Math.floor(Math.log10(raw)));
+  const f = raw/p;
+  return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p;
+}
+function chartStepDecimals(step, max){
+  let d = 0;
+  while (d<max && Math.abs(Math.round(step*Math.pow(10,d)) - step*Math.pow(10,d)) > 1e-6) d++;
+  return d;
+}
+function chartTimeLabel(ms, withDay){
+  const d = new Date(ms);
+  const hm = String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
+  return withDay ? d.getDate()+" "+CHART_MONTHS[d.getMonth()]+" "+hm : hm;
+}
+function chartEma(candles, p){
+  const out = new Array(candles.length).fill(null);
+  if (candles.length<p) return out;
+  let s = 0; for (let i=0;i<p;i++) s += candles[i].c;
+  let e = s/p; out[p-1] = e;
+  const k = 2/(p+1);
+  for (let i=p;i<candles.length;i++){ e = candles[i].c*k + e*(1-k); out[i] = e; }
+  return out;
+}
+// Bougie en cours : mise à jour à chaque prix reçu, et nouvelle bougie
+// ouverte dès que la période est écoulée (sans attendre le prochain
+// rechargement des bougies toutes les 45 s). Renvoie true si une bougie a
+// été ajoutée.
+function patchLiveCandle(m, px){
+  if (!m || !m.candles || !Array.isArray(m.candles.data) || !m.candles.data.length || !isFinite(px)) return false;
+  const data = m.candles.data;
+  let last = data[data.length-1];
+  const tfMs = HL_INTERVAL_MS[m.candles.tf];
+  const now = Date.now();
+  let rolled = false;
+  if (tfMs && last.ms && now >= last.ms + tfMs){
+    const ms = last.ms + Math.floor((now-last.ms)/tfMs)*tfMs;
+    last = {o:last.c, h:last.c, l:last.c, c:last.c, ms, t:new Date(ms).toISOString(), v:0};
+    data.push(last);
+    if (data.length > CHART_ZOOM_MAX+60) data.shift();
+    rolled = true;
+  }
+  last.h = Math.max(last.h, px);
+  last.l = Math.min(last.l, px);
+  last.c = px;
+  return rolled;
+}
+
+// Une ligne de prix horizontale + son étiquette (à gauche ou à droite du
+// tracé) + sa pastille sur l'axe des prix. Tout est dans un <g> translaté
+// à la hauteur du prix : déplacer la ligne = changer un seul attribut.
+function chartLevelHtml(g, o){
+  const y = g.y(o.price);
+  let s = '<g'+(o.id?' id="'+o.id+'"':'')+' transform="translate(0,'+y.toFixed(1)+')">';
+  s += '<line x1="'+g.padL+'" y1="0" x2="'+(g.W-g.padR)+'" y2="0" stroke="'+o.color+'" stroke-width="1"'+(o.dash?' stroke-dasharray="'+o.dash+'"':'')+' opacity="'+(o.opacity||0.9)+'"/>';
+  if (o.label){
+    const w = Math.round(chartTextW(o.label, 9.5)+12);
+    const x = o.align==="right" ? (g.W-g.padR-6-w) : (g.padL+4);
+    s += '<rect x="'+x+'" y="-8" width="'+w+'" height="16" rx="4" fill="'+g.pal.bg+'" stroke="'+o.color+'" stroke-width="1"/>'+
+         '<text x="'+(x+6)+'" y="3.4" fill="'+(o.labelColor||o.color)+'" font-size="9.5" font-weight="600" '+CHART_FONT+'>'+escapeHtml(o.label)+'</text>';
+  }
+  s += '<rect x="'+(g.W-g.padR+1)+'" y="-8" width="'+(g.padR-2)+'" height="16" rx="3" fill="'+o.color+'"/>'+
+       '<text x="'+(g.W-g.padR+6)+'" y="3.6" fill="'+chartInkOn(o.color)+'" font-size="10" font-weight="600" '+CHART_FONT+'>'+chartNum(o.price, g.dec)+'</text>';
+  if (o.hit) s += '<rect class="tpsl-hit" data-tpsl-pos="'+o.hit.pos+'" data-tpsl-leg="'+o.hit.leg+'" data-tpsl-mode="move" x="'+g.padL+'" y="-7" width="'+(g.W-g.padL)+'" height="14" fill="transparent"/>';
+  return s+'</g>';
+}
+function chartTpSlLevelHtml(g, p, leg, price, idOverride){
+  const pnl = pnlAtPrice(p, price);
+  const color = leg==="tp" ? CHART_TP_COLOR : CHART_SL_COLOR;
+  return chartLevelHtml(g, {
+    id: idOverride || ("tpsl-g-"+p.id+"-"+leg), price, color, dash:"5,4", align:"right",
+    label: (leg==="tp"?"TP":"SL")+" · "+fmtMoneySigned(pnl),
+    hit: idOverride ? null : {pos:p.id, leg},
+  });
+}
+// Pastille « ↑ Liq. 75,800 » collée au bord haut/bas quand le niveau est
+// hors de la zone affichée (évite d'écraser le graphique pour le montrer).
+function chartEdgeTagHtml(g, top, slot, color, text){
+  const w = Math.round(chartTextW(text, 9.5)+12);
+  const x = g.W-g.padR-6-w;
+  const y = top ? g.padT+2+slot*19 : g.H-g.padB-18-slot*19;
+  return '<g opacity="0.95"><rect x="'+x+'" y="'+y+'" width="'+w+'" height="16" rx="8" fill="'+g.pal.bg+'" stroke="'+color+'" stroke-width="1" stroke-dasharray="3,2"/>'+
+    '<text x="'+(x+6)+'" y="'+(y+11.4)+'" fill="'+color+'" font-size="9.5" font-weight="600" '+CHART_FONT+'>'+escapeHtml(text)+'</text></g>';
+}
+// "+ TP"/"+ SL" : petite pastille à côté de la ligne d'entrée, à saisir et
+// glisser pour créer la jambe manquante (voir initChartLineDrag(), mode
+// "create"), placée du côté valide pour un long ou un short.
+function chartCreateChipHtml(g, entryY, color, label, posId, leg, dir){
+  const y = entryY + dir*15;
+  const w = 36, h = 14;
+  const x = g.padL+4;
   return '<g class="tpsl-chip" data-tpsl-pos="'+posId+'" data-tpsl-leg="'+leg+'" data-tpsl-mode="create">'+
-    '<rect x="'+x+'" y="'+(y-h/2).toFixed(1)+'" width="'+w+'" height="'+h+'" rx="3" fill="'+color+'" opacity="0.18" stroke="'+color+'" stroke-width="1"/>'+
-    '<text x="'+(x+w/2)+'" y="'+(y+3).toFixed(1)+'" fill="'+color+'" font-size="9" font-family="IBM Plex Mono,monospace" text-anchor="middle">'+label+'</text>'+
+    '<rect x="'+x+'" y="'+(y-h/2).toFixed(1)+'" width="'+w+'" height="'+h+'" rx="7" fill="'+g.pal.bg+'" stroke="'+color+'" stroke-width="1" stroke-dasharray="3,2"/>'+
+    '<text x="'+(x+w/2)+'" y="'+(y+3.3).toFixed(1)+'" fill="'+color+'" font-size="9" font-weight="600" '+CHART_FONT+' text-anchor="middle">'+label+'</text>'+
   '</g>';
 }
-// Builds the full set of entry/TP/SL lines (+ "add TP"/"add SL" chips for
-// whichever leg isn't set) for every open position on `sym` — a hedge
-// (long+short at once) draws both sets, each tagged with its side so
-// they're not ambiguous stacked on the same chart.
-function positionLinesHtml(positions, y, W, padL, padR, padT, H, padB, decimals){
-  let out = "";
+// Lignes de toutes les positions ouvertes sur ce marché (entrée, TP, SL,
+// liquidation) + ordres limites en attente. Une couverture (long + short)
+// dessine les deux jeux, chacun étiqueté avec son sens.
+function positionLinesHtml(g, positions, pending){
+  let out = "", edgeTop = 0, edgeBot = 0;
+  const inRange = v => v>=g.min && v<=g.max;
+  const edge = (v, color, text)=>{
+    const top = v>g.max;
+    out += chartEdgeTagHtml(g, top, top?edgeTop++:edgeBot++, color, (top?"↑ ":"↓ ")+text+" "+chartNum(v, g.dec));
+  };
+  (pending||[]).forEach(o=>{
+    const color = g.pal.accent;
+    const text = "Limite "+(o.side==="short"?"short":"long");
+    if (inRange(o.limitPrice)) out += chartLevelHtml(g, {price:o.limitPrice, color, dash:"2,3", align:"right", label:text, opacity:0.8});
+    else edge(o.limitPrice, color, text);
+  });
   positions.forEach(p=>{
-    const sideLabel = p.side==="short" ? "Short" : "Long";
     if (typeof p.entryPrice!=="number") return;
-    const entryY = y(p.entryPrice);
-    out += chartPriceLineHtml(p.entryPrice, y, W, padL, padR, padT, H, padB, "#8fa3bf", "Entrée "+sideLabel+" "+fmtPrice(p.entryPrice,decimals)+" · "+fmtMoneySigned(posUnrealized(p)), false);
-    // TP sits above entry for a long, below for a short; SL is the mirror.
-    const tpDir = p.side==="long" ? -1 : 1;
-    const slDir = p.side==="long" ? 1 : -1;
-    if (typeof p.takeProfit==="number") out += chartPriceLineHtml(p.takeProfit, y, W, padL, padR, padT, H, padB, "#31c882", "TP "+fmtPrice(p.takeProfit,decimals)+" · "+fmtMoneySigned(pnlAtPrice(p,p.takeProfit)), true, p.id, "tp");
-    else out += chartCreateChipHtml(entryY, padL, W, padR, "#31c882", "+ TP", p.id, "tp", tpDir);
-    if (typeof p.stopLoss==="number") out += chartPriceLineHtml(p.stopLoss, y, W, padL, padR, padT, H, padB, "#f0546a", "SL "+fmtPrice(p.stopLoss,decimals)+" · "+fmtMoneySigned(pnlAtPrice(p,p.stopLoss)), true, p.id, "sl");
-    else out += chartCreateChipHtml(entryY, padL, W, padR, "#f0546a", "+ SL", p.id, "sl", slDir);
+    if (typeof p.liqPrice==="number" && isFinite(p.liqPrice) && p.liqPrice>0){
+      if (inRange(p.liqPrice)) out += chartLevelHtml(g, {price:p.liqPrice, color:g.pal.warn, dash:"1,3", align:"right", label:"Liq. "+(p.side==="short"?"short":"long"), opacity:0.85});
+      else edge(p.liqPrice, g.pal.warn, "Liq.");
+    }
+  });
+  positions.forEach(p=>{
+    if (typeof p.entryPrice!=="number") return;
+    const pnl = posUnrealized(p);
+    const roe = p.initMargin ? pnl/p.initMargin*100 : 0;
+    const pnlColor = pnl>=0 ? g.cc.up : g.cc.down;
+    out += chartLevelHtml(g, {
+      price:p.entryPrice, color:g.pal.text, align:"left", labelColor:pnlColor, opacity:0.75,
+      label:(p.side==="short"?"SHORT":"LONG")+" x"+fmtLev(p.leverage)+" · "+fmtMoneySigned(pnl)+" ("+(roe>=0?"+":"")+roe.toFixed(1)+"%)",
+    });
+    const entryY = g.y(p.entryPrice);
+    const tpDir = p.side==="long" ? -1 : 1, slDir = -tpDir;
+    if (typeof p.takeProfit==="number") out += chartTpSlLevelHtml(g, p, "tp", p.takeProfit);
+    else out += chartCreateChipHtml(g, entryY, CHART_TP_COLOR, "+ TP", p.id, "tp", tpDir);
+    if (typeof p.stopLoss==="number") out += chartTpSlLevelHtml(g, p, "sl", p.stopLoss);
+    else out += chartCreateChipHtml(g, entryY, CHART_SL_COLOR, "+ SL", p.id, "sl", slDir);
   });
   return out;
 }
@@ -9013,19 +9140,338 @@ function extendRangeForPositions(min, max, positions){
   });
   return [min,max];
 }
+// Mes entrées / sorties sur ce marché (historique + positions ouvertes).
+function chartTradeMarks(sym){
+  const out = [], seen = new Set();
+  const addIn = (t, px, side)=>{ const k = t+"|"+side; if (seen.has(k)) return; seen.add(k); out.push({t:Date.parse(t), px, buy:side==="long", kind:"in"}); };
+  (state.history||[]).forEach(h=>{
+    if (!h || h.symbol!==sym) return;
+    if (h.openedAt && typeof h.entryPrice==="number") addIn(h.openedAt, h.entryPrice, h.side);
+    if (h.closedAt && typeof h.exitPrice==="number") out.push({t:Date.parse(h.closedAt), px:h.exitPrice, buy:h.side!=="long", kind:"out"});
+  });
+  (state.positions||[]).forEach(p=>{ if (p.symbol===sym && p.openedAt && typeof p.entryPrice==="number") addIn(p.openedAt, p.entryPrice, p.side); });
+  return out.filter(x=>isFinite(x.t) && isFinite(x.px));
+}
+function chartCountdownText(){
+  const v = chartView;
+  if (!v || !v.live || !v.all || !v.all.length) return "";
+  const last = v.all[v.all.length-1];
+  if (!last || !last.ms) return "";
+  const s = Math.max(0, Math.round((last.ms + v.tfMs - Date.now())/1000));
+  if (s > v.tfMs/1000) return "";
+  const hh = Math.floor(s/3600), mm = Math.floor((s%3600)/60), ss = s%60;
+  return (hh ? hh+":"+String(mm).padStart(2,"0") : String(mm))+":"+String(ss).padStart(2,"0");
+}
+function chartTickCountdown(){
+  if (document.hidden || !chartView || !chartView.live) return;
+  const m = market[selectedSymbol];
+  // Période écoulée sans nouveau prix : on ouvre quand même la bougie suivante.
+  if (m && m.last!=null && m.candles && m.candles.data && m.candles.data.length){
+    const last = m.candles.data[m.candles.data.length-1];
+    const tfMs = HL_INTERVAL_MS[m.candles.tf];
+    if (tfMs && last.ms && Date.now() >= last.ms + tfMs && !chartLineDrag && !chartPanDrag){
+      patchLiveCandle(m, m.last);
+      updateChart();
+      return;
+    }
+  }
+  const el = document.getElementById("chart-cd");
+  if (el) el.textContent = chartCountdownText();
+}
+
+function chartRenderCandles(svg, a, m, W, H, all){
+  const pal = chartPalette();
+  const cc = candleColors();
+  const dec = a.decimals;
+  const count = chartVisibleCandleCount();
+  chartPan = Math.max(0, Math.min(Math.max(0, all.length-count), chartPan));
+  const end = all.length - chartPan;
+  const start = Math.max(0, end-count);
+  const vis = all.slice(start, end);
+  const n = vis.length;
+  const live = chartPan===0;
+  const tf = (m.candles && m.candles.tf) || currentTimeframe;
+  const tfMs = HL_INTERVAL_MS[tf] || 60000;
+  const positions = openPositionsForChart(selectedSymbol);
+  const pending = (state.pendingOrders||[]).filter(o=>o.symbol===selectedSymbol && typeof o.limitPrice==="number");
+
+  let lo = Infinity, hi = -Infinity;
+  vis.forEach(c=>{ if (c.l<lo) lo = c.l; if (c.h>hi) hi = c.h; });
+  if (live && m.last!=null){ lo = Math.min(lo, m.last); hi = Math.max(hi, m.last); }
+  [lo, hi] = extendRangeForPositions(lo, hi, positions);
+  let span = hi-lo;
+  if (!(span>0)) span = Math.abs(hi)*0.002 || 1;
+  const volMax = Math.max(0, ...vis.map(c=>c.v||0));
+  const volOn = chartInd.vol && volMax>0;
+  const max = hi + span*0.06;
+  const min = lo - span*(volOn ? 0.30 : 0.06);
+  const range = max-min;
+
+  const padL = 0, padT = 6, padB = 22;
+  const padR = Math.max(56, Math.round(Math.max(chartNum(hi,dec).length, chartNum(lo,dec).length)*6.1)+14);
+  const plotW = W-padL-padR, plotH = H-padT-padB;
+  const y = v => padT + (1-(v-min)/range)*plotH;
+  const slotW = plotW/Math.max(n + (live ? 4 : 0), 8);
+  const xAt = i => padL + slotW*i + slotW/2;
+  const bodyW = Math.max(1, Math.min(16, slotW*0.68));
+  chartScale = {min, max, padT, H, padB, W, padL, padR};
+  const g = chartView = {min, max, padT, padB, padL, padR, W, H, plotW, plotH, slotW, n, vis, all, start, dec, live, tfMs, tf, pal, cc, y, xAt, emas:{}};
+
+  // Grille + axe des prix
+  const nT = Math.max(2, Math.floor(plotH/38));
+  const step = chartNiceStep(range/nT);
+  const axDec = chartStepDecimals(step, dec);
+  let grid = "", axis = "";
+  for (let k = Math.ceil(min/step); k*step<=max; k++){
+    const v = k*step, yy = y(v);
+    if (yy<padT+6 || yy>H-padB-6) continue;
+    grid += '<line x1="'+padL+'" y1="'+yy.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+yy.toFixed(1)+'" stroke="'+pal.grid+'" stroke-width="1"/>';
+    axis += '<text x="'+(W-padR+6)+'" y="'+(yy+3.5).toFixed(1)+'" fill="'+pal.axis+'" font-size="10" '+CHART_FONT+'>'+chartNum(v, axDec)+'</text>';
+  }
+  // Axe du temps : un repère à chaque changement d'intervalle « rond »
+  // (robuste aux trous de cotation), la date à minuit.
+  const stepsMin = [1,2,5,10,15,30,60,120,180,240,360,720,1440,2880];
+  let tStep = stepsMin[stepsMin.length-1]*60000;
+  for (const sm of stepsMin){ const ms = sm*60000; if (ms>=tfMs && (ms/tfMs)*slotW>=68){ tStep = ms; break; } }
+  let lastLabelX = -1e9, prevBucket = null;
+  vis.forEach((c,i)=>{
+    if (!c.ms) return;
+    const local = c.ms - new Date(c.ms).getTimezoneOffset()*60000;
+    const bucket = Math.floor(local/tStep);
+    if (prevBucket!==null && bucket!==prevBucket){
+      const x = xAt(i);
+      if (x-lastLabelX>=56 && x<W-padR-18 && x>18){
+        const midnight = local % 86400000 === 0;
+        const label = midnight ? (new Date(c.ms).getDate()+" "+CHART_MONTHS[new Date(c.ms).getMonth()]) : chartTimeLabel(c.ms, false);
+        grid += '<line x1="'+x.toFixed(1)+'" y1="'+padT+'" x2="'+x.toFixed(1)+'" y2="'+(H-padB)+'" stroke="'+pal.grid+'" stroke-width="1" opacity="0.6"/>';
+        axis += '<text x="'+x.toFixed(1)+'" y="'+(H-7)+'" fill="'+(midnight?pal.text:pal.axis)+'" font-size="10" '+CHART_FONT+' text-anchor="middle"'+(midnight?' font-weight="600"':'')+'>'+label+'</text>';
+        lastLabelX = x;
+      }
+    }
+    prevBucket = bucket;
+  });
+  axis += '<line x1="'+padL+'" y1="'+(H-padB+0.5)+'" x2="'+(W-padR)+'" y2="'+(H-padB+0.5)+'" stroke="'+pal.grid+'" stroke-width="1"/>'+
+          '<line x1="'+(W-padR+0.5)+'" y1="'+padT+'" x2="'+(W-padR+0.5)+'" y2="'+(H-padB)+'" stroke="'+pal.grid+'" stroke-width="1"/>';
+
+  // Volume (bas du graphique)
+  let vol = "";
+  if (volOn){
+    const vH = plotH*0.17, base = H-padB;
+    vis.forEach((c,i)=>{
+      const h = (c.v||0)/volMax*vH;
+      if (h<0.5) return;
+      vol += '<rect x="'+(xAt(i)-bodyW/2).toFixed(1)+'" y="'+(base-h).toFixed(1)+'" width="'+bodyW.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+(c.c>=c.o?cc.up:cc.down)+'" opacity="0.26"/>';
+    });
+  }
+  // Bougies
+  let bars = "";
+  vis.forEach((c,i)=>{
+    const cx = xAt(i);
+    const up = c.c>=c.o;
+    const stroke = up ? cc.up : cc.down;
+    const fill = up ? cc.upFill : cc.downFill;
+    const yO = y(c.o), yC = y(c.c);
+    const bodyTop = Math.min(yO,yC), bodyH = Math.max(1, Math.abs(yC-yO));
+    bars += '<line x1="'+cx.toFixed(1)+'" y1="'+y(c.h).toFixed(1)+'" x2="'+cx.toFixed(1)+'" y2="'+y(c.l).toFixed(1)+'" stroke="'+stroke+'" stroke-width="1"/>';
+    if (bodyW>=2.5) bars += '<rect x="'+(cx-bodyW/2).toFixed(1)+'" y="'+bodyTop.toFixed(1)+'" width="'+bodyW.toFixed(1)+'" height="'+bodyH.toFixed(1)+'" rx="'+(bodyW>=6?1:0)+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="1"/>';
+    else bars += '<line x1="'+cx.toFixed(1)+'" y1="'+yO.toFixed(1)+'" x2="'+cx.toFixed(1)+'" y2="'+(yC+(yC===yO?1:0)).toFixed(1)+'" stroke="'+stroke+'" stroke-width="2"/>';
+  });
+  // Moyennes mobiles exponentielles
+  let emas = "";
+  Object.keys(CHART_EMA).forEach(k=>{
+    if (!chartInd[k]) return;
+    const e = chartEma(all, CHART_EMA[k].p);
+    g.emas[k] = e;
+    let d = "";
+    vis.forEach((c,i)=>{ const v = e[start+i]; if (v==null) return; d += (d?"L":"M")+xAt(i).toFixed(1)+","+y(v).toFixed(1); });
+    if (d) emas += '<path d="'+d+'" fill="none" stroke="'+CHART_EMA[k].color+'" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>';
+  });
+  // Mes trades : ▲ achat / ▼ vente, pointe exactement au prix d'exécution
+  let marks = "";
+  if (chartInd.trades && n){
+    const firstMs = vis[0].ms, lastEnd = vis[n-1].ms + tfMs;
+    chartTradeMarks(selectedSymbol).forEach(t=>{
+      if (!(t.t>=firstMs && t.t<lastEnd)) return;
+      let lo2 = 0, hi2 = n-1;
+      while (lo2<hi2){ const mid = (lo2+hi2+1)>>1; if (vis[mid].ms<=t.t) lo2 = mid; else hi2 = mid-1; }
+      const cx = xAt(lo2), py = y(t.px);
+      const col = t.buy ? cc.up : cc.down;
+      const pts = t.buy
+        ? cx+","+py.toFixed(1)+" "+(cx-5)+","+(py+8).toFixed(1)+" "+(cx+5)+","+(py+8).toFixed(1)
+        : cx+","+py.toFixed(1)+" "+(cx-5)+","+(py-8).toFixed(1)+" "+(cx+5)+","+(py-8).toFixed(1);
+      marks += '<polygon points="'+pts+'" fill="'+(t.kind==="in"?col:pal.bg)+'" stroke="'+(t.kind==="in"?pal.bg:col)+'" stroke-width="1.2"/>';
+    });
+  }
+  // Dernier prix : ligne pointillée + étiquette sur l'axe (+ compte à rebours)
+  let lastTag = "";
+  if (m.last!=null){
+    const lastC = all[all.length-1];
+    const lpColor = (lastC ? lastC.c>=lastC.o : m.changePct>=0) ? cc.up : cc.down;
+    const ly = y(m.last);
+    const cd = live ? chartCountdownText() : "";
+    const tagH = cd ? 28 : 16;
+    if (live && ly>=padT && ly<=H-padB) lastTag += '<line x1="'+padL+'" y1="'+ly.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+ly.toFixed(1)+'" stroke="'+lpColor+'" stroke-width="1" stroke-dasharray="2,3" opacity="0.8"/>';
+    const ty = Math.max(padT, Math.min(H-padB-tagH, ly-8));
+    const ink = chartInkOn(lpColor);
+    lastTag += '<rect x="'+(W-padR+1)+'" y="'+ty.toFixed(1)+'" width="'+(padR-2)+'" height="'+tagH+'" rx="3" fill="'+lpColor+'"/>'+
+      '<text x="'+(W-padR+6)+'" y="'+(ty+11.6).toFixed(1)+'" fill="'+ink+'" font-size="10" font-weight="700" '+CHART_FONT+'>'+chartNum(m.last, dec)+'</text>'+
+      (cd ? '<text id="chart-cd" x="'+(W-padR+6)+'" y="'+(ty+23.5).toFixed(1)+'" fill="'+ink+'" font-size="9.5" '+CHART_FONT+' opacity="0.85">'+cd+'</text>' : "");
+  }
+  // Bouton « Direct » quand on a remonté le temps
+  let liveBtn = "";
+  if (!live){
+    const bw = 74, bx = padL+8, by = H-padB-28;
+    liveBtn = '<g data-chart-live="1"><rect x="'+bx+'" y="'+by+'" width="'+bw+'" height="20" rx="10" fill="'+pal.strong+'" opacity="0.92"/>'+
+      '<text x="'+(bx+bw/2)+'" y="'+(by+13.6)+'" fill="'+chartInkOn(pal.strong)+'" font-size="10" font-weight="700" '+CHART_FONT+' text-anchor="middle">Direct ⇥</text></g>';
+  }
+  svg.style.touchAction = positions.length ? "none" : "pan-y";
+  svg.innerHTML = grid+vol+bars+emas+marks+axis+
+    '<g id="chart-levels">'+positionLinesHtml(g, positions, pending)+'</g>'+
+    lastTag+liveBtn+'<g id="chart-legend" pointer-events="none"></g><g id="chart-xh" pointer-events="none"></g>';
+  chartDrawOverlay();
+}
+// Réticule (souris, ou appui sur mobile) + légende OHLC en haut à gauche.
+// Redessiné seul au survol, sans reconstruire le graphique.
+function chartDrawOverlay(){
+  const v = chartView;
+  const lg = document.getElementById("chart-legend"), xh = document.getElementById("chart-xh");
+  if (!lg || !xh) return;
+  if (!v || !v.n){ lg.innerHTML = ""; xh.innerHTML = ""; return; }
+  const h = (chartHover && !chartLineDrag && !(chartPanDrag && chartPanDrag.moved)) ? chartHover : null;
+  let i = v.n-1, xs = "";
+  if (h && h.x>=v.padL && h.x<=v.W-v.padR && h.y>=v.padT && h.y<=v.H-v.padB){
+    i = Math.max(0, Math.min(v.n-1, Math.floor((h.x-v.padL)/v.slotW)));
+    const cx = v.xAt(i);
+    const price = v.min + (1-(h.y-v.padT)/v.plotH)*(v.max-v.min);
+    const tagFill = v.pal.strong, ink = chartInkOn(tagFill);
+    xs += '<line x1="'+cx.toFixed(1)+'" y1="'+v.padT+'" x2="'+cx.toFixed(1)+'" y2="'+(v.H-v.padB)+'" stroke="'+v.pal.text+'" stroke-width="1" stroke-dasharray="3,3" opacity="0.55"/>'+
+          '<line x1="'+v.padL+'" y1="'+h.y.toFixed(1)+'" x2="'+(v.W-v.padR)+'" y2="'+h.y.toFixed(1)+'" stroke="'+v.pal.text+'" stroke-width="1" stroke-dasharray="3,3" opacity="0.55"/>'+
+          '<rect x="'+(v.W-v.padR+1)+'" y="'+(h.y-8).toFixed(1)+'" width="'+(v.padR-2)+'" height="16" rx="3" fill="'+tagFill+'"/>'+
+          '<text x="'+(v.W-v.padR+6)+'" y="'+(h.y+3.6).toFixed(1)+'" fill="'+ink+'" font-size="10" font-weight="600" '+CHART_FONT+'>'+chartNum(price, v.dec)+'</text>';
+    const c = v.vis[i];
+    if (c && c.ms){
+      const t = chartTimeLabel(c.ms, true);
+      const tw = Math.round(chartTextW(t, 10)+12);
+      const tx = Math.max(v.padL, Math.min(v.W-v.padR-tw, cx-tw/2));
+      xs += '<rect x="'+tx.toFixed(1)+'" y="'+(v.H-v.padB+2)+'" width="'+tw+'" height="17" rx="3" fill="'+tagFill+'"/>'+
+            '<text x="'+(tx+tw/2).toFixed(1)+'" y="'+(v.H-v.padB+14)+'" fill="'+ink+'" font-size="10" font-weight="600" '+CHART_FONT+' text-anchor="middle">'+t+'</text>';
+    }
+  }
+  xh.innerHTML = xs;
+  const c = v.vis[i];
+  if (!c){ lg.innerHTML = ""; return; }
+  const col = c.c>=c.o ? v.cc.up : v.cc.down;
+  const chg = c.o ? (c.c-c.o)/c.o*100 : 0;
+  const halo = ' stroke="'+v.pal.bg+'" stroke-width="3" paint-order="stroke" stroke-linejoin="round"';
+  const kv = (k, val, first)=>'<tspan fill="'+v.pal.axis+'"'+(first?'':' dx="9"')+'>'+k+'</tspan><tspan fill="'+col+'" dx="4">'+val+'</tspan>';
+  const f = x=>chartNum(x, v.dec);
+  const chgTxt = Math.abs(chg)<0.005 ? "0.00%" : (chg>0?"+":"")+chg.toFixed(2)+"%";
+  const pct = '<tspan fill="'+col+'" dx="9">'+chgTxt+'</tspan>';
+  const lines = [];
+  if (v.W < 480){
+    lines.push(kv("O", f(c.o), true)+kv("H", f(c.h)));
+    lines.push(kv("L", f(c.l), true)+kv("C", f(c.c))+pct);
+  } else {
+    lines.push(kv("O", f(c.o), true)+kv("H", f(c.h))+kv("L", f(c.l))+kv("C", f(c.c))+pct);
+  }
+  let emaLine = "";
+  Object.keys(CHART_EMA).forEach(k=>{
+    const e = v.emas[k]; if (!e) return;
+    const val = e[v.start+i];
+    emaLine += '<tspan fill="'+CHART_EMA[k].color+'"'+(emaLine?' dx="10"':'')+'>'+CHART_EMA[k].label+' '+(val==null?"—":f(val))+'</tspan>';
+  });
+  if (emaLine) lines.push(emaLine);
+  lg.innerHTML = lines.map((l,j)=>'<text x="'+(v.padL+6)+'" y="'+(v.padT+11+j*14)+'" font-size="10" '+CHART_FONT+halo+'>'+l+'</text>').join("");
+}
+function initChartInteractions(){
+  const svg = document.getElementById("chart-svg");
+  if (!svg) return;
+  const toView = e=>{
+    const r = svg.getBoundingClientRect();
+    if (!r.width || !r.height || !chartView) return null;
+    return {x:(e.clientX-r.left)/r.width*chartView.W, y:(e.clientY-r.top)/r.height*chartView.H};
+  };
+  let raf = 0;
+  const redraw = ()=>{ if (raf) return; raf = requestAnimationFrame(()=>{ raf = 0; updateChart(); }); };
+  svg.addEventListener("pointerdown", (e)=>{
+    if (chartLineDrag || !chartView || effectiveChartSource()!=="internal") return;
+    const t = e.target;
+    if (t.closest && t.closest("[data-tpsl-pos]")) return;
+    if (t.closest && t.closest("[data-chart-live]")){ chartPan = 0; chartHover = null; updateChart(); e.preventDefault(); return; }
+    if (e.pointerType==="mouse" && e.button!==0) return;
+    chartPanDrag = {pid:e.pointerId, x0:e.clientX, pan0:chartPan, moved:false, touch:e.pointerType!=="mouse", p:toView(e)};
+    try{ svg.setPointerCapture(e.pointerId); }catch(err){}
+  });
+  svg.addEventListener("pointermove", (e)=>{
+    if (chartLineDrag) return;
+    if (chartPanDrag && e.pointerId===chartPanDrag.pid){
+      const dx = e.clientX - chartPanDrag.x0;
+      if (!chartPanDrag.moved && Math.abs(dx)<6) return;
+      if (!chartPanDrag.moved){ chartPanDrag.moved = true; svg.classList.add("chart-panning"); chartHover = null; chartDrawOverlay(); }
+      const r = svg.getBoundingClientRect();
+      const pxPerSlot = chartView ? chartView.slotW*r.width/chartView.W : 8;
+      const next = Math.max(0, chartPanDrag.pan0 + Math.round(dx/Math.max(1,pxPerSlot)));
+      if (next!==chartPan){ chartPan = next; redraw(); }
+      e.preventDefault();
+      return;
+    }
+    if (e.pointerType==="mouse"){ chartHover = toView(e); chartDrawOverlay(); }
+  });
+  svg.addEventListener("pointerup", (e)=>{
+    if (!chartPanDrag || e.pointerId!==chartPanDrag.pid) return;
+    const d = chartPanDrag;
+    chartPanDrag = null;
+    svg.classList.remove("chart-panning");
+    if (d.moved){ updateChart(); return; }
+    if (d.touch && d.p){
+      // Appui court sur mobile : affiche le réticule à cet endroit (ou le masque).
+      chartHover = (chartHover && Math.hypot(chartHover.x-d.p.x, chartHover.y-d.p.y)<16) ? null : d.p;
+    }
+    chartDrawOverlay();
+  });
+  svg.addEventListener("pointercancel", (e)=>{
+    if (!chartPanDrag || e.pointerId!==chartPanDrag.pid) return;
+    chartPanDrag = null;
+    svg.classList.remove("chart-panning");
+  });
+  svg.addEventListener("pointerleave", (e)=>{
+    if (e.pointerType==="mouse" && !chartPanDrag){ chartHover = null; chartDrawOverlay(); }
+  });
+  svg.addEventListener("dblclick", (e)=>{
+    if (e.target.closest && e.target.closest("[data-tpsl-pos]")) return;
+    if (chartPan){ chartPan = 0; updateChart(); }
+  });
+  setInterval(chartTickCountdown, 1000);
+}
+function initChartIndicators(){
+  const btn = document.getElementById("chart-ind-btn");
+  const pop = document.getElementById("chart-ind-pop");
+  if (!btn || !pop) return;
+  pop.querySelectorAll("[data-chart-ind]").forEach(cb=>{
+    cb.checked = !!chartInd[cb.dataset.chartInd];
+    cb.addEventListener("change", ()=>{
+      chartInd[cb.dataset.chartInd] = cb.checked;
+      saveChartInd();
+      updateChart();
+    });
+  });
+  const close = ()=>{ pop.hidden = true; btn.setAttribute("aria-expanded","false"); };
+  btn.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    const open = pop.hidden;
+    pop.hidden = !open;
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  document.addEventListener("pointerdown", (e)=>{ if (!pop.hidden && !e.target.closest("#chart-ind")) close(); });
+  document.addEventListener("keydown", (e)=>{ if (e.key==="Escape" && !pop.hidden) close(); });
+}
 function updateChart(forceDuringDrag){
   // While a TP/SL line is actively being dragged, a periodic price-tick
-  // re-render would wipe out the in-progress drag preview (a fresh
-  // svg.innerHTML rebuilt from the *committed* position, not the pointer's
-  // current position) — see initChartLineDrag(), which patches the SVG
-  // directly during the drag instead of going through here. The chart
-  // simply pauses its candle/price refresh for that one- or two-second
-  // gesture, same trade-off most trading platforms make.
-  // Exception: when the dragged price goes beyond what's currently visible,
-  // initChartLineDrag() commits it and calls updateChart(true) to force one
-  // real rescaled render (extendRangeForPositions picks up the new
-  // committed value) — every other call site still passes nothing, so this
-  // guard behaves exactly as before for them.
+  // re-render would wipe out the in-progress drag preview — see
+  // initChartLineDrag(), which patches the SVG directly during the drag
+  // instead of going through here. Exception: when the dragged price goes
+  // beyond what's currently visible, initChartLineDrag() commits it and
+  // calls updateChart(true) to force one real rescaled render.
   if (chartLineDrag && !forceDuringDrag) return;
   const eff = effectiveChartSource();
   applyChartSourceVisibility(eff);
@@ -9045,112 +9491,75 @@ function updateChart(forceDuringDrag){
   document.querySelectorAll("#tf-seg button").forEach(b=>b.classList.toggle("active", b.dataset.tf===currentTimeframe));
   const priceEl = document.getElementById("chart-price");
   const svg = document.getElementById("chart-svg");
-  // Dessiné à la taille réelle de la boîte (1 unité = 1 px) : plus d'image
-  // fixe 640×220 étirée ou centrée avec des bandes vides sur les côtés.
-  // chartPriceFromClientY() reste juste car il lit chartScale.H.
+  // Dessiné à la taille réelle de la boîte (1 unité = 1 px).
   const box = svg.getBoundingClientRect();
   const W = box.width>40 ? Math.round(box.width) : 640;
   const H = box.height>40 ? Math.round(box.height) : 220;
   svg.setAttribute("viewBox", "0 0 "+W+" "+H);
+  const msg = (txt)=>{
+    svg.innerHTML = '<text x="'+Math.round(W/2)+'" y="'+Math.round(H/2)+'" text-anchor="middle" fill="#57667a" font-size="12" '+CHART_FONT+'>'+txt+'</text>';
+    chartScale = null; chartView = null;
+  };
 
   if (m.last===null){
     priceEl.textContent = m.error ? "hors ligne" : "en attente…";
     priceEl.className = "price-big num flat";
-    svg.innerHTML = '<text x="'+Math.round(W/2)+'" y="'+Math.round(H/2)+'" text-anchor="middle" fill="#57667a" font-size="12" font-family="IBM Plex Mono,monospace">'+
-      (m.error ? "Flux de prix indisponible pour "+a.symbol : "Connexion au flux de prix en cours…")+'</text>';
-    chartScale = null;
+    msg(m.error ? "Flux de prix indisponible pour "+a.symbol : "Connexion au flux de prix en cours…");
     return;
   }
   priceEl.textContent = fmtPrice(m.last,a.decimals);
   priceEl.className = "price-big num "+(m.changePct>=0?"up":"down");
 
-  const padL=8,padR=64,padT=14,padB=22;
-  const gridColor = "#232a37", textColor = "#57667a";
-  function gridLines(){
-    let grid = "";
-    for(let i=0;i<3;i++){
-      const gy = padT + (i/2)*(H-padT-padB);
-      grid += '<line x1="'+padL+'" y1="'+gy.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+gy.toFixed(1)+'" stroke="'+gridColor+'" stroke-width="1"/>';
-    }
-    return grid;
-  }
-
-  // Preferred path: real OHLC candles from Crypto.com (get_candlestick),
-  // rescaled for SPY/QQQ exactly like the live ticker. Falls back to the
-  // simple accumulating tick-line below only while candles are still
-  // loading, unavailable, or the connector doesn't support them.
   const allCandles = (m.candles && m.candles.data) || [];
-  const candles = allCandles.slice(-chartVisibleCandleCount());
-  if (candles.length>=2){
-    const positions = openPositionsForChart(selectedSymbol);
-    const highs = candles.map(c=>c.h), lows = candles.map(c=>c.l);
-    let [min, max] = extendRangeForPositions(Math.min(...lows), Math.max(...highs), positions);
-    const range = (max-min)||(max*0.001)||1;
-    const n = candles.length;
-    const slotW = (W-padL-padR)/n;
-    const bodyW = Math.max(2, Math.min(14, slotW*0.62));
-    const y = v => padT + (1-((v-min)/range))*(H-padT-padB);
-    chartScale = {min, max, padT, H, padB, W, padL, padR};
-    const cc = candleColors();
-    let bars = "";
-    candles.forEach((c,i)=>{
-      const cx = padL + slotW*i + slotW/2;
-      const up = c.c>=c.o;
-      const stroke = up ? cc.up : cc.down;
-      const fill = up ? cc.upFill : cc.downFill;
-      const yO=y(c.o), yC=y(c.c), yH=y(c.h), yL=y(c.l);
-      const bodyTop = Math.min(yO,yC), bodyH = Math.max(1, Math.abs(yC-yO));
-      bars += '<line x1="'+cx.toFixed(1)+'" y1="'+yH.toFixed(1)+'" x2="'+cx.toFixed(1)+'" y2="'+yL.toFixed(1)+'" stroke="'+stroke+'" stroke-width="1"/>'+
-              '<rect x="'+(cx-bodyW/2).toFixed(1)+'" y="'+bodyTop.toFixed(1)+'" width="'+bodyW.toFixed(1)+'" height="'+bodyH.toFixed(1)+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="1" opacity="0.95"/>';
-    });
-    const lastY = y(m.last);
-    const lineColor = m.changePct>=0 ? cc.up : cc.down;
-    svg.innerHTML =
-      gridLines()+
-      '<text x="'+(W-4)+'" y="'+(padT+4)+'" fill="'+textColor+'" font-size="10" font-family="IBM Plex Mono,monospace" text-anchor="end">'+fmtPrice(max,a.decimals)+'</text>'+
-      '<text x="'+(W-4)+'" y="'+(H-padB+2)+'" fill="'+textColor+'" font-size="10" font-family="IBM Plex Mono,monospace" text-anchor="end">'+fmtPrice(min,a.decimals)+'</text>'+
-      bars+
-      '<line x1="'+padL+'" y1="'+lastY.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+lastY.toFixed(1)+'" stroke="'+lineColor+'" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>'+
-      positionLinesHtml(positions, y, W, padL, padR, padT, H, padB, a.decimals)+
-      '<text x="'+padL+'" y="'+(H-6)+'" fill="'+textColor+'" font-size="9" font-family="IBM Plex Mono,monospace">'+fmtClock(candles[0].t)+'</text>'+
-      '<text x="'+(W-padR)+'" y="'+(H-6)+'" fill="'+textColor+'" font-size="9" font-family="IBM Plex Mono,monospace" text-anchor="end">'+fmtClock(candles[n-1].t)+'</text>';
+  if (allCandles.length>=2){
+    chartRenderCandles(svg, a, m, W, H, allCandles);
     return;
   }
-  if (m.candles && m.candles.loading && candles.length===0){
-    svg.innerHTML = '<text x="'+Math.round(W/2)+'" y="'+Math.round(H/2)+'" text-anchor="middle" fill="#57667a" font-size="12" font-family="IBM Plex Mono,monospace">Chargement du graphique en bougies ('+currentTimeframe+')…</text>';
-    chartScale = null;
+  if (m.candles && m.candles.loading && allCandles.length===0){
+    msg("Chargement du graphique en bougies ("+currentTimeframe+")…");
     return;
   }
   if (m.history.length<2){
-    svg.innerHTML = '<text x="'+Math.round(W/2)+'" y="'+Math.round(H/2)+'" text-anchor="middle" fill="#57667a" font-size="12" font-family="IBM Plex Mono,monospace">'+
-      (m.candles && m.candles.error ? "Historique en bougies indisponible — la courbe se construit en direct" : "Premier relevé reçu — la courbe se construit au fil des prochaines actualisations (~30s)")+
-      '</text>';
-    chartScale = null;
+    msg(m.candles && m.candles.error ? "Historique en bougies indisponible — la courbe se construit en direct" : "Premier relevé reçu — la courbe se construit au fil des prochaines actualisations (~30s)");
     return;
   }
-  // Fallback: simple accumulating line built from polled ticks, used only
-  // when get_candlestick data couldn't be obtained for this symbol.
+  // Secours : simple courbe construite à partir des prix relevés, quand les
+  // bougies ne sont pas disponibles pour ce marché.
+  const pal = chartPalette();
+  const cc = candleColors();
   const hist = m.history.slice(-140);
-  const positionsFallback = openPositionsForChart(selectedSymbol);
-  const [min, max] = extendRangeForPositions(Math.min(...hist), Math.max(...hist), positionsFallback);
-  const range = (max-min)||(max*0.001)||1;
-  const x = i => padL + (hist.length<2?0:(i/(hist.length-1))*(W-padL-padR));
-  const y = v => padT + (1-((v-min)/range))*(H-padT-padB);
+  const positions = openPositionsForChart(selectedSymbol);
+  let [lo, hi] = extendRangeForPositions(Math.min(...hist), Math.max(...hist), positions);
+  let span = hi-lo; if (!(span>0)) span = Math.abs(hi)*0.002 || 1;
+  const min = lo-span*0.06, max = hi+span*0.06, range = max-min;
+  const padL = 0, padT = 6, padB = 22;
+  const padR = Math.max(56, Math.round(chartNum(hi,a.decimals).length*6.1)+14);
+  const plotH = H-padT-padB;
+  const x = i => padL + (hist.length<2?0:(i/(hist.length-1))*(W-padL-padR-12));
+  const y = v => padT + (1-((v-min)/range))*plotH;
   chartScale = {min, max, padT, H, padB, W, padL, padR};
+  const g = chartView = {min, max, padT, padB, padL, padR, W, H, plotH, n:0, vis:[], dec:a.decimals, pal, cc, y, live:false, emas:{}};
   let d = "";
   hist.forEach((p,i)=>{ d += (i===0?"M":"L")+x(i).toFixed(1)+","+y(p).toFixed(1)+" "; });
-  const up = m.changePct>=0;
-  const cc = candleColors();
-  const color = up ? cc.up : cc.down;
+  const color = m.changePct>=0 ? cc.up : cc.down;
   const lastX = x(hist.length-1), lastY = y(m.last);
-  svg.innerHTML =
-    gridLines()+
-    '<text x="'+(W-padR+8)+'" y="'+(padT+4)+'" fill="'+textColor+'" font-size="10" font-family="IBM Plex Mono,monospace">'+fmtPrice(max,a.decimals)+'</text>'+
-    '<text x="'+(W-padR+8)+'" y="'+(H-padB+2)+'" fill="'+textColor+'" font-size="10" font-family="IBM Plex Mono,monospace">'+fmtPrice(min,a.decimals)+'</text>'+
+  const step = chartNiceStep(range/Math.max(2, Math.floor(plotH/46)));
+  const axDec = chartStepDecimals(step, a.decimals);
+  let grid = "";
+  for (let k = Math.ceil(min/step); k*step<=max; k++){
+    const yy = y(k*step); if (yy<padT+6 || yy>H-padB-6) continue;
+    grid += '<line x1="'+padL+'" y1="'+yy.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+yy.toFixed(1)+'" stroke="'+pal.grid+'" stroke-width="1"/>'+
+            '<text x="'+(W-padR+6)+'" y="'+(yy+3.5).toFixed(1)+'" fill="'+pal.axis+'" font-size="10" '+CHART_FONT+'>'+chartNum(k*step, axDec)+'</text>';
+  }
+  svg.style.touchAction = positions.length ? "none" : "pan-y";
+  svg.innerHTML = grid+
     '<path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>'+
-    '<line x1="'+padL+'" y1="'+lastY.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+lastY.toFixed(1)+'" stroke="'+color+'" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>'+
-    positionLinesHtml(positionsFallback, y, W, padL, padR, padT, H, padB, a.decimals)+
-    '<circle cx="'+lastX.toFixed(1)+'" cy="'+lastY.toFixed(1)+'" r="3" fill="'+color+'"/>';
+    '<line x1="'+padL+'" y1="'+lastY.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+lastY.toFixed(1)+'" stroke="'+color+'" stroke-width="1" stroke-dasharray="2,3" opacity="0.7"/>'+
+    '<rect x="'+(W-padR+1)+'" y="'+Math.max(padT, Math.min(H-padB-16, lastY-8)).toFixed(1)+'" width="'+(padR-2)+'" height="16" rx="3" fill="'+color+'"/>'+
+    '<text x="'+(W-padR+6)+'" y="'+(Math.max(padT, Math.min(H-padB-16, lastY-8))+11.6).toFixed(1)+'" fill="'+chartInkOn(color)+'" font-size="10" font-weight="700" '+CHART_FONT+'>'+chartNum(m.last, a.decimals)+'</text>'+
+    '<g id="chart-levels">'+positionLinesHtml(g, positions, [])+'</g>'+
+    '<circle cx="'+lastX.toFixed(1)+'" cy="'+lastY.toFixed(1)+'" r="3" fill="'+color+'"/>'+
+    '<g id="chart-legend" pointer-events="none"></g><g id="chart-xh" pointer-events="none"></g>';
 }
 
 /* ============================= RENDER: order ticket ============================= */
@@ -22171,6 +22580,8 @@ async function init(){
   initChartSourceToggle();
   initChartZoomControls();
   initChartLineDrag();
+  initChartInteractions();
+  initChartIndicators();
   setChartSource(chartSource); // sync the static markup (buttons/svg/tv-wrap) to the "tv" default above
   initAuthUI();
   initGateUI();
