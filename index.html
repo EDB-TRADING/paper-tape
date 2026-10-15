@@ -3651,6 +3651,143 @@
     .sf-pod-1 b{font-size:17px;}
     .sf-lb-score i{display:none;}
   }
+  /* ---------- Replay (séances passées rejouées) ---------- */
+  .rp{max-width:1240px;margin:0 auto;}
+  .rp-kicker{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);}
+  .rp-hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:24px;align-items:center;padding:34px 36px;border-radius:18px;border:1px solid var(--border-soft);margin-bottom:18px;
+    background:radial-gradient(640px 280px at 0% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%), linear-gradient(135deg, var(--panel-2), var(--panel) 70%);}
+  .rp-hero h1{font-size:40px;line-height:1.08;letter-spacing:-.03em;margin:10px 0 12px;}
+  .rp-hero h1 span{color:var(--accent);}
+  .rp-hero p{font-size:15px;line-height:1.65;color:var(--text-dim);margin:0 0 20px;max-width:560px;}
+  .rp-hero-stats{display:flex;gap:26px;flex-wrap:wrap;}
+  .rp-hero-stats div{display:flex;flex-direction:column;gap:2px;}
+  .rp-hero-stats b{font-family:var(--mono);font-size:22px;}
+  .rp-hero-stats span{font-size:12px;color:var(--text-faint);}
+  .rp-hero-art svg{width:100%;height:auto;display:block;}
+  .rp-hero-art .u{stroke:var(--long);fill:var(--long);}
+  .rp-hero-art .d{stroke:var(--short);fill:var(--short);}
+  .rp-hero-art line{stroke-width:1.2;}
+  .rp-hero-cursor{stroke:var(--accent);stroke-dasharray:3 3;opacity:.7;}
+  .rp-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(260px,1fr));gap:12px;}
+  .rp-card{display:flex;flex-direction:column;gap:8px;text-align:left;font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--border-soft);border-radius:16px;padding:18px;cursor:pointer;transition:border-color .15s, transform .15s, box-shadow .15s;}
+  .rp-card:hover{border-color:color-mix(in srgb, var(--accent) 55%, var(--border-soft));transform:translateY(-2px);box-shadow:0 12px 26px -16px rgba(0,0,0,.7);}
+  .rp-card.is-mystery{background:radial-gradient(320px 160px at 100% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%), var(--panel);border-color:color-mix(in srgb, var(--accent) 40%, var(--border-soft));}
+  .rp-card-top{display:flex;justify-content:space-between;align-items:center;}
+  .rp-chip{font-family:var(--mono);font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--panel-2);border:1px solid var(--border-soft);}
+  .rp-diff{font-size:11.5px;color:var(--text-faint);}
+  .rp-card h3{margin:2px 0 0;font-size:17px;letter-spacing:-.01em;}
+  .rp-card p{margin:0;font-size:13px;line-height:1.55;color:var(--text-dim);flex:1;}
+  .rp-card-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:var(--text-faint);border-top:1px dashed var(--border-soft);padding-top:10px;margin-top:4px;}
+  .rp-card-foot b{font-family:var(--mono);font-size:12.5px;white-space:nowrap;}
+  .rp-new{color:var(--accent);}
+  .rp-note{font-size:12px;color:var(--text-faint);line-height:1.6;margin:16px 2px 0;}
+  .rp-loading{min-height:340px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--text-dim);text-align:center;}
+  .rp-spin{width:34px;height:34px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--accent);animation:rpSpin .8s linear infinite;}
+  @keyframes rpSpin{to{transform:rotate(360deg);}}
+  /* séance */
+  .rp-top{display:flex;align-items:center;gap:14px;margin-bottom:12px;flex-wrap:wrap;}
+  .rp-top-title{display:flex;flex-direction:column;gap:2px;}
+  .rp-top-title b{font-size:16px;}
+  .rp-top-title span{font-size:12px;color:var(--text-faint);}
+  .rp-prog{flex:1;min-width:120px;height:4px;border-radius:2px;background:var(--panel-2);overflow:hidden;}
+  .rp-prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s;}
+  .rp-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;align-items:start;}
+  .rp-chart-card{background:var(--panel);border:1px solid var(--border-soft);border-radius:16px;padding:14px 14px 12px;}
+  .rp-chart-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;min-height:30px;}
+  .rp-px{display:flex;align-items:baseline;gap:10px;}
+  .rp-px span{font-family:var(--mono);font-weight:700;font-size:13px;color:var(--text-dim);}
+  .rp-px b{font-family:var(--mono);font-size:22px;}
+  .rp-px em{font-style:normal;font-size:12px;color:var(--text-faint);}
+  .rp-flash{font-size:12.5px;color:var(--warn);background:color-mix(in srgb, var(--warn) 12%, transparent);border-radius:8px;padding:5px 10px;}
+  #rp-canvas{display:block;width:100%;height:min(460px, 55vh);}
+  .rp-transport{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .rp-play{display:inline-flex;align-items:center;gap:6px;font:600 13px var(--sans);color:#fff;background:var(--accent);border:none;border-radius:10px;padding:8px 14px;cursor:pointer;}
+  .rp-play svg{width:16px;height:16px;fill:currentColor;}
+  .rp-tbtn{font:600 12.5px var(--sans);color:var(--text);background:var(--panel-2);border:1px solid var(--border-soft);border-radius:10px;padding:8px 12px;cursor:pointer;}
+  .rp-tbtn:hover{border-color:var(--border);}
+  .rp-end{margin-left:auto;color:var(--text-dim);}
+  .rp-speeds{display:flex;gap:2px;background:var(--panel-2);border:1px solid var(--border-soft);border-radius:10px;padding:2px;}
+  .rp-speeds button{font:600 12px var(--mono);color:var(--text-dim);background:none;border:none;border-radius:8px;padding:6px 9px;cursor:pointer;}
+  .rp-speeds button.is-on{background:var(--panel);color:var(--text);box-shadow:inset 0 0 0 1px var(--accent);}
+  .rp-panel{background:var(--panel);border:1px solid var(--border-soft);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:14px;position:sticky;top:calc(var(--topbar-h, 64px) + 16px);}
+  .rp-eq{display:flex;flex-direction:column;gap:2px;}
+  .rp-eq span{font-size:12px;color:var(--text-faint);}
+  .rp-eq b{font-family:var(--mono);font-size:26px;letter-spacing:-.02em;}
+  .rp-eq em{font-style:normal;font-family:var(--mono);font-size:13px;}
+  .rp-flat{font-size:12.5px;color:var(--text-faint);padding:10px 12px;border:1px dashed var(--border-soft);border-radius:10px;}
+  .rp-pos{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--border-soft);background:var(--panel-2);box-shadow:inset 3px 0 0 var(--c);}
+  .rp-pos.long{--c:var(--long);} .rp-pos.short{--c:var(--short);}
+  .rp-pos b{font-size:13.5px;display:block;}
+  .rp-pos span{font-size:11.5px;color:var(--text-faint);}
+  .rp-pos-pnl{text-align:right;font-family:var(--mono);font-size:14px;font-weight:700;}
+  .rp-pos-pnl em{display:block;font-style:normal;font-size:11px;font-weight:500;}
+  .rp-field{display:flex;flex-direction:column;gap:6px;}
+  .rp-field > span{font-size:12px;color:var(--text-faint);}
+  .rp-seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:3px;background:var(--panel-2);border:1px solid var(--border-soft);border-radius:10px;padding:3px;}
+  .rp-seg button{font:600 12px var(--mono);color:var(--text-dim);background:none;border:none;border-radius:7px;padding:7px 0;cursor:pointer;}
+  .rp-seg button.is-on{background:var(--panel);color:var(--text);box-shadow:inset 0 0 0 1px var(--accent);}
+  .rp-orders{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .rp-long, .rp-short{font:700 14px var(--sans);border-radius:11px;padding:12px 0;cursor:pointer;border:1px solid;}
+  .rp-long{color:var(--long);background:color-mix(in srgb, var(--long) 12%, var(--panel));border-color:color-mix(in srgb, var(--long) 45%, transparent);}
+  .rp-short{color:var(--short);background:color-mix(in srgb, var(--short) 12%, var(--panel));border-color:color-mix(in srgb, var(--short) 45%, transparent);}
+  .rp-long:hover{background:color-mix(in srgb, var(--long) 20%, var(--panel));}
+  .rp-short:hover{background:color-mix(in srgb, var(--short) 20%, var(--panel));}
+  .rp-close{font:600 13px var(--sans);color:var(--text);background:var(--panel-2);border:1px solid var(--border);border-radius:11px;padding:10px 0;cursor:pointer;}
+  .rp-close:disabled{opacity:.4;cursor:default;}
+  .rp kbd{font-family:var(--mono);font-size:10px;background:var(--panel-2);border:1px solid var(--border);border-bottom-width:2px;border-radius:4px;padding:0 4px;margin-left:4px;color:var(--text-dim);}
+  .rp-mini{display:flex;justify-content:space-between;font-size:12px;color:var(--text-faint);}
+  .rp-mini b{color:var(--text);font-family:var(--mono);}
+  .rp-hint{margin:0;font-size:11.5px;color:var(--text-faint);text-align:center;}
+  /* résultat */
+  .rp-result{max-width:1040px;}
+  .rp-res-hero{text-align:center;padding:30px 20px;border-radius:18px;border:1px solid var(--border-soft);background:var(--panel);}
+  .rp-res-hero.is-up{background:radial-gradient(520px 200px at 50% 0%, color-mix(in srgb, var(--long) 16%, transparent), transparent 70%), var(--panel);}
+  .rp-res-hero.is-down{background:radial-gradient(520px 200px at 50% 0%, color-mix(in srgb, var(--short) 14%, transparent), transparent 70%), var(--panel);}
+  .rp-res-hero h1{font-family:var(--mono);font-size:52px;letter-spacing:-.03em;margin:8px 0 6px;}
+  .rp-res-hero.is-up h1{color:var(--long);} .rp-res-hero.is-down h1{color:var(--short);}
+  .rp-res-hero p{margin:0;color:var(--text-dim);font-size:14px;}
+  .rp-rec{color:var(--gold);font-weight:600;}
+  .rp-res-tiles{display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:10px;margin-top:12px;}
+  .rp-res-tiles > div{background:var(--panel);border:1px solid var(--border-soft);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:4px;}
+  .rp-res-tiles span{font-size:12px;color:var(--text-faint);}
+  .rp-res-tiles b{font-family:var(--mono);font-size:20px;}
+  .rp-res-tiles em{font-style:normal;font-size:12px;color:var(--text-faint);}
+  .rp-res-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:12px;margin-top:12px;}
+  .rp-story, .rp-lb{background:var(--panel);border:1px solid var(--border-soft);border-radius:14px;padding:18px;}
+  .rp-story h2, .rp-lb h2{font-size:16px;margin:0 0 8px;}
+  .rp-story p{font-size:14px;line-height:1.65;color:var(--text-dim);margin:0 0 12px;}
+  .rp-res-curve{display:block;width:100%;height:120px;}
+  .rp-cap{font-size:12px !important;color:var(--text-faint) !important;margin:6px 0 0 !important;}
+  .rp-lb-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px;}
+  .rp-lb-list li{display:flex;align-items:center;gap:10px;font-size:13px;padding:7px 10px;border-radius:9px;background:var(--panel-2);}
+  .rp-lb-list li.is-me{box-shadow:inset 0 0 0 1px var(--accent);}
+  .rp-lb-rk{width:20px;font-family:var(--mono);color:var(--text-faint);}
+  .rp-lb-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .rp-lb-name em{font-style:normal;color:var(--text-faint);font-size:11.5px;}
+  .rp-lb-list b{font-family:var(--mono);}
+  .rp-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px;}
+  .rp-actions button{padding:12px 20px;}
+  .rp-quick{display:none;}
+  @media (max-width:1000px){
+    .rp-quick{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;align-items:center;margin-top:10px;}
+    .rp-quick button{padding:11px 0;font-size:13.5px;}
+    .rp-quick-pnl{font-family:var(--mono);font-size:12.5px;font-weight:700;padding-left:4px;white-space:nowrap;}
+    .rp-panel .rp-orders, .rp-panel #rp-closebtn{display:none;}
+    .rp-layout{grid-template-columns:minmax(0,1fr);}
+    .rp-panel{position:static;}
+    .rp-res-grid{grid-template-columns:minmax(0,1fr);}
+  }
+  @media (max-width:700px){
+    .rp-hero{grid-template-columns:minmax(0,1fr);padding:22px 18px;}
+    .rp-hero-art{display:none;}
+    .rp-hero h1{font-size:28px;}
+    #rp-canvas{height:min(300px, 42vh);}
+    .rp-res-tiles{grid-template-columns:repeat(2, minmax(0,1fr));}
+    .rp-res-hero h1{font-size:40px;}
+    .rp-hint{display:none;}
+    .rp kbd{display:none;}
+    .rp-end{margin-left:0;}
+  }
 </style>
 </head>
 <body data-view="terminal">
@@ -3675,6 +3812,7 @@
     <symbol id="i-news" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8z"/></symbol>
     <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></symbol>
     <symbol id="i-pie" viewBox="0 0 24 24"><path d="M21 12c.55 0 1-.45.95-1A10 10 0 0 0 13 2.05c-.55-.05-1 .4-1 .95v8a1 1 0 0 0 1 1z"/><path d="M21.2 15.9A10 10 0 1 1 8 2.8"/></symbol>
+    <symbol id="i-replay" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 4v5h5"/><path d="m10.5 9 4.5 3-4.5 3z"/></symbol>
     <symbol id="i-trend" viewBox="0 0 24 24"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
     <symbol id="i-user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
     <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.7 9a1 1 0 0 1-.6 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.2-2.7a1.2 1.2 0 0 1 1.6 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z"/></symbol>
@@ -3764,6 +3902,7 @@
       <button data-view="terminal" class="active"><svg class="ic" aria-hidden="true"><use href="#i-terminal"/></svg><span class="sb-label">Terminal</span></button>
       <button data-view="invest"><svg class="ic" aria-hidden="true"><use href="#i-pie"/></svg><span class="sb-label">Investir</span></button>
       <button data-view="challenge"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg><span class="sb-label">Challenge</span><span class="sb-short">Challenge</span></button>
+      <button data-view="replay"><svg class="ic" aria-hidden="true"><use href="#i-replay"/></svg><span class="sb-label">Replay</span><span class="sb-short">Replay</span></button>
       <button data-view="concoursedbplus"><svg class="ic" aria-hidden="true"><use href="#i-gem"/></svg><span class="sb-label">Concours EDB+</span><span class="sb-short">Concours</span></button>
       <div class="sb-section">Communauté</div>
       <button data-view="leaderboard"><svg class="ic" aria-hidden="true"><use href="#i-trophy"/></svg><span class="sb-label">Classement</span><span class="sb-short">Classement</span></button>
@@ -4583,6 +4722,11 @@
     </section>
 
     <!-- ================= CHALLENGE PROP FIRM (dedicated page) ================= -->
+    <!-- ================= REPLAY (séances passées) ================= -->
+    <section class="view" id="view-replay">
+      <div id="replay-root"></div>
+    </section>
+
     <section class="view" id="view-challenge">
       <div class="learn-wrap ch-wrap">
         <div class="card" id="challenge-profile-card">
@@ -5662,6 +5806,7 @@ const state = {
   badges: {},      // {[badgeId]: {earnedAt}}
   journal: [],     // [{id, text, symbol?, side?, pnl?, createdAt}]
   superflash: {bestScore:0, bestCorrect:0, attempts:0},
+  replay: {best:{}, plays:0}, // Replay : meilleur % par séance + nombre de séances jouées
   tradesOpenedTotal: 0, // compteur à vie des positions ouvertes, tous comptes confondus (badges)
   stats: {
     tradesOpened:0, tradesClosed:0, wins:0, losses:0,
@@ -6091,6 +6236,7 @@ function hydrateStateFromDoc(snap){
   state.lastActiveDateKey = d.lastActiveDateKey || null;
   state.hardcore200kPasses = typeof d.hardcore200kPasses==="number" ? d.hardcore200kPasses : 0;
   state.tradesOpenedTotal = typeof d.tradesOpenedTotal==="number" ? d.tradesOpenedTotal : 0;
+  state.replay = {best: (d.replayBest && typeof d.replayBest==="object") ? d.replayBest : {}, plays: typeof d.replayPlays==="number" ? d.replayPlays : 0};
   state.challenge200kOpens = typeof d.challenge200kOpens==="number" ? d.challenge200kOpens : 0;
   // Now that we actually know this trader's EDB+ status, re-check anything
   // gated by it: the display theme (may need to snap back to Ember, or be
@@ -6427,6 +6573,8 @@ function persistAccount(){
           lastActiveDateKey: state.lastActiveDateKey || null,
           hardcore200kPasses: state.hardcore200kPasses||0,
           tradesOpenedTotal: lifetimeTradesOpened(),
+          replayBest: (state.replay && state.replay.best) || {},
+          replayPlays: (state.replay && state.replay.plays) || 0,
           challenge200kOpens: state.challenge200kOpens||0,
           positions: normal.positions.slice(0,20),
           pendingOrders: normal.pendingOrders.slice(0,20),
@@ -17084,6 +17232,524 @@ document.addEventListener("keydown", (e)=>{
   if (btn && !btn.disabled){ e.preventDefault(); answerFlash(idx); }
 });
 
+/* ============================= REPLAY (s'entraîner sur une séance passée) ============================= */
+// Rejoue une vraie séance passée (bougies 1 minute Binance) en accéléré :
+// le trader voit les bougies apparaître une par une et peut ouvrir / fermer
+// une position, sans aucun effet sur son compte Paper Tape. Score = perf en
+// % sur la séance, meilleur score par séance enregistré dans replayBest et
+// classé (top 10, une seule lecture à l'ouverture de la fin de partie).
+// La « séance mystère » tire un actif et une date au hasard ; prix ramenés
+// à un indice 100 et date cachée jusqu'à la fin, pour qu'on ne puisse pas
+// deviner la suite.
+const REPLAY_CONTEXT = 60;       // bougies déjà visibles au départ (contexte)
+const REPLAY_START_CASH = 10000;
+const REPLAY_FEE = 0.0004;       // 0,04 % par côté, comme le terminal
+const REPLAY_SPEEDS = [1, 3, 10, 30]; // bougies par seconde
+const REPLAY_SCENARIOS = [
+  {id:"sec2024", title:"Le faux tweet de la SEC", sym:"BTCUSDT", label:"BTC", start:"2024-01-09T19:30:00Z", hours:6, dateLabel:"9 janvier 2024",
+   teaser:"Un compte piraté annonce l'ETF Bitcoin un jour trop tôt. Le marché s'emballe… puis apprend la vérité.",
+   story:"9 janvier 2024 : le compte X de la SEC, piraté, annonce l'approbation des ETF Bitcoin spot. Le BTC bondit, puis la SEC dément quelques minutes plus tard et le prix rechute. Les ETF seront réellement approuvés le lendemain.", diff:"Volatil"},
+  {id:"yen2024", title:"Le krach du yen", sym:"BTCUSDT", label:"BTC", start:"2024-08-04T20:00:00Z", hours:12, dateLabel:"4-5 août 2024",
+   teaser:"Une nuit de panique mondiale : le débouclage du carry trade sur le yen fait plonger tous les actifs risqués.",
+   story:"5 août 2024 : la hausse des taux japonais force le débouclage massif du carry trade sur le yen. Le Nikkei perd plus de 12 % dans la journée et le Bitcoin chute fortement pendant la nuit européenne.", diff:"Difficile"},
+  {id:"ftx2022", title:"La chute de FTX", sym:"BTCUSDT", label:"BTC", start:"2022-11-08T13:00:00Z", hours:12, dateLabel:"8 novembre 2022",
+   teaser:"Un rachat surprise est annoncé, le marché respire… avant que la vérité sur les comptes ne sorte.",
+   story:"8 novembre 2022 : Binance annonce vouloir racheter FTX, en pleine crise de liquidité. Le marché rebondit brièvement, puis les doutes sur la solvabilité de FTX font plonger le Bitcoin vers ses plus bas de l'année. FTX fera faillite trois jours plus tard.", diff:"Difficile"},
+  {id:"elec2024", title:"La nuit électorale américaine", sym:"BTCUSDT", label:"BTC", start:"2024-11-05T23:00:00Z", hours:12, dateLabel:"5-6 novembre 2024",
+   teaser:"Les résultats tombent État par État. Le marché crypto vote en temps réel.",
+   story:"6 novembre 2024 : au fil du dépouillement de l'élection présidentielle américaine, le Bitcoin monte et bat son record historique au-dessus de 75 000 $.", diff:"Tendance"},
+  {id:"oct2025", title:"Le flash crash du 10 octobre", sym:"BTCUSDT", label:"BTC", start:"2025-10-10T19:00:00Z", hours:8, dateLabel:"10-11 octobre 2025",
+   teaser:"Une annonce de droits de douane un vendredi soir, et la plus grosse vague de liquidations de l'histoire crypto.",
+   story:"10 octobre 2025 : l'annonce de nouveaux droits de douane américains sur la Chine déclenche une chute brutale. Des milliards de dollars de positions à levier sont liquidées en quelques heures.", diff:"Extrême"},
+  {id:"merge2022", title:"The Merge", sym:"ETHUSDT", label:"ETH", start:"2022-09-15T04:00:00Z", hours:12, dateLabel:"15 septembre 2022",
+   teaser:"Ethereum change de moteur en plein vol. « Buy the rumor, sell the news » ?",
+   story:"15 septembre 2022 : Ethereum passe de la preuve de travail à la preuve d'enjeu (The Merge). L'événement très attendu se passe sans incident technique… et l'ETH baisse dans la journée : un cas d'école de « sell the news ».", diff:"Piège"},
+];
+const REPLAY_MYSTERY = {id:"mystery", title:"Séance mystère", label:"???", hours:8, diff:"Aléatoire",
+  teaser:"Actif, date et niveau de prix cachés. Juste le graphique, et ta lecture du marché."};
+let rp = null;            // séance en cours
+let rpTimer = null;
+const rpCandleCache = {};
+function replayState(){
+  if (!state.replay || typeof state.replay!=="object") state.replay = {best:{}, plays:0};
+  if (!state.replay.best) state.replay.best = {};
+  return state.replay;
+}
+function rpScenario(id){ return id==="mystery" ? REPLAY_MYSTERY : REPLAY_SCENARIOS.find(s=>s.id===id); }
+function rpFmtPct(v){ return (v>=0?"+":"")+v.toFixed(2).replace(".",",")+" %"; }
+function rpDateLabel(iso){
+  try{ return new Date(iso).toLocaleDateString("fr-FR", {day:"numeric", month:"long", year:"numeric", timeZone:"UTC"}); }catch(e){ return iso.slice(0,10); }
+}
+async function rpFetchCandles(sym, startMs, hours){
+  const key = sym+"|"+startMs+"|"+hours;
+  if (rpCandleCache[key]) return rpCandleCache[key];
+  const endMs = startMs + hours*3600e3 - 1;
+  const url = BINANCE_API_BASE+"/klines?symbol="+encodeURIComponent(sym)+"&interval=1m&startTime="+startMs+"&endTime="+endMs+"&limit=1000";
+  const res = await fetch(url, {signal:AbortSignal.timeout(12000)});
+  if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
+  const raw = await res.json();
+  if (!Array.isArray(raw) || raw.length < REPLAY_CONTEXT+30){ const e = new Error("not_enough"); e.code = "not_enough"; throw e; }
+  const out = raw.map(r=>({t:Number(r[0]), o:+r[1], h:+r[2], l:+r[3], c:+r[4]})).filter(c=>isFinite(c.o)&&isFinite(c.c));
+  rpCandleCache[key] = out;
+  return out;
+}
+function replayPause(){
+  clearInterval(rpTimer); rpTimer = null;
+  if (rp) rp.playing = false;
+  const b = document.getElementById("rp-play");
+  if (b) b.innerHTML = rpPlayIcon(false);
+}
+function rpPlayIcon(playing){
+  return playing
+    ? '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><span>Pause</span>'
+    : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z"/></svg><span>Lecture</span>';
+}
+
+/* ---------- Accueil : choix de la séance ---------- */
+function renderReplay(){
+  if (rp && !rp.done){ renderReplaySession(); return; }
+  replayPause();
+  const root = document.getElementById("replay-root");
+  if (!root) return;
+  const best = replayState().best;
+  const card = (s, mystery)=>{
+    const b = best[s.id];
+    return '<button type="button" class="rp-card'+(mystery?' is-mystery':'')+'" data-rp-start="'+s.id+'">'+
+      '<div class="rp-card-top"><span class="rp-chip">'+escapeHtml(s.label)+'</span><span class="rp-diff">'+escapeHtml(s.diff)+'</span></div>'+
+      '<h3>'+escapeHtml(s.title)+'</h3>'+
+      '<p>'+escapeHtml(s.teaser)+'</p>'+
+      '<div class="rp-card-foot">'+
+        '<span>'+(mystery ? 'Date cachée · '+s.hours+' h' : (s.dateLabel||rpDateLabel(s.start))+' · '+s.hours+' h')+'</span>'+
+        (typeof b==="number" ? '<b class="num '+(b>=0?'up':'down')+'">Record '+rpFmtPct(b)+'</b>' : '<b class="rp-new">Jouer →</b>')+
+      '</div>'+
+    '</button>';
+  };
+  root.innerHTML =
+    '<div class="rp">'+
+      '<section class="rp-hero">'+
+        '<div class="rp-hero-txt">'+
+          '<span class="rp-kicker">Replay · s\'entraîner sur le passé</span>'+
+          '<h1>Revis les grandes séances.<br><span>Trade-les mieux.</span></h1>'+
+          '<p>De vraies bougies d\'une minute, rejouées en accéléré. Tu vois le marché se construire bougie après bougie et tu prends position en direct. Capital fictif de '+fmtMoney(REPLAY_START_CASH)+', séparé de ton compte : aucun risque, que de l\'entraînement.</p>'+
+          '<div class="rp-hero-stats"><div><b class="num">'+REPLAY_SCENARIOS.length+'</b><span>séances historiques</span></div><div><b class="num">∞</b><span>séances mystère</span></div><div><b class="num">'+(replayState().plays||0)+'</b><span>séances jouées</span></div></div>'+
+        '</div>'+
+        '<div class="rp-hero-art" aria-hidden="true">'+rpHeroSvg()+'</div>'+
+      '</section>'+
+      '<div class="rp-grid">'+card(REPLAY_MYSTERY, true)+REPLAY_SCENARIOS.map(s=>card(s,false)).join("")+'</div>'+
+      '<p class="rp-note">Données : bougies 1 minute Binance (spot). Frais de 0,04 % par ordre, levier jusqu\'à x20, liquidation si la perte atteint la marge engagée. Seul ton meilleur résultat par séance est retenu au classement.</p>'+
+    '</div>';
+  root.querySelectorAll("[data-rp-start]").forEach(b=>b.addEventListener("click", ()=>startReplay(b.dataset.rpStart)));
+}
+function rpHeroSvg(){
+  // Petite série de bougies décorative (pseudo-aléatoire stable).
+  let s = 7, p = 60, out = "";
+  const rnd = ()=>{ s = (s*9301+49297)%233280; return s/233280; };
+  for (let i=0;i<26;i++){
+    const o = p, c = Math.max(14, Math.min(106, o + (rnd()-0.5)*26)), h = Math.max(o,c)+rnd()*8, l = Math.min(o,c)-rnd()*8;
+    const x = 8+i*11, up = c>=o, y = v=>120-v;
+    out += '<line x1="'+(x+3)+'" x2="'+(x+3)+'" y1="'+y(h).toFixed(1)+'" y2="'+y(l).toFixed(1)+'" class="'+(up?'u':'d')+'"/>'+
+      '<rect x="'+x+'" width="6" y="'+y(Math.max(o,c)).toFixed(1)+'" height="'+Math.max(1.5,Math.abs(c-o)).toFixed(1)+'" class="'+(up?'u':'d')+'"/>';
+    p = c;
+  }
+  return '<svg viewBox="0 0 300 130">'+out+'<line x1="0" x2="300" y1="58" y2="58" class="rp-hero-cursor"/></svg>';
+}
+
+/* ---------- Démarrage ---------- */
+async function startReplay(id){
+  const sc = rpScenario(id);
+  if (!sc) return;
+  replayPause();
+  const root = document.getElementById("replay-root");
+  let sym = sc.sym, label = sc.label, startMs = sc.start ? Date.parse(sc.start) : 0, hours = sc.hours;
+  if (id==="mystery"){
+    const pool = [["BTCUSDT","BTC"],["ETHUSDT","ETH"],["SOLUSDT","SOL"]];
+    const pick = pool[Math.floor(Math.random()*pool.length)];
+    sym = pick[0]; label = pick[1];
+    const from = Date.parse("2023-01-01T00:00:00Z"), to = Date.now() - 40*86400e3;
+    startMs = Math.floor((from + Math.random()*(to-from))/3600e3)*3600e3;
+  }
+  root.innerHTML = '<div class="rp rp-loading"><div class="rp-spin"></div><p>Chargement de la séance…</p></div>';
+  try{
+    const candles = await rpFetchCandles(sym, startMs, hours);
+    const mystery = id==="mystery";
+    // Séance mystère : prix ramenés à un indice (dernière bougie de contexte = 100)
+    // pour ne pas trahir l'actif ni l'époque. Les % restent identiques.
+    const k = mystery ? 100/candles[REPLAY_CONTEXT-1].c : 1;
+    const cs = k===1 ? candles : candles.map(c=>({t:c.t, o:c.o*k, h:c.h*k, l:c.l*k, c:c.c*k}));
+    rp = {
+      id, sc, sym, label, mystery, startMs, candles:cs, i:REPLAY_CONTEXT-1,
+      cash:REPLAY_START_CASH, pos:null, trades:[], curve:[REPLAY_START_CASH], peak:REPLAY_START_CASH, maxDD:0,
+      lev:5, sizePct:50, speedIdx:1, playing:false, done:false, liqCount:0,
+      dec: (candles[REPLAY_CONTEXT-1].c*k)<10 ? 4 : 2,
+    };
+    renderReplaySession();
+  }catch(e){
+    root.innerHTML = '<div class="rp rp-loading"><p>Impossible de charger les données de cette séance ('+escapeHtml((e&&e.code)||"réseau")+').</p>'+
+      '<div class="rp-actions"><button class="btn-primary" id="rp-retry">Réessayer</button><button class="btn-secondary" id="rp-back0">Autres séances</button></div></div>';
+    document.getElementById("rp-retry").addEventListener("click", ()=>startReplay(id));
+    document.getElementById("rp-back0").addEventListener("click", ()=>{ rp = null; renderReplay(); });
+  }
+}
+
+/* ---------- Moteur ---------- */
+function rpPrice(){ return rp.candles[rp.i].c; }
+// Séance mystère : niveau en points d'indice, sans signe dollar.
+function rpPx(v){ const t = fmtPrice(v, rp.dec); return rp.mystery ? t.replace("$","") : t; }
+function rpUpnl(price){
+  const p = rp.pos; if (!p) return 0;
+  return p.side==="long" ? (price-p.entry)*p.units : (p.entry-price)*p.units;
+}
+function rpEquity(price){ return rp.cash + (rp.pos ? rp.pos.margin + rpUpnl(price) : 0); }
+function rpOpen(side){
+  if (!rp || rp.done) return;
+  if (rp.pos && rp.pos.side===side) return;
+  if (rp.pos) rpClose("reverse");
+  const price = rpPrice();
+  const margin = Math.min(rp.cash, rpEquity(price)*rp.sizePct/100);
+  if (margin < 10){ rpFlash("Pas assez de capital disponible."); return; }
+  const notional = margin*rp.lev;
+  const fee = notional*REPLAY_FEE;
+  rp.cash -= margin + fee;
+  const liq = side==="long" ? price*(1-1/rp.lev) : price*(1+1/rp.lev);
+  rp.pos = {side, entry:price, units:notional/price, margin, notional, lev:rp.lev, liq, openI:rp.i, fees:fee};
+  if (!rp.playing) rpTogglePlay(); // ouvrir une position lance la lecture
+  rpPaint();
+}
+function rpClose(reason, atPrice){
+  const p = rp && rp.pos; if (!p) return;
+  const price = atPrice!=null ? atPrice : rpPrice();
+  let pnl = rpUpnl(price);
+  let fee = reason==="liq" ? 0 : p.units*price*REPLAY_FEE;
+  if (reason==="liq"){ pnl = -p.margin; rp.liqCount++; }
+  rp.cash += Math.max(0, p.margin + pnl) - fee;
+  rp.trades.push({side:p.side, openI:p.openI, closeI:rp.i, entry:p.entry, exit:price, pnl:pnl - fee - p.fees, lev:p.lev, reason});
+  rp.pos = null;
+  if (reason==="liq") rpFlash("Liquidé ! La perte a atteint ta marge (levier x"+p.lev+").");
+  rpPaint();
+}
+function rpStep(){
+  if (!rp || rp.done) return;
+  if (rp.i >= rp.candles.length-1){ rpFinish(); return; }
+  rp.i++;
+  const c = rp.candles[rp.i], p = rp.pos;
+  if (p){
+    // Liquidation intra-bougie (mèche).
+    if ((p.side==="long" && c.l<=p.liq) || (p.side==="short" && c.h>=p.liq)) rpClose("liq", p.liq);
+  }
+  const eq = rpEquity(c.c);
+  rp.curve.push(eq);
+  rp.peak = Math.max(rp.peak, eq);
+  rp.maxDD = Math.max(rp.maxDD, (rp.peak-eq)/rp.peak);
+  if (rp.i >= rp.candles.length-1){ rpPaint(); rpFinish(); return; }
+  rpPaint();
+}
+function rpTogglePlay(){
+  if (!rp || rp.done) return;
+  if (rp.playing){ replayPause(); return; }
+  rp.playing = true;
+  clearInterval(rpTimer);
+  rpTimer = setInterval(()=>{
+    const v = document.getElementById("view-replay");
+    if (!v || !v.classList.contains("active")){ replayPause(); return; }
+    rpStep();
+  }, 1000/REPLAY_SPEEDS[rp.speedIdx]);
+  const b = document.getElementById("rp-play");
+  if (b) b.innerHTML = rpPlayIcon(true);
+}
+function rpSetSpeed(idx){
+  rp.speedIdx = idx;
+  document.querySelectorAll("[data-rp-speed]").forEach(b=>b.classList.toggle("is-on", +b.dataset.rpSpeed===idx));
+  if (rp.playing){ rp.playing = false; rpTogglePlay(); }
+}
+function rpFlash(msg){
+  const el = document.getElementById("rp-flash");
+  if (!el) return;
+  el.textContent = msg; el.hidden = false;
+  clearTimeout(rpFlash._t); rpFlash._t = setTimeout(()=>{ el.hidden = true; }, 3500);
+}
+
+/* ---------- Écran de séance ---------- */
+function renderReplaySession(){
+  const root = document.getElementById("replay-root");
+  if (!root || !rp) return;
+  const sc = rp.sc;
+  root.innerHTML =
+    '<div class="rp rp-session">'+
+      '<div class="rp-top">'+
+        '<button type="button" class="kn-quiz-quit" id="rp-quit">← Séances</button>'+
+        '<div class="rp-top-title"><b>'+escapeHtml(rp.mystery ? "Séance mystère" : sc.title)+'</b><span>'+(rp.mystery ? "Actif et date cachés · prix en indice" : escapeHtml(rp.label)+" · "+(sc.dateLabel||rpDateLabel(sc.start)))+'</span></div>'+
+        '<div class="rp-prog"><i id="rp-prog"></i></div>'+
+      '</div>'+
+      '<div class="rp-layout">'+
+        '<div class="rp-chart-card">'+
+          '<div class="rp-chart-head">'+
+            '<div class="rp-px"><span id="rp-sym">'+escapeHtml(rp.mystery ? "INDICE" : rp.label)+'</span><b class="num" id="rp-price">—</b><em class="num" id="rp-clock">—</em></div>'+
+            '<div class="rp-flash" id="rp-flash" hidden></div>'+
+          '</div>'+
+          '<canvas id="rp-canvas"></canvas>'+
+          '<div class="rp-transport">'+
+            '<button type="button" class="rp-play" id="rp-play">'+rpPlayIcon(false)+'</button>'+
+            '<button type="button" class="rp-tbtn" id="rp-next" title="Bougie suivante (→)">+1</button>'+
+            '<div class="rp-speeds">'+REPLAY_SPEEDS.map((s,i)=>'<button type="button" data-rp-speed="'+i+'" class="'+(i===rp.speedIdx?'is-on':'')+'">x'+(s*60)+'</button>').join("")+'</div>'+
+            '<button type="button" class="rp-tbtn rp-end" id="rp-end">Terminer</button>'+
+          '</div>'+
+          // Mobile : boutons d'ordre juste sous le graphique (le panneau passe dessous).
+          '<div class="rp-quick">'+
+            '<button type="button" class="rp-long" data-rp-act="long">Long</button>'+
+            '<button type="button" class="rp-short" data-rp-act="short">Short</button>'+
+            '<button type="button" class="rp-close" data-rp-act="close">Fermer</button>'+
+            '<span class="rp-quick-pnl num" id="rp-quick-pnl"></span>'+
+          '</div>'+
+        '</div>'+
+        '<aside class="rp-panel">'+
+          '<div class="rp-eq"><span>Capital</span><b class="num" id="rp-eq">—</b><em class="num" id="rp-ret">—</em></div>'+
+          '<div class="rp-posbox" id="rp-posbox"></div>'+
+          '<div class="rp-field"><span>Taille (part du capital)</span><div class="rp-seg" id="rp-size">'+[10,25,50,100].map(v=>'<button type="button" data-rp-size="'+v+'" class="'+(v===rp.sizePct?'is-on':'')+'">'+v+' %</button>').join("")+'</div></div>'+
+          '<div class="rp-field"><span>Levier</span><div class="rp-seg" id="rp-lev">'+[1,2,5,10,20].map(v=>'<button type="button" data-rp-lev="'+v+'" class="'+(v===rp.lev?'is-on':'')+'">x'+v+'</button>').join("")+'</div></div>'+
+          '<div class="rp-orders">'+
+            '<button type="button" class="rp-long" id="rp-long">Long <kbd>L</kbd></button>'+
+            '<button type="button" class="rp-short" id="rp-short">Short <kbd>S</kbd></button>'+
+          '</div>'+
+          '<button type="button" class="rp-close" id="rp-closebtn">Fermer la position <kbd>C</kbd></button>'+
+          '<div class="rp-mini"><span>Trades <b class="num" id="rp-ntr">0</b></span><span>Drawdown max <b class="num" id="rp-dd">0 %</b></span></div>'+
+          '<p class="rp-hint"><kbd>Espace</kbd> lecture/pause · <kbd>→</kbd> bougie suivante</p>'+
+        '</aside>'+
+      '</div>'+
+    '</div>';
+  document.getElementById("rp-quit").addEventListener("click", ()=>{
+    if (rp && !rp.done && (rp.trades.length || rp.pos) && !confirm("Quitter la séance ? Elle ne sera pas comptée.")) return;
+    replayPause(); rp = null; renderReplay();
+  });
+  document.getElementById("rp-play").addEventListener("click", rpTogglePlay);
+  document.getElementById("rp-next").addEventListener("click", ()=>{ replayPause(); rpStep(); });
+  document.getElementById("rp-end").addEventListener("click", ()=>{ if (confirm("Terminer la séance maintenant ? Ta position éventuelle sera fermée au prix actuel.")) rpFinish(); });
+  root.querySelectorAll("[data-rp-speed]").forEach(b=>b.addEventListener("click", ()=>rpSetSpeed(+b.dataset.rpSpeed)));
+  root.querySelectorAll("[data-rp-size]").forEach(b=>b.addEventListener("click", ()=>{ rp.sizePct = +b.dataset.rpSize; root.querySelectorAll("[data-rp-size]").forEach(x=>x.classList.toggle("is-on", x===b)); }));
+  root.querySelectorAll("[data-rp-lev]").forEach(b=>b.addEventListener("click", ()=>{ rp.lev = +b.dataset.rpLev; root.querySelectorAll("[data-rp-lev]").forEach(x=>x.classList.toggle("is-on", x===b)); }));
+  root.querySelectorAll("[data-rp-act]").forEach(b=>b.addEventListener("click", ()=>{ const a = b.dataset.rpAct; if (a==="close") rpClose("manual"); else rpOpen(a); }));
+  document.getElementById("rp-long").addEventListener("click", ()=>rpOpen("long"));
+  document.getElementById("rp-short").addEventListener("click", ()=>rpOpen("short"));
+  document.getElementById("rp-closebtn").addEventListener("click", ()=>rpClose("manual"));
+  rpPaint();
+}
+function rpPaint(){
+  if (!rp) return;
+  const price = rpPrice(), eq = rpEquity(price), ret = (eq/REPLAY_START_CASH-1)*100;
+  const set = (id, html, cls)=>{ const el = document.getElementById(id); if (!el) return; el.innerHTML = html; if (cls!=null) el.className = cls; };
+  set("rp-price", rpPx(price));
+  const elapsed = rp.i-(REPLAY_CONTEXT-1);
+  set("rp-clock", rp.mystery ? "T+"+Math.floor(elapsed/60)+" h "+String(elapsed%60).padStart(2,"0") : new Date(rp.candles[rp.i].t).toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit", timeZone:"UTC"})+" UTC");
+  set("rp-eq", fmtMoney(eq));
+  set("rp-ret", rpFmtPct(ret), "num "+(ret>=0?"up":"down"));
+  set("rp-ntr", String(rp.trades.length));
+  set("rp-dd", (rp.maxDD*100).toFixed(1).replace(".",",")+" %");
+  const prog = document.getElementById("rp-prog");
+  if (prog) prog.style.width = ((rp.i-(REPLAY_CONTEXT-1))/(rp.candles.length-REPLAY_CONTEXT)*100).toFixed(1)+"%";
+  const pb = document.getElementById("rp-posbox");
+  if (pb){
+    const p = rp.pos;
+    if (!p) pb.innerHTML = '<div class="rp-flat">Aucune position. Choisis Long ou Short.</div>';
+    else {
+      const u = rpUpnl(price), pct = u/p.margin*100;
+      pb.innerHTML = '<div class="rp-pos '+p.side+'"><div><b>'+(p.side==="long"?"Long":"Short")+' x'+p.lev+'</b><span>Entrée '+rpPx(p.entry)+' · Liq. '+rpPx(p.liq)+'</span></div>'+
+        '<div class="rp-pos-pnl num '+(u>=0?'up':'down')+'">'+fmtMoneySigned(u)+'<em>'+rpFmtPct(pct)+'</em></div></div>';
+    }
+  }
+  const cb = document.getElementById("rp-closebtn");
+  if (cb) cb.disabled = !rp.pos;
+  const qc = document.querySelector('[data-rp-act="close"]');
+  if (qc) qc.disabled = !rp.pos;
+  const qp = document.getElementById("rp-quick-pnl");
+  if (qp){
+    if (rp.pos){ const u = rpUpnl(price); qp.textContent = (rp.pos.side==="long"?"L ":"S ")+fmtMoneySigned(u); qp.className = "rp-quick-pnl num "+(u>=0?"up":"down"); }
+    else { qp.textContent = rpFmtPct(ret); qp.className = "rp-quick-pnl num "+(ret>=0?"up":"down"); }
+  }
+  rpDraw();
+}
+function rpDraw(){
+  const cv = document.getElementById("rp-canvas");
+  if (!cv || !rp) return;
+  const dpr = window.devicePixelRatio||1;
+  const W = cv.clientWidth, H = cv.clientHeight;
+  if (!W || !H) return;
+  if (cv.width!==Math.round(W*dpr) || cv.height!==Math.round(H*dpr)){ cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr); }
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+  const css = getComputedStyle(document.documentElement);
+  const cUp = (css.getPropertyValue("--long")||"#31c882").trim(), cDn = (css.getPropertyValue("--short")||"#f0546a").trim();
+  const cGrid = (css.getPropertyValue("--border-soft")||"#333").trim(), cTxt = (css.getPropertyValue("--text-faint")||"#888").trim();
+  const padR = 62, padB = 6, padT = 8;
+  const n = Math.max(30, Math.min(140, Math.floor((W-padR)/7)));
+  const from = Math.max(0, rp.i-n+1);
+  const vis = rp.candles.slice(from, rp.i+1);
+  let lo = Math.min(...vis.map(c=>c.l)), hi = Math.max(...vis.map(c=>c.h));
+  if (rp.pos){ lo = Math.min(lo, rp.pos.entry); hi = Math.max(hi, rp.pos.entry); }
+  const padP = (hi-lo)*0.08 || hi*0.001;
+  lo -= padP; hi += padP;
+  const y = v=>padT + (1-(v-lo)/(hi-lo))*(H-padT-padB);
+  const step = (W-padR)/n, bw = Math.max(2, step*0.62);
+  // grille + axe
+  ctx.font = "10px "+(css.getPropertyValue("--mono")||"monospace");
+  ctx.fillStyle = cTxt; ctx.strokeStyle = cGrid; ctx.lineWidth = 1;
+  for (let g=0; g<=4; g++){
+    const v = lo + (hi-lo)*g/4, yy = Math.round(y(v))+0.5;
+    ctx.globalAlpha = .5; ctx.beginPath(); ctx.moveTo(0,yy); ctx.lineTo(W-padR,yy); ctx.stroke(); ctx.globalAlpha = 1;
+    ctx.fillText(fmtPrice(v, rp.dec).replace("$",""), W-padR+6, yy+3);
+  }
+  // zone de contexte (avant le départ)
+  const ctxEnd = (REPLAY_CONTEXT-1) - from;
+  if (ctxEnd >= 0){
+    ctx.fillStyle = cGrid; ctx.globalAlpha = .25;
+    ctx.fillRect(0, 0, Math.min(W-padR, (ctxEnd+1)*step), H);
+    ctx.globalAlpha = 1;
+  }
+  // bougies
+  vis.forEach((c, k)=>{
+    const x = k*step + step/2, up = c.c>=c.o;
+    ctx.strokeStyle = ctx.fillStyle = up ? cUp : cDn;
+    ctx.beginPath(); ctx.moveTo(Math.round(x)+0.5, y(c.h)); ctx.lineTo(Math.round(x)+0.5, y(c.l)); ctx.stroke();
+    const top = y(Math.max(c.o,c.c)), h = Math.max(1, Math.abs(y(c.o)-y(c.c)));
+    ctx.fillRect(x-bw/2, top, bw, h);
+  });
+  // marqueurs des trades
+  const mark = (idx, price, color, upArrow)=>{
+    if (idx<from) return;
+    const x = (idx-from)*step + step/2, yy = y(price);
+    ctx.fillStyle = color; ctx.beginPath();
+    if (upArrow){ ctx.moveTo(x, yy+4); ctx.lineTo(x-5, yy+12); ctx.lineTo(x+5, yy+12); }
+    else { ctx.moveTo(x, yy-4); ctx.lineTo(x-5, yy-12); ctx.lineTo(x+5, yy-12); }
+    ctx.fill();
+  };
+  rp.trades.forEach(t=>{ mark(t.openI, t.entry, t.side==="long"?cUp:cDn, t.side==="long"); mark(t.closeI, t.exit, cTxt, t.side!=="long"); });
+  // position ouverte
+  const price = rpPrice();
+  if (rp.pos){
+    const p = rp.pos, col = p.side==="long" ? cUp : cDn;
+    mark(p.openI, p.entry, col, p.side==="long");
+    ctx.setLineDash([4,3]); ctx.strokeStyle = col; ctx.globalAlpha = .9;
+    ctx.beginPath(); ctx.moveTo(0, y(p.entry)); ctx.lineTo(W-padR, y(p.entry)); ctx.stroke();
+    if (p.liq>lo && p.liq<hi){ ctx.strokeStyle = cDn; ctx.globalAlpha = .55; ctx.beginPath(); ctx.moveTo(0, y(p.liq)); ctx.lineTo(W-padR, y(p.liq)); ctx.stroke(); }
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+  }
+  // prix courant
+  const yy = y(price), last = rp.candles[rp.i];
+  ctx.fillStyle = last.c>=last.o ? cUp : cDn;
+  ctx.fillRect(W-padR+1, yy-8, padR-2, 16);
+  ctx.fillStyle = "#0b0b0b"; ctx.font = "bold 10px "+(css.getPropertyValue("--mono")||"monospace");
+  ctx.fillText(fmtPrice(price, rp.dec).replace("$",""), W-padR+5, yy+3.5);
+}
+
+/* ---------- Fin de séance ---------- */
+async function rpFinish(){
+  if (!rp || rp.done) return;
+  replayPause();
+  if (rp.pos) rpClose("end");
+  rp.done = true;
+  const eq = rp.cash, ret = (eq/REPLAY_START_CASH-1)*100;
+  const first = rp.candles[REPLAY_CONTEXT-1].c, lastC = rp.candles[rp.i].c;
+  const bh = (lastC/first-1)*100;
+  const wins = rp.trades.filter(t=>t.pnl>0).length;
+  const bestT = rp.trades.reduce((m,t)=>Math.max(m,t.pnl), -Infinity);
+  const st = replayState();
+  st.plays = (st.plays||0)+1;
+  const prev = st.best[rp.id];
+  const counted = rp.trades.length>0; // une séance sans aucun trade ne compte pas au classement
+  const isRecord = counted && (typeof prev!=="number" || ret>prev);
+  if (isRecord) st.best[rp.id] = Math.round(ret*100)/100;
+  persistAccount();
+  const sc = rp.sc;
+  const realTitle = rp.mystery ? rp.label+" · "+rpDateLabel(new Date(rp.startMs).toISOString()) : sc.title;
+  const root = document.getElementById("replay-root");
+  root.innerHTML =
+    '<div class="rp rp-result">'+
+      '<div class="rp-res-hero '+(ret>=0?'is-up':'is-down')+'">'+
+        '<span class="rp-kicker">'+(rp.mystery ? "Séance mystère révélée" : "Séance terminée")+'</span>'+
+        '<h1 class="num">'+rpFmtPct(ret)+'</h1>'+
+        '<p>'+fmtMoney(REPLAY_START_CASH)+' → <b class="num">'+fmtMoney(eq)+'</b>'+(isRecord ? ' · <span class="rp-rec">🏆 Nouveau record</span>' : (typeof prev==="number" ? ' · record '+rpFmtPct(prev) : ''))+(!counted ? ' · <em>aucun trade : non classé</em>' : '')+'</p>'+
+      '</div>'+
+      '<div class="rp-res-tiles">'+
+        '<div><span>Acheter et garder</span><b class="num '+(bh>=0?'up':'down')+'">'+rpFmtPct(bh)+'</b><em>'+(ret>bh ? "battu ✓" : "non battu")+'</em></div>'+
+        '<div><span>Trades</span><b class="num">'+rp.trades.length+'</b><em>'+(rp.trades.length ? wins+' gagnant'+(wins>1?'s':'') : '—')+'</em></div>'+
+        '<div><span>Drawdown max</span><b class="num">'+(rp.maxDD*100).toFixed(1).replace(".",",")+' %</b><em>'+(rp.liqCount ? rp.liqCount+' liquidation'+(rp.liqCount>1?'s':'') : 'aucune liquidation')+'</em></div>'+
+        '<div><span>Meilleur trade</span><b class="num '+(bestT>0?'up':'')+'">'+(isFinite(bestT) ? fmtMoneySigned(bestT) : '—')+'</b><em>&nbsp;</em></div>'+
+      '</div>'+
+      '<div class="rp-res-grid">'+
+        '<section class="rp-story"><h2>'+escapeHtml(realTitle)+'</h2>'+
+          '<p>'+escapeHtml(rp.mystery ? "C'était "+rp.label+" le "+rpDateLabel(new Date(rp.startMs).toISOString())+", à partir de "+new Date(rp.startMs).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit",timeZone:"UTC"})+" UTC. Les prix étaient affichés en indice (100 au départ) pour cacher le niveau réel." : sc.story)+'</p>'+
+          '<canvas id="rp-res-curve" class="rp-res-curve"></canvas>'+
+          '<p class="rp-cap">Ton capital au fil de la séance.</p>'+
+        '</section>'+
+        '<section class="rp-lb"><h2>Classement de la séance</h2><div id="rp-lb">'+(rp.mystery ? '<p class="rp-cap">Les séances mystère sont toutes différentes : pas de classement, seulement ton record personnel.</p>' : '<p class="rp-cap">Chargement…</p>')+'</div></section>'+
+      '</div>'+
+      '<div class="rp-actions">'+
+        '<button class="btn-primary" id="rp-again">'+(rp.mystery ? "Nouvelle séance mystère" : "Rejouer cette séance")+'</button>'+
+        '<button class="btn-secondary" id="rp-back">Autres séances</button>'+
+      '</div>'+
+    '</div>';
+  const id = rp.id;
+  document.getElementById("rp-again").addEventListener("click", ()=>startReplay(id));
+  document.getElementById("rp-back").addEventListener("click", ()=>{ rp = null; renderReplay(); });
+  rpDrawCurve();
+  if (!rp.mystery) rpLoadLeaderboard(id);
+}
+function rpDrawCurve(){
+  const cv = document.getElementById("rp-res-curve");
+  if (!cv || !rp) return;
+  const dpr = window.devicePixelRatio||1, W = cv.clientWidth, H = cv.clientHeight;
+  if (!W || !H) return;
+  cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr);
+  const ctx = cv.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
+  const css = getComputedStyle(document.documentElement);
+  const pts = rp.curve, lo = Math.min(...pts, REPLAY_START_CASH), hi = Math.max(...pts, REPLAY_START_CASH);
+  const y = v=>4+(1-(v-lo)/((hi-lo)||1))*(H-8), x = i=>i/(Math.max(1,pts.length-1))*W;
+  ctx.strokeStyle = (css.getPropertyValue("--border-soft")||"#333").trim(); ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(0,y(REPLAY_START_CASH)); ctx.lineTo(W,y(REPLAY_START_CASH)); ctx.stroke(); ctx.setLineDash([]);
+  const up = pts[pts.length-1]>=REPLAY_START_CASH;
+  ctx.strokeStyle = (css.getPropertyValue(up?"--long":"--short")||"#31c882").trim(); ctx.lineWidth = 2;
+  ctx.beginPath(); pts.forEach((v,i)=>{ if (i) ctx.lineTo(x(i),y(v)); else ctx.moveTo(x(i),y(v)); }); ctx.stroke();
+}
+async function rpLoadLeaderboard(id){
+  const box = document.getElementById("rp-lb");
+  if (!box) return;
+  if (!dbReady || !db){ box.innerHTML = '<p class="rp-cap">Classement indisponible hors connexion.</p>'; return; }
+  try{
+    const snap = await db.collection("traders").orderBy("replayBest."+id, "desc").limit(10).get();
+    const rows = snap.docs.map(d=>({id:d.id, d:d.data()})).filter(r=>r.d.replayBest && typeof r.d.replayBest[id]==="number");
+    // Ton record qui vient d'être battu n'est peut-être pas encore enregistré
+    // côté serveur au moment de cette lecture : on l'intègre localement.
+    const mine = replayState().best[id];
+    if (typeof mine==="number"){
+      const me = rows.find(r=>r.id===clientId);
+      if (me) me.d = Object.assign({}, me.d, {replayBest:Object.assign({}, me.d.replayBest, {[id]:mine})});
+      else rows.push({id:clientId, d:{username:state.username, replayBest:{[id]:mine}}});
+      rows.sort((a,b)=>b.d.replayBest[id]-a.d.replayBest[id]);
+      if (rows.length>10 && rows[10].id!==clientId) rows.length = 10;
+    }
+    if (!rows.length){ box.innerHTML = '<p class="rp-cap">Personne n\'est encore classé sur cette séance.</p>'; return; }
+    box.innerHTML = '<ol class="rp-lb-list">'+rows.map((r,i)=>{
+      const v = r.d.replayBest[id];
+      return '<li class="'+(r.id===clientId?'is-me':'')+'"><span class="rp-lb-rk">'+(i+1)+'</span><span class="rp-lb-name">'+escapeHtml(r.d.username||"Trader")+(r.id===clientId?' <em>(toi)</em>':'')+'</span><b class="num '+(v>=0?'up':'down')+'">'+rpFmtPct(v)+'</b></li>';
+    }).join("")+'</ol>';
+  }catch(e){
+    box.innerHTML = '<p class="rp-cap">Classement indisponible pour le moment.</p>';
+  }
+}
+window.addEventListener("resize", ()=>{ if (rp && !rp.done) rpDraw(); });
+document.addEventListener("keydown", (e)=>{
+  if (!rp || rp.done || e.ctrlKey || e.metaKey || e.altKey) return;
+  const v = document.getElementById("view-replay");
+  if (!v || !v.classList.contains("active")) return;
+  const t = e.target;
+  if (t && (t.tagName==="INPUT" || t.tagName==="TEXTAREA" || t.isContentEditable)) return;
+  const k = e.key.toLowerCase();
+  if (k===" "){ e.preventDefault(); rpTogglePlay(); }
+  else if (k==="arrowright"){ e.preventDefault(); replayPause(); rpStep(); }
+  else if (k==="l"){ e.preventDefault(); rpOpen("long"); }
+  else if (k==="s"){ e.preventDefault(); rpOpen("short"); }
+  else if (k==="c"){ e.preventDefault(); rpClose("manual"); }
+});
+
 /* ============================= SHELL (sidebar / topbar / mobile bar) ============================= */
 // Refonte 2026-09. The sidebar and the mobile bottom bar are both
 // <nav class="tabs"> so every existing "nav.tabs button" query (click
@@ -17091,7 +17757,7 @@ document.addEventListener("keydown", (e)=>{
 // badges, admin visibility) keeps working unchanged on both.
 const VIEW_TITLES = {
   terminal:"Terminal", news:"News", chat:"Chat", leaderboard:"Classement", concoursedbplus:"Concours EDB+",
-  challenge:"Challenge Prop Firm", quiz:"Connaissances", resources:"Ressources", edbplus:"EDB+",
+  challenge:"Challenge Prop Firm", replay:"Replay", quiz:"Connaissances", resources:"Ressources", edbplus:"EDB+",
   tradesedb:"Trades EDB+", profile:"Profil", admin:"Admin", invest:"Investissement",
 };
 const SIDEBAR_KEY = "paperTapeSidebar"; // "full" | "rail" — per-browser preference, like the theme
@@ -17217,6 +17883,8 @@ function switchView(name){
   if (name==="resources"){
     renderResources();
   }
+  if (name==="replay") renderReplay();
+  else if (typeof replayPause==="function") replayPause();
   if (name==="profile"){
     renderEquityCurve();
     renderBadgesGrid();
