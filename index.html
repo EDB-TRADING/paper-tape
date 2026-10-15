@@ -3773,6 +3773,42 @@
   .rp-lb-list b{font-family:var(--mono);}
   .rp-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px;}
   .rp-actions button{padding:12px 20px;}
+  .rp-tpsl{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-family:var(--mono);font-size:12px;}
+  .rp-tpsl .tp{color:var(--long);} .rp-tpsl .sl{color:var(--short);}
+  .rp-tpsl button{font:inherit;font-size:11px;color:var(--text-faint);background:none;border:1px solid var(--border-soft);border-radius:5px;padding:0 5px;margin-left:4px;cursor:pointer;}
+  .rp-tpsl button:hover{color:var(--text);border-color:var(--border);}
+  .rp-tpsl-hint{margin-top:6px;font-size:11.5px;color:var(--text-faint);line-height:1.45;}
+  .rp-hero-ctas{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 18px;}
+  .rp-hero-ctas .btn-primary, .rp-hero-ctas .btn-secondary{padding:12px 18px;}
+  .rp-player{background:rgba(10,10,10,.55);border:1px solid var(--border-soft);border-radius:14px;padding:10px 12px 10px;box-shadow:0 18px 40px -24px rgba(0,0,0,.8);}
+  .rp-player-top{display:flex;align-items:center;gap:10px;margin-bottom:6px;font-size:11px;}
+  .rp-player-live{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-weight:700;letter-spacing:.08em;color:var(--accent);}
+  .rp-player-live i{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:rpBlink 1.4s ease-in-out infinite;}
+  @keyframes rpBlink{50%{opacity:.25;}}
+  .rp-player-sym{font-family:var(--mono);color:var(--text-dim);}
+  .rp-player-pnl{margin-left:auto;font-family:var(--mono);font-weight:700;color:var(--long);}
+  .rp-player-svg{display:block;width:100%;height:150px;}
+  .rp-player-svg .u{fill:var(--long);stroke:var(--long);}
+  .rp-player-svg .d{fill:var(--short);stroke:var(--short);}
+  .rp-player-svg line.u, .rp-player-svg line.d{stroke-width:1;}
+  .rp-grid-l{stroke:var(--border-soft);stroke-width:1;opacity:.6;}
+  .rp-entry-l{stroke:var(--long);stroke-width:1;stroke-dasharray:4 3;}
+  .rp-entry-tag{fill:rgba(12,12,12,.85);stroke:var(--long);stroke-width:.8;}
+  .rp-entry-txt{fill:var(--long);font:700 7.5px var(--mono);}
+  .rp-hatch-line{stroke:var(--border);stroke-width:1.2;opacity:.55;}
+  .rp-future{opacity:.9;}
+  .rp-now{stroke:var(--accent);stroke-width:1.4;stroke-dasharray:3 3;}
+  .rp-now-dot{fill:var(--accent);}
+  .rp-q{fill:var(--text-faint);font:700 34px var(--sans);text-anchor:middle;opacity:.6;}
+  .rp-now-txt{fill:var(--accent);font:600 8px var(--mono);letter-spacing:.04em;}
+  .rp-player-bar{display:flex;align-items:center;gap:10px;margin-top:6px;}
+  .rp-player-btn{width:24px;height:24px;border-radius:7px;background:var(--accent);color:#fff;font-size:9px;display:inline-flex;align-items:center;justify-content:center;}
+  .rp-player-prog{flex:1;height:4px;border-radius:2px;background:var(--panel-2);overflow:hidden;}
+  .rp-player-prog i{display:block;height:100%;width:62%;background:var(--accent);}
+  .rp-player-spd{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);}
+  .rp-hero-stats > div{position:relative;}
+  .rp-mini-bar{display:block;height:3px;border-radius:2px;background:var(--panel-2);margin-top:6px;overflow:hidden;}
+  .rp-mini-bar > i{display:block;height:100%;background:var(--accent);}
   .rp-quick{display:none;}
   @media (max-width:1000px){
     .rp-quick{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;align-items:center;margin-top:10px;}
@@ -3858,6 +3894,8 @@
     .rp-form{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
     .rp-f:first-child{grid-column:1/-1;}
     .rp-box-foot .btn-primary{width:100%;}
+    .rp-hero-ctas .btn-primary, .rp-hero-ctas .btn-secondary{flex:1 1 100%;}
+    .rp-player-svg{height:115px;}
     .rp-box{padding:16px;}
     .rp-sec-head h2{font-size:19px;}
   }
@@ -17353,18 +17391,29 @@ function rpFmtPct(v){ return (v>=0?"+":"")+v.toFixed(2).replace(".",",")+" %"; }
 function rpDateLabel(iso){
   try{ return new Date(iso).toLocaleDateString("fr-FR", {day:"numeric", month:"long", year:"numeric", timeZone:"UTC"}); }catch(e){ return iso.slice(0,10); }
 }
+// Bougies 1 min : spot Binance d'abord, puis le perp Binance (USDⓈ-M) du même
+// symbole si le spot n'existe pas ou n'a pas d'historique à cette date (HYPE,
+// ASTER… sont surtout cotés en perp). out.base = l'API qui a répondu, réutilisée
+// pour les unités de temps supérieures.
 async function rpFetchCandles(sym, startMs, hours){
   const key = sym+"|"+startMs+"|"+hours;
   if (rpCandleCache[key]) return rpCandleCache[key];
   const endMs = startMs + hours*3600e3 - 1;
-  const url = BINANCE_API_BASE+"/klines?symbol="+encodeURIComponent(sym)+"&interval=1m&startTime="+startMs+"&endTime="+endMs+"&limit=1000";
-  const res = await fetch(url, {signal:AbortSignal.timeout(12000)});
-  if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
-  const raw = await res.json();
-  if (!Array.isArray(raw) || raw.length < REPLAY_CONTEXT+30){ const e = new Error("not_enough"); e.code = "not_enough"; throw e; }
-  const out = raw.map(r=>({t:Number(r[0]), o:+r[1], h:+r[2], l:+r[3], c:+r[4]})).filter(c=>isFinite(c.o)&&isFinite(c.c));
-  rpCandleCache[key] = out;
-  return out;
+  let lastErr = null;
+  for (const base of [BINANCE_API_BASE, BINANCE_FAPI_BASE]){
+    try{
+      const url = base+"/klines?symbol="+encodeURIComponent(sym)+"&interval=1m&startTime="+startMs+"&endTime="+endMs+"&limit=1000";
+      const res = await fetch(url, {signal:AbortSignal.timeout(12000)});
+      if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
+      const raw = await res.json();
+      if (!Array.isArray(raw) || raw.length < REPLAY_CONTEXT+30){ const e = new Error("not_enough"); e.code = "not_enough"; throw e; }
+      const out = raw.map(r=>({t:Number(r[0]), o:+r[1], h:+r[2], l:+r[3], c:+r[4]})).filter(c=>isFinite(c.o)&&isFinite(c.c));
+      out.base = base;
+      rpCandleCache[key] = out;
+      return out;
+    }catch(e){ if (!lastErr || lastErr.code!=="not_enough") lastErr = e; }
+  }
+  throw lastErr;
 }
 function replayPause(){
   clearInterval(rpTimer); rpTimer = null;
@@ -17382,7 +17431,8 @@ function rpPlayIcon(playing){
 // Actifs rejouables : tout marché du terminal coté au comptant sur Binance
 // (bougies 1 min historiques), hors forex. L'or passe par PAXG.
 function rpAssets(){
-  return visibleAssets().filter(a=>a.binanceSymbol && a.cat!=="forex")
+  // L'or (PAXG) est exclu : en 1 min, la paire est trop peu liquide (bougies plates, trous).
+  return visibleAssets().filter(a=>a.binanceSymbol && a.cat!=="forex" && a.symbol!=="GOLD")
     .map(a=>({sym:a.binanceSymbol, label:a.symbol, name:a.symbol==="GOLD" ? "Or (PAXG)" : a.name, icon:a.icon, color:a.color}));
 }
 // Date approximative de première cotation Binance, pour ne pas tirer une
@@ -17447,15 +17497,23 @@ function renderReplay(){
         '<div class="rp-hero-txt">'+
           '<span class="rp-kicker">Replay · s\'entraîner sur le passé</span>'+
           '<h1>Revis le marché.<br><span>Trade-le mieux.</span></h1>'+
-          '<p>De vraies bougies d\'une minute, rejouées en accéléré : le graphique se construit sous tes yeux et tu prends position en direct. '+fmtMoney(REPLAY_START_CASH)+' fictifs, séparés de ton compte. Aucun risque, que de l\'entraînement.</p>'+
-          '<ol class="rp-steps"><li><b>1</b>Choisis une séance</li><li><b>2</b>Lance la lecture</li><li><b>3</b>Long, short, ferme</li></ol>'+
+          '<p>De vraies bougies d\'une minute, rejouées en accéléré. Le graphique se construit sous tes yeux, la suite reste cachée : à toi de lire le marché et de prendre position. '+fmtMoney(REPLAY_START_CASH)+' fictifs, séparés de ton compte.</p>'+
+          '<div class="rp-hero-ctas">'+
+            '<button type="button" class="btn-primary" id="rp-hero-mystery">Lancer une séance mystère</button>'+
+            '<button type="button" class="btn-secondary" id="rp-hero-moments">Les grands moments ↓</button>'+
+          '</div>'+
+          '<ol class="rp-steps"><li><b>1</b>Choisis une séance</li><li><b>2</b>Lance la lecture</li><li><b>3</b>Long, short, TP / SL</li></ol>'+
         '</div>'+
         '<div class="rp-hero-side">'+
-          '<div class="rp-hero-art" aria-hidden="true">'+rpHeroSvg()+'</div>'+
+          '<div class="rp-player" aria-hidden="true">'+
+            '<div class="rp-player-top"><span class="rp-player-live"><i></i>REPLAY</span><span class="rp-player-sym">BTC · 1m</span><span class="rp-player-pnl num">+$412.80</span></div>'+
+            rpHeroSvg()+
+            '<div class="rp-player-bar"><span class="rp-player-btn">❚❚</span><span class="rp-player-prog"><i></i></span><span class="rp-player-spd">3 bougies/s</span></div>'+
+          '</div>'+
           '<div class="rp-hero-stats">'+
-            '<div><b class="num">'+(st.plays||0)+'</b><span>séances jouées</span></div>'+
+            '<div><b class="num">'+(st.plays||0)+'</b><span>séance'+((st.plays||0)>1?'s':'')+' jouée'+((st.plays||0)>1?'s':'')+'</span></div>'+
             '<div><b class="num '+(topBest==null?'':(topBest>=0?'up':'down'))+'">'+(topBest==null ? '—' : rpFmtPct(topBest))+'</b><span>meilleur résultat</span></div>'+
-            '<div><b class="num">'+ranked+'<em>/'+REPLAY_SCENARIOS.length+'</em></b><span>moments classés</span></div>'+
+            '<div><b class="num">'+ranked+'<em>/'+REPLAY_SCENARIOS.length+'</em></b><span>moments classés</span><i class="rp-mini-bar"><i style="width:'+Math.round(ranked/REPLAY_SCENARIOS.length*100)+'%"></i></i></div>'+
           '</div>'+
         '</div>'+
       '</section>'+
@@ -17494,6 +17552,10 @@ function renderReplay(){
       '<p class="rp-note">Données : bougies 1 minute Binance (spot). Frais de 0,04 % par ordre, levier jusqu\'à x20, liquidation si la perte atteint la marge engagée.</p>'+
     '</div>';
   root.querySelectorAll("[data-rp-start]").forEach(b=>b.addEventListener("click", ()=>startReplay(b.dataset.rpStart)));
+  document.getElementById("rp-hero-mystery").addEventListener("click", ()=>document.getElementById("rp-go-mystery").click());
+  document.getElementById("rp-hero-moments").addEventListener("click", ()=>{ const g = root.querySelector(".rp-sec-head"); if (g) g.scrollIntoView({behavior:"smooth", block:"start"}); });
+  // Mystère : préférence d'actif qui n'existe plus (ex. l'or retiré) → « Au hasard »
+  if (!root.querySelector("[data-rp-mys].is-on")){ const a = root.querySelector('[data-rp-mys="any"]'); if (a) a.classList.add("is-on"); rpSavePrefs({mysteryAsset:"any"}); }
   // Mystère : choix de l'actif
   root.querySelectorAll("[data-rp-mys]").forEach(b=>b.addEventListener("click", ()=>{
     root.querySelectorAll("[data-rp-mys]").forEach(x=>x.classList.toggle("is-on", x===b));
@@ -17533,18 +17595,35 @@ function renderReplay(){
     startReplay("custom", {sym:a.sym, label:a.label, startMs:start, hours});
   });
 }
+// Illustration du hero : un faux lecteur de séance. Bougies passées à gauche,
+// curseur « maintenant », suite masquée (hachures + « ? ») à droite.
 function rpHeroSvg(){
-  // Petite série de bougies décorative (pseudo-aléatoire stable).
-  let s = 7, p = 60, out = "";
-  const rnd = ()=>{ s = (s*9301+49297)%233280; return s/233280; };
-  for (let i=0;i<26;i++){
-    const o = p, c = Math.max(14, Math.min(106, o + (rnd()-0.5)*26)), h = Math.max(o,c)+rnd()*8, l = Math.min(o,c)-rnd()*8;
-    const x = 8+i*11, up = c>=o, y = v=>120-v;
-    out += '<line x1="'+(x+3)+'" x2="'+(x+3)+'" y1="'+y(h).toFixed(1)+'" y2="'+y(l).toFixed(1)+'" class="'+(up?'u':'d')+'"/>'+
-      '<rect x="'+x+'" width="6" y="'+y(Math.max(o,c)).toFixed(1)+'" height="'+Math.max(1.5,Math.abs(c-o)).toFixed(1)+'" class="'+(up?'u':'d')+'"/>';
-    p = c;
+  let seed = 11; const rnd = ()=>{ seed = (seed*9301+49297)%233280; return seed/233280; };
+  const N = 24, bars = []; let p = 100;
+  for (let i=0;i<N;i++){
+    const drift = i<8 ? -0.35 : i<15 ? 0.55 : 0.1;
+    const o = p, c = o + drift + (rnd()-0.5)*2.4;
+    bars.push({o, c, h:Math.max(o,c)+rnd()*1.1, l:Math.min(o,c)-rnd()*1.1}); p = c;
   }
-  return '<svg viewBox="0 0 300 130">'+out+'<line x1="0" x2="300" y1="58" y2="58" class="rp-hero-cursor"/></svg>';
+  const lo = Math.min(...bars.map(b=>b.l)), hi = Math.max(...bars.map(b=>b.h));
+  const top = 14, bot = 122, y = v=>top + (1-(v-lo)/(hi-lo))*(bot-top);
+  const step = 8.4, x0 = 10, xNow = x0 + N*step + 2;
+  let out = '<defs><pattern id="rp-hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" class="rp-hatch-line"/></pattern></defs>';
+  [38,68,98].forEach(g=>{ out += '<line x1="0" x2="330" y1="'+g+'" y2="'+g+'" class="rp-grid-l"/>'; });
+  bars.forEach((b,i)=>{
+    const x = x0 + i*step, up = b.c>=b.o, cls = up?'u':'d';
+    out += '<line x1="'+(x+2.6)+'" x2="'+(x+2.6)+'" y1="'+y(b.h).toFixed(1)+'" y2="'+y(b.l).toFixed(1)+'" class="'+cls+'"/>'+
+      '<rect x="'+x+'" width="5.2" y="'+y(Math.max(b.o,b.c)).toFixed(1)+'" height="'+Math.max(1.4, Math.abs(y(b.o)-y(b.c))).toFixed(1)+'" rx="0.6" class="'+cls+'"/>';
+  });
+  const entryY = y(bars[9].c).toFixed(1), lastY = y(bars[N-1].c).toFixed(1);
+  out += '<line x1="0" x2="'+xNow+'" y1="'+entryY+'" y2="'+entryY+'" class="rp-entry-l"/>'+
+    '<rect x="4" y="'+(entryY-13)+'" width="52" height="11" rx="2" class="rp-entry-tag"/><text x="8" y="'+(entryY-4.6)+'" class="rp-entry-txt">LONG x5</text>'+
+    '<rect x="'+xNow+'" y="6" width="'+(330-xNow)+'" height="'+(bot-top+16)+'" fill="url(#rp-hatch)" class="rp-future"/>'+
+    '<line x1="'+xNow+'" x2="'+xNow+'" y1="4" y2="'+(bot+8)+'" class="rp-now"/>'+
+    '<circle cx="'+xNow+'" cy="'+lastY+'" r="3.2" class="rp-now-dot"/>'+
+    '<text x="'+(xNow+(330-xNow)/2)+'" y="78" class="rp-q">?</text>'+
+    '<text x="'+(xNow+5)+'" y="14" class="rp-now-txt">maintenant</text>';
+  return '<svg class="rp-player-svg" viewBox="0 0 330 140" preserveAspectRatio="none">'+out+'</svg>';
 }
 
 /* ---------- Démarrage ---------- */
@@ -17566,7 +17645,7 @@ async function startReplay(id, opts){
       // Actif imposé ou au hasard, date au hasard après sa cotation. Si Binance
       // ne renvoie rien (actif pas encore coté à cette date), nouvel essai plus récent.
       const pool = rpAssets().filter(a=>a.label!=="GOLD");
-      const pick = opts.sym ? (rpAssets().find(a=>a.sym===opts.sym) || pool[0]) : pool[Math.floor(Math.random()*pool.length)];
+      const pick = (opts.sym && rpAssets().find(a=>a.sym===opts.sym)) || pool[Math.floor(Math.random()*pool.length)];
       sym = pick.sym; label = pick.label;
       const to = Date.now() - 40*86400e3;
       let from = Math.max(Date.parse("2023-01-01T00:00:00Z"), Date.parse((RP_SINCE[sym]||"2023-01-01")+"T00:00:00Z"));
@@ -17594,7 +17673,7 @@ async function startReplay(id, opts){
       cash:REPLAY_START_CASH, pos:null, trades:[], curve:[REPLAY_START_CASH], peak:REPLAY_START_CASH, maxDD:0,
       lev:5, sizePct:50, speedIdx:1, playing:false, done:false, liqCount:0,
       dec: ref<0.1 ? 6 : ref<10 ? 4 : 2,
-      k, tf:1, pre:{}, opts,
+      k, tf:1, pre:{}, opts, base: candles.base || BINANCE_API_BASE,
     };
     renderReplaySession();
   }catch(e){
@@ -17666,6 +17745,8 @@ function rpClose(reason, atPrice){
   rp.trades.push({side:p.side, openI:p.openI, closeI:rp.i, entry:p.entry, exit:price, pnl:pnl - fee - p.fees, lev:p.lev, reason});
   rp.pos = null;
   if (reason==="liq") rpFlash("Liquidé ! La perte a atteint ta marge (levier x"+p.lev+").");
+  else if (reason==="tp") rpFlash("Take profit touché : "+fmtMoneySigned(rp.trades[rp.trades.length-1].pnl)+".");
+  else if (reason==="sl") rpFlash("Stop loss touché : "+fmtMoneySigned(rp.trades[rp.trades.length-1].pnl)+".");
   rpPaint();
 }
 function rpStep(noPaint){
@@ -17674,8 +17755,12 @@ function rpStep(noPaint){
   rp.i++;
   const c = rp.candles[rp.i], p = rp.pos;
   if (p){
-    // Liquidation intra-bougie (mèche).
-    if ((p.side==="long" && c.l<=p.liq) || (p.side==="short" && c.h>=p.liq)) rpClose("liq", p.liq);
+    // Dans une même bougie : stop loss d'abord (hypothèse prudente), puis
+    // take profit, puis liquidation (sur la mèche).
+    const L = p.side==="long";
+    if (p.sl!=null && (L ? c.l<=p.sl : c.h>=p.sl) && (L ? p.sl>p.liq : p.sl<p.liq)) rpClose("sl", p.sl);
+    else if (p.tp!=null && (L ? c.h>=p.tp : c.l<=p.tp)) rpClose("tp", p.tp);
+    else if ((L && c.l<=p.liq) || (!L && c.h>=p.liq)) rpClose("liq", p.liq);
   }
   const eq = rpEquity(c.c);
   rp.curve.push(eq);
@@ -17784,6 +17869,11 @@ function renderReplaySession(){
   document.getElementById("rp-long").addEventListener("click", ()=>rpOpen("long"));
   document.getElementById("rp-short").addEventListener("click", ()=>rpOpen("short"));
   document.getElementById("rp-closebtn").addEventListener("click", ()=>rpClose("manual"));
+  document.getElementById("rp-posbox").addEventListener("click", (e)=>{
+    const b = e.target.closest("[data-rp-clear]");
+    if (b && rp && rp.pos){ rp.pos[b.dataset.rpClear] = null; rpPaint(); }
+  });
+  rpInitLineDrag(document.getElementById("rp-canvas"));
   rpPaint();
 }
 function rpPaint(){
@@ -17792,7 +17882,7 @@ function rpPaint(){
   const set = (id, html, cls)=>{ const el = document.getElementById(id); if (!el) return; el.innerHTML = html; if (cls!=null) el.className = cls; };
   set("rp-price", rpPx(price));
   const elapsed = rp.i-(REPLAY_CONTEXT-1);
-  set("rp-clock", rp.mystery ? "T+"+Math.floor(elapsed/60)+" h "+String(elapsed%60).padStart(2,"0")
+  set("rp-clock", rp.mystery ? "T+"+Math.floor(elapsed/60)+"h"+String(elapsed%60).padStart(2,"0")
     : rp.custom ? new Date(rp.candles[rp.i].t).toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"})
     : new Date(rp.candles[rp.i].t).toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit", timeZone:"UTC"})+" UTC");
   set("rp-eq", fmtMoney(eq));
@@ -17808,11 +17898,18 @@ function rpPaint(){
     else {
       const u = rpUpnl(price), pct = u/p.margin*100;
       pb.innerHTML = '<div class="rp-pos '+p.side+'"><div><b>'+(p.side==="long"?"Long":"Short")+' x'+String(p.lev).replace(".",",")+(p.adds ? ' · renforcée ×'+(p.adds+1) : '')+'</b><span>Entrée '+rpPx(p.entry)+' · Liq. '+rpPx(p.liq)+'</span></div>'+
-        '<div class="rp-pos-pnl num '+(u>=0?'up':'down')+'">'+fmtMoneySigned(u)+'<em>'+rpFmtPct(pct)+'</em></div></div>';
+        '<div class="rp-pos-pnl num '+(u>=0?'up':'down')+'">'+fmtMoneySigned(u)+'<em>'+rpFmtPct(pct)+'</em></div></div>'+
+        '<div class="rp-tpsl">'+
+          '<span class="tp">'+(p.tp!=null ? 'TP '+rpPx(p.tp)+' <button type="button" data-rp-clear="tp" title="Retirer le TP">✕</button>' : 'TP —')+'</span>'+
+          '<span class="sl">'+(p.sl!=null ? 'SL '+rpPx(p.sl)+' <button type="button" data-rp-clear="sl" title="Retirer le SL">✕</button>' : 'SL —')+'</span>'+
+        '</div>'+
+        ((p.tp==null || p.sl==null) ? '<div class="rp-tpsl-hint">Glisse « + TP » / « + SL » sur le graphique, puis déplace la ligne.</div>' : '');
     }
   }
   const cb = document.getElementById("rp-closebtn");
   if (cb) cb.disabled = !rp.pos;
+  const cvs = document.getElementById("rp-canvas");
+  if (cvs) cvs.style.touchAction = rp.pos ? "none" : "pan-y"; // permet de glisser TP/SL au doigt
   const qc = document.querySelector('[data-rp-act="close"]');
   if (qc) qc.disabled = !rp.pos;
   const qp = document.getElementById("rp-quick-pnl");
@@ -17838,7 +17935,7 @@ async function rpSetTf(tf){
     try{
       const iv = REPLAY_TFS.find(x=>x[0]===tf)[1];
       const firstT = rp.candles[0].t; // début réel des données chargées (contexte compris)
-      const url = BINANCE_API_BASE+"/klines?symbol="+encodeURIComponent(rp.sym)+"&interval="+iv+"&endTime="+(firstT-1)+"&limit=150";
+      const url = (rp.base||BINANCE_API_BASE)+"/klines?symbol="+encodeURIComponent(rp.sym)+"&interval="+iv+"&endTime="+(firstT-1)+"&limit=150";
       const res = await fetch(url, {signal:AbortSignal.timeout(10000)});
       if (res.ok){
         const raw = await res.json();
@@ -17862,6 +17959,62 @@ function rpBars(){
   });
   const pre = (rp.pre[tf]||[]).filter(b=>!out.length || b.t<out[0].t);
   return pre.concat(out);
+}
+// ---- TP / SL déplaçables sur le graphique ----
+// Glisser « + TP » / « + SL » crée la ligne, glisser une ligne la déplace,
+// double-clic dessus la retire. Règle (comme le terminal) : du bon côté du
+// PRIX ACTUEL — le SL peut donc passer en profit, mais jamais au-delà du prix.
+function rpPriceAtY(yPix){
+  const v = rp.view; if (!v) return null;
+  return v.lo + (1-(yPix-v.padT)/(v.H-v.padT-v.padB))*(v.hi-v.lo);
+}
+function rpYAt(price){ const v = rp.view; return v.padT + (1-(price-v.lo)/(v.hi-v.lo))*(v.H-v.padT-v.padB); }
+function rpClampLeg(leg, price){
+  const p = rp.pos, ref = rpPrice(), eps = ref*0.0005;
+  const above = (leg==="tp") === (p.side==="long");
+  return above ? Math.max(price, ref+eps) : Math.min(price, ref-eps);
+}
+function rpInitLineDrag(cv){
+  if (!cv) return;
+  const local = e=>{ const r = cv.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; };
+  const hitLeg = (pt)=>{
+    if (!rp || !rp.pos || !rp.view) return null;
+    const ch = rp.view.chips.find(c=>pt.x>=c.x-4 && pt.x<=c.x+c.w+4 && pt.y>=c.y-4 && pt.y<=c.y+c.h+4);
+    if (ch) return {leg:ch.leg, mode:"create"};
+    let best = null;
+    ["tp","sl"].forEach(leg=>{ const v = rp.pos[leg]; if (v==null) return; const d = Math.abs(rpYAt(v)-pt.y); if (d<=8 && pt.x < rp.view.W-rp.view.padR && (!best || d<best.d)) best = {leg, mode:"move", d}; });
+    return best;
+  };
+  cv.addEventListener("pointerdown", (e)=>{
+    const h = hitLeg(local(e));
+    if (!h) return;
+    rp.drag = {leg:h.leg, mode:h.mode, price: rp.pos[h.leg]!=null ? rp.pos[h.leg] : rpClampLeg(h.leg, rpPrice()), y0:e.clientY, id:e.pointerId};
+    try{ cv.setPointerCapture(e.pointerId); }catch(err){}
+    e.preventDefault();
+    rpDraw();
+  });
+  cv.addEventListener("pointermove", (e)=>{
+    if (rp && rp.drag && e.pointerId===rp.drag.id){
+      const pr = rpPriceAtY(local(e).y);
+      if (pr!=null && rp.pos){ rp.drag.price = rpClampLeg(rp.drag.leg, pr); rpDraw(); }
+      e.preventDefault();
+      return;
+    }
+    const h = hitLeg(local(e));
+    cv.style.cursor = h ? (h.mode==="create" ? "grab" : "ns-resize") : "";
+  });
+  const end = (e)=>{
+    if (!rp || !rp.drag || e.pointerId!==rp.drag.id) return;
+    const d = rp.drag; rp.drag = null;
+    if (rp.pos && (d.mode==="move" || Math.abs(e.clientY-d.y0)>=4)) rp.pos[d.leg] = rpClampLeg(d.leg, d.price);
+    rpPaint();
+  };
+  cv.addEventListener("pointerup", end);
+  cv.addEventListener("pointercancel", end);
+  cv.addEventListener("dblclick", (e)=>{
+    const h = hitLeg(local(e));
+    if (h && h.mode==="move"){ rp.pos[h.leg] = null; rpPaint(); }
+  });
 }
 function rpDraw(){
   const cv = document.getElementById("rp-canvas");
@@ -17890,7 +18043,10 @@ function rpDraw(){
   // index d'une bougie 1 min (par son heure) dans la série affichée
   const barIdx = (t)=>{ const bt = Math.floor(t/tfMs)*tfMs; for (let k=vis.length-1;k>=0;k--){ if (vis[k].t===bt) return k; if (vis[k].t<bt) return -1; } return -1; };
   let lo = Math.min(...vis.map(c=>c.l)), hi = Math.max(...vis.map(c=>c.h));
-  if (rp.pos){ lo = Math.min(lo, rp.pos.entry); hi = Math.max(hi, rp.pos.entry); }
+  if (rp.pos){
+    const ex = [rp.pos.entry, rp.pos.tp, rp.pos.sl, rp.drag && rp.drag.price].filter(v=>typeof v==="number" && isFinite(v));
+    lo = Math.min(lo, ...ex); hi = Math.max(hi, ...ex);
+  }
   const padP = (hi-lo)*0.08 || hi*0.001;
   lo -= padP; hi += padP;
   const y = v=>padT + (1-(v-lo)/(hi-lo))*(H-padT-padB);
@@ -17952,13 +18108,41 @@ function rpDraw(){
   };
   rp.trades.forEach(t=>{ mark(t.openI, t.entry, t.side==="long"?cUp:cDn, t.side==="long"); mark(t.closeI, t.exit, cTxt, t.side!=="long"); });
   const price = rpPrice();
+  rp.view = {lo, hi, padT, padB, H, W, padR, chips:[]};
   if (rp.pos){
     const p = rp.pos, col = p.side==="long" ? cUp : cDn;
     mark(p.openI, p.entry, col, p.side==="long");
-    ctx.setLineDash([4,3]); ctx.strokeStyle = col; ctx.globalAlpha = .9;
-    ctx.beginPath(); ctx.moveTo(0, y(p.entry)); ctx.lineTo(W-padR, y(p.entry)); ctx.stroke();
-    if (p.liq>lo && p.liq<hi){ ctx.strokeStyle = cDn; ctx.globalAlpha = .55; ctx.beginPath(); ctx.moveTo(0, y(p.liq)); ctx.lineTo(W-padR, y(p.liq)); ctx.stroke(); }
-    ctx.setLineDash([]); ctx.globalAlpha = 1;
+    if (p.liq>lo && p.liq<hi){ ctx.setLineDash([2,4]); ctx.strokeStyle = cDn; ctx.globalAlpha = .45; ctx.beginPath(); ctx.moveTo(0, y(p.liq)); ctx.lineTo(W-padR, y(p.liq)); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; }
+    const pnlAt = v=>(p.side==="long" ? v-p.entry : p.entry-v)*p.units;
+    // ligne + étiquette (fond sombre, texte coloré) à gauche
+    const line = (v, color, label, dashed, strong)=>{
+      const yy = Math.round(y(v))+0.5;
+      ctx.setLineDash(dashed ? [5,4] : []); ctx.strokeStyle = color; ctx.lineWidth = strong ? 1.5 : 1; ctx.globalAlpha = .95;
+      ctx.beginPath(); ctx.moveTo(0, yy); ctx.lineTo(W-padR, yy); ctx.stroke();
+      ctx.setLineDash([]); ctx.lineWidth = 1; ctx.globalAlpha = 1;
+      ctx.font = "bold 10.5px "+mono;
+      const tw = ctx.measureText(label).width, bx = 6, by = Math.max(padT, Math.min(H-padB-16, yy-17));
+      ctx.fillStyle = "rgba(12,12,12,.82)"; ctx.fillRect(bx, by, tw+12, 15);
+      ctx.strokeStyle = color; ctx.strokeRect(bx+0.5, by+0.5, tw+11, 14);
+      ctx.fillStyle = color; ctx.fillText(label, bx+6, by+11);
+    };
+    const u = rpUpnl(price);
+    line(p.entry, u>=0 ? cUp : cDn, (p.side==="long"?"LONG ":"SHORT ")+axTxt(p.entry)+"  ·  "+fmtMoneySigned(u)+" ("+rpFmtPct(u/p.margin*100)+")", false, true);
+    const tpv = rp.drag && rp.drag.leg==="tp" ? rp.drag.price : p.tp;
+    const slv = rp.drag && rp.drag.leg==="sl" ? rp.drag.price : p.sl;
+    if (tpv!=null) line(tpv, cUp, "TP "+axTxt(tpv)+"  ·  "+fmtMoneySigned(pnlAt(tpv)), true);
+    if (slv!=null) line(slv, cDn, "SL "+axTxt(slv)+"  ·  "+fmtMoneySigned(pnlAt(slv)), true);
+    // pastilles « + TP » / « + SL » à droite de la ligne d'entrée, du bon côté
+    const ey = y(p.entry), up = p.side==="long";
+    const chip = (leg, label, color, dy)=>{
+      const w = 40, h = 16, x = W-padR-w-8, yy = Math.max(padT, Math.min(H-padB-h, ey+dy-h/2));
+      ctx.fillStyle = "rgba(12,12,12,.85)"; ctx.fillRect(x, yy, w, h);
+      ctx.strokeStyle = color; ctx.setLineDash([3,2]); ctx.strokeRect(x+0.5, yy+0.5, w-1, h-1); ctx.setLineDash([]);
+      ctx.fillStyle = color; ctx.font = "bold 10px "+mono; ctx.textAlign = "center"; ctx.fillText(label, x+w/2, yy+11.5); ctx.textAlign = "start";
+      rp.view.chips.push({leg, x, y:yy, w, h});
+    };
+    if (tpv==null) chip("tp", "+ TP", cUp, up ? -20 : 20);
+    if (slv==null) chip("sl", "+ SL", cDn, up ? 20 : -20);
   }
   const yy = y(price), last = vis[vis.length-1];
   ctx.fillStyle = last.c>=last.o ? cUp : cDn;
