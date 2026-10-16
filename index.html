@@ -6182,7 +6182,7 @@ function openEdbPlusTrialModal(){
   }
   openModal(
     '<h3 style="margin-bottom:8px;">✨ Essayer EDB+ gratuitement pendant 24 h</h3>'+
-    '<p class="chart-note" style="margin-bottom:10px;">Challenge Prop Firm, Concours EDB+, quiz et fiches, Trades EDB+, Ressources, News et les 6 thèmes : tout est débloqué pendant 24 h, sans paiement ni engagement.</p>'+
+    '<p class="chart-note" style="margin-bottom:10px;">Challenge Prop Firm, Concours EDB+, Replay, quiz et fiches, Trades EDB+, Ressources, News et les 6 thèmes : tout est débloqué pendant 24 h, sans paiement ni engagement.</p>'+
     '<p class="chart-note" style="margin-bottom:14px;"><strong>Valable une seule fois</strong> : le compte à rebours démarre dès que tu confirmes. À la fin, tout se reverrouille automatiquement (ta progression est gardée).</p>'+
     '<div class="chart-note" id="edbplus-trial-err" style="color:var(--short);margin-bottom:8px;" hidden></div>'+
     '<button class="btn-primary" id="edbplus-trial-confirm" style="width:100%;">Démarrer mon essai de 24 h</button>'+
@@ -6297,13 +6297,14 @@ const EDB_PLUS_FEATURES = {
   challenge: {label:"Le challenge prop firm",    detail:"trader un compte démo calqué sur une vraie évaluation prop firm en 2 étapes", img:"https://images.unsplash.com/photo-1767424412548-1a1ac7f4b9bc?w=1600&q=80&auto=format&fit=crop"},
   theme:     {label:"Le changement de thème",    detail:"personnaliser l'interface (Ember, Sage, Ink, Noir, Gold, Azure)", img:"https://images.pexels.com/photos/10275089/pexels-photo-10275089.jpeg?auto=compress&cs=tinysrgb&w=1600"},
   tradesedb: {label:"Trades EDB+",               detail:"suivre les trades partagés par le bureau et le trade swing hebdomadaire", img:"https://images.unsplash.com/photo-1745270917233-65e776a47547?auto=format&fit=crop&w=1600&q=80"},
+  replay:    {label:"Le Replay",                 detail:"rejouer des séances de marché passées en accéléré, grands moments ou séance sur mesure, et battre ton record"},
   resources: {label:"Ressources trading",        detail:"accéder à la sélection d'outils externes recommandés par EDB", img:"https://images.unsplash.com/photo-1744782211816-c5224434614f?auto=format&fit=crop&w=1600&q=80"},
   // Réutilise la même photo hero que la page débloquée (.cedb-hero, voir
   // #concoursedbplus-unlocked) — même image pour l'état verrouillé et
   // déverrouillé de cette page, plutôt qu'une image différente à chaque fois.
   concoursedbplus: {label:"Le Concours EDB+ (Challenge Hardcore)", detail:"tenter le Challenge 200 000 $ et gagner une vraie Prop Firm 100 000 $ ou 400 €", img:"https://images.unsplash.com/photo-1555963153-11ff60182d08?auto=format&fit=crop&w=1600&q=80"},
 };
-const EDB_PLUS_FEATURE_ICONS = {quiz:"📚", news:"📰", challenge:"🏅", theme:"🎨", tradesedb:"📈", resources:"🔗", concoursedbplus:"💎"};
+const EDB_PLUS_FEATURE_ICONS = {quiz:"📚", news:"📰", challenge:"🏅", replay:"⏪", theme:"🎨", tradesedb:"📈", resources:"🔗", concoursedbplus:"💎"};
 // Reusable "EDB+ requise" card — dropped into a feature's own container in
 // place of its real content. `key` picks the wording from EDB_PLUS_FEATURES
 // above; the CTA button is wired by wireEdbPlusCta(key) right after this
@@ -6328,6 +6329,7 @@ function edbPlusPitch(key){
     challenge: {title:"Passe une évaluation prop firm, sans risquer un euro", sub:"Un compte démo calqué sur une vraie évaluation en 2 étapes : objectifs, perte max, règles. Entraîne-toi avant de payer un vrai challenge."},
     theme:     {title:"Un terminal à ton image", sub:"Ember, Sage, Ink, Noir, Gold, Azure : choisis l'ambiance dans laquelle tu trades."},
     tradesedb: {title:"Trade aux côtés du bureau EDB", sub:"Les trades partagés par le bureau, avec leur raisonnement, et le trade swing de la semaine."},
+    replay:    {title:"Remonte le temps et trade les grands moments", sub:"Chute de FTX, krach du yen, nuit électorale américaine : rejoue ces séances bougie par bougie, en accéléré, et bats ton record. Ou choisis ta propre séance, jusqu'à 14 jours."},
     resources: {title:"Les outils des pros, triés pour toi", sub:"Terminaux order flow, data crypto, courtiers et prop firms : la sélection EDB, avec le layout MMT prêt à l'emploi."},
     concoursedbplus: {title:"Gagne une vraie prop firm de 100 000 $", sub:"Le Challenge Hardcore à 200 000 $ : le meilleur trader EDB+ repart avec un vrai compte financé de 100 000 $ ou 400 €."},
   };
@@ -6342,6 +6344,7 @@ const EDB_PLUS_COMPARE = [
   ["Actualités marché en direct", false],
   ["Challenge prop firm en 2 étapes", false],
   ["Concours EDB+ : une vraie prop firm à gagner", false],
+  ["Replay : rejouer des séances de marché passées", false],
   ["Trades EDB+ partagés par le bureau", false],
   ["Ressources trading + layout MMT", false],
   ["Widgets carnet d'ordres, calendrier éco, calculateur de taille", false],
@@ -6476,7 +6479,7 @@ function goToEdbPlus(){
 // this badge is just a heads-up before clicking).
 function updateEdbPlusNavBadges(){
   const locked = !isEdbPlus();
-  [["quiz","📚"],["news","📰"],["challenge","🏅"],["tradesedb","📈"],["resources","🔗"],["concoursedbplus","💎"]].forEach(([view,emoji])=>{
+  [["quiz","📚"],["news","📰"],["challenge","🏅"],["replay","⏪"],["tradesedb","📈"],["resources","🔗"],["concoursedbplus","💎"]].forEach(([view,emoji])=>{
     document.querySelectorAll('nav.tabs button[data-view="'+view+'"]').forEach(btn=>{
       let badge = btn.querySelector(".nav-lock-badge");
       if (locked){
@@ -20159,6 +20162,13 @@ function rpShapeSvg(kind){
 }
 function rpLocalDateStr(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function renderReplay(){
+  // Réservé aux membres EDB+ (et à l'essai 24 h) : sinon, page d'adhésion.
+  if (!isEdbPlus()){
+    replayPause(); rp = null;
+    const root = document.getElementById("replay-root");
+    if (root){ root.innerHTML = edbPlusPaywallHtml("replay"); wireEdbPlusCta("replay"); }
+    return;
+  }
   if (rp && !rp.done){ renderReplaySession(); return; }
   replayPause();
   const root = document.getElementById("replay-root");
@@ -20523,6 +20533,7 @@ function rpFlash(msg){
 
 /* ---------- Écran de séance ---------- */
 function renderReplaySession(){
+  if (!isEdbPlus()){ replayPause(); rp = null; renderReplay(); return; } // essai EDB+ terminé en cours de séance
   const root = document.getElementById("replay-root");
   if (!root || !rp) return;
   const sc = rp.sc;
