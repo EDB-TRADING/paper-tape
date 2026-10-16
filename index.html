@@ -3125,9 +3125,27 @@
   .dd-timer{height:5px;border-radius:4px;background:var(--border-soft);overflow:hidden;}
   .dd-timer i{display:block;height:100%;width:100%;transform-origin:left;background:linear-gradient(90deg, var(--gold), color-mix(in srgb, var(--gold) 60%, #fff));}
   .dd-timer i.low{background:var(--short);}
-  .dd-chart{position:relative;height:380px;border-radius:14px;background:var(--bg);border:1px solid var(--border-soft);overflow:hidden;}
+  .dd-chart{position:relative;height:420px;border-radius:14px;background:var(--bg);border:1px solid var(--border-soft);overflow:hidden;}
+  .dd-chart-load{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-size:13px;color:var(--text-dim);background:color-mix(in srgb, var(--bg) 70%, transparent);}
+  .dd-chart.is-loading .dd-chart-load{display:flex;}
+  .dd-sec{margin-left:auto;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text-dim);}
+  .dd-sec.low{color:var(--short);}
+  .dd-asset{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .dd-asset b{font-size:20px;letter-spacing:-.02em;margin-right:4px;}
+  .dd-chip{font-family:var(--mono);font-size:11.5px;padding:4px 10px;border-radius:999px;border:1px solid var(--border);color:var(--text-dim);}
+  .dd-tools{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+  .dd-seg{display:inline-flex;padding:3px;border-radius:10px;background:var(--bg);border:1px solid var(--border-soft);}
+  .dd-seg button{font:inherit;font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:8px;border:none;background:none;color:var(--text-faint);cursor:pointer;}
+  .dd-seg button em{font-style:normal;}
+  .dd-seg button.on{background:var(--panel-2);color:var(--text);box-shadow:0 0 0 1px color-mix(in srgb, var(--gold) 45%, transparent);}
+  .dd-seg button:disabled{opacity:.5;cursor:default;}
+  .dd-toggles{display:inline-flex;gap:6px;flex-wrap:wrap;}
+  .dd-toggles button{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:12px;font-weight:600;padding:6px 10px;border-radius:9px;border:1px solid var(--border-soft);background:transparent;color:var(--text-faint);cursor:pointer;}
+  .dd-toggles button i{width:10px;height:3px;border-radius:2px;opacity:.4;}
+  .dd-toggles button.on{color:var(--text);border-color:var(--border);background:var(--panel-2);}
+  .dd-toggles button.on i{opacity:1;}
+  .dd-ask{margin:2px 0 0;text-align:center;font-size:14.5px;font-weight:600;color:var(--text-dim);}
   .dd-chart canvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
-  .dd-q{position:absolute;top:50%;right:calc(58px + (100% - 64px) * 6 / 72);transform:translate(50%,-50%);font-size:54px;font-weight:800;color:var(--gold);opacity:.85;pointer-events:none;text-shadow:0 6px 30px color-mix(in srgb, var(--gold) 40%, transparent);}
   .dd-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   .dd-btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:18px;border-radius:14px;font:inherit;font-size:18px;font-weight:800;cursor:pointer;transition:transform .12s, filter .15s, box-shadow .15s;border:1px solid transparent;}
   .dd-btn span{font-size:16px;}
@@ -3206,7 +3224,11 @@
     .dd-head-stats b{font-size:18px;}
     .dd-card{padding:16px;}
     .dd-rules{grid-template-columns:minmax(0,1fr);}
-    .dd-chart{height:300px;}
+    .dd-chart{height:330px;}
+    .dd-tools{flex-direction:column;align-items:stretch;}
+    .dd-seg{width:100%;}
+    .dd-seg button{flex:1;}
+    .dd-asset b{font-size:17px;}
     .dd-btn{padding:16px 10px;font-size:16px;}
     .dd-score-big b{font-size:56px;}
     .dd-keys{display:none;}
@@ -3748,6 +3770,18 @@
   .wz-shield.is-off{pointer-events:none;}
   .wz-shield.is-off span{display:none;}
   @media (hover:none){ .wz-shield{display:none;} }
+  /* Mobile : le graphique (interne ou TradingView) s'active d'un toucher.
+     Une fois actif, la page ne défile plus (on peut glisser / zoomer le
+     graphique librement) ; toucher en dehors du graphique libère le défilement. */
+  .tv-chart-wrap{position:relative;}
+  .ct-shield{display:none;}
+  html.touch-ui:not(.chart-locked) .ct-shield{position:absolute;inset:0;z-index:7;display:flex;align-items:flex-end;justify-content:center;padding-bottom:12px;background:transparent;touch-action:pan-y;-webkit-tap-highlight-color:transparent;}
+  .ct-shield span{font-size:12px;font-weight:600;color:var(--text);background:color-mix(in srgb, var(--panel-2) 88%, transparent);border:1px solid var(--border);border-radius:999px;padding:6px 12px;pointer-events:none;backdrop-filter:blur(6px);}
+  html.chart-locked, html.chart-locked body{touch-action:none;overscroll-behavior:none;}
+  html.chart-locked .widget[data-widget="chart"]{box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 70%, transparent);}
+  .ct-pill{position:fixed;left:50%;bottom:calc(var(--tabbar-h, 64px) + 14px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;display:none;align-items:center;gap:8px;max-width:92vw;padding:9px 14px;border-radius:999px;font:600 12.5px var(--sans);color:var(--text);background:color-mix(in srgb, var(--panel-2) 94%, transparent);border:1px solid color-mix(in srgb, var(--accent) 60%, var(--border));box-shadow:0 14px 34px -12px rgba(0,0,0,.8);}
+  .ct-pill b{color:var(--accent);}
+  html.chart-locked .ct-pill{display:flex;}
 
   /* Espacement vertical géré par la colonne (gap) et non plus par un
      margin-top écrit à la main sur chaque widget : après un déplacement, le
@@ -4191,6 +4225,12 @@
   .rp-seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:3px;background:var(--panel-2);border:1px solid var(--border-soft);border-radius:10px;padding:3px;}
   .rp-seg button{font:600 12px var(--mono);color:var(--text-dim);background:none;border:none;border-radius:7px;padding:7px 0;cursor:pointer;}
   .rp-seg button.is-on{background:var(--panel);color:var(--text);box-shadow:inset 0 0 0 1px var(--accent);}
+  .rp-dur{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;}
+  .rp-dur .rp-seg{flex:1 1 320px;}
+  .rp-dur-custom{display:flex;align-items:center;gap:6px;padding:3px 3px 3px 12px;border-radius:10px;background:var(--panel-2);border:1px solid var(--border-soft);font:600 12px var(--mono);color:var(--text-dim);}
+  .rp-dur-custom.is-on{box-shadow:inset 0 0 0 1px var(--accent);color:var(--text);}
+  .rp-dur-custom input{width:58px;padding:6px 8px !important;font:600 12px var(--mono);border-radius:7px;}
+  .rp-dur-custom select{padding:6px 8px !important;font:600 12px var(--mono);border-radius:7px;}
   .rp-orders{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
   .rp-long, .rp-short{font:700 14px var(--sans);border-radius:11px;padding:12px 0;cursor:pointer;border:1px solid;}
   .rp-long{color:var(--long);background:color-mix(in srgb, var(--long) 12%, var(--panel));border-color:color-mix(in srgb, var(--long) 45%, transparent);}
@@ -10017,6 +10057,7 @@ function renderTradingViewChart(){
   });
   wrap.querySelector(".tradingview-widget-container").appendChild(script);
   armIframeShield(wrap, "Clique pour utiliser le graphique TradingView");
+  chartTouchShield(wrap);
 }
 // Same no-API-key TradingView embed pattern as the chart widget above, using
 // their free "Economic Calendar" widget — loads once on init() and stays live
@@ -19783,6 +19824,10 @@ const REPLAY_CONTEXT = 60;       // bougies déjà visibles au départ (contexte
 const REPLAY_START_CASH = 10000;
 const REPLAY_FEE = 0.0004;       // 0,04 % par côté, comme le terminal
 const REPLAY_SPEEDS = [1, 3, 10, 30]; // bougies par seconde
+// Séance personnalisée : durées proposées (en heures), plus une durée libre jusqu'à 14 jours.
+const RP_DURATIONS = [1, 4, 12, 24, 72, 168];
+const RP_MAX_HOURS = 336;
+function rpDurLabel(h){ return h<24 || h%24 ? h+" h" : (h/24)+" j"; }
 const REPLAY_SCENARIOS = [
   {id:"sec2024", title:"Le faux tweet de la SEC", sym:"BTCUSDT", label:"BTC", start:"2024-01-09T19:30:00Z", hours:6, dateLabel:"9 janvier 2024",
    teaser:"Un compte piraté annonce l'ETF Bitcoin un jour trop tôt. Le marché s'emballe… puis apprend la vérité.",
@@ -19829,11 +19874,22 @@ async function rpFetchCandles(sym, startMs, hours){
   let lastErr = null;
   for (const base of [BINANCE_API_BASE, BINANCE_FAPI_BASE]){
     try{
-      const url = base+"/klines?symbol="+encodeURIComponent(sym)+"&interval=1m&startTime="+startMs+"&endTime="+endMs+"&limit=1000";
-      const res = await fetch(url, {signal:AbortSignal.timeout(12000)});
-      if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
-      const raw = await res.json();
-      if (!Array.isArray(raw) || raw.length < REPLAY_CONTEXT+30){ const e = new Error("not_enough"); e.code = "not_enough"; throw e; }
+      // Bougies 1 min, 1000 par requête : une séance de plusieurs jours est
+      // chargée en plusieurs morceaux (7 jours = 11 requêtes).
+      let raw = [], from = startMs;
+      for (let guard=0; from<=endMs && guard<40; guard++){
+        const url = base+"/klines?symbol="+encodeURIComponent(sym)+"&interval=1m&startTime="+from+"&endTime="+endMs+"&limit=1000";
+        const res = await fetch(url, {signal:AbortSignal.timeout(12000)});
+        if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
+        const part = await res.json();
+        if (!Array.isArray(part) || !part.length) break;
+        raw = raw.concat(part);
+        if (part.length < 1000) break;
+        from = Number(part[part.length-1][0]) + 60000;
+        const ld = document.querySelector(".rp-loading p");
+        if (ld && hours>16) ld.textContent = "Chargement de la séance… "+Math.min(99, Math.round((from-startMs)/(endMs-startMs)*100))+" %";
+      }
+      if (raw.length < REPLAY_CONTEXT+30){ const e = new Error("not_enough"); e.code = "not_enough"; throw e; }
       const out = raw.map(r=>({t:Number(r[0]), o:+r[1], h:+r[2], l:+r[3], c:+r[4]})).filter(c=>isFinite(c.o)&&isFinite(c.c));
       out.base = base;
       rpCandleCache[key] = out;
@@ -19963,7 +20019,10 @@ function renderReplay(){
             '<label class="rp-f"><span class="rp-label">Actif</span><select id="rp-c-asset">'+assets.map(a=>'<option value="'+a.sym+'"'+(prefs.asset===a.sym?' selected':'')+'>'+escapeHtml(a.label+" — "+a.name)+'</option>').join("")+'</select></label>'+
             '<label class="rp-f"><span class="rp-label">Jour</span><input type="date" id="rp-c-date" min="2017-09-01" max="'+rpLocalDateStr(yest)+'" value="'+rpLocalDateStr(yest)+'"></label>'+
             '<label class="rp-f"><span class="rp-label">Début (heure locale)</span><input type="time" id="rp-c-time" step="900" value="15:00"></label>'+
-            '<div class="rp-f"><span class="rp-label">Durée</span><div class="rp-seg" id="rp-c-hours">'+[1,2,4,8,12].map(h=>'<button type="button" data-rp-h="'+h+'" class="'+(h===prefs.hours?'is-on':'')+'">'+h+' h</button>').join("")+'</div></div>'+
+            '<div class="rp-f rp-f-dur"><span class="rp-label">Durée</span><div class="rp-dur">'+
+              '<div class="rp-seg" id="rp-c-hours">'+RP_DURATIONS.map(h=>'<button type="button" data-rp-h="'+h+'" class="'+(h===prefs.hours?'is-on':'')+'">'+rpDurLabel(h)+'</button>').join("")+'</div>'+
+              '<label class="rp-dur-custom'+(RP_DURATIONS.includes(prefs.hours)?'':' is-on')+'" id="rp-c-dur-wrap"><span>Autre</span><input type="number" id="rp-c-dur-n" min="1" max="336" step="1" value="'+(RP_DURATIONS.includes(prefs.hours)?'':prefs.hours)+'" placeholder="36"><select id="rp-c-dur-u"><option value="1">h</option><option value="24">jours</option></select></label>'+
+            '</div></div>'+
           '</div>'+
           '<div class="rp-presets"><span class="rp-label">Raccourcis</span>'+
             '<button type="button" data-rp-preset="usopen">Ouverture US d\'hier</button>'+
@@ -19994,11 +20053,24 @@ function renderReplay(){
   });
   // Séance personnalisée
   let hours = prefs.hours;
+  const durWrap = document.getElementById("rp-c-dur-wrap"), durN = document.getElementById("rp-c-dur-n"), durU = document.getElementById("rp-c-dur-u");
   root.querySelectorAll("[data-rp-h]").forEach(b=>b.addEventListener("click", ()=>{
     hours = +b.dataset.rpH;
     root.querySelectorAll("[data-rp-h]").forEach(x=>x.classList.toggle("is-on", x===b));
+    if (durWrap) durWrap.classList.remove("is-on");
+    if (durN) durN.value = "";
     rpSavePrefs({hours});
   }));
+  // Durée libre : de 1 h à 14 jours.
+  const readCustomDur = ()=>{
+    const n = parseFloat(String(durN.value).replace(",", "."));
+    if (!isFinite(n) || n<=0) return;
+    hours = Math.max(1, Math.min(RP_MAX_HOURS, Math.round(n*(+durU.value||1))));
+    root.querySelectorAll("[data-rp-h]").forEach(x=>x.classList.toggle("is-on", +x.dataset.rpH===hours));
+    durWrap.classList.toggle("is-on", !RP_DURATIONS.includes(hours));
+    rpSavePrefs({hours});
+  };
+  if (durN){ durN.addEventListener("input", readCustomDur); durU.addEventListener("change", ()=>{ durN.max = durU.value==="24" ? String(RP_MAX_HOURS/24) : String(RP_MAX_HOURS); readCustomDur(); }); }
   const dateEl = document.getElementById("rp-c-date"), timeEl = document.getElementById("rp-c-time"), assetEl = document.getElementById("rp-c-asset");
   assetEl.addEventListener("change", ()=>rpSavePrefs({asset:assetEl.value}));
   const setHours = (h)=>{ const b = root.querySelector('[data-rp-h="'+h+'"]'); if (b) b.click(); };
@@ -20016,6 +20088,7 @@ function renderReplay(){
     const [h,mi] = (timeEl.value||"").split(":").map(Number);
     if (!Y || !M || !D || !isFinite(h)){ msg.textContent = "Choisis un jour et une heure."; msg.classList.add("is-err"); return; }
     const start = new Date(Y, M-1, D, h, mi||0, 0, 0).getTime();
+    if (!(hours>=1 && hours<=RP_MAX_HOURS)){ msg.textContent = "Durée entre 1 h et 14 jours."; msg.classList.add("is-err"); return; }
     if (start + hours*3600e3 > Date.now() - 120e3){ msg.textContent = "La séance doit être entièrement terminée : choisis un moment plus ancien."; msg.classList.add("is-err"); return; }
     msg.classList.remove("is-err");
     const a = rpAssets().find(x=>x.sym===assetEl.value) || rpAssets()[0];
@@ -20103,6 +20176,8 @@ async function startReplay(id, opts){
       k, tf:1, pre:{}, opts, base: candles.base || BINANCE_API_BASE,
     };
     renderReplaySession();
+    // Longue séance : on part sur une unité de temps plus large (changeable).
+    if (id==="custom" && hours>=24) rpSetTf(hours>=96 ? 60 : 15);
   }catch(e){
     const code = (e&&e.code)||"réseau";
     const why = code==="not_enough" ? "Pas de données pour "+escapeHtml(label||"cet actif")+" à ce moment-là (actif pas encore coté sur Binance, ou séance trop courte)." : "Impossible de charger les données de cette séance ("+escapeHtml(code)+").";
@@ -20118,6 +20193,10 @@ function rpPrice(){ return rp.candles[rp.i].c; }
 function rpCustomWhen(){
   const d = new Date(rp.startMs), e = new Date(rp.startMs + rp.hours*3600e3);
   const hm = x=>x.toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"});
+  if (rp.hours>=24){
+    const dm = x=>x.toLocaleDateString("fr-FR", {day:"numeric", month:"short"});
+    return dm(d)+" "+hm(d)+" → "+dm(e)+" "+hm(e)+" "+e.getFullYear()+" ("+rpDurLabel(rp.hours)+")";
+  }
   return d.toLocaleDateString("fr-FR", {day:"numeric", month:"long", year:"numeric"})+" · "+hm(d)+" → "+hm(e);
 }
 // Séance mystère : niveau en points d'indice, sans signe dollar.
@@ -20351,7 +20430,7 @@ function rpPaint(){
 // 1 h (la dernière est « en formation »). Pour avoir du contexte avant le
 // départ, les bougies de cette unité antérieures à la séance sont chargées à
 // part (uniquement celles déjà CLOSES au départ : aucune ne contient de futur).
-const REPLAY_TFS = [[1,"1m"],[5,"5m"],[15,"15m"],[60,"1h"]];
+const REPLAY_TFS = [[1,"1m"],[5,"5m"],[15,"15m"],[60,"1h"],[240,"4h"]];
 async function rpSetTf(tf){
   if (!rp) return;
   rp.tf = tf;
@@ -20689,23 +20768,30 @@ document.addEventListener("keydown", (e)=>{
 });
 
 /* ============================= DÉFI DU JOUR ============================= */
-// 5 graphiques mystères par jour, les mêmes pour tout le monde : le tirage
-// (actif, unité de temps, date) dépend uniquement de la date de Paris, et les
-// bougies viennent de l'historique public Binance. On voit 60 bougies, on
-// parie « ça monte » ou « ça descend » sur les 12 suivantes (15 s max).
+// 5 graphiques par jour, les mêmes pour tout le monde : le tirage (actif,
+// unité de temps, date) dépend uniquement de la date de Paris, et les bougies
+// viennent de l'historique public Binance. L'actif et l'unité de temps sont
+// affichés, seule la date est cachée (axe en %). On voit 150 bougies (+ volume,
+// EMA 20/50 et une vue d'ensemble sur l'unité de temps supérieure) et on
+// parie « ça monte » ou « ça descend » sur les 12 suivantes (30 s max).
+// Seuls les graphiques où le prix a vraiment bougé (au moins 1 ATR sur les
+// 12 bougies) sont retenus, pour éviter les tirages à pile ou face.
 // Firestore : daily/{jour}/plays/{uid} (une partie par trader et par jour,
 // complétée réponse par réponse, voir firestore.rules) et dailyStats/{uid}
 // (série de jours, record). Les archives (7 derniers jours, sans score) sont
 // réservées à EDB+.
-const DAILY_ROUNDS = 5, DAILY_SHOW = 60, DAILY_AFTER = 12, DAILY_TIME = 15;
+const DAILY_ROUNDS = 5, DAILY_WARM = 50, DAILY_SHOW = 150, DAILY_AFTER = 12, DAILY_TIME = 30, DAILY_CANDIDATES = 15;
 const DAILY_POOL = [
-  {s:"BTCUSDT", n:"Bitcoin"}, {s:"ETHUSDT", n:"Ethereum"}, {s:"SOLUSDT", n:"Solana"}, {s:"BNBUSDT", n:"BNB"},
-  {s:"XRPUSDT", n:"XRP"}, {s:"DOGEUSDT", n:"Dogecoin"}, {s:"ADAUSDT", n:"Cardano"}, {s:"LINKUSDT", n:"Chainlink"},
-  {s:"AVAXUSDT", n:"Avalanche"}, {s:"PAXGUSDT", n:"Or (PAXG)"},
+  {s:"BTCUSDT", n:"Bitcoin", t:"BTC"}, {s:"ETHUSDT", n:"Ethereum", t:"ETH"}, {s:"SOLUSDT", n:"Solana", t:"SOL"}, {s:"BNBUSDT", n:"BNB", t:"BNB"},
+  {s:"XRPUSDT", n:"XRP", t:"XRP"}, {s:"DOGEUSDT", n:"Dogecoin", t:"DOGE"}, {s:"ADAUSDT", n:"Cardano", t:"ADA"}, {s:"LINKUSDT", n:"Chainlink", t:"LINK"},
+  {s:"AVAXUSDT", n:"Avalanche", t:"AVAX"}, {s:"PAXGUSDT", n:"Or", t:"XAU"},
 ];
-const DAILY_IV = [["1h", 3600e3, "1 h"], ["4h", 4*3600e3, "4 h"], ["1d", 86400e3, "1 jour"]];
+// [intervalle Binance, durée, libellé, unité supérieure pour la vue d'ensemble]
+const DAILY_IV = [["1h", 3600e3, "1 h", "4h"], ["4h", 4*3600e3, "4 h", "1d"], ["1d", 86400e3, "1 jour", "1w"]];
+const DAILY_IV_MS = {"1h":3600e3, "4h":4*3600e3, "1d":86400e3, "1w":7*86400e3};
+const DAILY_IV_LABEL = {"1h":"1 h", "4h":"4 h", "1d":"1 jour", "1w":"1 semaine"};
 const DAILY_FROM = Date.UTC(2021, 0, 1);
-const DAILY_DONE_KEY = "paperTapeDailyDone";
+const DAILY_DONE_KEY = "paperTapeDailyDone", DAILY_IND_KEY = "paperTapeDailyInd";
 function dailyDayKey(d){
   try{ return new Intl.DateTimeFormat("en-CA", {timeZone:"Europe/Paris", year:"numeric", month:"2-digit", day:"2-digit"}).format(d||new Date()); }
   catch(e){ return (d||new Date()).toISOString().slice(0,10); }
@@ -20718,51 +20804,119 @@ function dailyRng(seed){
   let a = h>>>0;
   return ()=>{ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a>>>15, 1 | a); t = t + Math.imul(t ^ t>>>7, 61 | t) ^ t; return ((t ^ t>>>14)>>>0)/4294967296; };
 }
+// Candidats du jour, dans un ordre fixe : on en garde ensuite 5 « qui ont bougé ».
 function dailyPlan(day){
-  const r = dailyRng("paper-tape-daily|"+day);
+  const r = dailyRng("paper-tape-daily-v2|"+day);
   const end = Date.parse(day+"T00:00:00Z") - 30*86400e3;
   const used = new Set(), out = [];
-  for (let i=0;i<DAILY_ROUNDS;i++){
+  for (let i=0;i<DAILY_CANDIDATES;i++){
     let a, guard = 0;
-    do { a = DAILY_POOL[Math.floor(r()*DAILY_POOL.length)]; } while (used.has(a.s) && ++guard<50);
+    do { a = DAILY_POOL[Math.floor(r()*DAILY_POOL.length)]; } while (used.has(a.s) && used.size<DAILY_POOL.length && ++guard<60);
     used.add(a.s);
     const iv = DAILY_IV[Math.floor(r()*DAILY_IV.length)];
-    const span = (DAILY_SHOW+DAILY_AFTER)*iv[1];
+    const span = (DAILY_WARM+DAILY_SHOW+DAILY_AFTER)*iv[1];
     const t = DAILY_FROM + span + Math.floor(r()*(end - DAILY_FROM - 2*span));
-    out.push({sym:a.s, name:a.n, iv:iv[0], ivMs:iv[1], ivLabel:iv[2], cut:Math.floor(t/iv[1])*iv[1]});
+    out.push({sym:a.s, name:a.n, tick:a.t, iv:iv[0], ivMs:iv[1], ivLabel:iv[2], ivUp:iv[3], cut:Math.floor(t/iv[1])*iv[1]});
   }
   return out;
 }
-async function dailyFetchRound(rd){
-  const q = "/api/v3/klines?symbol="+rd.sym+"&interval="+rd.iv+"&startTime="+(rd.cut-(DAILY_SHOW-1)*rd.ivMs)+"&limit="+(DAILY_SHOW+DAILY_AFTER);
+async function dailyKlines(sym, iv, params, need){
+  const q = "/api/v3/klines?symbol="+sym+"&interval="+iv+"&"+params;
   for (const base of ["https://data-api.binance.vision", "https://api.binance.com"]){
     try{
       const ctl = new AbortController(); const to = setTimeout(()=>ctl.abort(), 9000);
       const r = await fetch(base+q, {signal:ctl.signal}); clearTimeout(to);
       if (!r.ok) continue;
       const j = await r.json();
-      if (Array.isArray(j) && j.length >= DAILY_SHOW+DAILY_AFTER) return j.slice(0, DAILY_SHOW+DAILY_AFTER).map(k=>[+k[0], +k[1], +k[2], +k[3], +k[4]]);
+      if (Array.isArray(j) && j.length >= need) return j.map(k=>[+k[0], +k[1], +k[2], +k[3], +k[4], +k[5]]);
     }catch(e){}
   }
   throw new Error("klines indisponibles");
 }
+function dailyFetchRound(rd){
+  const n = DAILY_WARM+DAILY_SHOW+DAILY_AFTER;
+  return dailyKlines(rd.sym, rd.iv, "startTime="+(rd.cut-(DAILY_WARM+DAILY_SHOW-1)*rd.ivMs)+"&limit="+n, n).then(c=>c.slice(0, n));
+}
+function dailyAtr(c, end, len){
+  let s = 0, n = 0;
+  for (let k=Math.max(1, end-len); k<end; k++){ s += Math.max(c[k][2]-c[k][3], Math.abs(c[k][2]-c[k-1][4]), Math.abs(c[k][3]-c[k-1][4])); n++; }
+  return n ? s/n : 0;
+}
+function dailyQualifies(rd){
+  const last = rd.c[DAILY_WARM+DAILY_SHOW-1][4], fin = rd.c[DAILY_WARM+DAILY_SHOW+DAILY_AFTER-1][4];
+  return Math.abs(fin-last) >= dailyAtr(rd.c, DAILY_WARM+DAILY_SHOW, 20);
+}
 const dailyDataCache = {};
 function dailyLoad(day){
   if (!dailyDataCache[day]){
-    const p = Promise.all(dailyPlan(day).map(async rd=>Object.assign({}, rd, {c: await dailyFetchRound(rd)})));
+    const p = (async ()=>{
+      const cands = dailyPlan(day), got = [];
+      for (let i=0; i<cands.length; i+=5){
+        const batch = cands.slice(i, i+5);
+        const res = await Promise.allSettled(batch.map(rd=>dailyFetchRound(rd).then(c=>Object.assign({}, rd, {c}))));
+        res.forEach(x=>{ if (x.status==="fulfilled") got.push(x.value); });
+        if (got.filter(dailyQualifies).length >= DAILY_ROUNDS) break;
+      }
+      // Les 5 premiers qui ont bougé, en évitant si possible deux fois le même actif.
+      const pick = [];
+      const take = (ok, uniq)=>got.forEach(rd=>{ if (pick.length<DAILY_ROUNDS && !pick.includes(rd) && ok(rd) && (!uniq || !pick.some(x=>x.sym===rd.sym))) pick.push(rd); });
+      take(dailyQualifies, true); take(dailyQualifies, false); take(()=>true, false);
+      if (pick.length < DAILY_ROUNDS) throw new Error("klines indisponibles");
+      pick.sort((a,b)=>got.indexOf(a)-got.indexOf(b));
+      return pick;
+    })();
     dailyDataCache[day] = p;
     p.catch(()=>{ delete dailyDataCache[day]; });
   }
   return dailyDataCache[day];
 }
+// Vue d'ensemble : unité de temps supérieure jusqu'au même instant. La
+// dernière bougie supérieure est recalculée à partir des bougies visibles,
+// pour ne rien montrer de ce qui se passe après la coupure.
+function dailyLoadContext(rd){
+  if (rd.ctxP) return rd.ctxP;
+  const upMs = DAILY_IV_MS[rd.ivUp];
+  const cutEnd = rd.cut + rd.ivMs; // fin de la dernière bougie visible
+  rd.ctxP = dailyKlines(rd.sym, rd.ivUp, "endTime="+(cutEnd-1)+"&limit=200", 30).then(arr=>{
+    const full = arr.filter(k=>k[0] + upMs <= cutEnd);
+    const lastOpen = full.length ? full[full.length-1][0] + upMs : null;
+    const vis = rd.c.slice(DAILY_WARM, DAILY_WARM+DAILY_SHOW).filter(k=>lastOpen!=null && k[0] >= lastOpen);
+    if (vis.length){
+      full.push([lastOpen, vis[0][1], Math.max(...vis.map(k=>k[2])), Math.min(...vis.map(k=>k[3])), vis[vis.length-1][4], vis.reduce((s,k)=>s+k[5],0)]);
+    }
+    rd.ctx = full.slice(-150);
+    return rd.ctx;
+  });
+  rd.ctxP.catch(()=>{ rd.ctxP = null; });
+  return rd.ctxP;
+}
 function dailyTruth(rd){
-  const last = rd.c[DAILY_SHOW-1][4], fin = rd.c[DAILY_SHOW+DAILY_AFTER-1][4];
+  const last = rd.c[DAILY_WARM+DAILY_SHOW-1][4], fin = rd.c[DAILY_WARM+DAILY_SHOW+DAILY_AFTER-1][4];
   return {dir: fin>=last ? "up" : "down", move: (fin-last)/last*100};
 }
 function dailyPeriodLabel(rd){
   const f = {day:"numeric", month:"long", year:"numeric", timeZone:"UTC"};
-  const a = new Date(rd.c[0][0]).toLocaleDateString("fr-FR", f), b = new Date(rd.c[rd.c.length-1][0]).toLocaleDateString("fr-FR", f);
+  const a = new Date(rd.c[DAILY_WARM][0]).toLocaleDateString("fr-FR", f), b = new Date(rd.c[rd.c.length-1][0]).toLocaleDateString("fr-FR", f);
   return a===b ? a : a+" → "+b;
+}
+function dailyHorizon(rd){
+  const h = DAILY_AFTER*rd.ivMs/3600e3;
+  return h<48 ? h+" heures" : (h/24)+" jours";
+}
+function dailyEma(c, len, from){
+  const k = 2/(len+1), out = new Array(c.length).fill(null);
+  let e = null;
+  for (let i=from||0;i<c.length;i++){ e = e==null ? c[i][4] : c[i][4]*k + e*(1-k); if (i-(from||0) >= len-1) out[i] = e; }
+  return out;
+}
+function dailyInd(){
+  let v = null; try{ v = JSON.parse(localStorage.getItem(DAILY_IND_KEY)||"null"); }catch(e){}
+  return Object.assign({ema20:true, ema50:false, vol:true}, v||{});
+}
+function dailySetInd(k){
+  const v = dailyInd(); v[k] = !v[k];
+  try{ localStorage.setItem(DAILY_IND_KEY, JSON.stringify(v)); }catch(e){}
+  dailyRedraw();
 }
 
 // ---------- État ----------
@@ -20821,7 +20975,7 @@ function dailyShell(root){
     '<div class="dd">'+
       '<section class="dd-head">'+
         '<div class="dd-head-l"><span class="dd-kicker" id="dd-date"></span><h1>Ça monte ou ça descend ?</h1>'+
-          '<p>5 graphiques mystères, les mêmes pour tout le monde. Tu vois 60 bougies : devine si le prix sera plus haut ou plus bas 12 bougies plus tard. 15 secondes par graphique.</p></div>'+
+          '<p>5 graphiques de vrais marchés, les mêmes pour tout le monde. Analyse 150 bougies et devine si le prix sera plus haut ou plus bas 12 bougies plus tard. 30 secondes par graphique.</p></div>'+
         '<div class="dd-head-stats">'+
           '<div><b id="dd-streak">—</b><span>jours de suite</span></div>'+
           '<div><b id="dd-best">—</b><span>record</span></div>'+
@@ -20877,9 +21031,9 @@ function dailyRenderMain(){
       '<div class="dd-card dd-intro">'+
         '<div class="dd-intro-art" aria-hidden="true">'+dailyIntroSvg()+'</div>'+
         '<div class="dd-rules">'+
-          '<div><b>1</b><span>Un graphique mystère : actif et date cachés.</span></div>'+
-          '<div><b>2</b><span>▲ ou ▼ : plus haut ou plus bas 12 bougies plus tard ?</span></div>'+
-          '<div><b>3</b><span>Bonne réponse = 100 points + bonus de rapidité (jusqu\'à 250).</span></div>'+
+          '<div><b>1</b><span>150 bougies d\'un vrai marché : l\'actif et l\'unité de temps sont affichés, seule la date est cachée.</span></div>'+
+          '<div><b>2</b><span>Analyse avec le volume, les EMA 20/50 et la vue d\'ensemble sur l\'unité supérieure.</span></div>'+
+          '<div><b>3</b><span>▲ ou ▼ : plus haut ou plus bas 12 bougies plus tard ? 100 points + bonus de rapidité (jusqu\'à 250).</span></div>'+
         '</div>'+
         (n>0 && n<DAILY_ROUNDS
           ? '<button class="pw-btn pw-btn-trial dd-cta" data-dd="start">Reprendre · graphique '+(n+1)+' / '+DAILY_ROUNDS+'</button><p class="dd-note">Ta partie a été interrompue. Les réponses déjà données comptent.</p>'
@@ -20896,20 +21050,30 @@ function dailyRenderMain(){
         '<div class="dd-card dd-game">'+
           '<div class="dd-game-top">'+
             '<span class="dd-round" id="dd-round"></span><span class="dd-dots" id="dd-dots"></span>'+
-            '<span class="dd-tf" id="dd-tf"></span>'+(P?'<span class="dd-practice">Entraînement · '+dailyEsc(dailyDayLabel(P.day,{weekday:undefined}))+'</span>':'')+
+            (P?'<span class="dd-practice">Entraînement · '+dailyEsc(dailyDayLabel(P.day,{weekday:undefined}))+'</span>':'')+
+            '<span class="dd-sec num" id="dd-sec"></span>'+
           '</div>'+
           '<div class="dd-timer"><i id="dd-timer"></i></div>'+
-          '<div class="dd-chart"><canvas id="dd-canvas"></canvas><div class="dd-q" id="dd-q">?</div></div>'+
+          '<div class="dd-asset"><b id="dd-asset"></b><span class="dd-chip" id="dd-tf"></span><span class="dd-chip" id="dd-hz"></span></div>'+
+          '<div class="dd-tools">'+
+            '<div class="dd-seg"><button type="button" data-dd-view="detail">Graphique</button><button type="button" data-dd-view="ctx">Vue d\'ensemble · <em></em></button></div>'+
+            '<div class="dd-toggles"><button type="button" data-dd-ind="ema20"><i style="background:var(--gold)"></i>EMA 20</button><button type="button" data-dd-ind="ema50"><i style="background:#6ea8fe"></i>EMA 50</button><button type="button" data-dd-ind="vol"><i style="background:var(--text-faint)"></i>Volume</button></div>'+
+          '</div>'+
+          '<div class="dd-chart"><canvas id="dd-canvas"></canvas><div class="dd-chart-load">Chargement de la vue d\'ensemble…</div></div>'+
+          '<p class="dd-ask" id="dd-ask"></p>'+
           '<div class="dd-actions" id="dd-actions">'+
             '<button class="dd-btn up" data-dd="up"><span>▲</span>Ça monte</button>'+
             '<button class="dd-btn down" data-dd="down"><span>▼</span>Ça descend</button>'+
           '</div>'+
           '<div class="dd-verdict" id="dd-verdict" hidden></div>'+
-          '<p class="dd-keys">Clavier : ↑ ou ↓</p>'+
+          '<p class="dd-keys">Clavier : ↑ ou ↓ pour répondre, V pour la vue d\'ensemble</p>'+
         '</div>';
     }
     document.getElementById("dd-round").textContent = "Graphique "+(D.i+1)+" / "+DAILY_ROUNDS;
     document.getElementById("dd-tf").textContent = "Bougies "+rd.ivLabel;
+    document.getElementById("dd-asset").textContent = rd.name+(rd.name!==rd.tick ? " ("+rd.tick+")" : "");
+    document.getElementById("dd-hz").textContent = "Horizon : 12 bougies = "+dailyHorizon(rd);
+    document.getElementById("dd-ask").textContent = "Dans "+dailyHorizon(rd)+" (12 bougies), le prix de "+rd.name+" sera…";
     document.getElementById("dd-dots").innerHTML = Array.from({length:DAILY_ROUNDS}, (_,k)=>{ const a = answers[k]; return '<i class="'+(a ? (a.ok?"ok":"ko") : (k===D.i?"cur":""))+'"></i>'; }).join("");
     return;
   }
@@ -20958,6 +21122,10 @@ function dailyResultHtml(){
   '</div>';
 }
 function dailyOnClick(e){
+  const vb = e.target.closest("[data-dd-view]");
+  if (vb){ dailySetView(vb.dataset.ddView); return; }
+  const ib = e.target.closest("[data-dd-ind]");
+  if (ib){ dailySetInd(ib.dataset.ddInd); return; }
   const b = e.target.closest("[data-dd]");
   if (!b) return;
   const act = b.dataset.dd;
@@ -20973,6 +21141,7 @@ function dailyOnClick(e){
 document.addEventListener("keydown", e=>{
   if (document.body.dataset.view!=="daily" || D.phase!=="playing" || D.locked) return;
   if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  if (e.key==="v" || e.key==="V"){ dailySetView(D.view==="ctx" ? "detail" : "ctx"); return; }
   if (e.key==="ArrowUp"){ e.preventDefault(); dailyAnswer("up"); }
   else if (e.key==="ArrowDown"){ e.preventDefault(); dailyAnswer("down"); }
 });
@@ -21013,35 +21182,27 @@ async function dailyStartPractice(day){
     window.scrollTo({top:0, behavior:"smooth"});
   }catch(e){ D.phase = "error"; dailyRenderMain(); }
 }
-function dailyRange(c, a, b){
-  let lo = Infinity, hi = -Infinity;
-  for (let k=a;k<b;k++){ if (c[k][3]<lo) lo = c[k][3]; if (c[k][2]>hi) hi = c[k][2]; }
-  const pad = (hi-lo)*0.08 || hi*0.01;
-  return [lo-pad, hi+pad];
-}
 function dailyShowRound(){
-  D.phase = "playing"; D.locked = false;
+  D.phase = "playing"; D.locked = false; D.view = "detail";
   const m = document.getElementById("dd-main");
   if (m && !m.querySelector(".dd-game")) m.innerHTML = "";
   dailyRenderMain();
-  const rd = (D.practice ? D.practice.rounds : D.rounds)[D.i];
+  const rd = dailyCurRound();
   document.getElementById("dd-verdict").hidden = true;
   document.getElementById("dd-actions").hidden = false;
   document.querySelectorAll(".dd-btn").forEach(b=>{ b.disabled = false; b.classList.remove("picked"); });
-  const q = document.getElementById("dd-q"); if (q) q.hidden = false;
   const game = document.querySelector(".dd-game");
   if (game){ const r = game.getBoundingClientRect(); if (r.top < 60 || r.top > window.innerHeight*0.35) window.scrollTo({top:window.scrollY + r.top - 72, behavior:"smooth"}); }
-  const cv = document.getElementById("dd-canvas");
-  const rng = dailyRange(rd.c, 0, DAILY_SHOW);
-  dailyDraw(cv, rd.c, DAILY_SHOW, rng, {});
-  D.curRange = rng;
+  dailyRedraw();
+  dailyLoadContext(rd).catch(()=>{}); // préchargée pour un clic instantané
   D.t0 = performance.now();
-  const bar = document.getElementById("dd-timer");
+  const bar = document.getElementById("dd-timer"), sec = document.getElementById("dd-sec");
   cancelAnimationFrame(D.raf);
   const loop = t=>{
     if (D.locked || D.phase!=="playing") return;
     const left = Math.max(0, DAILY_TIME - (t-D.t0)/1000);
-    if (bar){ bar.style.transform = "scaleX("+(left/DAILY_TIME)+")"; bar.classList.toggle("low", left<4); }
+    if (bar){ bar.style.transform = "scaleX("+(left/DAILY_TIME)+")"; bar.classList.toggle("low", left<6); }
+    if (sec){ const s2 = Math.ceil(left)+" s"; if (sec.textContent!==s2) sec.textContent = s2; sec.classList.toggle("low", left<6); }
     if (left<=0){ dailyAnswer("none"); return; }
     D.raf = requestAnimationFrame(loop);
   };
@@ -21052,11 +21213,11 @@ function dailyAnswer(choice){
   D.locked = true;
   cancelAnimationFrame(D.raf);
   const P = D.practice;
-  const rd = (P ? P.rounds : D.rounds)[D.i];
+  const rd = dailyCurRound();
   const left = Math.max(0, DAILY_TIME - (performance.now()-D.t0)/1000);
   const t = dailyTruth(rd);
   const ok = choice===t.dir;
-  const pts = ok ? 100 + Math.round(left*10) : 0;
+  const pts = ok ? 100 + Math.round(left*5) : 0;
   const rec = {a:choice, ok, pts};
   if (choice!=="none"){ const b = document.querySelector('.dd-btn.'+choice); if (b) b.classList.add("picked"); }
   document.querySelectorAll(".dd-btn").forEach(b=>b.disabled = true);
@@ -21070,14 +21231,13 @@ function dailyAnswer(choice){
     dailyPlayRef(D.day).update(patch).catch(e=>{ console.warn("daily answer", e); appToast("Réponse non enregistrée (connexion ?). Elle sera perdue si tu quittes la page."); });
     if (done) dailyFinish();
   }
-  // Révélation animée des 12 bougies suivantes.
+  // Révélation animée des 12 bougies suivantes (toujours sur le graphique détaillé).
+  D.view = "detail"; dailySyncToolbar(rd);
   const cv = document.getElementById("dd-canvas");
-  const q = document.getElementById("dd-q"); if (q) q.hidden = true;
-  const r0 = D.curRange, r1 = dailyRange(rd.c, 0, DAILY_SHOW+DAILY_AFTER);
   const T = 1300, ts = performance.now();
   const anim = now=>{
-    const p = Math.min(1, (now-ts)/T), e = 1-Math.pow(1-p, 3);
-    dailyDraw(cv, rd.c, DAILY_SHOW + Math.round(DAILY_AFTER*p), [r0[0]+(r1[0]-r0[0])*e, r0[1]+(r1[1]-r0[1])*e], {revealed:true});
+    const p = Math.min(1, (now-ts)/T);
+    dailyDraw(cv, rd, {mode:"reveal", p});
     if (p<1) requestAnimationFrame(anim); else dailyVerdict(rec, rd, t);
   };
   requestAnimationFrame(anim);
@@ -21193,8 +21353,46 @@ function dailyRenderArchive(){
 }
 
 // ---------- Dessin ----------
-function dailyDraw(cv, c, n, rng, opt){
-  if (!cv) return;
+function dailyCurRound(){ return (D.practice ? D.practice.rounds : (D.rounds||[]))[D.i]; }
+function dailyRedraw(){
+  if (document.body.dataset.view!=="daily" || (D.phase!=="playing" && D.phase!=="reveal")) return;
+  const rd = dailyCurRound(); if (!rd) return;
+  dailySyncToolbar(rd);
+  const cv = document.getElementById("dd-canvas");
+  if (D.view==="ctx" && rd.ctx) dailyDraw(cv, rd, {mode:"ctx"});
+  else dailyDraw(cv, rd, {mode: D.phase==="playing" ? "play" : "reveal", p:1});
+}
+function dailySyncToolbar(rd){
+  const ind = dailyInd();
+  document.querySelectorAll("[data-dd-ind]").forEach(b=>b.classList.toggle("on", !!ind[b.dataset.ddInd]));
+  document.querySelectorAll("[data-dd-view]").forEach(b=>b.classList.toggle("on", b.dataset.ddView===(D.view||"detail")));
+  const up = document.querySelector('[data-dd-view="ctx"] em'); if (up && rd) up.textContent = DAILY_IV_LABEL[rd.ivUp];
+  const ctxBtn = document.querySelector('[data-dd-view="ctx"]'); if (ctxBtn) ctxBtn.disabled = D.phase!=="playing";
+}
+async function dailySetView(v){
+  const rd = dailyCurRound(); if (!rd || D.phase!=="playing") return;
+  D.view = v;
+  dailySyncToolbar(rd);
+  if (v==="ctx" && !rd.ctx){
+    const cv = document.getElementById("dd-canvas");
+    const wrap = cv && cv.parentElement; if (wrap) wrap.classList.add("is-loading");
+    try{ await dailyLoadContext(rd); }
+    catch(e){ appToast("Vue d'ensemble indisponible pour ce graphique."); D.view = "detail"; }
+    if (wrap) wrap.classList.remove("is-loading");
+    if (dailyCurRound()!==rd) return;
+  }
+  dailyRedraw();
+}
+function dailyRange(c, a, b){
+  let lo = Infinity, hi = -Infinity;
+  for (let k=Math.max(0,a);k<b;k++){ if (c[k][3]<lo) lo = c[k][3]; if (c[k][2]>hi) hi = c[k][2]; }
+  const pad = (hi-lo)*0.08 || hi*0.01;
+  return [lo-pad, hi+pad];
+}
+// mode "play" : 150 bougies + zone cachée ; "reveal" : la suite apparaît
+// (p de 0 à 1) ; "ctx" : vue d'ensemble sur l'unité de temps supérieure.
+function dailyDraw(cv, rd, opt){
+  if (!cv || !rd) return;
   const dpr = Math.min(2, window.devicePixelRatio||1);
   const W = cv.clientWidth || 600, H = cv.clientHeight || 320;
   if (cv.width!==Math.round(W*dpr) || cv.height!==Math.round(H*dpr)){ cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr); }
@@ -21202,66 +21400,114 @@ function dailyDraw(cv, c, n, rng, opt){
   x.setTransform(dpr,0,0,dpr,0,0); x.clearRect(0,0,W,H);
   const css = getComputedStyle(document.documentElement);
   const v = (k, f)=>(css.getPropertyValue(k)||"").trim() || f;
-  const up = v("--long","#31c882"), dn = v("--short","#f0546a"), faint = v("--text-faint","#8a8072"), border = v("--border","#3a352b"), gold = v("--gold","#d7b563");
-  const mono = v("--mono","monospace");
-  const padL = 6, padR = 58, padT = 12, padB = 12;
-  const total = DAILY_SHOW + DAILY_AFTER;
-  const slot = (W-padL-padR)/total;
-  const y = p=>padT + (rng[1]-p)/(rng[1]-rng[0])*(H-padT-padB);
-  const ref = c[DAILY_SHOW-1][4];
-  // Grille + axe en % par rapport à la dernière bougie visible.
+  const up = v("--long","#31c882"), dn = v("--short","#f0546a"), faint = v("--text-faint","#8a8072"), border = v("--border","#3a352b"), gold = v("--gold","#d7b563"), text = v("--text","#fff");
+  const mono = v("--mono","monospace"), sans = v("--sans","sans-serif");
+  const ind = dailyInd();
+  const showN = W < 560 ? 90 : DAILY_SHOW;
+  const ctx = opt.mode==="ctx" && rd.ctx;
+  let series, start, end, slots, hidden;
+  if (ctx){
+    series = rd.ctx; end = series.length; start = Math.max(0, end - showN); slots = (end-start) + 3; hidden = false;
+  } else {
+    series = rd.c; start = DAILY_WARM + DAILY_SHOW - showN; slots = showN + DAILY_AFTER;
+    const p = opt.mode==="reveal" ? (opt.p==null ? 1 : opt.p) : 0;
+    end = DAILY_WARM + DAILY_SHOW + Math.round(DAILY_AFTER*p);
+    hidden = opt.mode==="play";
+  }
+  let rng;
+  if (ctx || opt.mode==="play") rng = dailyRange(series, start, end);
+  else {
+    const p = opt.p==null ? 1 : opt.p, e = 1-Math.pow(1-p, 3);
+    const r0 = dailyRange(series, start, DAILY_WARM+DAILY_SHOW), r1 = dailyRange(series, start, DAILY_WARM+DAILY_SHOW+DAILY_AFTER);
+    rng = [r0[0]+(r1[0]-r0[0])*e, r0[1]+(r1[1]-r0[1])*e];
+  }
+  const padL = 6, padR = 58, padT = 26, padB = 10;
+  const volH = ind.vol ? Math.round((H-padT-padB)*0.17) : 0;
+  const priceH = H - padT - padB - (volH ? volH+8 : 0);
+  const slot = (W-padL-padR)/slots;
+  const X = k=>padL + (k-start)*slot + slot/2;
+  const y = p=>padT + (rng[1]-p)/(rng[1]-rng[0])*priceH;
+  const ref = rd.c[DAILY_WARM+DAILY_SHOW-1][4];
+  // Grille + axe en % par rapport à la dernière clôture visible.
   x.font = "11px "+mono; x.textBaseline = "middle"; x.textAlign = "left";
-  const stepPct = (()=>{ const spanPct = (rng[1]-rng[0])/ref*100; const raw = spanPct/5; const opts = [0.25,0.5,1,2,2.5,5,10,20,25,50]; return opts.find(o=>o>=raw) || 50; })();
-  for (let k=-50;k<=50;k++){
+  const spanPct = (rng[1]-rng[0])/ref*100;
+  const stepPct = [0.25,0.5,1,2,2.5,5,10,20,25,50,100].find(o=>o>=spanPct/5) || 100;
+  for (let k=-60;k<=60;k++){
     const pr = ref*(1+k*stepPct/100);
     if (pr<rng[0] || pr>rng[1]) continue;
     const yy = Math.round(y(pr))+.5;
     x.strokeStyle = border; x.globalAlpha = k===0 ? .9 : .35; x.setLineDash(k===0?[4,4]:[]);
     x.beginPath(); x.moveTo(padL, yy); x.lineTo(W-padR+4, yy); x.stroke();
     x.globalAlpha = 1; x.setLineDash([]);
-    x.fillStyle = k===0 ? v("--text","#fff") : faint;
+    x.fillStyle = k===0 ? text : faint;
     x.fillText((k>0?"+":k<0?"−":"")+Math.abs(k*stepPct).toLocaleString("fr-FR",{maximumFractionDigits:2})+" %", W-padR+10, yy);
   }
-  // Zone cachée (12 bougies à venir).
-  const zx = padL + DAILY_SHOW*slot;
-  if (!opt.revealed){
-    x.fillStyle = gold; x.globalAlpha = .07; x.fillRect(zx, padT, W-padR-zx, H-padT-padB);
-    x.globalAlpha = .5; x.strokeStyle = gold; x.setLineDash([4,5]); x.strokeRect(zx+.5, padT+.5, W-padR-zx-1, H-padT-padB-1); x.setLineDash([]); x.globalAlpha = 1;
-  } else {
-    x.strokeStyle = gold; x.globalAlpha = .7; x.setLineDash([4,5]);
-    x.beginPath(); x.moveTo(Math.round(zx)+.5, padT); x.lineTo(Math.round(zx)+.5, H-padB); x.stroke(); x.setLineDash([]); x.globalAlpha = 1;
+  // Zone des 12 bougies à venir.
+  if (!ctx){
+    const zx = padL + (DAILY_WARM+DAILY_SHOW-start)*slot;
+    if (hidden){
+      x.fillStyle = gold; x.globalAlpha = .07; x.fillRect(zx, padT, W-padR-zx, H-padT-padB);
+      x.globalAlpha = .5; x.strokeStyle = gold; x.setLineDash([4,5]); x.strokeRect(zx+.5, padT+.5, W-padR-zx-1, H-padT-padB-1); x.setLineDash([]);
+      x.globalAlpha = .9; x.fillStyle = gold; x.font = "800 "+Math.max(20, Math.min(40, (W-padR-zx)*0.55))+"px "+sans; x.textAlign = "center";
+      x.fillText("?", (zx+W-padR)/2, padT+priceH/2); x.textAlign = "left"; x.globalAlpha = 1;
+    } else {
+      x.strokeStyle = gold; x.globalAlpha = .7; x.setLineDash([4,5]);
+      x.beginPath(); x.moveTo(Math.round(zx)+.5, padT); x.lineTo(Math.round(zx)+.5, H-padB); x.stroke(); x.setLineDash([]); x.globalAlpha = 1;
+    }
+  }
+  // Volume.
+  if (volH){
+    let mv = 0; for (let k=start;k<end;k++) mv = Math.max(mv, series[k][5]||0);
+    const vb = H - padB;
+    for (let k=start;k<end && mv>0;k++){
+      const h = (series[k][5]||0)/mv*volH;
+      x.fillStyle = series[k][4]>=series[k][1] ? up : dn; x.globalAlpha = .32;
+      x.fillRect(X(k)-Math.max(1, slot*0.62)/2, vb-h, Math.max(1, slot*0.62), h);
+    }
+    x.globalAlpha = 1;
   }
   // Bougies.
   const bw = Math.max(1, slot*0.62);
-  for (let k=0;k<Math.min(n, c.length);k++){
-    const [, o, h, l, cl] = c[k];
-    const cx = padL + k*slot + slot/2;
-    const col = cl>=o ? up : dn;
-    x.strokeStyle = col; x.fillStyle = col; x.globalAlpha = k>=DAILY_SHOW ? 1 : .92;
+  x.save(); x.beginPath(); x.rect(0, padT-2, W-padR+4, priceH+4); x.clip();
+  for (let k=start;k<end;k++){
+    const [, o, h, l, cl] = series[k];
+    const cx = X(k), col = cl>=o ? up : dn;
+    x.strokeStyle = col; x.fillStyle = col; x.lineWidth = 1;
     x.beginPath(); x.moveTo(Math.round(cx)+.5, y(h)); x.lineTo(Math.round(cx)+.5, y(l)); x.stroke();
     const top = y(Math.max(o,cl)), bot = y(Math.min(o,cl));
     x.fillRect(cx-bw/2, top, bw, Math.max(1, bot-top));
   }
-  x.globalAlpha = 1;
-  // Point sur la dernière clôture visible.
-  const lx = padL + (DAILY_SHOW-1)*slot + slot/2;
-  x.fillStyle = v("--text","#fff"); x.beginPath(); x.arc(lx, y(ref), 3, 0, Math.PI*2); x.fill();
-  if (opt.revealed && n>=DAILY_SHOW+1){
-    const k = Math.min(n, c.length)-1, fx = padL + k*slot + slot/2, fy = y(c[k][4]);
-    const col = c[k][4]>=ref ? up : dn;
+  // Moyennes mobiles.
+  const emaKey = ctx ? "ctxEma" : "ema";
+  if (!rd[emaKey]) rd[emaKey] = {e20:dailyEma(series, 20), e50:dailyEma(series, 50)};
+  const lines = [];
+  if (ind.ema20) lines.push([rd[emaKey].e20, gold, "EMA 20"]);
+  if (ind.ema50) lines.push([rd[emaKey].e50, "#6ea8fe", "EMA 50"]);
+  lines.forEach(([arr, col])=>{
+    x.strokeStyle = col; x.lineWidth = 1.5; x.globalAlpha = .9; x.beginPath();
+    let on = false;
+    for (let k=start;k<end;k++){ const val = arr[k]; if (val==null) continue; const px = X(k), py = y(val); if (!on){ x.moveTo(px, py); on = true; } else x.lineTo(px, py); }
+    x.stroke(); x.globalAlpha = 1; x.lineWidth = 1;
+  });
+  x.restore();
+  // Dernière clôture visible + trajet révélé.
+  const lastK = ctx ? end-1 : DAILY_WARM+DAILY_SHOW-1;
+  x.fillStyle = text; x.beginPath(); x.arc(X(lastK), y(ref), 3, 0, Math.PI*2); x.fill();
+  if (!ctx && opt.mode==="reveal" && end > DAILY_WARM+DAILY_SHOW){
+    const k = end-1, fy = y(series[k][4]), col = series[k][4]>=ref ? up : dn;
     x.strokeStyle = col; x.lineWidth = 1.5; x.setLineDash([2,3]);
-    x.beginPath(); x.moveTo(lx, y(ref)); x.lineTo(fx, fy); x.stroke(); x.setLineDash([]); x.lineWidth = 1;
-    x.fillStyle = col; x.beginPath(); x.arc(fx, fy, 4, 0, Math.PI*2); x.fill();
+    x.beginPath(); x.moveTo(X(lastK), y(ref)); x.lineTo(X(k), fy); x.stroke(); x.setLineDash([]); x.lineWidth = 1;
+    x.fillStyle = col; x.beginPath(); x.arc(X(k), fy, 4, 0, Math.PI*2); x.fill();
   }
+  // Légende.
+  x.font = "600 11px "+mono; x.textBaseline = "middle"; x.textAlign = "left";
+  let lx = padL + 4;
+  const tag = (t, col)=>{ x.fillStyle = col; x.fillText(t, lx, 13); lx += x.measureText(t).width + 14; };
+  tag(ctx ? "VUE D'ENSEMBLE · "+DAILY_IV_LABEL[rd.ivUp].toUpperCase() : rd.tick+" · "+rd.ivLabel.toUpperCase(), ctx ? gold : faint);
+  lines.forEach(l=>tag(l[2], l[1]));
+  if (ctx){ x.textAlign = "right"; x.fillStyle = faint; x.fillText("maintenant ●", W-padR-2, 13); x.textAlign = "left"; }
 }
-window.addEventListener("resize", ()=>{
-  if (document.body.dataset.view!=="daily" || (D.phase!=="playing" && D.phase!=="reveal")) return;
-  const rd = (D.practice ? D.practice.rounds : D.rounds||[])[D.i]; if (!rd) return;
-  const cv = document.getElementById("dd-canvas");
-  if (D.phase==="playing") dailyDraw(cv, rd.c, DAILY_SHOW, D.curRange, {});
-  else dailyDraw(cv, rd.c, DAILY_SHOW+DAILY_AFTER, dailyRange(rd.c, 0, DAILY_SHOW+DAILY_AFTER), {revealed:true});
-});
-
+window.addEventListener("resize", ()=>dailyRedraw());
 /* ============================= CERTIFICAT DE CHALLENGE ============================= */
 // Un challenge prop firm réussi (Étape 1 + Étape 2, `fundedAt` posé) donne
 // droit à un certificat : image PNG (format post LinkedIn), PDF A4, lien
@@ -21611,6 +21857,7 @@ function updateShellForView(name){
 
 /* ============================= VIEW SWITCH ============================= */
 function switchView(name){
+  if (typeof chartTouchLock==="function") chartTouchLock(false);
   pauseQuizIfActive(); // leaving to any other main tab pauses an in-progress quiz instead of losing it
   const prevView = document.body.dataset.view;
   updateShellForView(name);
@@ -23663,6 +23910,37 @@ function initWidgetWheel(){
     });
   }, {passive:true});
 }
+// ---- Mobile : activer le graphique d'un toucher, figer la page ----
+function chartTouchShield(wrap){
+  if (!wrap || wrap.querySelector(":scope > .ct-shield")) return;
+  const sh = document.createElement("div");
+  sh.className = "ct-shield";
+  sh.innerHTML = '<span>👆 Touche pour manipuler le graphique</span>';
+  sh.addEventListener("click", (e)=>{ e.preventDefault(); e.stopPropagation(); chartTouchLock(true); });
+  wrap.appendChild(sh);
+}
+function chartTouchLock(on){
+  document.documentElement.classList.toggle("chart-locked", !!on);
+}
+function initChartTouchLock(){
+  const mq = window.matchMedia ? window.matchMedia("(hover: none) and (pointer: coarse)") : null;
+  const apply = ()=>{ const t = !!(mq && mq.matches); document.documentElement.classList.toggle("touch-ui", t); if (!t) chartTouchLock(false); };
+  apply();
+  if (mq && mq.addEventListener) mq.addEventListener("change", apply);
+  chartTouchShield(document.getElementById("chart-stage"));
+  chartTouchShield(document.getElementById("tv-chart-wrap"));
+  const pill = document.createElement("button");
+  pill.type = "button"; pill.className = "ct-pill";
+  pill.innerHTML = '<b>●</b> Graphique actif · touche en dehors pour faire défiler';
+  pill.addEventListener("click", ()=>chartTouchLock(false));
+  document.body.appendChild(pill);
+  // Toucher n'importe où en dehors du widget graphique libère le défilement.
+  document.addEventListener("pointerdown", (e)=>{
+    if (!document.documentElement.classList.contains("chart-locked")) return;
+    if (e.target.closest && (e.target.closest('[data-widget="chart"]') || e.target.closest(".ct-pill"))) return;
+    chartTouchLock(false);
+  }, true);
+}
 function armIframeShield(wrap, label){
   if (!wrap || wrap.querySelector(":scope > .wz-shield")) return;
   const sh = document.createElement("div");
@@ -25465,6 +25743,7 @@ async function init(){
   refreshNews();
   setInterval(refreshNews, 5*60*1000);
   dailyNavDot();
+  initChartTouchLock();
   await Promise.all([initDb(), initPriceFeed()]);
   renderAll();
   try{ if (new URLSearchParams(location.search).has("defi")) switchView("daily"); }catch(e){}
