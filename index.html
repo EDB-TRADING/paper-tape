@@ -2832,6 +2832,430 @@
     .ep-final h2{font-size:28px;}
   }
 
+  /* ---------- EDB+ v2 : carte de membre, bento de fonctionnalités, comparatif ---------- */
+  .ep2{gap:0;}
+  .ep2 .ic{width:16px;height:16px;}
+  .ep2-section{margin-top:56px;}
+  .ep2-head{display:flex;flex-direction:column;gap:10px;margin-bottom:22px;}
+  .ep2-head.center{align-items:center;text-align:center;}
+  .ep2-head h2{font-size:36px;letter-spacing:-.03em;line-height:1.08;margin:0;}
+  .ep2-head p{margin:0;color:var(--text-dim);font-size:15.5px;line-height:1.6;max-width:620px;}
+  .ep2-kicker{font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.14em;color:var(--pw-gold);}
+  .ep2-gold{background:linear-gradient(110deg, #f7e4a9 0%, var(--pw-gold) 35%, #a9843b 62%, #f4dd9e 100%);background-size:220% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:ep2Shine 7s linear infinite;}
+  @keyframes ep2Shine{to{background-position:220% center;}}
+
+  /* Hero */
+  .ep2-hero{position:relative;overflow:hidden;border-radius:26px;padding:60px 56px;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:44px;align-items:center;
+    border:1px solid color-mix(in srgb, var(--pw-gold) 22%, var(--border-soft));
+    background:
+      radial-gradient(760px 460px at 82% 45%, color-mix(in srgb, var(--pw-gold) 15%, transparent), transparent 62%),
+      radial-gradient(620px 380px at 0% 105%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 70%),
+      linear-gradient(180deg, var(--panel), var(--bg));}
+  .ep2-hero::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.55;
+    background-image:linear-gradient(color-mix(in srgb, var(--text) 6%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--text) 6%, transparent) 1px, transparent 1px);
+    background-size:44px 44px;
+    -webkit-mask-image:radial-gradient(ellipse 60% 70% at 75% 50%, #000, transparent 75%);mask-image:radial-gradient(ellipse 60% 70% at 75% 50%, #000, transparent 75%);}
+  .ep2-hero > *{position:relative;}
+  .ep2-eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--pw-gold);padding:7px 13px;border-radius:999px;border:1px solid color-mix(in srgb, var(--pw-gold) 32%, transparent);background:color-mix(in srgb, var(--pw-gold) 8%, transparent);}
+  .ep2-eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--pw-gold);box-shadow:0 0 0 3px color-mix(in srgb, var(--pw-gold) 22%, transparent);}
+  .ep2-hero h1{font-size:68px;line-height:.98;letter-spacing:-.045em;margin:22px 0 18px;}
+  .ep2-sub{font-size:17px;line-height:1.65;color:var(--text-dim);margin:0 0 24px;max-width:540px;}
+  .ep2-sub b{color:var(--text);font-weight:600;}
+  .ep2-price{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:22px;}
+  .ep2-price b{font-size:40px;font-weight:800;letter-spacing:-.035em;line-height:1;}
+  .ep2-price span{font-size:16px;color:var(--text-dim);}
+  .ep2-price em{font-style:normal;font-size:13px;color:var(--text-faint);margin-left:6px;padding-left:12px;border-left:1px solid var(--border);}
+  .ep2 .pw-ctas{gap:10px;}
+  .ep2 .pw-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;}
+  .ep2 .pw-btn-trial{border:1px solid color-mix(in srgb, #fff 18%, var(--pw-gold));}
+  .ep2 .pw-btn-ghost{background:color-mix(in srgb, var(--text) 5%, transparent);}
+  .ep2-note{margin-top:12px;font-size:12.5px;color:var(--text-faint);}
+  .ep2-trust{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:22px;padding-top:20px;border-top:1px solid var(--border-soft);}
+  .ep2-trust span{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--text-dim);}
+  .ep2-trust svg{width:15px;height:15px;color:var(--pw-gold);flex:none;}
+
+  /* Carte de membre */
+  .ep2-stage{position:relative;display:flex;flex-direction:column;align-items:center;gap:22px;perspective:1100px;padding:10px 0;}
+  .ep2-stage::before{content:"";position:absolute;left:12%;right:12%;bottom:8%;height:38%;border-radius:50%;background:radial-gradient(closest-side, color-mix(in srgb, var(--pw-gold) 50%, transparent), transparent);filter:blur(34px);opacity:.5;pointer-events:none;}
+  .ep2-card-float{width:100%;max-width:440px;animation:ep2Float 7s ease-in-out infinite;}
+  @keyframes ep2Float{0%,100%{transform:translateY(0) rotate(-1.2deg);}50%{transform:translateY(-10px) rotate(.6deg);}}
+  .ep2-card{--rx:4deg;--ry:-10deg;--mx:30%;--my:20%;position:relative;width:100%;aspect-ratio:1.586/1;border-radius:22px;padding:26px 28px;display:flex;flex-direction:column;justify-content:space-between;color:#f3e7c9;overflow:hidden;isolation:isolate;
+    transform:rotateX(var(--rx)) rotateY(var(--ry));transition:transform .6s cubic-bezier(.2,.7,.2,1);
+    background:
+      radial-gradient(120% 90% at 100% 0%, rgba(215,181,99,.24), transparent 55%),
+      radial-gradient(90% 80% at 0% 110%, rgba(255,255,255,.07), transparent 60%),
+      linear-gradient(150deg, #26221b 0%, #13120f 46%, #090908 100%);
+    border:1px solid rgba(232,200,120,.42);
+    box-shadow:0 1px 0 rgba(255,255,255,.14) inset, 0 -1px 0 rgba(0,0,0,.5) inset, 0 60px 100px -46px rgba(0,0,0,.95), 0 24px 60px -34px rgba(215,181,99,.55);}
+  .ep2-card.is-tilt{transition:transform .12s linear;}
+  .ep2-card::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.9;
+    background:repeating-radial-gradient(circle at 115% -25%, rgba(232,200,120,.075) 0 1px, transparent 1px 8px);}
+  .ep2-card::after{content:"";position:absolute;inset:-1px;pointer-events:none;mix-blend-mode:screen;
+    background:linear-gradient(115deg, transparent 22%, rgba(255,236,190,.20) 40%, rgba(170,210,255,.12) 49%, rgba(255,190,230,.10) 55%, transparent 72%);
+    background-size:300% 300%;background-position:var(--mx) var(--my);animation:ep2Sheen 8s ease-in-out infinite alternate;}
+  .ep2-card.is-tilt::after{animation:none;}
+  @keyframes ep2Sheen{from{background-position:0% 0%;}to{background-position:100% 100%;}}
+  .ep2-card-top{display:flex;justify-content:space-between;align-items:flex-start;}
+  .ep2-card-logo{font-size:34px;font-weight:800;letter-spacing:-.04em;line-height:1;background:linear-gradient(160deg, #fbecc0, #d7b563 45%, #9c7731 80%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 0 rgba(0,0,0,.6));}
+  .ep2-card-logo span{font-size:.9em;}
+  .ep2-card-org{font-family:var(--mono);font-size:9.5px;line-height:1.35;letter-spacing:.16em;text-transform:uppercase;text-align:right;color:rgba(243,231,201,.62);}
+  .ep2-card-mid{display:flex;align-items:center;gap:14px;}
+  .ep2-chip{position:relative;display:block;width:46px;height:35px;border-radius:7px;background:linear-gradient(135deg, #f4dc9a, #c9a24f 45%, #8f6c2a 100%);box-shadow:0 1px 0 rgba(255,255,255,.4) inset, 0 2px 6px rgba(0,0,0,.45);}
+  .ep2-chip::before{content:"";position:absolute;inset:6px 8px;border-radius:3px;border:1px solid rgba(80,58,18,.55);
+    background:linear-gradient(90deg, transparent 47%, rgba(80,58,18,.55) 47% 53%, transparent 53%), linear-gradient(0deg, transparent 47%, rgba(80,58,18,.55) 47% 53%, transparent 53%);}
+  .ep2-card-pt{font-family:var(--mono);font-size:10px;letter-spacing:.24em;color:rgba(243,231,201,.5);}
+  .ep2-card-num{font-family:var(--mono);font-size:15.5px;letter-spacing:.2em;color:rgba(247,236,208,.9);text-shadow:0 1px 0 rgba(0,0,0,.7), 0 -1px 0 rgba(255,255,255,.08);white-space:nowrap;}
+  .ep2-card-bot{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;}
+  .ep2-card-bot > div{display:flex;flex-direction:column;gap:3px;min-width:0;}
+  .ep2-card-bot .r{text-align:right;flex:none;}
+  .ep2-card-bot small{font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;color:rgba(243,231,201,.5);}
+  .ep2-card-bot b{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#f7ecd2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .ep2-card-cap{position:relative;margin:0;font-size:13.5px;color:var(--text-dim);text-align:center;}
+  .ep2-card-cap b{color:var(--text);}
+
+  /* Bento */
+  .ep2-bento{display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:14px;}
+  .ep2-tile{--c:var(--pw-gold);position:relative;overflow:hidden;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:12px;min-height:250px;
+    background:radial-gradient(420px 220px at 100% 0%, color-mix(in srgb, var(--c) 9%, transparent), transparent 70%), linear-gradient(180deg, var(--panel-2), var(--panel));
+    border:1px solid var(--border-soft);transition:border-color .25s, transform .25s;}
+  .ep2-tile:hover{border-color:color-mix(in srgb, var(--c) 45%, var(--border-soft));transform:translateY(-3px);}
+  .ep2-t-k{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--c);}
+  .ep2-t-k .ic{width:15px;height:15px;}
+  .ep2-t-k .live{margin-left:auto;display:inline-flex;align-items:center;gap:6px;color:var(--long);letter-spacing:.08em;}
+  .ep2-t-k .live::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--long);box-shadow:0 0 0 0 color-mix(in srgb, var(--long) 60%, transparent);animation:ep2Pulse 1.8s infinite;}
+  @keyframes ep2Pulse{70%{box-shadow:0 0 0 7px transparent;}100%{box-shadow:0 0 0 0 transparent;}}
+  .ep2-tile h3{font-size:21px;letter-spacing:-.02em;line-height:1.2;margin:0;}
+  .ep2-tile p{margin:0;font-size:13.5px;line-height:1.55;color:var(--text-dim);}
+  .ep2-tile.t-prize{grid-column:span 2;grid-row:span 2;--c:var(--pw-gold);border-color:color-mix(in srgb, var(--pw-gold) 32%, var(--border-soft));
+    background:radial-gradient(560px 360px at 100% 0%, color-mix(in srgb, var(--pw-gold) 20%, transparent), transparent 70%), radial-gradient(400px 260px at 0% 100%, color-mix(in srgb, var(--pw-gold) 8%, transparent), transparent 70%), linear-gradient(180deg, var(--panel-2), var(--panel));}
+  .ep2-tile.t-challenge{grid-column:span 2;--c:var(--long);}
+  .ep2-tile.t-quiz{--c:#37c7db;}
+  .ep2-tile.t-trades{--c:#f0546a;}
+  .ep2-tile.t-news{grid-column:span 2;--c:var(--warn, #e3ac4b);}
+  .ep2-tile.t-themes{grid-column:span 2;--c:#a98bf0;}
+  .ep2-prize{display:flex;align-items:baseline;gap:10px;margin:18px 0 6px;}
+  .ep2-prize b{font-family:var(--sans);font-size:92px;font-weight:800;letter-spacing:-.055em;line-height:.9;white-space:nowrap;font-variant-numeric:tabular-nums;
+    background:linear-gradient(170deg, #fbecc0 10%, var(--pw-gold) 50%, #9c7731 100%);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .ep2-prize span{font-family:var(--sans);font-size:38px;font-weight:800;color:var(--pw-gold);}
+  .ep2-prize-or{display:inline-flex;align-self:flex-start;font-size:12.5px;color:var(--text-dim);padding:5px 11px;border-radius:999px;border:1px solid var(--border);}
+  .ep2-tile.t-prize h3{font-size:28px;margin-top:6px;}
+  .ep2-tile.t-prize p{font-size:14.5px;max-width:460px;}
+  .ep2-five{margin-top:auto;display:flex;flex-direction:column;gap:9px;padding-top:12px;}
+  .ep2-five-row{display:grid;grid-template-columns:repeat(5, minmax(0,1fr));gap:6px;}
+  .ep2-five-row i{display:flex;align-items:center;justify-content:center;height:34px;border-radius:9px;font-style:normal;font-family:var(--mono);font-size:12px;color:var(--text-faint);border:1px dashed var(--border);}
+  .ep2-five-row i.on{color:#1a1408;background:linear-gradient(135deg, #f4dc9a, var(--pw-gold));border:none;font-weight:700;}
+  .ep2-five-row i.cur{color:var(--pw-gold);border:1px solid color-mix(in srgb, var(--pw-gold) 60%, transparent);border-style:solid;}
+  .ep2-five small{font-size:12px;color:var(--text-faint);}
+  .ep2-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:22px;align-items:center;flex:1;}
+  .ep2-split > div:first-child{display:flex;flex-direction:column;gap:10px;}
+  .ep2-meters{display:flex;flex-direction:column;gap:13px;padding:16px;border-radius:14px;background:color-mix(in srgb, var(--bg) 55%, transparent);border:1px solid var(--border-soft);}
+  .ep2-meter{display:flex;flex-direction:column;gap:6px;}
+  .ep2-meter div{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--text-dim);}
+  .ep2-meter div b{font-family:var(--mono);font-weight:600;color:var(--text);}
+  .ep2-meter u{display:block;height:6px;border-radius:4px;background:color-mix(in srgb, var(--text) 9%, transparent);overflow:hidden;text-decoration:none;}
+  .ep2-meter u i{display:block;height:100%;border-radius:4px;background:var(--m, var(--long));}
+  .ep2-stages{display:flex;gap:6px;flex-wrap:wrap;}
+  .ep2-stages span{font-size:11.5px;font-family:var(--mono);padding:4px 9px;border-radius:999px;border:1px solid var(--border);color:var(--text-dim);}
+  .ep2-stages span.ok{border-color:color-mix(in srgb, var(--long) 50%, transparent);color:var(--long);background:color-mix(in srgb, var(--long) 10%, transparent);}
+  .ep2-q{margin-top:auto;display:flex;flex-direction:column;gap:7px;}
+  .ep2-q > span{font-size:12.5px;color:var(--text);font-weight:600;}
+  .ep2-q i{display:flex;align-items:center;gap:8px;font-style:normal;font-size:12.5px;padding:8px 10px;border-radius:10px;border:1px solid var(--border-soft);color:var(--text-faint);}
+  .ep2-q i.ok{color:var(--text);border-color:color-mix(in srgb, var(--long) 55%, transparent);background:color-mix(in srgb, var(--long) 9%, transparent);}
+  .ep2-q i svg{width:14px;height:14px;flex:none;color:var(--long);}
+  .ep2-spark{margin-top:auto;display:block;width:100%;height:auto;}
+  .ep2-spark text{font-family:var(--mono);font-size:8px;}
+  .ep2-pill{display:inline-flex;align-self:flex-start;align-items:center;gap:6px;font-family:var(--mono);font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:999px;color:var(--long);background:color-mix(in srgb, var(--long) 12%, transparent);border:1px solid color-mix(in srgb, var(--long) 40%, transparent);}
+  .ep2-news{list-style:none;margin:auto 0 0;padding:0;display:flex;flex-direction:column;}
+  .ep2-news li{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--border-soft);font-size:13.5px;min-width:0;}
+  .ep2-news time{font-family:var(--mono);font-size:11.5px;color:var(--text-faint);flex:none;}
+  .ep2-news em{font-style:normal;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:6px;flex:none;color:var(--t);background:color-mix(in srgb, var(--t) 13%, transparent);}
+  .ep2-news b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+  .ep2-swatches{margin-top:auto;display:grid;grid-template-columns:repeat(6, minmax(0,1fr));gap:8px;}
+  .ep2-swatches span{display:flex;flex-direction:column;align-items:center;gap:7px;font-size:11px;color:var(--text-dim);}
+  .ep2-swatches i{display:block;width:100%;max-width:56px;aspect-ratio:1;border-radius:14px;background:var(--s);border:1px solid color-mix(in srgb, var(--text) 14%, transparent);box-shadow:0 10px 24px -14px var(--s);}
+  .ep2-widgets{display:flex;flex-wrap:wrap;gap:6px;}
+  .ep2-widgets span{font-size:12px;padding:5px 10px;border-radius:8px;background:color-mix(in srgb, var(--text) 5%, transparent);border:1px solid var(--border-soft);color:var(--text-dim);}
+
+  /* Comparatif */
+  .ep2-compare{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:40px;align-items:center;}
+  .ep2-compare-l{display:flex;flex-direction:column;gap:14px;}
+  .ep2-compare-l h2{font-size:36px;letter-spacing:-.03em;line-height:1.08;margin:0;}
+  .ep2-compare-l p{margin:0;color:var(--text-dim);font-size:15px;line-height:1.6;}
+  .ep2-compare-l .ep2-price{margin:6px 0 4px;}
+  .ep2-compare-l .ep2-price b{font-size:52px;color:var(--pw-gold);}
+  .ep2-table{border-radius:20px;border:1px solid var(--border-soft);background:var(--panel);overflow:hidden;}
+  .ep2-tr{display:grid;grid-template-columns:minmax(0,1fr) 84px 84px;align-items:center;border-top:1px solid var(--border-soft);}
+  .ep2-tr:first-child{border-top:none;}
+  .ep2-tr > span{padding:13px 16px;font-size:14px;}
+  .ep2-tr > span:nth-child(n+2){display:flex;justify-content:center;align-self:stretch;align-items:center;}
+  .ep2-tr .pro{background:color-mix(in srgb, var(--pw-gold) 8%, transparent);}
+  .ep2-th > span{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);padding-top:16px;padding-bottom:16px;}
+  .ep2-th .pro{color:var(--pw-gold);font-weight:700;}
+  .ep2-tr svg{width:18px;height:18px;}
+  .ep2-tr .ok svg{color:var(--long);}
+  .ep2-tr .pro.ok svg{color:var(--pw-gold);}
+  .ep2-tr .no svg{color:var(--text-faint);}
+
+  /* Étapes + FAQ */
+  .ep2-steps{display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:14px;counter-reset:ep2s;}
+  .ep2-steps > div{position:relative;display:flex;flex-direction:column;gap:8px;padding:22px;border-radius:18px;background:var(--panel);border:1px solid var(--border-soft);}
+  .ep2-steps b{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;font-family:var(--mono);font-size:14px;color:#1a1408;background:linear-gradient(135deg, #f4dc9a, var(--pw-gold));}
+  .ep2-steps strong{font-size:16px;margin-top:4px;}
+  .ep2-steps span{font-size:13.5px;color:var(--text-dim);line-height:1.55;}
+  .ep2-faq{display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:10px;max-width:none;margin-top:14px;}
+  .ep2-faq details{height:fit-content;}
+
+  /* Final */
+  .ep2-final{position:relative;overflow:hidden;border-radius:26px;padding:64px 30px;text-align:center;display:flex;flex-direction:column;align-items:center;
+    border:1px solid color-mix(in srgb, var(--pw-gold) 30%, var(--border-soft));
+    background:radial-gradient(600px 300px at 50% 0%, color-mix(in srgb, var(--pw-gold) 18%, transparent), transparent 70%), linear-gradient(180deg, var(--panel), var(--bg));}
+  .ep2-final h2{font-size:42px;letter-spacing:-.035em;line-height:1.05;margin:16px 0 12px;}
+  .ep2-final p{font-size:16px;color:var(--text-dim);margin:0 0 26px;max-width:560px;line-height:1.6;}
+  .ep2-final .pw-ctas{justify-content:center;}
+  .ep2-foot{margin-top:18px;}
+
+  /* Barre collante */
+  .ep2-sticky{position:sticky;bottom:16px;z-index:30;align-self:center;width:min(760px, 100%);margin-top:16px;display:flex;align-items:center;gap:12px;padding:9px 9px 9px 18px;border-radius:16px;
+    background:color-mix(in srgb, var(--panel) 84%, transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+    border:1px solid color-mix(in srgb, var(--pw-gold) 35%, var(--border));box-shadow:0 24px 50px -20px rgba(0,0,0,.85);
+    opacity:0;visibility:hidden;transform:translateY(16px);transition:opacity .3s, transform .3s, visibility 0s .3s;}
+  .ep2-sticky.on{opacity:1;visibility:visible;transform:none;transition:opacity .3s, transform .3s, visibility 0s;}
+  .ep2-sticky-logo{font-size:19px;font-weight:800;letter-spacing:-.03em;color:var(--pw-gold);}
+  .ep2-sticky-txt{font-size:13px;color:var(--text-dim);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .ep2-sticky .pw-btn{padding:10px 16px;font-size:13.5px;border-radius:11px;}
+
+  /* Statut (membre / essai / demande) */
+  .ep2-hero.is-status{padding:52px 56px;}
+  .ep2-hero.is-status h1{font-size:54px;}
+  .ep2-hero.is-status .ep-steps-grid.compact{grid-template-columns:minmax(0,1fr);gap:10px;margin:0 0 22px;}
+  .ep2-hero.is-status .ep-steps-grid.compact > div{flex-direction:row;align-items:center;gap:14px;padding:14px 16px;}
+  .ep2-hero.is-status .ep-steps-grid.compact > div > b{flex:none;}
+  .ep2-hero.is-status .ep-steps-grid.compact strong{display:block;font-size:14.5px;}
+  .ep2-links{display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:12px;margin-top:16px;}
+  .ep2-link{display:flex;align-items:center;gap:14px;text-align:left;padding:18px;border-radius:16px;background:var(--panel);border:1px solid var(--border-soft);color:var(--text);font:inherit;cursor:pointer;transition:transform .2s, border-color .2s;}
+  .ep2-link:hover{transform:translateY(-3px);border-color:color-mix(in srgb, var(--pw-gold) 50%, var(--border-soft));}
+  .ep2-link > i{display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;flex:none;color:var(--pw-gold);background:color-mix(in srgb, var(--pw-gold) 11%, transparent);border:1px solid color-mix(in srgb, var(--pw-gold) 25%, transparent);}
+  .ep2-link > i .ic{width:19px;height:19px;}
+  .ep2-link b{display:block;font-size:15px;}
+  .ep2-link em{display:block;font-style:normal;font-size:12.5px;color:var(--text-faint);margin-top:2px;}
+
+  @media (max-width:1180px){
+    .ep2-hero{grid-template-columns:minmax(0,1fr);padding:44px 36px;gap:36px;}
+    .ep2-stage{order:-1;}
+    .ep2-card-float{max-width:400px;}
+    .ep2-bento{grid-template-columns:repeat(2, minmax(0,1fr));}
+    .ep2-tile.t-prize{grid-row:auto;}
+    .ep2-compare{grid-template-columns:minmax(0,1fr);gap:24px;}
+  }
+  @media (max-width:1080px){
+    .ep2-sticky{bottom:calc(var(--tabbar-h, 64px) + 12px + env(safe-area-inset-bottom));}
+  }
+  @media (max-width:720px){
+    .ep2-section{margin-top:40px;}
+    .ep2-hero, .ep2-hero.is-status{padding:28px 18px 26px;border-radius:20px;}
+    .ep2-hero h1{font-size:42px;margin:18px 0 14px;}
+    .ep2-card-float{max-width:310px;}
+    .ep2-stage{gap:14px;padding:0;}
+    .ep2-card-cap{font-size:12.5px;}
+    .ep2-hero.is-status h1{font-size:34px;}
+    .ep2-sub{font-size:15.5px;}
+    .ep2-card{padding:18px 20px;border-radius:18px;}
+    .ep2-card-logo{font-size:27px;}
+    .ep2-card-num{font-size:12.5px;letter-spacing:.14em;}
+    .ep2-chip{width:38px;height:29px;}
+    .ep2-card-bot b{font-size:12px;}
+    .ep2-head h2, .ep2-compare-l h2{font-size:27px;}
+    .ep2-bento, .ep2-steps, .ep2-faq, .ep2-links{grid-template-columns:minmax(0,1fr);}
+    .ep2-tile, .ep2-tile.t-prize, .ep2-tile.t-challenge, .ep2-tile.t-news, .ep2-tile.t-themes{grid-column:auto;min-height:0;padding:20px;}
+    .ep2-prize b{font-size:64px;}
+    .ep2-prize span{font-size:28px;}
+    .ep2-split{grid-template-columns:minmax(0,1fr);}
+    .ep2-swatches{grid-template-columns:repeat(3, minmax(0,1fr));}
+    .ep2-tr{grid-template-columns:minmax(0,1fr) 62px 62px;}
+    .ep2-tr > span{padding:12px 12px;font-size:13.5px;}
+    .ep2-final{padding:44px 18px;}
+    .ep2-final h2{font-size:30px;}
+    .ep2-sticky{padding:8px 8px 8px 14px;gap:10px;align-self:stretch;width:auto;margin-right:58px;}
+    .ep2-sticky-txt, .ep2-sticky .pw-btn-ghost{display:none;}
+    .ep2-sticky .pw-btn{flex:1;}
+    .ep2-price em{flex-basis:100%;margin-left:0;padding-left:0;border-left:none;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .ep2-card-float, .ep2-card::after, .ep2-gold, .ep2-t-k .live::before{animation:none;}
+  }
+
+  /* ---------- Défi du jour ---------- */
+  .daily-wrap{max-width:1240px;margin:0 auto;}
+  nav.tabs button.has-dot{position:relative;}
+  nav.tabs button.has-dot::after{content:"";position:absolute;top:7px;right:12px;width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 2px var(--bg);}
+  html.sb-rail nav.tabs button.has-dot::after{right:16px;top:6px;}
+  .dd{--pw-gold:var(--gold);display:flex;flex-direction:column;gap:16px;}
+  .dd-actions[hidden], .dd-verdict[hidden], .dd-q[hidden]{display:none !important;}
+  .dd-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;padding:30px 32px;border-radius:22px;border:1px solid var(--border-soft);
+    background:radial-gradient(700px 300px at 0% 0%, color-mix(in srgb, var(--gold) 13%, transparent), transparent 70%), linear-gradient(180deg, var(--panel), var(--bg));}
+  .dd-kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);}
+  .dd-head h1{font-size:40px;letter-spacing:-.035em;line-height:1.05;margin:10px 0 10px;}
+  .dd-head p{margin:0;max-width:620px;color:var(--text-dim);font-size:15px;line-height:1.6;}
+  .dd-head-stats{display:flex;gap:10px;}
+  .dd-head-stats > div{display:flex;flex-direction:column;gap:4px;min-width:104px;padding:12px 16px;border-radius:14px;background:color-mix(in srgb, var(--bg) 60%, transparent);border:1px solid var(--border-soft);}
+  .dd-head-stats b{font-size:22px;letter-spacing:-.02em;}
+  .dd-head-stats span{font-size:11.5px;color:var(--text-faint);}
+  .dd-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start;}
+  .dd-card{border-radius:20px;border:1px solid var(--border-soft);background:var(--panel);padding:24px;}
+  .dd-empty{text-align:center;color:var(--text-dim);padding:48px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .dd-empty p{margin:0;max-width:420px;}
+  .dd-intro{display:flex;flex-direction:column;gap:22px;align-items:stretch;}
+  .dd-intro-art{height:150px;border-radius:14px;background:var(--bg);border:1px solid var(--border-soft);padding:14px;}
+  .dd-intro-art svg{width:100%;height:100%;display:block;}
+  .dd-rules{display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:10px;}
+  .dd-rules > div{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:14px;background:var(--panel-2);border:1px solid var(--border-soft);font-size:13.5px;line-height:1.5;color:var(--text-dim);}
+  .dd-rules b{flex:none;display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;font-family:var(--mono);font-size:13px;color:#1a1408;background:linear-gradient(135deg, #f4dc9a, var(--gold));}
+  .dd-cta{align-self:center;min-width:260px;font-size:16px;padding:16px 28px;}
+  .dd-note{margin:-10px 0 0;text-align:center;font-size:12.5px;color:var(--text-faint);}
+  .dd-game{display:flex;flex-direction:column;gap:12px;}
+  .dd-game-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .dd-round{font-weight:700;font-size:15px;}
+  .dd-dots{display:flex;gap:6px;}
+  .dd-dots i{width:22px;height:6px;border-radius:4px;background:var(--border);}
+  .dd-dots i.cur{background:var(--gold);}
+  .dd-dots i.ok{background:var(--long);}
+  .dd-dots i.ko{background:var(--short);}
+  .dd-tf{margin-left:auto;font-family:var(--mono);font-size:11.5px;padding:4px 10px;border-radius:999px;border:1px solid var(--border);color:var(--text-dim);}
+  .dd-practice{font-family:var(--mono);font-size:11px;padding:4px 10px;border-radius:999px;color:var(--gold);border:1px solid color-mix(in srgb, var(--gold) 45%, transparent);}
+  .dd-timer{height:5px;border-radius:4px;background:var(--border-soft);overflow:hidden;}
+  .dd-timer i{display:block;height:100%;width:100%;transform-origin:left;background:linear-gradient(90deg, var(--gold), color-mix(in srgb, var(--gold) 60%, #fff));}
+  .dd-timer i.low{background:var(--short);}
+  .dd-chart{position:relative;height:380px;border-radius:14px;background:var(--bg);border:1px solid var(--border-soft);overflow:hidden;}
+  .dd-chart canvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
+  .dd-q{position:absolute;top:50%;right:calc(58px + (100% - 64px) * 6 / 72);transform:translate(50%,-50%);font-size:54px;font-weight:800;color:var(--gold);opacity:.85;pointer-events:none;text-shadow:0 6px 30px color-mix(in srgb, var(--gold) 40%, transparent);}
+  .dd-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .dd-btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:18px;border-radius:14px;font:inherit;font-size:18px;font-weight:800;cursor:pointer;transition:transform .12s, filter .15s, box-shadow .15s;border:1px solid transparent;}
+  .dd-btn span{font-size:16px;}
+  .dd-btn.up{color:#06281a;background:linear-gradient(135deg, color-mix(in srgb, var(--long) 75%, #fff), var(--long));box-shadow:0 14px 30px -16px var(--long);}
+  .dd-btn.down{color:#2c0710;background:linear-gradient(135deg, color-mix(in srgb, var(--short) 75%, #fff), var(--short));box-shadow:0 14px 30px -16px var(--short);}
+  .dd-btn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.05);}
+  .dd-btn:disabled{opacity:.45;cursor:default;}
+  .dd-btn.picked{opacity:1;outline:3px solid var(--text);outline-offset:2px;}
+  .dd-keys{margin:0;text-align:center;font-size:11.5px;color:var(--text-faint);}
+  .dd-verdict{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:16px 18px;border-radius:14px;border:1px solid var(--border-soft);background:var(--panel-2);animation:ddIn .3s ease-out;}
+  @keyframes ddIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .dd-verdict.ok{border-color:color-mix(in srgb, var(--long) 50%, transparent);background:color-mix(in srgb, var(--long) 8%, var(--panel-2));}
+  .dd-verdict.ko{border-color:color-mix(in srgb, var(--short) 50%, transparent);background:color-mix(in srgb, var(--short) 7%, var(--panel-2));}
+  .dd-v-l{display:flex;flex-direction:column;gap:3px;}
+  .dd-v-l b{font-size:20px;}
+  .dd-v-l span{font-weight:600;font-size:14px;}
+  .dd-v-l em{font-style:normal;font-size:12.5px;color:var(--text-faint);}
+  .dd-v-l .up, .dd-recap .up{color:var(--long);}
+  .dd-v-l .down, .dd-recap .down{color:var(--short);}
+  .dd-v-r{display:flex;align-items:center;gap:16px;}
+  .dd-v-r strong{font-size:24px;color:var(--gold);}
+  .dd-result{display:flex;flex-direction:column;gap:20px;}
+  .dd-score{display:flex;align-items:center;gap:26px;flex-wrap:wrap;}
+  .dd-score-big{display:flex;align-items:baseline;gap:6px;padding:18px 26px;border-radius:18px;border:1px solid color-mix(in srgb, var(--gold) 35%, var(--border-soft));background:radial-gradient(200px 120px at 50% 0%, color-mix(in srgb, var(--gold) 16%, transparent), transparent 75%), var(--panel-2);}
+  .dd-score-big b{font-size:72px;font-weight:800;letter-spacing:-.05em;line-height:.9;color:var(--gold);}
+  .dd-score-big span{font-size:24px;color:var(--text-dim);font-weight:700;}
+  .dd-score-txt{display:flex;flex-direction:column;gap:6px;flex:1;min-width:240px;}
+  .dd-score-txt h2{font-size:26px;letter-spacing:-.02em;margin:0;}
+  .dd-score-txt p{margin:0;color:var(--text-dim);font-size:14.5px;}
+  .dd-score-txt p b{color:var(--text);}
+  .dd-emoji{font-size:24px;letter-spacing:4px;}
+  .dd-result-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .dd-result-actions .dd-note{margin:0;}
+  .dd-recap{display:flex;flex-direction:column;border-top:1px solid var(--border-soft);}
+  .dd-recap-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;grid-template-rows:auto auto;column-gap:12px;row-gap:2px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-soft);}
+  .dd-recap-row > i{grid-row:span 2;display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;font-style:normal;font-weight:800;font-size:14px;}
+  .dd-recap-row.ok > i{color:var(--long);background:color-mix(in srgb, var(--long) 14%, transparent);}
+  .dd-recap-row.ko > i{color:var(--short);background:color-mix(in srgb, var(--short) 13%, transparent);}
+  .dd-recap-row > div{display:flex;flex-direction:column;min-width:0;}
+  .dd-recap-row > div b{font-size:14.5px;}
+  .dd-recap-row > div span{font-size:12.5px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dd-recap-row em{font-style:normal;font-family:var(--mono);font-weight:600;font-size:13.5px;text-align:right;}
+  .dd-recap-row small{grid-column:3;font-size:11.5px;color:var(--text-faint);text-align:right;}
+  .dd-side{display:flex;flex-direction:column;gap:14px;}
+  .dd-panel{border-radius:18px;border:1px solid var(--border-soft);background:var(--panel);padding:18px;}
+  .dd-panel-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;}
+  .dd-panel-h h3{margin:0;font-size:15px;}
+  .dd-panel-h > span{font-size:11.5px;color:var(--text-faint);}
+  .dd-plus{font-family:var(--mono);font-size:10.5px !important;font-weight:700;color:#1a1408 !important;background:var(--gold);padding:3px 8px;border-radius:999px;}
+  .dd-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;}
+  .dd-list li{display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:9px;font-size:13.5px;}
+  .dd-list li.me{background:color-mix(in srgb, var(--gold) 10%, transparent);}
+  .dd-list li.sep{margin-top:6px;border-top:1px dashed var(--border);border-radius:0 0 9px 9px;}
+  .dd-rk{width:24px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--text-faint);flex:none;}
+  .dd-nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dd-sc{font-family:var(--mono);font-size:11.5px;color:var(--text-faint);}
+  .dd-list b{font-size:13px;}
+  .dd-li-empty{color:var(--text-faint);font-size:13px !important;line-height:1.5;}
+  .dd-arch-sub{margin:0 0 10px;font-size:12.5px;color:var(--text-dim);line-height:1.5;}
+  .dd-arch{display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:6px;}
+  .dd-arch-b{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px;border-radius:10px;border:1px solid var(--border-soft);background:var(--panel-2);color:var(--text);font:inherit;cursor:pointer;transition:border-color .15s, transform .15s;}
+  .dd-arch-b:hover{border-color:color-mix(in srgb, var(--gold) 50%, var(--border-soft));transform:translateY(-1px);}
+  .dd-arch-b b{font-size:12px;text-transform:capitalize;}
+  .dd-arch-b span{font-size:11px;color:var(--text-faint);}
+  .dd-arch-b i{position:absolute;top:3px;right:4px;font-style:normal;font-size:9px;}
+  .dd-arch-b.locked{opacity:.65;}
+  @media (max-width:1100px){
+    .dd-grid{grid-template-columns:minmax(0,1fr);}
+    .dd-side{display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));}
+  }
+  @media (max-width:720px){
+    .dd-head{padding:22px 18px;}
+    .dd-head h1{font-size:28px;}
+    .dd-head-stats{width:100%;}
+    .dd-head-stats > div{flex:1;min-width:0;padding:10px 12px;}
+    .dd-head-stats b{font-size:18px;}
+    .dd-card{padding:16px;}
+    .dd-rules{grid-template-columns:minmax(0,1fr);}
+    .dd-chart{height:300px;}
+    .dd-btn{padding:16px 10px;font-size:16px;}
+    .dd-score-big b{font-size:56px;}
+    .dd-keys{display:none;}
+    .dd-v-r{width:100%;justify-content:space-between;}
+  }
+
+  /* ---------- Certificat de challenge ---------- */
+  .cert-modal{display:flex;flex-direction:column;gap:12px;}
+  .cert-modal h3{margin:0;}
+  .cert-modal .chart-note{margin:0;}
+  .cert-field{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--text-dim);}
+  .cert-field input, .cert-field select{font:inherit;font-size:14px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);}
+  .cert-prev{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--border-soft);background:#0d0c0a;aspect-ratio:1200/630;}
+  .cert-prev img{display:block;width:100%;height:100%;object-fit:contain;}
+  .cert-prev-load{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--text-faint);background:#0d0c0a;}
+  .cert-prev-load[hidden]{display:none;}
+  .cert-btns{display:flex;gap:8px;flex-wrap:wrap;}
+  .cert-btns > *{flex:1 1 150px;text-align:center;}
+  .cert-li{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;font-weight:700;font-size:13.5px;text-decoration:none;color:#fff;background:#0a66c2;border:1px solid #0a66c2;}
+  .cert-li.ghost{background:transparent;color:#5aa2ef;}
+  .cert-li:hover{filter:brightness(1.1);}
+  .cert-foot{font-size:12px !important;line-height:1.6;word-break:break-all;}
+  .cert-foot a{color:var(--gold);}
+  #modal-box:has(.cert-modal){max-width:720px;width:min(720px, 94vw);}
+  .ch-cert-btn{border-color:color-mix(in srgb, var(--gold) 55%, var(--border)) !important;color:var(--gold) !important;}
+  .ch-cert-mini{margin-left:8px;font:inherit;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;border:1px solid color-mix(in srgb, var(--gold) 50%, transparent);background:transparent;color:var(--gold);cursor:pointer;}
+  .cert-verify{position:fixed;inset:0;z-index:3000;overflow:auto;display:flex;align-items:center;justify-content:center;padding:32px 16px;
+    background:radial-gradient(800px 500px at 50% 0%, color-mix(in srgb, var(--gold) 14%, transparent), transparent 70%), var(--bg);}
+  .cv-box{width:min(620px, 100%);display:flex;flex-direction:column;gap:18px;padding:30px;border-radius:22px;border:1px solid color-mix(in srgb, var(--gold) 30%, var(--border-soft));background:var(--panel);box-shadow:0 40px 80px -40px rgba(0,0,0,.9);}
+  .cv-loading{text-align:center;color:var(--text-dim);padding:30px 0;}
+  .cv-brand{display:flex;flex-direction:column;gap:2px;}
+  .cv-brand span{font-weight:800;letter-spacing:.18em;font-size:15px;}
+  .cv-brand em{font-style:normal;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);}
+  .cv-status{display:flex;gap:14px;align-items:flex-start;padding:16px;border-radius:14px;}
+  .cv-status > span{flex:none;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;font-weight:800;font-size:20px;}
+  .cv-status b{font-size:18px;}
+  .cv-status p{margin:4px 0 0;font-size:13.5px;color:var(--text-dim);line-height:1.5;}
+  .cv-status.ok{background:color-mix(in srgb, var(--long) 10%, transparent);border:1px solid color-mix(in srgb, var(--long) 40%, transparent);}
+  .cv-status.ok > span{background:var(--long);color:#06281a;}
+  .cv-status.ko{background:color-mix(in srgb, var(--short) 9%, transparent);border:1px solid color-mix(in srgb, var(--short) 40%, transparent);}
+  .cv-status.ko > span{background:var(--short);color:#2c0710;}
+  .cv-rows{margin:0;display:flex;flex-direction:column;border-top:1px solid var(--border-soft);}
+  .cv-rows > div{display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px;padding:11px 0;border-bottom:1px solid var(--border-soft);font-size:14px;}
+  .cv-rows dt{color:var(--text-faint);}
+  .cv-rows dd{margin:0;font-weight:600;}
+  .cv-note{margin:0;font-size:12px;color:var(--text-faint);line-height:1.6;}
+  .cv-go{align-self:flex-start;}
+  @media (max-width:560px){ .cv-rows > div{grid-template-columns:minmax(0,1fr);gap:2px;} .cv-box{padding:22px 18px;} }
+
   /* ---------- Actualités : mise en page magazine ---------- */
   .nw-wrap{max-width:1480px;margin:0 auto;}
   .nw-wrap:has(.edbplus-paywall){max-width:1240px;}
@@ -4151,6 +4575,7 @@
     <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></symbol>
     <symbol id="i-pie" viewBox="0 0 24 24"><path d="M21 12c.55 0 1-.45.95-1A10 10 0 0 0 13 2.05c-.55-.05-1 .4-1 .95v8a1 1 0 0 0 1 1z"/><path d="M21.2 15.9A10 10 0 1 1 8 2.8"/></symbol>
     <symbol id="i-replay" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 4v5h5"/><path d="m10.5 9 4.5 3-4.5 3z"/></symbol>
+    <symbol id="i-daily" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M3 9.5h18"/><path d="M8 2.5v4M16 2.5v4"/><path d="m7.5 17 3-3 2 2 4-4"/></symbol>
     <symbol id="i-trend" viewBox="0 0 24 24"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
     <symbol id="i-user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
     <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.7 9a1 1 0 0 1-.6 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.2-2.7a1.2 1.2 0 0 1 1.6 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z"/></symbol>
@@ -4241,6 +4666,7 @@
       <button data-view="invest"><svg class="ic" aria-hidden="true"><use href="#i-pie"/></svg><span class="sb-label">Investir</span></button>
       <button data-view="challenge"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg><span class="sb-label">Challenge</span><span class="sb-short">Challenge</span></button>
       <button data-view="replay"><svg class="ic" aria-hidden="true"><use href="#i-replay"/></svg><span class="sb-label">Replay</span><span class="sb-short">Replay</span></button>
+      <button data-view="daily"><svg class="ic" aria-hidden="true"><use href="#i-daily"/></svg><span class="sb-label">Défi du jour</span><span class="sb-short">Défi</span></button>
       <button data-view="concoursedbplus"><svg class="ic" aria-hidden="true"><use href="#i-gem"/></svg><span class="sb-label">Concours EDB+</span><span class="sb-short">Concours</span></button>
       <div class="sb-section">Communauté</div>
       <button data-view="leaderboard"><svg class="ic" aria-hidden="true"><use href="#i-trophy"/></svg><span class="sb-label">Classement</span><span class="sb-short">Classement</span></button>
@@ -5093,6 +5519,11 @@
     </section>
 
     <!-- ================= CHALLENGE PROP FIRM (dedicated page) ================= -->
+    <!-- ================= DÉFI DU JOUR ================= -->
+    <section class="view" id="view-daily">
+      <div class="daily-wrap" id="daily-root"></div>
+    </section>
+
     <!-- ================= REPLAY (séances passées) ================= -->
     <section class="view" id="view-replay">
       <div id="replay-root"></div>
@@ -5943,190 +6374,276 @@ function updateEdbPlusNavBadges(){
     });
   });
 }
-// Renders the "#edbplus-card" in Profil into one of 3 states: active member,
-// request pending (awaiting an admin's manual toggle), or the pitch+CTA.
-// No payment processor is wired up here on purpose — see AskUserQuestion
-// answers in SERVER_SETUP.md: a trader pays the 25€/an outside the app
-// (espèces/virement/HelloAsso) and an admin flips edbPlus from the panneau
-// admin. Clicking the button below only records a request, it never charges
-// anything or grants access by itself.
-// Photos (Unsplash, licence libre) de la page EDB+ et des pages verrouillées.
-// Chargées depuis images.unsplash.com à la demande ; crédits en bas de page.
-function epImg(id, w){ return "https://images.unsplash.com/"+id+"?w="+(w||1600)+"&q=80&auto=format&fit=crop"; }
-const EP_PHOTOS = {
-  hero:      {id:"photo-1768055105681-7d2096c5165f", by:"Jakub Żerdzicki"},
-  challenge: {id:"photo-1767424412548-1a1ac7f4b9bc", by:"Jakub Żerdzicki"},
-  concours:  {id:"photo-1700398132771-054369f4d85b", by:"realfish"},
-  quiz:      {id:"photo-1769794371055-54436b54577e", by:"Yen Vu"},
-  student:   {id:"photo-1758685849121-c24d74e8f775", by:"Vitaly Gariev"},
-  news:      {id:"photo-1618044733300-9472054094ee", by:"Markus Spiske"},
-  trades:    {id:"photo-1457059315558-e754285e416b", by:"Mitch Nielsen"},
-  theme:     {id:"photo-1742199009963-c028d0c5a603", by:"Huy Phan"},
-  community: {id:"photo-1758270705518-b61b40527e76", by:"Vitaly Gariev"},
-};
-function epCredits(){
-  const names = Array.from(new Set(Object.values(EP_PHOTOS).map(p=>p.by)));
-  return '<p class="ep-credits">Photos : '+names.map(escapeHtml).join(", ")+' sur Unsplash (licence Unsplash). · <a href="#" data-open-terms>Conditions d\'utilisation et avertissement sur les risques</a></p>';
-}
-function epCtas(where){
-  const trialOk = !state.edbPlus && !edbPlusTrialActive() && !edbPlusTrialUsed();
+// Renders the "#edbplus-card" (page EDB+) into one of 4 states: active member,
+// trial in progress, request pending (ancien parcours Wero/RIB) or the pitch.
+// "Devenir membre" ouvre openEdbPlusRequestConfirmModal() : paiement Stripe
+// (activation automatique par le webhook) ou, en second choix, l'ancien
+// parcours manuel avec le bureau.
+// ---------- Page EDB+ (v2) ----------
+// Pas de photos : la page montre la carte de membre (au pseudo du trader) et
+// des aperçus de l'appli dessinés en HTML/SVG. Les éléments interactifs
+// (inclinaison de la carte, compteur, barre collante) sont branchés par
+// ep2Enhance() après chaque rendu.
+const EP2_CHECK = '<svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-6.5"/></svg>';
+const EP2_DASH = '<svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 8h6"/></svg>';
+function ep2Ic(id){ return '<svg class="ic" aria-hidden="true"><use href="#'+id+'"/></svg>'; }
+function ep2Name(){ return String(state.username||"trader").replace(/^@+/,""); }
+function ep2TrialOk(){ return !state.edbPlus && !edbPlusTrialActive() && !edbPlusTrialUsed(); }
+function ep2Ctas(where){
+  const trialOk = ep2TrialOk();
   const first = where==="hero";
-  return '<div class="pw-ctas">'+
-    (trialOk ? '<button class="pw-btn pw-btn-trial"'+(first?' id="edbplus-trial-page"':'')+' data-ep-trial>✨ Essayer gratuitement 24 h</button>' : '')+
-    '<button class="pw-btn '+(trialOk?'pw-btn-ghost':'pw-btn-main')+'"'+(first?' id="edbplus-request-btn"':'')+' data-ep-join>Devenir membre · 25 €/an</button>'+
-  '</div>'+
-  (trialOk ? '<div class="pw-cta-note">Sans paiement ni carte bancaire · valable une seule fois</div>'
-           : (edbPlusTrialUsed() ? '<div class="edbplus-trial-note used pw-cta-note">Ton essai gratuit a déjà été utilisé.</div>' : ''));
+  const trial = '<button class="pw-btn pw-btn-trial"'+(first?' id="edbplus-trial-page"':'')+' data-ep-trial>Essayer 24 h gratuitement</button>';
+  const join = '<button class="pw-btn '+(trialOk?'pw-btn-ghost':'pw-btn-trial')+'"'+(first?' id="edbplus-request-btn"':'')+' data-ep-join>Devenir membre · 25 €</button>';
+  return '<div class="pw-ctas">'+(trialOk ? trial+join : join)+'</div>'+
+    (trialOk ? '<div class="ep2-note">Essai sans carte bancaire, une seule fois. Rien n\'est prélevé à la fin.</div>'
+             : (edbPlusTrialUsed() && !state.edbPlus ? '<div class="ep2-note">Ton essai gratuit a déjà été utilisé.</div>' : ''));
 }
-function epFeature(o, flip){
-  return '<section class="ep-feature'+(flip?' is-flip':'')+' reveal" style="--c:'+o.color+';">'+
-    '<div class="ep-feature-media">'+
-      '<img src="'+epImg(EP_PHOTOS[o.photo].id, 1200)+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">'+
-      '<div class="ep-float">'+o.float+'</div>'+
-    '</div>'+
-    '<div class="ep-feature-txt">'+
-      '<span class="ep-kicker">'+o.icon+' '+escapeHtml(o.kicker)+'</span>'+
-      '<h2>'+o.title+'</h2>'+
-      '<p>'+escapeHtml(o.body)+'</p>'+
-      '<ul>'+o.points.map(p=>'<li>'+escapeHtml(p)+'</li>').join("")+'</ul>'+
-    '</div>'+
-  '</section>';
+function ep2CardHtml(mode){
+  const now = new Date();
+  let line, lbl, val;
+  if (mode==="trial"){
+    line = "ESSAI · ACCÈS COMPLET"; lbl = "Expire dans"; val = edbPlusTrialRemainingLabel();
+  } else if (mode==="member"){
+    const u = state.edbPlusUntil && !isNaN(Date.parse(state.edbPlusUntil)) ? new Date(state.edbPlusUntil) : null;
+    if (u){ line = "MEMBRE · "+(u.getFullYear()-1)+" — "+u.getFullYear(); lbl = "Valide jusqu'à"; val = String(u.getMonth()+1).padStart(2,"0")+"/"+String(u.getFullYear()).slice(-2); }
+    else { line = "MEMBRE EDB+"; lbl = "Statut"; val = "Actif"; }
+  } else {
+    line = "MEMBRE · "+now.getFullYear()+" — "+(now.getFullYear()+1); lbl = "Valide jusqu'à";
+    val = String(now.getMonth()+1).padStart(2,"0")+"/"+String(now.getFullYear()+1).slice(-2);
+  }
+  return '<div class="ep2-card-float"><div class="ep2-card" data-ep2-tilt role="img" aria-label="Carte de membre EDB+ de @'+escapeHtml(ep2Name())+'">'+
+    '<div class="ep2-card-top"><b class="ep2-card-logo">EDB<span>+</span></b><span class="ep2-card-org">École de la<br>Bourse</span></div>'+
+    '<div class="ep2-card-mid"><i class="ep2-chip"></i><span class="ep2-card-pt">PAPER TAPE</span></div>'+
+    '<div class="ep2-card-num">'+escapeHtml(line)+'</div>'+
+    '<div class="ep2-card-bot"><div><small>Titulaire</small><b>@'+escapeHtml(ep2Name())+'</b></div><div class="r"><small>'+escapeHtml(lbl)+'</small><b>'+escapeHtml(val)+'</b></div></div>'+
+  '</div></div>';
+}
+function ep2Bento(nCourses, nQ){
+  const meter = (label, v, w, color)=>'<div class="ep2-meter"><div><span>'+label+'</span><b>'+v+'</b></div><u><i style="width:'+w+'%;--m:'+color+';"></i></u></div>';
+  const spark = '<svg class="ep2-spark" viewBox="0 0 260 112" aria-hidden="true">'+
+    '<defs><linearGradient id="ep2-sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--long)" stop-opacity=".35"/><stop offset="1" stop-color="var(--long)" stop-opacity="0"/></linearGradient></defs>'+
+    '<line x1="0" y1="20" x2="226" y2="20" stroke="var(--long)" stroke-dasharray="3 4" stroke-width="1"/><text x="230" y="23" fill="var(--long)">TP</text>'+
+    '<line x1="0" y1="66" x2="226" y2="66" stroke="var(--text-faint)" stroke-dasharray="3 4" stroke-width="1"/><text x="230" y="69" fill="var(--text-faint)">IN</text>'+
+    '<line x1="0" y1="94" x2="226" y2="94" stroke="var(--short)" stroke-dasharray="3 4" stroke-width="1"/><text x="230" y="97" fill="var(--short)">SL</text>'+
+    '<path d="M0 84 L18 80 L36 86 L54 74 L72 77 L90 66 L108 70 L126 58 L144 62 L162 48 L180 52 L198 38 L216 33 L226 30 L226 112 L0 112 Z" fill="url(#ep2-sg)"/>'+
+    '<path d="M0 84 L18 80 L36 86 L54 74 L72 77 L90 66 L108 70 L126 58 L144 62 L162 48 L180 52 L198 38 L216 33 L226 30" fill="none" stroke="var(--long)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'+
+    '<circle cx="226" cy="30" r="3.5" fill="var(--long)"/></svg>';
+  const sw = [["Ember","#E8552B"],["Sage","#3E5C4B"],["Ink","#1C1A17"],["Noir","conic-gradient(#000 0 50%, #fff 50% 100%)"],["Gold","#D7B563"],["Azure","#37C7DB"]];
+  return '<div class="ep2-bento">'+
+    '<article class="ep2-tile t-prize reveal">'+
+      '<div class="ep2-t-k">'+ep2Ic("i-gem")+'Concours EDB+</div>'+
+      '<div class="ep2-prize"><b data-ep2-count="100000">100 000</b><span>$</span></div>'+
+      '<span class="ep2-prize-or">ou 400 € · payés par l\'association</span>'+
+      '<h3>Une vraie prop firm à gagner.</h3>'+
+      '<p>Réussis 5 Challenges à 200&nbsp;000&nbsp;$ (Étape 1 + Étape 2) et l\'EDB t\'offre un vrai compte financé de 100&nbsp;000&nbsp;$. Pas simulé : c\'est le seul avantage EDB+ qui rapporte de l\'argent.</p>'+
+      '<div class="ep2-five"><div class="ep2-five-row"><i class="on">1</i><i class="on">2</i><i class="cur">3</i><i>4</i><i>5</i></div><small>Challenges 200 000 $ validés · exemple de progression</small></div>'+
+    '</article>'+
+    '<article class="ep2-tile t-challenge reveal">'+
+      '<div class="ep2-t-k">'+ep2Ic("i-target")+'Challenge prop firm</div>'+
+      '<div class="ep2-split">'+
+        '<div><h3>Passe l\'évaluation.<br>Sans risquer un euro.</h3><p>Les règles d\'une vraie prop firm en 2 étapes : tu sais où tu en es avant de payer un vrai challenge.</p>'+
+          '<div class="ep2-stages"><span class="ok">Étape 1 ✓</span><span>Étape 2</span><span>Classement</span></div></div>'+
+        '<div class="ep2-meters">'+
+          meter("Objectif de profit", "+7,2 % / 8 %", 90, "var(--long)")+
+          meter("Perte journalière", "−1,1 % / 5 %", 22, "var(--warn, #e3ac4b)")+
+          meter("Drawdown max", "−3,0 % / 10 %", 30, "var(--short)")+
+        '</div>'+
+      '</div>'+
+    '</article>'+
+    '<article class="ep2-tile t-quiz reveal">'+
+      '<div class="ep2-t-k">'+ep2Ic("i-book")+'Cours & quiz</div>'+
+      '<h3>'+nCourses+' cours.<br>'+nQ+' questions.</h3>'+
+      '<div class="ep2-q"><span>Un stop-loss sert à…</span><i class="ok">'+EP2_CHECK+'limiter ta perte</i><i>doubler ton levier</i></div>'+
+    '</article>'+
+    '<article class="ep2-tile t-trades reveal">'+
+      '<div class="ep2-t-k">'+ep2Ic("i-trend")+'Trades du bureau</div>'+
+      '<h3>Suis les idées du bureau.</h3>'+
+      '<span class="ep2-pill">BTC · Long</span>'+
+      spark+
+    '</article>'+
+    '<article class="ep2-tile t-news reveal">'+
+      '<div class="ep2-t-k">'+ep2Ic("i-news")+'Actus en direct<span class="live">LIVE</span></div>'+
+      '<h3>Le marché en continu, dans le terminal.</h3>'+
+      '<ul class="ep2-news">'+
+        '<li><time>08:30</time><em style="--t:var(--warn, #e3ac4b)">Macro</em><b>Banques centrales : ce que le marché attend</b></li>'+
+        '<li><time>10:12</time><em style="--t:#37c7db">Crypto</em><b>Bitcoin : les flux de la semaine</b></li>'+
+        '<li><time>15:45</time><em style="--t:#a98bf0">Actions</em><b>Saison des résultats : les chiffres à suivre</b></li>'+
+      '</ul>'+
+    '</article>'+
+    '<article class="ep2-tile t-themes reveal">'+
+      '<div class="ep2-t-k">'+ep2Ic("i-palette")+'Thèmes & outils pro</div>'+
+      '<h3>Ton terminal, tes couleurs.</h3>'+
+      '<div class="ep2-widgets"><span>Carnet d\'ordres</span><span>Calendrier éco</span><span>Calculateur de taille</span><span>Layout MMT</span><span>Ressources</span></div>'+
+      '<div class="ep2-swatches">'+sw.map(s=>'<span><i style="--s:'+s[1]+';"></i>'+s[0]+'</span>').join("")+'</div>'+
+    '</article>'+
+  '</div>';
+}
+function ep2Foot(){
+  return '<p class="ep-credits ep2-foot"><a href="#" data-open-terms>Conditions d\'utilisation et avertissement sur les risques</a></p>';
 }
 function epPitchHtml(){
   const nCourses = (typeof KNOWLEDGE!=="undefined") ? KNOWLEDGE.length : 8;
   const nQ = (typeof QUIZ_DECKS!=="undefined") ? QUIZ_DECKS.reduce((a,d)=>a+d.questions.length,0) : 100;
-  const freeRows = [
+  const stripe = !!EDB_PLUS_STRIPE_LINK;
+  const rows = [
     ["Terminal de trading démo", true],["Investissement PEA / compte-titres", true],["Classements, badges, chat", true],
     ["Cours & quiz ("+nCourses+" cours, "+nQ+" questions)", false],["Challenge prop firm 2 étapes", false],["Concours : une vraie prop firm à gagner", false],
     ["Trades du bureau + actus en direct", false],["Ressources + layout MMT", false],["Widgets pro + 6 thèmes", false],
   ];
-  const features = [
-    {photo:"challenge", color:"#31c882", icon:"🏅", kicker:"Challenge prop firm",
-      title:"Passe l'évaluation.<br>Sans risquer un euro.",
-      body:"Un compte démo calqué sur une vraie évaluation prop firm en 2 étapes. Mêmes contraintes, même pression : tu sais exactement où tu en es avant de payer un vrai challenge.",
-      points:["Objectif de profit, perte journalière max et drawdown, comme en vrai","Étape 1 puis Étape 2, avec un classement Prop Firm dédié","Tu recommences autant de fois que tu veux"],
-      float:'<div class="ep-mini"><span>Objectif de profit · Étape 1</span><div class="ep-mini-bar"><i style="width:72%"></i></div><b class="num">72 %</b></div>'},
-    {photo:"concours", color:"#e3ac4b", icon:"💎", kicker:"Concours EDB+",
-      title:"5 challenges réussis.<br>Un vrai compte offert.",
-      body:"Enchaîne 5 Challenges 200 000 $ validés (Étape 1 + Étape 2) et l'EDB t'offre une vraie prop firm de 100 000 $, ou 400 €. Payée par l'association, pas simulée.",
-      points:["Challenge Hardcore à 200 000 $","Récompense réelle : prop firm 100 000 $ ou 400 €","Le seul avantage EDB+ qui rapporte de l'argent"],
-      float:'<div class="ep-mini gold"><span>Récompense</span><b>100 000 $</b><em>vraie prop firm</em></div>'},
-    {photo:"quiz", color:"#37c7db", icon:"📚", kicker:"Connaissances & Quiz",
-      title:"Apprends vite.<br>Retiens tout.",
-      body:nCourses+" cours complets, de la lecture du carnet d'ordres aux options, puis un quiz pour vérifier ce que tu as vraiment retenu.",
-      points:[nCourses+" cours illustrés, lisibles en quelques minutes",nQ+" questions, un classement et des badges","Mode Superflash pour réviser contre la montre"],
-      float:'<div class="ep-mini"><span>Quiz Price Action</span><b>🏆 Sans-faute</b><em>12 / 12</em></div>'},
-    {photo:"trades", color:"#f0546a", icon:"📈", kicker:"Trades EDB+ & actus",
-      title:"Suis le bureau.<br>Suis le marché.",
-      body:"Les trades partagés par le bureau EDB avec leur raisonnement, le trade swing de la semaine, et l'actualité macro et crypto en direct, en français ou en anglais.",
-      points:["Les idées et analyses du bureau, en direct","Le trade swing hebdomadaire","Fil d'actus marché intégré au terminal"],
-      float:'<div class="ep-mini"><span>Trade du bureau</span><b class="up">BTC · Long</b><em>entrée, stop, objectif</em></div>'},
+  const trust = [
+    stripe ? [ep2Ic("i-lock"), "Paiement sécurisé par Stripe"] : [ep2Ic("i-lock"), "Paiement Wero ou virement"],
+    [EP2_CHECK, "Paiement unique, sans reconduction"],
+    [EP2_CHECK, "Ta progression est conservée"],
   ];
-  return '<div class="ep edbplus-paywall-page">'+
-    '<section class="ep-hero" style="--img:url(\''+epImg(EP_PHOTOS.hero.id, 2000)+'\');">'+
-      '<div class="ep-hero-main">'+
-        '<span class="pw-badge">EDB+ · École de la Bourse</span>'+
-        '<h1>Trade comme un pro,<br><span>avant de risquer un euro.</span></h1>'+
-        '<p class="ep-hero-sub">EDB+ débloque tout Paper Tape : challenge prop firm, cours et quiz, trades du bureau, actus en direct… et un Concours où une vraie prop firm de 100 000 $ est à gagner.</p>'+
-        epCtas("hero")+
-        '<div class="ep-ticks"><span>✓ 24 h d\'accès complet offertes</span><span>✓ Ta progression est gardée</span><span>✓ Tu soutiens l\'association</span></div>'+
+  const steps = stripe
+    ? [["Clique sur « Devenir membre »","Tu arrives sur la page de paiement sécurisée Stripe."],
+       ["Paie 25 € par carte","Carte bancaire, Apple Pay ou Google Pay, en 30 secondes."],
+       ["C'est débloqué","EDB+ s'active tout seul sur ton compte, pour un an."]]
+    : [["Envoie ta demande","Un clic sur « Devenir membre » : le bureau est prévenu."],
+       ["Règle 25 €","Les coordonnées Wero et RIB arrivent dans ta conversation avec le bureau."],
+       ["C'est débloqué","Le bureau active ton compte dès réception et te le confirme."]];
+  const faq = [
+    ["Comment marche l'essai gratuit ?","24 h d'accès complet à EDB+, sans paiement, valable une seule fois. À la fin, ton compte repasse simplement en gratuit : rien n'est prélevé."],
+    ["C'est un abonnement ?", stripe ? "Non. Tu paies 25 € une seule fois pour un an, par carte (Stripe) ou par Wero/virement. Rien n'est prélevé automatiquement ensuite." : "Non. Tu paies 25 € une seule fois pour un an, par Wero ou virement. Rien n'est prélevé automatiquement ensuite."],
+    ["Mes progrès sont-ils gardés ?","Oui : cours lus, quiz, scores et historique restent sur ton compte, pendant et après l'essai."],
+    ["À quoi sert l'argent ?","L'adhésion finance l'association École de la Bourse et ses projets, dont les récompenses réelles du Concours EDB+."],
+  ];
+  if (stripe) faq.push(["Paper Tape voit-il ma carte ?","Non. Le paiement par carte est traité entièrement par Stripe : Paper Tape ne voit jamais tes coordonnées bancaires."]);
+  faq.push(["Je peux payer autrement ?","Oui : Wero, virement ou espèces auprès du bureau. Clique sur « Devenir membre » puis « Autre moyen »."]);
+  return '<div class="ep ep2 edbplus-paywall-page">'+
+    '<section class="ep2-hero">'+
+      '<div class="ep2-hero-main">'+
+        '<span class="ep2-eyebrow"><i></i>Adhésion École de la Bourse</span>'+
+        '<h1>Passe en <span class="ep2-gold">EDB+</span>.</h1>'+
+        '<p class="ep2-sub">Tout Paper Tape débloqué : <b>challenge prop firm</b>, <b>cours et quiz</b>, <b>trades du bureau</b>, actus en direct. Et une <b>vraie prop firm de 100&nbsp;000&nbsp;$</b> à gagner.</p>'+
+        '<div class="ep2-price"><b>25 €</b><span>/ an</span><em>soit 2,08 € par mois</em></div>'+
+        ep2Ctas("hero")+
+        '<div class="ep2-trust">'+trust.map(t=>'<span>'+t[0]+escapeHtml(t[1])+'</span>').join("")+'</div>'+
       '</div>'+
-      '<div class="ep-hero-cards" aria-hidden="true">'+
-        '<div class="ep-glass g1"><span class="ep-glass-k">Challenge · Étape 2</span><b class="num up">+8,4 %</b><div class="ep-mini-bar"><i style="width:84%"></i></div><em>objectif 10 %</em></div>'+
-        '<div class="ep-glass g2"><span class="ep-glass-k">Concours EDB+</span><b class="gold">100 000 $</b><em>de prop firm à gagner</em></div>'+
-        '<div class="ep-glass g3"><span class="ep-glass-k">Quiz</span><b>🏆 Sans-faute</b><em>badge débloqué</em></div>'+
+      '<div class="ep2-stage">'+ep2CardHtml("pitch")+'<p class="ep2-card-cap">Ta carte de membre t\'attend, <b>@'+escapeHtml(ep2Name())+'</b>.</p></div>'+
+    '</section>'+
+    '<section class="ep2-section">'+
+      '<div class="ep2-head reveal"><span class="ep2-kicker">Ce que tu débloques</span><h2>Tout ce qu\'il faut pour progresser.<br>Et une vraie récompense au bout.</h2></div>'+
+      ep2Bento(nCourses, nQ)+
+    '</section>'+
+    '<section class="ep2-section ep2-compare reveal">'+
+      '<div class="ep2-compare-l">'+
+        '<span class="ep2-kicker">Gratuit ou EDB+</span>'+
+        '<h2>Un prix d\'association.<br>Pas un abonnement.</h2>'+
+        '<p>25 € une seule fois pour un an. Rien n\'est prélevé ensuite : tu renouvelles seulement si tu le veux.</p>'+
+        '<div class="ep2-price"><b>25 €</b><span>/ an</span><em>soit 2,08 € par mois</em></div>'+
+        ep2Ctas("plan")+
       '</div>'+
-    '</section>'+
-    '<section class="pw-stats reveal">'+
-      '<div><b class="num">7</b><span>fonctionnalités débloquées</span></div>'+
-      '<div><b class="num">'+nCourses+' · '+nQ+'</b><span>cours · questions de quiz</span></div>'+
-      '<div><b class="num">100 000 $</b><span>de prop firm à gagner</span></div>'+
-      '<div><b class="num">2,08 €</b><span>par mois (25 € par an)</span></div>'+
-    '</section>'+
-    features.map((f,i)=>epFeature(f, i%2===1)).join("")+
-    '<section class="ep-more reveal">'+
-      '<div class="pw-section-head"><span class="pw-kicker">Et aussi</span><h2>Les petits plus qui changent tout</h2></div>'+
-      '<div class="ep-more-grid">'+
-        '<div class="ep-more-card" style="--img:url(\''+epImg(EP_PHOTOS.theme.id, 900)+'\');"><span>🎨</span><b>6 thèmes d\'interface</b><em>Ember, Sage, Ink, Noir, Gold, Azure : ton terminal, tes couleurs.</em></div>'+
-        '<div class="ep-more-card" style="--img:url(\''+epImg(EP_PHOTOS.challenge.id, 900)+'\');"><span>🧩</span><b>Widgets pro</b><em>Carnet d\'ordres, calendrier économique et calculateur de taille dans le terminal.</em></div>'+
-        '<div class="ep-more-card" style="--img:url(\''+epImg(EP_PHOTOS.hero.id, 900)+'\');"><span>🔗</span><b>Ressources trading</b><em>La sélection d\'outils EDB, avec le layout MMT order flow prêt à l\'emploi.</em></div>'+
-      '</div>'+
-    '</section>'+
-    '<section class="ep-pricing reveal">'+
-      '<div class="pw-section-head"><span class="pw-kicker">Tarif</span><h2>Un prix d\'association, pas d\'abonnement caché</h2></div>'+
-      '<div class="ep-plans">'+
-        '<div class="ep-plan">'+
-          '<span class="ep-plan-name">Gratuit</span>'+
-          '<div class="ep-plan-price"><b>0 €</b></div>'+
-          '<ul>'+freeRows.map(r=>'<li class="'+(r[1]?'ok':'no')+'">'+escapeHtml(r[0])+'</li>').join("")+'</ul>'+
-          '<div class="ep-plan-foot">Ton offre actuelle</div>'+
-        '</div>'+
-        '<div class="ep-plan is-pro">'+
-          '<span class="ep-plan-ribbon">Recommandé</span>'+
-          '<span class="ep-plan-name">EDB+</span>'+
-          '<div class="ep-plan-price"><b>25 €</b><span>/ an</span></div>'+
-          '<div class="ep-plan-sub">soit 2,08 € par mois</div>'+
-          '<ul>'+freeRows.map(r=>'<li class="ok">'+escapeHtml(r[0])+'</li>').join("")+'</ul>'+
-          epCtas("plan")+
-        '</div>'+
+      '<div class="ep2-table" role="table" aria-label="Comparatif Gratuit et EDB+">'+
+        '<div class="ep2-tr ep2-th" role="row"><span role="columnheader">Fonctionnalité</span><span role="columnheader">Gratuit</span><span role="columnheader" class="pro">EDB+</span></div>'+
+        rows.map(r=>'<div class="ep2-tr" role="row"><span role="cell">'+escapeHtml(r[0])+'</span><span role="cell" class="'+(r[1]?'ok':'no')+'" aria-label="'+(r[1]?'inclus':'non inclus')+'">'+(r[1]?EP2_CHECK:EP2_DASH)+'</span><span role="cell" class="pro ok" aria-label="inclus">'+EP2_CHECK+'</span></div>').join("")+
       '</div>'+
     '</section>'+
-    '<section class="ep-steps reveal">'+
-      '<div class="pw-section-head"><span class="pw-kicker">Adhésion</span><h2>Membre en 3 étapes</h2></div>'+
-      '<div class="ep-steps-grid">'+
-        (EDB_PLUS_STRIPE_LINK
-          ? '<div><b>1</b><strong>Clique sur « Devenir membre »</strong><span>Tu arrives sur la page de paiement sécurisée Stripe.</span></div>'+
-            '<div><b>2</b><strong>Règle 25 € par carte</strong><span>Carte bancaire, Apple Pay ou Google Pay — en 30 secondes.</span></div>'+
-            '<div><b>3</b><strong>C\'est débloqué</strong><span>EDB+ s\'active tout seul sur ton compte dès le paiement validé, pour un an.</span></div>'
-          : '<div><b>1</b><strong>Envoie ta demande</strong><span>Un clic sur « Devenir membre » : le bureau est prévenu automatiquement.</span></div>'+
-            '<div><b>2</b><strong>Règle 25 €</strong><span>Tu reçois aussitôt les coordonnées Wero et RIB dans ta conversation avec le bureau.</span></div>'+
-            '<div><b>3</b><strong>C\'est débloqué</strong><span>Le bureau active ton compte dès réception et te le confirme dans la conversation.</span></div>')+
-      '</div>'+
+    '<section class="ep2-section">'+
+      '<div class="ep2-head center reveal"><span class="ep2-kicker">Adhésion</span><h2>Membre en 3 étapes</h2></div>'+
+      '<div class="ep2-steps reveal">'+steps.map((s,i)=>'<div><b>'+(i+1)+'</b><strong>'+escapeHtml(s[0])+'</strong><span>'+escapeHtml(s[1])+'</span></div>').join("")+'</div>'+
+      '<div class="pw-faq ep2-faq reveal">'+faq.map(f=>'<details><summary>'+escapeHtml(f[0])+'</summary><p>'+escapeHtml(f[1])+'</p></details>').join("")+'</div>'+
     '</section>'+
-    '<section class="pw-section pw-faq reveal">'+
-      '<details><summary>Comment marche l\'essai gratuit ?</summary><p>24 h d\'accès complet à EDB+, sans paiement, valable une seule fois. À la fin, ton compte repasse simplement en gratuit : rien n\'est prélevé.</p></details>'+
-      '<details><summary>Mes progrès sont-ils gardés ?</summary><p>Oui : cours lus, quiz, scores et historique restent sur ton compte, pendant et après l\'essai.</p></details>'+
-      '<details><summary>À quoi sert l\'argent ?</summary><p>L\'adhésion finance l\'association École de la Bourse et ses projets, dont les récompenses réelles du Concours EDB+.</p></details>'+
-      '<details><summary>C\'est un abonnement reconduit automatiquement ?</summary><p>Non : tu paies 25 € au bureau pour un an, par Wero ou virement. Rien n\'est prélevé automatiquement.</p></details>'+
-    '</section>'+
-    '<section class="ep-final reveal" style="--img:url(\''+epImg(EP_PHOTOS.community.id, 1800)+'\');">'+
-      '<div class="ep-final-inner">'+
-        '<h2>Rejoins les membres EDB+</h2>'+
-        '<p>Tout Paper Tape, une communauté de traders étudiants, et une vraie prop firm à gagner.</p>'+
-        epCtas("final")+
-      '</div>'+
+    '<section class="ep2-section ep2-final reveal">'+
+      '<span class="ep2-eyebrow"><i></i>EDB+ · 25 € / an</span>'+
+      '<h2>Prêt à passer au niveau au-dessus ?</h2>'+
+      '<p>Tout Paper Tape, une communauté de traders étudiants, et une vraie prop firm à gagner.</p>'+
+      ep2Ctas("final")+
     '</section>'+
     '<div class="chart-note" id="edbplus-request-msg" style="margin-top:10px;text-align:center;"></div>'+
-    epCredits()+
+    ep2Foot()+
+    '<div class="ep2-sticky">'+
+      '<b class="ep2-sticky-logo">EDB+</b>'+
+      '<span class="ep2-sticky-txt">25 € / an · tout Paper Tape débloqué</span>'+
+      (ep2TrialOk() ? '<button class="pw-btn pw-btn-ghost" data-ep-join>Devenir membre</button><button class="pw-btn pw-btn-trial" data-ep-trial>Essayer 24 h</button>'
+                    : '<button class="pw-btn pw-btn-trial" data-ep-join>Devenir membre · 25 €</button>')+
+    '</div>'+
   '</div>';
 }
 function epStatusHtml(kind){
-  const links = [["quiz","📚","Connaissances & Quiz"],["challenge","🏅","Challenge prop firm"],["concoursedbplus","💎","Concours EDB+"],["tradesedb","📈","Trades EDB+"],["news","📰","Actualités"],["resources","🔗","Ressources"]];
-  let head = "", body = "", actions = "";
+  const links = [["quiz","i-book","Cours & quiz","Apprendre et se tester"],["challenge","i-target","Challenge prop firm","Passer l'évaluation"],["concoursedbplus","i-gem","Concours EDB+","100 000 $ à gagner"],["tradesedb","i-trend","Trades du bureau","Les idées de l'EDB"],["news","i-news","Actualités","Le marché en direct"],["resources","i-link","Ressources","Outils et layout MMT"]];
+  let head = "", body = "", actions = "", card = "";
   if (kind==="member"){
-    head = '<span class="pw-badge">✓ Membre EDB+</span><h1>Tout Paper Tape est à toi.</h1>';
-    body = '<p class="ep-hero-sub">Merci de soutenir l\'association École de la Bourse.'+(edbPlusUntilLabel() ? ' Adhésion valable jusqu\'au <b>'+escapeHtml(edbPlusUntilLabel())+'</b>.' : '')+' Voici tes accès :</p>';
-    actions = '<div class="pw-ctas"><button class="pw-btn pw-btn-ghost" id="edbplus-chat-open-btn">💬 Contacter le bureau EDB</button></div>';
+    head = '<span class="ep2-eyebrow"><i></i>Membre EDB+</span><h1>Tout Paper Tape est <span class="ep2-gold">à toi</span>.</h1>';
+    body = '<p class="ep2-sub">Merci de soutenir l\'association École de la Bourse.'+(edbPlusUntilLabel() ? ' Ton adhésion est valable jusqu\'au <b>'+escapeHtml(edbPlusUntilLabel())+'</b>.' : '')+'</p>';
+    actions = '<div class="pw-ctas"><button class="pw-btn pw-btn-ghost" id="edbplus-chat-open-btn">'+ep2Ic("i-chat")+'Contacter le bureau EDB</button></div>';
+    card = ep2CardHtml("member");
   } else if (kind==="trial"){
-    head = '<span class="pw-badge">✨ Essai gratuit en cours</span><h1>Encore '+escapeHtml(edbPlusTrialRemainingLabel())+' d\'accès complet.</h1>';
-    body = '<p class="ep-hero-sub">Profite de tout EDB+ pendant ton essai. Pour garder l\'accès ensuite, deviens membre (25 € par an) : ta progression reste intacte.</p>';
-    actions = '<div class="pw-ctas"><button class="pw-btn pw-btn-main" id="edbplus-request-btn">Devenir membre · 25 €/an</button></div>';
+    head = '<span class="ep2-eyebrow"><i></i>Essai gratuit en cours</span><h1>Encore <span class="ep2-gold">'+escapeHtml(edbPlusTrialRemainingLabel())+'</span> d\'accès complet.</h1>';
+    body = '<p class="ep2-sub">Profite de tout EDB+ pendant ton essai. Pour garder l\'accès ensuite, deviens membre pour 25 € par an : ta progression reste intacte.</p>';
+    actions = '<div class="pw-ctas"><button class="pw-btn pw-btn-trial" id="edbplus-request-btn">Devenir membre · 25 €</button></div>';
+    card = ep2CardHtml("trial");
   } else {
-    head = '<span class="pw-badge">⏳ Demande envoyée</span><h1>Plus qu\'une étape.</h1>';
+    head = '<span class="ep2-eyebrow"><i></i>Demande envoyée</span><h1>Plus qu\'une étape.</h1>';
     body = '<div class="ep-steps-grid compact">'+
-        '<div class="done"><b>✓</b><strong>Demande envoyée</strong><span>Le bureau est prévenu.</span></div>'+
-        '<div class="cur"><b>2</b><strong>Règle 25 €</strong><span>Les coordonnées Wero et RIB sont dans ta conversation avec le bureau.</span></div>'+
-        '<div><b>3</b><strong>Activation</strong><span>Le bureau active ton compte dès réception et te le confirme.</span></div>'+
+        '<div class="done"><b>✓</b><div><strong>Demande envoyée</strong><span>Le bureau est prévenu.</span></div></div>'+
+        '<div class="cur"><b>2</b><div><strong>Règle 25 €</strong><span>Les coordonnées Wero et RIB sont dans ta conversation avec le bureau.</span></div></div>'+
+        '<div><b>3</b><div><strong>Activation</strong><span>Le bureau active ton compte dès réception et te le confirme.</span></div></div>'+
       '</div>';
-    actions = '<div class="pw-ctas"><button class="pw-btn pw-btn-main" id="edbplus-chat-open-btn">💬 Voir la conversation</button><button class="pw-btn pw-btn-ghost" id="edbplus-cancel-request-btn">Annuler ma demande</button></div>';
+    actions = '<div class="pw-ctas"><button class="pw-btn pw-btn-trial" id="edbplus-chat-open-btn">'+ep2Ic("i-chat")+'Voir la conversation</button><button class="pw-btn pw-btn-ghost" id="edbplus-cancel-request-btn">Annuler ma demande</button></div>';
+    card = ep2CardHtml("pitch");
   }
-  return '<div class="ep">'+
-    '<section class="ep-hero is-status" style="--img:url(\''+epImg(EP_PHOTOS.hero.id, 2000)+'\');">'+
-      '<div class="ep-hero-main">'+head+body+actions+'</div>'+
+  return '<div class="ep ep2">'+
+    '<section class="ep2-hero is-status">'+
+      '<div class="ep2-hero-main">'+head+body+actions+'</div>'+
+      '<div class="ep2-stage">'+card+'</div>'+
     '</section>'+
-    (kind!=="requested" ? '<section class="ep-links">'+links.map(l=>'<button type="button" class="ep-link" data-ep-go="'+l[0]+'"><span>'+l[1]+'</span><b>'+escapeHtml(l[2])+'</b><em>Ouvrir →</em></button>').join("")+'</section>' : '')+
-    epCredits()+
+    (kind!=="requested" ? '<section class="ep2-links">'+links.map(l=>'<button type="button" class="ep2-link" data-ep-go="'+l[0]+'"><i>'+ep2Ic(l[1])+'</i><span><b>'+escapeHtml(l[2])+'</b><em>'+escapeHtml(l[3])+'</em></span></button>').join("")+'</section>' : '')+
+    ep2Foot()+
   '</div>';
+}
+let __ep2Observers = [];
+function ep2Enhance(root){
+  __ep2Observers.forEach(o=>{ try{ o.disconnect(); }catch(e){} });
+  __ep2Observers = [];
+  const mq = q=>!!(window.matchMedia && window.matchMedia(q).matches);
+  const reduce = mq("(prefers-reduced-motion: reduce)");
+  const hasIO = "IntersectionObserver" in window;
+  // Carte : s'incline et reflète la lumière sous la souris (pas au doigt).
+  const card = root.querySelector("[data-ep2-tilt]");
+  if (card && !reduce && mq("(hover: hover) and (pointer: fine)")){
+    const stage = card.closest(".ep2-stage") || card;
+    stage.addEventListener("pointermove", e=>{
+      const r = card.getBoundingClientRect();
+      const px = Math.min(1, Math.max(0, (e.clientX-r.left)/r.width));
+      const py = Math.min(1, Math.max(0, (e.clientY-r.top)/r.height));
+      card.classList.add("is-tilt");
+      card.style.setProperty("--ry", ((px-.5)*18).toFixed(2)+"deg");
+      card.style.setProperty("--rx", ((.5-py)*14).toFixed(2)+"deg");
+      card.style.setProperty("--mx", (px*100).toFixed(1)+"%");
+      card.style.setProperty("--my", (py*100).toFixed(1)+"%");
+    });
+    stage.addEventListener("pointerleave", ()=>{
+      card.classList.remove("is-tilt");
+      ["--rx","--ry","--mx","--my"].forEach(p=>card.style.removeProperty(p));
+    });
+  }
+  // Compteur 0 → 100 000 quand la tuile Concours apparaît.
+  root.querySelectorAll("[data-ep2-count]").forEach(n=>{
+    const target = Number(n.dataset.ep2Count)||0;
+    const fmt = v=>Math.round(v).toLocaleString("fr-FR");
+    if (reduce || !hasIO){ n.textContent = fmt(target); return; }
+    n.textContent = fmt(0);
+    const io = new IntersectionObserver(entries=>{
+      if (!entries.some(en=>en.isIntersecting)) return;
+      io.disconnect();
+      const t0 = performance.now(), dur = 1500;
+      const step = t=>{ const k = Math.min(1, (t-t0)/dur); n.textContent = fmt(target*(1-Math.pow(1-k, 3))); if (k<1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    }, {threshold:0.35});
+    io.observe(n); __ep2Observers.push(io);
+  });
+  // Barre collante : visible une fois les boutons du haut dépassés, cachée sur l'appel final.
+  const sticky = root.querySelector(".ep2-sticky");
+  const heroCtas = root.querySelector(".ep2-hero .pw-ctas");
+  const fin = root.querySelector(".ep2-final");
+  if (sticky && heroCtas && hasIO){
+    let past = false, finIn = false;
+    const upd = ()=>sticky.classList.toggle("on", past && !finIn);
+    const io1 = new IntersectionObserver(([en])=>{ past = !en.isIntersecting && en.boundingClientRect.top < 0; upd(); });
+    io1.observe(heroCtas); __ep2Observers.push(io1);
+    if (fin){ const io2 = new IntersectionObserver(([en])=>{ finIn = en.isIntersecting; upd(); }, {threshold:0.15}); io2.observe(fin); __ep2Observers.push(io2); }
+  }
 }
 function renderEdbPlusProfileCard(){
   const el = document.getElementById("edbplus-card");
@@ -6140,6 +6657,7 @@ function renderEdbPlusProfileCard(){
     const cancel = document.getElementById("edbplus-cancel-request-btn");
     if (cancel) cancel.addEventListener("click", cancelMyEdbPlusRequest);
     if (typeof initScrollReveal==="function") initScrollReveal();
+    ep2Enhance(el);
   };
   if (!state.edbPlus && edbPlusTrialActive()){ el.innerHTML = epStatusHtml("trial"); wire(); return; }
   if (isEdbPlus()){ el.innerHTML = epStatusHtml("member"); wire(); return; }
@@ -7022,6 +7540,7 @@ async function initDb(){
     db = firebase.firestore();
     if (!db) return;
     dbReady = true;
+    certVerifyBoot();
     // Storage is optional on top of Firestore — a project that hasn't set it
     // up yet (or whose bucket/rules aren't ready) just falls back to no
     // photo/feed uploads (storage stays null, upload buttons show a message)
@@ -11781,6 +12300,7 @@ function updateChallengeStatus(){
         awardBadge('prop_step2_passed', {tier:c.tier, value:eq});
         awardBadge('prop_funded', {tier:c.tier, value:eq});
         c.phase = "funded";
+        setTimeout(()=>appToast("🎓 Challenge réussi ! Ton certificat de réussite t'attend sur la page Challenge."), 1500);
         // Concours EDB+ "Challenge Hardcore": a full pass (Étape 1 + Étape 2)
         // specifically on the 200k tier counts toward the reward — but ONLY
         // if this specific run also has at least HARDCORE_MIN_QUALIFYING_TRADES
@@ -11999,6 +12519,10 @@ function renderChallengeProfileCard(){
   if (title) title.hidden = true;
   const card = document.getElementById("challenge-profile-card");
   if (card) card.classList.add("ch-page");
+  if (!body.dataset.certWired){
+    body.dataset.certWired = "1";
+    body.addEventListener("click", e=>{ const b = e.target.closest("[data-cert]"); if (b) openCertificateModal(b.dataset.cert); });
+  }
   const c = state.challenge;
   if (!c){
     body.innerHTML =
@@ -12122,6 +12646,7 @@ function challengeStatusPanelHtml(c){
       '</div>' : '<p class="ch-status-sub" style="margin-top:12px;">Ce compte est figé : les positions encore ouvertes peuvent être fermées, rien de nouveau ne peut être ouvert. Choisis « Gérer » pour recommencer.</p>')+
     '<div class="ch-status-actions">'+
       (c.phase!=="failed" ? '<button type="button" class="btn-primary" id="ch-go-terminal">Trader ce compte →</button>' : '')+
+      (c.fundedAt ? '<button type="button" class="btn-secondary ch-cert-btn" data-cert="'+escapeHtml(c.fundedAt)+'">🎓 Mon certificat</button>' : '')+
       '<button type="button" class="btn-secondary" id="challenge-manage-btn-2">Gérer ce challenge</button>'+
     '</div>'+
   '</section>';
@@ -12145,7 +12670,8 @@ function challengeAttemptsHistoryHtml(){
       label = "⏹️ Abandonné";
     }
     const eqNote = typeof a.finalEquity==="number" ? " · Équité finale "+fmtMoney(a.finalEquity) : "";
-    return '<div class="challenge-timeline-row'+(warn?" warn":"")+'"><span>'+fmtMoney(a.tier)+' · '+label+eqNote+'</span><span class="chart-note">'+fmtWhen(a.endedAt)+'</span></div>';
+    const certBtn = a.fundedAt ? '<button type="button" class="ch-cert-mini" data-cert="'+escapeHtml(a.fundedAt)+'">🎓 Certificat</button>' : '';
+    return '<div class="challenge-timeline-row'+(warn?" warn":"")+'"><span>'+fmtMoney(a.tier)+' · '+label+eqNote+certBtn+'</span><span class="chart-note">'+fmtWhen(a.endedAt)+'</span></div>';
   }).join("");
   return '<h4 class="challenge-history-head">Historique des comptes essayés</h4><div class="challenge-timeline">'+rows+'</div>';
 }
@@ -12293,6 +12819,7 @@ function archiveChallenge(){
     startedAt: c.startedAt, endedAt: new Date().toISOString(),
     step1PassedAt: c.step1PassedAt || null, step2PassedAt: c.step2PassedAt || null,
     fundedAt: c.fundedAt || null, finalEquity: (typeof eq==="number" ? eq : null),
+    fundedValue: (typeof c.fundedValue==="number" ? c.fundedValue : null), startCash: c.startCash || c.tier,
   });
   if (state.challengeHistory.length>20) state.challengeHistory.length = 20;
 }
@@ -13490,6 +14017,9 @@ const BADGES = [
  {id:"streak_30", icon:"🔥", title:"Série — 30 jours", desc:"Revenir sur Paper Tape 30 jours de suite."},
  {id:"first_invest", icon:"🌱", title:"Premier investissement", desc:"Acheter ta première ligne dans ton PEA ou ton CTO."},
  {id:"invest_diversified", icon:"🧺", title:"Portefeuille diversifié", desc:"Détenir 5 actifs différents dans ton espace investissement."},
+ {id:"daily_first", icon:"📅", title:"Premier défi", desc:"Terminer ton premier Défi du jour."},
+ {id:"daily_perfect", icon:"🎯", title:"Flair parfait", desc:"Faire 5/5 au Défi du jour."},
+ {id:"daily_streak_7", icon:"📆", title:"Défi — 7 jours", desc:"Jouer au Défi du jour 7 jours de suite."},
  {id:"hardcore_master", icon:"💎", title:"Challenge Hardcore", desc:"Valider 5 challenges prop firm complets (Étape 1 + Étape 2) sur le palier 200 000 $, d'affilée."},
 ];
 // `extra` (optional) is merged into the stored badge entry — used by the
@@ -20158,6 +20688,839 @@ document.addEventListener("keydown", (e)=>{
   else if (k==="c"){ e.preventDefault(); rpClose("manual"); }
 });
 
+/* ============================= DÉFI DU JOUR ============================= */
+// 5 graphiques mystères par jour, les mêmes pour tout le monde : le tirage
+// (actif, unité de temps, date) dépend uniquement de la date de Paris, et les
+// bougies viennent de l'historique public Binance. On voit 60 bougies, on
+// parie « ça monte » ou « ça descend » sur les 12 suivantes (15 s max).
+// Firestore : daily/{jour}/plays/{uid} (une partie par trader et par jour,
+// complétée réponse par réponse, voir firestore.rules) et dailyStats/{uid}
+// (série de jours, record). Les archives (7 derniers jours, sans score) sont
+// réservées à EDB+.
+const DAILY_ROUNDS = 5, DAILY_SHOW = 60, DAILY_AFTER = 12, DAILY_TIME = 15;
+const DAILY_POOL = [
+  {s:"BTCUSDT", n:"Bitcoin"}, {s:"ETHUSDT", n:"Ethereum"}, {s:"SOLUSDT", n:"Solana"}, {s:"BNBUSDT", n:"BNB"},
+  {s:"XRPUSDT", n:"XRP"}, {s:"DOGEUSDT", n:"Dogecoin"}, {s:"ADAUSDT", n:"Cardano"}, {s:"LINKUSDT", n:"Chainlink"},
+  {s:"AVAXUSDT", n:"Avalanche"}, {s:"PAXGUSDT", n:"Or (PAXG)"},
+];
+const DAILY_IV = [["1h", 3600e3, "1 h"], ["4h", 4*3600e3, "4 h"], ["1d", 86400e3, "1 jour"]];
+const DAILY_FROM = Date.UTC(2021, 0, 1);
+const DAILY_DONE_KEY = "paperTapeDailyDone";
+function dailyDayKey(d){
+  try{ return new Intl.DateTimeFormat("en-CA", {timeZone:"Europe/Paris", year:"numeric", month:"2-digit", day:"2-digit"}).format(d||new Date()); }
+  catch(e){ return (d||new Date()).toISOString().slice(0,10); }
+}
+function dailyShift(day, n){ return new Date(Date.parse(day+"T12:00:00Z")+n*86400e3).toISOString().slice(0,10); }
+function dailyDayLabel(day, opts){ return new Date(day+"T12:00:00Z").toLocaleDateString("fr-FR", Object.assign({weekday:"long", day:"numeric", month:"long", timeZone:"UTC"}, opts||{})); }
+function dailyRng(seed){
+  let h = 1779033703 ^ seed.length;
+  for (let i=0;i<seed.length;i++){ h = Math.imul(h ^ seed.charCodeAt(i), 3432918353); h = h<<13 | h>>>19; }
+  let a = h>>>0;
+  return ()=>{ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a>>>15, 1 | a); t = t + Math.imul(t ^ t>>>7, 61 | t) ^ t; return ((t ^ t>>>14)>>>0)/4294967296; };
+}
+function dailyPlan(day){
+  const r = dailyRng("paper-tape-daily|"+day);
+  const end = Date.parse(day+"T00:00:00Z") - 30*86400e3;
+  const used = new Set(), out = [];
+  for (let i=0;i<DAILY_ROUNDS;i++){
+    let a, guard = 0;
+    do { a = DAILY_POOL[Math.floor(r()*DAILY_POOL.length)]; } while (used.has(a.s) && ++guard<50);
+    used.add(a.s);
+    const iv = DAILY_IV[Math.floor(r()*DAILY_IV.length)];
+    const span = (DAILY_SHOW+DAILY_AFTER)*iv[1];
+    const t = DAILY_FROM + span + Math.floor(r()*(end - DAILY_FROM - 2*span));
+    out.push({sym:a.s, name:a.n, iv:iv[0], ivMs:iv[1], ivLabel:iv[2], cut:Math.floor(t/iv[1])*iv[1]});
+  }
+  return out;
+}
+async function dailyFetchRound(rd){
+  const q = "/api/v3/klines?symbol="+rd.sym+"&interval="+rd.iv+"&startTime="+(rd.cut-(DAILY_SHOW-1)*rd.ivMs)+"&limit="+(DAILY_SHOW+DAILY_AFTER);
+  for (const base of ["https://data-api.binance.vision", "https://api.binance.com"]){
+    try{
+      const ctl = new AbortController(); const to = setTimeout(()=>ctl.abort(), 9000);
+      const r = await fetch(base+q, {signal:ctl.signal}); clearTimeout(to);
+      if (!r.ok) continue;
+      const j = await r.json();
+      if (Array.isArray(j) && j.length >= DAILY_SHOW+DAILY_AFTER) return j.slice(0, DAILY_SHOW+DAILY_AFTER).map(k=>[+k[0], +k[1], +k[2], +k[3], +k[4]]);
+    }catch(e){}
+  }
+  throw new Error("klines indisponibles");
+}
+const dailyDataCache = {};
+function dailyLoad(day){
+  if (!dailyDataCache[day]){
+    const p = Promise.all(dailyPlan(day).map(async rd=>Object.assign({}, rd, {c: await dailyFetchRound(rd)})));
+    dailyDataCache[day] = p;
+    p.catch(()=>{ delete dailyDataCache[day]; });
+  }
+  return dailyDataCache[day];
+}
+function dailyTruth(rd){
+  const last = rd.c[DAILY_SHOW-1][4], fin = rd.c[DAILY_SHOW+DAILY_AFTER-1][4];
+  return {dir: fin>=last ? "up" : "down", move: (fin-last)/last*100};
+}
+function dailyPeriodLabel(rd){
+  const f = {day:"numeric", month:"long", year:"numeric", timeZone:"UTC"};
+  const a = new Date(rd.c[0][0]).toLocaleDateString("fr-FR", f), b = new Date(rd.c[rd.c.length-1][0]).toLocaleDateString("fr-FR", f);
+  return a===b ? a : a+" → "+b;
+}
+
+// ---------- État ----------
+const D = {
+  day:null, rounds:null, play:null, stats:null, practice:null,
+  phase:"idle", i:0, t0:0, raf:0, locked:false, err:null,
+  board:null, streaks:null, tick:null,
+};
+function dailyPlayRef(day){ return db.collection("daily").doc(day).collection("plays").doc(clientId); }
+function dailyStatsRef(uid){ return db.collection("dailyStats").doc(uid||clientId); }
+function dailyEffectiveStreak(st, today){
+  if (!st || !st.lastDay) return 0;
+  return (st.lastDay===today || st.lastDay===dailyShift(today,-1)) ? (st.streak||0) : 0;
+}
+function dailyMarkDone(day){ try{ localStorage.setItem(DAILY_DONE_KEY, day); }catch(e){} dailyNavDot(); }
+function dailyNavDot(){
+  let done = null; try{ done = localStorage.getItem(DAILY_DONE_KEY); }catch(e){}
+  document.querySelectorAll('[data-view="daily"]').forEach(b=>b.classList.toggle("has-dot", done!==dailyDayKey()));
+}
+function dailyEsc(s){ return escapeHtml(String(s==null?"":s)); }
+
+// ---------- Rendu de la page ----------
+async function renderDaily(){
+  const root = document.getElementById("daily-root");
+  if (!root) return;
+  const today = dailyDayKey();
+  if (!dbReady || !db || !clientId){
+    root.innerHTML = '<div class="dd-empty">Connexion à ton compte…</div>';
+    setTimeout(()=>{ if (document.body.dataset.view==="daily") renderDaily(); }, 1200);
+    return;
+  }
+  if (D.day !== today){ Object.assign(D, {day:today, rounds:null, play:null, stats:null, practice:null, phase:"idle", i:0, board:null, streaks:null, err:null}); }
+  if (D.phase==="playing" || D.phase==="reveal"){ dailyShell(root); dailyRenderMain(); return; }
+  dailyShell(root);
+  dailyStartTicker();
+  if (D.phase==="idle"){
+    D.phase = "loading"; dailyRenderMain();
+    try{
+      const [ps, ss] = await Promise.all([dailyPlayRef(today).get(), dailyStatsRef().get()]);
+      D.play = ps.exists ? ps.data() : null;
+      D.stats = ss.exists ? ss.data() : null;
+      D.phase = D.play && D.play.status==="done" ? "done" : "intro";
+      if (D.phase==="done") dailyMarkDone(today);
+    }catch(e){ console.warn("daily load", e); D.phase = "intro"; }
+    dailyRenderHead(); dailyRenderMain();
+    if (D.phase==="done" || (D.play && D.play.answers && D.play.answers.length)) dailyLoad(today).then(r=>{ D.rounds = r; if (D.phase==="done") dailyRenderMain(); }).catch(()=>{});
+  } else {
+    dailyRenderMain();
+  }
+  dailyLoadBoards();
+  dailyRenderArchive();
+}
+function dailyShell(root){
+  if (root.querySelector(".dd")) return;
+  root.innerHTML =
+    '<div class="dd">'+
+      '<section class="dd-head">'+
+        '<div class="dd-head-l"><span class="dd-kicker" id="dd-date"></span><h1>Ça monte ou ça descend ?</h1>'+
+          '<p>5 graphiques mystères, les mêmes pour tout le monde. Tu vois 60 bougies : devine si le prix sera plus haut ou plus bas 12 bougies plus tard. 15 secondes par graphique.</p></div>'+
+        '<div class="dd-head-stats">'+
+          '<div><b id="dd-streak">—</b><span>jours de suite</span></div>'+
+          '<div><b id="dd-best">—</b><span>record</span></div>'+
+          '<div><b id="dd-next" class="num">—</b><span>prochain défi</span></div>'+
+        '</div>'+
+      '</section>'+
+      '<div class="dd-grid">'+
+        '<section class="dd-main" id="dd-main"></section>'+
+        '<aside class="dd-side">'+
+          '<div class="dd-panel"><div class="dd-panel-h"><h3>Classement du jour</h3><span id="dd-board-n"></span></div><ol class="dd-list" id="dd-board"><li class="dd-li-empty">Chargement…</li></ol></div>'+
+          '<div class="dd-panel"><div class="dd-panel-h"><h3>Meilleures séries</h3></div><ol class="dd-list" id="dd-streaks"><li class="dd-li-empty">Chargement…</li></ol></div>'+
+          '<div class="dd-panel" id="dd-archive"></div>'+
+        '</aside>'+
+      '</div>'+
+    '</div>';
+  root.querySelector("#dd-main").addEventListener("click", dailyOnClick);
+  root.querySelector("#dd-archive").addEventListener("click", dailyOnClick);
+  dailyRenderHead();
+}
+function dailyRenderHead(){
+  const today = D.day || dailyDayKey();
+  const set = (id, v)=>{ const e = document.getElementById(id); if (e) e.textContent = v; };
+  set("dd-date", "Défi du jour · "+dailyDayLabel(today));
+  const st = dailyEffectiveStreak(D.stats, today);
+  set("dd-streak", (st>0?"🔥 ":"")+st);
+  set("dd-best", String((D.stats && D.stats.best) || 0));
+}
+function dailyStartTicker(){
+  if (D.tick) return;
+  const upd = ()=>{
+    if (document.body.dataset.view!=="daily"){ clearInterval(D.tick); D.tick = null; return; }
+    const parts = new Intl.DateTimeFormat("en-GB", {timeZone:"Europe/Paris", hour:"2-digit", minute:"2-digit", second:"2-digit", hourCycle:"h23"}).formatToParts(new Date());
+    const g = t=>+((parts.find(p=>p.type===t)||{}).value||0);
+    let left = 86400 - (g("hour")*3600 + g("minute")*60 + g("second"));
+    const e = document.getElementById("dd-next");
+    if (e) e.textContent = [Math.floor(left/3600), Math.floor(left%3600/60), left%60].map(n=>String(n).padStart(2,"0")).join(":");
+    if (D.day && dailyDayKey()!==D.day && D.phase!=="playing" && D.phase!=="reveal"){ D.day = null; renderDaily(); }
+  };
+  upd(); D.tick = setInterval(upd, 1000);
+}
+function dailyRenderMain(){
+  const m = document.getElementById("dd-main");
+  if (!m) return;
+  const P = D.practice;
+  if (D.phase==="loading"){ m.innerHTML = '<div class="dd-card dd-empty">Préparation des graphiques…</div>'; return; }
+  if (D.phase==="error"){
+    m.innerHTML = '<div class="dd-card dd-empty"><b>Graphiques indisponibles</b><p>Impossible de joindre l\'historique Binance pour l\'instant. Vérifie ta connexion puis réessaie.</p><button class="btn-primary" data-dd="retry">Réessayer</button></div>';
+    return;
+  }
+  if (D.phase==="intro"){
+    const n = D.play && D.play.answers ? D.play.answers.length : 0;
+    m.innerHTML =
+      '<div class="dd-card dd-intro">'+
+        '<div class="dd-intro-art" aria-hidden="true">'+dailyIntroSvg()+'</div>'+
+        '<div class="dd-rules">'+
+          '<div><b>1</b><span>Un graphique mystère : actif et date cachés.</span></div>'+
+          '<div><b>2</b><span>▲ ou ▼ : plus haut ou plus bas 12 bougies plus tard ?</span></div>'+
+          '<div><b>3</b><span>Bonne réponse = 100 points + bonus de rapidité (jusqu\'à 250).</span></div>'+
+        '</div>'+
+        (n>0 && n<DAILY_ROUNDS
+          ? '<button class="pw-btn pw-btn-trial dd-cta" data-dd="start">Reprendre · graphique '+(n+1)+' / '+DAILY_ROUNDS+'</button><p class="dd-note">Ta partie a été interrompue. Les réponses déjà données comptent.</p>'
+          : '<button class="pw-btn pw-btn-trial dd-cta" data-dd="start">Lancer le défi</button><p class="dd-note">Une seule partie par jour. Le chrono démarre dès que le graphique s\'affiche.</p>')+
+      '</div>';
+    return;
+  }
+  if (D.phase==="playing" || D.phase==="reveal"){
+    const rounds = P ? P.rounds : D.rounds;
+    const answers = P ? P.answers : (D.play.answers||[]);
+    const rd = rounds[D.i];
+    if (!m.querySelector(".dd-game")){
+      m.innerHTML =
+        '<div class="dd-card dd-game">'+
+          '<div class="dd-game-top">'+
+            '<span class="dd-round" id="dd-round"></span><span class="dd-dots" id="dd-dots"></span>'+
+            '<span class="dd-tf" id="dd-tf"></span>'+(P?'<span class="dd-practice">Entraînement · '+dailyEsc(dailyDayLabel(P.day,{weekday:undefined}))+'</span>':'')+
+          '</div>'+
+          '<div class="dd-timer"><i id="dd-timer"></i></div>'+
+          '<div class="dd-chart"><canvas id="dd-canvas"></canvas><div class="dd-q" id="dd-q">?</div></div>'+
+          '<div class="dd-actions" id="dd-actions">'+
+            '<button class="dd-btn up" data-dd="up"><span>▲</span>Ça monte</button>'+
+            '<button class="dd-btn down" data-dd="down"><span>▼</span>Ça descend</button>'+
+          '</div>'+
+          '<div class="dd-verdict" id="dd-verdict" hidden></div>'+
+          '<p class="dd-keys">Clavier : ↑ ou ↓</p>'+
+        '</div>';
+    }
+    document.getElementById("dd-round").textContent = "Graphique "+(D.i+1)+" / "+DAILY_ROUNDS;
+    document.getElementById("dd-tf").textContent = "Bougies "+rd.ivLabel;
+    document.getElementById("dd-dots").innerHTML = Array.from({length:DAILY_ROUNDS}, (_,k)=>{ const a = answers[k]; return '<i class="'+(a ? (a.ok?"ok":"ko") : (k===D.i?"cur":""))+'"></i>'; }).join("");
+    return;
+  }
+  if (D.phase==="done"){ m.innerHTML = dailyResultHtml(); return; }
+}
+function dailyIntroSvg(){
+  let p = 60, pts = [];
+  const r = dailyRng("intro"+(D.day||""));
+  for (let i=0;i<34;i++){ p += (r()-.5)*16; pts.push([i*12, Math.max(14, Math.min(106, p))]); }
+  const d = pts.map((q,i)=>(i?"L":"M")+q[0]+" "+q[1].toFixed(1)).join(" ");
+  const last = pts[pts.length-1];
+  return '<svg viewBox="0 0 520 120" preserveAspectRatio="none"><path d="'+d+'" fill="none" stroke="var(--text-dim)" stroke-width="2" stroke-linejoin="round"/>'+
+    '<line x1="'+last[0]+'" x2="'+last[0]+'" y1="0" y2="120" stroke="var(--border)" stroke-dasharray="3 4"/>'+
+    '<rect x="'+(last[0]+6)+'" y="4" width="'+(514-last[0]-6)+'" height="112" rx="10" fill="color-mix(in srgb, var(--gold) 7%, transparent)" stroke="color-mix(in srgb, var(--gold) 35%, transparent)" stroke-dasharray="4 5"/>'+
+    '<text x="'+((last[0]+520)/2)+'" y="76" text-anchor="middle" font-size="44" font-weight="800" fill="var(--gold)">?</text></svg>';
+}
+function dailyEmojiRow(answers){ return (answers||[]).map(a=>a.ok?"🟩":"🟥").join(""); }
+function dailyResultHtml(){
+  const P = D.practice;
+  const play = P ? {answers:P.answers, points:P.answers.reduce((s,a)=>s+(a.pts||0),0), correct:P.answers.filter(a=>a.ok).length} : D.play;
+  const rounds = P ? P.rounds : D.rounds;
+  const ans = play.answers||[];
+  const rank = !P && D.board ? D.board.findIndex(e=>e.uid===clientId) : -1;
+  const today = D.day;
+  const streak = dailyEffectiveStreak(D.stats, today);
+  const msg = play.correct===5 ? "Sans-faute. Lecture de marché parfaite." : play.correct>=4 ? "Excellent flair." : play.correct>=3 ? "Bien joué, plus de la moitié." : play.correct>=1 ? "Le marché t'a piégé aujourd'hui." : "Journée difficile : le marché a toujours raison.";
+  const recap = rounds ? '<div class="dd-recap">'+rounds.map((rd,k)=>{
+      const a = ans[k]; if (!a) return "";
+      const t = dailyTruth(rd);
+      return '<div class="dd-recap-row '+(a.ok?"ok":"ko")+'"><i>'+(a.ok?"✓":"✗")+'</i><div><b>'+dailyEsc(rd.name)+'</b><span>Bougies '+rd.ivLabel+' · '+dailyEsc(dailyPeriodLabel(rd))+'</span></div>'+
+        '<em class="'+(t.dir==="up"?"up":"down")+'">'+(t.dir==="up"?"▲ ":"▼ ")+(t.move>=0?"+":"")+t.move.toLocaleString("fr-FR",{maximumFractionDigits:1})+' %</em>'+
+        '<small>'+(a.a==="none"?"temps écoulé":(a.a==="up"?"tu as dit ▲":"tu as dit ▼"))+(a.pts?' · +'+a.pts:'')+'</small></div>';
+    }).join("")+'</div>' : '<div class="dd-empty">Chargement du récapitulatif…</div>';
+  return '<div class="dd-card dd-result">'+
+    '<div class="dd-score">'+
+      '<div class="dd-score-big"><b>'+play.correct+'</b><span>/ '+DAILY_ROUNDS+'</span></div>'+
+      '<div class="dd-score-txt"><span class="dd-kicker">'+(P?'Entraînement · '+dailyEsc(dailyDayLabel(P.day,{weekday:undefined})):'Résultat du jour')+'</span><h2>'+msg+'</h2>'+
+        '<p><b class="num">'+(play.points||0).toLocaleString("fr-FR")+'</b> points'+(rank>=0?' · <b>'+(rank+1)+'<sup>'+(rank===0?'er':'e')+'</sup></b> du jour':'')+(!P && streak>0?' · 🔥 '+streak+' jour'+(streak>1?'s':'')+' de suite':'')+'</p>'+
+        '<div class="dd-emoji">'+dailyEmojiRow(ans)+'</div></div>'+
+    '</div>'+
+    '<div class="dd-result-actions">'+
+      (P ? '<button class="pw-btn pw-btn-ghost" data-dd="back">← Revenir au défi du jour</button>'
+         : '<button class="pw-btn pw-btn-trial" data-dd="share">Partager mon résultat</button><span class="dd-note">Prochain défi à minuit (heure de Paris).</span>')+
+    '</div>'+
+    recap+
+  '</div>';
+}
+function dailyOnClick(e){
+  const b = e.target.closest("[data-dd]");
+  if (!b) return;
+  const act = b.dataset.dd;
+  if (act==="start") dailyStart();
+  else if (act==="retry"){ D.phase = "intro"; dailyRenderMain(); }
+  else if (act==="up" || act==="down") dailyAnswer(act);
+  else if (act==="next") dailyNext();
+  else if (act==="share") dailyShare();
+  else if (act==="back"){ D.practice = null; D.phase = D.play && D.play.status==="done" ? "done" : "intro"; dailyRenderMain(); dailyRenderArchive(); }
+  else if (act==="practice") dailyStartPractice(b.dataset.day);
+  else if (act==="edbplus") switchView("edbplus");
+}
+document.addEventListener("keydown", e=>{
+  if (document.body.dataset.view!=="daily" || D.phase!=="playing" || D.locked) return;
+  if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  if (e.key==="ArrowUp"){ e.preventDefault(); dailyAnswer("up"); }
+  else if (e.key==="ArrowDown"){ e.preventDefault(); dailyAnswer("down"); }
+});
+
+// ---------- Partie ----------
+async function dailyStart(){
+  const btn = document.querySelector('[data-dd="start"]');
+  if (btn){ btn.disabled = true; btn.textContent = "Chargement des graphiques…"; }
+  try{
+    D.rounds = await dailyLoad(D.day);
+  }catch(e){ D.phase = "error"; dailyRenderMain(); return; }
+  try{
+    if (!D.play){
+      const doc = {uid:clientId, username:state.username||"Trader", photoURL:state.photoURL||null, day:D.day, status:"started", answers:[], correct:0, points:0,
+        startedAt:firebase.firestore.FieldValue.serverTimestamp()};
+      await dailyPlayRef(D.day).set(doc);
+      D.play = doc;
+    }
+  }catch(e){
+    console.warn("daily start", e);
+    try{ const s = await dailyPlayRef(D.day).get(); if (s.exists) D.play = s.data(); }catch(e2){}
+    if (!D.play){ appToast("Impossible d'enregistrer ta partie (connexion ?). Réessaie dans un instant."); D.phase = "intro"; dailyRenderMain(); return; }
+  }
+  D.practice = null;
+  D.i = (D.play.answers||[]).length;
+  if (D.i>=DAILY_ROUNDS){ D.phase = "done"; dailyRenderMain(); return; }
+  dailyShowRound();
+}
+async function dailyStartPractice(day){
+  if (!isEdbPlus()){ switchView("edbplus"); return; }
+  const m = document.getElementById("dd-main");
+  if (m) m.innerHTML = '<div class="dd-card dd-empty">Préparation des graphiques du '+dailyEsc(dailyDayLabel(day,{weekday:undefined}))+'…</div>';
+  try{
+    const rounds = await dailyLoad(day);
+    D.practice = {day, rounds, answers:[]};
+    D.i = 0;
+    dailyShowRound();
+    window.scrollTo({top:0, behavior:"smooth"});
+  }catch(e){ D.phase = "error"; dailyRenderMain(); }
+}
+function dailyRange(c, a, b){
+  let lo = Infinity, hi = -Infinity;
+  for (let k=a;k<b;k++){ if (c[k][3]<lo) lo = c[k][3]; if (c[k][2]>hi) hi = c[k][2]; }
+  const pad = (hi-lo)*0.08 || hi*0.01;
+  return [lo-pad, hi+pad];
+}
+function dailyShowRound(){
+  D.phase = "playing"; D.locked = false;
+  const m = document.getElementById("dd-main");
+  if (m && !m.querySelector(".dd-game")) m.innerHTML = "";
+  dailyRenderMain();
+  const rd = (D.practice ? D.practice.rounds : D.rounds)[D.i];
+  document.getElementById("dd-verdict").hidden = true;
+  document.getElementById("dd-actions").hidden = false;
+  document.querySelectorAll(".dd-btn").forEach(b=>{ b.disabled = false; b.classList.remove("picked"); });
+  const q = document.getElementById("dd-q"); if (q) q.hidden = false;
+  const game = document.querySelector(".dd-game");
+  if (game){ const r = game.getBoundingClientRect(); if (r.top < 60 || r.top > window.innerHeight*0.35) window.scrollTo({top:window.scrollY + r.top - 72, behavior:"smooth"}); }
+  const cv = document.getElementById("dd-canvas");
+  const rng = dailyRange(rd.c, 0, DAILY_SHOW);
+  dailyDraw(cv, rd.c, DAILY_SHOW, rng, {});
+  D.curRange = rng;
+  D.t0 = performance.now();
+  const bar = document.getElementById("dd-timer");
+  cancelAnimationFrame(D.raf);
+  const loop = t=>{
+    if (D.locked || D.phase!=="playing") return;
+    const left = Math.max(0, DAILY_TIME - (t-D.t0)/1000);
+    if (bar){ bar.style.transform = "scaleX("+(left/DAILY_TIME)+")"; bar.classList.toggle("low", left<4); }
+    if (left<=0){ dailyAnswer("none"); return; }
+    D.raf = requestAnimationFrame(loop);
+  };
+  D.raf = requestAnimationFrame(loop);
+}
+function dailyAnswer(choice){
+  if (D.locked || D.phase!=="playing") return;
+  D.locked = true;
+  cancelAnimationFrame(D.raf);
+  const P = D.practice;
+  const rd = (P ? P.rounds : D.rounds)[D.i];
+  const left = Math.max(0, DAILY_TIME - (performance.now()-D.t0)/1000);
+  const t = dailyTruth(rd);
+  const ok = choice===t.dir;
+  const pts = ok ? 100 + Math.round(left*10) : 0;
+  const rec = {a:choice, ok, pts};
+  if (choice!=="none"){ const b = document.querySelector('.dd-btn.'+choice); if (b) b.classList.add("picked"); }
+  document.querySelectorAll(".dd-btn").forEach(b=>b.disabled = true);
+  if (P){ P.answers.push(rec); }
+  else {
+    const answers = (D.play.answers||[]).concat([rec]);
+    const done = answers.length>=DAILY_ROUNDS;
+    const patch = {answers, points:(D.play.points||0)+pts, correct:(D.play.correct||0)+(ok?1:0), status: done ? "done" : "started"};
+    if (done) patch.finishedAt = firebase.firestore.FieldValue.serverTimestamp();
+    Object.assign(D.play, patch);
+    dailyPlayRef(D.day).update(patch).catch(e=>{ console.warn("daily answer", e); appToast("Réponse non enregistrée (connexion ?). Elle sera perdue si tu quittes la page."); });
+    if (done) dailyFinish();
+  }
+  // Révélation animée des 12 bougies suivantes.
+  const cv = document.getElementById("dd-canvas");
+  const q = document.getElementById("dd-q"); if (q) q.hidden = true;
+  const r0 = D.curRange, r1 = dailyRange(rd.c, 0, DAILY_SHOW+DAILY_AFTER);
+  const T = 1300, ts = performance.now();
+  const anim = now=>{
+    const p = Math.min(1, (now-ts)/T), e = 1-Math.pow(1-p, 3);
+    dailyDraw(cv, rd.c, DAILY_SHOW + Math.round(DAILY_AFTER*p), [r0[0]+(r1[0]-r0[0])*e, r0[1]+(r1[1]-r0[1])*e], {revealed:true});
+    if (p<1) requestAnimationFrame(anim); else dailyVerdict(rec, rd, t);
+  };
+  requestAnimationFrame(anim);
+}
+function dailyVerdict(rec, rd, t){
+  D.phase = "reveal";
+  dailyRenderMain();
+  const v = document.getElementById("dd-verdict");
+  const last = D.i>=DAILY_ROUNDS-1;
+  v.className = "dd-verdict "+(rec.ok?"ok":"ko");
+  v.innerHTML =
+    '<div class="dd-v-l"><b>'+(rec.a==="none" ? "Temps écoulé" : rec.ok ? "Bien vu !" : "Raté")+'</b>'+
+      '<span class="'+(t.dir==="up"?"up":"down")+'">'+(t.dir==="up"?"▲ Ça montait : ":"▼ Ça descendait : ")+(t.move>=0?"+":"")+t.move.toLocaleString("fr-FR",{maximumFractionDigits:2})+' %</span>'+
+      '<em>'+dailyEsc(rd.name)+' · bougies '+rd.ivLabel+' · '+dailyEsc(dailyPeriodLabel(rd))+'</em></div>'+
+    '<div class="dd-v-r">'+(rec.pts?'<strong class="num">+'+rec.pts+'</strong>':'<strong class="num">0</strong>')+
+      '<button class="pw-btn pw-btn-trial" data-dd="next">'+(last ? "Voir mon résultat" : "Graphique suivant →")+'</button></div>';
+  v.hidden = false;
+  document.getElementById("dd-actions").hidden = true;
+  const nb = v.querySelector('[data-dd="next"]'); if (nb) nb.focus({preventScroll:true});
+}
+function dailyNext(){
+  D.i++;
+  if (D.i>=DAILY_ROUNDS){
+    D.phase = "done";
+    const m = document.getElementById("dd-main"); if (m) m.innerHTML = "";
+    dailyRenderMain();
+    if (!D.practice) dailyLoadBoards();
+    return;
+  }
+  dailyShowRound();
+}
+async function dailyFinish(){
+  const today = D.day;
+  dailyMarkDone(today);
+  const prev = D.stats || {};
+  const yesterday = dailyShift(today, -1);
+  const streak = prev.lastDay===today ? (prev.streak||1) : (prev.lastDay===yesterday ? (prev.streak||0)+1 : 1);
+  const next = {
+    uid:clientId, username:state.username||"Trader",
+    streak, best:Math.max(prev.best||0, streak),
+    played:(prev.lastDay===today ? (prev.played||1) : (prev.played||0)+1),
+    correct:(prev.lastDay===today ? (prev.correct||0) : (prev.correct||0)+(D.play.correct||0)),
+    lastDay:today,
+  };
+  if (next.played < next.streak) next.played = next.streak;
+  D.stats = next;
+  dailyRenderHead();
+  try{ await dailyStatsRef().set(next); }catch(e){ console.warn("daily stats", e); }
+  try{
+    awardBadge("daily_first");
+    if ((D.play.correct||0)===DAILY_ROUNDS) awardBadge("daily_perfect");
+    if (streak>=7) awardBadge("daily_streak_7");
+  }catch(e){}
+}
+async function dailyShare(){
+  const p = D.play; if (!p) return;
+  const day = D.day.split("-").reverse().slice(0,2).join("/");
+  const streak = dailyEffectiveStreak(D.stats, D.day);
+  const url = location.origin+location.pathname+"?defi";
+  const txt = "Paper Tape · Défi du jour "+day+"\n"+p.correct+"/"+DAILY_ROUNDS+" · "+(p.points||0)+" pts"+(streak>1?" · 🔥 "+streak:"")+"\n"+dailyEmojiRow(p.answers)+"\n"+url;
+  try{
+    if (navigator.share && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){ await navigator.share({text:txt}); return; }
+  }catch(e){ if (e && e.name==="AbortError") return; }
+  try{ await navigator.clipboard.writeText(txt); appToast("Résultat copié : colle-le dans ta conversation ou en story."); }
+  catch(e){ openModal('<h3>Partager mon résultat</h3><textarea style="width:100%;min-height:120px;margin-top:10px;">'+escapeHtml(txt)+'</textarea>'); }
+}
+
+// ---------- Classements ----------
+async function dailyLoadBoards(){
+  const day = D.day;
+  try{
+    const snap = await db.collection("daily").doc(day).collection("plays").orderBy("points","desc").limit(40).get();
+    if (D.day!==day) return;
+    const rows = []; snap.forEach(d=>{ const x = d.data(); if (x.status==="done") rows.push(Object.assign({uid:d.id}, x)); });
+    rows.sort((a,b)=>(b.points||0)-(a.points||0) || (b.correct||0)-(a.correct||0));
+    D.board = rows;
+  }catch(e){ console.warn("daily board", e); D.board = D.board || []; }
+  try{
+    const snap = await db.collection("dailyStats").orderBy("streak","desc").limit(25).get();
+    const y = dailyShift(day, -1), rows = [];
+    snap.forEach(d=>{ const x = d.data(); if ((x.lastDay===day || x.lastDay===y) && (x.streak||0)>0) rows.push(Object.assign({uid:d.id}, x)); });
+    D.streaks = rows.slice(0, 8);
+  }catch(e){ console.warn("daily streaks", e); D.streaks = D.streaks || []; }
+  dailyRenderBoards();
+  if (D.phase==="done" && !D.practice) dailyRenderMain();
+}
+function dailyRenderBoards(){
+  const b = document.getElementById("dd-board"), s = document.getElementById("dd-streaks"), n = document.getElementById("dd-board-n");
+  const medal = i=>i===0?"🥇":i===1?"🥈":i===2?"🥉":String(i+1);
+  if (b){
+    const rows = (D.board||[]).slice(0, 10);
+    if (n) n.textContent = D.board && D.board.length ? (D.board.length>=40 ? "40+ joueurs" : D.board.length+" joueur"+(D.board.length>1?"s":"")) : "";
+    b.innerHTML = rows.length ? rows.map((r,i)=>'<li class="'+(r.uid===clientId?"me":"")+'"><span class="dd-rk">'+medal(i)+'</span><span class="dd-nm">'+dailyEsc(r.username||"Trader")+'</span><span class="dd-sc">'+r.correct+'/5</span><b class="num">'+(r.points||0)+'</b></li>').join("")
+      : '<li class="dd-li-empty">Personne n\'a encore terminé le défi aujourd\'hui. Sois le premier !</li>';
+    const meIdx = (D.board||[]).findIndex(r=>r.uid===clientId);
+    if (meIdx>=10){ const r = D.board[meIdx]; b.insertAdjacentHTML("beforeend", '<li class="me sep"><span class="dd-rk">'+(meIdx+1)+'</span><span class="dd-nm">'+dailyEsc(r.username||"Toi")+'</span><span class="dd-sc">'+r.correct+'/5</span><b class="num">'+(r.points||0)+'</b></li>'); }
+  }
+  if (s){
+    const rows = D.streaks||[];
+    s.innerHTML = rows.length ? rows.map((r,i)=>'<li class="'+(r.uid===clientId?"me":"")+'"><span class="dd-rk">'+medal(i)+'</span><span class="dd-nm">'+dailyEsc(r.username||"Trader")+'</span><b class="num">🔥 '+r.streak+'</b></li>').join("")
+      : '<li class="dd-li-empty">Aucune série en cours.</li>';
+  }
+}
+function dailyRenderArchive(){
+  const el = document.getElementById("dd-archive");
+  if (!el) return;
+  const plus = isEdbPlus();
+  const days = Array.from({length:7}, (_,k)=>dailyShift(D.day||dailyDayKey(), -(k+1)));
+  el.innerHTML = '<div class="dd-panel-h"><h3>Archives</h3><span class="dd-plus">EDB+</span></div>'+
+    '<p class="dd-arch-sub">'+(plus ? "Rejoue les défis des 7 derniers jours pour t'entraîner (sans score)." : "Rejoue les défis des 7 derniers jours avec EDB+.")+'</p>'+
+    '<div class="dd-arch">'+days.map(d=>'<button type="button" class="dd-arch-b'+(plus?'':' locked')+'" data-dd="'+(plus?'practice':'edbplus')+'" data-day="'+d+'">'+
+      '<b>'+dailyEsc(new Date(d+"T12:00:00Z").toLocaleDateString("fr-FR",{weekday:"short", timeZone:"UTC"}))+'</b><span>'+dailyEsc(new Date(d+"T12:00:00Z").toLocaleDateString("fr-FR",{day:"numeric", month:"short", timeZone:"UTC"}))+'</span>'+(plus?'':'<i>🔒</i>')+'</button>').join("")+'</div>';
+}
+
+// ---------- Dessin ----------
+function dailyDraw(cv, c, n, rng, opt){
+  if (!cv) return;
+  const dpr = Math.min(2, window.devicePixelRatio||1);
+  const W = cv.clientWidth || 600, H = cv.clientHeight || 320;
+  if (cv.width!==Math.round(W*dpr) || cv.height!==Math.round(H*dpr)){ cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr); }
+  const x = cv.getContext("2d");
+  x.setTransform(dpr,0,0,dpr,0,0); x.clearRect(0,0,W,H);
+  const css = getComputedStyle(document.documentElement);
+  const v = (k, f)=>(css.getPropertyValue(k)||"").trim() || f;
+  const up = v("--long","#31c882"), dn = v("--short","#f0546a"), faint = v("--text-faint","#8a8072"), border = v("--border","#3a352b"), gold = v("--gold","#d7b563");
+  const mono = v("--mono","monospace");
+  const padL = 6, padR = 58, padT = 12, padB = 12;
+  const total = DAILY_SHOW + DAILY_AFTER;
+  const slot = (W-padL-padR)/total;
+  const y = p=>padT + (rng[1]-p)/(rng[1]-rng[0])*(H-padT-padB);
+  const ref = c[DAILY_SHOW-1][4];
+  // Grille + axe en % par rapport à la dernière bougie visible.
+  x.font = "11px "+mono; x.textBaseline = "middle"; x.textAlign = "left";
+  const stepPct = (()=>{ const spanPct = (rng[1]-rng[0])/ref*100; const raw = spanPct/5; const opts = [0.25,0.5,1,2,2.5,5,10,20,25,50]; return opts.find(o=>o>=raw) || 50; })();
+  for (let k=-50;k<=50;k++){
+    const pr = ref*(1+k*stepPct/100);
+    if (pr<rng[0] || pr>rng[1]) continue;
+    const yy = Math.round(y(pr))+.5;
+    x.strokeStyle = border; x.globalAlpha = k===0 ? .9 : .35; x.setLineDash(k===0?[4,4]:[]);
+    x.beginPath(); x.moveTo(padL, yy); x.lineTo(W-padR+4, yy); x.stroke();
+    x.globalAlpha = 1; x.setLineDash([]);
+    x.fillStyle = k===0 ? v("--text","#fff") : faint;
+    x.fillText((k>0?"+":k<0?"−":"")+Math.abs(k*stepPct).toLocaleString("fr-FR",{maximumFractionDigits:2})+" %", W-padR+10, yy);
+  }
+  // Zone cachée (12 bougies à venir).
+  const zx = padL + DAILY_SHOW*slot;
+  if (!opt.revealed){
+    x.fillStyle = gold; x.globalAlpha = .07; x.fillRect(zx, padT, W-padR-zx, H-padT-padB);
+    x.globalAlpha = .5; x.strokeStyle = gold; x.setLineDash([4,5]); x.strokeRect(zx+.5, padT+.5, W-padR-zx-1, H-padT-padB-1); x.setLineDash([]); x.globalAlpha = 1;
+  } else {
+    x.strokeStyle = gold; x.globalAlpha = .7; x.setLineDash([4,5]);
+    x.beginPath(); x.moveTo(Math.round(zx)+.5, padT); x.lineTo(Math.round(zx)+.5, H-padB); x.stroke(); x.setLineDash([]); x.globalAlpha = 1;
+  }
+  // Bougies.
+  const bw = Math.max(1, slot*0.62);
+  for (let k=0;k<Math.min(n, c.length);k++){
+    const [, o, h, l, cl] = c[k];
+    const cx = padL + k*slot + slot/2;
+    const col = cl>=o ? up : dn;
+    x.strokeStyle = col; x.fillStyle = col; x.globalAlpha = k>=DAILY_SHOW ? 1 : .92;
+    x.beginPath(); x.moveTo(Math.round(cx)+.5, y(h)); x.lineTo(Math.round(cx)+.5, y(l)); x.stroke();
+    const top = y(Math.max(o,cl)), bot = y(Math.min(o,cl));
+    x.fillRect(cx-bw/2, top, bw, Math.max(1, bot-top));
+  }
+  x.globalAlpha = 1;
+  // Point sur la dernière clôture visible.
+  const lx = padL + (DAILY_SHOW-1)*slot + slot/2;
+  x.fillStyle = v("--text","#fff"); x.beginPath(); x.arc(lx, y(ref), 3, 0, Math.PI*2); x.fill();
+  if (opt.revealed && n>=DAILY_SHOW+1){
+    const k = Math.min(n, c.length)-1, fx = padL + k*slot + slot/2, fy = y(c[k][4]);
+    const col = c[k][4]>=ref ? up : dn;
+    x.strokeStyle = col; x.lineWidth = 1.5; x.setLineDash([2,3]);
+    x.beginPath(); x.moveTo(lx, y(ref)); x.lineTo(fx, fy); x.stroke(); x.setLineDash([]); x.lineWidth = 1;
+    x.fillStyle = col; x.beginPath(); x.arc(fx, fy, 4, 0, Math.PI*2); x.fill();
+  }
+}
+window.addEventListener("resize", ()=>{
+  if (document.body.dataset.view!=="daily" || (D.phase!=="playing" && D.phase!=="reveal")) return;
+  const rd = (D.practice ? D.practice.rounds : D.rounds||[])[D.i]; if (!rd) return;
+  const cv = document.getElementById("dd-canvas");
+  if (D.phase==="playing") dailyDraw(cv, rd.c, DAILY_SHOW, D.curRange, {});
+  else dailyDraw(cv, rd.c, DAILY_SHOW+DAILY_AFTER, dailyRange(rd.c, 0, DAILY_SHOW+DAILY_AFTER), {revealed:true});
+});
+
+/* ============================= CERTIFICAT DE CHALLENGE ============================= */
+// Un challenge prop firm réussi (Étape 1 + Étape 2, `fundedAt` posé) donne
+// droit à un certificat : image PNG (format post LinkedIn), PDF A4, lien
+// « Ajouter à mon profil LinkedIn » et lien de vérification public
+// (?cert=<uid>.<fundedAt en base 36>). La vérification relit simplement le
+// document traders/{uid} (lecture publique) et cherche un challenge financé
+// à cette date exacte : rien de plus à stocker, aucune écriture.
+const CERT_NAME_KEY = "paperTapeCertName";
+function certId(uid, fundedAt){ return uid+"."+Date.parse(fundedAt).toString(36); }
+function certUrl(id){ return location.origin+location.pathname+"?cert="+encodeURIComponent(id); }
+function certFrom(o, uid){
+  const startCash = o.startCash || o.tier;
+  const fv = typeof o.fundedValue==="number" ? o.fundedValue : null;
+  const step2 = o.step2PassedAt || o.fundedAt;
+  const days = o.startedAt ? Math.max(1, Math.ceil((Date.parse(step2)-Date.parse(o.startedAt))/86400e3)) : null;
+  return {tier:o.tier, startedAt:o.startedAt||null, step1At:o.step1PassedAt||null, step2At:step2, fundedAt:o.fundedAt,
+    perf: fv!=null && startCash ? (fv/startCash-1)*100 : null, days, id:certId(uid, o.fundedAt)};
+}
+function certEntries(){
+  const out = [], seen = new Set();
+  const add = o=>{ if (o && o.fundedAt && !seen.has(o.fundedAt)){ seen.add(o.fundedAt); out.push(certFrom(o, clientId)); } };
+  add(state.challenge);
+  (state.challengeHistory||[]).forEach(add);
+  return out;
+}
+function certMoney(v){ return Math.round(v).toLocaleString("fr-FR")+" $"; }
+function certDate(iso, long){ return iso ? new Date(iso).toLocaleDateString("fr-FR", long ? {day:"numeric", month:"long", year:"numeric"} : {day:"2-digit", month:"2-digit", year:"numeric"}) : "—"; }
+function certPct(v){ return (v>=0?"+":"−")+Math.abs(v).toLocaleString("fr-FR",{minimumFractionDigits:1, maximumFractionDigits:1})+" %"; }
+
+// ---------- Dessin ----------
+async function certCanvas(cert, name, W, H){
+  try{ if (document.fonts && document.fonts.ready) await document.fonts.ready; }catch(e){}
+  const css = getComputedStyle(document.documentElement);
+  const sans = (css.getPropertyValue("--sans")||"").trim() || "system-ui, sans-serif";
+  const mono = (css.getPropertyValue("--mono")||"").trim() || "monospace";
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+  const x = cv.getContext("2d");
+  const GOLD = "#d7b563", GOLD_L = "#f6e2a6", GOLD_D = "#9c7731", INK = "#f4ead2";
+  // Fond + cadre sur toute la surface.
+  const bg = x.createLinearGradient(0, 0, W, H); bg.addColorStop(0, "#1b1813"); bg.addColorStop(.55, "#100f0c"); bg.addColorStop(1, "#080807");
+  x.fillStyle = bg; x.fillRect(0, 0, W, H);
+  const glow = x.createRadialGradient(W*.86, H*.12, 0, W*.86, H*.12, Math.max(W,H)*.7);
+  glow.addColorStop(0, "rgba(215,181,99,.20)"); glow.addColorStop(1, "rgba(215,181,99,0)");
+  x.fillStyle = glow; x.fillRect(0, 0, W, H);
+  const u0 = Math.min(W/1200, H/630);
+  x.save(); x.strokeStyle = "rgba(215,181,99,.06)"; x.lineWidth = 1;
+  for (let r=40*u0; r<Math.max(W,H)*1.2; r+=9*u0){ x.beginPath(); x.arc(W*1.04, -H*.18, r, 0, Math.PI*2); x.stroke(); }
+  x.restore();
+  const fr = (inset, a, lw)=>{ x.strokeStyle = "rgba(215,181,99,"+a+")"; x.lineWidth = lw; const i = inset*u0; if (x.roundRect){ x.beginPath(); x.roundRect(i, i, W-2*i, H-2*i, 14*u0); x.stroke(); } else x.strokeRect(i, i, W-2*i, H-2*i); };
+  fr(18, .55, 1.6*u0); fr(25, .18, 1*u0);
+  // Mise en page dans une zone 1200 × 630 centrée.
+  x.save();
+  x.translate((W-1200*u0)/2, (H-630*u0)/2); x.scale(u0, u0);
+  const ls = v=>{ try{ x.letterSpacing = v; }catch(e){} };
+  const txt = (s, X, Y, font, color, align, spacing)=>{ x.font = font; x.fillStyle = color; x.textAlign = align||"left"; x.textBaseline = "alphabetic"; ls(spacing||"0px"); x.fillText(s, X, Y); ls("0px"); };
+  const goldGrad = (y0, y1)=>{ const g = x.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, GOLD_L); g.addColorStop(.55, GOLD); g.addColorStop(1, GOLD_D); return g; };
+  // En-tête.
+  txt("PAPER TAPE", 72, 92, "700 22px "+sans, INK, "left", "3px");
+  txt("ÉCOLE DE LA BOURSE · ISG BORDEAUX", 72, 116, "500 12px "+mono, "rgba(244,234,210,.55)", "left", "2px");
+  txt("N° "+(cert.id.split(".")[0].slice(0,6)+"-"+cert.id.split(".").pop()).toUpperCase(), 1128, 92, "500 12px "+mono, "rgba(244,234,210,.5)", "right", "1.5px");
+  // Titre.
+  txt("CERTIFICAT DE RÉUSSITE", 72, 182, "600 14px "+mono, GOLD, "left", "4px");
+  txt("Challenge Prop Firm", 72, 240, "800 54px "+sans, INK, "left", "-1px");
+  txt(certMoney(cert.tier)+" · évaluation en 2 étapes", 72, 278, "500 22px "+sans, "rgba(244,234,210,.72)");
+  // Titulaire.
+  txt("Décerné à", 72, 334, "500 15px "+sans, "rgba(244,234,210,.6)");
+  let fs = 46; x.font = "800 "+fs+"px "+sans; while (x.measureText(name).width > 640 && fs > 24){ fs -= 2; x.font = "800 "+fs+"px "+sans; }
+  txt(name, 72, 384, "800 "+fs+"px "+sans, goldGrad(340, 390), "left", "-0.5px");
+  // Chiffres clés.
+  const stats = [
+    ["ÉTAPE 1 · +10 %", "Validée", cert.step1At ? certDate(cert.step1At) : "✓"],
+    ["ÉTAPE 2 · +5 %", "Validée", certDate(cert.step2At)],
+    ["PERFORMANCE", cert.perf!=null ? certPct(cert.perf) : "Objectifs atteints", "sur le compte"],
+    ["DURÉE", cert.days ? cert.days+" jour"+(cert.days>1?"s":"") : "—", "du départ au financement"],
+  ];
+  stats.forEach((s, i)=>{
+    const X = 72 + i*170, Y = 438;
+    x.fillStyle = "rgba(244,234,210,.05)"; x.strokeStyle = "rgba(215,181,99,.22)"; x.lineWidth = 1;
+    if (x.roundRect){ x.beginPath(); x.roundRect(X, Y, 158, 92, 12); x.fill(); x.stroke(); } else { x.fillRect(X, Y, 158, 92); }
+    txt(s[0], X+14, Y+26, "600 10.5px "+mono, GOLD, "left", "1.5px");
+    let f2 = 22; x.font = "700 "+f2+"px "+sans; while (x.measureText(s[1]).width > 132 && f2 > 13){ f2--; x.font = "700 "+f2+"px "+sans; }
+    txt(s[1], X+14, Y+58, "700 "+f2+"px "+sans, INK);
+    txt(s[2], X+14, Y+78, "500 11.5px "+sans, "rgba(244,234,210,.55)");
+  });
+  // Sceau.
+  const sx = 1000, sy = 300, R = 112;
+  const sg = x.createRadialGradient(sx-30, sy-40, 10, sx, sy, R); sg.addColorStop(0, GOLD_L); sg.addColorStop(.6, GOLD); sg.addColorStop(1, GOLD_D);
+  x.save();
+  x.shadowColor = "rgba(0,0,0,.6)"; x.shadowBlur = 30; x.shadowOffsetY = 12;
+  x.fillStyle = sg; x.beginPath();
+  for (let k=0;k<64;k++){ const a = k/64*Math.PI*2, rr = k%2 ? R : R-7; x.lineTo(sx+Math.cos(a)*rr, sy+Math.sin(a)*rr); }
+  x.closePath(); x.fill(); x.restore();
+  x.fillStyle = "#14120e"; x.beginPath(); x.arc(sx, sy, R-22, 0, Math.PI*2); x.fill();
+  x.strokeStyle = "rgba(215,181,99,.55)"; x.lineWidth = 1.2; x.beginPath(); x.arc(sx, sy, R-30, 0, Math.PI*2); x.stroke();
+  x.save(); x.font = "600 10.5px "+mono; x.fillStyle = GOLD; x.textAlign = "center"; x.textBaseline = "middle";
+  const ring = "ÉCOLE DE LA BOURSE · PAPER TAPE · ÉCOLE DE LA BOURSE · PAPER TAPE · ";
+  for (let k=0;k<ring.length;k++){ const a = -Math.PI/2 + k/ring.length*Math.PI*2; x.save(); x.translate(sx+Math.cos(a)*(R-41), sy+Math.sin(a)*(R-41)); x.rotate(a+Math.PI/2); x.fillText(ring[k], 0, 0); x.restore(); }
+  x.restore();
+  txt("EDB", sx, sy+8, "800 38px "+sans, goldGrad(sy-24, sy+12), "center", "1px");
+  txt("VALIDÉ", sx, sy+30, "600 11px "+mono, "rgba(244,234,210,.8)", "center", "3px");
+  txt("✓", sx, sy-26, "700 18px "+sans, GOLD, "center");
+  // Pied de page.
+  x.strokeStyle = "rgba(215,181,99,.25)"; x.lineWidth = 1; x.beginPath(); x.moveTo(72, 556); x.lineTo(1128, 556); x.stroke();
+  txt("Délivré le "+certDate(cert.fundedAt, true)+" · vérifiable en ligne", 72, 582, "600 13px "+sans, "rgba(244,234,210,.8)");
+  const short = certUrl(cert.id).replace(/^https?:\/\//, "");
+  txt(short.length>78 ? short.slice(0,77)+"…" : short, 72, 602, "500 11px "+mono, "rgba(244,234,210,.5)");
+  txt("Évaluation sur compte de démonstration : aucun capital réel engagé.", 1128, 602, "500 11px "+sans, "rgba(244,234,210,.45)", "right");
+  txt("Règles : perte max 5 %/jour et 10 % au total, levier max x20.", 1128, 582, "500 11px "+sans, "rgba(244,234,210,.45)", "right");
+  x.restore();
+  return cv;
+}
+function certDownload(blob, filename){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+}
+// PDF d'une page A4 paysage contenant l'image JPEG du certificat (écrit à la
+// main : pas besoin de bibliothèque pour une seule image).
+function certPdfBlob(jpeg, w, h){
+  const enc = new TextEncoder(), parts = [], off = [];
+  let len = 0;
+  const push = d=>{ const b = typeof d==="string" ? enc.encode(d) : d; parts.push(b); len += b.length; };
+  const obj = (n, fn)=>{ off[n] = len; push(n+" 0 obj\n"); fn(); push("\nendobj\n"); };
+  const PW = "841.89", PH = "595.28";
+  push("%PDF-1.4\n%âãÏÓ\n");
+  obj(1, ()=>push("<< /Type /Catalog /Pages 2 0 R >>"));
+  obj(2, ()=>push("<< /Type /Pages /Kids [3 0 R] /Count 1 >>"));
+  obj(3, ()=>push("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 "+PW+" "+PH+"] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>"));
+  obj(4, ()=>{ push("<< /Type /XObject /Subtype /Image /Width "+w+" /Height "+h+" /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length "+jpeg.length+" >>\nstream\n"); push(jpeg); push("\nendstream"); });
+  const content = "q "+PW+" 0 0 "+PH+" 0 0 cm /Im0 Do Q";
+  obj(5, ()=>push("<< /Length "+content.length+" >>\nstream\n"+content+"\nendstream"));
+  const xref = len;
+  let t = "xref\n0 6\n0000000000 65535 f \n";
+  for (let i=1;i<=5;i++) t += String(off[i]).padStart(10,"0")+" 00000 n \n";
+  push(t+"trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n"+xref+"\n%%EOF\n");
+  return new Blob(parts, {type:"application/pdf"});
+}
+function certLinkedInAddUrl(cert){
+  const d = new Date(cert.fundedAt);
+  const p = new URLSearchParams({startTask:"CERTIFICATION_NAME", name:"Challenge Prop Firm "+certMoney(cert.tier)+" (simulation)", organizationName:"École de la Bourse (ISG Bordeaux) · Paper Tape",
+    issueYear:String(d.getFullYear()), issueMonth:String(d.getMonth()+1), certUrl:certUrl(cert.id), certId:cert.id});
+  return "https://www.linkedin.com/profile/add?"+p.toString();
+}
+
+// ---------- Fenêtre « Mon certificat » ----------
+function openCertificateModal(fundedAt){
+  const list = certEntries();
+  if (!list.length){ appToast("Pas encore de certificat : valide les 2 étapes d'un challenge pour l'obtenir."); return; }
+  let cert = list.find(c=>c.fundedAt===fundedAt) || list[0];
+  let name = ""; try{ name = localStorage.getItem(CERT_NAME_KEY) || ""; }catch(e){}
+  if (!name) name = state.username || "Trader";
+  openModal(
+    '<div class="cert-modal">'+
+      '<h3>🎓 Ton certificat de réussite</h3>'+
+      '<p class="chart-note">Challenge réussi : télécharge ton certificat, ajoute-le à ton profil LinkedIn ou partage son lien de vérification.</p>'+
+      (list.length>1 ? '<label class="cert-field">Challenge<select id="cert-pick">'+list.map(c=>'<option value="'+escapeHtml(c.fundedAt)+'"'+(c===cert?' selected':'')+'>'+escapeHtml(certMoney(c.tier)+" · financé le "+certDate(c.fundedAt))+'</option>').join("")+'</select></label>' : '')+
+      '<label class="cert-field">Nom affiché sur le certificat<input id="cert-name" maxlength="40" value="'+escapeHtml(name)+'"></label>'+
+      '<div class="cert-prev"><img id="cert-img" alt="Aperçu du certificat"><div class="cert-prev-load" id="cert-load">Création du certificat…</div></div>'+
+      '<div class="cert-btns">'+
+        '<button class="btn-primary" id="cert-png">⬇ Image (PNG)</button>'+
+        '<button class="btn-secondary" id="cert-pdf">⬇ PDF (A4)</button>'+
+      '</div>'+
+      '<div class="cert-btns">'+
+        '<a class="cert-li" id="cert-li-add" target="_blank" rel="noopener">in · Ajouter à mon profil</a>'+
+        '<a class="cert-li ghost" id="cert-li-share" target="_blank" rel="noopener">in · Publier un post</a>'+
+        '<button class="btn-secondary" id="cert-copy">🔗 Copier le lien</button>'+
+      '</div>'+
+      '<p class="chart-note cert-foot">Lien de vérification public : <a id="cert-url" target="_blank" rel="noopener"></a><br>Pour un post LinkedIn : télécharge l\'image, puis publie-la avec ce lien.</p>'+
+    '</div>'
+  );
+  const img = document.getElementById("cert-img"), load = document.getElementById("cert-load");
+  let seq = 0;
+  const refresh = async ()=>{
+    const my = ++seq;
+    const url = certUrl(cert.id);
+    const a = document.getElementById("cert-url"); if (a){ a.href = url; a.textContent = url.replace(/^https?:\/\//,""); }
+    const add = document.getElementById("cert-li-add"); if (add) add.href = certLinkedInAddUrl(cert);
+    const sh = document.getElementById("cert-li-share"); if (sh) sh.href = "https://www.linkedin.com/sharing/share-offsite/?url="+encodeURIComponent(url);
+    if (load) load.hidden = false;
+    const cv = await certCanvas(cert, name, 1200, 630);
+    if (my!==seq || !img) return;
+    img.src = cv.toDataURL("image/png");
+    if (load) load.hidden = true;
+  };
+  refresh();
+  const pick = document.getElementById("cert-pick");
+  if (pick) pick.addEventListener("change", ()=>{ cert = list.find(c=>c.fundedAt===pick.value) || cert; refresh(); });
+  const inp = document.getElementById("cert-name");
+  let deb = null;
+  if (inp) inp.addEventListener("input", ()=>{ clearTimeout(deb); deb = setTimeout(()=>{ name = inp.value.trim() || state.username || "Trader"; try{ localStorage.setItem(CERT_NAME_KEY, inp.value.trim()); }catch(e){} refresh(); }, 250); });
+  const fname = ext=>"certificat-paper-tape-"+String(cert.tier/1000)+"k-"+cert.fundedAt.slice(0,10)+"."+ext;
+  document.getElementById("cert-png").addEventListener("click", async ()=>{
+    const cv = await certCanvas(cert, name, 2400, 1260);
+    cv.toBlob(b=>{ if (b) certDownload(b, fname("png")); }, "image/png");
+  });
+  document.getElementById("cert-pdf").addEventListener("click", async ()=>{
+    const cv = await certCanvas(cert, name, 2339, 1654);
+    const data = cv.toDataURL("image/jpeg", 0.92);
+    const bin = atob(data.split(",")[1]); const bytes = new Uint8Array(bin.length);
+    for (let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+    certDownload(certPdfBlob(bytes, cv.width, cv.height), fname("pdf"));
+  });
+  document.getElementById("cert-copy").addEventListener("click", async ()=>{
+    try{ await navigator.clipboard.writeText(certUrl(cert.id)); appToast("Lien de vérification copié."); }
+    catch(e){ prompt("Lien de vérification :", certUrl(cert.id)); }
+  });
+}
+
+// ---------- Page publique de vérification (?cert=…) ----------
+async function certVerifyBoot(){
+  let id = null;
+  try{ id = new URLSearchParams(location.search).get("cert"); }catch(e){}
+  if (!id || !db) return;
+  const ov = document.createElement("div");
+  ov.className = "cert-verify";
+  ov.innerHTML = '<div class="cv-box"><div class="cv-loading">Vérification du certificat…</div></div>';
+  document.body.appendChild(ov);
+  const close = ()=>{
+    ov.remove();
+    try{ const u = new URL(location.href); u.searchParams.delete("cert"); history.replaceState(null, "", u.pathname+u.search+u.hash); }catch(e){}
+  };
+  let d = null, hit = null;
+  const dot = id.lastIndexOf(".");
+  const uid = dot>0 ? id.slice(0, dot) : "", ms = dot>0 ? parseInt(id.slice(dot+1), 36) : NaN;
+  if (uid && /^[A-Za-z0-9_-]{6,128}$/.test(uid) && isFinite(ms)){
+    try{
+      const snap = await db.collection("traders").doc(uid).get();
+      if (snap.exists){
+        d = snap.data();
+        hit = [d.challenge].concat(d.challengeHistory||[]).find(o=>o && o.fundedAt && Date.parse(o.fundedAt)===ms) || null;
+      }
+    }catch(e){ console.warn("cert verify", e); }
+  }
+  const box = ov.querySelector(".cv-box");
+  if (!hit){
+    box.innerHTML = '<div class="cv-status ko"><span>✕</span><div><b>Certificat introuvable</b><p>Ce lien ne correspond à aucun challenge réussi sur Paper Tape. Vérifie qu\'il a été copié en entier.</p></div></div>'+
+      '<button class="btn-primary cv-go">Découvrir Paper Tape</button>';
+  } else {
+    const c = certFrom(hit, uid);
+    const rows = [
+      ["Titulaire", "@"+(d.username||"trader")],
+      ["Épreuve", "Challenge Prop Firm "+certMoney(c.tier)+", évaluation en 2 étapes"],
+      ["Étape 1 (+10 %)", c.step1At ? "Validée le "+certDate(c.step1At, true) : "Validée"],
+      ["Étape 2 (+5 %)", "Validée le "+certDate(c.step2At, true)],
+    ];
+    if (c.perf!=null) rows.push(["Performance", certPct(c.perf)+" sur le compte"]);
+    if (c.days) rows.push(["Durée", c.days+" jour"+(c.days>1?"s":"")+" du départ au financement"]);
+    rows.push(["Délivré par", "École de la Bourse (ISG Bordeaux), via Paper Tape"]);
+    box.innerHTML =
+      '<div class="cv-brand"><span>PAPER TAPE</span><em>École de la Bourse</em></div>'+
+      '<div class="cv-status ok"><span>✓</span><div><b>Certificat authentique</b><p>Ce certificat correspond bien à un challenge réussi enregistré sur Paper Tape.</p></div></div>'+
+      '<dl class="cv-rows">'+rows.map(r=>'<div><dt>'+escapeHtml(r[0])+'</dt><dd>'+escapeHtml(r[1])+'</dd></div>').join("")+'</dl>'+
+      '<p class="cv-note">Évaluation réalisée sur un compte de démonstration : aucun capital réel n\'a été engagé. Règles : objectif +10 % puis +5 %, perte journalière max 5 %, perte totale max 10 %, levier max x20. Le nom affiché sur l\'image du certificat est choisi par son titulaire.</p>'+
+      '<button class="btn-primary cv-go">Découvrir Paper Tape</button>';
+  }
+  box.querySelector(".cv-go").addEventListener("click", close);
+}
+
 /* ============================= SHELL (sidebar / topbar / mobile bar) ============================= */
 // Refonte 2026-09. The sidebar and the mobile bottom bar are both
 // <nav class="tabs"> so every existing "nav.tabs button" query (click
@@ -20165,7 +21528,7 @@ document.addEventListener("keydown", (e)=>{
 // badges, admin visibility) keeps working unchanged on both.
 const VIEW_TITLES = {
   terminal:"Terminal", news:"News", chat:"Chat", leaderboard:"Classement", concoursedbplus:"Concours EDB+",
-  challenge:"Challenge Prop Firm", replay:"Replay", quiz:"Connaissances", resources:"Ressources", edbplus:"EDB+",
+  challenge:"Challenge Prop Firm", replay:"Replay", daily:"Défi du jour", quiz:"Connaissances", resources:"Ressources", edbplus:"EDB+",
   tradesedb:"Trades EDB+", profile:"Profil", admin:"Admin", invest:"Investissement",
 };
 const SIDEBAR_KEY = "paperTapeSidebar"; // "full" | "rail" — per-browser preference, like the theme
@@ -20291,6 +21654,7 @@ function switchView(name){
   if (name==="resources"){
     renderResources();
   }
+  if (name==="daily") renderDaily();
   if (name==="replay") renderReplay();
   else if (typeof replayPause==="function") replayPause();
   if (name==="profile"){
@@ -24100,8 +25464,10 @@ async function init(){
   setInterval(renderSessions, 1000);
   refreshNews();
   setInterval(refreshNews, 5*60*1000);
+  dailyNavDot();
   await Promise.all([initDb(), initPriceFeed()]);
   renderAll();
+  try{ if (new URLSearchParams(location.search).has("defi")) switchView("daily"); }catch(e){}
   setInterval(()=>{ if (state.positions.length>0 || state.pendingOrders.length>0) persistAccount(); }, 10000);
 }
 init();
