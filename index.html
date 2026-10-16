@@ -3253,7 +3253,7 @@
   .prop-phase.up{color:var(--long);background:color-mix(in srgb, var(--long) 12%, transparent);}
 
   /* ---------- Widgets Positions / Ordres : cartes lisibles même étroites ---------- */
-  .widget[data-widget="positions"] > .widget-body, .widget[data-widget="pending"] > .widget-body, .widget[data-widget="history"] > .widget-body{container-type:inline-size;container-name:wbody;}
+  .widget[data-widget="positions"] > .widget-body, .widget[data-widget="pending"] > .widget-body, .widget[data-widget="history"] > .widget-body, .widget[data-widget="ticket"] > .widget-body{container-type:inline-size;container-name:wbody;}
   .pos-top > div:first-child{display:flex;align-items:center;flex-wrap:wrap;gap:4px 0;min-width:0;}
   .pos-badge{white-space:nowrap;}
   .pos-grid{grid-template-columns:repeat(3, minmax(0,1fr));}
@@ -3930,6 +3930,169 @@
     .rp-box{padding:16px;}
     .rp-sec-head h2{font-size:19px;}
   }
+  /* ===================== Ticket d'ordre v2 ===================== */
+  .ticket .field-row{margin-top:14px;}
+  .ticket .field-row > label{display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:var(--sans);font-size:11.5px;font-weight:600;letter-spacing:.02em;text-transform:none;color:var(--text-faint);}
+  .ticket .tk-head-val{display:inline-flex;align-items:center;gap:8px;}
+  .ticket .tk-head-sub{font-family:var(--sans);font-size:11px;font-weight:400;color:var(--text-faint);}
+  /* Long / Short : un seul bloc, l'onglet actif s'allume dans sa couleur */
+  .ticket .tk-side{position:relative;gap:0;padding:4px;border-radius:14px;background:var(--bg-raised);border:1px solid var(--border-soft);}
+  .ticket .tk-side::before{content:"";position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:10px;
+    background:linear-gradient(180deg, color-mix(in srgb, var(--long) 30%, transparent), color-mix(in srgb, var(--long) 16%, transparent));
+    box-shadow:0 0 0 1px color-mix(in srgb, var(--long) 70%, transparent) inset, 0 8px 22px -12px var(--long);
+    transition:transform .28s cubic-bezier(.3,.8,.3,1), background .28s, box-shadow .28s;}
+  .ticket .tk-side:has(#side-short.active)::before{transform:translateX(100%);
+    background:linear-gradient(180deg, color-mix(in srgb, var(--short) 30%, transparent), color-mix(in srgb, var(--short) 16%, transparent));
+    box-shadow:0 0 0 1px color-mix(in srgb, var(--short) 70%, transparent) inset, 0 8px 22px -12px var(--short);}
+  .ticket .tk-side button{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:7px;background:none !important;border:none !important;border-radius:10px;
+    padding:11px 6px;font-family:var(--sans);font-size:14px;font-weight:700;letter-spacing:.01em;color:var(--text-faint);}
+  .ticket .tk-side button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;}
+  .ticket .tk-side button:hover:not(.active){color:var(--text-dim);}
+  .ticket .tk-side button.on-long.active{color:var(--long);}
+  .ticket .tk-side button.on-short.active{color:var(--short);}
+  /* Type d'ordre + mode de marge côte à côte, en pilules compactes */
+  .ticket .tk-duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .ticket .tk-duo .field-row{margin-top:12px;gap:6px;}
+  .ticket .tk-pills{gap:2px;padding:3px;border-radius:10px;background:var(--bg-raised);border:1px solid var(--border-soft);}
+  .ticket .tk-pills button{background:none;border:none;border-radius:8px;padding:7px 4px;font-family:var(--sans);font-size:12.5px;font-weight:600;color:var(--text-faint);text-transform:none;letter-spacing:0;}
+  .ticket .tk-pills button:hover:not(.active):not(:disabled){color:var(--text-dim);}
+  .ticket .tk-pills button.on-mode.active{background:var(--panel-2);color:var(--text);border:none;box-shadow:0 1px 0 rgba(255,255,255,.05) inset, 0 2px 6px rgba(0,0,0,.35), 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent);}
+  /* Blocs Levier / Taille / TP-SL */
+  .ticket .tk-block{padding:12px;border-radius:12px;background:color-mix(in srgb, var(--bg-raised) 55%, transparent);border:1px solid var(--border-soft);}
+  .ticket .lev-badge{width:auto;font-family:var(--mono);font-size:17px;font-weight:700;color:var(--text);}
+  .ticket .size-slider-badge{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--text);}
+  .ticket .tk-over .size-slider-badge{color:var(--short);}
+  .ticket .tk-risk{font-family:var(--sans);font-size:10.5px;font-weight:700;letter-spacing:.03em;padding:2px 8px;border-radius:999px;border:1px solid currentColor;}
+  .ticket .tk-risk[data-level="low"]{color:var(--long);}
+  .ticket .tk-risk[data-level="mid"]{color:var(--gold);}
+  .ticket .tk-risk[data-level="high"]{color:#f08a3c;}
+  .ticket .tk-risk[data-level="max"]{color:var(--short);}
+  /* Curseurs : piste fine, partie remplie en dégradé, pastille ronde */
+  .ticket .tk-range{-webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;cursor:pointer;margin:2px 0 0;--p:0%;}
+  .ticket .tk-range:focus{outline:none;}
+  .ticket .tk-range::-webkit-slider-runnable-track{height:6px;border-radius:999px;
+    background:linear-gradient(90deg, var(--tk-fill-a, var(--accent)), var(--tk-fill-b, var(--accent-light))) 0/var(--p) 100% no-repeat, var(--border);}
+  .ticket .tk-range::-moz-range-track{height:6px;border-radius:999px;background:var(--border);}
+  .ticket .tk-range::-moz-range-progress{height:6px;border-radius:999px;background:linear-gradient(90deg, var(--tk-fill-a, var(--accent)), var(--tk-fill-b, var(--accent-light)));}
+  .ticket .tk-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;margin-top:-6px;border-radius:50%;background:var(--text);
+    border:3px solid var(--tk-fill-b, var(--accent));box-shadow:0 2px 8px rgba(0,0,0,.45);transition:transform .12s;}
+  .ticket .tk-range::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--text);border:3px solid var(--tk-fill-b, var(--accent));box-shadow:0 2px 8px rgba(0,0,0,.45);}
+  .ticket .tk-range:active::-webkit-slider-thumb, .ticket .tk-range:focus-visible::-webkit-slider-thumb{transform:scale(1.15);}
+  .ticket #lev-slider{--tk-fill-a:var(--long);--tk-fill-b:var(--long);}
+  .ticket .tk-block[data-risk="mid"] #lev-slider{--tk-fill-b:var(--gold);}
+  .ticket .tk-block[data-risk="high"] #lev-slider{--tk-fill-a:var(--gold);--tk-fill-b:#f08a3c;}
+  .ticket .tk-block[data-risk="max"] #lev-slider{--tk-fill-a:#f08a3c;--tk-fill-b:var(--short);}
+  .ticket .tk-over #size-slider{--tk-fill-a:var(--short);--tk-fill-b:var(--short);}
+  .ticket .lev-row{margin-top:2px;}
+  .ticket .size-slider-row{margin-top:6px;}
+  .ticket .lev-presets{gap:4px;margin-top:4px;}
+  .ticket .lev-presets button{flex:1;min-width:0;padding:5px 0;border-radius:7px;font-family:var(--mono);font-size:11px;font-weight:600;background:var(--panel);border:1px solid var(--border-soft);color:var(--text-faint);transition:.15s;}
+  .ticket .lev-presets button:hover:not(.locked){color:var(--text);border-color:var(--border);}
+  .ticket .lev-presets button.active{color:var(--text);border-color:color-mix(in srgb, var(--accent) 65%, transparent);background:color-mix(in srgb, var(--accent) 14%, var(--panel));}
+  /* Taille : champ + unités dans un seul cadre */
+  .ticket .tk-sizebox{gap:0;border:1px solid var(--border);border-radius:10px;background:var(--bg);overflow:hidden;transition:border-color .15s, box-shadow .15s;}
+  .ticket .tk-sizebox:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);}
+  .ticket .tk-sizebox input[type=number]{border:none !important;box-shadow:none !important;background:transparent;border-radius:0;padding:11px 12px;font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text);outline:none;}
+  .ticket .tk-sizebox .unit-toggle{border:none;border-left:1px solid var(--border-soft);border-radius:0;gap:2px;padding:4px;background:var(--bg-raised);}
+  .ticket .tk-sizebox .unit-toggle button{border-radius:7px;padding:0 9px;font-family:var(--sans);font-size:11.5px;font-weight:600;background:none;color:var(--text-faint);}
+  .ticket .tk-sizebox .unit-toggle button.active{background:var(--panel-2);color:var(--text);box-shadow:0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);}
+  .ticket .tk-hint{font-size:11.5px;margin-top:6px !important;line-height:1.45;}
+  /* Champs TP / SL / prix limite avec étiquette intégrée */
+  .ticket .field-row label.tk-in{display:flex;align-items:center;gap:0;flex:1;min-width:0;border:1px solid var(--border);border-radius:10px;background:var(--bg);overflow:hidden;
+    font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:none;transition:border-color .15s, box-shadow .15s;cursor:text;}
+  .ticket label.tk-in > span{flex:none;align-self:stretch;display:flex;align-items:center;padding:0 10px;border-right:1px solid var(--border-soft);background:var(--bg-raised);}
+  .ticket label.tk-in input{flex:1;min-width:0;border:none !important;box-shadow:none !important;background:transparent;padding:10px 11px;font-family:var(--mono);font-size:13px;color:var(--text);outline:none;border-radius:0;}
+  .ticket label.tk-in-tp > span{color:var(--long);}
+  .ticket label.tk-in-sl > span{color:var(--short);}
+  .ticket label.tk-in-limit > span{color:var(--accent);}
+  .ticket label.tk-in-tp:focus-within{border-color:var(--long);box-shadow:0 0 0 3px color-mix(in srgb, var(--long) 20%, transparent);}
+  .ticket label.tk-in-sl:focus-within{border-color:var(--short);box-shadow:0 0 0 3px color-mix(in srgb, var(--short) 20%, transparent);}
+  .ticket label.tk-in-limit:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);}
+  .ticket .tk-prev{margin-top:2px !important;}
+  .ticket .tk-prev .tpsl-preview{font-size:11px;min-height:0;}
+  /* Récapitulatif */
+  .ticket .tk-sum{margin-top:14px;padding:12px;border:1px solid var(--border-soft);border-radius:12px;background:var(--bg-raised);gap:6px;}
+  .ticket .tk-stats{display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:8px;margin-bottom:4px;}
+  .ticket .tk-stat{display:flex;flex-direction:column;gap:3px;min-width:0;}
+  .ticket .tk-stat .k{font-family:var(--sans);font-size:10.5px;font-weight:600;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .ticket .tk-stat .v{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .ticket .tk-stat-liq .v{color:var(--warn);}
+  .ticket .tk-usage{height:4px;border-radius:999px;background:var(--border-soft);overflow:hidden;margin:2px 0 6px;}
+  .ticket .tk-usage i{display:block;height:100%;width:0;border-radius:999px;background:var(--long);transition:width .25s ease, background .25s;}
+  .ticket .tk-usage[data-level="mid"] i{background:var(--gold);}
+  .ticket .tk-usage[data-level="high"] i{background:#f08a3c;}
+  .ticket .tk-usage[data-level="over"] i{background:var(--short);}
+  .ticket .tk-sum .row{font-size:12px;}
+  .ticket .tk-sum .row .v{color:var(--text-dim);}
+  /* Bouton d'envoi : dégradé, lueur, deux lignes */
+  .ticket .submit-btn{display:flex;flex-direction:column;align-items:center;gap:2px;margin-top:12px;padding:12px 14px;border-radius:12px;font-family:var(--sans);
+    font-size:15px;font-weight:800;letter-spacing:.01em;text-transform:none;transition:transform .12s, box-shadow .2s, filter .2s;}
+  .ticket .submit-btn .sb-sub{font-size:11px;font-weight:600;font-family:var(--mono);letter-spacing:0;color:inherit;opacity:.72;}
+  .ticket .submit-btn.long .sb-sub{color:#03150e;}
+  .ticket .submit-btn.short .sb-sub{color:#200609;}
+  .ticket .submit-btn:disabled .sb-sub{color:var(--text-faint);}
+  .ticket .tk-sizebox input[type=number], .ticket label.tk-in input[type=number]{-moz-appearance:textfield;appearance:textfield;}
+  .ticket .tk-sizebox input[type=number]::-webkit-inner-spin-button, .ticket .tk-sizebox input[type=number]::-webkit-outer-spin-button,
+  .ticket label.tk-in input::-webkit-inner-spin-button, .ticket label.tk-in input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+  .ticket .submit-btn .sb-sub:empty{display:none;}
+  .ticket .submit-btn.long{background:linear-gradient(180deg, color-mix(in srgb, var(--long) 85%, white 15%), var(--long));color:#03150e;
+    box-shadow:0 1px 0 rgba(255,255,255,.25) inset, 0 10px 26px -12px var(--long);}
+  .ticket .submit-btn.short{background:linear-gradient(180deg, color-mix(in srgb, var(--short) 85%, white 15%), var(--short));color:#200609;
+    box-shadow:0 1px 0 rgba(255,255,255,.25) inset, 0 10px 26px -12px var(--short);}
+  .ticket .submit-btn:not(:disabled):hover{filter:brightness(1.06);transform:translateY(-1px);}
+  .ticket .submit-btn:not(:disabled):active{transform:translateY(0) scale(.99);}
+  .ticket .submit-btn:disabled{background:var(--bg-raised);color:var(--text-faint);box-shadow:0 0 0 1px var(--border-soft) inset;transform:none;filter:none;}
+  .ticket .ticket-msg:not(:empty){display:flex;gap:8px;align-items:flex-start;font-family:var(--sans);font-size:12px;font-weight:600;border-radius:10px;padding:9px 11px;
+    background:color-mix(in srgb, var(--warn) 10%, transparent);border:1px solid color-mix(in srgb, var(--warn) 55%, transparent);color:var(--warn);}
+  .ticket .ticket-msg:not(:empty)::before{content:"!";flex:none;display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--warn);color:var(--bg);font-size:11px;font-weight:800;margin-top:1px;}
+  @container wbody (max-width: 330px){
+    .ticket .tk-duo{grid-template-columns:1fr;gap:0;}
+    .ticket .tk-stats{grid-template-columns:1fr 1fr;}
+    .ticket .tk-stat-liq{grid-column:1 / -1;}
+  }
+  /* ===== Graphique interne : trading depuis le graphique + axe étirable ===== */
+  .chart-stage{position:relative;}
+  .chart-stage[hidden]{display:none;}
+  .widget[data-widget="chart"].has-h .chart-stage{flex:1 1 auto;min-height:150px;display:flex;flex-direction:column;}
+  .chart-qt{position:absolute;left:6px;top:6px;z-index:3;display:flex;flex-direction:column;gap:3px;pointer-events:none;}
+  .chart-qt[hidden]{display:none;}
+  .chart-qt .qt-row{display:flex;align-items:stretch;border-radius:9px;overflow:hidden;box-shadow:0 6px 18px -8px rgba(0,0,0,.6);pointer-events:auto;}
+  .chart-qt .qt-btn{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:0;min-width:84px;padding:4px 10px;border:none;cursor:pointer;
+    font-family:var(--sans);text-align:left;transition:filter .15s, transform .1s;}
+  .chart-qt .qt-btn:hover{filter:brightness(1.12);}
+  .chart-qt .qt-btn:active{transform:scale(.98);}
+  .chart-qt .qt-l{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:.85;}
+  .chart-qt .qt-p{font-family:var(--mono);font-size:12.5px;font-weight:700;line-height:1.25;}
+  .chart-qt .qt-sell{background:color-mix(in srgb, var(--short) 88%, black 12%);color:#fff;}
+  .chart-qt .qt-buy{background:color-mix(in srgb, var(--long) 88%, black 12%);color:#03150e;align-items:flex-end;text-align:right;}
+  .chart-qt .qt-spread{display:flex;align-items:center;padding:0 7px;background:var(--panel-2);color:var(--text-faint);font-family:var(--mono);font-size:10px;border-left:1px solid var(--border);border-right:1px solid var(--border);}
+  .chart-qt .qt-meta{align-self:flex-start;font-family:var(--mono);font-size:9.5px;color:var(--text-dim);padding:2px 7px;border-radius:6px;background:color-mix(in srgb, var(--panel) 82%, transparent);}
+  .chart-qt .qt-meta:empty{display:none;}
+  .chart-qt.is-off .qt-btn{opacity:.45;pointer-events:none;}
+  .chart-yaxis-grab{position:absolute;right:0;top:6px;bottom:22px;width:56px;z-index:2;cursor:ns-resize;touch-action:none;border-radius:4px;transition:background .15s;}
+  .chart-yaxis-grab:hover, .chart-yaxis-grab.is-active{background:color-mix(in srgb, var(--accent) 7%, transparent);}
+  .chart-menu{position:absolute;z-index:6;width:230px;padding:6px;border-radius:12px;background:var(--panel-2);border:1px solid var(--border);box-shadow:0 18px 40px -14px rgba(0,0,0,.7);display:flex;flex-direction:column;gap:4px;}
+  .chart-menu[hidden]{display:none;}
+  .chart-menu .cm-head{font-family:var(--sans);font-size:11.5px;color:var(--text-faint);padding:4px 6px 2px;}
+  .chart-menu .cm-head b{font-family:var(--mono);color:var(--text);}
+  .chart-menu button{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:8px 10px;border-radius:8px;border:1px solid var(--border-soft);background:var(--bg-raised);
+    font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;text-align:left;transition:.15s;}
+  .chart-menu button small{font-size:10.5px;font-weight:500;color:var(--text-faint);}
+  .chart-menu .cm-long{color:var(--long);}
+  .chart-menu .cm-short{color:var(--short);}
+  .chart-menu .cm-long:hover:not(:disabled){border-color:var(--long);background:color-mix(in srgb, var(--long) 10%, var(--bg-raised));}
+  .chart-menu .cm-short:hover:not(:disabled){border-color:var(--short);background:color-mix(in srgb, var(--short) 10%, var(--bg-raised));}
+  .chart-menu button:disabled{opacity:.4;cursor:not-allowed;}
+  .chart-menu .cm-foot{font-family:var(--mono);font-size:10px;color:var(--text-faint);padding:2px 6px 2px;}
+  .chart-toast{position:absolute;left:50%;bottom:34px;z-index:7;transform:translate(-50%, 8px);opacity:0;pointer-events:none;max-width:88%;
+    padding:8px 14px;border-radius:999px;font-family:var(--sans);font-size:12.5px;font-weight:700;background:var(--panel-2);border:1px solid var(--border);color:var(--text);
+    box-shadow:0 10px 26px -10px rgba(0,0,0,.7);transition:opacity .2s, transform .2s;text-align:center;}
+  .chart-toast.show{opacity:1;transform:translate(-50%, 0);}
+  .chart-toast[data-kind="long"]{border-color:var(--long);color:var(--long);}
+  .chart-toast[data-kind="short"]{border-color:var(--short);color:var(--short);}
+  .chart-toast[data-kind="err"]{border-color:var(--warn);color:var(--warn);border-radius:12px;}
+  @media (max-width:1080px){ .widget[data-widget="chart"].has-h .chart-stage{flex:none;display:block;} }
+  @media (max-width:480px){ .chart-qt .qt-btn{min-width:70px;padding:4px 8px;} .chart-qt .qt-p{font-size:11.5px;} }
 </style>
 </head>
 <body data-view="terminal">
@@ -4168,6 +4331,7 @@
                   <label><input type="checkbox" data-chart-ind="ema20"><i style="background:#f2b33d"></i>Moyenne mobile 20 (MME)</label>
                   <label><input type="checkbox" data-chart-ind="ema50"><i style="background:#5aa9e6"></i>Moyenne mobile 50 (MME)</label>
                   <label><input type="checkbox" data-chart-ind="trades"><i class="tri"></i>Mes trades (▲ achat ▼ vente)</label>
+                  <label><input type="checkbox" data-chart-ind="qt"><i style="background:linear-gradient(90deg,#f0546a 50%,#31c882 50%)"></i>Trader depuis le graphique</label>
                   <div class="chart-ind-tip">Glisse le graphique vers la droite pour remonter le temps · double-clic pour revenir au direct · survole une bougie pour voir ses prix.</div>
                 </div>
               </div>
@@ -4176,7 +4340,20 @@
                 <button type="button" id="chart-src-tv" class="on-mode">TradingView</button>
               </div>
             </div>
-            <svg class="chart" id="chart-svg" viewBox="0 0 640 220"></svg>
+            <div class="chart-stage" id="chart-stage">
+              <svg class="chart" id="chart-svg" viewBox="0 0 640 220"></svg>
+              <div class="chart-qt" id="chart-qt">
+                <div class="qt-row">
+                  <button type="button" class="qt-btn qt-sell" id="qt-sell" title="Short au marché avec les réglages du ticket d'ordre"><span class="qt-l">Short</span><span class="qt-p" id="qt-bid">—</span></button>
+                  <span class="qt-spread" id="qt-spread" title="Spread">—</span>
+                  <button type="button" class="qt-btn qt-buy" id="qt-buy" title="Long au marché avec les réglages du ticket d'ordre"><span class="qt-l">Long</span><span class="qt-p" id="qt-ask">—</span></button>
+                </div>
+                <div class="qt-meta" id="qt-meta"></div>
+              </div>
+              <div class="chart-yaxis-grab" id="chart-yaxis-grab" title="Glisser pour étirer / écraser l'échelle des prix — double-clic : auto"></div>
+              <div class="chart-menu" id="chart-menu" hidden></div>
+              <div class="chart-toast" id="chart-toast"></div>
+            </div>
             <div class="tv-chart-wrap" id="tv-chart-wrap" hidden></div>
           </div>
 
@@ -4188,39 +4365,41 @@
 
           <div class="card ticket widget" draggable="true" data-widget="ticket">
             <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Ticket d'ordre</h3><button type="button" class="widget-help" id="ticket-help-btn" title="Aide : comprendre le ticket d'ordre">?</button><button type="button" class="widget-free-toggle" data-widget-free="ticket" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="ticket" title="Masquer ce widget">✕</button></div>
-            <div class="seg">
-              <button id="side-long" class="on-long active">Long</button>
-              <button id="side-short" class="on-short">Short</button>
+            <div class="seg tk-side">
+              <button id="side-long" class="on-long active"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>Long</button>
+              <button id="side-short" class="on-short"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 9v8H9"/></svg>Short</button>
             </div>
-            <div class="field-row">
-              <label>Type d'ordre</label>
-              <div class="seg">
-                <button id="otype-market" class="on-mode active">Marché</button>
-                <button id="otype-limit" class="on-mode">Limite</button>
+            <div class="tk-duo">
+              <div class="field-row tk-mini">
+                <label>Type d'ordre</label>
+                <div class="seg tk-pills">
+                  <button id="otype-market" class="on-mode active">Marché</button>
+                  <button id="otype-limit" class="on-mode">Limite</button>
+                </div>
+              </div>
+              <div class="field-row tk-mini">
+                <label>Mode de marge</label>
+                <div class="seg tk-pills">
+                  <button id="mode-isolated" class="on-mode active">Isolated</button>
+                  <button id="mode-cross" class="on-mode">Cross</button>
+                </div>
               </div>
             </div>
             <div class="field-row" id="limit-price-row" hidden>
               <label>Prix limite</label>
-              <input type="number" step="any" id="limit-price-input" class="tpsl-input" placeholder="Prix de déclenchement">
+              <label class="tk-in tk-in-limit"><span>@</span><input type="number" step="any" id="limit-price-input" class="tpsl-input" placeholder="Prix de déclenchement"></label>
             </div>
-            <div class="field-row">
-              <label>Mode de marge</label>
-              <div class="seg">
-                <button id="mode-isolated" class="on-mode active">Isolated</button>
-                <button id="mode-cross" class="on-mode">Cross</button>
-              </div>
-            </div>
-            <div class="field-row">
-              <label>Levier <span class="lev-badge" id="lev-badge">x10</span></label>
+            <div class="field-row tk-block">
+              <label>Levier <span class="tk-head-val"><span class="tk-risk" id="lev-risk"></span><span class="lev-badge" id="lev-badge">x10</span></span></label>
               <div class="lev-row">
-                <input type="range" id="lev-slider" min="1" max="200" value="10">
+                <input type="range" id="lev-slider" class="tk-range" min="1" max="200" value="10">
               </div>
               <div class="lev-presets" id="lev-presets"></div>
               <div class="lev-lock-note" id="lev-lock-note" role="status" aria-live="polite" hidden></div>
             </div>
-            <div class="field-row">
-              <label>Taille de position <span class="size-slider-badge" id="size-slider-badge">0%</span></label>
-              <div class="size-row">
+            <div class="field-row tk-block">
+              <label>Taille de position <span class="tk-head-val"><span class="tk-head-sub">du disponible</span><span class="size-slider-badge" id="size-slider-badge">0%</span></span></label>
+              <div class="size-row tk-sizebox">
                 <input type="number" id="size-input" value="1000" min="0" step="any">
                 <div class="unit-toggle">
                   <button id="unit-margin" class="active">Marge</button>
@@ -4229,32 +4408,35 @@
                 </div>
               </div>
               <div class="size-slider-row">
-                <input type="range" id="size-slider" min="0" max="100" value="0" step="1">
+                <input type="range" id="size-slider" class="tk-range" min="0" max="100" value="0" step="1">
               </div>
-              <div class="lev-presets" id="size-slider-presets"></div>
-              <div class="chart-note" id="size-input-hint" style="margin-top:4px;">Montant en dollars de la marge que tu engages — le notionnel est calculé automatiquement (marge × levier).</div>
+              <div class="lev-presets tk-pct" id="size-slider-presets"></div>
+              <div class="chart-note tk-hint" id="size-input-hint">Montant en dollars de la marge que tu engages — le notionnel est calculé automatiquement (marge × levier).</div>
             </div>
-            <div class="field-row">
-              <label>Take Profit / Stop Loss <span style="text-transform:none;letter-spacing:0;font-weight:400;">(optionnel)</span></label>
+            <div class="field-row tk-block">
+              <label>Take Profit / Stop Loss <span class="tk-head-sub">optionnel</span></label>
               <div class="tpsl-row">
-                <input type="number" step="any" id="tp-input" placeholder="Take Profit">
-                <input type="number" step="any" id="sl-input" placeholder="Stop Loss">
+                <label class="tk-in tk-in-tp"><span>TP</span><input type="number" step="any" id="tp-input" placeholder="Prix"></label>
+                <label class="tk-in tk-in-sl"><span>SL</span><input type="number" step="any" id="sl-input" placeholder="Prix"></label>
               </div>
-              <div class="tpsl-row" style="margin-top:4px;">
+              <div class="tpsl-row tk-prev">
                 <div class="chart-note tpsl-preview" id="tp-preview"></div>
                 <div class="chart-note tpsl-preview" id="sl-preview"></div>
               </div>
             </div>
-            <div class="readout">
-              <div class="row"><span class="k">Valeur notionnelle</span><span class="v num" id="ro-notional">$0.00</span></div>
-              <div class="row"><span class="k">Taille (unités)</span><span class="v num" id="ro-units">—</span></div>
-              <div class="row"><span class="k">Spread (achat/vente)</span><span class="v num" id="ro-spread">—</span></div>
+            <div class="readout tk-sum">
+              <div class="tk-stats">
+                <div class="tk-stat"><span class="k">Notionnel</span><span class="v num" id="ro-notional">$0.00</span></div>
+                <div class="tk-stat"><span class="k">Marge requise</span><span class="v num" id="ro-margin">$0.00</span></div>
+                <div class="tk-stat tk-stat-liq"><span class="k">Liquidation est.</span><span class="v num" id="ro-liq">—</span></div>
+              </div>
+              <div class="tk-usage" id="tk-usage" title="Part de ta marge disponible engagée par cet ordre"><i id="tk-usage-bar"></i></div>
+              <div class="row"><span class="k">Taille</span><span class="v num" id="ro-units">—</span></div>
+              <div class="row"><span class="k">Spread (achat / vente)</span><span class="v num" id="ro-spread">—</span></div>
               <div class="row"><span class="k" id="ro-fee-label">Commission entrée (0.04% taker)</span><span class="v num" id="ro-fee">$0.00</span></div>
-              <div class="row"><span class="k">Marge requise</span><span class="v num" id="ro-margin">$0.00</span></div>
-              <div class="row"><span class="k">Prix de liquidation est.</span><span class="v num" id="ro-liq">—</span></div>
               <div class="row"><span class="k">Marge disponible</span><span class="v num" id="ro-free">$100,000.00</span></div>
             </div>
-            <button class="submit-btn long" id="submit-order">Ouvrir Long</button>
+            <button class="submit-btn long" id="submit-order"><span class="sb-main">Ouvrir Long</span><span class="sb-sub"></span></button>
             <div class="ticket-msg" id="ticket-msg"></div>
           </div>
 
@@ -9128,6 +9310,8 @@ function applyChartSourceVisibility(eff){
   if (zoomSeg){ zoomSeg.hidden = eff==="tv"; zoomSeg.style.display = eff==="tv" ? "none" : ""; }
   const indWrap = document.getElementById("chart-ind");
   if (indWrap){ indWrap.hidden = eff==="tv"; indWrap.style.display = eff==="tv" ? "none" : ""; }
+  const stage = document.getElementById("chart-stage");
+  if (stage){ stage.hidden = eff==="tv"; stage.style.display = eff==="tv" ? "none" : ""; }
   if (eff==="tv"){
     svg.hidden = true; svg.style.display = "none";
     tvWrap.hidden = false; tvWrap.style.display = "";
@@ -9323,7 +9507,7 @@ function openPositionsForChart(sym){
 const CHART_IND_KEY = "paperTapeChartInd";
 const CHART_EMA = {ema20:{p:20, color:"#f2b33d", label:"MME 20"}, ema50:{p:50, color:"#5aa9e6", label:"MME 50"}};
 let chartInd = (function(){
-  const d = {vol:true, ema20:true, ema50:false, trades:true};
+  const d = {vol:true, ema20:true, ema50:false, trades:true, qt:true};
   try{
     const s = JSON.parse(localStorage.getItem(CHART_IND_KEY)||"null");
     if (s && typeof s==="object") Object.keys(d).forEach(k=>{ if (typeof s[k]==="boolean") d[k]=s[k]; });
@@ -9579,7 +9763,9 @@ function chartRenderCandles(svg, a, m, W, H, all){
   // Pendant un zoom / défilement, l'échelle des prix rejoint sa cible en
   // douceur (quelques images) au lieu de sauter quand une mèche entre ou sort.
   const yKey = selectedSymbol+"|"+tf;
-  if (chartYDisp && chartYDisp.key===yKey && performance.now()<chartAnimUntil && !chartLineDrag){
+  if (chartYManual && chartYManual.key!==yKey) chartYManual = null;
+  if (chartYManual){ min = chartYManual.min; max = chartYManual.max; }
+  else if (chartYDisp && chartYDisp.key===yKey && performance.now()<chartAnimUntil && !chartLineDrag){
     const k = 0.32;
     const dMin = chartYDisp.min + (min-chartYDisp.min)*k, dMax = chartYDisp.max + (max-chartYDisp.max)*k;
     if (Math.abs(dMin-min) > (max-min)*0.002 || Math.abs(dMax-max) > (max-min)*0.002){
@@ -9725,12 +9911,22 @@ function chartRenderCandles(svg, a, m, W, H, all){
     liveBtn = '<g data-chart-live="1"><rect x="'+bx+'" y="'+by+'" width="'+bw+'" height="20" rx="10" fill="'+pal.strong+'" opacity="0.92"/>'+
       '<text x="'+(bx+bw/2)+'" y="'+(by+13.6)+'" fill="'+chartInkOn(pal.strong)+'" font-size="10" font-weight="700" '+CHART_FONT+' text-anchor="middle">Direct ⇥</text></g>';
   }
+  let yAuto = "";
+  if (chartYManual){
+    const aw = padR-8, ax = W-padR+4, ay = H-padB+3;
+    yAuto = '<g data-chart-yauto="1" style="cursor:pointer"><rect x="'+ax+'" y="'+ay+'" width="'+aw+'" height="16" rx="8" fill="'+pal.accent+'"/>'+
+      '<text x="'+(ax+aw/2)+'" y="'+(ay+11.5)+'" fill="'+chartInkOn(pal.accent)+'" font-size="10" font-weight="700" '+CHART_FONT+' text-anchor="middle">Auto</text></g>';
+  }
+  const grabEl = document.getElementById("chart-yaxis-grab");
+  if (grabEl){ grabEl.style.width = padR+"px"; grabEl.style.bottom = padB+"px"; grabEl.style.top = padT+"px"; }
+  g.legendTop = chartInd.qt ? 50 : 0;
   svg.style.touchAction = positions.length ? "none" : "pan-y";
   const clip = '<defs><clipPath id="chart-plot-clip"><rect x="'+padL+'" y="0" width="'+plotW+'" height="'+(H-padB)+'"/></clipPath></defs>';
   svg.innerHTML = clip+grid+'<g clip-path="url(#chart-plot-clip)">'+vol+bars+emas+marks+'</g>'+axis+
     '<g id="chart-levels">'+positionLinesHtml(g, positions, pending)+'</g>'+
-    lastTag+liveBtn+'<g id="chart-legend" pointer-events="none"></g><g id="chart-xh" pointer-events="none"></g>';
+    lastTag+liveBtn+yAuto+'<g id="chart-legend" pointer-events="none"></g><g id="chart-xh" pointer-events="none"></g>';
   chartDrawOverlay();
+  chartQtUpdate();
 }
 // Réticule (souris, ou appui sur mobile) + légende OHLC en haut à gauche.
 // Redessiné seul au survol, sans reconstruire le graphique.
@@ -9750,6 +9946,12 @@ function chartDrawOverlay(){
           '<line x1="'+v.padL+'" y1="'+h.y.toFixed(1)+'" x2="'+(v.W-v.padR)+'" y2="'+h.y.toFixed(1)+'" stroke="'+v.pal.text+'" stroke-width="1" stroke-dasharray="3,3" opacity="0.55"/>'+
           '<rect x="'+(v.W-v.padR+1)+'" y="'+(h.y-8).toFixed(1)+'" width="'+(v.padR-2)+'" height="16" rx="3" fill="'+tagFill+'"/>'+
           '<text x="'+(v.W-v.padR+6)+'" y="'+(h.y+3.6).toFixed(1)+'" fill="'+ink+'" font-size="10" font-weight="600" '+CHART_FONT+'>'+chartNum(price, v.dec)+'</text>';
+    if (chartInd.qt){
+      const px = v.W-v.padR-13, py = h.y;
+      xs += '<g data-chart-plus="1" pointer-events="all" style="cursor:pointer"><title>Placer un ordre limite à ce prix</title>'+
+        '<circle cx="'+px+'" cy="'+py.toFixed(1)+'" r="9" fill="'+v.pal.accent+'"/>'+
+        '<path d="M'+(px-4)+' '+py.toFixed(1)+'h8M'+px+' '+(py-4).toFixed(1)+'v8" stroke="'+chartInkOn(v.pal.accent)+'" stroke-width="1.8" stroke-linecap="round"/></g>';
+    }
     const c = v.vis[i];
     if (c && c.ms){
       const t = chartTimeLabel(c.ms, true);
@@ -9783,7 +9985,152 @@ function chartDrawOverlay(){
     emaLine += '<tspan fill="'+CHART_EMA[k].color+'"'+(emaLine?' dx="10"':'')+'>'+CHART_EMA[k].label+' '+(val==null?"—":f(val))+'</tspan>';
   });
   if (emaLine) lines.push(emaLine);
-  lg.innerHTML = lines.map((l,j)=>'<text x="'+(v.padL+6)+'" y="'+(v.padT+11+j*14)+'" font-size="10" '+CHART_FONT+halo+'>'+l+'</text>').join("");
+  const lt = v.padT+11+(v.legendTop||0);
+  lg.innerHTML = lines.map((l,j)=>'<text x="'+(v.padL+6)+'" y="'+(lt+j*14)+'" font-size="10" '+CHART_FONT+halo+'>'+l+'</text>').join("");
+}
+/* ---------- Trader depuis le graphique + échelle des prix étirable ----------
+   - Boutons Short / Long en haut à gauche du graphique : ordre au marché
+     immédiat, avec la taille, le levier, le mode de marge et le TP / SL du
+     ticket d'ordre (même chemin que le bouton du ticket : submitOrder()).
+   - « + » sur le réticule : ordre limite au prix visé (Long limite sous le
+     prix actuel, Short limite au-dessus).
+   - Échelle des prix : glisser l'axe de droite vers le bas / le haut pour
+     écraser / étirer le graphique (molette sur l'axe aussi). Dès qu'on l'a
+     touchée, l'échelle ne suit plus automatiquement les bougies et on peut
+     aussi faire glisser le graphique verticalement. « Auto » ou double-clic
+     sur l'axe : retour à l'échelle automatique. */
+let chartYManual = null; // {key, min, max} ou null = échelle automatique
+function chartYKey(){ return selectedSymbol+"|"+((market[selectedSymbol] && market[selectedSymbol].candles && market[selectedSymbol].candles.tf) || currentTimeframe); }
+function chartYReset(){ chartYManual = null; chartBumpAnim(); scheduleChartFrame(); }
+function chartToast(text, kind){
+  const el = document.getElementById("chart-toast");
+  if (!el) return;
+  el.textContent = text;
+  el.dataset.kind = kind || "info";
+  el.classList.add("show");
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.classList.remove("show"), kind==="err" ? 4200 : 2600);
+}
+function chartTicketSummary(){
+  const a = ASSETS.find(x=>x.symbol===selectedSymbol);
+  const m = market[selectedSymbol];
+  if (!a || !m || m.last==null) return "";
+  const notional = currentSizeInputToNotional(m.last);
+  if (!(notional>0)) return "Règle la taille dans le ticket";
+  return "x"+leverage+" · marge "+fmtMoney(notional/leverage)+" · "+(marginMode==="cross"?"Cross":"Isolated");
+}
+function chartQtUpdate(){
+  const qt = document.getElementById("chart-qt");
+  if (!qt) return;
+  qt.hidden = !chartInd.qt;
+  if (!chartInd.qt) return;
+  const a = ASSETS.find(x=>x.symbol===selectedSymbol), m = market[selectedSymbol];
+  const ok = a && m && m.last!=null;
+  const dec = a ? a.decimals : 2;
+  document.getElementById("qt-bid").textContent = ok ? chartNum(m.bid||m.last, dec) : "—";
+  document.getElementById("qt-ask").textContent = ok ? chartNum(m.ask||m.last, dec) : "—";
+  const sp = ok && m.bid && m.ask ? (m.ask-m.bid) : null;
+  document.getElementById("qt-spread").textContent = sp!=null ? chartNum(sp, dec) : "—";
+  document.getElementById("qt-meta").textContent = chartTicketSummary();
+  qt.classList.toggle("is-off", !ok);
+}
+// Exécute un ordre via le ticket (mêmes contrôles que le bouton « Ouvrir »).
+function chartRunTicketOrder(dir, type, limitPrice){
+  const prevType = orderType;
+  const sideBtn = document.getElementById("side-"+dir);
+  if (sideBtn) sideBtn.click();
+  document.getElementById(type==="limit" ? "otype-limit" : "otype-market").click();
+  if (type==="limit"){
+    const a = ASSETS.find(x=>x.symbol===selectedSymbol) || {decimals:2};
+    document.getElementById("limit-price-input").value = String(parseFloat(limitPrice.toFixed(a.decimals)));
+  }
+  const sig = ()=>(state.positions||[]).map(p=>p.id+":"+p.sizeUnits).join(",")+"|"+(state.pendingOrders||[]).map(o=>o.id).join(",");
+  const before = sig();
+  const msg = document.getElementById("ticket-msg");
+  if (msg) msg.textContent = "";
+  submitOrder();
+  const done = sig()!==before;
+  if (prevType!==type) document.getElementById(prevType==="limit" ? "otype-limit" : "otype-market").click();
+  else updateOrderReadout();
+  return {done, error: msg ? msg.textContent : ""};
+}
+function chartQuickTrade(dir){
+  const a = ASSETS.find(x=>x.symbol===selectedSymbol);
+  const r = chartRunTicketOrder(dir, "market");
+  if (r.done){
+    const p = (state.positions||[]).filter(x=>x.symbol===selectedSymbol && x.side===dir).slice(-1)[0];
+    chartToast((dir==="long"?"Long ":"Short ")+a.symbol+" ouvert"+(p ? " à "+fmtPrice(p.entryPrice, a.decimals) : "")+" · x"+leverage, dir);
+  } else chartToast(r.error || "Ordre refusé — vérifie le ticket d'ordre.", "err");
+}
+function chartPlaceLimit(dir, price){
+  const a = ASSETS.find(x=>x.symbol===selectedSymbol);
+  const r = chartRunTicketOrder(dir, "limit", price);
+  if (r.done) chartToast((dir==="long"?"Long":"Short")+" limite placé à "+fmtPrice(parseFloat(price.toFixed(a.decimals)), a.decimals), dir);
+  else chartToast(r.error || "Ordre refusé — vérifie le ticket d'ordre.", "err");
+}
+function chartCloseMenu(){ const mn = document.getElementById("chart-menu"); if (mn) mn.hidden = true; }
+function chartOpenMenu(price, clientX, clientY){
+  const mn = document.getElementById("chart-menu"), stage = document.getElementById("chart-stage");
+  const a = ASSETS.find(x=>x.symbol===selectedSymbol), m = market[selectedSymbol];
+  if (!mn || !stage || !a || !m || m.last==null) return;
+  const bid = m.bid||m.last, ask = m.ask||m.last;
+  const canLong = price < ask, canShort = price > bid;
+  const px = fmtPrice(price, a.decimals);
+  mn.innerHTML =
+    '<div class="cm-head">Ordre limite <b>@ '+px+'</b></div>'+
+    '<button type="button" class="cm-long" data-cm="long"'+(canLong?'':' disabled title="Au-dessus du prix actuel : utilise « Long » pour acheter tout de suite."')+'>Long limite<small>'+(canLong?"achat si le prix redescend à "+px:"au-dessus du prix actuel")+'</small></button>'+
+    '<button type="button" class="cm-short" data-cm="short"'+(canShort?'':' disabled title="Sous le prix actuel : utilise « Short » pour vendre tout de suite."')+'>Short limite<small>'+(canShort?"vente si le prix remonte à "+px:"sous le prix actuel")+'</small></button>'+
+    '<div class="cm-foot">'+escapeHtml(chartTicketSummary())+'</div>';
+  mn.hidden = false;
+  const sr = stage.getBoundingClientRect();
+  const w = mn.offsetWidth, h = mn.offsetHeight;
+  mn.style.left = Math.max(6, Math.min(sr.width-w-6, clientX-sr.left-w+8))+"px";
+  mn.style.top = Math.max(6, Math.min(sr.height-h-6, clientY-sr.top-h/2))+"px";
+  mn.querySelectorAll("[data-cm]").forEach(b=>b.addEventListener("click", ()=>{ chartCloseMenu(); chartPlaceLimit(b.dataset.cm, price); }));
+}
+function initChartTrading(){
+  const sell = document.getElementById("qt-sell"), buy = document.getElementById("qt-buy");
+  if (sell) sell.addEventListener("click", ()=>chartQuickTrade("short"));
+  if (buy) buy.addEventListener("click", ()=>chartQuickTrade("long"));
+  document.addEventListener("pointerdown", (e)=>{ const mn = document.getElementById("chart-menu"); if (mn && !mn.hidden && !e.target.closest("#chart-menu") && !e.target.closest("[data-chart-plus]")) chartCloseMenu(); }, true);
+  document.addEventListener("keydown", (e)=>{ if (e.key==="Escape") chartCloseMenu(); });
+  // Axe des prix : glisser = étirer / écraser, molette = idem, double-clic = auto.
+  const grab = document.getElementById("chart-yaxis-grab");
+  if (!grab) return;
+  let drag = null;
+  const startRange = ()=>{
+    const v = chartView;
+    if (!v) return null;
+    return chartYManual ? {min:chartYManual.min, max:chartYManual.max} : {min:v.min, max:v.max};
+  };
+  const applyScale = (base, factor)=>{
+    const c = (base.min+base.max)/2, half = Math.max((base.max-base.min)/2*factor, Math.abs(c)*1e-5);
+    chartYManual = {key:chartYKey(), min:c-half, max:c+half};
+    chartBumpAnim(); scheduleChartFrame();
+  };
+  grab.addEventListener("pointerdown", (e)=>{
+    const base = startRange(); if (!base) return;
+    drag = {pid:e.pointerId, y0:e.clientY, base};
+    try{ grab.setPointerCapture(e.pointerId); }catch(err){}
+    grab.classList.add("is-active");
+    e.preventDefault();
+  });
+  grab.addEventListener("pointermove", (e)=>{
+    if (!drag || e.pointerId!==drag.pid) return;
+    applyScale(drag.base, Math.exp((e.clientY-drag.y0)*0.006)); // vers le bas : plus de prix à l'écran (écrasé)
+    e.preventDefault();
+  });
+  const end = (e)=>{ if (drag && e.pointerId===drag.pid){ drag = null; grab.classList.remove("is-active"); } };
+  grab.addEventListener("pointerup", end);
+  grab.addEventListener("pointercancel", end);
+  grab.addEventListener("dblclick", ()=>chartYReset());
+  grab.addEventListener("wheel", (e)=>{
+    const w = grab.closest(".card.widget");
+    if (!e.ctrlKey && w && !w.classList.contains("is-wheel-active")) return;
+    const base = startRange(); if (!base) return;
+    e.preventDefault();
+    applyScale(base, Math.exp(Math.max(-60, Math.min(60, e.deltaY*(e.deltaMode===1?16:1)))*0.004));
+  }, {passive:false});
 }
 function initChartInteractions(){
   const svg = document.getElementById("chart-svg");
@@ -9829,6 +10176,14 @@ function initChartInteractions(){
     const t = e.target;
     if (t.closest && t.closest("[data-tpsl-pos]")) return;
     if (t.closest && t.closest("[data-chart-live]")){ chartHover = null; backToLive(); e.preventDefault(); return; }
+    if (t.closest && t.closest("[data-chart-yauto]")){ chartYReset(); e.preventDefault(); return; }
+    if (t.closest && t.closest("[data-chart-plus]") && chartHover && chartView){
+      const v = chartView;
+      const price = v.min + (1-(chartHover.y-v.padT)/v.plotH)*(v.max-v.min);
+      chartOpenMenu(price, e.clientX, e.clientY);
+      e.preventDefault(); e.stopPropagation();
+      return;
+    }
     if (e.pointerType==="mouse" && e.button!==0) return;
     stopGlide();
     if (e.pointerType==="touch"){
@@ -9843,7 +10198,7 @@ function initChartInteractions(){
         return;
       }
     }
-    chartPanDrag = {pid:e.pointerId, x0:e.clientX, pan0:chartPan, moved:false, touch:e.pointerType!=="mouse", p:toView(e), samples:[{t:performance.now(), x:e.clientX}]};
+    chartPanDrag = {pid:e.pointerId, x0:e.clientX, y0:e.clientY, pan0:chartPan, yMan0: chartYManual ? {min:chartYManual.min, max:chartYManual.max} : null, moved:false, touch:e.pointerType!=="mouse", p:toView(e), samples:[{t:performance.now(), x:e.clientX}]};
     try{ svg.setPointerCapture(e.pointerId); }catch(err){}
   });
   svg.addEventListener("pointermove", (e)=>{
@@ -9857,10 +10212,17 @@ function initChartInteractions(){
       return;
     }
     if (chartPanDrag && e.pointerId===chartPanDrag.pid){
-      const dx = e.clientX - chartPanDrag.x0;
-      if (!chartPanDrag.moved && Math.abs(dx)<5) return;
+      const dx = e.clientX - chartPanDrag.x0, dy = e.clientY - chartPanDrag.y0;
+      const ym = chartPanDrag.yMan0;
+      if (!chartPanDrag.moved && (ym ? Math.hypot(dx, dy) : Math.abs(dx))<5) return;
       if (!chartPanDrag.moved){ chartPanDrag.moved = true; svg.classList.add("chart-panning"); chartHover = null; chartDrawOverlay(); }
       chartPan = Math.max(0, chartPanDrag.pan0 + dx/pxPerSlot());
+      if (ym && chartView){
+        // Échelle manuelle : on déplace aussi le graphique verticalement.
+        const r = svg.getBoundingClientRect();
+        const perPx = (ym.max-ym.min)/(chartView.plotH*r.height/chartView.H);
+        chartYManual = {key:chartYKey(), min:ym.min+dy*perPx, max:ym.max+dy*perPx};
+      }
       const s = chartPanDrag.samples; s.push({t:performance.now(), x:e.clientX}); if (s.length>6) s.shift();
       chartBumpAnim();
       scheduleChartFrame();
@@ -10083,6 +10445,8 @@ function syncSizeSliderFromInput(){
   const val = parseFloat(document.getElementById("size-input").value)||0;
   const pct = max>0 ? (val/max)*100 : 0;
   slider.value = String(Math.max(0, Math.min(100, Math.round(pct))));
+  tkRangeFill(slider);
+  slider.closest(".tk-block") && slider.closest(".tk-block").classList.toggle("tk-over", pct>100.5);
   badge.textContent = (pct>=0 ? pct.toFixed(pct<10?1:0) : "0")+"%";
   document.querySelectorAll("#size-slider-presets button").forEach(b=>{
     b.classList.toggle("active", Math.abs(parseInt(b.dataset.sizePct,10)-pct)<0.5);
@@ -10117,14 +10481,46 @@ function updateTpSlPreview(entry, sizeUnits, initMargin){
   preview(tpEl, document.getElementById("tp-input").value, "Si TP touché");
   preview(slEl, document.getElementById("sl-input").value, "Si SL touché");
 }
+// ---- Ticket d'ordre : petits rendus (bouton à deux lignes, jauge de marge, remplissage des curseurs) ----
+function tkSetSubmit(main, sub){
+  const btn = document.getElementById("submit-order");
+  if (!btn) return;
+  let m = btn.querySelector(".sb-main"), s = btn.querySelector(".sb-sub");
+  if (!m || !s){ btn.innerHTML = '<span class="sb-main"></span><span class="sb-sub"></span>'; m = btn.querySelector(".sb-main"); s = btn.querySelector(".sb-sub"); }
+  if (main!=null) m.textContent = main;
+  s.textContent = sub || "";
+}
+function tkSetUsage(required){
+  const bar = document.getElementById("tk-usage-bar");
+  if (!bar) return;
+  const free = Math.max(0, freeBalance());
+  const r = required>0 ? (free>0 ? required/free : Infinity) : 0;
+  bar.style.width = Math.min(100, r*100).toFixed(1)+"%";
+  bar.parentElement.dataset.level = r>1 ? "over" : r>0.75 ? "high" : r>0.4 ? "mid" : "low";
+}
+function tkRangeFill(el){
+  const min = parseFloat(el.min)||0, max = parseFloat(el.max)||100, v = parseFloat(el.value)||0;
+  el.style.setProperty("--p", Math.max(0, Math.min(100, (v-min)/((max-min)||1)*100)).toFixed(2)+"%");
+}
+function tkLevRisk(lev){
+  const el = document.getElementById("lev-risk");
+  if (!el) return;
+  const lvl = lev<=5 ? ["low","Prudent"] : lev<=20 ? ["mid","Modéré"] : lev<=50 ? ["high","Risqué"] : ["max","Extrême"];
+  el.dataset.level = lvl[0];
+  el.textContent = lvl[1];
+  const blk = el.closest(".tk-block");
+  if (blk) blk.dataset.risk = lvl[0];
+}
 function updateOrderReadout(){
   const a = ASSETS.find(x=>x.symbol===selectedSymbol);
   const btn = document.getElementById("submit-order");
   const msg = document.getElementById("ticket-msg");
   btn.className = "submit-btn "+side;
-  btn.textContent = orderType==="limit"
+  tkSetSubmit(orderType==="limit"
     ? "Placer l'ordre limite · "+a.symbol
-    : (side==="long"?"Ouvrir Long":"Ouvrir Short")+" · "+a.symbol;
+    : (side==="long"?"Ouvrir Long":"Ouvrir Short")+" · "+a.symbol, "");
+  tkSetUsage(0);
+  ["lev-slider","size-slider"].forEach(id=>{ const el = document.getElementById(id); if (el) tkRangeFill(el); });
 
   // A failed Prop Firm challenge is a frozen account, like a real prop firm
   // evaluation that's been breached — no NEW position should be openable on
@@ -10164,6 +10560,8 @@ function updateOrderReadout(){
     document.getElementById("ro-free").textContent = fmtMoney(freeBalance());
     updateTpSlPreview(limitPrice, sizeUnits, initMargin);
     let problem = "";
+    tkSetUsage(initMargin+entryFee);
+    if (notional>0 && limitPrice>0) tkSetSubmit(null, (side==="long"?"Achat":"Vente")+" à "+fmtPrice(limitPrice,a.decimals)+" · x"+leverage+" · "+fmtMoney(notional));
     if (!(limitPrice>0)) problem = "Entrez un prix limite.";
     else if (notional<=0) problem = "Entrez une taille de position.";
     else if ((initMargin+entryFee)>freeBalance()) problem = "Marge insuffisante pour réserver cet ordre — marge disponible "+fmtMoney(freeBalance())+", requis "+fmtMoney(initMargin+entryFee)+".";
@@ -10210,6 +10608,8 @@ function updateOrderReadout(){
   document.getElementById("ro-free").textContent = fmtMoney(freeBalance());
   updateTpSlPreview(entry, sizeUnits, initMargin);
 
+  tkSetUsage(initMargin+entryFee);
+  if (notional>0) tkSetSubmit(null, "x"+leverage+" · "+(marginMode==="cross"?"Cross":"Isolated")+" · notionnel "+fmtMoney(notional));
   let problem = "";
   if (notional<=0) problem = "Entrez une taille de position.";
   else if ((initMargin+entryFee)>freeBalance()) problem = "Marge insuffisante (marge + commission) — marge disponible "+fmtMoney(freeBalance())+", requis "+fmtMoney(initMargin+entryFee)+".";
@@ -20414,6 +20814,7 @@ function renderAll(){
   updateWatchlist();
   updateChart();
   updateOrderReadout();
+  if (typeof chartQtUpdate==="function") chartQtUpdate();
   renderAccount();
   renderPositions();
   renderPendingOrders();
@@ -20530,6 +20931,8 @@ function initEvents(){
     document.getElementById("lev-slider").value = leverage;
     document.getElementById("lev-badge").textContent = "x"+leverage;
     presetsWrap.querySelectorAll("button").forEach(b=>b.classList.toggle("active", parseInt(b.dataset.lev,10)===leverage));
+    tkRangeFill(document.getElementById("lev-slider"));
+    tkLevRisk(leverage);
   }
   setLevUI(); // sync the slider/badge to the leverage restored from localStorage on load
   if (typeof enforceLeverageAccess==="function") enforceLeverageAccess(); // apply the experience-based cap right away (starts at the lowest tier until Firestore hydrates stats.tradesClosed)
@@ -23204,6 +23607,7 @@ async function init(){
   initChartLineDrag();
   initChartInteractions();
   initChartIndicators();
+  initChartTrading();
   initSaveStatus();
   setChartSource(chartSource); // sync the static markup (buttons/svg/tv-wrap) to the "tv" default above
   initAuthUI();
