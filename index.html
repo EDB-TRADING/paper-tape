@@ -20976,7 +20976,7 @@ document.addEventListener("keydown", (e)=>{
 // viennent de l'historique public Binance. L'actif et l'unité de temps sont
 // affichés, seule la date est cachée (axe en %). On voit 150 bougies (+ volume,
 // EMA 20/50 et une vue d'ensemble sur l'unité de temps supérieure) et on
-// parie « ça monte » ou « ça descend » sur les 30 suivantes (30 s max).
+// parie « ça monte » ou « ça descend » sur les 30 suivantes (1 min max).
 // Seuls les graphiques où le prix a vraiment bougé (au moins 1,5 ATR sur les
 // 30 bougies) sont retenus, pour éviter les tirages à pile ou face.
 // Unités de temps : 15 min le plus souvent (1 tirage sur 2), sinon 1 h, 4 h ou 1 jour.
@@ -20987,7 +20987,7 @@ document.addEventListener("keydown", (e)=>{
 // DAILY_WARM : bougies chargées avant la zone visible (≥ 200 pour une EMA 200 valide).
 // DAILY_PLAN_WARM reste à 50 : il entre dans le tirage du plan, le changer modifierait les défis.
 const DAILY_PLAN_WARM = 50;
-const DAILY_ROUNDS = 5, DAILY_WARM = 250, DAILY_SHOW = 150, DAILY_AFTER = 30, DAILY_TIME = 30, DAILY_CANDIDATES = 15;
+const DAILY_ROUNDS = 5, DAILY_WARM = 250, DAILY_SHOW = 150, DAILY_AFTER = 30, DAILY_TIME = 60, DAILY_CANDIDATES = 15;
 const DAILY_POOL = [
   {s:"BTCUSDT", n:"Bitcoin", t:"BTC"}, {s:"ETHUSDT", n:"Ethereum", t:"ETH"}, {s:"SOLUSDT", n:"Solana", t:"SOL"}, {s:"BNBUSDT", n:"BNB", t:"BNB"},
   {s:"XRPUSDT", n:"XRP", t:"XRP"}, {s:"DOGEUSDT", n:"Dogecoin", t:"DOGE"}, {s:"ADAUSDT", n:"Cardano", t:"ADA"}, {s:"LINKUSDT", n:"Chainlink", t:"LINK"},
@@ -21226,7 +21226,7 @@ function dailyShell(root){
     '<div class="dd">'+
       '<section class="dd-head">'+
         '<div class="dd-head-l"><span class="dd-kicker" id="dd-date"></span><h1>Ça monte ou ça descend ?</h1>'+
-          '<p>5 graphiques de vrais marchés, les mêmes pour tout le monde. Analyse 150 bougies et devine si le prix sera plus haut ou plus bas 30 bougies plus tard. 30 secondes par graphique.</p></div>'+
+          '<p>5 graphiques de vrais marchés, les mêmes pour tout le monde. Analyse 150 bougies et devine si le prix sera plus haut ou plus bas 30 bougies plus tard. 1 minute par graphique.</p></div>'+
         '<div class="dd-head-stats">'+
           '<div><b id="dd-streak">—</b><span>jours de suite</span></div>'+
           '<div><b id="dd-best">—</b><span>record</span></div>'+
@@ -21286,7 +21286,7 @@ function dailyRenderMain(){
         '<div class="dd-hero">'+
           '<div class="dd-hero-l">'+
             '<span class="dd-live"><i></i>'+(resume ? "Partie en cours" : "Défi du jour ouvert")+'</span>'+
-            '<h2>5 graphiques.<br><span>30 secondes</span> chacun.</h2>'+
+            '<h2>5 graphiques.<br><span>1 minute</span> chacun.</h2>'+
             '<p>De vrais marchés, les mêmes pour tout le monde. Lis le graphique, puis tranche : <b class="up">▲ ça monte</b> ou <b class="down">▼ ça descend</b> ?</p>'+
             '<div class="dd-lineup">'+Array.from({length:DAILY_ROUNDS}, (_,k)=>{ const a = done[k]; return '<span class="'+(a ? (a.ok?"ok":"ko") : (k===n?"next":""))+'"><em>'+(a ? (a.ok?"✓":"✗") : "?")+'</em><small>#'+(k+1)+'</small></span>'; }).join("")+'</div>'+
             '<button class="pw-btn pw-btn-trial dd-cta" data-dd="start">'+(resume ? "Reprendre · graphique "+(n+1)+" / "+DAILY_ROUNDS : "Lancer le défi")+' <span aria-hidden="true">→</span></button>'+
@@ -21521,7 +21521,7 @@ function dailyAnswer(choice){
   const left = Math.max(0, DAILY_TIME - (performance.now()-D.t0)/1000);
   const t = dailyTruth(rd);
   const ok = choice===t.dir;
-  const pts = ok ? 100 + Math.round(left*5) : 0;
+  const pts = ok ? 100 + Math.round(left*150/DAILY_TIME) : 0; // bonus de rapidité : 150 max quelle que soit la durée
   const rec = {a:choice, ok, pts};
   if (choice!=="none"){ const b = document.querySelector('.dd-btn.'+choice); if (b) b.classList.add("picked"); }
   document.querySelectorAll(".dd-btn").forEach(b=>b.disabled = true);
