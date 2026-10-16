@@ -3205,6 +3205,10 @@
   .dd-list b{font-size:13px;}
   .dd-li-empty{color:var(--text-faint);font-size:13px !important;line-height:1.5;}
   .dd-arch-sub{margin:0 0 10px;font-size:12.5px;color:var(--text-dim);line-height:1.5;}
+  .dd-inf-btn{width:100%;margin-bottom:10px;}
+  .dd-inf-st{margin:-2px 0 6px;font-size:12px;color:var(--text-faint);}
+  .dd-arch-h{margin-top:16px;padding-top:14px;border-top:1px solid var(--border-soft);}
+  .dd-inf-score{font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--text-dim);}
   .dd-arch{display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:6px;}
   .dd-arch-b{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px;border-radius:10px;border:1px solid var(--border-soft);background:var(--panel-2);color:var(--text);font:inherit;cursor:pointer;transition:border-color .15s, transform .15s;}
   .dd-arch-b:hover{border-color:color-mix(in srgb, var(--gold) 50%, var(--border-soft));transform:translateY(-1px);}
@@ -20773,23 +20777,26 @@ document.addEventListener("keydown", (e)=>{
 // viennent de l'historique public Binance. L'actif et l'unité de temps sont
 // affichés, seule la date est cachée (axe en %). On voit 150 bougies (+ volume,
 // EMA 20/50 et une vue d'ensemble sur l'unité de temps supérieure) et on
-// parie « ça monte » ou « ça descend » sur les 12 suivantes (30 s max).
-// Seuls les graphiques où le prix a vraiment bougé (au moins 1 ATR sur les
-// 12 bougies) sont retenus, pour éviter les tirages à pile ou face.
+// parie « ça monte » ou « ça descend » sur les 30 suivantes (30 s max).
+// Seuls les graphiques où le prix a vraiment bougé (au moins 1,5 ATR sur les
+// 30 bougies) sont retenus, pour éviter les tirages à pile ou face.
+// Unités de temps : 15 min le plus souvent (1 tirage sur 2), sinon 1 h, 4 h ou 1 jour.
 // Firestore : daily/{jour}/plays/{uid} (une partie par trader et par jour,
 // complétée réponse par réponse, voir firestore.rules) et dailyStats/{uid}
 // (série de jours, record). Les archives (7 derniers jours, sans score) sont
 // réservées à EDB+.
-const DAILY_ROUNDS = 5, DAILY_WARM = 50, DAILY_SHOW = 150, DAILY_AFTER = 12, DAILY_TIME = 30, DAILY_CANDIDATES = 15;
+const DAILY_ROUNDS = 5, DAILY_WARM = 50, DAILY_SHOW = 150, DAILY_AFTER = 30, DAILY_TIME = 30, DAILY_CANDIDATES = 15;
 const DAILY_POOL = [
   {s:"BTCUSDT", n:"Bitcoin", t:"BTC"}, {s:"ETHUSDT", n:"Ethereum", t:"ETH"}, {s:"SOLUSDT", n:"Solana", t:"SOL"}, {s:"BNBUSDT", n:"BNB", t:"BNB"},
   {s:"XRPUSDT", n:"XRP", t:"XRP"}, {s:"DOGEUSDT", n:"Dogecoin", t:"DOGE"}, {s:"ADAUSDT", n:"Cardano", t:"ADA"}, {s:"LINKUSDT", n:"Chainlink", t:"LINK"},
   {s:"AVAXUSDT", n:"Avalanche", t:"AVAX"}, {s:"PAXGUSDT", n:"Or", t:"XAU"},
 ];
 // [intervalle Binance, durée, libellé, unité supérieure pour la vue d'ensemble]
-const DAILY_IV = [["1h", 3600e3, "1 h", "4h"], ["4h", 4*3600e3, "4 h", "1d"], ["1d", 86400e3, "1 jour", "1w"]];
-const DAILY_IV_MS = {"1h":3600e3, "4h":4*3600e3, "1d":86400e3, "1w":7*86400e3};
-const DAILY_IV_LABEL = {"1h":"1 h", "4h":"4 h", "1d":"1 jour", "1w":"1 semaine"};
+// La liste est pondérée : 15 min y figure 3 fois sur 6 (1 tirage sur 2).
+const DAILY_IV = [["15m", 15*60e3, "15 min", "1h"], ["15m", 15*60e3, "15 min", "1h"], ["15m", 15*60e3, "15 min", "1h"],
+  ["1h", 3600e3, "1 h", "4h"], ["1h", 3600e3, "1 h", "4h"], ["4h", 4*3600e3, "4 h", "1d"]];
+const DAILY_IV_MS = {"15m":15*60e3, "1h":3600e3, "4h":4*3600e3, "1d":86400e3, "1w":7*86400e3};
+const DAILY_IV_LABEL = {"15m":"15 min", "1h":"1 h", "4h":"4 h", "1d":"1 jour", "1w":"1 semaine"};
 const DAILY_FROM = Date.UTC(2021, 0, 1);
 const DAILY_DONE_KEY = "paperTapeDailyDone", DAILY_IND_KEY = "paperTapeDailyInd";
 function dailyDayKey(d){
@@ -20805,8 +20812,8 @@ function dailyRng(seed){
   return ()=>{ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a>>>15, 1 | a); t = t + Math.imul(t ^ t>>>7, 61 | t) ^ t; return ((t ^ t>>>14)>>>0)/4294967296; };
 }
 // Candidats du jour, dans un ordre fixe : on en garde ensuite 5 « qui ont bougé ».
-function dailyPlan(day){
-  const r = dailyRng("paper-tape-daily-v2|"+day);
+function dailyPlan(day, seed){
+  const r = dailyRng(seed || ("paper-tape-daily-v3|"+day));
   const end = Date.parse(day+"T00:00:00Z") - 30*86400e3;
   const used = new Set(), out = [];
   for (let i=0;i<DAILY_CANDIDATES;i++){
@@ -20844,13 +20851,14 @@ function dailyAtr(c, end, len){
 }
 function dailyQualifies(rd){
   const last = rd.c[DAILY_WARM+DAILY_SHOW-1][4], fin = rd.c[DAILY_WARM+DAILY_SHOW+DAILY_AFTER-1][4];
-  return Math.abs(fin-last) >= dailyAtr(rd.c, DAILY_WARM+DAILY_SHOW, 20);
+  return Math.abs(fin-last) >= 1.5*dailyAtr(rd.c, DAILY_WARM+DAILY_SHOW, 20);
 }
 const dailyDataCache = {};
-function dailyLoad(day){
-  if (!dailyDataCache[day]){
+function dailyLoad(day, seed){
+  const key = seed ? "seed|"+seed : day;
+  if (!dailyDataCache[key]){
     const p = (async ()=>{
-      const cands = dailyPlan(day), got = [];
+      const cands = dailyPlan(day, seed), got = [];
       for (let i=0; i<cands.length; i+=5){
         const batch = cands.slice(i, i+5);
         const res = await Promise.allSettled(batch.map(rd=>dailyFetchRound(rd).then(c=>Object.assign({}, rd, {c}))));
@@ -20865,10 +20873,39 @@ function dailyLoad(day){
       pick.sort((a,b)=>got.indexOf(a)-got.indexOf(b));
       return pick;
     })();
-    dailyDataCache[day] = p;
-    p.catch(()=>{ delete dailyDataCache[day]; });
+    dailyDataCache[key] = p;
+    p.catch(()=>{ delete dailyDataCache[key]; });
   }
-  return dailyDataCache[day];
+  return dailyDataCache[key];
+}
+// ---------- Mode illimité (EDB+) ----------
+// Des séries de 5 graphiques tirés au hasard, enchaînées sans fin. Sans score
+// au classement ; taux de réussite et meilleure série gardés sur l'appareil.
+const DAILY_INF_KEY = "paperTapeDailyInfinite";
+function dailyInfStats(){ let v = null; try{ v = JSON.parse(localStorage.getItem(DAILY_INF_KEY)||"null"); }catch(e){} return Object.assign({played:0, correct:0, best:0}, v||{}); }
+function dailyInfSave(v){ try{ localStorage.setItem(DAILY_INF_KEY, JSON.stringify(v)); }catch(e){} }
+function dailyInfMore(P){
+  if (P.loading) return P.loading;
+  const seed = "inf|"+Date.now()+"|"+Math.random().toString(36).slice(2);
+  P.loading = dailyLoad(dailyDayKey(), seed).then(rs=>{ P.rounds = P.rounds.concat(rs); P.loading = null; return rs; }, e=>{ P.loading = null; throw e; });
+  return P.loading;
+}
+async function dailyStartInfinite(){
+  if (!isEdbPlus()){ switchView("edbplus"); return; }
+  const m = document.getElementById("dd-main");
+  if (m) m.innerHTML = '<div class="dd-card dd-empty">Préparation des graphiques…</div>';
+  const P = {day:"illimité", infinite:true, rounds:[], answers:[], streak:0, bestRun:0};
+  try{ await dailyInfMore(P); }catch(e){ D.phase = "error"; dailyRenderMain(); return; }
+  D.practice = P; D.i = 0;
+  dailyShowRound();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+function dailyInfRecord(P, rec){
+  P.streak = rec.ok ? P.streak+1 : 0;
+  P.bestRun = Math.max(P.bestRun, P.streak);
+  const st = dailyInfStats();
+  st.played++; if (rec.ok) st.correct++; st.best = Math.max(st.best, P.streak);
+  dailyInfSave(st);
 }
 // Vue d'ensemble : unité de temps supérieure jusqu'au même instant. La
 // dernière bougie supérieure est recalculée à partir des bougies visibles,
@@ -20900,8 +20937,9 @@ function dailyPeriodLabel(rd){
   return a===b ? a : a+" → "+b;
 }
 function dailyHorizon(rd){
-  const h = DAILY_AFTER*rd.ivMs/3600e3;
-  return h<48 ? h+" heures" : (h/24)+" jours";
+  const min = Math.round(DAILY_AFTER*rd.ivMs/60000);
+  if (min < 60*48){ const h = Math.floor(min/60), m = min%60; return h+" h"+(m ? " "+String(m).padStart(2,"0") : ""); }
+  return Math.round(min/1440)+" jours";
 }
 function dailyEma(c, len, from){
   const k = 2/(len+1), out = new Array(c.length).fill(null);
@@ -20975,7 +21013,7 @@ function dailyShell(root){
     '<div class="dd">'+
       '<section class="dd-head">'+
         '<div class="dd-head-l"><span class="dd-kicker" id="dd-date"></span><h1>Ça monte ou ça descend ?</h1>'+
-          '<p>5 graphiques de vrais marchés, les mêmes pour tout le monde. Analyse 150 bougies et devine si le prix sera plus haut ou plus bas 12 bougies plus tard. 30 secondes par graphique.</p></div>'+
+          '<p>5 graphiques de vrais marchés, les mêmes pour tout le monde. Analyse 150 bougies et devine si le prix sera plus haut ou plus bas 30 bougies plus tard. 30 secondes par graphique.</p></div>'+
         '<div class="dd-head-stats">'+
           '<div><b id="dd-streak">—</b><span>jours de suite</span></div>'+
           '<div><b id="dd-best">—</b><span>record</span></div>'+
@@ -21033,7 +21071,7 @@ function dailyRenderMain(){
         '<div class="dd-rules">'+
           '<div><b>1</b><span>150 bougies d\'un vrai marché : l\'actif et l\'unité de temps sont affichés, seule la date est cachée.</span></div>'+
           '<div><b>2</b><span>Analyse avec le volume, les EMA 20/50 et la vue d\'ensemble sur l\'unité supérieure.</span></div>'+
-          '<div><b>3</b><span>▲ ou ▼ : plus haut ou plus bas 12 bougies plus tard ? 100 points + bonus de rapidité (jusqu\'à 250).</span></div>'+
+          '<div><b>3</b><span>▲ ou ▼ : plus haut ou plus bas 30 bougies plus tard ? 100 points + bonus de rapidité (jusqu\'à 250).</span></div>'+
         '</div>'+
         (n>0 && n<DAILY_ROUNDS
           ? '<button class="pw-btn pw-btn-trial dd-cta" data-dd="start">Reprendre · graphique '+(n+1)+' / '+DAILY_ROUNDS+'</button><p class="dd-note">Ta partie a été interrompue. Les réponses déjà données comptent.</p>'
@@ -21050,7 +21088,7 @@ function dailyRenderMain(){
         '<div class="dd-card dd-game">'+
           '<div class="dd-game-top">'+
             '<span class="dd-round" id="dd-round"></span><span class="dd-dots" id="dd-dots"></span>'+
-            (P?'<span class="dd-practice">Entraînement · '+dailyEsc(dailyDayLabel(P.day,{weekday:undefined}))+'</span>':'')+
+            (P?'<span class="dd-practice">'+(P.infinite ? '♾ EDB+' : 'Entraînement · '+dailyEsc(dailyDayLabel(P.day,{weekday:undefined})))+'</span>':'')+
             '<span class="dd-sec num" id="dd-sec"></span>'+
           '</div>'+
           '<div class="dd-timer"><i id="dd-timer"></i></div>'+
@@ -21069,12 +21107,15 @@ function dailyRenderMain(){
           '<p class="dd-keys">Clavier : ↑ ou ↓ pour répondre, V pour la vue d\'ensemble</p>'+
         '</div>';
     }
-    document.getElementById("dd-round").textContent = "Graphique "+(D.i+1)+" / "+DAILY_ROUNDS;
+    document.getElementById("dd-round").textContent = P && P.infinite ? "Mode illimité · graphique "+(D.i+1) : "Graphique "+(D.i+1)+" / "+DAILY_ROUNDS;
     document.getElementById("dd-tf").textContent = "Bougies "+rd.ivLabel;
     document.getElementById("dd-asset").textContent = rd.name+(rd.name!==rd.tick ? " ("+rd.tick+")" : "");
-    document.getElementById("dd-hz").textContent = "Horizon : 12 bougies = "+dailyHorizon(rd);
-    document.getElementById("dd-ask").textContent = "Dans "+dailyHorizon(rd)+" (12 bougies), le prix de "+rd.name+" sera…";
-    document.getElementById("dd-dots").innerHTML = Array.from({length:DAILY_ROUNDS}, (_,k)=>{ const a = answers[k]; return '<i class="'+(a ? (a.ok?"ok":"ko") : (k===D.i?"cur":""))+'"></i>'; }).join("");
+    document.getElementById("dd-hz").textContent = "Horizon : "+DAILY_AFTER+" bougies = "+dailyHorizon(rd);
+    document.getElementById("dd-ask").textContent = "Dans "+dailyHorizon(rd)+" ("+DAILY_AFTER+" bougies), le prix de "+rd.name+" sera…";
+    if (P && P.infinite){
+      const ok = answers.filter(a=>a.ok).length;
+      document.getElementById("dd-dots").innerHTML = '<span class="dd-inf-score">'+ok+' / '+answers.length+(P.streak>1?' · 🔥 '+P.streak:'')+'</span>';
+    } else document.getElementById("dd-dots").innerHTML = Array.from({length:DAILY_ROUNDS}, (_,k)=>{ const a = answers[k]; return '<i class="'+(a ? (a.ok?"ok":"ko") : (k===D.i?"cur":""))+'"></i>'; }).join("");
     return;
   }
   if (D.phase==="done"){ m.innerHTML = dailyResultHtml(); return; }
@@ -21093,6 +21134,19 @@ function dailyIntroSvg(){
 function dailyEmojiRow(answers){ return (answers||[]).map(a=>a.ok?"🟩":"🟥").join(""); }
 function dailyResultHtml(){
   const P = D.practice;
+  if (P && P.infinite){
+    const n = P.answers.length, ok = P.answers.filter(a=>a.ok).length, st = dailyInfStats();
+    const pct = n ? Math.round(ok/n*100) : 0, all = st.played ? Math.round(st.correct/st.played*100) : 0;
+    return '<div class="dd-card dd-result">'+
+      '<div class="dd-score">'+
+        '<div class="dd-score-big"><b>'+ok+'</b><span>/ '+n+'</span></div>'+
+        '<div class="dd-score-txt"><span class="dd-kicker">Mode illimité · EDB+</span><h2>'+(n ? pct+' % de bonnes réponses' : 'Session terminée')+'</h2>'+
+          '<p>Meilleure série de la session : <b>'+P.bestRun+'</b> · Record : <b>'+st.best+'</b></p>'+
+          '<p>Depuis le début : <b>'+st.correct+' / '+st.played+'</b> ('+all+' %)</p></div>'+
+      '</div>'+
+      '<div class="dd-result-actions"><button class="pw-btn pw-btn-trial" data-dd="infinite">Relancer le mode illimité</button><button class="pw-btn pw-btn-ghost" data-dd="back">← Défi du jour</button></div>'+
+    '</div>';
+  }
   const play = P ? {answers:P.answers, points:P.answers.reduce((s,a)=>s+(a.pts||0),0), correct:P.answers.filter(a=>a.ok).length} : D.play;
   const rounds = P ? P.rounds : D.rounds;
   const ans = play.answers||[];
@@ -21136,6 +21190,8 @@ function dailyOnClick(e){
   else if (act==="share") dailyShare();
   else if (act==="back"){ D.practice = null; D.phase = D.play && D.play.status==="done" ? "done" : "intro"; dailyRenderMain(); dailyRenderArchive(); }
   else if (act==="practice") dailyStartPractice(b.dataset.day);
+  else if (act==="infinite") dailyStartInfinite();
+  else if (act==="stop"){ D.phase = "done"; const m = document.getElementById("dd-main"); if (m) m.innerHTML = ""; dailyRenderMain(); }
   else if (act==="edbplus") switchView("edbplus");
 }
 document.addEventListener("keydown", e=>{
@@ -21221,7 +21277,7 @@ function dailyAnswer(choice){
   const rec = {a:choice, ok, pts};
   if (choice!=="none"){ const b = document.querySelector('.dd-btn.'+choice); if (b) b.classList.add("picked"); }
   document.querySelectorAll(".dd-btn").forEach(b=>b.disabled = true);
-  if (P){ P.answers.push(rec); }
+  if (P){ P.answers.push(rec); if (P.infinite){ dailyInfRecord(P, rec); if (P.rounds.length - D.i <= 2) dailyInfMore(P).catch(()=>{}); } }
   else {
     const answers = (D.play.answers||[]).concat([rec]);
     const done = answers.length>=DAILY_ROUNDS;
@@ -21231,10 +21287,10 @@ function dailyAnswer(choice){
     dailyPlayRef(D.day).update(patch).catch(e=>{ console.warn("daily answer", e); appToast("Réponse non enregistrée (connexion ?). Elle sera perdue si tu quittes la page."); });
     if (done) dailyFinish();
   }
-  // Révélation animée des 12 bougies suivantes (toujours sur le graphique détaillé).
+  // Révélation animée des bougies suivantes (toujours sur le graphique détaillé).
   D.view = "detail"; dailySyncToolbar(rd);
   const cv = document.getElementById("dd-canvas");
-  const T = 1300, ts = performance.now();
+  const T = 1800, ts = performance.now();
   const anim = now=>{
     const p = Math.min(1, (now-ts)/T);
     dailyDraw(cv, rd, {mode:"reveal", p});
@@ -21246,20 +21302,32 @@ function dailyVerdict(rec, rd, t){
   D.phase = "reveal";
   dailyRenderMain();
   const v = document.getElementById("dd-verdict");
-  const last = D.i>=DAILY_ROUNDS-1;
+  const inf = D.practice && D.practice.infinite;
+  const last = !inf && D.i>=DAILY_ROUNDS-1;
   v.className = "dd-verdict "+(rec.ok?"ok":"ko");
   v.innerHTML =
     '<div class="dd-v-l"><b>'+(rec.a==="none" ? "Temps écoulé" : rec.ok ? "Bien vu !" : "Raté")+'</b>'+
       '<span class="'+(t.dir==="up"?"up":"down")+'">'+(t.dir==="up"?"▲ Ça montait : ":"▼ Ça descendait : ")+(t.move>=0?"+":"")+t.move.toLocaleString("fr-FR",{maximumFractionDigits:2})+' %</span>'+
       '<em>'+dailyEsc(rd.name)+' · bougies '+rd.ivLabel+' · '+dailyEsc(dailyPeriodLabel(rd))+'</em></div>'+
     '<div class="dd-v-r">'+(rec.pts?'<strong class="num">+'+rec.pts+'</strong>':'<strong class="num">0</strong>')+
+      (inf ? '<button class="pw-btn pw-btn-ghost" data-dd="stop">Arrêter</button>' : '')+
       '<button class="pw-btn pw-btn-trial" data-dd="next">'+(last ? "Voir mon résultat" : "Graphique suivant →")+'</button></div>';
   v.hidden = false;
   document.getElementById("dd-actions").hidden = true;
   const nb = v.querySelector('[data-dd="next"]'); if (nb) nb.focus({preventScroll:true});
 }
-function dailyNext(){
+async function dailyNext(){
   D.i++;
+  const P = D.practice;
+  if (P && P.infinite){
+    if (!P.rounds[D.i]){
+      const nb = document.querySelector('[data-dd="next"]'); if (nb){ nb.disabled = true; nb.textContent = "Chargement…"; }
+      try{ await dailyInfMore(P); }catch(e){ D.i--; appToast("Graphiques indisponibles pour l'instant, réessaie."); if (nb){ nb.disabled = false; nb.textContent = "Graphique suivant →"; } return; }
+    }
+    if (P.rounds.length - D.i <= 2) dailyInfMore(P).catch(()=>{});
+    dailyShowRound();
+    return;
+  }
   if (D.i>=DAILY_ROUNDS){
     D.phase = "done";
     const m = document.getElementById("dd-main"); if (m) m.innerHTML = "";
@@ -21346,7 +21414,12 @@ function dailyRenderArchive(){
   if (!el) return;
   const plus = isEdbPlus();
   const days = Array.from({length:7}, (_,k)=>dailyShift(D.day||dailyDayKey(), -(k+1)));
-  el.innerHTML = '<div class="dd-panel-h"><h3>Archives</h3><span class="dd-plus">EDB+</span></div>'+
+  const inf = dailyInfStats();
+  el.innerHTML = '<div class="dd-panel-h"><h3>Mode illimité</h3><span class="dd-plus">EDB+</span></div>'+
+    '<p class="dd-arch-sub">'+(plus ? "Enchaîne autant de graphiques que tu veux, sans attendre demain (hors classement)." : "Enchaîne autant de graphiques que tu veux avec EDB+.")+'</p>'+
+    '<button type="button" class="pw-btn '+(plus?'pw-btn-trial':'pw-btn-ghost')+' dd-inf-btn" data-dd="'+(plus?'infinite':'edbplus')+'">'+(plus ? '♾ Jouer sans limite' : '🔒 Débloquer avec EDB+')+'</button>'+
+    (plus && inf.played ? '<p class="dd-arch-sub dd-inf-st">'+inf.correct+' / '+inf.played+' bonnes réponses · record de série : '+inf.best+'</p>' : '')+
+    '<div class="dd-panel-h dd-arch-h"><h3>Archives</h3><span class="dd-plus">EDB+</span></div>'+
     '<p class="dd-arch-sub">'+(plus ? "Rejoue les défis des 7 derniers jours pour t'entraîner (sans score)." : "Rejoue les défis des 7 derniers jours avec EDB+.")+'</p>'+
     '<div class="dd-arch">'+days.map(d=>'<button type="button" class="dd-arch-b'+(plus?'':' locked')+'" data-dd="'+(plus?'practice':'edbplus')+'" data-day="'+d+'">'+
       '<b>'+dailyEsc(new Date(d+"T12:00:00Z").toLocaleDateString("fr-FR",{weekday:"short", timeZone:"UTC"}))+'</b><span>'+dailyEsc(new Date(d+"T12:00:00Z").toLocaleDateString("fr-FR",{day:"numeric", month:"short", timeZone:"UTC"}))+'</span>'+(plus?'':'<i>🔒</i>')+'</button>').join("")+'</div>';
@@ -21442,7 +21515,7 @@ function dailyDraw(cv, rd, opt){
     x.fillStyle = k===0 ? text : faint;
     x.fillText((k>0?"+":k<0?"−":"")+Math.abs(k*stepPct).toLocaleString("fr-FR",{maximumFractionDigits:2})+" %", W-padR+10, yy);
   }
-  // Zone des 12 bougies à venir.
+  // Zone des bougies à venir.
   if (!ctx){
     const zx = padL + (DAILY_WARM+DAILY_SHOW-start)*slot;
     if (hidden){
