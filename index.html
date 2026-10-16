@@ -24738,6 +24738,7 @@ function adminActionsHtml(id, d){
     '</div>'+
     '<div class="adm-act-group"><span>Réinitialiser</span>'+
       btn("data-admin-reset-trading","Trading", "warn")+
+      btn("data-admin-prop-menu","Prop firm…"+(d.challenge||(Array.isArray(d.challengeHistory)&&d.challengeHistory.length)?"":" (vide)"), "warn")+
       btn("data-admin-quiz-menu","Quiz…")+
       btn("data-admin-reset-invest","Investissement"+(hasInvest?"":" (vide)"), "warn")+
       btn("data-admin-reset","Tout le compte", "warn")+
@@ -24894,6 +24895,89 @@ async function adminResetTraderTrading(id){
   }catch(e){
     console.warn("admin trading reset failed", e);
     alert("Échec de la réinitialisation du trading — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).");
+  }
+}
+// Fenêtre « Prop firm » de l'admin : deux niveaux de remise à zéro.
+//  - « Challenge en cours » : supprime le challenge actuel (compte prop,
+//    positions, ordres, statut). Les tentatives passées et les comptes
+//    financés (certificats) sont gardés ; le trader peut en relancer un.
+//  - « Tout le prop firm » : en plus, efface l'historique des tentatives
+//    (donc les comptes financés, le classement prop et la validité des
+//    certificats) et rend les ouvertures de challenge 200k.
+// Le compte de trading normal, l'investissement, les quiz et le reste du
+// profil ne sont jamais touchés.
+function adminOpenPropReset(id){
+  const doc = adminFindDoc(id);
+  if (!doc) return;
+  const d = doc.data();
+  const c = d.challenge;
+  const hist = Array.isArray(d.challengeHistory) ? d.challengeHistory : [];
+  const funded = hist.filter(a=>a && (a.fundedAt || a.outcome==="funded")).length + (c && c.fundedAt ? 1 : 0);
+  const PH = {step1:"Étape 1", step2:"Étape 2", funded:"Financé", failed:"Échoué"};
+  const pb = d.propBook || {};
+  const nPos = Array.isArray(pb.positions) ? pb.positions.length : 0, nOrd = Array.isArray(pb.pendingOrders) ? pb.pendingOrders.length : 0;
+  const cur = c
+    ? fmtMoney(c.tier)+' · '+(PH[c.phase]||c.phase)+(typeof d.propEquity==="number" ? ' · équité '+fmtMoney(d.propEquity) : '')+' · '+nPos+' position'+(nPos>1?'s':'')+', '+nOrd+' ordre'+(nOrd>1?'s':'')
+    : 'Aucun challenge en cours';
+  openModal(
+    '<h3 style="margin-bottom:6px;">Prop firm — '+escapeHtml(d.username||id)+'</h3>'+
+    '<div class="chart-note" style="margin-bottom:12px;">Le compte de trading normal, l\'investissement, les quiz et le reste du profil ne sont pas touchés.</div>'+
+    '<div class="adm-q-list" id="adm-p-list">'+
+      '<div class="adm-q-row'+(c?'':' is-empty')+'">'+
+        '<span class="adm-q-ico">🎯</span>'+
+        '<div class="adm-q-main"><b>Challenge en cours</b><span>'+escapeHtml(cur)+'</span></div>'+
+        '<button type="button" class="adm-act warn" data-p-reset="current"'+(c?'':' disabled')+'>Réinitialiser</button>'+
+      '</div>'+
+      '<div class="adm-q-row'+(c||hist.length?'':' is-empty')+'">'+
+        '<span class="adm-q-ico">🗂️</span>'+
+        '<div class="adm-q-main"><b>Tout le prop firm</b><span>Challenge en cours + '+hist.length+' tentative'+(hist.length>1?'s':'')+' passée'+(hist.length>1?'s':'')+(funded?' dont '+funded+' financé'+(funded>1?'s':''):'')+' · ouvertures 200k : '+(d.challenge200kOpens||0)+'</span></div>'+
+        '<button type="button" class="adm-act danger" data-p-reset="all"'+(c||hist.length||(d.challenge200kOpens||0)?'':' disabled')+'>Tout effacer</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="chart-note" id="adm-p-msg" style="margin:10px 0 0;min-height:14px;"></div>'
+  );
+  document.getElementById("adm-p-list").addEventListener("click", (e)=>{
+    const b = e.target.closest("button[data-p-reset]");
+    if (!b || b.disabled) return;
+    adminResetTraderProp(id, b.dataset.pReset==="all");
+  });
+}
+async function adminResetTraderProp(id, all){
+  const doc = adminFindDoc(id);
+  if (!doc) return;
+  const d = doc.data();
+  const label = d.username || id;
+  const msg = all
+    ? 'Effacer TOUT le prop firm de "'+label+'" ?\n\nChallenge en cours (compte, positions, ordres, statut) + historique de toutes les tentatives : ses comptes financés disparaissent du classement Prop firm et ses certificats ne seront plus vérifiables. Les ouvertures de challenge 200k sont remises à 0.\n\nNon touchés : compte de trading normal, investissement, quiz, profil. Irréversible.'
+    : 'Réinitialiser le challenge en cours de "'+label+'" ?\n\nCompte prop firm, positions, ordres et statut du challenge supprimés ; il pourra en relancer un.\n\nGardés : historique des tentatives, comptes financés et certificats, compte de trading normal, investissement, quiz. Irréversible.';
+  if (!confirm(msg)) return;
+  const hist = all ? [] : (Array.isArray(d.challengeHistory) ? d.challengeHistory : []);
+  const rank = all ? null : propRankValue({challenge:null, challengeHistory:hist, propEquity:null});
+  const normalActive = (Array.isArray(d.positions) && d.positions.length>0) || (Array.isArray(d.pendingOrders) && d.pendingOrders.length>0);
+  const patch = {
+    propBook: null, propEquity: null, challenge: null,
+    propRank: typeof rank==="number" ? rank : firebase.firestore.FieldValue.delete(),
+    copyNormalToProp: false, copyPropToNormal: false,
+    hasOpenActivity: normalActive,
+  };
+  if (all){ patch.challengeHistory = []; patch.challenge200kOpens = 0; }
+  try{
+    await db.collection("traders").doc(id).update(adminOverridePatch(patch));
+    if (id===clientId){
+      await adminRefreshSelf(id);
+      if (typeof renderPnlCalendarProp==="function") renderPnlCalendarProp();
+      if (typeof renderChallengeTeaser==="function") renderChallengeTeaser();
+      if (typeof renderChallengeBanner==="function") renderChallengeBanner();
+    }
+    await loadAdminTraders();
+    if (document.getElementById("adm-p-list")){
+      adminOpenPropReset(id); // chiffres à jour
+      const m = document.getElementById("adm-p-msg");
+      if (m){ m.style.color = "var(--long)"; m.textContent = all ? "Prop firm entièrement effacé." : "Challenge en cours réinitialisé."; }
+    }
+  }catch(e){
+    console.warn("admin prop reset failed", e);
+    alert("Échec de la réinitialisation du prop firm — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).");
   }
 }
 // Fenêtre « Quiz » de l'admin : chaque quiz se remet à zéro séparément, le
@@ -25936,6 +26020,7 @@ function initAdminUI(){
       else if (t.dataset.adminResetQuiz) adminResetTraderQuiz(t.dataset.adminResetQuiz);
       else if (t.dataset.adminQuizMenu) adminOpenQuizReset(t.dataset.adminQuizMenu);
       else if (t.dataset.adminResetTrading) adminResetTraderTrading(t.dataset.adminResetTrading);
+      else if (t.dataset.adminPropMenu) adminOpenPropReset(t.dataset.adminPropMenu);
       else if (t.dataset.adminResetInvest) adminResetTraderInvest(t.dataset.adminResetInvest);
       else if (t.dataset.adminReset) adminResetTrader(t.dataset.adminReset);
       else if (t.dataset.adminDelete) adminDeleteTrader(t.dataset.adminDelete);
