@@ -5349,7 +5349,11 @@ let candleTimer = null;
 // l'historique, et reste collé au direct sinon. CHART_ZOOM_MAX plafonne
 // aussi le nombre de bougies demandées aux API (fetchCandles*).
 const CHART_ZOOM_MIN = 12;
-const CHART_ZOOM_MAX = 300;
+const CHART_ZOOM_MAX = 1500;     // bougies visibles au maximum (dézoom)
+const CANDLE_FETCH_FULL = 1000;  // bougies chargées à l'ouverture d'un marché / d'une unité de temps
+const CANDLE_FETCH_TAIL = 30;    // rafraîchissement : seulement les dernières bougies, fusionnées
+const CANDLE_FETCH_OLDER = 1000; // historique plus ancien, chargé quand on remonte le temps
+const CANDLE_KEEP_MAX = 6000;    // plafond mémoire par marché
 const CHART_ZOOM_STEPS = [15,25,40,60,100,150,200,300]; // ancienne préférence (index) : reprise une fois
 const CHART_ZOOM_KEY = "paperTapeChartZoomIndex";
 const CHART_ZOOM_COUNT_KEY = "paperTapeChartZoomCount";
@@ -6276,24 +6280,71 @@ function processTicker(symbol, payload){
 // below). SPY/QQQ get the same fixed indexRatio rescale applied to every
 // OHLC field, so the candles line up with the live (already-rescaled)
 // ticker price used everywhere else.
-async function fetchCandles(symbol, tf){
+// Bougies du graphique interne :
+//  - "full"  : 1 000 dernières bougies à l'ouverture d'un marché / unité de temps ;
+//  - "tail"  : toutes les 30 s, seulement les 30 dernières, fusionnées (léger) ;
+//  - "older" : 1 000 bougies plus anciennes, ajoutées devant quand on remonte
+//              le temps jusqu'au début de ce qui est chargé (voir chartRenderCandles).
+function parseCandleRows(raw){
+  return (raw||[]).map(c=>({
+    o: parseFloat(c.open), h: parseFloat(c.high), l: parseFloat(c.low), c: parseFloat(c.close),
+    t: c.timestamp, ms: Date.parse(c.timestamp), v: parseFloat(c.volume)||0,
+  })).filter(c=>isFinite(c.o)&&isFinite(c.h)&&isFinite(c.l)&&isFinite(c.c)&&isFinite(c.ms));
+}
+const candleOlderState = {}; // "SYM|tf" -> {busy, done}
+async function fetchCandles(symbol, tf, mode){
   const a = ASSETS.find(x=>x.symbol===symbol);
   const m = market[symbol];
-  m.candles.loading = true;
-  if (selectedSymbol===symbol) updateChart();
+  mode = mode || "full";
+  const have = m.candles && m.candles.tf===tf && Array.isArray(m.candles.data) && m.candles.data.length;
+  if (mode==="tail" && !have) mode = "full";
+  if (mode==="full"){ m.candles.loading = true; if (selectedSymbol===symbol) updateChart(); }
   try{
-    const raw = await fetchCandlesRest(a, tf);
-    const scale = 1; // déjà à l'échelle (voir fetchCandlesRest)
-    let parsed = raw.map(c=>({
-      o: parseFloat(c.open)*scale, h: parseFloat(c.high)*scale,
-      l: parseFloat(c.low)*scale, c: parseFloat(c.close)*scale,
-      t: c.timestamp, ms: Date.parse(c.timestamp), v: parseFloat(c.volume)||0,
-    })).filter(c=>isFinite(c.o)&&isFinite(c.h)&&isFinite(c.l)&&isFinite(c.c));
-    m.candles = {tf, data:parsed, loading:false, error: parsed.length?null:"empty"};
+    const raw = await fetchCandlesRest(a, tf, {limit: mode==="tail" ? CANDLE_FETCH_TAIL : CANDLE_FETCH_FULL});
+    const parsed = parseCandleRows(raw);
+    if (mode==="tail" && m.candles && m.candles.tf===tf && m.candles.data.length){
+      // Fusion : on remplace les bougies déjà connues (même heure) et on ajoute les nouvelles.
+      const data = m.candles.data;
+      parsed.forEach(c=>{
+        let i = data.length-1;
+        while (i>=0 && data[i].ms>c.ms) i--;
+        if (i>=0 && data[i].ms===c.ms){
+          const live = i===data.length-1;
+          data[i] = live ? {...c, h:Math.max(c.h, data[i].h), l:Math.min(c.l, data[i].l), c:data[i].c} : c;
+        } else if (i===data.length-1) data.push(c);
+        else data.splice(i+1, 0, c);
+      });
+      while (data.length>CANDLE_KEEP_MAX) data.shift();
+      m.candles.error = null;
+    } else {
+      m.candles = {tf, data:parsed, loading:false, error: parsed.length?null:"empty"};
+      delete candleOlderState[symbol+"|"+tf];
+    }
   }catch(err){
     m.candles = {tf, data:(m.candles&&m.candles.data)||[], loading:false, error:(err&&err.code)||"upstream_error"};
   }
+  if (m.candles) m.candles.loading = false;
   if (selectedSymbol===symbol) updateChart();
+}
+async function fetchOlderCandles(symbol, tf){
+  const key = symbol+"|"+tf;
+  const st = candleOlderState[key] || (candleOlderState[key] = {busy:false, done:false});
+  const m = market[symbol];
+  if (st.busy || st.done || !m.candles || m.candles.tf!==tf || !m.candles.data.length) return;
+  if (m.candles.data.length >= CANDLE_KEEP_MAX){ st.done = true; return; }
+  st.busy = true;
+  try{
+    const a = ASSETS.find(x=>x.symbol===symbol);
+    const first = m.candles.data[0];
+    const parsed = parseCandleRows(await fetchCandlesRest(a, tf, {limit: CANDLE_FETCH_OLDER, endTime: first.ms-1})).filter(c=>c.ms<first.ms);
+    if (!parsed.length){ st.done = true; return; }
+    if (!(m.candles && m.candles.tf===tf && m.candles.data[0]===first)) return; // marché changé entre-temps
+    m.candles.data = parsed.concat(m.candles.data);
+    // La fenêtre affichée est mesurée depuis la dernière bougie : ajouter
+    // devant ne la déplace pas.
+    if (selectedSymbol===symbol) updateChart();
+  }catch(e){ st.done = true; }
+  finally{ st.busy = false; }
 }
 // (Re)start the candle refresh cycle for whichever symbol is currently on
 // the chart. Only the selected symbol's candles are fetched (not all six
@@ -6301,8 +6352,8 @@ async function fetchCandles(symbol, tf){
 function scheduleCandleRefresh(){
   clearInterval(candleTimer);
   chartPan = 0; chartHover = null; // nouveau marché / unité de temps : retour au direct
-  fetchCandles(selectedSymbol, currentTimeframe);
-  candleTimer = setInterval(()=>fetchCandles(selectedSymbol, currentTimeframe), 45000);
+  fetchCandles(selectedSymbol, currentTimeframe, "full");
+  candleTimer = setInterval(()=>fetchCandles(selectedSymbol, currentTimeframe, "tail"), 30000);
 }
 // Entry/exit crossing the real spread: buying (open long / close short)
 // fills at the ask, selling (open short / close long) fills at the bid.
@@ -8275,12 +8326,13 @@ async function fetchTickerHyperliquid(hl){
   return {last:String(last), best_bid:String(bid), best_ask:String(ask), change, timestamp:new Date().toISOString()};
 }
 const HL_INTERVAL_MS = {"1m":60000, "5m":5*60000, "15m":15*60000, "1h":3600000};
-async function fetchCandlesHyperliquid(hl, tf){
+async function fetchCandlesHyperliquid(hl, tf, opt){
   // Our own timeframe strings ("1m"/"5m"/"15m"/"1h" — see CANDLE_TIMEFRAMES)
   // already match Hyperliquid's own interval strings verbatim, so `tf` is
   // passed straight through with no translation table needed.
-  const endTime = Date.now();
-  const startTime = endTime - CHART_ZOOM_MAX*(HL_INTERVAL_MS[tf]||60000);
+  const limit = (opt && opt.limit) || CANDLE_FETCH_FULL;
+  const endTime = (opt && opt.endTime) || Date.now();
+  const startTime = endTime - limit*(HL_INTERVAL_MS[tf]||60000);
   const raw = await hlInfoPost({type:"candleSnapshot", req:{coin: hlCoinName(hl), interval: tf, startTime, endTime}});
   if (!Array.isArray(raw)){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
   const inv = raw.length && hlInverted(hl, parseFloat(raw[raw.length-1].c));
@@ -8338,9 +8390,11 @@ async function fetchTickerRest(a){
   }
   throw lastErr || Object.assign(new Error("no_source"), {code:"no_source"});
 }
-async function fetchCandlesCryptoCom(instrument, tf){
-  // count matches CHART_ZOOM_MAX — same reasoning as the Binance limit above.
-  const url = CRYPTO_API_BASE+"/get-candlestick?instrument_name="+encodeURIComponent(instrument)+"&timeframe="+encodeURIComponent(tf)+"&count="+CHART_ZOOM_MAX;
+async function fetchCandlesCryptoCom(instrument, tf, opt){
+  // Crypto.com ne sert que les ~300 dernières bougies (pas d'historique par date).
+  if (opt && opt.endTime) return [];
+  const count = Math.min(300, (opt && opt.limit) || 300);
+  const url = CRYPTO_API_BASE+"/get-candlestick?instrument_name="+encodeURIComponent(instrument)+"&timeframe="+encodeURIComponent(tf)+"&count="+count;
   const res = await fetch(url, {signal:AbortSignal.timeout(12000)});
   if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
   const json = await res.json();
@@ -8351,12 +8405,14 @@ async function fetchCandlesCryptoCom(instrument, tf){
     timestamp: c.t ? new Date(Number(c.t)).toISOString() : null, volume:c.v,
   }));
 }
-async function fetchCandlesBinance(binanceSymbol, tf, base){
+async function fetchCandlesBinance(binanceSymbol, tf, base, opt){
   // Binance's interval strings ("1m","5m","15m","1h") already match ours.
   // limit matches CHART_ZOOM_MAX (the most zoomed-out chart view) so the
   // zoom-out control has real history to reveal instead of stretching the
   // same ~50 candles thinner.
-  const url = (base||BINANCE_API_BASE)+"/klines?symbol="+encodeURIComponent(binanceSymbol)+"&interval="+encodeURIComponent(tf)+"&limit="+CHART_ZOOM_MAX;
+  const limit = Math.min(1000, (opt && opt.limit) || CANDLE_FETCH_FULL);
+  const url = (base||BINANCE_API_BASE)+"/klines?symbol="+encodeURIComponent(binanceSymbol)+"&interval="+encodeURIComponent(tf)+"&limit="+limit+
+    ((opt && opt.endTime) ? "&endTime="+Math.floor(opt.endTime) : "");
   const res = await fetch(url, {signal:AbortSignal.timeout(8000)});
   if (!res.ok){ const e = new Error("http_"+res.status); e.code = "http_"+res.status; throw e; }
   const raw = await res.json();
@@ -8367,15 +8423,15 @@ async function fetchCandlesBinance(binanceSymbol, tf, base){
     timestamp: new Date(Number(row[0])).toISOString(),
   }));
 }
-async function fetchCandlesRest(a, tf){
+async function fetchCandlesRest(a, tf, opt){
   let lastErr = null;
   for (const [kind, ref] of priceSources(a)){
     try{
-      if (kind==="hl") return await fetchCandlesHyperliquid(ref, tf);
-      if (kind==="bf") return await fetchCandlesBinance(ref, tf, BINANCE_FAPI_BASE);
-      if (kind==="bn") return await fetchCandlesBinance(ref, tf);
+      if (kind==="hl") return await fetchCandlesHyperliquid(ref, tf, opt);
+      if (kind==="bf") return await fetchCandlesBinance(ref, tf, BINANCE_FAPI_BASE, opt);
+      if (kind==="bn") return await fetchCandlesBinance(ref, tf, undefined, opt);
       if (kind==="cdc"){
-        const raw = await fetchCandlesCryptoCom(ref, tf);
+        const raw = await fetchCandlesCryptoCom(ref, tf, opt);
         const k = a.cdcRatio ? (a._cdcCal || a.cdcRatio) : 1;
         return k===1 ? raw : raw.map(c=>({open:c.open*k, high:c.high*k, low:c.low*k, close:c.close*k, timestamp:c.timestamp, volume:c.volume}));
       }
@@ -9767,7 +9823,7 @@ function patchLiveCandle(m, px){
     const ms = last.ms + Math.floor((now-last.ms)/tfMs)*tfMs;
     last = {o:last.c, h:last.c, l:last.c, c:last.c, ms, t:new Date(ms).toISOString(), v:0};
     data.push(last);
-    if (data.length > CHART_ZOOM_MAX+60) data.shift();
+    if (data.length > CANDLE_KEEP_MAX) data.shift();
     rolled = true;
   }
   last.h = Math.max(last.h, px);
@@ -9840,7 +9896,9 @@ function chartEdgeTagHtml(g, top, slot, color, text, cancelId){
 function chartCreateChipHtml(g, entryY, color, label, posId, leg, dir){
   const y = entryY + dir*15;
   const w = 36, h = 14;
-  const x = g.padL+4;
+  // À droite du tracé (à gauche du « + » du réticule) : le coin haut-gauche
+  // est occupé par les boutons Short / Long du graphique.
+  const x = g.W-g.padR-30-w;
   return '<g class="tpsl-chip" data-tpsl-pos="'+posId+'" data-tpsl-leg="'+leg+'" data-tpsl-mode="create">'+
     '<rect x="'+x+'" y="'+(y-h/2).toFixed(1)+'" width="'+w+'" height="'+h+'" rx="7" fill="'+g.pal.bg+'" stroke="'+color+'" stroke-width="1" stroke-dasharray="3,2"/>'+
     '<text x="'+(x+w/2)+'" y="'+(y+3.3).toFixed(1)+'" fill="'+color+'" font-size="9" font-weight="600" '+CHART_FONT+' text-anchor="middle">'+label+'</text>'+
@@ -9951,6 +10009,8 @@ function chartRenderCandles(svg, a, m, W, H, all){
   if (Math.abs(chartPan)<0.02) chartPan = 0;
   const right = liveRight - chartPan, left = right - count;
   const start = Math.max(0, Math.floor(left));
+  // Près du début de l'historique chargé : on va chercher plus ancien.
+  if (left < Math.max(60, count*0.3) && nAll >= 50) fetchOlderCandles(selectedSymbol, (m.candles && m.candles.tf) || currentTimeframe);
   const end = Math.min(nAll, Math.ceil(right));
   const vis = all.slice(start, Math.max(start, end));
   const n = vis.length;
