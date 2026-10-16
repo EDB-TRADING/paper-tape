@@ -703,6 +703,7 @@
   #chart-svg.tpsl-dragging{cursor:ns-resize;}
   #chart-svg{cursor:crosshair;user-select:none;-webkit-user-select:none;}
   #chart-svg.chart-panning{cursor:grabbing;}
+  #chart-svg.chart-zooming{cursor:zoom-in;}
   #chart-svg [data-chart-live]{cursor:pointer;}
   .chart-ind{position:relative;}
   .chart-ind[hidden]{display:none;}
@@ -4332,7 +4333,7 @@
                   <label><input type="checkbox" data-chart-ind="ema50"><i style="background:#5aa9e6"></i>Moyenne mobile 50 (MME)</label>
                   <label><input type="checkbox" data-chart-ind="trades"><i class="tri"></i>Mes trades (▲ achat ▼ vente)</label>
                   <label><input type="checkbox" data-chart-ind="qt"><i style="background:linear-gradient(90deg,#f0546a 50%,#31c882 50%)"></i>Trader depuis le graphique</label>
-                  <div class="chart-ind-tip">Glisse le graphique vers la droite pour remonter le temps · double-clic pour revenir au direct · survole une bougie pour voir ses prix.</div>
+                  <div class="chart-ind-tip">Glisse le graphique (à gauche ou à droite) pour te déplacer · Ctrl + défilement, pincement ou clic droit maintenu pour zoomer sur une zone précise · double-clic pour tout remettre en automatique.</div>
                 </div>
               </div>
               <div class="seg" id="chart-source-seg" style="margin-left:auto;">
@@ -5335,6 +5336,45 @@ function scheduleChartFrame(){
   chartRaf = requestAnimationFrame(()=>{ chartRaf = 0; updateChart(); });
 }
 function chartBumpAnim(){ chartAnimUntil = performance.now()+350; }
+// Décalage maximal vers la gauche : la dernière bougie peut aller jusqu'au
+// premier cinquième de la largeur (le reste = espace libre à droite).
+function chartMinPanFor(count){ return -Math.max(0, 0.8*count - CHART_GAP); }
+function chartMinPan(){ return chartMinPanFor(Math.max(CHART_ZOOM_MIN, (chartView && chartView.count) || chartZoomCount)); }
+// Zoom « libre » autour d'un point (Ctrl + défilement, clic droit maintenu) :
+// étire / resserre en largeur (fx : nombre de bougies) et en hauteur (fy :
+// étendue des prix), en gardant fixe ce qui est sous le curseur — pour aller
+// zoomer directement sur une bougie précise. Calculé sur l'état courant (et
+// non sur la dernière image affichée) pour rester juste quand plusieurs
+// événements arrivent dans la même image.
+function chartZoom2D(fx, fy, ax, ay){
+  const v = chartView;
+  if (!v || !v.all || !v.all.length || !v.plotW) return;
+  const clamp = (x, a, b)=>Math.max(a, Math.min(b, x));
+  const liveRight = v.all.length + CHART_GAP;
+  const maxCount = Math.max(CHART_ZOOM_MIN, Math.min(CHART_ZOOM_MAX, liveRight));
+  const curCount = clamp(chartZoomCount, CHART_ZOOM_MIN, maxCount);
+  const curLeft = liveRight - chartPan - curCount;
+  const frac = clamp((ax - v.padL)/v.plotW, 0, 1);
+  const anchorSlot = curLeft + frac*curCount;
+  const next = clamp(curCount*fx, CHART_ZOOM_MIN, maxCount);
+  chartZoomCount = next;
+  chartPan = clamp(liveRight - (anchorSlot + (1-frac)*next), chartMinPanFor(next), Math.max(0, liveRight-next));
+  if (Math.abs(chartPan)<0.02) chartPan = 0;
+  if (fy!==1){
+    const key = chartYKey();
+    const base = (chartYManual && chartYManual.key===key) ? chartYManual : {min:v.min, max:v.max};
+    const fyFrac = clamp(1-(ay - v.padT)/v.plotH, 0, 1);
+    const p = base.min + fyFrac*(base.max-base.min);
+    const range = Math.max((base.max-base.min)*fy, Math.abs(p)*1e-6);
+    const mn = p - fyFrac*range;
+    chartYManual = {key, min:mn, max:mn+range};
+  }
+  chartBumpAnim();
+  updateChartZoomLabel();
+  scheduleChartFrame();
+  clearTimeout(chartZoomSaveTimer);
+  chartZoomSaveTimer = setTimeout(()=>{ try{ localStorage.setItem(CHART_ZOOM_COUNT_KEY, String(Math.round(chartZoomCount*10)/10)); }catch(e){} }, 400);
+}
 // Zoome vers `count` bougies. anchorX (unités du viewBox) = point qui reste
 // fixe sous le curseur ; null = bord droit (direct) ou centre (historique).
 function chartZoomTo(count, anchorX){
@@ -5349,6 +5389,7 @@ function chartZoomTo(count, anchorX){
     const newRight = anchorSlot + (1-frac)*next;
     chartPan = Math.max(0, v.liveRight - newRight);
   }
+  if (chartPan<0) chartPan = Math.max(chartMinPanFor(next), chartPan);
   if (Math.abs(next-chartZoomCount) < 1e-6 && !(v && chartPan>0.01)) return;
   chartZoomCount = next;
   chartBumpAnim();
@@ -5376,7 +5417,7 @@ function chartZoomAnimate(factor){
 function chartPanBy(slots){
   const v = chartView;
   const maxPan = (v && v.liveRight!=null) ? Math.max(0, v.liveRight - v.count) : Infinity;
-  chartPan = Math.max(0, Math.min(maxPan, chartPan + slots));
+  chartPan = Math.max(chartMinPan(), Math.min(maxPan, chartPan + slots));
   chartBumpAnim();
   scheduleChartFrame();
 }
@@ -5401,12 +5442,12 @@ function initChartZoomControls(){
       if (chartSource!=="internal" || !chartView) return;
       const unit = e.deltaMode===1 ? 16 : e.deltaMode===2 ? 400 : 1;
       const dx = e.deltaX*unit, dy = e.deltaY*unit;
-      const horizontal = !e.ctrlKey && Math.abs(dx) > Math.abs(dy);
+      const horizontal = !e.ctrlKey && !(e.buttons & 2) && Math.abs(dx) > Math.abs(dy);
       // Molette verticale : seulement quand le widget Graphique a été cliqué
       // (voir initWidgetWheel), sinon elle fait défiler la page. Le pincement
       // du trackpad (ctrlKey) et le glissement horizontal marchent toujours.
       const w = svg.closest(".card.widget");
-      if (!e.ctrlKey && !horizontal && w && !w.classList.contains("is-wheel-active")){
+      if (!e.ctrlKey && !(e.buttons & 2) && !horizontal && w && !w.classList.contains("is-wheel-active")){
         if (typeof wzShowWheelHint==="function") wzShowWheelHint(w, "Clique sur le graphique, puis molette pour zoomer");
         return;
       }
@@ -5419,8 +5460,15 @@ function initChartZoomControls(){
         return;
       }
       const ax = (e.clientX-r.left)/r.width*v.W;
-      const k = e.ctrlKey ? 0.012 : 0.0022;
-      chartZoomTo(chartZoomCount*Math.exp(Math.max(-60, Math.min(60, dy))*k), ax);
+      if (e.ctrlKey || (e.buttons & 2)){
+        // Ctrl + défilement (ou pincement du trackpad), ou défilement clic droit
+        // maintenu : zoom en largeur ET en hauteur autour du curseur.
+        const ay = (e.clientY-r.top)/r.height*v.H;
+        const f = Math.exp(Math.max(-60, Math.min(60, dy))*(e.ctrlKey ? 0.012 : 0.0025));
+        chartZoom2D(f, f, ax, ay);
+        return;
+      }
+      chartZoomTo(chartZoomCount*Math.exp(Math.max(-60, Math.min(60, dy))*0.0022), ax);
     }, {passive:false});
   }
   updateChartZoomLabel();
@@ -5572,6 +5620,75 @@ function edbPlusTrialCtaHtml(id){
   if (edbPlusTrialUsed()) return '<div class="edbplus-trial-note used">Ton essai gratuit de 24 h a déjà été utilisé.</div>';
   return '<button class="btn-secondary edbplus-trial-btn" id="'+id+'">✨ Essayer gratuitement 24 h</button>'+
     '<div class="edbplus-trial-note">Sans paiement, valable une seule fois.</div>';
+}
+// ---- Paiement EDB+ par carte (Stripe) ----
+// Lien de paiement Stripe (« Payment Link ») de l'adhésion EDB+, créé dans le
+// tableau de bord Stripe — voir SERVER_SETUP.md, section « Paiement EDB+ par
+// Stripe ». Tant qu'il est vide, l'ancien parcours reste en place (demande au
+// bureau + coordonnées Wero / RIB). Une fois rempli :
+//  - « Devenir membre » ouvre la page de paiement Stripe, avec l'identifiant
+//    du compte (client_reference_id) et l'e-mail déjà rempli ;
+//  - Stripe prévient la fonction Firebase « stripeWebhook », qui active EDB+
+//    pour un an sur ce compte, sans intervention du bureau ;
+//  - au retour (?edbplus=merci), l'appli attend l'activation et l'annonce.
+const EDB_PLUS_STRIPE_LINK = "";
+function edbPlusStripeUrl(){
+  if (!EDB_PLUS_STRIPE_LINK) return null;
+  try{
+    const u = new URL(EDB_PLUS_STRIPE_LINK);
+    if (clientId) u.searchParams.set("client_reference_id", clientId);
+    if (state.email) u.searchParams.set("prefilled_email", state.email);
+    return u.toString();
+  }catch(e){ return null; }
+}
+function goToEdbPlusCheckout(){
+  const url = edbPlusStripeUrl();
+  if (!url) return;
+  if (typeof flushPersist==="function"){ try{ persistAccount(); flushPersist(true); }catch(e){} }
+  window.location.href = url;
+}
+function edbPlusUntilLabel(){
+  if (!state.edbPlusUntil) return "";
+  const d = new Date(state.edbPlusUntil);
+  return isNaN(d.getTime()) ? "" : d.toLocaleDateString("fr-FR", {day:"numeric", month:"long", year:"numeric"});
+}
+// Retour de Stripe : ?edbplus=merci (paiement validé) ou ?edbplus=annule.
+let edbPlusReturnHandled = false;
+async function edbPlusCheckReturn(){
+  if (edbPlusReturnHandled) return;
+  const params = new URLSearchParams(window.location.search);
+  const flag = params.get("edbplus");
+  if (!flag) return;
+  edbPlusReturnHandled = true;
+  params.delete("edbplus");
+  const clean = window.location.pathname+(params.toString() ? "?"+params.toString() : "")+window.location.hash;
+  try{ history.replaceState(null, "", clean); }catch(e){}
+  if (flag!=="merci"){ appToast("Paiement annulé — rien n'a été prélevé. Tu peux réessayer quand tu veux depuis la page EDB+."); return; }
+  if (state.edbPlus){ openModal('<h3 style="margin-bottom:8px;">EDB+ est actif 🎉</h3><p class="chart-note">Merci pour ton adhésion !'+(edbPlusUntilLabel() ? ' Valable jusqu\'au '+escapeHtml(edbPlusUntilLabel())+'.' : '')+'</p><button class="btn-primary" id="edbplus-paid-go" style="width:100%;margin-top:14px;">Découvrir EDB+</button>'); const g = document.getElementById("edbplus-paid-go"); if (g) g.addEventListener("click", ()=>{ closeModal(); switchView("edbplus"); }); return; }
+  openModal('<h3 style="margin-bottom:8px;">Paiement reçu ✓</h3><p class="chart-note" id="edbplus-paid-msg">Activation d\'EDB+ en cours… quelques secondes.</p>');
+  const id = clientId;
+  const t0 = Date.now();
+  while (Date.now()-t0 < 120000){
+    await new Promise(r=>setTimeout(r, 3000));
+    if (id!==clientId || !db) return;
+    try{
+      const snap = await db.collection("traders").doc(id).get();
+      const d = snap.exists ? (snap.data()||{}) : {};
+      if (d.edbPlus && !(d.edbPlusUntil && Date.parse(d.edbPlusUntil) < Date.now())){
+        state.edbPlus = true;
+        state.edbPlusRequested = false;
+        state.edbPlusUntil = d.edbPlusUntil || null;
+        refreshEdbPlusGates();
+        if (typeof renderEdbPlusProfileCard==="function") renderEdbPlusProfileCard();
+        openModal('<h3 style="margin-bottom:8px;">EDB+ est activé 🎉</h3><p class="chart-note">Merci pour ton adhésion à l\'École de la Bourse !'+(edbPlusUntilLabel() ? ' Ton accès est valable jusqu\'au '+escapeHtml(edbPlusUntilLabel())+'.' : '')+'</p><button class="btn-primary" id="edbplus-paid-go" style="width:100%;margin-top:14px;">Découvrir EDB+</button>');
+        const g = document.getElementById("edbplus-paid-go");
+        if (g) g.addEventListener("click", ()=>{ closeModal(); switchView("edbplus"); });
+        return;
+      }
+    }catch(e){ /* on réessaie */ }
+  }
+  const msg = document.getElementById("edbplus-paid-msg");
+  if (msg) msg.textContent = "Ton paiement est bien parti, mais l'activation prend plus de temps que prévu. Elle se fera automatiquement d'ici quelques minutes ; sinon, contacte le bureau depuis la page EDB+ (garde ton reçu Stripe).";
 }
 // Payment details shown to a trader the instant their EDB+ request lands
 // (see sendEdbPlusPaymentInfoMessage below) — update these two values if
@@ -5742,7 +5859,9 @@ function edbPlusPaywallHtml(key){
     '</section>'+
     // 5. Questions fréquentes
     '<section class="pw-section pw-faq reveal">'+
-      '<details><summary>Comment je paie ?</summary><p>Clique sur « Devenir membre » : ta demande part au bureau et tu reçois aussitôt les coordonnées de paiement (Wero ou virement) dans la conversation. Le bureau active ton compte dès réception.</p></details>'+
+      (EDB_PLUS_STRIPE_LINK
+        ? '<details><summary>Comment je paie ?</summary><p>Clique sur « Devenir membre » puis « Payer 25 € par carte » : la page sécurisée de Stripe s\'ouvre (carte, Apple Pay, Google Pay). EDB+ s\'active automatiquement dès le paiement validé, pour un an. Tu préfères Wero, un virement ou des espèces ? Choisis « Autre moyen » : le bureau s\'en occupe.</p></details>'
+        : '<details><summary>Comment je paie ?</summary><p>Clique sur « Devenir membre » : ta demande part au bureau et tu reçois aussitôt les coordonnées de paiement (Wero ou virement) dans la conversation. Le bureau active ton compte dès réception.</p></details>')+
       '<details><summary>Comment marche l\'essai gratuit ?</summary><p>24 h d\'accès complet à EDB+, sans paiement, valable une seule fois. À la fin, ton compte repasse simplement en gratuit : rien n\'est prélevé.</p></details>'+
       '<details><summary>Mes progrès sont-ils gardés ?</summary><p>Oui : cours lus, quiz et scores restent sur ton compte, même après l\'essai.</p></details>'+
     '</section>'+
@@ -5916,9 +6035,13 @@ function epPitchHtml(){
     '<section class="ep-steps reveal">'+
       '<div class="pw-section-head"><span class="pw-kicker">Adhésion</span><h2>Membre en 3 étapes</h2></div>'+
       '<div class="ep-steps-grid">'+
-        '<div><b>1</b><strong>Envoie ta demande</strong><span>Un clic sur « Devenir membre » : le bureau est prévenu automatiquement.</span></div>'+
-        '<div><b>2</b><strong>Règle 25 €</strong><span>Tu reçois aussitôt les coordonnées Wero et RIB dans ta conversation avec le bureau.</span></div>'+
-        '<div><b>3</b><strong>C\'est débloqué</strong><span>Le bureau active ton compte dès réception et te le confirme dans la conversation.</span></div>'+
+        (EDB_PLUS_STRIPE_LINK
+          ? '<div><b>1</b><strong>Clique sur « Devenir membre »</strong><span>Tu arrives sur la page de paiement sécurisée Stripe.</span></div>'+
+            '<div><b>2</b><strong>Règle 25 € par carte</strong><span>Carte bancaire, Apple Pay ou Google Pay — en 30 secondes.</span></div>'+
+            '<div><b>3</b><strong>C\'est débloqué</strong><span>EDB+ s\'active tout seul sur ton compte dès le paiement validé, pour un an.</span></div>'
+          : '<div><b>1</b><strong>Envoie ta demande</strong><span>Un clic sur « Devenir membre » : le bureau est prévenu automatiquement.</span></div>'+
+            '<div><b>2</b><strong>Règle 25 €</strong><span>Tu reçois aussitôt les coordonnées Wero et RIB dans ta conversation avec le bureau.</span></div>'+
+            '<div><b>3</b><strong>C\'est débloqué</strong><span>Le bureau active ton compte dès réception et te le confirme dans la conversation.</span></div>')+
       '</div>'+
     '</section>'+
     '<section class="pw-section pw-faq reveal">'+
@@ -5943,7 +6066,7 @@ function epStatusHtml(kind){
   let head = "", body = "", actions = "";
   if (kind==="member"){
     head = '<span class="pw-badge">✓ Membre EDB+</span><h1>Tout Paper Tape est à toi.</h1>';
-    body = '<p class="ep-hero-sub">Merci de soutenir l\'association École de la Bourse. Voici tes accès :</p>';
+    body = '<p class="ep-hero-sub">Merci de soutenir l\'association École de la Bourse.'+(edbPlusUntilLabel() ? ' Adhésion valable jusqu\'au <b>'+escapeHtml(edbPlusUntilLabel())+'</b>.' : '')+' Voici tes accès :</p>';
     actions = '<div class="pw-ctas"><button class="pw-btn pw-btn-ghost" id="edbplus-chat-open-btn">💬 Contacter le bureau EDB</button></div>';
   } else if (kind==="trial"){
     head = '<span class="pw-badge">✨ Essai gratuit en cours</span><h1>Encore '+escapeHtml(edbPlusTrialRemainingLabel())+' d\'accès complet.</h1>';
@@ -5989,6 +6112,24 @@ function renderEdbPlusProfileCard(){
 // happens (an automatic message to the bureau + an automatic reply with the
 // payment details) so nothing fires silently on a stray click.
 function openEdbPlusRequestConfirmModal(){
+  if (EDB_PLUS_STRIPE_LINK){
+    openModal(
+      '<h3 style="margin-bottom:8px;">Devenir membre EDB+</h3>'+
+      '<p class="chart-note" style="margin-bottom:14px;">25 € pour un an, payés par carte bancaire (ou Apple Pay / Google Pay) sur la page sécurisée de Stripe. EDB+ s\'active <b>automatiquement</b> sur ton compte dès que le paiement est validé — pas besoin d\'attendre le bureau.</p>'+
+      '<button class="btn-primary" id="edbplus-pay-card-btn" style="width:100%;">💳 Payer 25 € par carte</button>'+
+      '<button class="btn-secondary" id="edbplus-pay-other-btn" style="width:100%;margin-top:8px;">Autre moyen (Wero, virement, espèces)</button>'+
+      '<p class="chart-note" style="margin-top:10px;font-size:11.5px;">Paiement traité par Stripe : Paper Tape ne voit jamais tes coordonnées bancaires.</p>'
+    );
+    const card = document.getElementById("edbplus-pay-card-btn");
+    const other = document.getElementById("edbplus-pay-other-btn");
+    if (card) card.addEventListener("click", ()=>{ card.disabled = true; card.textContent = "Ouverture de la page de paiement…"; goToEdbPlusCheckout(); });
+    if (other) other.addEventListener("click", ()=>{ closeModal(); openEdbPlusLegacyRequestModal(); });
+    return;
+  }
+  openEdbPlusLegacyRequestModal();
+}
+// Ancien parcours : demande au bureau + coordonnées Wero / RIB dans la conversation.
+function openEdbPlusLegacyRequestModal(){
   openModal(
     '<h3 style="margin-bottom:8px;">Confirmer ta demande EDB+</h3>'+
     '<p class="chart-note" style="margin-bottom:14px;">En confirmant : un message est envoyé automatiquement au bureau ("Je veux devenir membre de EDB+"), et tu reçois aussitôt après les coordonnées de paiement (Wero et RIB) dans la même conversation. Le bureau active ton compte dès réception du paiement.</p>'+
@@ -6219,6 +6360,8 @@ const state = {
   edbPlus: false,           // paid membership (25€/an) — see EDB+ below; granted manually by an admin, never self-writable in good faith
   edbPlusRequested: false,  // trader self-flags "j'ai payé" so an admin sees them in the admin panel's pending list
   edbPlusRequestedAt: null, // ISO timestamp of that self-flag, for admin sorting
+  edbPlusUntil: null,       // fin de l'adhésion payée par Stripe (null = sans date de fin)
+  edbPlusExpired: false,
   totalTimeSpent: 0, // cumulative seconds with the tab open & visible — see initSessionTimeTracking()
   timeSpentConnaissances: 0, // subset of totalTimeSpent specifically on the Connaissances/Quiz tab — see initSessionTimeTracking()
   connaissancesOpened: {}, // {[deckId]: iso timestamp FIRST opened} — see recordConnaissanceOpened()/renderLearnDoc()
@@ -6598,7 +6741,11 @@ function hydrateStateFromDoc(snap){
   state.stats = (d.stats && typeof d.stats==="object") ? {...state.stats, ...d.stats} : state.stats;
   state.email = d.email || state.email || null;
   state.isAdmin = !!d.isAdmin;
-  state.edbPlus = !!d.edbPlus;
+  // Adhésion payée par Stripe : valable un an (edbPlusUntil). Les membres
+  // activés à la main par un admin n'ont pas de date de fin.
+  state.edbPlusUntil = d.edbPlusUntil || null;
+  state.edbPlusExpired = !!(d.edbPlus && d.edbPlusUntil && Date.parse(d.edbPlusUntil) < Date.now());
+  state.edbPlus = !!d.edbPlus && !state.edbPlusExpired;
   state.edbPlusRequested = !!d.edbPlusRequested;
   state.edbPlusRequestedAt = d.edbPlusRequestedAt || null;
   state.edbPlusTrialStartedAt = trialTimestampToMs(d.edbPlusTrialStartedAt);
@@ -6707,6 +6854,9 @@ async function loadAccountForClientId(id){
     if (seq!==accountLoadSeq) return;
   }
   recordTermsAcceptance(id);
+  // Retour de la page de paiement Stripe (?edbplus=merci / annule).
+  if (seq===accountLoadSeq) setTimeout(()=>{ if (clientId===id && !accountLoading) edbPlusCheckReturn(); }, 0);
+  if (state.edbPlusExpired && !/edbplus=/.test(window.location.search)) setTimeout(()=>appToast("Ton adhésion EDB+ est arrivée à échéance — renouvelle-la depuis la page EDB+ pour garder l'accès."), 1500);
   // Rattrapage : un trader qui a déjà 10 positions ou plus (tous comptes
   // confondus) reçoit le badge dès la connexion, sans attendre un nouveau trade.
   if (seq===accountLoadSeq) setTimeout(()=>{ if (clientId===id && !accountLoading) checkTradeBadges(); }, 0);
@@ -9518,6 +9668,7 @@ function saveChartInd(){ try{ localStorage.setItem(CHART_IND_KEY, JSON.stringify
 let chartPan = 0;          // nombre de bougies masquées à droite (0 = collé au direct)
 let chartHover = null;     // {x,y} en unités du viewBox, ou null
 let chartPanDrag = null;   // glissement horizontal en cours
+let chartZoomDrag = null;  // zoom libre au clic droit maintenu
 let chartView = null;      // géométrie du dernier rendu (réticule, glisser TP/SL)
 let chartYDisp = null;     // échelle des prix affichée (lissée pendant les interactions)
 const CHART_FONT = 'font-family="IBM Plex Mono,monospace"';
@@ -9737,14 +9888,15 @@ function chartRenderCandles(svg, a, m, W, H, all){
   const nAll = all.length;
   const liveRight = nAll + CHART_GAP;
   const count = Math.max(CHART_ZOOM_MIN, Math.min(chartZoomCount, Math.max(liveRight, CHART_ZOOM_MIN)));
-  chartPan = Math.max(0, Math.min(Math.max(0, liveRight-count), chartPan));
-  if (chartPan<0.02) chartPan = 0;
+  // chartPan < 0 : la dernière bougie est décalée vers la gauche (espace libre à droite).
+  chartPan = Math.max(chartMinPanFor(count), Math.min(Math.max(0, liveRight-count), chartPan));
+  if (Math.abs(chartPan)<0.02) chartPan = 0;
   const right = liveRight - chartPan, left = right - count;
   const start = Math.max(0, Math.floor(left));
   const end = Math.min(nAll, Math.ceil(right));
   const vis = all.slice(start, Math.max(start, end));
   const n = vis.length;
-  const live = chartPan===0;
+  const live = chartPan<=0;
   const tf = (m.candles && m.candles.tf) || currentTimeframe;
   const tfMs = HL_INTERVAL_MS[tf] || 60000;
   const positions = openPositionsForChart(selectedSymbol);
@@ -10153,7 +10305,7 @@ function initChartInteractions(){
       chartPanBy(vel*dt);
       if (chartPan===before && dt>0){ glideRaf = 0; return; } // butée (direct ou début de l'historique)
       vel *= Math.pow(0.94, dt/16);
-      if (Math.abs(vel) > 0.0004 && chartPan>0) glideRaf = requestAnimationFrame(step); else glideRaf = 0;
+      if (Math.abs(vel) > 0.0004) glideRaf = requestAnimationFrame(step); else glideRaf = 0;
     };
     glideRaf = requestAnimationFrame(step);
   };
@@ -10184,6 +10336,19 @@ function initChartInteractions(){
       e.preventDefault(); e.stopPropagation();
       return;
     }
+    if (e.pointerType==="mouse" && (e.button===2 || (e.button===0 && e.ctrlKey))){
+      // Clic droit maintenu + glisser : zoom libre autour du point cliqué
+      // (droite = resserrer en largeur, haut = étirer en hauteur).
+      stopGlide();
+      const p0 = toView(e);
+      if (!p0) return;
+      chartZoomDrag = {pid:e.pointerId, lx:e.clientX, ly:e.clientY, ax:p0.x, ay:p0.y};
+      try{ svg.setPointerCapture(e.pointerId); }catch(err){}
+      svg.classList.add("chart-zooming");
+      chartHover = null; chartDrawOverlay();
+      e.preventDefault();
+      return;
+    }
     if (e.pointerType==="mouse" && e.button!==0) return;
     stopGlide();
     if (e.pointerType==="touch"){
@@ -10203,6 +10368,13 @@ function initChartInteractions(){
   });
   svg.addEventListener("pointermove", (e)=>{
     if (chartLineDrag) return;
+    if (chartZoomDrag && e.pointerId===chartZoomDrag.pid){
+      const dx = e.clientX - chartZoomDrag.lx, dy = e.clientY - chartZoomDrag.ly;
+      chartZoomDrag.lx = e.clientX; chartZoomDrag.ly = e.clientY;
+      if (dx || dy) chartZoom2D(Math.exp(-dx*0.006), Math.exp(dy*0.006), chartZoomDrag.ax, chartZoomDrag.ay);
+      e.preventDefault();
+      return;
+    }
     if (touches.has(e.pointerId)) touches.set(e.pointerId, {x:e.clientX, y:e.clientY});
     if (pinch && touches.size>=2){
       const [a, b] = [...touches.values()];
@@ -10216,7 +10388,7 @@ function initChartInteractions(){
       const ym = chartPanDrag.yMan0;
       if (!chartPanDrag.moved && (ym ? Math.hypot(dx, dy) : Math.abs(dx))<5) return;
       if (!chartPanDrag.moved){ chartPanDrag.moved = true; svg.classList.add("chart-panning"); chartHover = null; chartDrawOverlay(); }
-      chartPan = Math.max(0, chartPanDrag.pan0 + dx/pxPerSlot());
+      chartPan = Math.max(chartMinPan(), chartPanDrag.pan0 + dx/pxPerSlot());
       if (ym && chartView){
         // Échelle manuelle : on déplace aussi le graphique verticalement.
         const r = svg.getBoundingClientRect();
@@ -10236,7 +10408,15 @@ function initChartInteractions(){
     if (pinch && touches.size<2){ pinch = null; chartPanDrag = null; return true; }
     return false;
   };
+  const endZoomDrag = (e)=>{
+    if (!chartZoomDrag || e.pointerId!==chartZoomDrag.pid) return false;
+    chartZoomDrag = null;
+    svg.classList.remove("chart-zooming");
+    return true;
+  };
+  svg.addEventListener("contextmenu", (e)=>{ if (effectiveChartSource()==="internal") e.preventDefault(); });
   svg.addEventListener("pointerup", (e)=>{
+    if (endZoomDrag(e)) return;
     if (endTouch(e)) return;
     if (!chartPanDrag || e.pointerId!==chartPanDrag.pid) return;
     const d = chartPanDrag;
@@ -10260,6 +10440,7 @@ function initChartInteractions(){
     chartDrawOverlay();
   });
   svg.addEventListener("pointercancel", (e)=>{
+    endZoomDrag(e);
     endTouch(e);
     if (!chartPanDrag || e.pointerId!==chartPanDrag.pid) return;
     chartPanDrag = null;
@@ -10271,6 +10452,7 @@ function initChartInteractions(){
   svg.addEventListener("dblclick", (e)=>{
     if (e.target.closest && e.target.closest("[data-tpsl-pos]")) return;
     if (chartPan) backToLive();
+    if (chartYManual) chartYReset(); // double-clic : tout revient en automatique
   });
   svg.addEventListener("wheel", stopGlide, {passive:true});
   setInterval(chartTickCountdown, 1000);
@@ -22682,6 +22864,9 @@ async function adminSetEdbPlus(id, value){
   try{
     await db.collection("traders").doc(id).update({
       edbPlus: !!value, edbPlusRequested: false,
+      // Activation manuelle : sans date de fin (une adhésion Stripe expirée
+      // ne doit pas bloquer une réactivation faite par le bureau).
+      edbPlusUntil: null,
       updatedAt: new Date().toISOString(),
     });
     if (value){
