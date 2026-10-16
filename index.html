@@ -4605,9 +4605,10 @@
   .chart-qt .qt-p{font-family:var(--mono);font-size:12.5px;font-weight:700;line-height:1.25;}
   .chart-qt .qt-sell{background:color-mix(in srgb, var(--short) 88%, black 12%);color:#fff;}
   .chart-qt .qt-buy{background:color-mix(in srgb, var(--long) 88%, black 12%);color:#03150e;align-items:flex-end;text-align:right;}
-  .chart-qt .qt-spread{display:flex;align-items:center;padding:0 7px;background:var(--panel-2);color:var(--text-faint);font-family:var(--mono);font-size:10px;border-left:1px solid var(--border);border-right:1px solid var(--border);}
+  .chart-qt .qt-spread{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0 8px;min-width:52px;background:var(--panel-2);color:var(--text);font-family:var(--mono);font-size:11px;font-weight:700;line-height:1.1;white-space:nowrap;border-left:1px solid var(--border);border-right:1px solid var(--border);}
   .chart-qt .qt-sub{display:flex;align-items:center;gap:6px;flex-wrap:wrap;pointer-events:auto;max-width:min(560px, calc(100vw - 80px));}
   .chart-qt .qt-qty{display:flex;align-items:center;border:1px solid var(--border);border-radius:7px;background:color-mix(in srgb, var(--panel) 92%, transparent);overflow:hidden;cursor:text;}
+  .chart-qt .qt-spread em{font-style:normal;font-size:8.5px;font-weight:600;color:var(--text-faint);letter-spacing:.04em;}
   .chart-qt .qt-qty:focus-within{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent);}
   .chart-qt .qt-qty input{width:74px;border:none;background:transparent;color:var(--text);font-family:var(--mono);font-size:11.5px;padding:4px 6px;outline:none;-moz-appearance:textfield;appearance:textfield;}
   .chart-qt .qt-qty input::-webkit-inner-spin-button, .chart-qt .qt-qty input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
@@ -4879,7 +4880,7 @@
               <div class="chart-qt" id="chart-qt">
                 <div class="qt-row">
                   <button type="button" class="qt-btn qt-sell" id="qt-sell" title="Short au marché avec les réglages du ticket d'ordre"><span class="qt-l">Short</span><span class="qt-p" id="qt-bid">—</span></button>
-                  <span class="qt-spread" id="qt-spread" title="Spread">—</span>
+                  <span class="qt-spread" id="qt-spread" title="Quantité de l'ordre (taille du ticket, ou celle saisie sous les boutons)"><span id="qt-size">—</span><em id="qt-size-u"></em></span>
                   <button type="button" class="qt-btn qt-buy" id="qt-buy" title="Long au marché avec les réglages du ticket d'ordre"><span class="qt-l">Long</span><span class="qt-p" id="qt-ask">—</span></button>
                 </div>
                 <div class="qt-sub">
@@ -11100,8 +11101,6 @@ function chartQtUpdate(){
   const dec = a ? a.decimals : 2;
   document.getElementById("qt-bid").textContent = ok ? chartNum(m.bid||m.last, dec) : "—";
   document.getElementById("qt-ask").textContent = ok ? chartNum(m.ask||m.last, dec) : "—";
-  const sp = ok && m.bid && m.ask ? (m.ask-m.bid) : null;
-  document.getElementById("qt-spread").textContent = sp!=null ? chartNum(sp, dec) : "—";
   // Quantité mémorisée par marché (le champ suit le marché affiché).
   const qtyEl = document.getElementById("qt-qty");
   if (qtyEl && qtQtySym!==selectedSymbol){
@@ -11112,6 +11111,13 @@ function chartQtUpdate(){
   if (unitEl && a) unitEl.textContent = a.symbol;
   const meta = document.getElementById("qt-meta");
   const qty = chartQtyValue();
+  // Au centre : la quantité qui partira au clic — celle saisie ici, sinon celle
+  // du ticket (marge × levier ÷ prix), recalculée à chaque changement du ticket.
+  const tkUnits = ok && m.last>0 ? currentSizeInputToNotional(m.last)/m.last : 0;
+  const shown = qty || (tkUnits>0 ? tkUnits : null);
+  const szEl = document.getElementById("qt-size"), szU = document.getElementById("qt-size-u");
+  if (szEl) szEl.textContent = ok && shown ? fmtUnits(shown) : "—";
+  if (szU) szU.textContent = ok && shown && a ? a.symbol : "";
   if (qty && ok){
     const plan = chartQtyPlan(qty, m.ask||m.last, TAKER_FEE_RATE);
     meta.textContent = chartQtyPlanText(plan, a.symbol);
@@ -11730,6 +11736,7 @@ function tkLevRisk(lev){
   if (blk) blk.dataset.risk = lvl[0];
 }
 function updateOrderReadout(){
+  if (typeof chartQtUpdate==="function") chartQtUpdate(); // quantité au centre de Short / Long
   const a = ASSETS.find(x=>x.symbol===selectedSymbol);
   const btn = document.getElementById("submit-order");
   const msg = document.getElementById("ticket-msg");
