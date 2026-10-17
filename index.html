@@ -10284,8 +10284,16 @@ function tpSlRefPrice(p){
   const x = (typeof exitFill==="function") ? exitFill(p.symbol, p.side) : null;
   return (x!=null && isFinite(x) && x>0) ? x : p.entryPrice;
 }
-function clampTpSlPrice(price, leg, side, refPrice){
-  const eps = Math.max(refPrice*0.0005, 0.0001);
+// Écart minimal avec le prix actuel : un seul pas de cotation de l'actif
+// (ex. 0,01 $ sur BTC), plus 0,05 % du prix comme avant (≈ 40 $ sur BTC,
+// ce qui bloquait la ligne loin du prix).
+function tpSlTick(sym, refPrice){
+  const a = (typeof ASSETS!=="undefined") ? ASSETS.find(x=>x.symbol===sym) : null;
+  const d = a && isFinite(a.decimals) ? a.decimals : null;
+  return d!=null ? Math.pow(10, -d) : Math.max(refPrice*1e-6, 1e-8);
+}
+function clampTpSlPrice(price, leg, side, refPrice, tick){
+  const eps = tick>0 ? tick : Math.max(refPrice*1e-6, 1e-8);
   const aboveOnly = (leg==="tp") === (side==="long"); // tp+long or sl+short => must be ABOVE the market
   return aboveOnly ? Math.max(price, refPrice+eps) : Math.min(price, refPrice-eps);
 }
@@ -10318,7 +10326,8 @@ function initChartLineDrag(){
     if (!p){ chartLineDrag = null; return; }
     const raw = chartPriceFromClientY(e.clientY, svg);
     if (raw==null) return;
-    const price = clampTpSlPrice(raw, chartLineDrag.leg, p.side, tpSlRefPrice(p));
+    const ref = tpSlRefPrice(p);
+    const price = clampTpSlPrice(raw, chartLineDrag.leg, p.side, ref, tpSlTick(p.symbol, ref));
     chartLineDrag.price = price;
     // If the drag has gone beyond what's currently drawn (chartScale's
     // min/max — no longer pixel-clamped in chartPriceFromClientY, see
@@ -20697,7 +20706,7 @@ function rpPriceAtY(yPix){
 }
 function rpYAt(price){ const v = rp.view; return v.padT + (1-(price-v.lo)/(v.hi-v.lo))*(v.H-v.padT-v.padB); }
 function rpClampLeg(leg, price){
-  const p = rp.pos, ref = rpPrice(), eps = ref*0.0005;
+  const p = rp.pos, ref = rpPrice(), eps = (rp.dec!=null && isFinite(rp.dec)) ? Math.pow(10, -rp.dec) : ref*1e-6; // un pas de cotation, pas 0,05 %
   const above = (leg==="tp") === (p.side==="long");
   return above ? Math.max(price, ref+eps) : Math.min(price, ref-eps);
 }
