@@ -4963,7 +4963,7 @@
                 <button type="button" data-draw-tool="hseg" title="Segment horizontal — clic sur le début puis la fin (reste parfaitement horizontal)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><circle cx="5" cy="12" r="1.9" fill="currentColor"/><circle cx="19" cy="12" r="1.9" fill="currentColor"/></svg></button>
                 <button type="button" data-draw-tool="vline" title="Ligne verticale — un clic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="3" x2="12" y2="21"/></svg></button>
                 <button type="button" data-draw-tool="rect" title="Rectangle — clic sur 2 coins opposés (toujours droit)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="4" y="6" width="16" height="12" rx="1" fill="currentColor" fill-opacity=".25"/></svg></button>
-                <button type="button" data-draw-tool="fib" title="Fibonacci (0, 1 et golden zone 0.618 – 0.65) — clic sur 2 points"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="5" x2="21" y2="5"/><line x1="3" y1="19" x2="21" y2="19"/><rect x="3" y="10" width="18" height="3" fill="currentColor" fill-opacity=".35" stroke="none"/></svg></button>
+                <button type="button" data-draw-tool="fib" title="Fibonacci (0, 1 et golden zone 0.618 – 0.786) — clic sur 2 points"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="5" x2="21" y2="5"/><line x1="3" y1="19" x2="21" y2="19"/><rect x="3" y="10" width="18" height="3" fill="currentColor" fill-opacity=".35" stroke="none"/></svg></button>
                 <button type="button" id="chart-draw-del" class="draw-del" title="Effacer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></svg></button>
               </div>
               <div class="chart-ind" id="chart-ind">
@@ -4975,6 +4975,7 @@
                   <label><input type="checkbox" data-chart-ind="ema200"><i style="background:#c77dff"></i>Moyenne mobile 200 (MME)</label>
                   <label><input type="checkbox" data-chart-ind="bb"><i style="background:#8fa3b8"></i>Bandes de Bollinger (20, 2)</label>
                   <label><input type="checkbox" data-chart-ind="vwap"><i style="background:#ff8a3d"></i>VWAP (séance)</label>
+                  <label><input type="checkbox" data-chart-ind="vwapw"><i style="background:#e879f9"></i>VWAP hebdo (depuis lundi)</label>
                   <div class="chart-ind-sep">Sous le graphique</div>
                   <label><input type="checkbox" data-chart-ind="rsi"><i style="background:#b388ff"></i>RSI 14</label>
                   <label><input type="checkbox" data-chart-ind="macd"><i style="background:linear-gradient(90deg,#5aa9e6 50%,#f2b33d 50%)"></i>MACD (12, 26, 9)</label>
@@ -10506,12 +10507,13 @@ const TA = {
     const hist = line.map((v,i)=>v!=null && signal[i]!=null ? v-signal[i] : null);
     return {line, signal, hist};
   },
-  // VWAP de séance : remis à zéro chaque jour à minuit UTC.
-  vwap(hi, lo, cl, vol, ts){
+  // VWAP de séance : remis à zéro chaque jour à minuit UTC ; weekly = chaque
+  // lundi 00:00 UTC (le jour 0 de l'époque Unix est un jeudi, d'où le +3).
+  vwap(hi, lo, cl, vol, ts, weekly){
     const out = new Array(cl.length).fill(null);
     let day = null, pv = 0, vv = 0;
     for (let i=0;i<cl.length;i++){
-      const d = Math.floor((ts[i]||0)/86400000);
+      const dd = Math.floor((ts[i]||0)/86400000), d = weekly ? Math.floor((dd+3)/7) : dd;
       if (d!==day){ day = d; pv = 0; vv = 0; }
       const v = vol[i]||0, tp = (hi[i]+lo[i]+cl[i])/3;
       pv += tp*v; vv += v;
@@ -10520,11 +10522,11 @@ const TA = {
     return out;
   },
 };
-const TA_COLORS = {ema20:"#f2b33d", ema50:"#5aa9e6", ema200:"#c77dff", bb:"#8fa3b8", vwap:"#ff8a3d", rsi:"#b388ff", macd:"#5aa9e6", signal:"#f2b33d"};
+const TA_COLORS = {ema20:"#f2b33d", ema50:"#5aa9e6", ema200:"#c77dff", bb:"#8fa3b8", vwap:"#ff8a3d", vwapw:"#e879f9", rsi:"#b388ff", macd:"#5aa9e6", signal:"#f2b33d"};
 const CHART_IND_KEY = "paperTapeChartInd";
 const CHART_EMA = {ema20:{p:20, color:"#f2b33d", label:"MME 20"}, ema50:{p:50, color:"#5aa9e6", label:"MME 50"}, ema200:{p:200, color:"#c77dff", label:"MME 200"}};
 let chartInd = (function(){
-  const d = {vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, rsi:false, macd:false, trades:true, qt:true};
+  const d = {vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, rsi:false, macd:false, trades:true, qt:true};
   try{
     const s = JSON.parse(localStorage.getItem(CHART_IND_KEY)||"null");
     if (s && typeof s==="object") Object.keys(d).forEach(k=>{ if (typeof s[k]==="boolean") d[k]=s[k]; });
@@ -10923,7 +10925,8 @@ function chartRenderCandles(svg, a, m, W, H, all){
   });
   // Bollinger, VWAP (sur le prix) + RSI / MACD (panneaux sous le graphique)
   let over = "", paneSvg = "";
-  const needCl = chartInd.bb || chartInd.vwap || panes.length;
+  const needCl = chartInd.bb || chartInd.vwap || chartInd.vwapw || panes.length;
+  let indTags = ""; // étiquettes « nom + valeur » sur l'axe des prix (VWAP…)
   const cl = needCl ? all.map(c=>c.c) : null;
   const pathOf = (arr, yf)=>{ let d = ""; vis.forEach((c,i)=>{ const v = arr[start+i]; if (v==null) return; d += (d?"L":"M")+xAt(i).toFixed(1)+","+yf(v).toFixed(1); }); return d; };
   if (chartInd.bb){
@@ -10938,6 +10941,12 @@ function chartRenderCandles(svg, a, m, W, H, all){
   if (chartInd.vwap){
     const vw = TA.vwap(all.map(c=>c.h), all.map(c=>c.l), cl, all.map(c=>c.v||0), all.map(c=>c.ms||0)); g.vwap = vw;
     const d = pathOf(vw, y); if (d) over += '<path d="'+d+'" fill="none" stroke="'+TA_COLORS.vwap+'" stroke-width="1.4" opacity="0.9"/>';
+    const lv = vw[start+n-1]; if (lv!=null) indTags += chartAxisLabel(g, y(lv), "VWAP", chartNum(lv, dec), TA_COLORS.vwap);
+  }
+  if (chartInd.vwapw){
+    const vw = TA.vwap(all.map(c=>c.h), all.map(c=>c.l), cl, all.map(c=>c.v||0), all.map(c=>c.ms||0), true); g.vwapw = vw;
+    const d = pathOf(vw, y); if (d) over += '<path d="'+d+'" fill="none" stroke="'+TA_COLORS.vwapw+'" stroke-width="1.4" opacity="0.9"/>';
+    const lv = vw[start+n-1]; if (lv!=null) indTags += chartAxisLabel(g, y(lv), "VWAP W", chartNum(lv, dec), TA_COLORS.vwapw);
   }
   panes.forEach((k, j)=>{
     const top = H - padB + j*paneH + 6, bot = top + paneH - 10;
@@ -11019,12 +11028,29 @@ function chartRenderCandles(svg, a, m, W, H, all){
   svg.innerHTML = clip+grid+'<g clip-path="url(#chart-plot-clip)">'+vol+over+bars+emas+marks+'</g>'+paneSvg+axis+
     '<g id="chart-draw">'+chartDrawingsHtml(g)+'</g>'+
     '<g id="chart-levels">'+positionLinesHtml(g, positions, pending)+'</g>'+
-    lastTag+liveBtn+yAuto+'<g id="chart-legend" pointer-events="none"></g><g id="chart-xh" pointer-events="none"></g>';
+    '<g pointer-events="none">'+indTags+'</g>'+lastTag+liveBtn+yAuto+'<g id="chart-legend" pointer-events="none"></g><g id="chart-xh" pointer-events="none"></g>';
   chartDrawOverlay();
   chartQtUpdate();
 }
 // Réticule (souris, ou appui sur mobile) + légende OHLC en haut à gauche.
 // Redessiné seul au survol, sans reconstruire le graphique.
+// Étiquette d'axe façon TradingView : nom (à gauche de l'axe, dans le
+// graphique) + valeur (sur l'axe), aux couleurs de l'indicateur / du dessin.
+function chartInkOn(hex){
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex||""); if (!m) return "#fff";
+  const n = parseInt(m[1], 16), r = n>>16, g = (n>>8)&255, b = n&255;
+  return (0.299*r + 0.587*g + 0.114*b) > 165 ? "#111" : "#fff";
+}
+function chartAxisLabel(g, yy, name, val, col){
+  const T = g.padT, B = g.H-g.padB, R = g.W-g.padR;
+  if (!(yy>=T-1 && yy<=B+1)) return "";
+  const ink = chartInkOn(col), f = v=>v.toFixed(1);
+  const nw = Math.round(chartTextW(name, 10)) + 10, vw = Math.max(g.padR-3, Math.round(chartTextW(val, 10)) + 10);
+  return '<g><rect x="'+f(R-nw-1)+'" y="'+f(yy-8)+'" width="'+nw+'" height="16" rx="3" fill="'+col+'" fill-opacity="0.82"/>'+
+    '<text x="'+f(R-nw/2-1)+'" y="'+f(yy+3.5)+'" text-anchor="middle" fill="'+ink+'" font-size="10" font-weight="700" '+CHART_FONT+'>'+name+'</text>'+
+    '<rect x="'+f(R+1)+'" y="'+f(yy-8)+'" width="'+vw+'" height="16" rx="3" fill="'+col+'"/>'+
+    '<text x="'+f(R+6)+'" y="'+f(yy+3.5)+'" fill="'+ink+'" font-size="10" font-weight="700" '+CHART_FONT+'>'+val+'</text></g>';
+}
 function chartDrawOverlay(){
   const v = chartView;
   const lg = document.getElementById("chart-legend"), xh = document.getElementById("chart-xh");
@@ -11087,6 +11113,7 @@ function chartDrawOverlay(){
   });
   if (v.bb && v.bb.mid[v.start+i]!=null) items.push([TA_COLORS.bb, 'BB '+f(v.bb.lo[v.start+i])+' – '+f(v.bb.up[v.start+i])]);
   if (v.vwap && v.vwap[v.start+i]!=null) items.push([TA_COLORS.vwap, 'VWAP '+f(v.vwap[v.start+i])]);
+  if (v.vwapw && v.vwapw[v.start+i]!=null) items.push([TA_COLORS.vwapw, 'VWAP W '+f(v.vwapw[v.start+i])]);
   // Plusieurs lignes si besoin, pour ne rien couper sur les petits écrans.
   let cur = "", curW = 0;
   const maxW = v.W - v.padR - 12;
@@ -11581,7 +11608,7 @@ function initChartInteractions(){
 }
 /* ============================= DESSINS SUR LE GRAPHIQUE INTERNE =============================
    Outils façon TradingView : ligne de tendance, ligne horizontale, ligne
-   verticale et Fibonacci (niveaux 0 et 1 + golden zone 0,618 – 0,65).
+   verticale et Fibonacci (niveaux 0 et 1 + golden zone 0,618 – 0,786).
    - Les points sont stockés en (heure, prix) : un dessin reste au bon endroit
      quelle que soit l'unité de temps, le zoom ou le défilement. L'heure est
      calée sur la bougie la plus proche.
@@ -11594,7 +11621,7 @@ function initChartInteractions(){
      l'effacer ; Échap pour annuler. */
 const CHART_DRAW_KEY = "paperTapeDrawings";
 const DRAW_COL = "#4f8dff", DRAW_FIB = "#9aa4b2", DRAW_GOLD = "#f2b33d";
-const DRAW_GOLDEN = [0.618, 0.65];
+const DRAW_GOLDEN = [0.618, 0.786];
 let chartDrawings = (function(){ try{ const v = JSON.parse(localStorage.getItem(CHART_DRAW_KEY)||"{}"); return (v && typeof v==="object") ? v : {}; }catch(e){ return {}; } })();
 let drawTool = null;      // null | "trend" | "hline" | "hseg" | "vline" | "rect" | "fib"
 let drawSel = null;       // id du dessin sélectionné
@@ -11712,9 +11739,11 @@ function chartDrawingsHtml(g){
       const lab = (l, txt, col)=>{ const yy = yl(l); return '<text x="'+f(x1+4)+'" y="'+f(yy-4)+'" fill="'+col+'" font-size="10" '+CHART_FONT+' pointer-events="none">'+txt+' ('+chartNum(drawFibLevel(d, l), g.dec)+')</text>'; };
       s += lab(1, "1", C) + lab(0, "0", C);
       const top = Math.min(yG1, yG2);
-      s += '<text x="'+f(x2-4)+'" y="'+f(top-4)+'" text-anchor="end" fill="'+Z+'" font-size="10" font-weight="700" '+CHART_FONT+' pointer-events="none">Golden zone 0.618 – 0.65</text>';
+      s += '<text x="'+f(x2-4)+'" y="'+f(top-4)+'" text-anchor="end" fill="'+Z+'" font-size="10" font-weight="700" '+CHART_FONT+' pointer-events="none">Golden zone 0.618 – 0.786</text>';
       s += '<rect x="'+f(x1)+'" y="'+f(Math.min(yG1,yG2))+'" width="'+f(x2-x1)+'" height="'+f(Math.max(6, Math.abs(yG2-yG1)))+'" fill="transparent" pointer-events="all"/>';
       if (sel && d.id!=="__pending") s += handle(d, 0, xa, yl(1)) + handle(d, 1, xb, yl(0));
+      // Prix des deux bornes de la golden zone sur l'axe (comme TradingView).
+      DRAW_GOLDEN.forEach(l=>{ tags += '<g pointer-events="none">'+chartAxisLabel(g, yl(l), String(l), chartNum(drawFibLevel(d, l), g.dec), Z)+'</g>'; });
       s += '</g>';
       lines += s;
     }
