@@ -3231,7 +3231,10 @@
   .dd-score-txt h2{font-size:26px;letter-spacing:-.02em;margin:0;}
   .dd-score-txt p{margin:0;color:var(--text-dim);font-size:14.5px;}
   .dd-score-txt p b{color:var(--text);}
-  .dd-emoji{font-size:24px;letter-spacing:4px;}
+  .dd-emoji{display:flex;gap:6px;flex-wrap:wrap;}
+  .dd-mark{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;font-style:normal;font-family:var(--sans);font-size:15px;font-weight:800;line-height:1;}
+  .dd-mark.ok{background:color-mix(in srgb, var(--long) 18%, transparent);color:var(--long);box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--long) 45%, transparent);}
+  .dd-mark.ko{background:color-mix(in srgb, var(--short) 16%, transparent);color:var(--short);box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--short) 40%, transparent);}
   .dd-result-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
   .dd-result-actions .dd-note{margin:0;}
   .dd-recap{display:flex;flex-direction:column;border-top:1px solid var(--border-soft);}
@@ -7813,7 +7816,9 @@ function renderSavePill(){
   const el = document.getElementById("save-pill");
   if (!el) return;
   const slow = saveState==="saving" && saveSavingSince && Date.now()-saveSavingSince > 6000;
-  const st = saveState==="error" ? "error" : slow ? "slow" : saveState;
+  let st = saveState==="error" ? "error" : slow ? "slow" : saveState;
+  // Réponses du Défi du jour pas encore arrivées au serveur.
+  if (st==="saved" && typeof dailyUnsynced==="function" && dailyUnsynced()) st = dailySync.err ? "error" : "saving";
   el.dataset.state = st;
   el.dataset.icon = st==="saved" ? "✓" : st==="saving" ? "…" : st==="slow" ? "⏳" : "⚠";
   el.textContent = st==="saved" ? "✓ Enregistré" : st==="saving" ? "Enregistrement…" : st==="slow" ? "⏳ En attente de connexion…" : "⚠ Non enregistré · réessayer";
@@ -7831,7 +7836,7 @@ function scheduleSaveRetry(){
 }
 function initSaveStatus(){
   const el = document.getElementById("save-pill");
-  if (el) el.addEventListener("click", ()=>{ saveRetryDelay = 3000; persistAccount(); flushPersist(); });
+  if (el) el.addEventListener("click", ()=>{ saveRetryDelay = 3000; persistAccount(); flushPersist(); if (typeof dailyFlush==="function"){ dailySync.delay = 3000; dailyFlush(); } });
   renderSavePill();
   // Filet de sécurité : toute modification de trading pas encore envoyée
   // (quel que soit le chemin qui l'a produite) part dans les 4 s.
@@ -7842,13 +7847,10 @@ function initSaveStatus(){
     if (tradingUnsaved()){ persistAccount(); flushPersist(); }
     else if (saveState!=="saved") setSaveState("saved");
   }, 4000);
-  window.addEventListener("beforeunload", (e)=>{
-    if (saveState==="saving" || saveState==="error" || tradingUnsaved()){
-      if (persistPendingRun) flushPersist(true);
-      e.preventDefault();
-      e.returnValue = "";
-      return "";
-    }
+  // Plus de fenêtre « Quitter la page ? » : on tente juste un dernier envoi.
+  // L'état de la sauvegarde reste visible dans la pastille du haut.
+  window.addEventListener("beforeunload", ()=>{
+    if (persistPendingRun) flushPersist(true);
   });
 }
 // Whether this trader's Firestore doc is known to exist. Once it does,
@@ -21235,6 +21237,7 @@ async function renderDaily(){
     try{
       const [ps, ss] = await Promise.all([dailyPlayRef(today).get(), dailyStatsRef().get()]);
       D.play = ps.exists ? ps.data() : null;
+      D.srvN = D.play ? (D.play.answers||[]).length : 0;
       D.stats = ss.exists ? ss.data() : null;
       D.phase = D.play && D.play.status==="done" ? "done" : "intro";
       if (D.phase==="done") dailyMarkDone(today);
@@ -21406,7 +21409,10 @@ function dailyIntroSvg(){
       '<path class="dd-harr down" d="M'+((zx+W)/2)+' '+(H-46)+' l16 -20 h-10 v-14 h-12 v14 h-10z"/></g>'+
   '</svg>';
 }
-function dailyEmojiRow(answers){ return (answers||[]).map(a=>a.ok?"🟩":"🟥").join(""); }
+// Résultat de la partie : pastilles ✓ / ✕ dessinées en CSS (pas d'emoji,
+// dont le rendu change d'un appareil à l'autre). Texte à partager : ✓ / ✗.
+function dailyEmojiRow(answers){ return (answers||[]).map(a=>a.ok?"✓":"✗").join(" "); }
+function dailyMarksHtml(answers){ return (answers||[]).map(a=>'<i class="dd-mark '+(a.ok?"ok":"ko")+'" aria-label="'+(a.ok?"bonne réponse":"mauvaise réponse")+'">'+(a.ok?"✓":"✕")+'</i>').join(""); }
 function dailyResultHtml(){
   const P = D.practice;
   if (P && P.infinite){
@@ -21441,7 +21447,7 @@ function dailyResultHtml(){
       '<div class="dd-score-big"><b>'+play.correct+'</b><span>/ '+DAILY_ROUNDS+'</span></div>'+
       '<div class="dd-score-txt"><span class="dd-kicker">'+(P?'Entraînement · '+dailyEsc(dailyDayLabel(P.day,{weekday:undefined})):'Résultat du jour')+'</span><h2>'+msg+'</h2>'+
         '<p><b class="num">'+(play.points||0).toLocaleString("fr-FR")+'</b> points'+(rank>=0?' · <b>'+(rank+1)+'<sup>'+(rank===0?'er':'e')+'</sup></b> du jour':'')+(!P && streak>0?' · 🔥 '+streak+' jour'+(streak>1?'s':'')+' de suite':'')+'</p>'+
-        '<div class="dd-emoji">'+dailyEmojiRow(ans)+'</div></div>'+
+        '<div class="dd-emoji">'+dailyMarksHtml(ans)+'</div></div>'+
     '</div>'+
     '<div class="dd-result-actions">'+
       (P ? '<button class="pw-btn pw-btn-ghost" data-dd="back">← Revenir au défi du jour</button>'
@@ -21489,11 +21495,11 @@ async function dailyStart(){
       const doc = {uid:clientId, username:state.username||"Trader", photoURL:state.photoURL||null, day:D.day, status:"started", answers:[], correct:0, points:0,
         startedAt:firebase.firestore.FieldValue.serverTimestamp()};
       await dailyPlayRef(D.day).set(doc);
-      D.play = doc;
+      D.play = doc; D.srvN = 0;
     }
   }catch(e){
     console.warn("daily start", e);
-    try{ const s = await dailyPlayRef(D.day).get(); if (s.exists) D.play = s.data(); }catch(e2){}
+    try{ const s = await dailyPlayRef(D.day).get(); if (s.exists){ D.play = s.data(); D.srvN = (D.play.answers||[]).length; } }catch(e2){}
     if (!D.play){ appToast("Impossible d'enregistrer ta partie (connexion ?). Réessaie dans un instant."); D.phase = "intro"; dailyRenderMain(); return; }
   }
   D.practice = null;
@@ -21556,10 +21562,8 @@ function dailyAnswer(choice){
   else {
     const answers = (D.play.answers||[]).concat([rec]);
     const done = answers.length>=DAILY_ROUNDS;
-    const patch = {answers, points:(D.play.points||0)+pts, correct:(D.play.correct||0)+(ok?1:0), status: done ? "done" : "started"};
-    if (done) patch.finishedAt = firebase.firestore.FieldValue.serverTimestamp();
-    Object.assign(D.play, patch);
-    dailyPlayRef(D.day).update(patch).catch(e=>{ console.warn("daily answer", e); appToast("Réponse non enregistrée (connexion ?). Elle sera perdue si tu quittes la page."); });
+    Object.assign(D.play, {answers, points:(D.play.points||0)+pts, correct:(D.play.correct||0)+(ok?1:0), status: done ? "done" : "started"});
+    dailyFlush(); // envoi + nouvel essai automatique ; l'état s'affiche dans la pastille du haut
     if (done) dailyFinish();
   }
   // Révélation animée des bougies suivantes (toujours sur le graphique détaillé).
@@ -21611,6 +21615,44 @@ async function dailyNext(){
     return;
   }
   dailyShowRound();
+}
+// ---------- Enregistrement des réponses (sans pop-up) ----------
+// Chaque réponse part au serveur, une par une (les règles Firestore exigent
+// +1 réponse par écriture). Si une écriture échoue (connexion), on relit le
+// serveur pour savoir où il en est et on renvoie les réponses manquantes,
+// avec de nouveaux essais automatiques (3 s, 6 s… jusqu'à 30 s). Avant, un
+// seul échec faisait refuser toutes les réponses suivantes : la partie
+// restait « en cours » côté serveur et n'apparaissait pas au classement.
+// L'état est montré par la pastille « Enregistré » en haut de l'écran.
+const dailySync = {busy:false, err:false, timer:null, delay:3000};
+function dailyUnsynced(){ return !!(D.play && typeof D.srvN==="number" && D.srvN < (D.play.answers||[]).length); }
+async function dailyFlush(){
+  clearTimeout(dailySync.timer); dailySync.timer = null;
+  if (dailySync.busy || !dailyUnsynced() || !db || !clientId) { renderSavePill(); return; }
+  dailySync.busy = true; renderSavePill();
+  const play = D.play, day = play.day || D.day, ref = dailyPlayRef(day);
+  try{
+    while (D.play===play && D.srvN < play.answers.length){
+      const n = D.srvN + 1, ans = play.answers.slice(0, n).map(a=>({a:a.a, ok:!!a.ok, pts:Math.round(a.pts||0)}));
+      const patch = {answers:ans, points:ans.reduce((t,a)=>t+a.pts,0), correct:ans.filter(a=>a.ok).length, status: n>=DAILY_ROUNDS ? "done" : "started"};
+      if (n>=DAILY_ROUNDS) patch.finishedAt = firebase.firestore.FieldValue.serverTimestamp();
+      await ref.update(patch);
+      D.srvN = n;
+    }
+    dailySync.err = false; dailySync.delay = 3000;
+    if (D.play===play && play.status==="done" && D.day===day) dailyLoadBoards();
+  }catch(e){
+    console.warn("daily answer", e);
+    try{
+      const snap = await ref.get();
+      if (snap.exists && D.play===play){ const k = (snap.data().answers||[]).length; if (k<=play.answers.length) D.srvN = k; }
+    }catch(e2){}
+    dailySync.err = true;
+    dailySync.timer = setTimeout(dailyFlush, dailySync.delay);
+    dailySync.delay = Math.min(30000, dailySync.delay*2);
+  }
+  dailySync.busy = false;
+  renderSavePill();
 }
 async function dailyFinish(){
   const today = D.day;
@@ -24280,10 +24322,34 @@ function setWheelActiveWidget(el){
   document.querySelectorAll(".card.widget.is-wheel-active").forEach(w=>{ if (w!==el) w.classList.remove("is-wheel-active"); });
   if (el) el.classList.add("is-wheel-active");
 }
+// Un widget ne s'active (molette = son contenu / zoom du graphique) que si on
+// clique DANS la zone qui défile ou zoome : le tracé du graphique, ou une
+// liste qui a vraiment quelque chose à faire défiler. Un clic sur un bouton
+// (Long / Short, ticket…), un champ, l'en-tête ou une poignée de taille ne
+// l'active plus : avant, après avoir agrandi un widget ou cliqué un bouton,
+// la molette restait « capturée » par ce widget et la page ne descendait plus.
+function wzActivationTarget(target, el){
+  if (!target || !target.closest) return false;
+  if (target.closest(".wz-grip, .widget-head, button, input, select, textarea, a, label, .chart-head, .chart-controls")) return false;
+  if (el.dataset.widget==="chart") return !!target.closest("#chart-svg, #chart-yaxis-grab");
+  return wzHasScrollableBetween(target, el);
+}
+// Le contenu sous le curseur peut-il encore défiler dans ce sens ?
+function wzCanScrollDir(node, stop, dy){
+  for (let n = node; n && n!==stop.parentElement; n = n.parentElement){
+    if (n.nodeType!==1) continue;
+    const oy = getComputedStyle(n).overflowY;
+    if ((oy==="auto" || oy==="scroll") && n.scrollHeight > n.clientHeight + 1){
+      if (dy>0 ? n.scrollTop + n.clientHeight < n.scrollHeight - 1 : n.scrollTop > 0) return true;
+    }
+    if (n===stop) break;
+  }
+  return false;
+}
 function initWidgetWheel(){
   document.addEventListener("pointerdown", (e)=>{
     const el = e.target.closest && e.target.closest(".card.widget");
-    setWheelActiveWidget(el || null);
+    setWheelActiveWidget(el && wzActivationTarget(e.target, el) ? el : null);
   }, true);
   document.querySelectorAll(".card.widget").forEach(el=>{
     el.addEventListener("pointerleave", ()=>el.classList.remove("is-wheel-active"));
@@ -24291,8 +24357,18 @@ function initWidgetWheel(){
   document.addEventListener("wheel", (e)=>{
     if (e.ctrlKey || e.defaultPrevented) return;
     const el = e.target.closest && e.target.closest(".card.widget");
-    if (!el || el.classList.contains("is-wheel-active")) return;
+    if (!el) return;
     if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; // défilement horizontal (tableaux) : on laisse faire
+    if (el.classList.contains("is-wheel-active")){
+      // Widget activé : sa liste défile ; arrivée en butée, la page prend
+      // le relais tout de suite (sinon le navigateur reste « accroché » à la
+      // liste pendant tout le geste du trackpad et la page semble bloquée).
+      if (el.dataset.widget==="chart" && e.target.closest && e.target.closest("#chart-svg, #chart-yaxis-grab")) return; // zoom / échelle du graphique
+      if (wzCanScrollDir(e.target, el, e.deltaY)) return;
+      e.preventDefault();
+      window.scrollBy(0, wzWheelDelta(e));
+      return;
+    }
     if (!wzHasScrollableBetween(e.target, el)) return;     // rien à défiler dans le widget : la page défile d'elle-même
     e.preventDefault();
     window.scrollBy(0, wzWheelDelta(e));
