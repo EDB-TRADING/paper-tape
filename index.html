@@ -3910,6 +3910,16 @@
      retrouvait décalée de 14 px par rapport aux autres. */
   .widget-col{gap:14px;}
   .widget-col > .card.widget{margin-top:0 !important;}
+  /* Les 3 colonnes finissent sur la même ligne : sur grand écran, le dernier
+     widget de chaque colonne (sans hauteur choisie à la main) s'étire jusqu'au
+     bas de la colonne la plus haute. Marchés en profite pour montrer plus de
+     marchés (la liste remplit la place au lieu de s'arrêter à 420 px). */
+  @media (min-width:1081px){
+    .terminal-grid{align-items:stretch;}
+    .widget-col > .card.widget.wz-fill{flex:1 1 auto;}
+    .card.widget.wz-fill[data-widget="watchlist"] > .widget-body{display:flex;flex-direction:column;min-height:0;}
+    .card.widget.wz-fill[data-widget="watchlist"] .watchlist{flex:1 1 0;max-height:none;min-height:180px;}
+  }
   .card.widget{display:flex;flex-direction:column;}
   .card.widget[hidden]{display:none !important;}
   .card.widget > .widget-head{flex:none;}
@@ -11997,6 +12007,64 @@ function chartFsSet(on){
   const b = document.getElementById("chart-fs-btn");
   if (b){ b.setAttribute("aria-pressed", chartFs ? "true" : "false"); b.title = chartFs ? "Quitter le plein écran (Échap)" : "Plein écran"; b.setAttribute("aria-label", b.title); }
   requestAnimationFrame(()=>{ try{ updateChart(); }catch(e){} });
+}
+// ---- Bas de page stable ----
+// Quand on est tout en bas d'une page, un widget qui rapetisse un instant
+// (carnet d'ordres avec moins de niveaux, liste rechargée, graphique
+// redessiné…) faisait raccourcir la page : le navigateur remontait alors le
+// défilement, et la page « revenait en arrière » à chaque mise à jour.
+// Tant qu'on est en bas, la hauteur de <main> ne peut plus diminuer ; le
+// verrou saute dès qu'on remonte un peu ou qu'on change de page.
+function initBottomLock(){
+  const main = document.querySelector("main");
+  if (!main) return;
+  let lockH = 0, lockView = null;
+  const release = ()=>{ if (lockH){ lockH = 0; main.style.minHeight = ""; } };
+  const check = ()=>{
+    const se = document.scrollingElement || document.documentElement;
+    const view = document.body.dataset.view;
+    if (lockH && view!==lockView){ release(); }
+    const fromBottom = se.scrollHeight - (window.scrollY + window.innerHeight);
+    if (window.scrollY > 0 && fromBottom < 160){
+      const h = main.offsetHeight;
+      if (h > lockH){ lockH = h; lockView = view; main.style.minHeight = h+"px"; }
+    } else if (fromBottom > 320) release();
+  };
+  window.addEventListener("scroll", check, {passive:true});
+  window.addEventListener("resize", ()=>{ release(); check(); });
+  if (window.ResizeObserver) new ResizeObserver(()=>{ if (lockH) check(); }).observe(main);
+}
+// Le dernier widget visible de chaque colonne reçoit .wz-fill (voir CSS) :
+// les colonnes se terminent toutes à la même hauteur. Recalculé dès qu'un
+// widget est déplacé, masqué, libéré ou redimensionné à la main.
+function markColumnFill(){
+  const wide = isWideTerminal();
+  document.querySelectorAll(".terminal-grid .widget-col").forEach(col=>{
+    const ws = Array.from(col.children).filter(el=>el.classList && el.classList.contains("widget"));
+    const vis = ws.filter(el=>!el.hidden && !el.classList.contains("is-free") && getComputedStyle(el).display!=="none");
+    const last = vis[vis.length-1] || null;
+    ws.forEach(el=>{
+      const on = wide && el===last && !el.classList.contains("has-h");
+      if (el.classList.contains("wz-fill")!==on) el.classList.toggle("wz-fill", on);
+    });
+  });
+}
+function initColumnFill(){
+  const grid = document.querySelector(".terminal-grid");
+  if (!grid) return;
+  let raf = 0;
+  const run = ()=>{ cancelAnimationFrame(raf); raf = requestAnimationFrame(markColumnFill); };
+  new MutationObserver(muts=>{
+    // Seuls comptent les colonnes et les widgets eux-mêmes (pas le contenu
+    // des widgets, redessiné en permanence : graphique, prix…).
+    muts = muts.filter(m=>{ const t = m.target; return t && t.classList && (t.classList.contains("widget-col") || t.classList.contains("widget") || t.id==="widget-free-layer" || t.classList.contains("terminal-grid")); });
+    if (!muts.length) return;
+    const strip = v=>String(v||"").replace(/\s*wz-fill\b/g,"").trim();
+    if (muts.every(m=>m.type==="attributes" && m.attributeName==="class" && strip(m.oldValue)===strip(m.target.getAttribute && m.target.getAttribute("class")))) return; // nos propres changements
+    run();
+  }).observe(grid, {childList:true, subtree:true, attributes:true, attributeFilter:["hidden","class"], attributeOldValue:true});
+  window.addEventListener("resize", run);
+  markColumnFill();
 }
 function initChartFullscreen(){
   const b = document.getElementById("chart-fs-btn");
@@ -26779,6 +26847,8 @@ async function init(){
   initChartInteractions();
   initChartDrawing();
   initChartFullscreen();
+  initBottomLock();
+  initColumnFill();
   initChartIndicators();
   initChartTrading();
   initSaveStatus();
