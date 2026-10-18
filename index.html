@@ -7818,13 +7818,15 @@ function renderSavePill(){
   const slow = saveState==="saving" && saveSavingSince && Date.now()-saveSavingSince > 6000;
   let st = saveState==="error" ? "error" : slow ? "slow" : saveState;
   // Réponses du Défi du jour pas encore arrivées au serveur.
-  if (st==="saved" && typeof dailyUnsynced==="function" && dailyUnsynced()) st = dailySync.err ? "error" : "saving";
+  const ddPending = st==="saved" && typeof dailyUnsynced==="function" && dailyUnsynced();
+  if (ddPending) st = dailySync.err ? "error" : "saving";
   el.dataset.state = st;
   el.dataset.icon = st==="saved" ? "✓" : st==="saving" ? "…" : st==="slow" ? "⏳" : "⚠";
   el.textContent = st==="saved" ? "✓ Enregistré" : st==="saving" ? "Enregistrement…" : st==="slow" ? "⏳ En attente de connexion…" : "⚠ Non enregistré · réessayer";
   el.title = st==="saved" ? "Ton compte est à jour sur le serveur."
     : st==="error" ? "La dernière sauvegarde a échoué. Nouvel essai automatique — clique pour réessayer tout de suite."
     : "Sauvegarde en cours : attends le ✓ avant de recharger la page.";
+  if (ddPending) el.title = "Réponse du Défi du jour pas encore enregistrée"+(dailySync.lastErr ? " ("+dailySync.lastErr+")" : "")+" — nouvel essai automatique, clique pour réessayer tout de suite.";
 }
 function scheduleSaveRetry(){
   clearTimeout(saveRetryTimer);
@@ -21639,10 +21641,11 @@ async function dailyFlush(){
       await ref.update(patch);
       D.srvN = n;
     }
-    dailySync.err = false; dailySync.delay = 3000;
+    dailySync.err = false; dailySync.delay = 3000; dailySync.lastErr = null;
     if (D.play===play && play.status==="done" && D.day===day) dailyLoadBoards();
   }catch(e){
     console.warn("daily answer", e);
+    dailySync.lastErr = (e && (e.code || e.message)) || "erreur";
     try{
       const snap = await ref.get();
       if (snap.exists && D.play===play){ const k = (snap.data().answers||[]).length; if (k<=play.answers.length) D.srvN = k; }
