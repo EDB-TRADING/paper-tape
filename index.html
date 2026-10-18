@@ -497,6 +497,24 @@
   .widget-grip:active{cursor:grabbing;}
   .widget-hide{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;line-height:1;padding:2px 4px;border-radius:4px;}
   .widget-hide:hover{color:var(--warn);background:var(--bg-raised);}
+  .widget-fs-toggle{display:inline-flex;align-items:center;gap:5px;background:none;border:none;color:var(--text-faint);cursor:pointer;line-height:1;padding:3px 5px;border-radius:5px;font-family:var(--mono);font-size:10.5px;font-weight:700;}
+  .widget-fs-toggle:hover{color:var(--accent);background:var(--panel-2);}
+  .widget-fs-toggle .fs-out, .widget-fs-toggle .fs-lbl{display:none;}
+  /* Graphique en plein écran : le widget est déplacé dans <body> (au-dessus
+     de tout, quelles que soient les colonnes / widgets libres) et remplit la
+     fenêtre ; en plus, plein écran natif du navigateur quand il est permis. */
+  html.chart-fs-on, html.chart-fs-on body{overflow:hidden !important;}
+  .card.widget.chart-fs{position:fixed !important;inset:0 !important;left:0 !important;top:0 !important;width:auto !important;height:auto !important;max-width:none !important;max-height:none !important;margin:0 !important;z-index:2147483000 !important;border-radius:0 !important;transform:none !important;padding:12px 16px calc(12px + env(safe-area-inset-bottom)) !important;display:flex !important;flex-direction:column;box-shadow:none !important;}
+  .card.widget.chart-fs > .widget-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden !important;}
+  .card.widget.chart-fs .chart-stage{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;}
+  .card.widget.chart-fs #chart-svg{flex:1 1 auto;height:auto !important;min-height:0;}
+  .card.widget.chart-fs #tv-chart-wrap{flex:1 1 auto;height:auto !important;min-height:0;}
+  .card.widget.chart-fs .wz-grip, .card.widget.chart-fs .widget-grip, .card.widget.chart-fs .widget-free-toggle, .card.widget.chart-fs .widget-hide, .card.widget.chart-fs .wz-size-badge{display:none !important;}
+  .card.widget.chart-fs .widget-fs-toggle{color:var(--text);border:1px solid var(--border);padding:5px 9px;}
+  .card.widget.chart-fs .widget-fs-toggle .fs-in{display:none;}
+  .card.widget.chart-fs .widget-fs-toggle .fs-out, .card.widget.chart-fs .widget-fs-toggle .fs-lbl{display:inline;}
+  .card.widget.chart-fs .ct-shield{display:none !important;}
+  .card.widget.chart-fs:fullscreen{background:var(--panel);}
   .widget-free-toggle{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;line-height:1;padding:2px 4px;border-radius:4px;}
   .widget-free-toggle:hover{color:var(--accent);background:var(--bg-raised);}
   /* A "free" widget leaves the normal column stack: position:absolute inside
@@ -706,6 +724,13 @@
   #chart-svg{cursor:crosshair;user-select:none;-webkit-user-select:none;}
   #chart-svg.chart-panning{cursor:grabbing;}
   #chart-svg.chart-zooming{cursor:zoom-in;}
+  #chart-svg.chart-drawing{cursor:crosshair;}
+  .draw-seg{display:flex;align-items:center;gap:2px;padding:2px;border:1px solid var(--border);border-radius:7px;background:var(--bg-raised);}
+  .draw-seg button{display:inline-flex;align-items:center;justify-content:center;width:28px;height:24px;border:none;border-radius:5px;background:transparent;color:var(--text-faint);cursor:pointer;padding:0;}
+  .draw-seg button:hover:not(:disabled){color:var(--text);background:var(--panel-2);}
+  .draw-seg button.active{color:var(--on-accent, #fff);background:var(--accent);}
+  .draw-seg button:disabled{opacity:.35;cursor:default;}
+  .draw-seg .draw-del{margin-left:2px;border-left:1px solid var(--border);border-radius:0 5px 5px 0;}
   #chart-svg .pend-hit{cursor:ns-resize;}
   #chart-svg .pend-x{cursor:pointer;}
   #chart-svg .pend-x:hover circle{fill:var(--panel-2);}
@@ -4877,7 +4902,7 @@
 
         <div class="widget-col" data-col="1">
           <div class="card widget" draggable="true" data-widget="chart">
-            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Graphique</h3><button type="button" class="widget-free-toggle" data-widget-free="chart" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="chart" title="Masquer ce widget">✕</button></div>
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Graphique</h3><button type="button" class="widget-fs-toggle" id="chart-fs-btn" title="Plein écran" aria-label="Plein écran" aria-pressed="false"><svg class="fs-in" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><svg class="fs-out" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg><span class="fs-lbl">Quitter</span></button><button type="button" class="widget-free-toggle" data-widget-free="chart" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="chart" title="Masquer ce widget">✕</button></div>
             <div class="chart-head">
               <div class="chart-head-sym"><span class="sym-big" id="chart-sym">BTC</span><span class="name-big" id="chart-name">Bitcoin</span></div>
               <div class="chart-qt" id="chart-qt">
@@ -4909,6 +4934,13 @@
                 <button type="button" class="candle-dot active" data-candle-theme="classic"  title="Classique"    style="--dot:conic-gradient(#31c882 0 50%, #f0546a 50% 100%)"></button>
                 <button type="button" class="candle-dot"        data-candle-theme="contrast" title="Contraste"    style="--dot:conic-gradient(#00e676 0 50%, #ff1744 50% 100%)"></button>
                 <button type="button" class="candle-dot"        data-candle-theme="mono"     title="Noir & Blanc" style="--dot:conic-gradient(#fff 0 50%, #000 50% 100%)"></button>
+              </div>
+              <div class="draw-seg" id="chart-draw-seg" role="toolbar" aria-label="Outils de dessin">
+                <button type="button" data-draw-tool="trend" title="Ligne de tendance — clic sur 2 points"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="19" x2="20" y2="5"/><circle cx="4" cy="19" r="1.8" fill="currentColor"/><circle cx="20" cy="5" r="1.8" fill="currentColor"/></svg></button>
+                <button type="button" data-draw-tool="hline" title="Ligne horizontale — un clic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="12" x2="21" y2="12"/></svg></button>
+                <button type="button" data-draw-tool="vline" title="Ligne verticale — un clic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="3" x2="12" y2="21"/></svg></button>
+                <button type="button" data-draw-tool="fib" title="Fibonacci (0, 1 et golden zone 0.618 – 0.65) — clic sur 2 points"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="5" x2="21" y2="5"/><line x1="3" y1="19" x2="21" y2="19"/><rect x="3" y="10" width="18" height="3" fill="currentColor" fill-opacity=".35" stroke="none"/></svg></button>
+                <button type="button" id="chart-draw-del" class="draw-del" title="Effacer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></svg></button>
               </div>
               <div class="chart-ind" id="chart-ind">
                 <button type="button" class="chart-ind-btn" id="chart-ind-btn" aria-expanded="false" aria-haspopup="true" title="Indicateurs du graphique">ƒx <span>Indicateurs</span></button>
@@ -10194,6 +10226,8 @@ function applyChartSourceVisibility(eff){
   tfSeg.hidden = eff==="tv"; tfSeg.style.display = eff==="tv" ? "none" : "";
   themeSeg.hidden = eff==="tv"; themeSeg.style.display = eff==="tv" ? "none" : "";
   if (zoomSeg){ zoomSeg.hidden = eff==="tv"; zoomSeg.style.display = eff==="tv" ? "none" : ""; }
+  const drawSeg = document.getElementById("chart-draw-seg");
+  if (drawSeg){ drawSeg.hidden = eff==="tv"; drawSeg.style.display = eff==="tv" ? "none" : ""; }
   const indWrap = document.getElementById("chart-ind");
   if (indWrap){ indWrap.hidden = eff==="tv"; indWrap.style.display = eff==="tv" ? "none" : ""; }
   const stage = document.getElementById("chart-stage");
@@ -10954,10 +10988,11 @@ function chartRenderCandles(svg, a, m, W, H, all){
   const grabEl = document.getElementById("chart-yaxis-grab");
   if (grabEl){ grabEl.style.width = padR+"px"; grabEl.style.bottom = padB+"px"; grabEl.style.top = padT+"px"; }
   g.legendTop = 0; // Short / Long sont maintenant dans l'en-tête, plus sur le graphique
-  svg.style.touchAction = positions.length ? "none" : "pan-y";
+  svg.style.touchAction = (positions.length || drawTool) ? "none" : "pan-y";
   const clip = '<defs><clipPath id="chart-plot-clip"><rect x="'+padL+'" y="0" width="'+plotW+'" height="'+(H-padB)+'"/></clipPath>'+
     '<clipPath id="chart-pane-clip"><rect x="'+padL+'" y="'+(H-padB)+'" width="'+plotW+'" height="'+Math.max(0, padB-22)+'"/></clipPath></defs>';
   svg.innerHTML = clip+grid+'<g clip-path="url(#chart-plot-clip)">'+vol+over+bars+emas+marks+'</g>'+paneSvg+axis+
+    '<g id="chart-draw">'+chartDrawingsHtml(g)+'</g>'+
     '<g id="chart-levels">'+positionLinesHtml(g, positions, pending)+'</g>'+
     lastTag+liveBtn+yAuto+'<g id="chart-legend" pointer-events="none"></g><g id="chart-xh" pointer-events="none"></g>';
   chartDrawOverlay();
@@ -11325,6 +11360,7 @@ function initChartInteractions(){
   let pinch = null;
   svg.addEventListener("pointerdown", (e)=>{
     if (chartLineDrag || !chartView || effectiveChartSource()!=="internal") return;
+    if (chartDrawDown(e, svg, toView)){ stopGlide(); return; } // outils de dessin
     const t = e.target;
     if (t.closest && t.closest("[data-tpsl-pos]")) return;
     if (t.closest && t.closest("[data-chart-live]")){ chartHover = null; backToLive(); e.preventDefault(); return; }
@@ -11388,6 +11424,7 @@ function initChartInteractions(){
   });
   svg.addEventListener("pointermove", (e)=>{
     if (chartLineDrag) return;
+    if (chartDrawMove(e, svg, toView)) return;
     if (chartPendDrag && e.pointerId===chartPendDrag.pid){
       const o = (state.pendingOrders||[]).find(x=>x.id===chartPendDrag.id);
       const m = market[selectedSymbol];
@@ -11471,6 +11508,7 @@ function initChartInteractions(){
     return true;
   };
   svg.addEventListener("pointerup", (e)=>{
+    if (chartDrawUp(e, svg)) return;
     if (endPendDrag(e, true)) return;
     if (endZoomDrag(e)) return;
     if (endTouch(e)) return;
@@ -11496,6 +11534,7 @@ function initChartInteractions(){
     chartDrawOverlay();
   });
   svg.addEventListener("pointercancel", (e)=>{
+    if (drawDrag && e.pointerId===drawDrag.pid){ drawDrag = null; saveDrawings(); }
     endPendDrag(e, false);
     endZoomDrag(e);
     endTouch(e);
@@ -11507,12 +11546,301 @@ function initChartInteractions(){
     if (e.pointerType==="mouse" && !chartPanDrag){ chartHover = null; chartDrawOverlay(); }
   });
   svg.addEventListener("dblclick", (e)=>{
-    if (e.target.closest && e.target.closest("[data-tpsl-pos]")) return;
+    if (e.target.closest && e.target.closest("[data-tpsl-pos], [data-draw-id], [data-draw-h]")) return;
+    if (drawTool || drawPending) return;
     if (chartPan) backToLive();
     if (chartYManual) chartYReset(); // double-clic : tout revient en automatique
   });
   svg.addEventListener("wheel", stopGlide, {passive:true});
   setInterval(chartTickCountdown, 1000);
+}
+/* ============================= DESSINS SUR LE GRAPHIQUE INTERNE =============================
+   Outils façon TradingView : ligne de tendance, ligne horizontale, ligne
+   verticale et Fibonacci (niveaux 0 et 1 + golden zone 0,618 – 0,65).
+   - Les points sont stockés en (heure, prix) : un dessin reste au bon endroit
+     quelle que soit l'unité de temps, le zoom ou le défilement. L'heure est
+     calée sur la bougie la plus proche.
+   - Rangés par marché, sur l'appareil (localStorage) : aucune lecture ni
+     écriture Firestore.
+   - Choisir un outil, puis : ligne horizontale / verticale = un clic ;
+     tendance / Fibonacci = clic-clic (ou cliquer-glisser).
+   - Clic sur un dessin = sélection (poignées) ; glisser le dessin pour le
+     déplacer, une poignée pour la modifier ; Suppr / ⌫ ou la corbeille pour
+     l'effacer ; Échap pour annuler. */
+const CHART_DRAW_KEY = "paperTapeDrawings";
+const DRAW_COL = "#4f8dff", DRAW_FIB = "#9aa4b2", DRAW_GOLD = "#f2b33d";
+const DRAW_GOLDEN = [0.618, 0.65];
+let chartDrawings = (function(){ try{ const v = JSON.parse(localStorage.getItem(CHART_DRAW_KEY)||"{}"); return (v && typeof v==="object") ? v : {}; }catch(e){ return {}; } })();
+let drawTool = null;      // null | "trend" | "hline" | "vline" | "fib"
+let drawSel = null;       // id du dessin sélectionné
+let drawPending = null;   // tracé en cours : {type, p:[a,b], pid, x0, y0}
+let drawDrag = null;      // déplacement : {pid, id, h (poignée ou -1), x0, y0, start, orig}
+function saveDrawings(){ try{ localStorage.setItem(CHART_DRAW_KEY, JSON.stringify(chartDrawings)); }catch(e){} }
+function drawList(){ return chartDrawings[selectedSymbol] || (chartDrawings[selectedSymbol] = []); }
+function drawFind(id){ return drawList().find(d=>d.id===id); }
+// Heure <-> position (en rangs de bougie, décimaux) sur l'historique chargé.
+function drawIdxOfT(g, t){
+  const all = g.all, n = all ? all.length : 0;
+  if (!n) return 0;
+  const tf = g.tfMs || 60000;
+  if (t <= all[0].ms) return (t-all[0].ms)/tf;
+  if (t >= all[n-1].ms) return n-1 + (t-all[n-1].ms)/tf;
+  let lo = 0, hi = n-1;
+  while (hi-lo>1){ const mid = (lo+hi)>>1; if (all[mid].ms<=t) lo = mid; else hi = mid; }
+  const span = all[hi].ms-all[lo].ms;
+  return lo + (span>0 ? (t-all[lo].ms)/span : 0);
+}
+function drawTOfIdx(g, idx){
+  const all = g.all, n = all ? all.length : 0, tf = g.tfMs || 60000;
+  if (!n) return Date.now();
+  if (idx <= 0) return all[0].ms + idx*tf;
+  if (idx >= n-1) return all[n-1].ms + (idx-(n-1))*tf;
+  const i = Math.floor(idx), f = idx-i;
+  return all[i].ms + f*(all[i+1].ms-all[i].ms);
+}
+function drawX(g, t){ return g.padL + (drawIdxOfT(g, t) - g.left + 0.5)*g.slotW; }
+function drawIdxFromX(g, x){ return Math.round((x-g.padL)/g.slotW + g.left - 0.5); }
+function drawPriceFromY(g, y){ return g.min + (1-(y-g.padT)/g.plotH)*(g.max-g.min); }
+function drawPoint(g, pt){ return {t: drawTOfIdx(g, drawIdxFromX(g, pt.x)), v: drawPriceFromY(g, pt.y)}; }
+function drawFibLevel(d, l){ return d.p[1].v + (d.p[0].v - d.p[1].v)*l; } // 1 = 1er point, 0 = 2e point
+let drawLastSym = null;
+function chartDrawingsHtml(g){
+  if (!g || !g.all || !g.all.length || !g.plotW) return "";
+  if (drawLastSym!==selectedSymbol){ drawLastSym = selectedSymbol; drawSel = null; drawPending = null; drawDrag = null; setTimeout(drawSyncDel, 0); }
+  const list = drawList().slice();
+  if (drawPending) list.push(Object.assign({id:"__pending"}, drawPending));
+  const L = g.padL, R = g.W-g.padR, T = g.padT, B = g.H-g.padB;
+  const f = v=>v.toFixed(1);
+  let lines = "", tags = "";
+  const hit = (x1,y1,x2,y2)=>'<line x1="'+f(x1)+'" y1="'+f(y1)+'" x2="'+f(x2)+'" y2="'+f(y2)+'" stroke="transparent" stroke-width="12" pointer-events="stroke"/>';
+  const handle = (d, k, x, y)=>'<circle data-draw-h="'+d.id+':'+k+'" cx="'+f(x)+'" cy="'+f(y)+'" r="5" fill="var(--panel, #111)" stroke="'+DRAW_COL+'" stroke-width="2" style="cursor:grab"/>';
+  const tag = (y, txt, col)=>{
+    if (y<T-1 || y>B+1) return "";
+    const w = Math.max(g.padR-4, txt.length*6.4+10);
+    return '<g pointer-events="none"><rect x="'+f(R+1)+'" y="'+f(y-8)+'" width="'+f(w)+'" height="16" rx="3" fill="'+col+'"/><text x="'+f(R+6)+'" y="'+f(y+3.5)+'" fill="#fff" font-size="10" font-weight="700" '+CHART_FONT+'>'+txt+'</text></g>';
+  };
+  list.forEach(d=>{
+    const sel = d.id===drawSel || d.id==="__pending";
+    const sw = sel ? 2.2 : 1.6;
+    const attr = d.id==="__pending" ? ' pointer-events="none"' : ' data-draw-id="'+d.id+'" style="cursor:move"';
+    if (d.type==="hline"){
+      const y = g.y(d.p[0].v);
+      lines += '<g'+attr+'><line x1="'+L+'" y1="'+f(y)+'" x2="'+R+'" y2="'+f(y)+'" stroke="'+DRAW_COL+'" stroke-width="'+sw+'"/>'+hit(L,y,R,y)+(sel && d.id!=="__pending" ? handle(d, 0, (L+R)/2, y) : '')+'</g>';
+      tags += tag(y, chartNum(d.p[0].v, g.dec), DRAW_COL);
+    } else if (d.type==="vline"){
+      const x = drawX(g, d.p[0].t);
+      lines += '<g'+attr+'><line x1="'+f(x)+'" y1="'+T+'" x2="'+f(x)+'" y2="'+B+'" stroke="'+DRAW_COL+'" stroke-width="'+sw+'"/>'+hit(x,T,x,B)+(sel && d.id!=="__pending" ? handle(d, 0, x, (T+B)/2) : '')+'</g>';
+    } else if (d.type==="trend"){
+      const x1 = drawX(g, d.p[0].t), y1 = g.y(d.p[0].v), x2 = drawX(g, d.p[1].t), y2 = g.y(d.p[1].v);
+      lines += '<g'+attr+'><line x1="'+f(x1)+'" y1="'+f(y1)+'" x2="'+f(x2)+'" y2="'+f(y2)+'" stroke="'+DRAW_COL+'" stroke-width="'+sw+'" stroke-linecap="round"/>'+hit(x1,y1,x2,y2)+
+        (sel ? handle(d, 0, x1, y1)+handle(d, 1, x2, y2) : '')+'</g>';
+    } else if (d.type==="fib"){
+      const xa = drawX(g, d.p[0].t), xb = drawX(g, d.p[1].t);
+      let x1 = Math.min(xa, xb), x2 = Math.max(xa, xb);
+      if (x2-x1 < 40) x2 = x1 + 40;
+      const yl = l=>g.y(drawFibLevel(d, l));
+      const yG1 = yl(DRAW_GOLDEN[0]), yG2 = yl(DRAW_GOLDEN[1]);
+      let s = '<g'+attr+'>';
+      s += '<rect x="'+f(x1)+'" y="'+f(Math.min(yG1,yG2))+'" width="'+f(x2-x1)+'" height="'+f(Math.max(1, Math.abs(yG2-yG1)))+'" fill="'+DRAW_GOLD+'" fill-opacity="0.2"/>';
+      DRAW_GOLDEN.forEach(l=>{ const yy = yl(l); s += '<line x1="'+f(x1)+'" y1="'+f(yy)+'" x2="'+f(x2)+'" y2="'+f(yy)+'" stroke="'+DRAW_GOLD+'" stroke-width="1.2"/>'; });
+      [1, 0].forEach(l=>{ const yy = yl(l); s += '<line x1="'+f(x1)+'" y1="'+f(yy)+'" x2="'+f(x2)+'" y2="'+f(yy)+'" stroke="'+DRAW_FIB+'" stroke-width="'+(sel?1.8:1.3)+'"/>'+hit(x1,yy,x2,yy); });
+      // Diagonale pointillée entre les deux points, comme sur TradingView.
+      s += '<line x1="'+f(xa)+'" y1="'+f(yl(1))+'" x2="'+f(xb)+'" y2="'+f(yl(0))+'" stroke="'+DRAW_FIB+'" stroke-width="1" stroke-dasharray="4 4" opacity="0.8"/>';
+      const lab = (l, txt, col)=>{ const yy = yl(l); return '<text x="'+f(x1+4)+'" y="'+f(yy-4)+'" fill="'+col+'" font-size="10" '+CHART_FONT+' pointer-events="none">'+txt+' ('+chartNum(drawFibLevel(d, l), g.dec)+')</text>'; };
+      s += lab(1, "1", DRAW_FIB) + lab(0, "0", DRAW_FIB);
+      const top = Math.min(yG1, yG2);
+      s += '<text x="'+f(x2-4)+'" y="'+f(top-4)+'" text-anchor="end" fill="'+DRAW_GOLD+'" font-size="10" font-weight="700" '+CHART_FONT+' pointer-events="none">Golden zone 0.618 – 0.65</text>';
+      s += '<rect x="'+f(x1)+'" y="'+f(Math.min(yG1,yG2))+'" width="'+f(x2-x1)+'" height="'+f(Math.max(6, Math.abs(yG2-yG1)))+'" fill="transparent" pointer-events="all"/>';
+      if (sel && d.id!=="__pending") s += handle(d, 0, xa, yl(1)) + handle(d, 1, xb, yl(0));
+      s += '</g>';
+      lines += s;
+    }
+  });
+  return '<g clip-path="url(#chart-plot-clip)">'+lines+'</g>'+tags;
+}
+function chartDrawPatch(){
+  const el = document.getElementById("chart-draw");
+  if (el && chartView) el.innerHTML = chartDrawingsHtml(chartView);
+}
+function drawSetTool(t){
+  drawTool = (t && t===drawTool) ? null : (t || null);
+  drawPending = null;
+  if (drawTool) drawSel = null;
+  document.querySelectorAll("#chart-draw-seg [data-draw-tool]").forEach(b=>b.classList.toggle("active", b.dataset.drawTool===drawTool));
+  const svg = document.getElementById("chart-svg");
+  if (svg){ svg.classList.toggle("chart-drawing", !!drawTool); if (drawTool) svg.style.touchAction = "none"; }
+  drawSyncDel();
+  chartDrawPatch();
+}
+function drawSyncDel(){
+  const b = document.getElementById("chart-draw-del");
+  if (!b) return;
+  const n = (chartDrawings[selectedSymbol]||[]).length;
+  b.disabled = !n;
+  b.title = drawSel ? "Effacer le dessin sélectionné (Suppr)" : (n ? "Effacer tous les dessins de ce marché" : "Aucun dessin");
+}
+function drawDelete(id){
+  chartDrawings[selectedSymbol] = drawList().filter(d=>d.id!==id);
+  if (drawSel===id) drawSel = null;
+  saveDrawings(); drawSyncDel(); chartDrawPatch();
+}
+function drawCommit(d){
+  d.id = "d"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  drawList().push({id:d.id, type:d.type, p:d.p.map(q=>({t:q.t, v:q.v}))});
+  drawSel = d.id;
+  saveDrawings();
+  drawSetTool(null);
+}
+// Branché sur les gestionnaires du graphique (initChartInteractions) : renvoie
+// true quand l'événement concerne un dessin (le graphique ne défile pas).
+function chartDrawDown(e, svg, toView){
+  if (e.pointerType==="mouse" && e.button!==0) return false;
+  const v = chartView; if (!v || !v.all) return false;
+  const t = e.target;
+  if (drawTool){
+    const pt = toView(e); if (!pt) return true;
+    const q = drawPoint(v, pt);
+    if (drawTool==="hline" || drawTool==="vline"){ drawCommit({type:drawTool, p:[q]}); e.preventDefault(); return true; }
+    if (drawPending){ drawPending.p[1] = q; drawCommit(drawPending); e.preventDefault(); return true; }
+    drawPending = {type:drawTool, p:[q, Object.assign({}, q)], pid:e.pointerId, x0:e.clientX, y0:e.clientY};
+    try{ svg.setPointerCapture(e.pointerId); }catch(err){}
+    chartDrawPatch(); e.preventDefault();
+    return true;
+  }
+  const h = t.closest && t.closest("[data-draw-h]");
+  const body = t.closest && t.closest("[data-draw-id]");
+  if (h || body){
+    const id = h ? h.dataset.drawH.split(":")[0] : body.dataset.drawId;
+    const d = drawFind(id); if (!d) return false;
+    const pt = toView(e); if (!pt) return true;
+    drawSel = id;
+    drawDrag = {pid:e.pointerId, id, h: h ? parseInt(h.dataset.drawH.split(":")[1], 10) : -1, start:pt, orig:d.p.map(q=>({t:q.t, v:q.v, i:drawIdxOfT(v, q.t)})), moved:false};
+    try{ svg.setPointerCapture(e.pointerId); }catch(err){}
+    drawSyncDel(); chartDrawPatch(); e.preventDefault();
+    return true;
+  }
+  if (drawSel){ drawSel = null; drawSyncDel(); chartDrawPatch(); }
+  return false;
+}
+function chartDrawMove(e, svg, toView){
+  const v = chartView; if (!v || !v.all) return false;
+  if (drawPending){
+    const pt = toView(e); if (!pt) return true;
+    drawPending.p[1] = drawPoint(v, pt);
+    chartDrawPatch();
+    if (e.pointerType==="mouse"){ chartHover = pt; chartDrawOverlay(); }
+    e.preventDefault();
+    return true;
+  }
+  if (drawDrag && e.pointerId===drawDrag.pid){
+    const d = drawFind(drawDrag.id); if (!d){ drawDrag = null; return true; }
+    const pt = toView(e); if (!pt) return true;
+    if (!drawDrag.moved && Math.hypot(pt.x-drawDrag.start.x, pt.y-drawDrag.start.y) < 3) return true;
+    drawDrag.moved = true;
+    if (drawDrag.h>=0){
+      const q = drawPoint(v, pt), k = drawDrag.h;
+      if (d.type==="hline") d.p[0].v = q.v;
+      else if (d.type==="vline") d.p[0].t = q.t;
+      else d.p[k] = q;
+    } else {
+      const dI = Math.round((pt.x-drawDrag.start.x)/v.slotW);
+      const dV = drawPriceFromY(v, pt.y) - drawPriceFromY(v, drawDrag.start.y);
+      d.p = drawDrag.orig.map(o=>({
+        t: d.type==="hline" ? o.t : drawTOfIdx(v, Math.round(o.i)+dI),
+        v: d.type==="vline" ? o.v : o.v + dV,
+      }));
+    }
+    chartDrawPatch(); e.preventDefault();
+    return true;
+  }
+  if (drawTool && e.pointerType==="mouse"){ chartHover = toView(e); chartDrawOverlay(); return true; }
+  return false;
+}
+function chartDrawUp(e, svg){
+  if (drawPending && e.pointerId===drawPending.pid){
+    // Cliquer-glisser : le tracé se termine au relâchement. Simple clic :
+    // il attend le second clic (le point suit la souris).
+    if (Math.hypot(e.clientX-drawPending.x0, e.clientY-drawPending.y0) > 6) drawCommit(drawPending);
+    else drawPending.pid = null;
+    try{ svg.releasePointerCapture(e.pointerId); }catch(err){}
+    return true;
+  }
+  if (drawDrag && e.pointerId===drawDrag.pid){
+    const moved = drawDrag.moved;
+    drawDrag = null;
+    try{ svg.releasePointerCapture(e.pointerId); }catch(err){}
+    if (moved) saveDrawings();
+    chartDrawPatch();
+    return true;
+  }
+  return false;
+}
+function initChartDrawing(){
+  const seg = document.getElementById("chart-draw-seg");
+  if (!seg) return;
+  seg.querySelectorAll("[data-draw-tool]").forEach(b=>b.addEventListener("click", ()=>drawSetTool(b.dataset.drawTool)));
+  const del = document.getElementById("chart-draw-del");
+  if (del) del.addEventListener("click", ()=>{
+    if (drawSel){ drawDelete(drawSel); return; }
+    const n = drawList().length;
+    if (n && confirm("Effacer les "+n+" dessin"+(n>1?"s":"")+" de "+selectedSymbol+" ?")){ chartDrawings[selectedSymbol] = []; saveDrawings(); drawSyncDel(); chartDrawPatch(); }
+  });
+  document.addEventListener("keydown", (e)=>{
+    if (document.body.dataset.view!=="terminal") return;
+    const tag = (document.activeElement && document.activeElement.tagName) || "";
+    if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+    if (e.key==="Escape" && (drawTool || drawPending || drawSel)){ drawSel = null; drawSetTool(null); return; }
+    if ((e.key==="Delete" || e.key==="Backspace") && drawSel){ e.preventDefault(); drawDelete(drawSel); }
+  });
+  drawSyncDel();
+}
+
+/* ---- Graphique en plein écran ----
+   Bouton dans l'en-tête du widget Graphique (et Échap pour sortir). Le widget
+   est déplacé dans <body> le temps du plein écran puis remis exactement à sa
+   place : rien ne change dans la disposition enregistrée des widgets. Sur
+   ordinateur / Android, on demande aussi le plein écran natif du navigateur ;
+   sur iPhone (pas de plein écran natif pour une page), il remplit la fenêtre. */
+let chartFs = null; // {el, parent, next}
+function chartFsSet(on){
+  const el = document.querySelector('.card.widget[data-widget="chart"]');
+  if (!el) return;
+  if (on && !chartFs){
+    chartFs = {el, parent:el.parentNode, next:el.nextSibling, drag:el.getAttribute("draggable")};
+    el.setAttribute("draggable", "false");
+    document.body.appendChild(el);
+    el.classList.add("chart-fs");
+    document.documentElement.classList.add("chart-fs-on");
+    if (document.documentElement.classList.contains("touch-ui") && typeof chartTouchLock==="function") chartTouchLock(true);
+    try{ if (el.requestFullscreen && !document.fullscreenElement) el.requestFullscreen({navigationUI:"hide"}).catch(()=>{}); }catch(e){}
+  } else if (!on && chartFs){
+    const {parent, next, drag} = chartFs;
+    if (drag!=null) el.setAttribute("draggable", drag); else el.removeAttribute("draggable");
+    chartFs = null;
+    el.classList.remove("chart-fs");
+    document.documentElement.classList.remove("chart-fs-on");
+    if (parent){ if (next && next.parentNode===parent) parent.insertBefore(el, next); else parent.appendChild(el); }
+    if (typeof chartTouchLock==="function") chartTouchLock(false);
+    try{ if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(()=>{}); }catch(e){}
+  }
+  const b = document.getElementById("chart-fs-btn");
+  if (b){ b.setAttribute("aria-pressed", chartFs ? "true" : "false"); b.title = chartFs ? "Quitter le plein écran (Échap)" : "Plein écran"; b.setAttribute("aria-label", b.title); }
+  requestAnimationFrame(()=>{ try{ updateChart(); }catch(e){} });
+}
+function initChartFullscreen(){
+  const b = document.getElementById("chart-fs-btn");
+  if (!b) return;
+  b.addEventListener("click", (e)=>{ e.stopPropagation(); chartFsSet(!chartFs); });
+  ["pointerdown","mousedown","touchstart"].forEach(t=>b.addEventListener(t, (e)=>e.stopPropagation(), {passive:true})); // pas de glisser du widget
+  // Sortie du plein écran natif (Échap géré par le navigateur) : on remet le widget à sa place.
+  document.addEventListener("fullscreenchange", ()=>{ if (!document.fullscreenElement && chartFs) chartFsSet(false); });
+  document.addEventListener("keydown", (e)=>{
+    if (e.key!=="Escape" || !chartFs) return;
+    if (drawTool || drawPending || drawSel) return; // Échap annule d'abord un dessin en cours
+    chartFsSet(false);
+  });
+  // En changeant de page, on sort du plein écran.
+  document.addEventListener("click", (e)=>{ const nb = e.target.closest && e.target.closest("button[data-view], a[data-view]"); if (nb && chartFs && !nb.closest(".card.widget.chart-fs")) chartFsSet(false); }, true);
 }
 function initChartIndicators(){
   const btn = document.getElementById("chart-ind-btn");
@@ -26278,6 +26606,8 @@ async function init(){
   initChartZoomControls();
   initChartLineDrag();
   initChartInteractions();
+  initChartDrawing();
+  initChartFullscreen();
   initChartIndicators();
   initChartTrading();
   initSaveStatus();
