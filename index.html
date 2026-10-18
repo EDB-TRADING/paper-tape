@@ -730,6 +730,28 @@
   .draw-seg button:hover:not(:disabled){color:var(--text);background:var(--panel-2);}
   .draw-seg button.active{color:var(--on-accent, #fff);background:var(--accent);}
   .draw-seg button:disabled{opacity:.35;cursor:default;}
+  .draw-props{position:absolute;top:6px;left:0;right:0;margin:0 auto;width:max-content;z-index:6;display:flex;flex-direction:column;align-items:center;gap:5px;max-width:calc(100% - 12px);}
+  .draw-props[hidden]{display:none !important;}
+  .draw-props .dp-bar, .draw-props .dp-pop{display:flex;align-items:center;gap:6px;padding:4px 6px;border:1px solid var(--border);border-radius:9px;background:color-mix(in srgb, var(--panel) 94%, transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 8px 24px -12px rgba(0,0,0,.6);flex-wrap:wrap;justify-content:center;}
+  .draw-props .dp-bar > b{font-size:11px;padding:0 4px;white-space:nowrap;}
+  .draw-props .dp-chip{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 6px;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--text-faint);font-family:var(--mono);font-size:10px;cursor:pointer;}
+  .draw-props .dp-chip:hover, .draw-props .dp-chip.open{border-color:var(--border);background:var(--panel-2);color:var(--text);}
+  .draw-props .dp-chip i{width:14px;height:14px;border-radius:4px;background:var(--c);border:1px solid color-mix(in srgb, var(--text) 25%, transparent);}
+  .draw-props .dp-x{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border:none;border-radius:6px;background:transparent;color:var(--text-faint);cursor:pointer;}
+  .draw-props .dp-x:hover{color:var(--short);background:var(--panel-2);}
+  .draw-props .dp-sw{display:flex;flex-wrap:wrap;gap:4px;}
+  .draw-props .dp-c{position:relative;width:18px;height:18px;border-radius:5px;border:1px solid color-mix(in srgb, var(--text) 18%, transparent);background:var(--c);cursor:pointer;padding:0;}
+  .draw-props .dp-c.on{box-shadow:0 0 0 2px var(--panel), 0 0 0 3.5px var(--c);}
+  .draw-props .dp-pick{background:conic-gradient(#f0546a, #f2b33d, #31c882, #22d3ee, #4f8dff, #c77dff, #f0546a);overflow:hidden;}
+  .draw-props .dp-pick::after{content:"";position:absolute;inset:4px;border-radius:2px;background:var(--c);}
+  .draw-props .dp-pick input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;border:none;padding:0;}
+  .draw-props input[type=range]{flex:none;width:72px !important;min-width:0;margin:0 2px;padding:0;height:14px;accent-color:var(--accent);}
+  .draw-props .dp-tog{position:relative;display:inline-flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);color:var(--text-faint);cursor:pointer;padding:0 4px;}
+  .draw-props .dp-tog input{position:absolute;opacity:0;width:0;height:0;}
+  .draw-props .dp-tog i{position:relative;width:24px;height:14px;border-radius:999px;background:var(--border);transition:background .15s;}
+  .draw-props .dp-tog i::after{content:"";position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:#fff;transition:transform .15s;}
+  .draw-props .dp-tog input:checked + i{background:var(--accent);}
+  .draw-props .dp-tog input:checked + i::after{transform:translateX(10px);}
   .draw-seg .draw-del{margin-left:2px;border-left:1px solid var(--border);border-radius:0 5px 5px 0;}
   #chart-svg .pend-hit{cursor:ns-resize;}
   #chart-svg .pend-x{cursor:pointer;}
@@ -4938,7 +4960,9 @@
               <div class="draw-seg" id="chart-draw-seg" role="toolbar" aria-label="Outils de dessin">
                 <button type="button" data-draw-tool="trend" title="Ligne de tendance — clic sur 2 points"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="19" x2="20" y2="5"/><circle cx="4" cy="19" r="1.8" fill="currentColor"/><circle cx="20" cy="5" r="1.8" fill="currentColor"/></svg></button>
                 <button type="button" data-draw-tool="hline" title="Ligne horizontale — un clic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="12" x2="21" y2="12"/></svg></button>
+                <button type="button" data-draw-tool="hseg" title="Segment horizontal — clic sur le début puis la fin (reste parfaitement horizontal)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><circle cx="5" cy="12" r="1.9" fill="currentColor"/><circle cx="19" cy="12" r="1.9" fill="currentColor"/></svg></button>
                 <button type="button" data-draw-tool="vline" title="Ligne verticale — un clic"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="3" x2="12" y2="21"/></svg></button>
+                <button type="button" data-draw-tool="rect" title="Rectangle — clic sur 2 coins opposés (toujours droit)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="4" y="6" width="16" height="12" rx="1" fill="currentColor" fill-opacity=".25"/></svg></button>
                 <button type="button" data-draw-tool="fib" title="Fibonacci (0, 1 et golden zone 0.618 – 0.65) — clic sur 2 points"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="5" x2="21" y2="5"/><line x1="3" y1="19" x2="21" y2="19"/><rect x="3" y="10" width="18" height="3" fill="currentColor" fill-opacity=".35" stroke="none"/></svg></button>
                 <button type="button" id="chart-draw-del" class="draw-del" title="Effacer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></svg></button>
               </div>
@@ -4969,6 +4993,7 @@
               <svg class="chart" id="chart-svg" viewBox="0 0 640 220"></svg>
               <div class="chart-yaxis-grab" id="chart-yaxis-grab" title="Glisser pour étirer / écraser l'échelle des prix — double-clic : auto"></div>
               <div class="chart-menu" id="chart-menu" hidden></div>
+              <div class="draw-props" id="draw-props" hidden></div>
               <div class="chart-toast" id="chart-toast"></div>
             </div>
             <div class="tv-chart-wrap" id="tv-chart-wrap" hidden></div>
@@ -11571,10 +11596,32 @@ const CHART_DRAW_KEY = "paperTapeDrawings";
 const DRAW_COL = "#4f8dff", DRAW_FIB = "#9aa4b2", DRAW_GOLD = "#f2b33d";
 const DRAW_GOLDEN = [0.618, 0.65];
 let chartDrawings = (function(){ try{ const v = JSON.parse(localStorage.getItem(CHART_DRAW_KEY)||"{}"); return (v && typeof v==="object") ? v : {}; }catch(e){ return {}; } })();
-let drawTool = null;      // null | "trend" | "hline" | "vline" | "fib"
+let drawTool = null;      // null | "trend" | "hline" | "hseg" | "vline" | "rect" | "fib"
 let drawSel = null;       // id du dessin sélectionné
 let drawPending = null;   // tracé en cours : {type, p:[a,b], pid, x0, y0}
 let drawDrag = null;      // déplacement : {pid, id, h (poignée ou -1), x0, y0, start, orig}
+const DRAW_SWATCHES = ["#4f8dff","#31c882","#f0546a","#f2b33d","#c77dff","#ff8a3d","#22d3ee","#e8e6e3","#9aa4b2"];
+const DRAW_DEF_KEY = "paperTapeDrawDefaults"; // dernière couleur choisie par outil, pour les prochains dessins
+let drawDefaults = (function(){ try{ return JSON.parse(localStorage.getItem(DRAW_DEF_KEY)||"{}")||{}; }catch(e){ return {}; } })();
+function drawSafeCol(c){ return (typeof c==="string" && /^#[0-9a-f]{6}$/i.test(c)) ? c : null; }
+function drawColor(d){ return drawSafeCol(d.c) || (d.type==="fib" ? DRAW_FIB : DRAW_COL); }
+// ---- Annuler / rétablir (Ctrl+Z / ⌘Z, Ctrl+Maj+Z / ⌘⇧Z / Ctrl+Y) ----
+const drawUndo = [], drawRedo = [];
+function drawSnap(){ return {sym:selectedSymbol, list:JSON.parse(JSON.stringify(chartDrawings[selectedSymbol]||[]))}; }
+function drawPushUndo(){ drawUndo.push(drawSnap()); if (drawUndo.length>100) drawUndo.shift(); drawRedo.length = 0; }
+function drawRestore(from, to){
+  // Historique propre à chaque marché : on annule le dernier changement du marché affiché.
+  let i = from.length-1; while (i>=0 && from[i].sym!==selectedSymbol) i--;
+  if (i<0) return false;
+  const snap = from.splice(i, 1)[0];
+  to.push(drawSnap());
+  chartDrawings[snap.sym] = snap.list;
+  drawPending = null; drawDrag = null;
+  if (drawSel && !drawFind(drawSel)) drawSel = null;
+  drawPropsId = null;
+  saveDrawings(); drawSyncDel(); chartDrawPatch();
+  return true;
+}
 function saveDrawings(){ try{ localStorage.setItem(CHART_DRAW_KEY, JSON.stringify(chartDrawings)); }catch(e){} }
 function drawList(){ return chartDrawings[selectedSymbol] || (chartDrawings[selectedSymbol] = []); }
 function drawFind(id){ return drawList().find(d=>d.id===id); }
@@ -11613,7 +11660,7 @@ function chartDrawingsHtml(g){
   const f = v=>v.toFixed(1);
   let lines = "", tags = "";
   const hit = (x1,y1,x2,y2)=>'<line x1="'+f(x1)+'" y1="'+f(y1)+'" x2="'+f(x2)+'" y2="'+f(y2)+'" stroke="transparent" stroke-width="12" pointer-events="stroke"/>';
-  const handle = (d, k, x, y)=>'<circle data-draw-h="'+d.id+':'+k+'" cx="'+f(x)+'" cy="'+f(y)+'" r="5" fill="var(--panel, #111)" stroke="'+DRAW_COL+'" stroke-width="2" style="cursor:grab"/>';
+  const handle = (d, k, x, y)=>'<circle data-draw-h="'+d.id+':'+k+'" cx="'+f(x)+'" cy="'+f(y)+'" r="5" fill="var(--panel, #111)" stroke="'+drawColor(d)+'" stroke-width="2" style="cursor:grab"/>';
   const tag = (y, txt, col)=>{
     if (y<T-1 || y>B+1) return "";
     const w = Math.max(g.padR-4, txt.length*6.4+10);
@@ -11623,16 +11670,31 @@ function chartDrawingsHtml(g){
     const sel = d.id===drawSel || d.id==="__pending";
     const sw = sel ? 2.2 : 1.6;
     const attr = d.id==="__pending" ? ' pointer-events="none"' : ' data-draw-id="'+d.id+'" style="cursor:move"';
-    if (d.type==="hline"){
+    const C = drawColor(d);
+    if (d.type==="rect"){
+      // Rectangle toujours droit (côtés horizontaux / verticaux).
+      const xa = drawX(g, d.p[0].t), xb = drawX(g, d.p[1].t), ya = g.y(d.p[0].v), yb = g.y(d.p[1].v);
+      const x1 = Math.min(xa,xb), x2 = Math.max(xa,xb), y1 = Math.min(ya,yb), y2 = Math.max(ya,yb);
+      const filled = d.fill!==false, fc = drawSafeCol(d.fc) || C, fo = (typeof d.fo==="number") ? d.fo : 0.2;
+      lines += '<g'+attr+'><rect x="'+f(x1)+'" y="'+f(y1)+'" width="'+f(Math.max(1,x2-x1))+'" height="'+f(Math.max(1,y2-y1))+'" fill="'+(filled ? fc : 'none')+'" fill-opacity="'+fo+'" stroke="'+C+'" stroke-width="'+sw+'"'+(filled ? ' pointer-events="all"' : '')+'/>'+
+        hit(x1,y1,x2,y1)+hit(x2,y1,x2,y2)+hit(x2,y2,x1,y2)+hit(x1,y2,x1,y1)+
+        (sel && d.id!=="__pending" ? handle(d, 0, xa, ya)+handle(d, 1, xb, yb)+handle(d, 2, xa, yb)+handle(d, 3, xb, ya) : '')+'</g>';
+    } else if (d.type==="hline"){
       const y = g.y(d.p[0].v);
-      lines += '<g'+attr+'><line x1="'+L+'" y1="'+f(y)+'" x2="'+R+'" y2="'+f(y)+'" stroke="'+DRAW_COL+'" stroke-width="'+sw+'"/>'+hit(L,y,R,y)+(sel && d.id!=="__pending" ? handle(d, 0, (L+R)/2, y) : '')+'</g>';
-      tags += tag(y, chartNum(d.p[0].v, g.dec), DRAW_COL);
+      lines += '<g'+attr+'><line x1="'+L+'" y1="'+f(y)+'" x2="'+R+'" y2="'+f(y)+'" stroke="'+C+'" stroke-width="'+sw+'"/>'+hit(L,y,R,y)+(sel && d.id!=="__pending" ? handle(d, 0, (L+R)/2, y) : '')+'</g>';
+      tags += tag(y, chartNum(d.p[0].v, g.dec), C);
     } else if (d.type==="vline"){
       const x = drawX(g, d.p[0].t);
-      lines += '<g'+attr+'><line x1="'+f(x)+'" y1="'+T+'" x2="'+f(x)+'" y2="'+B+'" stroke="'+DRAW_COL+'" stroke-width="'+sw+'"/>'+hit(x,T,x,B)+(sel && d.id!=="__pending" ? handle(d, 0, x, (T+B)/2) : '')+'</g>';
+      lines += '<g'+attr+'><line x1="'+f(x)+'" y1="'+T+'" x2="'+f(x)+'" y2="'+B+'" stroke="'+C+'" stroke-width="'+sw+'"/>'+hit(x,T,x,B)+(sel && d.id!=="__pending" ? handle(d, 0, x, (T+B)/2) : '')+'</g>';
+    } else if (d.type==="hseg"){
+      // Segment horizontal : deux extrémités dans le temps, un seul prix.
+      const x1 = drawX(g, d.p[0].t), x2 = drawX(g, d.p[1].t), y = g.y(d.p[0].v);
+      lines += '<g'+attr+'><line x1="'+f(x1)+'" y1="'+f(y)+'" x2="'+f(x2)+'" y2="'+f(y)+'" stroke="'+C+'" stroke-width="'+sw+'" stroke-linecap="round"/>'+hit(x1,y,x2,y)+
+        (sel ? handle(d, 0, x1, y)+handle(d, 1, x2, y) : '')+'</g>';
+      tags += tag(y, chartNum(d.p[0].v, g.dec), C);
     } else if (d.type==="trend"){
       const x1 = drawX(g, d.p[0].t), y1 = g.y(d.p[0].v), x2 = drawX(g, d.p[1].t), y2 = g.y(d.p[1].v);
-      lines += '<g'+attr+'><line x1="'+f(x1)+'" y1="'+f(y1)+'" x2="'+f(x2)+'" y2="'+f(y2)+'" stroke="'+DRAW_COL+'" stroke-width="'+sw+'" stroke-linecap="round"/>'+hit(x1,y1,x2,y2)+
+      lines += '<g'+attr+'><line x1="'+f(x1)+'" y1="'+f(y1)+'" x2="'+f(x2)+'" y2="'+f(y2)+'" stroke="'+C+'" stroke-width="'+sw+'" stroke-linecap="round"/>'+hit(x1,y1,x2,y2)+
         (sel ? handle(d, 0, x1, y1)+handle(d, 1, x2, y2) : '')+'</g>';
     } else if (d.type==="fib"){
       const xa = drawX(g, d.p[0].t), xb = drawX(g, d.p[1].t);
@@ -11640,16 +11702,17 @@ function chartDrawingsHtml(g){
       if (x2-x1 < 40) x2 = x1 + 40;
       const yl = l=>g.y(drawFibLevel(d, l));
       const yG1 = yl(DRAW_GOLDEN[0]), yG2 = yl(DRAW_GOLDEN[1]);
+      const Z = drawSafeCol(d.fc) || DRAW_GOLD;
       let s = '<g'+attr+'>';
-      s += '<rect x="'+f(x1)+'" y="'+f(Math.min(yG1,yG2))+'" width="'+f(x2-x1)+'" height="'+f(Math.max(1, Math.abs(yG2-yG1)))+'" fill="'+DRAW_GOLD+'" fill-opacity="0.2"/>';
-      DRAW_GOLDEN.forEach(l=>{ const yy = yl(l); s += '<line x1="'+f(x1)+'" y1="'+f(yy)+'" x2="'+f(x2)+'" y2="'+f(yy)+'" stroke="'+DRAW_GOLD+'" stroke-width="1.2"/>'; });
-      [1, 0].forEach(l=>{ const yy = yl(l); s += '<line x1="'+f(x1)+'" y1="'+f(yy)+'" x2="'+f(x2)+'" y2="'+f(yy)+'" stroke="'+DRAW_FIB+'" stroke-width="'+(sel?1.8:1.3)+'"/>'+hit(x1,yy,x2,yy); });
+      s += '<rect x="'+f(x1)+'" y="'+f(Math.min(yG1,yG2))+'" width="'+f(x2-x1)+'" height="'+f(Math.max(1, Math.abs(yG2-yG1)))+'" fill="'+Z+'" fill-opacity="0.2"/>';
+      DRAW_GOLDEN.forEach(l=>{ const yy = yl(l); s += '<line x1="'+f(x1)+'" y1="'+f(yy)+'" x2="'+f(x2)+'" y2="'+f(yy)+'" stroke="'+Z+'" stroke-width="1.2"/>'; });
+      [1, 0].forEach(l=>{ const yy = yl(l); s += '<line x1="'+f(x1)+'" y1="'+f(yy)+'" x2="'+f(x2)+'" y2="'+f(yy)+'" stroke="'+C+'" stroke-width="'+(sel?1.8:1.3)+'"/>'+hit(x1,yy,x2,yy); });
       // Diagonale pointillée entre les deux points, comme sur TradingView.
-      s += '<line x1="'+f(xa)+'" y1="'+f(yl(1))+'" x2="'+f(xb)+'" y2="'+f(yl(0))+'" stroke="'+DRAW_FIB+'" stroke-width="1" stroke-dasharray="4 4" opacity="0.8"/>';
+      s += '<line x1="'+f(xa)+'" y1="'+f(yl(1))+'" x2="'+f(xb)+'" y2="'+f(yl(0))+'" stroke="'+C+'" stroke-width="1" stroke-dasharray="4 4" opacity="0.8"/>';
       const lab = (l, txt, col)=>{ const yy = yl(l); return '<text x="'+f(x1+4)+'" y="'+f(yy-4)+'" fill="'+col+'" font-size="10" '+CHART_FONT+' pointer-events="none">'+txt+' ('+chartNum(drawFibLevel(d, l), g.dec)+')</text>'; };
-      s += lab(1, "1", DRAW_FIB) + lab(0, "0", DRAW_FIB);
+      s += lab(1, "1", C) + lab(0, "0", C);
       const top = Math.min(yG1, yG2);
-      s += '<text x="'+f(x2-4)+'" y="'+f(top-4)+'" text-anchor="end" fill="'+DRAW_GOLD+'" font-size="10" font-weight="700" '+CHART_FONT+' pointer-events="none">Golden zone 0.618 – 0.65</text>';
+      s += '<text x="'+f(x2-4)+'" y="'+f(top-4)+'" text-anchor="end" fill="'+Z+'" font-size="10" font-weight="700" '+CHART_FONT+' pointer-events="none">Golden zone 0.618 – 0.65</text>';
       s += '<rect x="'+f(x1)+'" y="'+f(Math.min(yG1,yG2))+'" width="'+f(x2-x1)+'" height="'+f(Math.max(6, Math.abs(yG2-yG1)))+'" fill="transparent" pointer-events="all"/>';
       if (sel && d.id!=="__pending") s += handle(d, 0, xa, yl(1)) + handle(d, 1, xb, yl(0));
       s += '</g>';
@@ -11672,7 +11735,51 @@ function drawSetTool(t){
   drawSyncDel();
   chartDrawPatch();
 }
+// ---- Panneau de style du dessin sélectionné ----
+let drawPropsId = null, drawPropsEditing = false;
+let drawPropsOpen = null; // couleur en cours de choix ("c" | "fc") : petite palette sous la barre
+function drawSwatchRow(key, cur){
+  return '<div class="dp-sw">'+DRAW_SWATCHES.map(c=>'<button type="button" class="dp-c'+(cur && cur.toLowerCase()===c?' on':'')+'" data-dp-set="'+key+'" data-col="'+c+'" style="--c:'+c+'" title="'+c+'"></button>').join("")+
+    '<label class="dp-c dp-pick" title="Autre couleur" style="--c:'+(cur||"#ffffff")+'"><input type="color" data-dp-input="'+key+'" value="'+(cur||"#ffffff")+'"></label></div>';
+}
+function drawPropCur(d, key){ return key==="fc" ? (drawSafeCol(d.fc) || (d.type==="fib" ? DRAW_GOLD : drawColor(d))) : drawColor(d); }
+function drawSyncProps(force){
+  const panel = document.getElementById("draw-props");
+  if (!panel) return;
+  const d = drawSel ? drawFind(drawSel) : null;
+  if (!d){ panel.hidden = true; drawPropsId = null; drawPropsOpen = null; return; }
+  panel.hidden = false;
+  if (drawPropsId===d.id && !force) return; // déjà affiché (ne pas fermer un sélecteur de couleur ouvert)
+  if (drawPropsId!==d.id) drawPropsOpen = null;
+  drawPropsId = d.id;
+  const NAMES = {trend:"Tendance", hline:"Horizontale", hseg:"Segment", vline:"Verticale", fib:"Fibonacci", rect:"Rectangle"};
+  const chip = (key, lbl)=>'<button type="button" class="dp-chip'+(drawPropsOpen===key?' open':'')+'" data-dp-open="'+key+'" title="'+lbl+'"><span>'+lbl+'</span><i style="--c:'+drawPropCur(d, key)+'"></i></button>';
+  let h = '<div class="dp-bar"><b>'+NAMES[d.type]+'</b>';
+  h += chip("c", d.type==="rect" ? "Contour" : d.type==="fib" ? "Lignes" : "Couleur");
+  if (d.type==="fib") h += chip("fc", "Zone");
+  if (d.type==="rect"){
+    const filled = d.fill!==false;
+    h += '<label class="dp-tog" title="Rectangle plein ou vide"><input type="checkbox" data-dp-fill'+(filled?' checked':'')+'><i></i><span>'+(filled?'Plein':'Vide')+'</span></label>';
+    if (filled){
+      h += chip("fc", "Fond");
+      h += '<input type="range" min="5" max="100" step="5" value="'+Math.round(((typeof d.fo==="number")?d.fo:0.2)*100)+'" data-dp-fo title="Opacité du fond">';
+    }
+  }
+  h += '<button type="button" class="dp-x" data-dp-del title="Effacer (Suppr)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></svg></button></div>';
+  if (drawPropsOpen) h += '<div class="dp-pop">'+drawSwatchRow(drawPropsOpen, drawPropCur(d, drawPropsOpen))+'</div>';
+  panel.innerHTML = h;
+}
+function drawPropSet(key, val, live){
+  const d = drawSel ? drawFind(drawSel) : null; if (!d) return;
+  if (!drawPropsEditing){ drawPushUndo(); drawPropsEditing = !!live; }
+  if (!live) drawPropsEditing = false;
+  d[key] = val;
+  drawDefaults[d.type] = Object.assign({}, drawDefaults[d.type]||{}, {[key]:val});
+  try{ localStorage.setItem(DRAW_DEF_KEY, JSON.stringify(drawDefaults)); }catch(e){}
+  saveDrawings(); chartDrawPatch();
+}
 function drawSyncDel(){
+  drawSyncProps();
   const b = document.getElementById("chart-draw-del");
   if (!b) return;
   const n = (chartDrawings[selectedSymbol]||[]).length;
@@ -11680,13 +11787,16 @@ function drawSyncDel(){
   b.title = drawSel ? "Effacer le dessin sélectionné (Suppr)" : (n ? "Effacer tous les dessins de ce marché" : "Aucun dessin");
 }
 function drawDelete(id){
+  drawPushUndo();
   chartDrawings[selectedSymbol] = drawList().filter(d=>d.id!==id);
   if (drawSel===id) drawSel = null;
   saveDrawings(); drawSyncDel(); chartDrawPatch();
 }
 function drawCommit(d){
+  drawPushUndo();
   d.id = "d"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-  drawList().push({id:d.id, type:d.type, p:d.p.map(q=>({t:q.t, v:q.v}))});
+  const nd = Object.assign({id:d.id, type:d.type, p:d.p.map(q=>({t:q.t, v:q.v}))}, drawDefaults[d.type]||{});
+  drawList().push(nd);
   drawSel = d.id;
   saveDrawings();
   drawSetTool(null);
@@ -11701,7 +11811,7 @@ function chartDrawDown(e, svg, toView){
     const pt = toView(e); if (!pt) return true;
     const q = drawPoint(v, pt);
     if (drawTool==="hline" || drawTool==="vline"){ drawCommit({type:drawTool, p:[q]}); e.preventDefault(); return true; }
-    if (drawPending){ drawPending.p[1] = q; drawCommit(drawPending); e.preventDefault(); return true; }
+    if (drawPending){ drawPending.p[1] = q; if (drawPending.type==="hseg") q.v = drawPending.p[0].v; drawCommit(drawPending); e.preventDefault(); return true; }
     drawPending = {type:drawTool, p:[q, Object.assign({}, q)], pid:e.pointerId, x0:e.clientX, y0:e.clientY};
     try{ svg.setPointerCapture(e.pointerId); }catch(err){}
     chartDrawPatch(); e.preventDefault();
@@ -11727,6 +11837,7 @@ function chartDrawMove(e, svg, toView){
   if (drawPending){
     const pt = toView(e); if (!pt) return true;
     drawPending.p[1] = drawPoint(v, pt);
+    if (drawPending.type==="hseg") drawPending.p[1].v = drawPending.p[0].v; // toujours parfaitement horizontal
     chartDrawPatch();
     if (e.pointerType==="mouse"){ chartHover = pt; chartDrawOverlay(); }
     e.preventDefault();
@@ -11736,11 +11847,14 @@ function chartDrawMove(e, svg, toView){
     const d = drawFind(drawDrag.id); if (!d){ drawDrag = null; return true; }
     const pt = toView(e); if (!pt) return true;
     if (!drawDrag.moved && Math.hypot(pt.x-drawDrag.start.x, pt.y-drawDrag.start.y) < 3) return true;
+    if (!drawDrag.moved){ d.p = drawDrag.orig.map(o=>({t:o.t, v:o.v})); drawPushUndo(); }
     drawDrag.moved = true;
     if (drawDrag.h>=0){
       const q = drawPoint(v, pt), k = drawDrag.h;
       if (d.type==="hline") d.p[0].v = q.v;
       else if (d.type==="vline") d.p[0].t = q.t;
+      else if (d.type==="hseg"){ d.p[k].t = q.t; d.p[0].v = d.p[1].v = q.v; }
+      else if (d.type==="rect" && k>=2){ if (k===2){ d.p[0].t = q.t; d.p[1].v = q.v; } else { d.p[1].t = q.t; d.p[0].v = q.v; } }
       else d.p[k] = q;
     } else {
       const dI = Math.round((pt.x-drawDrag.start.x)/v.slotW);
@@ -11783,12 +11897,40 @@ function initChartDrawing(){
   if (del) del.addEventListener("click", ()=>{
     if (drawSel){ drawDelete(drawSel); return; }
     const n = drawList().length;
-    if (n && confirm("Effacer les "+n+" dessin"+(n>1?"s":"")+" de "+selectedSymbol+" ?")){ chartDrawings[selectedSymbol] = []; saveDrawings(); drawSyncDel(); chartDrawPatch(); }
+    if (n && confirm("Effacer les "+n+" dessin"+(n>1?"s":"")+" de "+selectedSymbol+" ? (Ctrl+Z / ⌘Z pour annuler)")){ drawPushUndo(); chartDrawings[selectedSymbol] = []; saveDrawings(); drawSyncDel(); chartDrawPatch(); }
   });
+  const panel = document.getElementById("draw-props");
+  if (panel){
+    ["pointerdown","mousedown","touchstart","wheel"].forEach(t=>panel.addEventListener(t, e=>e.stopPropagation(), {passive:true}));
+    panel.addEventListener("click", (e)=>{
+      const b = e.target.closest("button"); if (!b) return;
+      if (b.hasAttribute("data-dp-del")){ if (drawSel) drawDelete(drawSel); return; }
+      if (b.dataset.dpOpen){ drawPropsOpen = drawPropsOpen===b.dataset.dpOpen ? null : b.dataset.dpOpen; drawSyncProps(true); return; }
+      if (b.dataset.dpSet){ drawPropSet(b.dataset.dpSet, b.dataset.col, false); drawPropsOpen = null; drawSyncProps(true); }
+    });
+    panel.addEventListener("input", (e)=>{
+      const t = e.target;
+      if (t.dataset.dpInput){ const v = drawSafeCol(t.value); if (v){ drawPropSet(t.dataset.dpInput, v, true); const l = t.closest(".dp-pick"); if (l) l.style.setProperty("--c", v); const ch = document.querySelector('#draw-props [data-dp-open="'+t.dataset.dpInput+'"] i'); if (ch) ch.style.setProperty("--c", v); } }
+      else if (t.hasAttribute("data-dp-fo")) drawPropSet("fo", Math.max(0.05, Math.min(1, (+t.value||20)/100)), true);
+    });
+    panel.addEventListener("change", (e)=>{
+      const t = e.target;
+      if (t.hasAttribute("data-dp-fill")){ drawPropSet("fill", t.checked, false); drawPropsOpen = null; drawSyncProps(true); return; }
+      drawPropsEditing = false;
+      if (t.dataset.dpInput){ drawPropsOpen = null; drawSyncProps(true); }
+    });
+  }
   document.addEventListener("keydown", (e)=>{
     if (document.body.dataset.view!=="terminal") return;
     const tag = (document.activeElement && document.activeElement.tagName) || "";
     if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+    const k = (e.key||"").toLowerCase();
+    if ((e.metaKey || e.ctrlKey) && !e.altKey && (k==="z" || k==="y")){
+      const redo = k==="y" || e.shiftKey;
+      if (drawPending){ drawPending = null; drawSetTool(null); e.preventDefault(); return; }
+      if (drawRestore(redo ? drawRedo : drawUndo, redo ? drawUndo : drawRedo)) e.preventDefault();
+      return;
+    }
     if (e.key==="Escape" && (drawTool || drawPending || drawSel)){ drawSel = null; drawSetTool(null); return; }
     if ((e.key==="Delete" || e.key==="Backspace") && drawSel){ e.preventDefault(); drawDelete(drawSel); }
   });
