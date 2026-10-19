@@ -771,6 +771,8 @@
   .draw-seg .draw-del{margin-left:2px;border-left:1px solid var(--border);border-radius:0 5px 5px 0;}
   #chart-svg .pend-hit{cursor:ns-resize;}
   #chart-svg .pend-x{cursor:pointer;}
+  #chart-svg .draft-btn{cursor:pointer;}
+  #chart-svg .draft-btn:hover rect{filter:brightness(1.12);}
   #chart-svg .pend-x:hover circle{fill:var(--panel-2);}
   #chart-svg [data-chart-live]{cursor:pointer;}
   .chart-ind{position:relative;}
@@ -10588,6 +10590,10 @@ let chartYDisp = null;     // échelle des prix affichée (lissée pendant les i
 const CHART_FONT = 'font-family="IBM Plex Mono,monospace"';
 const CHART_MONTHS = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
 const CHART_TP_COLOR = "#31c882", CHART_SL_COLOR = "#f0546a";
+// Brouillon d'ordre limite posé depuis le « + » du graphique : entrée, TP et
+// SL déplaçables avant d'envoyer l'ordre. {sym, side, entry, tp, sl}
+let chartLimitDraft = null;
+let chartDraftDrag = null; // {pid, leg:"entry"|"tp"|"sl", y0, entry, tp, sl}
 
 function chartPalette(){
   const cs = getComputedStyle(document.documentElement);
@@ -10671,6 +10677,8 @@ function chartLevelHtml(g, o){
        '<text x="'+(g.W-g.padR+6)+'" y="3.6" fill="'+chartInkOn(o.color)+'" font-size="10" font-weight="600" '+CHART_FONT+'>'+chartNum(o.price, g.dec)+'</text>';
   if (o.hit) s += '<rect class="tpsl-hit" data-tpsl-pos="'+o.hit.pos+'" data-tpsl-leg="'+o.hit.leg+'" data-tpsl-mode="move" x="'+g.padL+'" y="-7" width="'+(g.W-g.padL)+'" height="14" fill="transparent"/>';
   if (o.pend) s += '<rect class="pend-hit" data-pend-drag="'+o.pend+'" x="'+g.padL+'" y="-7" width="'+(g.W-g.padL)+'" height="14" fill="transparent"><title>Glisser pour déplacer l\'ordre limite</title></rect>';
+  if (o.pendLeg) s += '<rect class="pend-hit" data-pend-drag="'+o.pendLeg.id+'" data-pend-leg="'+o.pendLeg.leg+'" x="'+g.padL+'" y="-7" width="'+(g.W-g.padL)+'" height="14" fill="transparent"><title>Glisser pour ajuster</title></rect>';
+  if (o.draft) s += '<rect class="pend-hit" data-draft-leg="'+o.draft+'" x="'+g.padL+'" y="-7" width="'+(g.W-g.padL)+'" height="14" fill="transparent"><title>Glisser pour ajuster</title></rect>';
   if (o.cancel && o.label){
     const w = Math.round(chartTextW(o.label, 9.5)+12);
     const cx = (o.align==="right" ? (g.W-g.padR-6-w) : (g.padL+4+w)) - 12;
@@ -10726,6 +10734,34 @@ function chartCreateChipHtml(g, entryY, color, label, posId, leg, dir){
     '<text x="'+(x+w/2)+'" y="'+(y+3.3).toFixed(1)+'" fill="'+color+'" font-size="9" font-weight="600" '+CHART_FONT+' text-anchor="middle">'+label+'</text>'+
   '</g>';
 }
+// Ordre limite en attente = entrée + TP + SL (comme une position ouverte) :
+// chaque ligne se glisse ; « + TP » / « + SL » pour ajouter la jambe absente.
+// `edge` (facultatif) : pastille au bord quand un niveau sort de l'écran.
+function chartPendLegHtml(g, o, leg, price, entry, preview){
+  const units = o.limitPrice>0 ? o.notional/o.limitPrice : 0;
+  const pnl = (o.side==="long" ? price-entry : entry-price)*units;
+  return chartLevelHtml(g, {id:"pend-"+leg+"-"+o.id, price, color: leg==="tp" ? CHART_TP_COLOR : CHART_SL_COLOR, dash:"5,4", align:"right",
+    label:(leg==="tp"?"TP":"SL")+" · "+fmtMoneySigned(pnl), opacity: preview ? 1 : 0.85, pendLeg: preview ? null : {id:o.id, leg}});
+}
+function chartPendBracketHtml(g, o, entry, tp, sl, preview, edge){
+  const inRange = v => v>=g.min && v<=g.max;
+  let out = "";
+  if (inRange(entry)) out += chartPendingLevelHtml(g, o, entry, preview);
+  else if (edge) edge(entry, g.pal.accent, "Limite "+(o.side==="short"?"short":"long"), o.id);
+  const entryY = g.y(entry), tpDir = o.side==="long" ? -1 : 1;
+  [["tp", tp, CHART_TP_COLOR, tpDir], ["sl", sl, CHART_SL_COLOR, -tpDir]].forEach(([leg, v, color, dir])=>{
+    if (typeof v==="number" && isFinite(v)){
+      if (inRange(v)) out += chartPendLegHtml(g, o, leg, v, entry, preview);
+      else if (edge) edge(v, color, (leg==="tp"?"TP":"SL")+" limite");
+    } else if (!preview && inRange(entry)){
+      const y = entryY + dir*15, w = 36, h = 14, x = g.W-g.padR-30-w-60;
+      out += '<g class="tpsl-chip" data-pend-drag="'+o.id+'" data-pend-leg="'+leg+'" data-pend-create="1">'+
+        '<rect x="'+x+'" y="'+(y-h/2).toFixed(1)+'" width="'+w+'" height="'+h+'" rx="7" fill="'+g.pal.bg+'" stroke="'+color+'" stroke-width="1" stroke-dasharray="3,2"/>'+
+        '<text x="'+(x+w/2)+'" y="'+(y+3.3).toFixed(1)+'" fill="'+color+'" font-size="9" font-weight="600" '+CHART_FONT+' text-anchor="middle">+ '+leg.toUpperCase()+'</text></g>';
+    }
+  });
+  return out;
+}
 // Lignes de toutes les positions ouvertes sur ce marché (entrée, TP, SL,
 // liquidation) + ordres limites en attente. Une couverture (long + short)
 // dessine les deux jeux, chacun étiqueté avec son sens.
@@ -10739,8 +10775,7 @@ function positionLinesHtml(g, positions, pending){
   (pending||[]).forEach(o=>{
     const color = g.pal.accent;
     const text = "Limite "+(o.side==="short"?"short":"long");
-    if (inRange(o.limitPrice)) out += chartPendingLevelHtml(g, o, o.limitPrice);
-    else edge(o.limitPrice, color, text, o.id);
+    out += '<g id="pendb-'+o.id+'">'+chartPendBracketHtml(g, o, o.limitPrice, o.takeProfit, o.stopLoss, false, edge)+'</g>';
   });
   positions.forEach(p=>{
     if (typeof p.entryPrice!=="number") return;
@@ -10846,6 +10881,8 @@ function chartRenderCandles(svg, a, m, W, H, all){
   vis.forEach(c=>{ if (c.l<lo) lo = c.l; if (c.h>hi) hi = c.h; });
   if (live && m.last!=null){ lo = Math.min(lo, m.last); hi = Math.max(hi, m.last); }
   [lo, hi] = extendRangeForPositions(lo, hi, positions);
+  if (chartLimitDraft && chartLimitDraft.sym===selectedSymbol && !chartDraftDrag)
+    [chartLimitDraft.entry, chartLimitDraft.tp, chartLimitDraft.sl].forEach(v=>{ if (v<lo) lo = v; if (v>hi) hi = v; });
   let span = hi-lo;
   if (!(span>0)) span = Math.abs(hi)*0.002 || 1;
   const volMax = Math.max(0, ...vis.map(c=>c.v||0));
@@ -11066,12 +11103,12 @@ function chartRenderCandles(svg, a, m, W, H, all){
   const grabEl = document.getElementById("chart-yaxis-grab");
   if (grabEl){ grabEl.style.width = padR+"px"; grabEl.style.bottom = padB+"px"; grabEl.style.top = padT+"px"; }
   g.legendTop = 0; // Short / Long sont maintenant dans l'en-tête, plus sur le graphique
-  svg.style.touchAction = (positions.length || drawTool) ? "none" : "pan-y";
+  svg.style.touchAction = (positions.length || pending.length || drawTool || (chartLimitDraft && chartLimitDraft.sym===selectedSymbol)) ? "none" : "pan-y";
   const clip = '<defs><clipPath id="chart-plot-clip"><rect x="'+padL+'" y="0" width="'+plotW+'" height="'+(H-padB)+'"/></clipPath>'+
     '<clipPath id="chart-pane-clip"><rect x="'+padL+'" y="'+(H-padB)+'" width="'+plotW+'" height="'+Math.max(0, padB-22)+'"/></clipPath></defs>';
   svg.innerHTML = clip+grid+'<g clip-path="url(#chart-plot-clip)">'+vol+over+bars+emas+marks+'</g>'+paneSvg+axis+
     '<g id="chart-draw">'+chartDrawingsHtml(g)+'</g>'+
-    '<g id="chart-levels">'+positionLinesHtml(g, positions, pending)+'</g>'+
+    '<g id="chart-levels">'+positionLinesHtml(g, positions, pending)+chartDraftHtml(g)+'</g>'+
     '<g pointer-events="none">'+indTags+'</g>'+lastTag+liveBtn+yAuto+'<g id="chart-legend" pointer-events="none"></g><g id="chart-xh" pointer-events="none"></g>';
   chartDrawOverlay();
   chartQtUpdate();
@@ -11345,6 +11382,151 @@ function chartPlaceLimit(dir, price){
   if (r.done) chartToast((dir==="long"?"Long":"Short")+" limite"+(q.ov ? " "+fmtUnits(q.ov.units)+" "+a.symbol : "")+" placé à "+fmtPrice(parseFloat(price.toFixed(a.decimals)), a.decimals)+(q.plan && q.plan.auto ? " · x"+q.ov.lev+" (levier ajusté)" : ""), dir);
   else chartToast(r.error || "Ordre refusé — vérifie le ticket d'ordre.", "err");
 }
+// ---- Brouillon d'ordre limite (menu « + » du graphique) ----
+// Le menu ne place plus l'ordre directement : il pose une entrée + TP + SL
+// proposés (2R par défaut), que l'on glisse comme les lignes d'une position
+// ouverte, puis « Placer » envoie l'ordre limite avec son TP / SL.
+function chartDraftUnits(d){
+  const qty = chartQtyValue();
+  if (qty) return qty;
+  const n = currentSizeInputToNotional(d.entry);
+  return (n>0 && d.entry>0) ? n/d.entry : 0;
+}
+function chartStartDraft(dir, price){
+  const v = chartView;
+  const tick = tpSlTick(selectedSymbol, price);
+  const span = v ? (v.max-v.min) : price*0.01;
+  const dist = Math.max(span*0.07, tick*5);
+  const long = dir==="long";
+  chartLimitDraft = {sym:selectedSymbol, side:dir, entry:price,
+    tp: Math.max(tick, long ? price+2*dist : price-2*dist),
+    sl: Math.max(tick, long ? price-dist : price+dist)};
+  chartDraftDrag = null;
+  updateChart();
+  chartToast("Glisse l'entrée, le TP et le SL, puis « Placer » (Échap pour annuler).", "info");
+}
+function chartDraftCancel(silent){
+  if (!chartLimitDraft) return;
+  chartLimitDraft = null; chartDraftDrag = null;
+  const svg = document.getElementById("chart-svg"); if (svg) svg.classList.remove("tpsl-dragging");
+  updateChart();
+  if (!silent) chartToast("Ordre limite abandonné", "info");
+}
+function chartDraftHtml(g){
+  const d = chartLimitDraft;
+  if (!d || d.sym!==selectedSymbol) return "";
+  const a = ASSETS.find(x=>x.symbol===d.sym) || {symbol:d.sym};
+  const long = d.side==="long", units = chartDraftUnits(d);
+  const pnl = px => (long ? px-d.entry : d.entry-px)*units;
+  const yE = g.y(d.entry), yT = g.y(d.tp), yS = g.y(d.sl);
+  const x0 = g.padL, w = g.W-g.padR-g.padL;
+  const risk = Math.abs(d.entry-d.sl), rr = risk>0 ? Math.abs(d.tp-d.entry)/risk : 0;
+  let s = '<g id="chart-draft">'+
+    '<g pointer-events="none">'+
+      '<rect x="'+x0+'" y="'+Math.min(yE,yT).toFixed(1)+'" width="'+w+'" height="'+Math.abs(yT-yE).toFixed(1)+'" fill="'+CHART_TP_COLOR+'" opacity="0.09"/>'+
+      '<rect x="'+x0+'" y="'+Math.min(yE,yS).toFixed(1)+'" width="'+w+'" height="'+Math.abs(yS-yE).toFixed(1)+'" fill="'+CHART_SL_COLOR+'" opacity="0.09"/>'+
+    '</g>';
+  s += chartLevelHtml(g, {price:d.tp, color:CHART_TP_COLOR, dash:"5,4", align:"right", opacity:1, draft:"tp",
+    label:"TP · "+fmtMoneySigned(pnl(d.tp))+" · "+rr.toFixed(2)+"R"});
+  s += chartLevelHtml(g, {price:d.sl, color:CHART_SL_COLOR, dash:"5,4", align:"right", opacity:1, draft:"sl",
+    label:"SL · "+fmtMoneySigned(pnl(d.sl))});
+  const label = (long?"LONG":"SHORT")+" LIMITE"+(units>0 ? " · "+fmtUnits(units)+" "+a.symbol : "");
+  s += chartLevelHtml(g, {price:d.entry, color:g.pal.accent, dash:"2,3", align:"left", opacity:1, draft:"entry", label});
+  // Boutons « Placer » / « ✕ » juste après l'étiquette d'entrée.
+  const lw = Math.round(chartTextW(label, 9.5)+12);
+  const bx = g.padL+4+lw+5, okW = 46;
+  s += '<g transform="translate(0,'+yE.toFixed(1)+')">'+
+    '<g class="draft-btn" data-draft-ok="1"><title>Envoyer l\'ordre limite avec ce TP / SL</title>'+
+      '<rect x="'+bx+'" y="-8" width="'+okW+'" height="16" rx="4" fill="'+g.pal.accent+'"/>'+
+      '<text x="'+(bx+okW/2)+'" y="3.4" fill="'+chartInkOn(g.pal.accent)+'" font-size="9.5" font-weight="700" '+CHART_FONT+' text-anchor="middle">Placer</text></g>'+
+    '<g class="draft-btn pend-x" data-draft-cancel="1"><title>Abandonner (Échap)</title>'+
+      '<circle cx="'+(bx+okW+12)+'" cy="0" r="8" fill="'+g.pal.bg+'" stroke="'+g.pal.accent+'" stroke-width="1"/>'+
+      '<path d="M'+(bx+okW+9)+' -3L'+(bx+okW+15)+' 3M'+(bx+okW+15)+' -3L'+(bx+okW+9)+' 3" stroke="'+g.pal.accent+'" stroke-width="1.6" stroke-linecap="round"/></g>'+
+  '</g>';
+  return s+'</g>';
+}
+function chartDraftPatchDom(){
+  if (!chartView) return;
+  const old = document.getElementById("chart-draft");
+  const tmp = document.createElementNS("http://www.w3.org/2000/svg","g");
+  tmp.innerHTML = chartDraftHtml(chartView);
+  const node = tmp.firstElementChild;
+  if (old && node) old.replaceWith(node);
+  else if (node) (document.getElementById("chart-levels") || document.getElementById("chart-svg")).appendChild(node);
+}
+function chartDraftPointerDown(e, svg){
+  if (!chartLimitDraft || !e.target.closest) return false;
+  const t = e.target;
+  if (t.closest("[data-draft-ok]")){ e.preventDefault(); e.stopPropagation(); chartDraftConfirm(); return true; }
+  if (t.closest("[data-draft-cancel]")){ e.preventDefault(); e.stopPropagation(); chartDraftCancel(); return true; }
+  const el = t.closest("[data-draft-leg]");
+  if (!el || (e.pointerType==="mouse" && e.button!==0)) return false;
+  const d = chartLimitDraft;
+  chartDraftDrag = {pid:e.pointerId, leg:el.dataset.draftLeg, y0:e.clientY, entry:d.entry, tp:d.tp, sl:d.sl};
+  try{ svg.setPointerCapture(e.pointerId); }catch(err){}
+  svg.classList.add("tpsl-dragging");
+  chartHover = null; chartDrawOverlay();
+  e.preventDefault();
+  return true;
+}
+function chartDraftPointerMove(e, svg){
+  if (!chartDraftDrag || e.pointerId!==chartDraftDrag.pid) return false;
+  e.preventDefault();
+  const d = chartLimitDraft;
+  if (!d){ chartDraftDrag = null; return true; }
+  const raw = chartPriceFromClientY(e.clientY, svg);
+  if (raw==null) return true;
+  const st = chartDraftDrag, long = d.side==="long";
+  const tick = tpSlTick(d.sym, d.entry);
+  if (st.leg==="entry"){
+    // L'entrée reste du bon côté du marché (sinon l'ordre partirait au
+    // marché) ; TP et SL suivent : le risque / rendement est conservé.
+    const m = market[d.sym];
+    let px = raw;
+    if (m && m.last!=null) px = long ? Math.min(px, (m.ask||m.last)*(1-0.0002)) : Math.max(px, (m.bid||m.last)*(1+0.0002));
+    const dl = px - st.entry;
+    if (Math.min(st.tp+dl, st.sl+dl, px) <= 0) return true;
+    d.entry = px; d.tp = st.tp+dl; d.sl = st.sl+dl;
+  } else {
+    const above = (st.leg==="tp")===long; // TP d'un long / SL d'un short : au-dessus de l'entrée
+    d[st.leg] = Math.max(tick, above ? Math.max(raw, d.entry+tick) : Math.min(raw, d.entry-tick));
+  }
+  chartDraftPatchDom();
+  return true;
+}
+function chartDraftPointerUp(e, svg){
+  if (!chartDraftDrag || e.pointerId!==chartDraftDrag.pid) return false;
+  chartDraftDrag = null;
+  svg.classList.remove("tpsl-dragging");
+  updateChart();
+  return true;
+}
+function chartDraftConfirm(){
+  const d = chartLimitDraft;
+  if (!d) return;
+  if (d.sym!==selectedSymbol){ chartDraftCancel(true); return; }
+  const a = ASSETS.find(x=>x.symbol===d.sym) || {decimals:2, symbol:d.sym};
+  const r2 = v=>parseFloat(v.toFixed(a.decimals));
+  const entry = r2(d.entry), tp = r2(d.tp), sl = r2(d.sl);
+  const m = market[d.sym];
+  if (m && m.last!=null){
+    if (d.side==="long" && entry >= (m.ask||m.last)){ chartToast("Le prix est passé sous ton entrée : un long limite doit être sous le prix actuel. Redescends la ligne.", "err"); return; }
+    if (d.side==="short" && entry <= (m.bid||m.last)){ chartToast("Le prix est passé au-dessus de ton entrée : un short limite doit être au-dessus du prix actuel. Remonte la ligne.", "err"); return; }
+  }
+  const q = chartQtyOverride(d.side, entry, MAKER_FEE_RATE);
+  if (q.error){ chartToast(q.error, "err"); return; }
+  const tpEl = document.getElementById("tp-input"), slEl = document.getElementById("sl-input");
+  const prevTp = tpEl.value, prevSl = slEl.value;
+  tpEl.value = String(tp); slEl.value = String(sl);
+  const r = chartRunTicketOrder(d.side, "limit", entry, q.ov);
+  tpEl.value = prevTp; slEl.value = prevSl;
+  updateOrderReadout();
+  if (r.done){
+    chartLimitDraft = null;
+    updateChart();
+    chartToast((d.side==="long"?"Long":"Short")+" limite"+(q.ov ? " "+fmtUnits(q.ov.units)+" "+a.symbol : "")+" placé à "+fmtPrice(entry, a.decimals)+" · TP "+fmtPrice(tp, a.decimals)+" · SL "+fmtPrice(sl, a.decimals)+(q.plan && q.plan.auto ? " · x"+q.ov.lev+" (levier ajusté)" : ""), d.side);
+  } else chartToast(r.error || "Ordre refusé — vérifie le ticket d'ordre.", "err");
+}
 function chartCloseMenu(){ const mn = document.getElementById("chart-menu"); if (mn) mn.hidden = true; }
 function chartOpenMenu(price, clientX, clientY){
   const mn = document.getElementById("chart-menu"), stage = document.getElementById("chart-stage");
@@ -11363,7 +11545,7 @@ function chartOpenMenu(price, clientX, clientY){
   const w = mn.offsetWidth, h = mn.offsetHeight;
   mn.style.left = Math.max(6, Math.min(sr.width-w-6, clientX-sr.left-w+8))+"px";
   mn.style.top = Math.max(6, Math.min(sr.height-h-6, clientY-sr.top-h/2))+"px";
-  mn.querySelectorAll("[data-cm]").forEach(b=>b.addEventListener("click", ()=>{ chartCloseMenu(); chartPlaceLimit(b.dataset.cm, price); }));
+  mn.querySelectorAll("[data-cm]").forEach(b=>b.addEventListener("click", ()=>{ chartCloseMenu(); chartStartDraft(b.dataset.cm, price); }));
 }
 function initChartTrading(){
   const sell = document.getElementById("qt-sell"), buy = document.getElementById("qt-buy");
@@ -11376,7 +11558,13 @@ function initChartTrading(){
   }
   if (buy) buy.addEventListener("click", ()=>chartQuickTrade("long"));
   document.addEventListener("pointerdown", (e)=>{ const mn = document.getElementById("chart-menu"); if (mn && !mn.hidden && !e.target.closest("#chart-menu") && !e.target.closest("[data-chart-plus]")) chartCloseMenu(); }, true);
-  document.addEventListener("keydown", (e)=>{ if (e.key==="Escape") chartCloseMenu(); });
+  document.addEventListener("keydown", (e)=>{
+    if (e.key!=="Escape") return;
+    const mn = document.getElementById("chart-menu");
+    if (mn && !mn.hidden){ chartCloseMenu(); return; }
+    const tg = e.target, typing = tg && (tg.tagName==="INPUT" || tg.tagName==="TEXTAREA" || tg.isContentEditable);
+    if (chartLimitDraft && !typing) chartDraftCancel();
+  });
   // Axe des prix : glisser = étirer / écraser, molette = idem, double-clic = auto.
   const grab = document.getElementById("chart-yaxis-grab");
   if (!grab) return;
@@ -11456,6 +11644,7 @@ function initChartInteractions(){
   let pinch = null;
   svg.addEventListener("pointerdown", (e)=>{
     if (chartLineDrag || !chartView || effectiveChartSource()!=="internal") return;
+    if (chartDraftPointerDown(e, svg)){ stopGlide(); return; } // brouillon d'ordre limite
     if (chartDrawDown(e, svg, toView)){ stopGlide(); return; } // outils de dessin
     const t = e.target;
     if (t.closest && t.closest("[data-tpsl-pos]")) return;
@@ -11473,7 +11662,10 @@ function initChartInteractions(){
     if (pdEl && (e.pointerType!=="mouse" || e.button===0)){
       const o = (state.pendingOrders||[]).find(x=>x.id===pdEl.dataset.pendDrag);
       if (o){
-        chartPendDrag = {pid:e.pointerId, id:o.id, price:o.limitPrice, y0:e.clientY};
+        const leg = pdEl.dataset.pendLeg || "entry";
+        const create = pdEl.dataset.pendCreate==="1";
+        const p0 = leg==="entry" || create ? o.limitPrice : (leg==="tp" ? o.takeProfit : o.stopLoss);
+        chartPendDrag = {pid:e.pointerId, id:o.id, leg, create, price:p0, y0:e.clientY};
         try{ svg.setPointerCapture(e.pointerId); }catch(err){}
         svg.classList.add("tpsl-dragging");
         chartHover = null; chartDrawOverlay();
@@ -11520,21 +11712,36 @@ function initChartInteractions(){
   });
   svg.addEventListener("pointermove", (e)=>{
     if (chartLineDrag) return;
+    if (chartDraftPointerMove(e, svg)) return;
     if (chartDrawMove(e, svg, toView)) return;
     if (chartPendDrag && e.pointerId===chartPendDrag.pid){
       const o = (state.pendingOrders||[]).find(x=>x.id===chartPendDrag.id);
       const m = market[selectedSymbol];
       if (!o || !chartView){ chartPendDrag = null; return; }
       let price = chartPriceFromClientY(e.clientY, svg);
-      if (price!=null && m && m.last!=null){
+      const leg = chartPendDrag.leg;
+      let tp = o.takeProfit, sl = o.stopLoss, entry = o.limitPrice;
+      if (price!=null && leg==="entry" && m && m.last!=null){
         // Reste du bon côté du marché : un long limite au-dessus du prix
-        // (ou un short en dessous) serait exécuté tout de suite.
+        // (ou un short en dessous) serait exécuté tout de suite. TP / SL suivent.
         if (o.side==="long") price = Math.min(price, (m.ask||m.last)*(1-0.0002));
         else price = Math.max(price, (m.bid||m.last)*(1+0.0002));
+        const dl = price - o.limitPrice;
+        if (typeof tp==="number") tp += dl;
+        if (typeof sl==="number") sl += dl;
+        entry = price;
+      } else if (price!=null && leg!=="entry"){
+        // TP / SL d'un ordre limite : du bon côté du prix limite (un pas de cotation suffit).
+        const tick = tpSlTick(o.symbol, o.limitPrice);
+        const above = (leg==="tp")===(o.side==="long");
+        price = Math.max(tick, above ? Math.max(price, o.limitPrice+tick) : Math.min(price, o.limitPrice-tick));
+        if (leg==="tp") tp = price; else sl = price;
+      }
+      if (price!=null && (leg!=="entry" || (m && m.last!=null))){
         chartPendDrag.price = price;
-        const old = document.getElementById("pend-g-"+o.id);
+        const old = document.getElementById("pendb-"+o.id);
         const tmp = document.createElementNS("http://www.w3.org/2000/svg","g");
-        tmp.innerHTML = chartPendingLevelHtml(chartView, o, price, true);
+        tmp.innerHTML = '<g id="pendb-'+o.id+'">'+chartPendBracketHtml(chartView, o, entry, tp, sl, true)+'</g>';
         if (old && tmp.firstElementChild) old.replaceWith(tmp.firstElementChild);
       }
       e.preventDefault();
@@ -11593,17 +11800,29 @@ function initChartInteractions(){
     chartPendDrag = null;
     svg.classList.remove("tpsl-dragging");
     const o = (state.pendingOrders||[]).find(x=>x.id===d.id);
-    if (commit && o && Math.abs(e.clientY-d.y0)>=3 && d.price>0){
+    if (commit && o && Math.abs(e.clientY-d.y0)>=(d.create?5:3) && d.price>0){
       const a = ASSETS.find(x=>x.symbol===o.symbol) || {decimals:2};
-      const price = parseFloat(d.price.toFixed(a.decimals));
-      const res = modifyPendingOrder(o.id, price, o.notional);
-      if (res.ok) chartToast("Ordre limite déplacé à "+fmtPrice(price, a.decimals), o.side);
-      else chartToast(res.error, "err");
+      const r2 = v=>parseFloat(v.toFixed(a.decimals));
+      const price = r2(d.price);
+      if (d.leg==="entry"){
+        const tp0 = o.takeProfit, sl0 = o.stopLoss, dl = price - o.limitPrice;
+        if (typeof tp0==="number") o.takeProfit = r2(tp0+dl);
+        if (typeof sl0==="number") o.stopLoss = r2(sl0+dl);
+        const res = modifyPendingOrder(o.id, price, o.notional);
+        if (res.ok) chartToast("Ordre limite déplacé à "+fmtPrice(price, a.decimals), o.side);
+        else { o.takeProfit = tp0; o.stopLoss = sl0; chartToast(res.error, "err"); }
+      } else {
+        if (d.leg==="tp") o.takeProfit = price; else o.stopLoss = price;
+        persistAccount();
+        renderAll();
+        chartToast((d.leg==="tp"?"TP":"SL")+" de l'ordre limite à "+fmtPrice(price, a.decimals), o.side);
+      }
     }
     updateChart();
     return true;
   };
   svg.addEventListener("pointerup", (e)=>{
+    if (chartDraftPointerUp(e, svg)) return;
     if (chartDrawUp(e, svg)) return;
     if (endPendDrag(e, true)) return;
     if (endZoomDrag(e)) return;
@@ -11631,6 +11850,7 @@ function initChartInteractions(){
   });
   svg.addEventListener("pointercancel", (e)=>{
     if (drawDrag && e.pointerId===drawDrag.pid){ drawDrag = null; saveDrawings(); }
+    chartDraftPointerUp(e, svg);
     endPendDrag(e, false);
     endZoomDrag(e);
     endTouch(e);
@@ -11642,7 +11862,7 @@ function initChartInteractions(){
     if (e.pointerType==="mouse" && !chartPanDrag){ chartHover = null; chartDrawOverlay(); }
   });
   svg.addEventListener("dblclick", (e)=>{
-    if (e.target.closest && e.target.closest("[data-tpsl-pos], [data-draw-id], [data-draw-h]")) return;
+    if (e.target.closest && e.target.closest("[data-tpsl-pos], [data-draw-id], [data-draw-h], [data-draft-leg], [data-draft-ok], [data-draft-cancel], [data-pend-drag]")) return;
     if (drawTool || drawPending) return;
     if (chartPan) backToLive();
     if (chartYManual) chartYReset(); // double-clic : tout revient en automatique
