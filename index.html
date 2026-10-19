@@ -3405,6 +3405,8 @@
   .dx-rr b{font-family:var(--mono);color:var(--text);}
   .dx-rr b.up{color:var(--long);} .dx-rr b.down{color:var(--short);}
   .dx-validate{align-self:flex-start;}
+  .dx-zoom{display:inline-flex;gap:2px;margin-left:6px;padding-left:6px;border-left:1px solid var(--border-soft);}
+  .dx-zoom button{min-width:30px;font-size:15px !important;padding:4px 8px !important;}
   .dx-explain{display:flex;flex-direction:column;gap:14px;padding:16px 18px;border-radius:14px;border:1px solid var(--border-soft);background:var(--panel-2);animation:ddIn .3s ease-out;}
   .dx-explain[hidden]{display:none;}
   .dx-exp-b{display:flex;flex-direction:column;gap:6px;}
@@ -21902,6 +21904,7 @@ async function dxStart(){
 async function dxShowRound(){
   const mode = X.mode, s = dxSt(mode), M = DX_MODES[mode], R = s.rounds[s.i];
   const an = mode==="an" || mode==="wk";
+  X.yZoom = 1;
   Object.assign(s, {phase:"playing", locked:false, view:"main", step: an ? "struct" : "dir", struct:null, trade:null, revealP:null});
   const m = document.getElementById("dd-main");
   if (m && !m.querySelector(".dx-game")) m.innerHTML = "";
@@ -22260,7 +22263,9 @@ function dxViews(R){
 function dxSyncTools(){
   const R = dxCur(), s = dxSt(X.mode); if (!R) return;
   const vw = document.getElementById("dx-views"), ib = document.getElementById("dx-inds");
-  if (vw) vw.innerHTML = dxViews(R).map(([k, l])=>'<button type="button" data-dx-view="'+k+'" class="'+((s.view||"main")===k ? "on" : "")+'">'+l+'</button>').join("");
+  if (vw) vw.innerHTML = dxViews(R).map(([k, l])=>'<button type="button" data-dx-view="'+k+'" class="'+((s.view||"main")===k ? "on" : "")+'">'+l+'</button>').join("")+
+    '<span class="dx-zoom"><button type="button" data-dx-zoom="out" title="Dézoomer (voir plus de prix)">−</button><button type="button" data-dx-zoom="in" title="Zoomer">+</button>'+
+    (X.yZoom && X.yZoom!==1 ? '<button type="button" data-dx-zoom="auto" title="Échelle automatique">Auto</button>' : '')+'</span>';
   const ind = dxInd();
   const list = [["ema20","EMA 20",TA_COLORS.ema20],["ema50","EMA 50",TA_COLORS.ema50],["ema200","EMA 200",TA_COLORS.ema200],["vwap","VWAP",TA_COLORS.vwap],["prof","Profil","var(--dd-a)"]]
     .concat(X.mode==="of" ? [["delta","Delta","var(--long)"],["cvd","CVD","#5aa9e6"]] : [["vol","Volume","var(--text-faint)"]]);
@@ -22323,7 +22328,11 @@ function dxDraw(cv, R, opt){
   let rng;
   if (hidden || ctxView) rng = r0;
   else { const e = 1-Math.pow(1-opt.p, 3); rng = [r0[0]+(r1[0]-r0[0])*e, r0[1]+(r1[1]-r0[1])*e]; }
-  if (!(X.drag && tr)){ const pad = (rng[1]-rng[0])*0.07 || rng[1]*0.01; rng = [rng[0]-pad, rng[1]+pad]; }
+  if (!(X.drag && tr)){
+    const pad = (rng[1]-rng[0])*0.07 || rng[1]*0.01; rng = [Math.max(0, rng[0]-pad), rng[1]+pad];
+    // Zoom vertical (boutons − / + ou pincement sur le pavé tactile) autour du centre.
+    if (X.yZoom && X.yZoom!==1){ const c = (rng[0]+rng[1])/2, h = (rng[1]-rng[0])/2*X.yZoom; rng = [Math.max(c-h, h*0.001), c+h]; }
+  }
   const padL = 6, padR = 64, padT = 26, padB = 10;
   const paneKeys = mode==="of" && !ctxView ? ["delta","cvd"].filter(k=>ind[k]) : [];
   const paneH = paneKeys.length ? Math.max(42, Math.min(72, Math.round(H*0.15))) : 0, panesTot = paneKeys.length*paneH;
@@ -22480,6 +22489,29 @@ function dxDrawAnnot(x, an, g){
   (an.marks||[]).forEach(m=>{ if (m.k<g.start || m.k>g.ci) return; const px = g.X(m.k), py = g.y(m.p); x.strokeStyle = col(m.col); x.lineWidth = 1.6; x.beginPath(); x.arc(px, py, 6, 0, Math.PI*2); x.stroke(); x.lineWidth = 1; x.fillStyle = col(m.col); x.fillText(m.t, px, py + (m.col==="dn" ? -14 : 14)); });
   x.textAlign = "left";
 }
+function dxDragApply(s, p){
+  const t = s.trade; if (!t || !X.drag) return;
+  const long = t.side==="long", tick = t.entry*1e-5, above = (X.drag.l==="tp")===long;
+  p = above ? Math.max(p, t.entry+tick) : Math.min(p, t.entry-tick);
+  if (!(p>0)) return;
+  t[X.drag.l] = p;
+  dxRedraw(); dxRR();
+}
+function dxEdgeStart(s){
+  if (!X.drag || X.drag.timer) return;
+  X.drag.timer = setInterval(()=>{
+    if (!X.drag || !X.geo || !X.geo.rng){ dxEdgeStop(); return; }
+    const r = X.geo.rng, span = r[1]-r[0], up = X.drag.yy < X.geo.padT;
+    // Vitesse selon la distance au bord (plus on s'éloigne, plus ça défile),
+    // calculée sur l'échelle de départ pour ne pas s'emballer.
+    if (!X.drag.span0) X.drag.span0 = span;
+    const dist = up ? X.geo.padT - X.drag.yy : X.drag.yy - (X.geo.padT + X.geo.priceH);
+    const step = X.drag.span0 * 0.0025 * Math.max(4, Math.min(80, dist)) / 4;
+    X.geo.rng = up ? [r[0], r[1]+step] : [Math.max(r[0]-step, span*0.002), r[1]];
+    dxDragApply(s, up ? X.geo.rng[1] - span*0.01 : X.geo.rng[0] + span*0.01);
+  }, 40);
+}
+function dxEdgeStop(){ if (X.drag && X.drag.timer){ clearInterval(X.drag.timer); X.drag.timer = null; } }
 function dxBindCanvas(cv){
   if (!cv) return;
   const near = (s, yy)=>{
@@ -22498,15 +22530,23 @@ function dxBindCanvas(cv){
     const s = X.st[X.mode], r = cv.getBoundingClientRect(), yy = e.clientY-r.top;
     if (!X.drag){ cv.style.cursor = near(s, yy) ? "ns-resize" : ""; return; }
     if (e.pointerId!==X.drag.pid || !s || !s.trade) return;
-    const t = s.trade, long = t.side==="long", tick = t.entry*1e-5, above = (X.drag.l==="tp")===long;
-    let p = X.geo.y2p(Math.max(X.geo.padT, Math.min(X.geo.padT+X.geo.priceH, yy)));
-    p = above ? Math.max(p, t.entry+tick) : Math.min(p, t.entry-tick);
-    if (!(p>0)) return;
-    t[X.drag.l] = p;
-    dxRedraw(); dxRR();
     e.preventDefault();
+    X.drag.yy = yy;
+    const top = X.geo.padT, bot = X.geo.padT + X.geo.priceH;
+    // Hors du graphique (au-dessus ou en dessous) : l'échelle s'élargit toute
+    // seule tant que le doigt / la souris y reste, et la ligne suit le bord.
+    if (yy < top || yy > bot){ dxEdgeStart(s); return; }
+    dxEdgeStop();
+    dxDragApply(s, X.geo.y2p(yy));
   });
-  const end = e=>{ if (X.drag && e.pointerId===X.drag.pid){ X.drag = null; dxRedraw(); } };
+  const end = e=>{ if (X.drag && e.pointerId===X.drag.pid){ dxEdgeStop(); X.drag = null; dxRedraw(); } };
+  cv.addEventListener("wheel", e=>{
+    if (!e.ctrlKey) return; // pincement sur pavé tactile = ctrl + molette
+    const s = X.st[X.mode]; if (!s || (s.phase!=="playing" && s.phase!=="reveal")) return;
+    e.preventDefault();
+    X.yZoom = Math.max(0.3, Math.min(10, (X.yZoom||1)*Math.exp(Math.max(-40, Math.min(40, e.deltaY))*0.01)));
+    dxSyncTools(); dxRedraw();
+  }, {passive:false});
   cv.addEventListener("pointerup", end);
   cv.addEventListener("pointercancel", end);
 }
@@ -22545,6 +22585,8 @@ function dxOnClick(e){
   const bt = e.target.closest("[data-dx-btab]"); if (bt){ X.btab = bt.dataset.dxBtab; dxRenderBoardTabs(); if (X.btab==="classic") dailyRenderBoards(); else { dxRenderBoard(); dxLoadBoard(X.btab); } return true; }
   const vw = e.target.closest("[data-dx-view]"); if (vw){ dxSetView(vw.dataset.dxView); return true; }
   const ib = e.target.closest("[data-dx-ind]"); if (ib){ dxSetInd(ib.dataset.dxInd); return true; }
+  const zb = e.target.closest("[data-dx-zoom]");
+  if (zb){ const z = zb.dataset.dxZoom; X.yZoom = z==="auto" ? 1 : Math.max(0.3, Math.min(10, (X.yZoom||1)*(z==="out" ? 1.4 : 1/1.4))); dxSyncTools(); dxRedraw(); return true; }
   const cf = e.target.closest("[data-dx-conf]"); if (cf){ const s = dxSt(X.mode); s.conf = +cf.dataset.dxConf; dxRenderActs(); return true; }
   const sb = e.target.closest("[data-dx-s]"); if (sb){ const s = dxSt(X.mode); if (s.phase==="playing" && !s.locked){ s.struct = sb.dataset.dxS; s.step = "trade"; dxRenderActs(); } return true; }
   const tb = e.target.closest("[data-dx-t]"); if (tb){ dxSetTrade(tb.dataset.dxT); return true; }
