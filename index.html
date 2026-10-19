@@ -3405,6 +3405,7 @@
   .dx-rr b{font-family:var(--mono);color:var(--text);}
   .dx-rr b.up{color:var(--long);} .dx-rr b.down{color:var(--short);}
   .dx-validate{align-self:flex-start;}
+  .dx-inf-cta{margin-top:-4px;}
   .dx-zoom{display:inline-flex;gap:2px;margin-left:6px;padding-left:6px;border-left:1px solid var(--border-soft);}
   .dx-zoom button{min-width:30px;font-size:15px !important;padding:4px 8px !important;}
   .dx-explain{display:flex;flex-direction:column;gap:14px;padding:16px 18px;border-radius:14px;border:1px solid var(--border-soft);background:var(--panel-2);animation:ddIn .3s ease-out;}
@@ -20522,8 +20523,22 @@ function dailyInfMore(P){
   P.loading = dailyLoad(dailyDayKey(), seed).then(rs=>{ P.rounds = P.rounds.concat(rs); P.loading = null; return rs; }, e=>{ P.loading = null; throw e; });
   return P.loading;
 }
+// Le mode illimité et les archives utilisent le moteur du défi classique :
+// depuis un onglet Order flow / Fondamental / Analyse / Semaine, on repasse
+// d'abord sur « Classique » (avant, la page plantait : rien ne s'affichait).
+function dailyEnsureClassic(){
+  if (typeof X==="undefined" || X.mode==="classic") return true;
+  const xs = dxSt(X.mode);
+  if (xs && xs.phase==="playing"){ appToast("Termine d'abord le graphique en cours."); return false; }
+  cancelAnimationFrame(X.raf);
+  X.mode = "classic"; X.btab = "classic"; X.infOn = null;
+  const m = document.getElementById("dd-main"); if (m) m.innerHTML = "";
+  dxRenderTabs(); dxRenderBoardTabs(); dailyRenderBoards();
+  return true;
+}
 async function dailyStartInfinite(){
   if (!isEdbPlus()){ switchView("edbplus"); return; }
+  if (!dailyEnsureClassic()) return;
   const m = document.getElementById("dd-main");
   if (m) m.innerHTML = '<div class="dd-card dd-empty">Préparation des graphiques…</div>';
   const P = {day:"illimité", infinite:true, rounds:[], answers:[], streak:0, bestRun:0};
@@ -20621,7 +20636,7 @@ async function renderDaily(){
   if (D.day !== today){ Object.assign(D, {day:today, rounds:null, play:null, stats:null, practice:null, phase:"idle", i:0, board:null, streaks:null, err:null}); }
   if (D.phase==="playing" || D.phase==="reveal"){ dailyShell(root); dailyRenderMain(); return; }
   dailyShell(root);
-  if (X.mode!=="classic"){ const xs = X.st[X.mode]; if (xs && (xs.phase==="playing" || xs.phase==="reveal")){ dxRender(); dxRedraw(); dailyStartTicker(); return; } }
+  if (X.mode!=="classic"){ const xs = dxSt(X.mode); if (xs && (xs.phase==="playing" || xs.phase==="reveal")){ dxRender(); dxRedraw(); dailyStartTicker(); return; } }
   dailyStartTicker();
   if (D.phase==="idle"){
     D.phase = "loading"; dailyRenderMain();
@@ -20911,6 +20926,7 @@ async function dailyStart(){
 }
 async function dailyStartPractice(day){
   if (!isEdbPlus()){ switchView("edbplus"); return; }
+  if (!dailyEnsureClassic()) return;
   const m = document.getElementById("dd-main");
   if (m) m.innerHTML = '<div class="dd-card dd-empty">Préparation des graphiques du '+dailyEsc(dailyDayLabel(day,{weekday:undefined}))+'…</div>';
   try{
@@ -21151,11 +21167,13 @@ function dailyRenderArchive(){
   if (!el) return;
   const plus = isEdbPlus();
   const days = Array.from({length:7}, (_,k)=>dailyShift(D.day||dailyDayKey(), -(k+1)));
-  const inf = dailyInfStats();
-  el.innerHTML = '<div class="dd-panel-h"><h3>Mode illimité</h3><span class="dd-plus">EDB+</span></div>'+
-    '<p class="dd-arch-sub">'+(plus ? "Enchaîne autant de graphiques que tu veux, sans attendre demain (hors classement)." : "Enchaîne autant de graphiques que tu veux avec EDB+.")+'</p>'+
-    '<button type="button" class="pw-btn '+(plus?'pw-btn-trial':'pw-btn-ghost')+' dd-inf-btn" data-dd="'+(plus?'infinite':'edbplus')+'">'+(plus ? '♾ Jouer sans limite' : '🔒 Débloquer avec EDB+')+'</button>'+
-    (plus && inf.played ? '<p class="dd-arch-sub dd-inf-st">'+inf.correct+' / '+inf.played+' bonnes réponses · record de série : '+inf.best+'</p>' : '')+
+  const pro = typeof X!=="undefined" && X.mode!=="classic";
+  const inf = pro ? dxInfStats(X.mode) : dailyInfStats();
+  const ml = pro ? DX_TAB[X.mode] : "Classique";
+  el.innerHTML = '<div class="dd-panel-h"><h3>Mode illimité · '+dailyEsc(ml)+'</h3><span class="dd-plus">EDB+</span></div>'+
+    '<p class="dd-arch-sub">'+(plus ? "Enchaîne autant "+(pro && X.mode==="fd" ? "d'annonces" : pro && X.mode==="wk" ? "de cas historiques" : "de graphiques")+" que tu veux dans ce mode, sans attendre demain (hors classement)." : "Enchaîne autant de graphiques que tu veux, dans chaque mode, avec EDB+.")+'</p>'+
+    '<button type="button" class="pw-btn '+(plus?'pw-btn-trial':'pw-btn-ghost')+' dd-inf-btn" '+(plus ? (pro ? 'data-dx="inf"' : 'data-dd="infinite"') : 'data-dd="edbplus"')+'>'+(plus ? '♾ Jouer sans limite' : '🔒 Débloquer avec EDB+')+'</button>'+
+    (plus && inf.played ? '<p class="dd-arch-sub dd-inf-st">'+inf.correct+' / '+inf.played+(pro && (X.mode==="an"||X.mode==="wk") ? ' trades gagnants' : ' bonnes réponses')+' · record de série : '+inf.best+'</p>' : '')+
     '<div class="dd-panel-h dd-arch-h"><h3>Archives</h3><span class="dd-plus">EDB+</span></div>'+
     '<p class="dd-arch-sub">'+(plus ? "Rejoue les défis des 7 derniers jours pour t'entraîner (sans score)." : "Rejoue les défis des 7 derniers jours avec EDB+.")+'</p>'+
     '<div class="dd-arch">'+days.map(d=>'<button type="button" class="dd-arch-b'+(plus?'':' locked')+'" data-dd="'+(plus?'practice':'edbplus')+'" data-day="'+d+'">'+
@@ -21504,8 +21522,8 @@ function dxEvSurprise(ev){
   const a = dxNumOf(ev.a), e = dxNumOf(ev.e);
   return a==null || e==null || Math.abs(a-e)<1e-9 ? 0 : (a>e ? 1 : -1);
 }
-function dxPickEvents(day){
-  const r = dailyRng("dx-fd-v1|"+day), idx = DX_EVENTS.map((_,i)=>i);
+function dxPickEvents(day, seed){
+  const r = dailyRng(seed ? "dx-inf-fd|"+seed : "dx-fd-v1|"+day), idx = DX_EVENTS.map((_,i)=>i);
   for (let i=idx.length-1;i>0;i--){ const j = Math.floor(r()*(i+1)); const t = idx[i]; idx[i] = idx[j]; idx[j] = t; }
   const out = idx.slice(0,3).map(i=>DX_EVENTS[i]);
   if (out.every(e=>e.k===out[0].k)){ const o = idx.map(i=>DX_EVENTS[i]).find(e=>e.k!==out[0].k); if (o) out[2] = o; }
@@ -21613,8 +21631,8 @@ function dxQual(R, mode){
   const mv = Math.abs(R.c[Math.min(R.c.length-1, R.ci+M.after)][4] - R.c[R.ci][4]);
   return mv >= (mode==="an" ? 3 : 1.5)*atr;
 }
-function dxPlan(mode, day){
-  const r = dailyRng("dx-"+mode+"-v1|"+day), M = DX_MODES[mode];
+function dxPlan(mode, day, seed){
+  const r = dailyRng(seed ? "dx-inf|"+mode+"|"+seed : "dx-"+mode+"-v1|"+day), M = DX_MODES[mode];
   const pool = mode==="of" ? DAILY_POOL.filter(a=>a.s!=="PAXGUSDT") : DAILY_POOL;
   const ivs = mode==="of" ? ["15m","15m","1h"] : ["1h"];
   const end = Date.parse(day+"T00:00:00Z") - 30*86400e3, used = new Set(), out = [];
@@ -21629,23 +21647,23 @@ function dxPlan(mode, day){
   return out;
 }
 const dxCache = {};
-function dxLoad(mode, key, day){
+function dxLoad(mode, key, day, seed){
   if (dxCache[key]) return dxCache[key];
   const M = DX_MODES[mode];
   const p = (async ()=>{
     if (mode==="fd"){
-      return Promise.all(dxPickEvents(day).map(async ev=>{
+      return Promise.all(dxPickEvents(day, seed).map(async ev=>{
         const t = dxEventTime(ev), s = await dxSeries("BTCUSDT", "15m", t-15*60e3, M.before, M.after);
         return Object.assign(dxRoundBase({sym:"BTCUSDT", name:"Bitcoin", tick:"BTC", iv:"15m"}), s, {ev, t});
       }));
     }
     if (mode==="wk"){
-      const cs = dxCase(day), ms = 3600e3, t = Date.parse(cs.cut);
+      const cs = seed ? DX_CASES[Math.floor(dailyRng("dx-inf-wk|"+seed)()*DX_CASES.length)] : dxCase(day), ms = 3600e3, t = Date.parse(cs.cut);
       const s = await dxSeries(cs.sym, "1h", Math.floor(t/ms)*ms - ms, M.before, M.after);
       const a = DAILY_POOL.find(x=>x.s===cs.sym) || {n:cs.sym, t:cs.sym};
       return [Object.assign(dxRoundBase({sym:cs.sym, name:a.n, tick:a.t, iv:"1h"}), s, {cs, t})];
     }
-    const cands = dxPlan(mode, day), got = [];
+    const cands = dxPlan(mode, day, seed), got = [];
     const divOk = R=>mode!=="of" || !!dxFlow(R).div;
     for (let i=0;i<cands.length;i+=4){
       const res = await Promise.allSettled(cands.slice(i,i+4).map(rd=>dxSeries(rd.sym, rd.iv, rd.cut, M.before, M.after).then(s=>Object.assign(dxRoundBase(rd), s))));
@@ -21940,20 +21958,25 @@ function dxExplainHtml(ex){
 // ---------- État, partie, enregistrement ----------
 function dxKey(mode){ const day = D.day || dailyDayKey(); return mode==="wk" ? dxWeekKey(day)+"_wk" : day+"_"+mode; }
 function dxRef(key){ return db.collection("dailyx").doc(key).collection("plays").doc(clientId); }
-function dxSt(mode){
+// dxSt(mode) renvoie la partie affichée : la partie du jour, ou la session
+// « sans limite » (EDB+) quand X.infOn === mode. dxSt(mode, true) force la
+// partie du jour (chargement, enregistrement, onglets).
+function dxSt(mode, daily){
+  if (!daily && X.infOn===mode && X.stInf && X.stInf[mode]) return X.stInf[mode];
   const key = dxKey(mode);
   let s = X.st[mode];
   if (!s || s.key!==key) s = X.st[mode] = {mode, key, phase:"idle", play:null, srvN:0, rounds:null, i:0, conf:1};
   return s;
 }
-function dxCur(){ const s = X.st[X.mode]; return s && s.rounds ? s.rounds[s.i] : null; }
+function dxCur(){ if (X.mode==="classic") return null; const s = dxSt(X.mode); return s && s.rounds ? s.rounds[s.i] : null; }
 function dxBusy(){
   if (D.phase==="playing") return true;
-  const s = X.st[X.mode];
+  if (X.mode==="classic") return false;
+  const s = dxSt(X.mode);
   return !!(s && s.phase==="playing");
 }
 async function dxEnsure(mode, quiet){
-  const s = dxSt(mode);
+  const s = dxSt(mode, true);
   if (s.phase==="idle"){
     s.phase = "loading";
     if (!quiet && X.mode===mode) dxRender();
@@ -21972,8 +21995,9 @@ function dxSetMode(mode){
   if (mode===X.mode) return;
   if (dxBusy()){ appToast("Termine d'abord le graphique en cours."); return; }
   cancelAnimationFrame(X.raf);
-  X.mode = mode;
+  X.mode = mode; X.infOn = null;
   const m = document.getElementById("dd-main"); if (m) m.innerHTML = "";
+  dailyRenderArchive();
   dxRenderTabs();
   if (mode!=="classic"){ X.btab = mode; dxRenderBoardTabs(); dxLoadBoard(mode); }
   else { X.btab = "classic"; dxRenderBoardTabs(); dailyRenderBoards(); }
@@ -22035,7 +22059,53 @@ function dxTimeout(){
   if (s.step==="dir") dxAnswerDir("none");
   else { if (!s.trade) s.trade = {side:"none"}; dxValidate(true); }
 }
+const DX_INF_KEY = "paperTapeDxInfinite";
+function dxInfStats(mode){ let v = null; try{ v = JSON.parse(localStorage.getItem(DX_INF_KEY)||"null"); }catch(e){} return Object.assign({played:0, correct:0, best:0, pts:0}, (v||{})[mode]||{}); }
+function dxInfSave(mode, st){ let v = null; try{ v = JSON.parse(localStorage.getItem(DX_INF_KEY)||"null"); }catch(e){} v = v || {}; v[mode] = st; try{ localStorage.setItem(DX_INF_KEY, JSON.stringify(v)); }catch(e){} }
+function dxInfMore(s){
+  if (s.loading) return s.loading;
+  const seed = Date.now()+"-"+Math.random().toString(36).slice(2);
+  s.loading = dxLoad(s.mode, "inf|"+seed, D.day, seed).then(rs=>{ s.rounds = s.rounds.concat(rs); s.loading = null; return rs; }, e=>{ s.loading = null; throw e; });
+  return s.loading;
+}
+async function dxStartInfinite(mode){
+  if (!isEdbPlus()){ switchView("edbplus"); return; }
+  if (dxBusy()){ appToast("Termine d'abord le graphique en cours."); return; }
+  cancelAnimationFrame(X.raf);
+  X.stInf = X.stInf || {};
+  const s = X.stInf[mode] = {mode, key:"inf", inf:true, phase:"loading", play:{answers:[], points:0, correct:0, status:"started"}, srvN:0, rounds:[], i:0, conf:1, streak:0, bestRun:0};
+  X.infOn = mode;
+  const m = document.getElementById("dd-main"); if (m) m.innerHTML = '<div class="dd-card dd-empty">Préparation des graphiques…</div>';
+  try{ await dxInfMore(s); }catch(e){ s.phase = "error"; dxRender(); return; }
+  if (X.infOn!==mode || X.mode!==mode) return;
+  if (m) m.innerHTML = "";
+  dxShowRound();
+}
+function dxInfStop(){
+  const s = dxSt(X.mode); if (!s || !s.inf) return;
+  cancelAnimationFrame(X.raf);
+  s.phase = "done";
+  const m = document.getElementById("dd-main"); if (m) m.innerHTML = "";
+  dxRender(); dailyRenderArchive();
+}
+function dxInfResultHtml(s){
+  const n = s.play.answers.length, ok = s.play.correct, st = dxInfStats(s.mode), M = DX_MODES[s.mode];
+  const an = s.mode==="an" || s.mode==="wk", totR = an ? s.play.answers.reduce((t,a)=>t+(a.x||0), 0)/100 : 0;
+  return '<div class="dd-card dd-result"><div class="dd-score">'+
+    '<div class="dd-score-big"><b>'+(an ? (totR>=0?"+":"−")+dxNum(Math.abs(totR),1) : ok)+'</b><span>'+(an ? "R" : "/ "+n)+'</span></div>'+
+    '<div class="dd-score-txt"><span class="dd-kicker">'+dailyEsc(M.label)+' · sans limite · EDB+</span><h2>'+(n ? (an ? n+" trade"+(n>1?"s":"")+" joué"+(n>1?"s":"") : Math.round(ok/n*100)+" % de bonnes réponses") : "Session terminée")+'</h2>'+
+      '<p><b class="num">'+s.play.points.toLocaleString("fr-FR")+'</b> points cette session · meilleure série : <b>'+s.bestRun+'</b></p>'+
+      '<p>Depuis le début : <b>'+st.correct+' / '+st.played+'</b>'+(an ? '' : ' ('+(st.played ? Math.round(st.correct/st.played*100) : 0)+' %)')+' · record de série : <b>'+st.best+'</b></p></div></div>'+
+    '<div class="dd-result-actions"><button class="pw-btn pw-btn-trial" data-dx="inf">♾ Relancer</button><button class="pw-btn pw-btn-ghost" data-dx="infback">← '+(s.mode==="wk" ? "Défi de la semaine" : "Défi du jour")+'</button></div></div>';
+}
 function dxRecord(s, rec){
+  if (s.inf){
+    s.play.answers.push(rec); s.play.points += rec.pts; if (rec.ok) s.play.correct++;
+    s.streak = rec.ok ? s.streak+1 : 0; s.bestRun = Math.max(s.bestRun, s.streak);
+    const st = dxInfStats(s.mode); st.played++; if (rec.ok) st.correct++; st.pts += rec.pts; st.best = Math.max(st.best, s.streak); dxInfSave(s.mode, st);
+    if (s.rounds.length - s.i <= 2) dxInfMore(s).catch(()=>{});
+    return;
+  }
   const answers = (s.play.answers||[]).concat([rec]);
   const done = answers.length >= DX_MODES[s.mode].n;
   Object.assign(s.play, {answers, points:(s.play.points||0)+rec.pts, correct:(s.play.correct||0)+(rec.ok?1:0), status: done ? "done" : "started"});
@@ -22088,7 +22158,7 @@ function dxVerdict(R, rec){
   R.rec = rec;
   R.exp = dxExplainRound(mode, R, rec);
   dxRenderActs(); dxSyncTools(); dxRedraw();
-  const t = dxTruth(R, M.after), last = s.i >= M.n-1;
+  const t = dxTruth(R, M.after), last = !s.inf && s.i >= M.n-1;
   let head, sub, cls;
   if (mode==="an" || mode==="wk"){
     head = rec.a==="none" ? "Pas de trade" : rec.x>0 ? "Trade gagnant" : rec.x<0 ? "Trade perdant" : "Trade à l'équilibre";
@@ -22102,13 +22172,22 @@ function dxVerdict(R, rec){
   const v = document.getElementById("dx-verdict");
   v.className = "dd-verdict "+(rec.ok ? "ok" : "ko");
   v.innerHTML = '<div class="dd-v-l"><b>'+head+'</b><span class="'+cls+'">'+dailyEsc(sub)+'</span><em>'+dailyEsc(R.name)+' · bougies '+R.ivLabel+' · '+dailyEsc(dxPeriod(R))+'</em></div>'+
-    '<div class="dd-v-r"><strong class="num">'+(rec.pts>0 ? "+" : "")+rec.pts+'</strong><button class="pw-btn pw-btn-trial" data-dx="next">'+(last ? "Voir mon résultat" : "Graphique suivant →")+'</button></div>';
+    '<div class="dd-v-r"><strong class="num">'+(rec.pts>0 ? "+" : "")+rec.pts+'</strong>'+(s.inf ? '<button class="pw-btn pw-btn-ghost" data-dx="infstop">Arrêter</button>' : '')+'<button class="pw-btn pw-btn-trial" data-dx="next">'+(last ? "Voir mon résultat" : "Graphique suivant →")+'</button></div>';
   v.hidden = false;
   const ex = document.getElementById("dx-explain");
   if (ex){ ex.innerHTML = dxExplainHtml(R.exp); ex.hidden = false; }
 }
-function dxNext(){
+async function dxNext(){
   const s = dxSt(X.mode), M = DX_MODES[X.mode];
+  if (s.inf){
+    s.i++;
+    if (!s.rounds[s.i]){
+      const nb = document.querySelector('[data-dx="next"]'); if (nb){ nb.disabled = true; nb.textContent = "Chargement…"; }
+      try{ await dxInfMore(s); }catch(e){ s.i--; appToast("Graphiques indisponibles pour l'instant, réessaie."); if (nb){ nb.disabled = false; nb.textContent = "Graphique suivant →"; } return; }
+    }
+    dxShowRound();
+    return;
+  }
   s.i++;
   if (s.i >= M.n){ s.phase = "done"; const m = document.getElementById("dd-main"); if (m) m.innerHTML = ""; dxRender(); dxLoadBoard(X.mode); return; }
   dxShowRound();
@@ -22288,7 +22367,7 @@ const DX_INTRO = {
 };
 function ddSyncPlaying(){
   const dd = document.querySelector(".dd"); if (!dd) return;
-  const ph = X.mode==="classic" ? D.phase : (X.st[X.mode] ? X.st[X.mode].phase : "");
+  const ph = X.mode==="classic" ? D.phase : (dxSt(X.mode) ? dxSt(X.mode).phase : "");
   dd.classList.toggle("dd-playing", ph==="playing" || ph==="reveal");
 }
 function dxRender(){
@@ -22308,14 +22387,15 @@ function dxRender(){
       '<div class="dd-rules">'+I.rules.map(r=>'<div><b>'+r[0]+'</b><span>'+r[1]+'</span></div>').join("")+'</div>'+
       '<button class="pw-btn pw-btn-trial dd-cta" data-dx="start">'+(resume ? "Reprendre · "+(n+1)+" / "+M.n : "Lancer · "+M.n+(mode==="fd" ? " annonce" : mode==="wk" ? " cas" : " graphique")+(M.n>1 ? "s" : ""))+' <span aria-hidden="true">→</span></button>'+
       '<p class="dd-note">'+(mode==="wk" ? "Une seule partie par semaine · " : "Une seule partie par jour · ")+'le chrono démarre à l\'affichage</p>'+
+      '<button class="pw-btn pw-btn-ghost dx-inf-cta" data-dx="inf">'+(isEdbPlus() ? '♾ Jouer sans limite (hors classement)' : '🔒 Sans limite avec EDB+')+'</button>'+
     '</div><div class="dx-intro-r" aria-hidden="true">'+dxIntroArt(mode, cs)+'</div></div>';
     return;
   }
-  if (s.phase==="done"){ m.innerHTML = dxResultHtml(s); return; }
+  if (s.phase==="done"){ m.innerHTML = s.inf ? dxInfResultHtml(s) : dxResultHtml(s); return; }
   // Partie en cours
   if (!m.querySelector(".dx-game")){
     m.innerHTML = '<div class="dd-card dd-game dx-game">'+
-      '<div class="dd-game-top"><span class="dd-round" id="dx-round"></span><span class="dd-dots" id="dx-dots"></span><span class="dd-practice">'+dailyEsc(M.label)+'</span><span class="dd-sec num" id="dx-sec"></span></div>'+
+      '<div class="dd-game-top"><span class="dd-round" id="dx-round"></span><span class="dd-dots" id="dx-dots"></span><span class="dd-practice">'+dailyEsc(M.label)+(s.inf ? ' · ♾ EDB+' : '')+'</span><span class="dd-sec num" id="dx-sec"></span></div>'+
       '<div class="dd-timer"><i id="dx-timer"></i></div>'+
       '<div class="dd-asset"><b id="dx-asset"></b><span class="dd-chip" id="dx-tf"></span><span class="dd-chip" id="dx-hz"></span></div>'+
       '<div id="dx-brief"></div>'+
@@ -22334,10 +22414,12 @@ function dxFillRound(){
   const mode = X.mode, s = dxSt(mode), M = DX_MODES[mode], R = dxCur();
   if (!R) return;
   const set = (id, v)=>{ const e = document.getElementById(id); if (e) e.textContent = v; };
-  set("dx-round", (mode==="wk" ? "Cas de la semaine" : mode==="fd" ? "Annonce "+(s.i+1)+" / "+M.n : "Graphique "+(s.i+1)+" / "+M.n));
+  set("dx-round", s.inf ? "Sans limite · "+(mode==="wk" ? "cas " : mode==="fd" ? "annonce " : "graphique ")+(s.i+1)
+    : (mode==="wk" ? "Cas de la semaine" : mode==="fd" ? "Annonce "+(s.i+1)+" / "+M.n : "Graphique "+(s.i+1)+" / "+M.n));
   const answers = (s.play && s.play.answers) || [];
   const dots = document.getElementById("dx-dots");
-  if (dots) dots.innerHTML = M.n>1 ? Array.from({length:M.n}, (_,k)=>{ const a = answers[k]; return '<i class="'+(a ? (a.ok ? "ok" : "ko") : (k===s.i ? "cur" : ""))+'"></i>'; }).join("") : "";
+  if (dots && s.inf) dots.innerHTML = '<span class="dd-inf-score">'+s.play.correct+' / '+answers.length+(s.streak>1 ? ' · 🔥 '+s.streak : '')+'</span>';
+  else if (dots) dots.innerHTML = M.n>1 ? Array.from({length:M.n}, (_,k)=>{ const a = answers[k]; return '<i class="'+(a ? (a.ok ? "ok" : "ko") : (k===s.i ? "cur" : ""))+'"></i>'; }).join("") : "";
   set("dx-asset", R.name+(R.name!==R.tick ? " ("+R.tick+")" : ""));
   set("dx-tf", "Bougies "+R.ivLabel);
   const hzH = Math.round(M.after*R.ivMs/3600e3*10)/10;
@@ -22693,14 +22775,14 @@ function dxBindCanvas(cv){
     return c.d <= 12 ? c.l : null;
   };
   cv.addEventListener("pointerdown", e=>{
-    const s = X.st[X.mode], r = cv.getBoundingClientRect(), l = near(s, e.clientY-r.top);
+    const s = dxSt(X.mode), r = cv.getBoundingClientRect(), l = near(s, e.clientY-r.top);
     if (!l) return;
     X.drag = {l, pid:e.pointerId};
     try{ cv.setPointerCapture(e.pointerId); }catch(err){}
     e.preventDefault();
   });
   cv.addEventListener("pointermove", e=>{
-    const s = X.st[X.mode], r = cv.getBoundingClientRect(), yy = e.clientY-r.top;
+    const s = dxSt(X.mode), r = cv.getBoundingClientRect(), yy = e.clientY-r.top;
     if (!X.drag){ cv.style.cursor = near(s, yy) ? "ns-resize" : ""; return; }
     if (e.pointerId!==X.drag.pid || !s || !s.trade) return;
     e.preventDefault();
@@ -22715,7 +22797,7 @@ function dxBindCanvas(cv){
   const end = e=>{ if (X.drag && e.pointerId===X.drag.pid){ dxEdgeStop(); if (X.drag.span0 && X.geo && X.geo.rng) X.yMan = X.geo.rng.slice(); X.drag = null; dxSyncTools(); dxRedraw(); } };
   cv.addEventListener("wheel", e=>{
     if (!e.ctrlKey) return; // pincement sur pavé tactile = ctrl + molette
-    const s = X.st[X.mode]; if (!s || (s.phase!=="playing" && s.phase!=="reveal")) return;
+    const s = dxSt(X.mode); if (!s || (s.phase!=="playing" && s.phase!=="reveal")) return;
     e.preventDefault();
     X.yZoom = Math.max(0.3, Math.min(10, (X.yZoom||1)*Math.exp(Math.max(-40, Math.min(40, e.deltaY))*0.01)));
     dxSyncTools(); dxRedraw();
@@ -22748,7 +22830,7 @@ function dxResultHtml(s){
       '<div class="dd-score-txt"><span class="dd-kicker">'+dailyEsc(M.label)+(mode==="wk" ? " · "+dxWeekKey(D.day) : " · résultat du jour")+'</span><h2>'+msg+'</h2>'+
       '<p><b class="num">'+(play.points||0).toLocaleString("fr-FR")+'</b> points'+(rank>=0 ? ' · <b>'+(rank+1)+'<sup>'+(rank===0 ? "er" : "e")+'</sup></b> '+(mode==="wk" ? "de la semaine" : "du jour") : '')+'</p>'+
       '<div class="dd-emoji">'+dailyMarksHtml(ans)+'</div></div></div>'+
-    '<div class="dd-result-actions"><span class="dd-note">'+(mode==="wk" ? "Nouveau cas lundi." : "Nouvelle partie demain à minuit (heure de Paris).")+' Essaie les autres modes en attendant.</span></div>'+
+    '<div class="dd-result-actions"><button class="pw-btn pw-btn-trial" data-dx="inf">'+(isEdbPlus() ? '♾ Continuer sans limite' : '🔒 Continuer sans limite avec EDB+')+'</button><span class="dd-note">'+(mode==="wk" ? "Nouveau cas lundi." : "Nouvelle partie demain à minuit (heure de Paris).")+'</span></div>'+
     recap+'</div>';
 }
 
@@ -22768,7 +22850,10 @@ function dxOnClick(e){
   const act = b.dataset.dx;
   if (act==="theme"){ X.themeOpen = !X.themeOpen; dxRenderTheme(); }
   else if (act==="start") dxStart();
-  else if (act==="retry"){ dxSt(X.mode).phase = "intro"; dxRender(); }
+  else if (act==="inf"){ if (X.mode!=="classic") dxStartInfinite(X.mode); }
+  else if (act==="infstop") dxInfStop();
+  else if (act==="infback"){ X.infOn = null; const m = document.getElementById("dd-main"); if (m) m.innerHTML = ""; dxRender(); dailyRenderArchive(); }
+  else if (act==="retry"){ const st = dxSt(X.mode); if (st.inf) dxStartInfinite(X.mode); else { st.phase = "intro"; dxRender(); } }
   else if (act==="up" || act==="down") dxAnswerDir(act);
   else if (act==="validate") dxValidate(false);
   else if (act==="restruct"){ e.preventDefault(); const s = dxSt(X.mode); if (!s.locked){ s.step = "struct"; dxRenderActs(); } }
@@ -22777,7 +22862,7 @@ function dxOnClick(e){
 }
 document.addEventListener("keydown", e=>{
   if (document.body.dataset.view!=="daily" || X.mode==="classic") return;
-  const s = X.st[X.mode];
+  const s = dxSt(X.mode);
   if (!s || s.phase!=="playing" || s.locked) return;
   if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
   if (e.key==="v" || e.key==="V"){ const vs = dxViews(dxCur()).map(v=>v[0]), i = vs.indexOf(s.view||"main"); dxSetView(vs[(i+1)%vs.length]); return; }
