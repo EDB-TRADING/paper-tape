@@ -3457,6 +3457,84 @@
     .dd-v-r{width:100%;justify-content:space-between;}
   }
 
+  /* ---------- Défi du jour · mise en page v3 ---------- */
+  .dd{gap:18px;}
+  .dd-head.dx-head{flex-direction:column;align-items:stretch;gap:18px;padding:24px 26px 20px;
+    background:radial-gradient(900px 260px at 0% 0%, color-mix(in srgb, var(--dd-a) 12%, transparent), transparent 70%), linear-gradient(180deg, var(--panel), color-mix(in srgb, var(--panel) 55%, var(--bg)));}
+  .dx-head-top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;}
+  .dd-head.dx-head{min-width:0;overflow:hidden;}
+  .dx-head > *, .dx-head-top > *{min-width:0;max-width:100%;}
+  .dd, .dd-grid, .dd-main{min-width:0;}
+  /* Pendant une partie : en-tête réduit au rail des modes (+ thème), la partie remonte. */
+  .dd.dd-playing .dx-head-top{display:none;}
+  .dd.dd-playing .dd-head.dx-head{padding:12px 14px;gap:10px;}
+  .dd.dd-playing .dx-mc{padding:8px 12px;grid-template-columns:28px minmax(0,1fr);}
+  .dd.dd-playing .dx-mc .dx-ic{width:28px;height:28px;border-radius:8px;grid-row:auto;}
+  .dd.dd-playing .dx-mc .dx-ic svg{width:16px;height:16px;}
+  .dd.dd-playing .dx-mc small, .dd.dd-playing .dx-mc .dx-st{display:none;}
+  .dd.dd-playing .dx-mc.on::after{left:10px;right:10px;}
+  .dx-head .dd-head-l{display:flex;flex-direction:column;gap:6px;}
+  .dx-head h1{font-size:32px;margin:2px 0 0;letter-spacing:-.03em;}
+  .dx-head .dd-head-l p{font-size:14px;max-width:560px;}
+  .dx-head .dd-head-stats{gap:0;border:1px solid var(--border-soft);border-radius:14px;background:color-mix(in srgb, var(--bg) 55%, transparent);overflow:hidden;}
+  .dx-head .dd-head-stats > div{border:none;border-radius:0;background:none;min-width:96px;padding:10px 16px;gap:2px;}
+  .dx-head .dd-head-stats > div + div{border-left:1px solid var(--border-soft);}
+  .dx-head .dd-head-stats b{font-size:19px;}
+  .dx-head .dd-head-stats span{font-size:11px;}
+  /* Rail des modes */
+  .dx-modes{grid-template-columns:repeat(5, minmax(0,1fr));gap:10px;}
+  .dx-modes .dx-mc{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr);grid-template-rows:auto auto auto;column-gap:11px;row-gap:2px;align-items:center;
+    padding:13px 14px 12px;border-radius:14px;border:1px solid var(--border-soft);background:color-mix(in srgb, var(--bg) 45%, var(--panel));color:var(--text-dim);font:inherit;text-align:left;cursor:pointer;
+    transition:border-color .15s, transform .15s, background .15s;overflow:hidden;}
+  .dx-modes .dx-mc:hover{transform:translateY(-1px);border-color:color-mix(in srgb, var(--dd-a) 40%, var(--border-soft));}
+  .dx-mc .dx-ic{grid-row:1 / span 2;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--dd-a);background:color-mix(in srgb, var(--dd-a) 12%, transparent);}
+  .dx-mc .dx-ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+  .dx-mc b{font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dx-mc small{font-family:var(--mono);font-size:11px;color:var(--text-faint);white-space:nowrap;}
+  .dx-mc .dx-st{grid-column:1 / -1;justify-self:start;margin-top:9px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;border:1px solid color-mix(in srgb, var(--dd-a) 45%, transparent);color:var(--dd-a);}
+  .dx-mc .dx-st.prog{border-color:color-mix(in srgb, var(--warn, #f2b33d) 50%, transparent);color:var(--warn, #f2b33d);}
+  .dx-mc .dx-st.done{border-color:color-mix(in srgb, var(--long) 45%, transparent);color:var(--long);background:color-mix(in srgb, var(--long) 8%, transparent);}
+  .dx-modes .dx-mc.on{border-color:var(--dd-a);background:color-mix(in srgb, var(--dd-a) 10%, var(--panel));box-shadow:0 0 0 3px color-mix(in srgb, var(--dd-a) 13%, transparent);}
+  .dx-modes .dx-mc.on::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:3px;border-radius:3px 3px 0 0;background:var(--dd-a);}
+  .dx-modes .dx-mc.on .dx-ic{color:var(--dd-on);background:var(--dd-a);}
+  /* Thème du jour, intégré à l'en-tête */
+  .dx-head .dx-theme{border-radius:12px;background:color-mix(in srgb, var(--bg) 50%, transparent);}
+  .dx-head .dx-theme-h{padding:10px 14px;}
+  .dx-theme-h .dx-tag{font-family:var(--mono);font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:6px;color:var(--dd-on);background:var(--dd-a);letter-spacing:.04em;}
+  /* Intros des modes avancés : texte + illustration */
+  .dd-card.dx-intro{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.95fr);gap:8px 28px;align-items:center;padding:30px;}
+  .dx-intro-l{display:flex;flex-direction:column;gap:16px;align-items:flex-start;min-width:0;}
+  .dx-intro-r{min-width:0;}
+  .dx-art{display:block;width:100%;height:auto;}
+  .dx-intro .dd-rules{grid-template-columns:minmax(0,1fr);gap:8px;}
+  .dx-intro .dd-rules > div{padding:10px 12px;align-items:center;}
+  .dx-intro .dd-cta{margin-top:2px;}
+  .dd-rules span b{all:unset;font-weight:700;color:var(--text);}
+  .dx-art .a-grid{stroke:var(--border-soft);stroke-width:1;}
+  .dx-art .a-up{fill:var(--long);stroke:var(--long);}
+  .dx-art .a-dn{fill:var(--short);stroke:var(--short);}
+  .dx-art .a-acc{fill:none;stroke:var(--dd-a);stroke-width:2;}
+  .dx-art .a-txt{fill:var(--text-dim);font-family:var(--mono);font-size:12px;}
+  .dx-art .a-big{fill:var(--text);font-family:var(--sans);font-weight:800;}
+  .dx-art .a-q{fill:var(--dd-a);font-weight:800;font-family:var(--sans);}
+  .dx-art .a-box{fill:color-mix(in srgb, var(--bg) 70%, transparent);stroke:var(--border-soft);}
+  .dx-art .a-zone{stroke:color-mix(in srgb, var(--dd-a) 55%, transparent);stroke-dasharray:5 6;fill:color-mix(in srgb, var(--dd-a) 7%, transparent);}
+  /* Colonne de droite */
+  .dd-side .dd-panel{padding:16px;}
+  .dx-btabs{gap:4px;padding:3px;border-radius:10px;background:var(--bg);border:1px solid var(--border-soft);margin:0 0 10px;}
+  .dx-btabs button{flex:1 1 auto;border:none;border-radius:7px;padding:5px 8px;}
+  .dd-list li{padding:7px 6px;}
+  @media (max-width:1100px){ .dx-modes{grid-template-columns:repeat(3, minmax(0,1fr));} .dd-card.dx-intro{grid-template-columns:minmax(0,1fr);} .dx-intro-r{order:-1;max-width:520px;} }
+  @media (max-width:720px){
+    .dd-head.dx-head{padding:18px 16px 16px;gap:14px;}
+    .dx-head h1{font-size:26px;}
+    .dx-head .dd-head-stats{width:100%;}
+    .dx-head .dd-head-stats > div{flex:1;min-width:0;padding:8px 10px;}
+    .dx-modes{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:2px 16px 4px;scrollbar-width:none;}
+    .dx-modes .dx-mc{flex:none;width:158px;scroll-snap-align:start;}
+    .dd-card.dx-intro{padding:18px;}
+  }
+
   /* ---------- Certificat de challenge ---------- */
   .cert-modal{display:flex;flex-direction:column;gap:12px;}
   .cert-modal h3{margin:0;}
@@ -4003,7 +4081,10 @@
   html.chart-locked .widget[data-widget="chart"]{box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 70%, transparent);}
   .ct-pill{position:fixed;left:50%;bottom:calc(var(--tabbar-h, 64px) + 14px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;display:none;align-items:center;gap:8px;max-width:92vw;padding:9px 14px;border-radius:999px;font:600 12.5px var(--sans);color:var(--text);background:color-mix(in srgb, var(--panel-2) 94%, transparent);border:1px solid color-mix(in srgb, var(--accent) 60%, var(--border));box-shadow:0 14px 34px -12px rgba(0,0,0,.8);}
   .ct-pill b{color:var(--accent);}
-  html.chart-locked .ct-pill{display:flex;}
+  html.chart-locked .ct-pill.show{display:flex;animation:ctPill 2.6s ease forwards;}
+  .ct-pill{white-space:nowrap;font-size:12px;padding:7px 12px;}
+  @keyframes ctPill{0%{opacity:0;transform:translate(-50%,6px);}10%,75%{opacity:1;transform:translate(-50%,0);}100%{opacity:0;transform:translate(-50%,6px);}}
+  html.chart-locked [data-widget="chart"]{box-shadow:0 0 0 2px var(--accent);}
 
   /* Espacement vertical géré par la colonne (gap) et non plus par un
      margin-top écrit à la main sur chaque widget : après un déplacement, le
@@ -12567,12 +12648,26 @@ function initChartIndicators(){
     });
   });
   const close = ()=>{ pop.hidden = true; btn.setAttribute("aria-expanded","false"); };
+  // Placé en position fixe et recalé dans l'écran : sur mobile, ancré à droite
+  // du bouton, il sortait par la gauche (liste coupée).
+  const place = ()=>{
+    const r = btn.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
+    const w = Math.min(260, vw-16);
+    const tab = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--tabbar-h")) || 0;
+    const bottomGap = document.documentElement.classList.contains("touch-ui") ? tab+12 : 12;
+    let top = r.bottom+6, maxH = vh - top - bottomGap;
+    if (maxH < 220 && r.top > vh/2){ maxH = Math.min(420, r.top-14); top = r.top-6-maxH; }
+    Object.assign(pop.style, {position:"fixed", width:w+"px", left:Math.max(8, Math.min(vw-w-8, r.left))+"px", right:"auto", top:Math.max(8, top)+"px", maxHeight:Math.max(160, maxH)+"px", overflowY:"auto"});
+  };
   btn.addEventListener("click", (e)=>{
     e.stopPropagation();
     const open = pop.hidden;
     pop.hidden = !open;
+    if (open) place();
     btn.setAttribute("aria-expanded", open ? "true" : "false");
   });
+  window.addEventListener("resize", ()=>{ if (!pop.hidden) place(); });
+  window.addEventListener("scroll", ()=>{ if (!pop.hidden) place(); }, {passive:true, capture:true});
   document.addEventListener("pointerdown", (e)=>{ if (!pop.hidden && !e.target.closest("#chart-ind")) close(); });
   document.addEventListener("keydown", (e)=>{ if (e.key==="Escape" && !pop.hidden) close(); });
 }
@@ -20553,17 +20648,19 @@ function dailyShell(root){
   if (root.querySelector(".dd")) return;
   root.innerHTML =
     '<div class="dd">'+
-      '<section class="dd-head">'+
-        '<div class="dd-head-l"><span class="dd-kicker" id="dd-date"></span><h1>Lis le marché.</h1>'+
-          '<p>Chaque jour, les mêmes graphiques pour tout le monde : le classique en 5 × 1 minute, l\'order flow, les annonces macro, l\'analyse longue notée en R, et un grand cas historique chaque semaine.</p></div>'+
-        '<div class="dd-head-stats">'+
-          '<div><b id="dd-streak">—</b><span>jours de suite</span></div>'+
-          '<div><b id="dd-best">—</b><span>record</span></div>'+
-          '<div><b id="dd-next" class="num">—</b><span>prochain défi</span></div>'+
+      '<section class="dd-head dx-head">'+
+        '<div class="dx-head-top">'+
+          '<div class="dd-head-l"><span class="dd-kicker" id="dd-date"></span><h1>Lis le marché.</h1>'+
+            '<p>Les mêmes graphiques pour tout le monde, chaque jour. Choisis ton mode : réflexe, order flow, macro, analyse en R ou grand cas historique.</p></div>'+
+          '<div class="dd-head-stats">'+
+            '<div><b id="dd-streak">—</b><span>jours de suite</span></div>'+
+            '<div><b id="dd-best">—</b><span>record</span></div>'+
+            '<div><b id="dd-next" class="num">—</b><span>prochain défi</span></div>'+
+          '</div>'+
         '</div>'+
+        '<nav class="dx-modes" id="dx-modes" aria-label="Modes du défi"></nav>'+
+        '<div class="dx-theme" id="dx-theme"></div>'+
       '</section>'+
-      '<nav class="dx-modes" id="dx-modes" aria-label="Modes du défi"></nav>'+
-      '<div class="dx-theme" id="dx-theme"></div>'+
       '<div class="dd-grid">'+
         '<section class="dd-main" id="dd-main"></section>'+
         '<aside class="dd-side">'+
@@ -20603,6 +20700,7 @@ function dailyStartTicker(){
 function dailyRenderMain(){
   const m = document.getElementById("dd-main");
   if (!m || X.mode!=="classic") return;
+  ddSyncPlaying();
   const P = D.practice;
   if (D.phase==="loading"){ m.innerHTML = '<div class="dd-card dd-empty">Préparation des graphiques…</div>'; return; }
   if (D.phase==="error"){
@@ -20869,6 +20967,7 @@ function dailyAnswer(choice){
     const done = answers.length>=DAILY_ROUNDS;
     Object.assign(D.play, {answers, points:(D.play.points||0)+pts, correct:(D.play.correct||0)+(ok?1:0), status: done ? "done" : "started"});
     dailyFlush(); // envoi + nouvel essai automatique ; l'état s'affiche dans la pastille du haut
+    try{ dxRenderTabs(); }catch(e){}
     if (done) dailyFinish();
   }
   // Révélation animée des bougies suivantes (toujours sur le graphique détaillé).
@@ -21904,7 +22003,7 @@ async function dxStart(){
 async function dxShowRound(){
   const mode = X.mode, s = dxSt(mode), M = DX_MODES[mode], R = s.rounds[s.i];
   const an = mode==="an" || mode==="wk";
-  X.yZoom = 1;
+  X.yZoom = 1; X.yMan = null;
   Object.assign(s, {phase:"playing", locked:false, view:"main", step: an ? "struct" : "dir", struct:null, trade:null, revealP:null});
   const m = document.getElementById("dd-main");
   if (m && !m.querySelector(".dx-game")) m.innerHTML = "";
@@ -21941,7 +22040,7 @@ function dxRecord(s, rec){
   const done = answers.length >= DX_MODES[s.mode].n;
   Object.assign(s.play, {answers, points:(s.play.points||0)+rec.pts, correct:(s.play.correct||0)+(rec.ok?1:0), status: done ? "done" : "started"});
   dxFlush();
-  if (done) dxRenderTabs();
+  dxRenderTabs();
 }
 function dxAnswerDir(choice){
   const s = dxSt(X.mode);
@@ -22103,20 +22202,79 @@ function dxRenderBoard(){
 }
 
 // ---------- Rendu ----------
+const DX_ICONS = {
+  classic:'<path d="M6 15V4M3 7l3-3 3 3M14 5v11M11 13l3 3 3-3"/>',
+  of:'<path d="M4 16V9M8 16V4M12 16v-5M16 16V7"/><path d="M3 18h14"/>',
+  fd:'<rect x="3.5" y="4.5" width="13" height="12" rx="2"/><path d="M3.5 8.5h13M7 3v3M13 3v3M7 12.5h3"/>',
+  an:'<circle cx="10" cy="10" r="5.5"/><path d="M10 2v4M10 14v4M2 10h4M14 10h4"/>',
+  wk:'<path d="M6.5 3.5h7v4a3.5 3.5 0 0 1-7 0zM6.5 5H4a2.4 2.4 0 0 0 2.7 3M13.5 5H16a2.4 2.4 0 0 1-2.7 3M10 11v3M7 16.5h6"/>',
+};
 function dxRenderTabs(){
   const el = document.getElementById("dx-modes"); if (!el) return;
   el.innerHTML = DX_ORDER.map(m=>{
-    const done = m==="classic" ? !!(D.play && D.play.status==="done") : !!(X.st[m] && X.st[m].play && X.st[m].play.status==="done");
+    const play = m==="classic" ? D.play : (X.st[m] && X.st[m].play);
+    const N = m==="classic" ? DAILY_ROUNDS : DX_MODES[m].n, n = play && play.answers ? play.answers.length : 0;
+    const done = !!(play && play.status==="done");
     const sub = m==="classic" ? "5 × 1 min" : DX_MODES[m].sub;
-    return '<button type="button" data-dx-mode="'+m+'" class="'+(X.mode===m ? "on" : "")+(done ? " done" : "")+'"><b>'+(m==="wk" ? "Défi de la semaine" : DX_TAB[m])+'</b><small>'+(done ? "✓ terminé" : sub)+'</small></button>';
+    const st = done ? '<span class="dx-st done">✓ '+(play.points||0).toLocaleString("fr-FR")+' pts</span>'
+      : n>0 ? '<span class="dx-st prog">En cours · '+n+'/'+N+'</span>'
+      : '<span class="dx-st">'+(m==="wk" ? "Cette semaine" : "À jouer")+'</span>';
+    return '<button type="button" data-dx-mode="'+m+'" class="dx-mc'+(X.mode===m ? " on" : "")+(done ? " done" : "")+'" aria-pressed="'+(X.mode===m)+'">'+
+      '<span class="dx-ic"><svg viewBox="0 0 20 20" aria-hidden="true">'+DX_ICONS[m]+'</svg></span>'+
+      '<b>'+(m==="wk" ? "Défi de la semaine" : DX_TAB[m])+'</b><small>'+sub+'</small>'+st+'</button>';
   }).join("");
 }
 function dxRenderTheme(){
   const el = document.getElementById("dx-theme"); if (!el) return;
   const th = dxTheme(D.day);
-  el.innerHTML = '<button type="button" class="dx-theme-h" data-dx="theme" aria-expanded="'+X.themeOpen+'"><span class="dd-kicker">Thème du jour</span><b>'+dailyEsc(th.t)+'</b><em>'+(X.themeOpen ? "Masquer la fiche ▴" : "Voir la fiche théorie ▾")+'</em></button>'+
+  el.innerHTML = '<button type="button" class="dx-theme-h" data-dx="theme" aria-expanded="'+X.themeOpen+'"><span class="dx-tag">THÈME DU JOUR</span><b>'+dailyEsc(th.t)+'</b><em>'+(X.themeOpen ? "Masquer la fiche ▴" : "Voir la fiche théorie ▾")+'</em></button>'+
     '<div class="dx-theme-b"'+(X.themeOpen ? "" : " hidden")+'><ul>'+th.card.map(l=>'<li>'+dailyEsc(l)+'</li>').join("")+'</ul>'+
     '<p class="dx-look"><b>À chercher aujourd\'hui :</b> '+dailyEsc(th.look)+' Après chaque graphique, une lecture selon ce thème est affichée et dessinée.</p></div>';
+}
+// Illustrations des intros (SVG décoratif, couleurs du thème).
+function dxIntroArt(mode, cs){
+  const r = dailyRng("dx-art-"+mode), W = 520, H = 320;
+  const candles = (n, x0, x1, top, bot, drift, seedBias)=>{
+    let p = 0; const c = [];
+    for (let i=0;i<n;i++){ const o = p, cl = o + (r()-0.5+drift)*8 + (seedBias ? seedBias(i) : 0); c.push({o, c:cl, h:Math.max(o,cl)+r()*3.5, l:Math.min(o,cl)-r()*3.5}); p = cl; }
+    const lo = Math.min(...c.map(k=>k.l)), hi = Math.max(...c.map(k=>k.h)), y = v=>bot-(v-lo)/((hi-lo)||1)*(bot-top), st = (x1-x0)/n;
+    let s = "";
+    c.forEach((k,i)=>{ const x = x0+i*st, cls = k.c>=k.o ? "a-up" : "a-dn";
+      s += '<line class="'+cls+'" x1="'+(x+st*0.35).toFixed(1)+'" x2="'+(x+st*0.35).toFixed(1)+'" y1="'+y(k.h).toFixed(1)+'" y2="'+y(k.l).toFixed(1)+'" stroke-width="1.3"/>'+
+        '<rect class="'+cls+'" x="'+x.toFixed(1)+'" width="'+(st*0.7).toFixed(1)+'" y="'+y(Math.max(k.o,k.c)).toFixed(1)+'" height="'+Math.max(2, Math.abs(y(k.o)-y(k.c))).toFixed(1)+'" rx="1.5"/>'; });
+    return {svg:s, last:{x:x0+(n-1)*st+st*0.35, y:y(c[n-1].c)}, c, y, st};
+  };
+  const grid = [60,120,180,240].map(g=>'<line class="a-grid" x1="0" x2="'+W+'" y1="'+g+'" y2="'+g+'"/>').join("");
+  const zone = (x, y0, h)=>{ y0 = y0 || 18; h = h || H-y0-18; return '<rect class="a-zone" x="'+x+'" y="'+y0+'" width="'+(W-x-10)+'" height="'+h+'" rx="14"/><text class="a-q" x="'+((x+W-10)/2)+'" y="'+(y0+h/2+22)+'" font-size="64" text-anchor="middle">?</text>'; };
+  let body = "";
+  if (mode==="of"){
+    const k = candles(30, 14, 380, 24, 170, 0.1);
+    let bars = "", cvd = "M14 296", cv = 0;
+    for (let i=0;i<30;i++){ const d = (r()-0.62)*30, x = 14+i*(366/30); cv += d; bars += '<rect class="'+(d>=0?"a-up":"a-dn")+'" x="'+x.toFixed(1)+'" width="'+(366/30*0.7).toFixed(1)+'" y="'+(d>=0 ? 228-d : 228).toFixed(1)+'" height="'+Math.abs(d).toFixed(1)+'" opacity=".7"/>'; cvd += " L"+(x+5).toFixed(1)+" "+(296-cv*0.35).toFixed(1); }
+    body = k.svg+'<line class="a-grid" x1="0" x2="'+W+'" y1="198" y2="198"/>'+bars+'<path d="'+cvd+'" fill="none" stroke="#5aa9e6" stroke-width="2"/>'+
+      '<text class="a-txt" x="16" y="192">PRIX ↗</text><text class="a-txt" x="16" y="214">DELTA</text><text class="a-txt" x="16" y="316" fill="#5aa9e6">CVD ↘ divergence</text>'+zone(398);
+  } else if (mode==="fd"){
+    const tile = (x, l, v, acc)=>'<rect class="a-box" x="'+x+'" y="34" width="112" height="66" rx="12"'+(acc?' style="stroke:var(--dd-a)"':'')+'/><text class="a-txt" x="'+(x+14)+'" y="58">'+l+'</text><text class="a-big" x="'+(x+14)+'" y="88" font-size="24"'+(acc?' style="fill:var(--dd-a)"':'')+'>'+v+'</text>';
+    const k = candles(26, 14, 380, 132, 296, 0.02);
+    body = '<text class="a-txt" x="16" y="22">CPI · INFLATION AMÉRICAINE</text>'+tile(14,"PRÉCÉDENT","3,4 %")+tile(136,"CONSENSUS","3,4 %")+tile(258,"PUBLIÉ","3,3 %", true)+k.svg+
+      '<line x1="'+(k.last.x+6)+'" x2="'+(k.last.x+6)+'" y1="120" y2="306" stroke="var(--dd-a)" stroke-dasharray="4 5"/>'+zone(398);
+  } else if (mode==="an"){
+    const k = candles(34, 14, 380, 130, 296, 0.22);
+    const e = k.last.y, x0 = k.last.x;
+    body = k.svg+
+      '<rect x="'+x0+'" y="'+(e-92)+'" width="'+(W-x0-12)+'" height="92" fill="var(--long)" opacity=".1"/><rect x="'+x0+'" y="'+e+'" width="'+(W-x0-12)+'" height="46" fill="var(--short)" opacity=".1"/>'+
+      '<line x1="10" x2="'+(W-12)+'" y1="'+(e-92)+'" y2="'+(e-92)+'" stroke="var(--long)" stroke-dasharray="6 4" stroke-width="1.5"/><line x1="10" x2="'+(W-12)+'" y1="'+e+'" y2="'+e+'" stroke="var(--text)" stroke-width="1.5"/><line x1="10" x2="'+(W-12)+'" y1="'+(e+46)+'" y2="'+(e+46)+'" stroke="var(--short)" stroke-dasharray="6 4" stroke-width="1.5"/>'+
+      '<rect x="'+(W-112)+'" y="'+(e-101)+'" width="98" height="18" rx="4" fill="var(--long)"/><text x="'+(W-104)+'" y="'+(e-88)+'" font-family="var(--mono)" font-size="11" font-weight="700" fill="#111">TP +2,0 R</text>'+
+      '<rect x="'+(W-112)+'" y="'+(e+37)+'" width="98" height="18" rx="4" fill="var(--short)"/><text x="'+(W-104)+'" y="'+(e+50)+'" font-family="var(--mono)" font-size="11" font-weight="700" fill="#111">SL −1 R</text>'+
+      '<text class="a-txt" x="16" y="24">1 J · 4 H · 1 H</text>';
+  } else {
+    const k = candles(34, 14, 380, 130, 300, 0.05, i=>i>24 ? -2.4 : 0);
+    const t = cs ? cs.title.split(" · ") : ["Cas historique", ""];
+    body = '<rect class="a-box" x="14" y="16" width="'+(W-28)+'" height="92" rx="14"/>'+
+      '<text class="a-txt" x="32" y="44">'+dailyEsc((t[0]||"").toUpperCase())+'</text>'+
+      '<text class="a-big" x="32" y="80" font-size="'+((t[1]||"").length>34 ? 17 : 22)+'">'+dailyEsc(t[1]||t[0]||"")+'</text>'+k.svg+zone(398, 122);
+  }
+  return '<svg class="dx-art" viewBox="0 0 '+W+' '+H+'">'+grid+body+'</svg>';
 }
 const DX_INTRO = {
   of:{h:"Qui agresse, <span>qui absorbe ?</span>", p:"3 graphiques crypto avec le delta, le CVD et le profil de volume. Lis le flux d'ordres, puis tranche, en misant ta confiance.",
@@ -22128,7 +22286,13 @@ const DX_INTRO = {
   wk:{h:"Un moment <span>historique.</span>", p:"Un seul cas par semaine, tiré d'un grand moment de marché. Tu as le contexte de l'époque, 15 minutes et trois unités de temps. Que fais-tu ?",
     rules:[["1","<b>Structure 4 h</b> (+50 si juste)"],["2","<b>Ton trade</b>, noté en R sur les 72 h suivantes"],["7j","<b>Une partie par semaine</b>, classement de la semaine"]]},
 };
+function ddSyncPlaying(){
+  const dd = document.querySelector(".dd"); if (!dd) return;
+  const ph = X.mode==="classic" ? D.phase : (X.st[X.mode] ? X.st[X.mode].phase : "");
+  dd.classList.toggle("dd-playing", ph==="playing" || ph==="reveal");
+}
 function dxRender(){
+  ddSyncPlaying();
   const m = document.getElementById("dd-main");
   if (!m || X.mode==="classic") return;
   const mode = X.mode, s = dxSt(mode), M = DX_MODES[mode];
@@ -22137,14 +22301,14 @@ function dxRender(){
   if (s.phase==="intro"){
     const I = DX_INTRO[mode], n = s.play ? (s.play.answers||[]).length : 0, resume = n>0 && n<M.n;
     const cs = mode==="wk" ? dxCase(D.day) : null;
-    m.innerHTML = '<div class="dd-card dx-intro">'+
+    m.innerHTML = '<div class="dd-card dx-intro"><div class="dx-intro-l">'+
       '<span class="dd-live"><i></i>'+(resume ? "Partie en cours" : mode==="wk" ? "Semaine "+dxWeekKey(D.day).split("-W")[1] : "Ouvert aujourd'hui")+'</span>'+
       '<h2>'+I.h+'</h2>'+(cs ? '<p class="dx-case-t">Cette semaine : <b>'+dailyEsc(cs.title)+'</b></p>' : '')+
       '<p>'+I.p+'</p>'+
       '<div class="dd-rules">'+I.rules.map(r=>'<div><b>'+r[0]+'</b><span>'+r[1]+'</span></div>').join("")+'</div>'+
       '<button class="pw-btn pw-btn-trial dd-cta" data-dx="start">'+(resume ? "Reprendre · "+(n+1)+" / "+M.n : "Lancer · "+M.n+(mode==="fd" ? " annonce" : mode==="wk" ? " cas" : " graphique")+(M.n>1 ? "s" : ""))+' <span aria-hidden="true">→</span></button>'+
       '<p class="dd-note">'+(mode==="wk" ? "Une seule partie par semaine · " : "Une seule partie par jour · ")+'le chrono démarre à l\'affichage</p>'+
-    '</div>';
+    '</div><div class="dx-intro-r" aria-hidden="true">'+dxIntroArt(mode, cs)+'</div></div>';
     return;
   }
   if (s.phase==="done"){ m.innerHTML = dxResultHtml(s); return; }
@@ -22191,7 +22355,7 @@ function dxFillRound(){
     } else if (mode==="an"){
       br.innerHTML = '<div class="dx-brief dx-brief-s"><p>Commence par le <b>1 jour</b> et le <b>4 h</b>, puis descends en <b>1 h</b>. Étape 1 : la structure en 4 h. Étape 2 : ton trade, entrée au dernier prix ; glisse le stop et l\'objectif sur le graphique.</p></div>';
     } else {
-      br.innerHTML = '<div class="dx-brief dx-brief-s"><p><b>Delta</b> = achats au marché − ventes au marché, par bougie. <b>CVD</b> = delta cumulé. À droite, le <b>profil de volume</b> (vert : achats agressifs, rouge : ventes).</p></div>';
+      br.innerHTML = '<div class="dx-brief dx-brief-s"><p><b>Delta</b> = achats au marché − ventes au marché, par bougie. <b>CVD</b> = delta cumulé. À gauche, le <b>profil de volume</b> (vert : achats agressifs, rouge : ventes).</p></div>';
     }
   }
   set("dx-ask", mode==="fd" ? "Dans 4 h, le BTC sera…" : mode==="of" ? "Dans "+M.after+" bougies, le prix de "+R.name+" sera…" : "");
@@ -22265,7 +22429,7 @@ function dxSyncTools(){
   const vw = document.getElementById("dx-views"), ib = document.getElementById("dx-inds");
   if (vw) vw.innerHTML = dxViews(R).map(([k, l])=>'<button type="button" data-dx-view="'+k+'" class="'+((s.view||"main")===k ? "on" : "")+'">'+l+'</button>').join("")+
     '<span class="dx-zoom"><button type="button" data-dx-zoom="out" title="Dézoomer (voir plus de prix)">−</button><button type="button" data-dx-zoom="in" title="Zoomer">+</button>'+
-    (X.yZoom && X.yZoom!==1 ? '<button type="button" data-dx-zoom="auto" title="Échelle automatique">Auto</button>' : '')+'</span>';
+    ((X.yZoom && X.yZoom!==1) || X.yMan ? '<button type="button" data-dx-zoom="auto" title="Échelle automatique">Auto</button>' : '')+'</span>';
   const ind = dxInd();
   const list = [["ema20","EMA 20",TA_COLORS.ema20],["ema50","EMA 50",TA_COLORS.ema50],["ema200","EMA 200",TA_COLORS.ema200],["vwap","VWAP",TA_COLORS.vwap],["prof","Profil","var(--dd-a)"]]
     .concat(X.mode==="of" ? [["delta","Delta","var(--long)"],["cvd","CVD","#5aa9e6"]] : [["vol","Volume","var(--text-faint)"]]);
@@ -22323,13 +22487,18 @@ function dxDraw(cv, R, opt){
   const rangeOf = (b)=>{ let lo = Infinity, hi = -Infinity; for (let k=Math.max(0,start);k<b;k++){ if (series[k][3]<lo) lo = series[k][3]; if (series[k][2]>hi) hi = series[k][2]; } return [lo, hi]; };
   let r0 = rangeOf(ctxView ? end : ci+1), r1 = ctxView ? r0 : rangeOf(ci+1+M.after);
   const tr = opt.trade && opt.trade.side && opt.trade.side!=="none" ? opt.trade : null;
-  if (tr && !X.drag){ [tr.sl, tr.tp, tr.entry].forEach(pv=>{ r0 = [Math.min(r0[0], pv), Math.max(r0[1], pv)]; r1 = [Math.min(r1[0], pv), Math.max(r1[1], pv)]; }); }
-  else if (tr && X.geo && X.geo.rng){ r0 = X.geo.rng.slice(); r1 = r0; }
+  // L'échelle suit les bougies, pas le stop / l'objectif : une ligne lointaine
+  // ne doit pas écraser le graphique. Hors de l'écran, elle reste visible en
+  // étiquette collée au bord (et se saisit depuis là). Pendant un glisser,
+  // l'échelle est figée (et s'élargit seulement si on sort du graphique).
+  if (tr && X.drag && X.geo && X.geo.rng){ r0 = X.geo.rng.slice(); r1 = r0; }
   let rng;
   if (hidden || ctxView) rng = r0;
   else { const e = 1-Math.pow(1-opt.p, 3); rng = [r0[0]+(r1[0]-r0[0])*e, r0[1]+(r1[1]-r0[1])*e]; }
   if (!(X.drag && tr)){
     const pad = (rng[1]-rng[0])*0.07 || rng[1]*0.01; rng = [Math.max(0, rng[0]-pad), rng[1]+pad];
+    // Échelle élargie à la main en glissant une ligne hors du graphique : on la garde (bouton Auto pour revenir).
+    if (X.yMan && !ctxView) rng = X.yMan.slice();
     // Zoom vertical (boutons − / + ou pincement sur le pavé tactile) autour du centre.
     if (X.yZoom && X.yZoom!==1){ const c = (rng[0]+rng[1])/2, h = (rng[1]-rng[0])/2*X.yZoom; rng = [Math.max(c-h, h*0.001), c+h]; }
   }
@@ -22419,12 +22588,15 @@ function dxDraw(cv, R, opt){
   // Lignes du trade.
   if (tr){
     const xa = ctxView ? padL : X_(ci), xb = W-padR;
-    const zone = (a, b, col)=>{ x.fillStyle = col; x.globalAlpha = .08; x.fillRect(xa, Math.min(y(a), y(b)), xb-xa, Math.abs(y(a)-y(b))); x.globalAlpha = 1; };
+    const yTop = padT, yBot = padT+priceH, pin = yy=>Math.max(yTop+8, Math.min(yBot-8, yy));
+    const zone = (a, b, col)=>{ const ya = Math.max(yTop, Math.min(yBot, y(a))), yb = Math.max(yTop, Math.min(yBot, y(b))); x.fillStyle = col; x.globalAlpha = .08; x.fillRect(xa, Math.min(ya, yb), xb-xa, Math.abs(ya-yb)); x.globalAlpha = 1; };
     zone(tr.entry, tr.tp, up); zone(tr.entry, tr.sl, dn);
     const risk = Math.abs(tr.entry-tr.sl), rr = Math.abs(tr.tp-tr.entry)/risk;
     const lvl = (pv, col, lab, dash)=>{
-      const yy = Math.round(y(pv))+.5;
-      x.strokeStyle = col; x.lineWidth = 1.4; x.setLineDash(dash||[]); x.beginPath(); x.moveTo(padL, yy); x.lineTo(W-padR+4, yy); x.stroke(); x.setLineDash([]); x.lineWidth = 1;
+      const y0 = y(pv), off = y0 < yTop ? -1 : y0 > yBot ? 1 : 0;
+      const yy = Math.round(off ? pin(y0) : y0)+.5;
+      if (off) lab = (off<0 ? "↑ " : "↓ ")+lab; // hors écran : étiquette collée au bord, sans ligne
+      else { x.strokeStyle = col; x.lineWidth = 1.4; x.setLineDash(dash||[]); x.beginPath(); x.moveTo(padL, yy); x.lineTo(W-padR+4, yy); x.stroke(); x.setLineDash([]); x.lineWidth = 1; }
       x.font = "700 10.5px "+mono; const tw = x.measureText(lab).width + 12;
       x.fillStyle = col; x.fillRect(W-padR+2, yy-8, padR-4, 16);
       x.fillStyle = "#111"; x.fillText(dxP(pv), W-padR+6, yy);
@@ -22516,7 +22688,8 @@ function dxBindCanvas(cv){
   if (!cv) return;
   const near = (s, yy)=>{
     if (!s || s.phase!=="playing" || s.locked || !s.trade || s.trade.side==="none" || !X.geo) return null;
-    const c = ["tp","sl"].map(l=>({l, d:Math.abs(X.geo.p2y(s.trade[l])-yy)})).sort((a,b)=>a.d-b.d)[0];
+    const pinY = v=>Math.max(X.geo.padT+8, Math.min(X.geo.padT+X.geo.priceH-8, X.geo.p2y(v)));
+    const c = ["tp","sl"].map(l=>({l, d:Math.abs(pinY(s.trade[l])-yy)})).sort((a,b)=>a.d-b.d)[0];
     return c.d <= 12 ? c.l : null;
   };
   cv.addEventListener("pointerdown", e=>{
@@ -22539,7 +22712,7 @@ function dxBindCanvas(cv){
     dxEdgeStop();
     dxDragApply(s, X.geo.y2p(yy));
   });
-  const end = e=>{ if (X.drag && e.pointerId===X.drag.pid){ dxEdgeStop(); X.drag = null; dxRedraw(); } };
+  const end = e=>{ if (X.drag && e.pointerId===X.drag.pid){ dxEdgeStop(); if (X.drag.span0 && X.geo && X.geo.rng) X.yMan = X.geo.rng.slice(); X.drag = null; dxSyncTools(); dxRedraw(); } };
   cv.addEventListener("wheel", e=>{
     if (!e.ctrlKey) return; // pincement sur pavé tactile = ctrl + molette
     const s = X.st[X.mode]; if (!s || (s.phase!=="playing" && s.phase!=="reveal")) return;
@@ -22586,7 +22759,8 @@ function dxOnClick(e){
   const vw = e.target.closest("[data-dx-view]"); if (vw){ dxSetView(vw.dataset.dxView); return true; }
   const ib = e.target.closest("[data-dx-ind]"); if (ib){ dxSetInd(ib.dataset.dxInd); return true; }
   const zb = e.target.closest("[data-dx-zoom]");
-  if (zb){ const z = zb.dataset.dxZoom; X.yZoom = z==="auto" ? 1 : Math.max(0.3, Math.min(10, (X.yZoom||1)*(z==="out" ? 1.4 : 1/1.4))); dxSyncTools(); dxRedraw(); return true; }
+  if (zb){ const z = zb.dataset.dxZoom; if (z==="auto") X.yMan = null;
+    X.yZoom = z==="auto" ? 1 : Math.max(0.3, Math.min(10, (X.yZoom||1)*(z==="out" ? 1.4 : 1/1.4))); dxSyncTools(); dxRedraw(); return true; }
   const cf = e.target.closest("[data-dx-conf]"); if (cf){ const s = dxSt(X.mode); s.conf = +cf.dataset.dxConf; dxRenderActs(); return true; }
   const sb = e.target.closest("[data-dx-s]"); if (sb){ const s = dxSt(X.mode); if (s.phase==="playing" && !s.locked){ s.struct = sb.dataset.dxS; s.step = "trade"; dxRenderActs(); } return true; }
   const tb = e.target.closest("[data-dx-t]"); if (tb){ dxSetTrade(tb.dataset.dxT); return true; }
@@ -25063,6 +25237,9 @@ function chartTouchShield(wrap){
 }
 function chartTouchLock(on){
   document.documentElement.classList.toggle("chart-locked", !!on);
+  // Rappel bref (2,6 s) puis seul le contour orange du graphique indique qu'il est actif.
+  const pill = document.querySelector(".ct-pill");
+  if (pill){ pill.classList.remove("show"); if (on){ void pill.offsetWidth; pill.classList.add("show"); } }
 }
 function initChartTouchLock(){
   const mq = window.matchMedia ? window.matchMedia("(hover: none) and (pointer: coarse)") : null;
@@ -25073,7 +25250,7 @@ function initChartTouchLock(){
   chartTouchShield(document.getElementById("tv-chart-wrap"));
   const pill = document.createElement("button");
   pill.type = "button"; pill.className = "ct-pill";
-  pill.innerHTML = '<b>●</b> Graphique actif · touche en dehors pour faire défiler';
+  pill.innerHTML = '<b>●</b> Graphique actif · touche ailleurs pour défiler';
   pill.addEventListener("click", ()=>chartTouchLock(false));
   document.body.appendChild(pill);
   // Toucher n'importe où en dehors du widget graphique libère le défilement.
