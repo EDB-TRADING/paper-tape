@@ -872,7 +872,7 @@
   .hist-row{display:flex;flex-direction:column;gap:2px;padding:5px 0;border-bottom:1px solid var(--border-soft);font-size:10.5px;}
   .hist-row:last-child{border-bottom:none;}
   /* Historique récent : hauteur bornée, on fait défiler au lieu d'allonger le widget. */
-  #history-list{max-height:min(300px, 45vh);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+  #history-list{max-height:min(300px, 45vh);overflow-y:auto;overflow-x:hidden;
     scrollbar-width:thin;scrollbar-color:var(--border) transparent;margin-right:-4px;padding-right:6px;}
   #history-list::-webkit-scrollbar{width:6px;}
   #history-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
@@ -3915,6 +3915,14 @@
      retrouvait décalée de 14 px par rapport aux autres. */
   .widget-col{gap:14px;}
   .widget-col > .card.widget{margin-top:0 !important;}
+  /* Souris : une liste de widget ne défile que si le widget a été activé
+     d'un clic (initWidgetWheel). Sinon la molette fait défiler la page,
+     nativement. Au doigt (mobile/tablette), rien ne change. */
+  @media (hover:hover) and (pointer:fine){
+    .card.widget:not(.is-wheel-active) #history-list,
+    .card.widget:not(.is-wheel-active) .watchlist,
+    .card.widget.has-h:not(.is-wheel-active) > .widget-body{overflow-y:hidden !important;}
+  }
   /* Les 3 colonnes finissent sur la même ligne : sur grand écran, le dernier
      widget de chaque colonne (sans hauteur choisie à la main) s'étire jusqu'au
      bas de la colonne la plus haute. Marchés en profite pour montrer plus de
@@ -25012,6 +25020,9 @@ function wzActivationTarget(target, el){
   if (!target || !target.closest) return false;
   if (target.closest(".wz-grip, .widget-head, button, input, select, textarea, a, label, .chart-head, .chart-controls")) return false;
   if (el.dataset.widget==="chart") return !!target.closest("#chart-svg, #chart-yaxis-grab");
+  for (let n = target; n && n!==el; n = n.parentElement){
+    if (n.matches && n.matches("#history-list, .watchlist, .widget-body") && n.scrollHeight > n.clientHeight + 1) return true; // liste verrouillée tant que le widget n'est pas actif
+  }
   return wzHasScrollableBetween(target, el);
 }
 // Le contenu sous le curseur peut-il encore défiler dans ce sens ?
@@ -25034,26 +25045,25 @@ function initWidgetWheel(){
   document.querySelectorAll(".card.widget").forEach(el=>{
     el.addEventListener("pointerleave", ()=>el.classList.remove("is-wheel-active"));
   });
+  // La page défile TOUJOURS de façon native (plus de window.scrollBy en JS) :
+  // avant, la molette au-dessus d'une liste (Historique, Marchés…) était
+  // interceptée et rejouée en JS pendant que le navigateur animait déjà son
+  // propre défilement doux : les deux se contrariaient et la page « revenait
+  // en arrière ». Maintenant, tant qu'un widget n'est pas activé par un clic,
+  // ses listes ne défilent pas (overflow masqué en CSS, voir .wz-lock) : la
+  // molette passe directement à la page. On affiche juste un indice.
   document.addEventListener("wheel", (e)=>{
-    if (e.ctrlKey || e.defaultPrevented) return;
+    if (e.ctrlKey) return;
     const el = e.target.closest && e.target.closest(".card.widget");
-    if (!el) return;
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; // défilement horizontal (tableaux) : on laisse faire
-    if (el.classList.contains("is-wheel-active")){
-      // Widget activé : sa liste défile ; arrivée en butée, la page prend
-      // le relais tout de suite (sinon le navigateur reste « accroché » à la
-      // liste pendant tout le geste du trackpad et la page semble bloquée).
-      if (el.dataset.widget==="chart" && e.target.closest && e.target.closest("#chart-svg, #chart-yaxis-grab")) return; // zoom / échelle du graphique
-      if (wzCanScrollDir(e.target, el, e.deltaY)) return;
-      e.preventDefault();
-      window.scrollBy(0, wzWheelDelta(e));
-      return;
+    if (!el || el.classList.contains("is-wheel-active")) return;
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    for (let n = e.target; n && n!==el; n = n.parentElement){
+      if (n.matches && n.matches("#history-list, .watchlist, .widget-body") && n.scrollHeight > n.clientHeight + 1){
+        wzShowWheelHint(el, "Clique dans le widget pour faire défiler son contenu");
+        break;
+      }
     }
-    if (!wzHasScrollableBetween(e.target, el)) return;     // rien à défiler dans le widget : la page défile d'elle-même
-    e.preventDefault();
-    window.scrollBy(0, wzWheelDelta(e));
-    wzShowWheelHint(el, "Clique dans le widget pour faire défiler son contenu");
-  }, {passive:false, capture:true});
+  }, {passive:true, capture:true});
   // Voile des iframes : réarmé dès que le curseur bouge ailleurs dans la page
   // (quand il est au-dessus de l'iframe, la page ne reçoit plus rien).
   document.addEventListener("pointermove", (e)=>{
