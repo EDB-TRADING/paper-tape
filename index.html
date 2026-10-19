@@ -1,7 +1,16 @@
 <!doctype html>
+<!--
+  Paper Tape — École de la Bourse (EDB), ISG Bordeaux.
+  © 2026 École de la Bourse. Tous droits réservés.
+  Code source protégé par le droit d'auteur (art. L.111-1 et L.122-4 du Code
+  de la propriété intellectuelle) : toute reproduction, modification ou mise
+  en ligne, totale ou partielle, sans autorisation écrite de l'EDB est
+  interdite. Voir le fichier LICENSE.
+-->
 <html lang="fr">
 <head>
 <meta charset="utf-8">
+<meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Paper Tape</title>
 <!-- Favicon / app icon -->
@@ -3339,6 +3348,78 @@
   .dd-arch-b span{font-size:11px;color:var(--text-faint);}
   .dd-arch-b i{position:absolute;top:3px;right:4px;font-style:normal;font-size:9px;}
   .dd-arch-b.locked{opacity:.65;}
+
+  /* Défi du jour · modes avancés */
+  .dx-modes{display:grid;grid-template-columns:repeat(5, minmax(0,1fr));gap:8px;}
+  .dx-modes button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:12px 14px;border-radius:14px;border:1px solid var(--border-soft);background:var(--panel);color:var(--text-dim);font:inherit;cursor:pointer;text-align:left;transition:border-color .15s, transform .15s;}
+  .dx-modes button b{font-size:14px;color:var(--text);}
+  .dx-modes button small{font-family:var(--mono);font-size:11px;color:var(--text-faint);}
+  .dx-modes button:hover{border-color:color-mix(in srgb, var(--dd-a) 45%, var(--border-soft));transform:translateY(-1px);}
+  .dx-modes button.on{border-color:var(--dd-a);background:color-mix(in srgb, var(--dd-a) 9%, var(--panel));box-shadow:0 0 0 3px color-mix(in srgb, var(--dd-a) 14%, transparent);}
+  .dx-modes button.done small{color:var(--long);}
+  .dx-theme{border-radius:16px;border:1px solid var(--border-soft);background:var(--panel);overflow:hidden;}
+  .dx-theme-h{display:flex;align-items:center;gap:12px;flex-wrap:wrap;width:100%;padding:12px 16px;border:none;background:none;color:var(--text);font:inherit;text-align:left;cursor:pointer;}
+  .dx-theme-h b{font-size:14.5px;}
+  .dx-theme-h em{margin-left:auto;font-style:normal;font-size:12.5px;color:var(--dd-a);}
+  .dx-theme-b{padding:0 18px 14px;}
+  .dx-theme-b[hidden]{display:none;}
+  .dx-theme-b ul, .dx-exp-b ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:13.5px;line-height:1.55;color:var(--text-dim);}
+  .dx-look{margin:10px 0 0;font-size:13px;color:var(--text-dim);}
+  .dx-look b{color:var(--text);}
+  .dx-btabs{display:flex;flex-wrap:wrap;gap:4px;margin:-2px 0 8px;}
+  .dx-btabs button{font:inherit;font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:999px;border:1px solid var(--border-soft);background:none;color:var(--text-faint);cursor:pointer;}
+  .dx-btabs button.on{color:var(--dd-on);background:var(--dd-a);border-color:var(--dd-a);}
+  .dx-intro{display:flex;flex-direction:column;gap:16px;align-items:flex-start;padding:30px;background:radial-gradient(520px 300px at 85% 20%, color-mix(in srgb, var(--dd-a) 12%, transparent), transparent 70%), linear-gradient(180deg, var(--panel), var(--bg));}
+  .dx-intro h2{margin:0;font-size:38px;line-height:1.05;letter-spacing:-.035em;}
+  .dx-intro h2 span{color:var(--dd-a);}
+  .dx-intro > p{margin:0;max-width:640px;font-size:15px;line-height:1.6;color:var(--text-dim);}
+  .dx-intro .dd-rules{width:100%;}
+  .dx-intro .dd-rules b{width:auto;min-width:26px;padding:0 6px;}
+  .dx-case-t{font-size:15px !important;color:var(--text) !important;}
+  .dx-brief{padding:12px 14px;border-radius:12px;border:1px solid color-mix(in srgb, var(--dd-a) 30%, var(--border-soft));background:color-mix(in srgb, var(--dd-a) 5%, var(--panel-2));display:flex;flex-direction:column;gap:8px;}
+  .dx-brief p{margin:0;font-size:13.5px;line-height:1.55;color:var(--text-dim);}
+  .dx-brief p b{color:var(--text);}
+  .dx-brief-s{border-color:var(--border-soft);background:var(--panel-2);}
+  .dx-ev-h{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline;}
+  .dx-ev-h b{font-size:15px;}
+  .dx-ev-h span{font-size:12.5px;color:var(--text-faint);}
+  .dx-ev-g{display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:8px;}
+  .dx-ev-g div{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:10px;background:var(--bg);border:1px solid var(--border-soft);}
+  .dx-ev-g span{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;}
+  .dx-ev-g b{font-family:var(--mono);font-size:15px;}
+  .dx-ev-g .pub{border-color:var(--dd-a);}
+  .dx-ev-g .pub b{color:var(--dd-a);}
+  .dx-conf{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;font-size:13px;color:var(--text-dim);}
+  .dx-conf em{font-style:normal;font-size:12px;color:var(--text-faint);}
+  .dx-q{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:14px;border:1px solid var(--border-soft);background:var(--panel-2);}
+  .dx-q > b{font-size:15px;}
+  .dx-q p{margin:0;font-size:13px;color:var(--text-dim);line-height:1.5;}
+  .dx-q a{color:var(--dd-a);}
+  .dx-3{display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:8px;}
+  .dx-3 button{font:inherit;font-size:15px;font-weight:700;padding:13px 10px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;transition:transform .12s, border-color .15s;}
+  .dx-3 button:hover{transform:translateY(-1px);}
+  .dx-3 button.up{color:var(--long);border-color:color-mix(in srgb, var(--long) 45%, var(--border));}
+  .dx-3 button.down{color:var(--short);border-color:color-mix(in srgb, var(--short) 45%, var(--border));}
+  .dx-3 button.on{outline:2px solid var(--text);outline-offset:1px;background:var(--panel);}
+  .dx-rr{font-size:13px;color:var(--text-dim);min-height:18px;}
+  .dx-rr b{font-family:var(--mono);color:var(--text);}
+  .dx-rr b.up{color:var(--long);} .dx-rr b.down{color:var(--short);}
+  .dx-validate{align-self:flex-start;}
+  .dx-explain{display:flex;flex-direction:column;gap:14px;padding:16px 18px;border-radius:14px;border:1px solid var(--border-soft);background:var(--panel-2);animation:ddIn .3s ease-out;}
+  .dx-explain[hidden]{display:none;}
+  .dx-exp-b{display:flex;flex-direction:column;gap:6px;}
+  .dx-rec-exp{grid-column:1 / -1;padding:0 0 12px 40px;border-bottom:1px solid var(--border-soft);}
+  .dx-rec-exp summary{cursor:pointer;font-size:12.5px;color:var(--dd-a);margin-bottom:8px;}
+  .dx-rec-exp .dx-exp-b{margin-top:8px;}
+  @media (max-width:900px){ .dx-modes{grid-template-columns:repeat(3, minmax(0,1fr));} }
+  @media (max-width:720px){
+    .dx-modes{display:flex;overflow-x:auto;scrollbar-width:none;}
+    .dx-modes button{flex:none;min-width:132px;}
+    .dx-intro{padding:20px;}
+    .dx-intro h2{font-size:28px;}
+    .dx-3 button{font-size:14px;padding:12px 6px;}
+    .dx-rec-exp{padding-left:0;}
+  }
   @media (max-width:1100px){
     .dd-grid{grid-template-columns:minmax(0,1fr);}
     .dd-side{display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));}
@@ -5810,7 +5891,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2026.09.14</div>
+  <div class="app-version-tag" id="app-version-tag">v2026.09.14 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬</button>
   <div class="modal-overlay" id="modal-overlay" hidden>
@@ -5846,6 +5927,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-check-compat.js"></script>
 <script>
 (function(){
 "use strict";
@@ -7755,6 +7837,22 @@ function applyRemoteTradingState(raw){
   if (typeof renderChallengeBanner==="function") renderChallengeBanner();
   if (typeof setSaveState==="function") setSaveState("saved");
 }
+// ---- Firebase App Check ----
+// Prouve à Firebase que les requêtes viennent bien de CE site (reCAPTCHA v3,
+// invisible). Une fois l'application imposée (« Enforce ») dans la console
+// Firebase, une copie du site hébergée ailleurs ne peut plus lire ni écrire
+// dans la base. Clé de site reCAPTCHA v3 : publique, à coller ci-dessous (voir
+// SERVER_SETUP.md). Vide = App Check désactivé.
+const APP_CHECK_SITE_KEY = "";
+function initAppCheck(){
+  try{
+    if (!APP_CHECK_SITE_KEY || typeof firebase.appCheck!=="function") return;
+    // En local (localhost), jeton de débogage : il s'affiche dans la console
+    // du navigateur et s'enregistre dans Firebase → App Check → Gérer les jetons de débogage.
+    if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+    firebase.appCheck().activate(new firebase.appCheck.ReCaptchaV3Provider(APP_CHECK_SITE_KEY), true);
+  }catch(e){ console.warn("App Check non activé", e); }
+}
 async function initDb(){
   try{
     if (!FIREBASE_CONFIG || !FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey.indexOf("REMPLACE")===0){
@@ -7763,6 +7861,7 @@ async function initDb(){
       return;
     }
     if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    initAppCheck();
     db = firebase.firestore();
     if (!db) return;
     dbReady = true;
@@ -7920,7 +8019,8 @@ function renderSavePill(){
   let st = saveState==="error" ? "error" : slow ? "slow" : saveState;
   // Réponses du Défi du jour pas encore arrivées au serveur.
   const ddPending = st==="saved" && typeof dailyUnsynced==="function" && dailyUnsynced();
-  if (ddPending) st = dailySync.err ? "error" : "saving";
+  let dxErr = false; try{ dxErr = dxSync.err; }catch(e){}
+  if (ddPending) st = (dailySync.err || dxErr) ? "error" : "saving";
   el.dataset.state = st;
   el.dataset.icon = st==="saved" ? "✓" : st==="saving" ? "…" : st==="slow" ? "⏳" : "⚠";
   el.textContent = st==="saved" ? "✓ Enregistré" : st==="saving" ? "Enregistrement…" : st==="slow" ? "⏳ En attente de connexion…" : "⚠ Non enregistré · réessayer";
@@ -7939,7 +8039,7 @@ function scheduleSaveRetry(){
 }
 function initSaveStatus(){
   const el = document.getElementById("save-pill");
-  if (el) el.addEventListener("click", ()=>{ saveRetryDelay = 3000; persistAccount(); flushPersist(); if (typeof dailyFlush==="function"){ dailySync.delay = 3000; dailyFlush(); } });
+  if (el) el.addEventListener("click", ()=>{ saveRetryDelay = 3000; persistAccount(); flushPersist(); if (typeof dailyFlush==="function"){ dailySync.delay = 3000; dailyFlush(); } if (typeof dxFlush==="function"){ dxSync.delay = 3000; dxFlush(); } });
   renderSavePill();
   // Filet de sécurité : toute modification de trading pas encore envoyée
   // (quel que soit le chemin qui l'a produite) part dans les 4 s.
@@ -8693,7 +8793,10 @@ function termsHtml(){
       '<p>Le chat et les espaces communautaires doivent rester respectueux. Sont interdits notamment : les propos haineux ou harcelants, la promotion de produits financiers, de « signaux » payants, de parrainages ou de schémas d\'investissement, et la diffusion de données personnelles d\'autrui. Le bureau peut supprimer un contenu ou suspendre un compte.</p>')+
     sec(10, "Données personnelles",
       '<p>Pour faire fonctionner le service, la plateforme enregistre ton adresse email, ton pseudonyme, ta photo de profil éventuelle et ton activité de trading simulé (via Firebase, un service de Google). Ton pseudonyme, tes performances simulées et tes messages sont visibles des autres utilisateurs (classements, chat). Tu peux demander l\'accès, la rectification ou la suppression de tes données en contactant le bureau de l\'EDB.</p>')+
-    sec(11, "Évolution des conditions",
+    sec(11, "Propriété intellectuelle",
+      '<p>Paper Tape (code, interface, graphismes, textes, cours, quiz, analyses et contenus EDB+) est la propriété de l\'association École de la Bourse et est protégé par le droit d\'auteur. <strong>Toute reproduction, copie, modification, extraction ou mise en ligne, totale ou partielle, sans autorisation écrite de l\'EDB est interdite</strong> et constitue une contrefaçon (articles L.122-4 et L.335-2 du Code de la propriété intellectuelle).</p>'+
+      '<p>Le contenu réservé aux membres EDB+ est strictement personnel : il ne doit pas être partagé, revendu ou republié.</p>')+
+    sec(12, "Évolution des conditions",
       '<p>Ces conditions peuvent évoluer. La version en vigueur est celle affichée dans l\'application. En continuant d\'utiliser Paper Tape, tu acceptes la version en vigueur.</p>');
 }
 function openTermsModal(onAccept){
@@ -22081,7 +22184,7 @@ async function dailyKlines(sym, iv, params, need){
       const r = await fetch(base+q, {signal:ctl.signal}); clearTimeout(to);
       if (!r.ok) continue;
       const j = await r.json();
-      if (Array.isArray(j) && j.length >= need) return j.map(k=>[+k[0], +k[1], +k[2], +k[3], +k[4], +k[5]]);
+      if (Array.isArray(j) && j.length >= need) return j.map(k=>[+k[0], +k[1], +k[2], +k[3], +k[4], +k[5], +k[9]]);
     }catch(e){}
   }
   throw new Error("klines indisponibles");
@@ -22246,6 +22349,7 @@ async function renderDaily(){
   if (D.day !== today){ Object.assign(D, {day:today, rounds:null, play:null, stats:null, practice:null, phase:"idle", i:0, board:null, streaks:null, err:null}); }
   if (D.phase==="playing" || D.phase==="reveal"){ dailyShell(root); dailyRenderMain(); return; }
   dailyShell(root);
+  if (X.mode!=="classic"){ const xs = X.st[X.mode]; if (xs && (xs.phase==="playing" || xs.phase==="reveal")){ dxRender(); dxRedraw(); dailyStartTicker(); return; } }
   dailyStartTicker();
   if (D.phase==="idle"){
     D.phase = "loading"; dailyRenderMain();
@@ -22264,24 +22368,29 @@ async function renderDaily(){
   }
   dailyLoadBoards();
   dailyRenderArchive();
+  dxRenderTabs(); dxRenderTheme(); dxRenderBoardTabs();
+  ["of","fd","an","wk"].forEach(m=>dxEnsure(m, true));
+  if (X.btab!=="classic") dxLoadBoard(X.btab);
 }
 function dailyShell(root){
   if (root.querySelector(".dd")) return;
   root.innerHTML =
     '<div class="dd">'+
       '<section class="dd-head">'+
-        '<div class="dd-head-l"><span class="dd-kicker" id="dd-date"></span><h1>Ça monte ou ça descend ?</h1>'+
-          '<p>5 graphiques de vrais marchés, les mêmes pour tout le monde. Analyse 150 bougies et devine si le prix sera plus haut ou plus bas 30 bougies plus tard. 1 minute par graphique.</p></div>'+
+        '<div class="dd-head-l"><span class="dd-kicker" id="dd-date"></span><h1>Lis le marché.</h1>'+
+          '<p>Chaque jour, les mêmes graphiques pour tout le monde : le classique en 5 × 1 minute, l\'order flow, les annonces macro, l\'analyse longue notée en R, et un grand cas historique chaque semaine.</p></div>'+
         '<div class="dd-head-stats">'+
           '<div><b id="dd-streak">—</b><span>jours de suite</span></div>'+
           '<div><b id="dd-best">—</b><span>record</span></div>'+
           '<div><b id="dd-next" class="num">—</b><span>prochain défi</span></div>'+
         '</div>'+
       '</section>'+
+      '<nav class="dx-modes" id="dx-modes" aria-label="Modes du défi"></nav>'+
+      '<div class="dx-theme" id="dx-theme"></div>'+
       '<div class="dd-grid">'+
         '<section class="dd-main" id="dd-main"></section>'+
         '<aside class="dd-side">'+
-          '<div class="dd-panel"><div class="dd-panel-h"><h3>Classement du jour</h3><span id="dd-board-n"></span></div><ol class="dd-list" id="dd-board"><li class="dd-li-empty">Chargement…</li></ol></div>'+
+          '<div class="dd-panel"><div class="dd-panel-h"><h3 id="dd-board-t">Classement du jour</h3><span id="dd-board-n"></span></div><div class="dx-btabs" id="dx-btabs"></div><ol class="dd-list" id="dd-board"><li class="dd-li-empty">Chargement…</li></ol></div>'+
           '<div class="dd-panel"><div class="dd-panel-h"><h3>Meilleures séries</h3></div><ol class="dd-list" id="dd-streaks"><li class="dd-li-empty">Chargement…</li></ol></div>'+
           '<div class="dd-panel" id="dd-archive"></div>'+
         '</aside>'+
@@ -22289,7 +22398,9 @@ function dailyShell(root){
     '</div>';
   root.querySelector("#dd-main").addEventListener("click", dailyOnClick);
   root.querySelector("#dd-archive").addEventListener("click", dailyOnClick);
+  root.querySelector(".dd").addEventListener("click", e=>{ dxOnClick(e); });
   dailyRenderHead();
+  dxRenderTabs(); dxRenderTheme(); dxRenderBoardTabs();
 }
 function dailyRenderHead(){
   const today = D.day || dailyDayKey();
@@ -22314,7 +22425,7 @@ function dailyStartTicker(){
 }
 function dailyRenderMain(){
   const m = document.getElementById("dd-main");
-  if (!m) return;
+  if (!m || X.mode!=="classic") return;
   const P = D.practice;
   if (D.phase==="loading"){ m.innerHTML = '<div class="dd-card dd-empty">Préparation des graphiques…</div>'; return; }
   if (D.phase==="error"){
@@ -22375,6 +22486,7 @@ function dailyRenderMain(){
             '<button class="dd-btn down" data-dd="down"><span>▼</span>Ça descend</button>'+
           '</div>'+
           '<div class="dd-verdict" id="dd-verdict" hidden></div>'+
+          '<div class="dx-explain" id="dd-explain" hidden></div>'+
           '<p class="dd-keys">Clavier : ↑ ou ↓ pour répondre, V pour la vue d\'ensemble</p>'+
         '</div>';
     }
@@ -22541,6 +22653,7 @@ function dailyShowRound(){
   dailyRenderMain();
   const rd = dailyCurRound();
   document.getElementById("dd-verdict").hidden = true;
+  const ddx = document.getElementById("dd-explain"); if (ddx) ddx.hidden = true;
   document.getElementById("dd-actions").hidden = false;
   document.querySelectorAll(".dd-btn").forEach(b=>{ b.disabled = false; b.classList.remove("picked"); });
   const game = document.querySelector(".dd-game");
@@ -22608,6 +22721,17 @@ function dailyVerdict(rec, rd, t){
       '<button class="pw-btn pw-btn-trial" data-dd="next">'+(last ? "Voir mon résultat" : "Graphique suivant →")+'</button></div>';
   v.hidden = false;
   document.getElementById("dd-actions").hidden = true;
+  // Lecture selon le thème du jour, calculée sur les bougies visibles, puis dessinée.
+  try{
+    const th = dxTheme(D.day), ci = DAILY_WARM+DAILY_SHOW-1, cv = document.getElementById("dd-canvas");
+    const showN = cv && cv.clientWidth < 560 ? 90 : DAILY_SHOW;
+    const T = dxThemeRead(th.k, rd.c, ci, ci-showN+1);
+    T.lines.push(dxBiasLine(T.bias, t.dir));
+    rd.annot = T.annot;
+    const ex = document.getElementById("dd-explain");
+    if (ex){ ex.innerHTML = dxExplainHtml({blocks:[{h:"Lecture "+th.tag+" · thème du jour", lines:T.lines}]}); ex.hidden = false; }
+    dailyRedraw();
+  }catch(e){ console.warn("daily lecture", e); }
   const nb = v.querySelector('[data-dd="next"]'); if (nb) nb.focus({preventScroll:true});
 }
 async function dailyNext(){
@@ -22640,10 +22764,11 @@ async function dailyNext(){
 // restait « en cours » côté serveur et n'apparaissait pas au classement.
 // L'état est montré par la pastille « Enregistré » en haut de l'écran.
 const dailySync = {busy:false, err:false, timer:null, delay:3000};
-function dailyUnsynced(){ return !!(D.play && typeof D.srvN==="number" && D.srvN < (D.play.answers||[]).length); }
+function dailyUnsyncedClassic(){ return !!(D.play && typeof D.srvN==="number" && D.srvN < (D.play.answers||[]).length); }
+function dailyUnsynced(){ let dx = false; try{ dx = dxUnsynced(); }catch(e){} return dailyUnsyncedClassic() || dx; }
 async function dailyFlush(){
   clearTimeout(dailySync.timer); dailySync.timer = null;
-  if (dailySync.busy || !dailyUnsynced() || !db || !clientId) { renderSavePill(); return; }
+  if (dailySync.busy || !dailyUnsyncedClassic() || !db || !clientId) { renderSavePill(); return; }
   dailySync.busy = true; renderSavePill();
   const play = D.play, day = play.day || D.day, ref = dailyPlayRef(day);
   try{
@@ -22730,7 +22855,8 @@ async function dailyLoadBoards(){
 function dailyRenderBoards(){
   const b = document.getElementById("dd-board"), s = document.getElementById("dd-streaks"), n = document.getElementById("dd-board-n");
   const medal = i=>i===0?"🥇":i===1?"🥈":i===2?"🥉":String(i+1);
-  if (b){
+  if (b && X.btab!=="classic") dxRenderBoard();
+  else if (b){
     const rows = (D.board||[]).slice(0, 10);
     if (n) n.textContent = D.board && D.board.length ? (D.board.length>=40 ? "40+ joueurs" : D.board.length+" joueur"+(D.board.length>1?"s":"")) : "";
     b.innerHTML = rows.length ? rows.map((r,i)=>'<li class="'+(r.uid===clientId?"me":"")+'"><span class="dd-rk">'+medal(i)+'</span><span class="dd-nm">'+dailyEsc(r.username||"Trader")+'</span><span class="dd-sc">'+r.correct+'/5</span><b class="num">'+(r.points||0)+'</b></li>').join("")
@@ -22769,7 +22895,7 @@ function dailyRedraw(){
   const cv = document.getElementById("dd-canvas");
   if (cv){ const ind = dailyInd(), np = (ind.rsi?1:0)+(ind.macd?1:0); cv.parentElement.classList.toggle("has-p1", np===1); cv.parentElement.classList.toggle("has-p2", np===2); }
   if (D.view==="ctx" && rd.ctx) dailyDraw(cv, rd, {mode:"ctx"});
-  else dailyDraw(cv, rd, {mode: D.phase==="playing" ? "play" : "reveal", p:1});
+  else dailyDraw(cv, rd, {mode: D.phase==="playing" ? "play" : "reveal", p:1, annot: D.phase==="reveal" ? rd.annot : null});
 }
 function dailySyncToolbar(rd){
   const ind = dailyInd();
@@ -22918,6 +23044,7 @@ function dailyDraw(cv, rd, opt){
     for (let k=start;k<end;k++){ const val = arr[k]; if (val==null) continue; const px = X(k), py = y(val); if (!on){ x.moveTo(px, py); on = true; } else x.lineTo(px, py); }
     x.stroke(); x.globalAlpha = 1; x.lineWidth = 1; x.setLineDash([]);
   });
+  if (opt.annot && !ctx) dxDrawAnnot(x, opt.annot, {X, y, start, end, ci:DAILY_WARM+DAILY_SHOW-1, padL, W, padR, padT, priceH, mono, up, dn, gold, faint, text, slot});
   x.restore();
   // Panneaux RSI / MACD sous le graphique.
   paneKeys.forEach((pk, j)=>{
@@ -22963,6 +23090,1313 @@ function dailyDraw(cv, rd, opt){
   if (ctx){ x.textAlign = "right"; x.fillStyle = faint; x.fillText("maintenant ●", W-padR-2, 13); x.textAlign = "left"; }
 }
 window.addEventListener("resize", ()=>dailyRedraw());
+/* ===================== DÉFI DU JOUR · MODES AVANCÉS =====================
+   À côté du défi classique (5 × 1 min) :
+   - Order flow : delta, CVD, profil de volume, absorption ;
+   - Fondamental : vraies annonces macro (CPI, Fed, emploi), on prédit la réaction ;
+   - Analyse : multi-unités de temps, structure + trade noté en R ;
+   - Défi de la semaine : un moment historique, même moteur que l'analyse ;
+   - Thème du jour : fiche théorie + lecture annotée après chaque graphique ;
+   - Points de confiance (x1 / x2 / x3) en order flow et fondamental ;
+   - Classement par mode, général pondéré et de la semaine.
+   Parties : dailyx/{clé}/plays/{uid}, clé = « AAAA-MM-JJ_mode » ou « AAAA-Wss_wk ». */
+const DX_MODES = {
+  of:{label:"Order flow", n:3, time:120, show:120, before:300, after:30, max:1350, sub:"3 × 2 min"},
+  fd:{label:"Fondamental", n:3, time:90, show:96, before:300, after:16, max:1350, sub:"3 annonces"},
+  an:{label:"Analyse", n:2, time:300, show:150, before:400, after:72, max:1100, sub:"2 × 5 min"},
+  wk:{label:"Défi de la semaine", n:1, time:900, show:150, before:400, after:72, max:550, sub:"1 cas · 15 min"},
+};
+const DX_ORDER = ["classic","of","fd","an","wk"];
+const DX_TAB = {classic:"Classique", of:"Order flow", fd:"Fondamental", an:"Analyse", wk:"Semaine", gen:"Général"};
+const DX_UP = {"15m":["1h","4h"], "1h":["4h","1d"]};
+const DX_IND_KEY = "paperTapeDxInd";
+const X = {mode:"classic", st:{}, boards:{}, btab:"classic", raf:0, drag:null, geo:null, themeOpen:false};
+
+// ---------- Thème du jour ----------
+const DX_THEMES = [
+  {k:"dow", tag:"Dow", t:"Théorie de Dow · la structure de marché", card:[
+    "Tendance haussière : des sommets et des creux de plus en plus hauts (HH / HL). Baissière : de plus en plus bas (LH / LL).",
+    "Une tendance est supposée continuer tant qu'elle n'est pas invalidée : en hausse, la cassure du dernier creux est le premier signal de retournement.",
+    "Trois degrés : primaire (mois), secondaire (semaines), mineur (jours). Lis toujours l'unité de temps supérieure d'abord.",
+    "Le volume doit confirmer : il augmente dans le sens de la tendance et baisse pendant les corrections."],
+    look:"les deux derniers sommets et les deux derniers creux : la structure est-elle intacte ou cassée ?"},
+  {k:"wyckoff", tag:"Wyckoff", t:"Wyckoff · accumulation et distribution", card:[
+    "Après une tendance, le prix entre souvent en range : les « mains fortes » y accumulent (avant une hausse) ou distribuent (avant une baisse).",
+    "Spring : passage sous le bas du range, racheté aussitôt → piège vendeur, signe d'accumulation. Upthrust : l'inverse au-dessus du haut → signe de distribution.",
+    "Effort contre résultat : beaucoup de volume pour peu de mouvement = absorption ; un mouvement sans volume manque de conviction.",
+    "La sortie du range se confirme quand le prix revient tester le bord cassé et qu'il tient."],
+    look:"le prix est-il en range ? Vois-tu un spring, un upthrust, ou de l'effort sans résultat ?"},
+  {k:"smc", tag:"SMC", t:"Smart Money Concepts · liquidité et cassures", card:[
+    "BOS (break of structure) : cassure d'un sommet ou d'un creux dans le sens de la tendance → continuation. CHoCH (change of character) : première cassure contre la tendance → retournement possible.",
+    "La liquidité se trouve au-dessus des sommets égaux et sous les creux égaux (les stops des traders) : le prix va souvent la chercher.",
+    "Fair Value Gap : déséquilibre sur 3 bougies (la 1re et la 3e ne se recouvrent pas). Le prix revient souvent le combler.",
+    "Premium / discount : on cherche les achats sous le milieu du dernier swing, les ventes au-dessus."],
+    look:"où est la liquidité la plus proche ? Le dernier mouvement est-il un BOS ou un CHoCH ?"},
+  {k:"vwap", tag:"VWAP", t:"VWAP et profil de volume · la valeur", card:[
+    "Le VWAP est le prix moyen pondéré par le volume : au-dessus, les acheteurs de la période sont en gain (biais haussier) ; en dessous, en perte.",
+    "Le profil de volume montre où les échanges ont eu lieu. POC = prix le plus échangé ; la value area contient 70 % du volume.",
+    "Prix accepté hors de la value area → le marché cherche une nouvelle valeur. Prix rejeté → retour probable vers le POC.",
+    "Les zones de faible volume sont traversées vite ; les zones de fort volume freinent le prix."],
+    look:"le prix est-il accepté au-dessus ou en dessous de la valeur, ou ramené vers le POC ?"},
+  {k:"of", tag:"Order flow", t:"Order flow · qui agresse, qui absorbe ?", card:[
+    "Delta d'une bougie = volume acheté au marché − volume vendu au marché. CVD = delta cumulé.",
+    "Confirmation : prix et CVD montent ensemble, les acheteurs agressifs poussent le prix.",
+    "Divergence : le prix monte mais le CVD baisse → la hausse n'est pas portée par les acheteurs agressifs, des vendeurs passifs absorbent. L'inverse en baisse.",
+    "Absorption : énorme volume, petite bougie. Quelqu'un encaisse l'agression sans laisser bouger le prix : souvent un point de retournement."],
+    look:"le CVD confirme-t-il le prix ? Y a-t-il des bougies d'absorption sur les extrêmes ?"},
+  {k:"mom", tag:"Momentum", t:"Momentum · RSI, MACD et divergences", card:[
+    "Le RSI compare la force des hausses à celle des baisses (0 à 100). Au-dessus de 70 : momentum fort, pas forcément « à vendre ». Sous 30 : momentum faible.",
+    "Divergence baissière : nouveau plus haut du prix, sommet plus bas du RSI → la hausse s'essouffle. Divergence haussière : l'inverse sur les creux.",
+    "Une divergence n'est qu'un avertissement : elle se confirme par une cassure de structure.",
+    "MACD au-dessus de son signal = momentum haussier ; au-dessus de zéro, il est plus solide."],
+    look:"le dernier sommet ou creux est-il confirmé par le RSI, ou y a-t-il divergence ?"},
+  {k:"sr", tag:"S/R", t:"Supports et résistances · la mémoire du prix", card:[
+    "Un support ou une résistance est une zone où le prix a réagi plusieurs fois. Plus elle est visible, plus elle attire d'ordres stop juste derrière.",
+    "Un support cassé devient souvent résistance (et inversement) : c'est le « flip ».",
+    "Raisonne en zones et mesure la distance en ATR : un niveau à 0,3 ATR est déjà « touché ».",
+    "Plus un niveau est testé souvent en peu de temps, plus il s'affaiblit : les ordres en attente sont consommés."],
+    look:"quel est le niveau le plus proche au-dessus et en dessous ? Combien de fois a-t-il tenu ?"},
+];
+function dxTheme(day){
+  const n = Math.floor(Date.parse((day||D.day||dailyDayKey())+"T12:00:00Z")/86400e3);
+  return DX_THEMES[((n%DX_THEMES.length)+DX_THEMES.length)%DX_THEMES.length];
+}
+
+// ---------- Annonces macro ----------
+// d = date de publication (heure de New York : 8 h 30 pour CPI et emploi,
+// 14 h pour la Fed), p = précédent, e = consensus, a = publié. s (facultatif)
+// = surprise imposée (+1 « hawkish », −1 « dovish ») quand le chiffre principal
+// ne suffit pas à la lire. n = contexte affiché avant la réponse.
+const DX_CPI = [
+  ["2022-06-10","mai 2022","8,3","8,3","8,6"], ["2022-07-13","juin 2022","8,6","8,8","9,1"], ["2022-08-10","juillet 2022","9,1","8,7","8,5"],
+  ["2022-09-13","août 2022","8,5","8,1","8,3"], ["2022-10-13","septembre 2022","8,3","8,1","8,2","Inflation sous-jacente (hors énergie et alimentation) : 6,6 % contre 6,5 % attendu, plus haut depuis 1982."],
+  ["2022-11-10","octobre 2022","8,2","7,9","7,7"], ["2022-12-13","novembre 2022","7,7","7,3","7,1"], ["2023-01-12","décembre 2022","7,1","6,5","6,5"],
+  ["2023-02-14","janvier 2023","6,5","6,2","6,4"], ["2023-03-14","février 2023","6,4","6,0","6,0","Deux jours après la faillite de Silicon Valley Bank."],
+  ["2023-04-12","mars 2023","6,0","5,2","5,0"], ["2023-05-10","avril 2023","5,0","5,0","4,9"], ["2023-06-13","mai 2023","4,9","4,1","4,0","La Fed se réunit le lendemain."],
+  ["2023-07-12","juin 2023","4,0","3,1","3,0"], ["2023-08-10","juillet 2023","3,0","3,3","3,2"], ["2023-09-13","août 2023","3,2","3,6","3,7"],
+  ["2023-10-12","septembre 2023","3,7","3,6","3,7"], ["2023-11-14","octobre 2023","3,7","3,3","3,2"], ["2023-12-12","novembre 2023","3,2","3,1","3,1"],
+  ["2024-01-11","décembre 2023","3,1","3,2","3,4","Le marché attend la décision de la SEC sur les ETF bitcoin au comptant (approuvés la veille au soir)."],
+  ["2024-02-13","janvier 2024","3,4","2,9","3,1"], ["2024-03-12","février 2024","3,1","3,1","3,2"], ["2024-04-10","mars 2024","3,2","3,4","3,5"],
+  ["2024-05-15","avril 2024","3,5","3,4","3,4"], ["2024-06-12","mai 2024","3,4","3,4","3,3","La Fed annonce sa décision le soir même."],
+  ["2024-07-11","juin 2024","3,3","3,1","3,0"], ["2024-08-14","juillet 2024","3,0","3,0","2,9"], ["2024-09-11","août 2024","2,9","2,5","2,5"],
+  ["2024-10-10","septembre 2024","2,5","2,3","2,4"], ["2024-11-13","octobre 2024","2,4","2,6","2,6"], ["2024-12-11","novembre 2024","2,6","2,7","2,7"],
+  ["2025-01-15","décembre 2024","2,7","2,9","2,9","Inflation sous-jacente : 3,2 % contre 3,3 % attendu.", -1],
+  ["2025-02-12","janvier 2025","2,9","2,9","3,0"], ["2025-03-12","février 2025","3,0","2,9","2,8"], ["2025-04-10","mars 2025","2,8","2,6","2,4","Une semaine après l'annonce des droits de douane « réciproques » ; leur pause de 90 jours a été annoncée la veille."],
+  ["2025-05-13","avril 2025","2,4","2,4","2,3"],
+];
+const DX_FOMC = [
+  ["2022-05-04","+25 pb (mars)","+50 pb","+50 pb → 0,75–1,00 %","Première hausse de 50 pb depuis 2000. Le marché se demande si la Fed ira jusqu'à 75 pb.", 0],
+  ["2022-06-15","+50 pb (mai)","+75 pb","+75 pb → 1,50–1,75 %","Le CPI de vendredi (8,6 %) a fait basculer les anticipations de 50 à 75 pb.", 0],
+  ["2022-07-27","+75 pb (juin)","+75 pb","+75 pb → 2,25–2,50 %","", 0],
+  ["2022-09-21","+75 pb (juillet)","+75 pb","+75 pb → 3,00–3,25 % · projections relevées (4,4 % fin 2022)","", 1],
+  ["2022-11-02","+75 pb (septembre)","+75 pb","+75 pb → 3,75–4,00 %","Le marché espère un signal de ralentissement du rythme des hausses.", 0],
+  ["2022-12-14","+75 pb (novembre)","+50 pb","+50 pb → 4,25–4,50 %","La veille, le CPI est sorti plus bas que prévu.", 0],
+  ["2023-02-01","+50 pb (décembre)","+25 pb","+25 pb → 4,50–4,75 %","", 0],
+  ["2023-03-22","+25 pb (février)","+25 pb","+25 pb → 4,75–5,00 %","Dix jours après la faillite de Silicon Valley Bank : la Fed va-t-elle continuer à monter ?", 0],
+  ["2023-05-03","+25 pb (mars)","+25 pb","+25 pb → 5,00–5,25 %","Possiblement la dernière hausse du cycle.", 0],
+  ["2023-06-14","+25 pb (mai)","Pause","Inchangé à 5,00–5,25 % · projections : 2 hausses de plus en 2023","Pause attendue après dix hausses consécutives.", 1],
+  ["2023-07-26","Pause (juin)","+25 pb","+25 pb → 5,25–5,50 %","", 0],
+  ["2023-12-13","Pause (novembre)","Pause","Inchangé à 5,25–5,50 % · projections : 3 baisses en 2024","Taux inchangés attendus : tout se joue sur les projections pour 2024.", -1],
+  ["2024-09-18","Pause (juillet)","−25 ou −50 pb","−50 pb → 4,75–5,00 %","Première baisse du cycle ; le marché hésite entre 25 et 50 pb.", -1],
+  ["2024-11-07","−50 pb (septembre)","−25 pb","−25 pb → 4,50–4,75 %","Deux jours après l'élection présidentielle américaine.", 0],
+  ["2024-12-18","−25 pb (novembre)","−25 pb","−25 pb → 4,25–4,50 % · projections : 2 baisses en 2025 (contre 4 en septembre)","Baisse de 25 pb quasi certaine ; attention aux projections 2025.", 1],
+  ["2025-01-29","−25 pb (décembre)","Pause","Inchangé à 4,25–4,50 %","Pause attendue après trois baisses.", 0],
+  ["2025-09-17","Pause (juillet)","−25 pb","−25 pb → 4,00–4,25 %","Première baisse de 2025 attendue.", 0],
+  ["2025-10-29","−25 pb (septembre)","−25 pb","−25 pb → 3,75–4,00 % · fin de la réduction du bilan au 1er décembre","", 0],
+];
+const DX_NFP = [
+  ["2023-02-03","janvier 2023","+223 000","+185 000","+517 000"],
+  ["2024-08-02","juillet 2024","+206 000","+175 000","+114 000","Le taux de chômage monte à 4,3 % (consensus 4,1 %). La Banque du Japon a relevé ses taux mercredi."],
+  ["2024-10-04","septembre 2024","+142 000","+150 000","+254 000"],
+];
+const DX_EVENTS = [].concat(
+  DX_CPI.map(r=>({k:"cpi", d:r[0], m:r[1], p:r[2]+" %", e:r[3]+" %", a:r[4]+" %", n:r[5]||"", s:r[6]})),
+  DX_FOMC.map(r=>({k:"fomc", d:r[0], p:r[1], e:r[2], a:r[3], n:r[4]||"", s:r[5]})),
+  DX_NFP.map(r=>({k:"nfp", d:r[0], m:r[1], p:r[2], e:r[3], a:r[4], n:r[5]||""}))
+);
+const DX_EV_LABEL = {cpi:"Inflation américaine (CPI, sur 1 an)", fomc:"Décision de taux de la Fed (FOMC)", nfp:"Créations d'emplois américaines (NFP)"};
+function dxEtOffsetH(day){ // heure d'été aux États-Unis : 2e dimanche de mars → 1er dimanche de novembre
+  const y = +day.slice(0,4);
+  const sun = (m, n)=>{ const dow = new Date(Date.UTC(y, m, 1)).getUTCDay(); return (7-dow)%7 + 1 + (n-1)*7; };
+  const t = Date.parse(day+"T12:00:00Z");
+  return (t >= Date.UTC(y, 2, sun(2,2)) && t < Date.UTC(y, 10, sun(10,1))) ? 4 : 5;
+}
+function dxEventTime(ev){ return Date.parse(ev.d+"T00:00:00Z") + ((ev.k==="fomc" ? 14 : 8.5) + dxEtOffsetH(ev.d))*3600e3; }
+function dxNumOf(s){ const v = parseFloat(String(s).replace(/[^\d,.\-+]/g,"").replace(",", ".")); return isFinite(v) ? v : null; }
+function dxEvSurprise(ev){
+  if (typeof ev.s==="number") return ev.s;
+  const a = dxNumOf(ev.a), e = dxNumOf(ev.e);
+  return a==null || e==null || Math.abs(a-e)<1e-9 ? 0 : (a>e ? 1 : -1);
+}
+function dxPickEvents(day){
+  const r = dailyRng("dx-fd-v1|"+day), idx = DX_EVENTS.map((_,i)=>i);
+  for (let i=idx.length-1;i>0;i--){ const j = Math.floor(r()*(i+1)); const t = idx[i]; idx[i] = idx[j]; idx[j] = t; }
+  const out = idx.slice(0,3).map(i=>DX_EVENTS[i]);
+  if (out.every(e=>e.k===out[0].k)){ const o = idx.map(i=>DX_EVENTS[i]).find(e=>e.k!==out[0].k); if (o) out[2] = o; }
+  return out.sort((a,b)=>a.d<b.d ? -1 : 1);
+}
+
+// ---------- Défi de la semaine : moments historiques ----------
+const DX_CASES = [
+  {sym:"BTCUSDT", cut:"2020-03-11T12:00:00Z", title:"Mars 2020 · le Covid devient une pandémie",
+    ctx:"L'OMS s'apprête à qualifier le Covid-19 de pandémie. Les actions chutent depuis trois semaines et le pétrole s'est effondré lundi. Le bitcoin, présenté comme une « valeur refuge », résiste encore.",
+    lesson:"Le 12 mars (« Black Thursday »), tout le monde veut du cash : tout se vend, bitcoin compris, qui perd près de 40 % en 24 h. En crise de liquidité, les corrélations montent à 1 et le « refuge » ne protège pas."},
+  {sym:"BTCUSDT", cut:"2021-05-18T12:00:00Z", title:"Mai 2021 · la Chine durcit le ton",
+    ctx:"Le bitcoin a reculé depuis son record d'avril. Le 12 mai, Elon Musk a annoncé que Tesla n'accepte plus le BTC. Des rumeurs circulent sur un durcissement chinois. Le levier sur les contrats perpétuels reste élevé.",
+    lesson:"Le 19 mai, trois associations financières chinoises interdisent à leurs membres les services crypto : liquidations en cascade, le BTC touche environ 30 000 $ en séance. Un marché très endetté transforme une mauvaise nouvelle en vente forcée."},
+  {sym:"BTCUSDT", cut:"2022-05-08T12:00:00Z", title:"Mai 2022 · le stablecoin UST vacille",
+    ctx:"Le stablecoin algorithmique UST (Terra) a brièvement perdu sa parité au dollar ce week-end. La Luna Foundation Guard détient environ 80 000 BTC de réserve pour la défendre. La Fed vient de monter ses taux de 50 pb.",
+    lesson:"La parité ne tient pas : l'UST s'effondre, la réserve en BTC est vendue pour la défendre et LUNA tombe presque à zéro. Le BTC perd environ 20 % en quelques jours. Une réserve qui doit vendre dans la baisse devient un vendeur forcé."},
+  {sym:"ETHUSDT", cut:"2022-09-14T12:00:00Z", title:"Septembre 2022 · The Merge d'Ethereum",
+    ctx:"Le passage d'Ethereum à la preuve d'enjeu (« The Merge ») est prévu dans la nuit. ETH a fortement monté depuis juillet sur ce récit. Hier, l'inflation américaine est sortie plus haut que prévu.",
+    lesson:"Le Merge se passe sans incident… et ETH recule d'environ 10 % dans les jours suivants. « Acheter la rumeur, vendre la nouvelle » : un événement attendu depuis des mois est déjà dans le prix."},
+  {sym:"BTCUSDT", cut:"2022-11-07T12:00:00Z", title:"Novembre 2022 · doutes sur FTX",
+    ctx:"CoinDesk a publié le bilan d'Alameda Research, rempli de FTT, le jeton de FTX. Dimanche, Binance a annoncé vendre ses FTT. FTX assure que « les actifs vont bien ».",
+    lesson:"Le 8 novembre, FTX suspend les retraits ; Binance annonce un rachat puis l'abandonne le lendemain. Le BTC passe d'environ 20 500 $ à moins de 16 000 $. Le risque de contrepartie (où sont les fonds ?) écrase toute analyse technique."},
+  {sym:"BTCUSDT", cut:"2023-03-12T12:00:00Z", title:"Mars 2023 · faillite de Silicon Valley Bank",
+    ctx:"SVB a fait faillite vendredi. Circle, l'émetteur de l'USDC, y a 3,3 Md$ bloqués : l'USDC est tombé vers 0,88 $ samedi. Les autorités américaines doivent annoncer quelque chose avant l'ouverture de lundi.",
+    lesson:"Dimanche soir, la Fed, le Trésor et la FDIC garantissent tous les dépôts et créent un guichet de liquidité d'urgence. L'USDC retrouve sa parité, le BTC passe d'environ 20 000 $ à plus de 24 000 $ en deux jours. Une injection de liquidité en urgence profite aux actifs rares."},
+  {sym:"BTCUSDT", cut:"2024-01-10T12:00:00Z", title:"Janvier 2024 · les ETF bitcoin au comptant",
+    ctx:"La SEC doit se prononcer aujourd'hui sur les ETF bitcoin au comptant. Hier, un faux message du compte piraté de la SEC annonçait déjà leur approbation. Le BTC a monté d'environ 70 % depuis octobre sur ce récit.",
+    lesson:"Les ETF sont approuvés le soir même. Le BTC touche environ 49 000 $ le lendemain… puis recule vers 42 000 $ dans les jours suivants. Encore un « sell the news » : l'approbation était attendue et intégrée au prix."},
+  {sym:"BTCUSDT", cut:"2024-08-02T14:00:00Z", title:"Août 2024 · le débouclage du yen",
+    ctx:"Le rapport sur l'emploi américain de 14 h 30 (heure de Paris) est très faible : +114 000 emplois, chômage à 4,3 %. La Banque du Japon a monté ses taux mercredi et le yen remonte fortement.",
+    lesson:"Le carry trade sur le yen se débouche : lundi 5 août, le Nikkei perd 12 % et le BTC tombe sous 50 000 $. Quand un financement bon marché se retourne, les positions à levier sont coupées partout en même temps."},
+  {sym:"BTCUSDT", cut:"2024-11-05T12:00:00Z", title:"Novembre 2024 · élection présidentielle américaine",
+    ctx:"Les Américains votent aujourd'hui. Donald Trump s'est présenté comme le candidat pro-crypto et les sondages sont très serrés. Le BTC évolue sous son record de mars.",
+    lesson:"Trump l'emporte dans la nuit : le BTC bat son record dès le 6 novembre et continue la semaine suivante. Un événement binaire dont l'issue n'était pas dans le prix provoque un repricing violent, à l'inverse d'un « sell the news »."},
+  {sym:"BTCUSDT", cut:"2024-12-18T12:00:00Z", title:"Décembre 2024 · la Fed refroidit la fête",
+    ctx:"Réunion de la Fed ce soir : une baisse de 25 pb est quasi certaine. Le BTC a dépassé 100 000 $ début décembre et vient de toucher un record.",
+    lesson:"La baisse de 25 pb arrive, mais la Fed n'annonce plus que 2 baisses pour 2025 (contre 4) et le ton est prudent. Le BTC recule d'environ 10 % en 48 h. C'est le ton et les projections qui surprennent, pas la décision."},
+  {sym:"BTCUSDT", cut:"2025-04-02T17:00:00Z", title:"Avril 2025 · « Liberation Day »",
+    ctx:"Donald Trump présente ce soir ses droits de douane « réciproques ». Le BTC a perdu environ 20 % depuis son record de janvier.",
+    lesson:"Les droits de douane annoncés sont bien plus lourds que prévu : les actions vivent leurs pires séances depuis 2020 et le BTC glisse jusqu'à environ 75 000 $ le 7 avril. L'incertitude macro pèse sur tous les actifs risqués."},
+  {sym:"BTCUSDT", cut:"2025-10-10T12:00:00Z", title:"Octobre 2025 · la cascade de liquidations",
+    ctx:"Le BTC a touché un record le 6 octobre. Les tensions commerciales entre les États-Unis et la Chine remontent depuis ce matin. Le levier sur les contrats perpétuels est au plus haut.",
+    lesson:"Le soir même, Trump annonce 100 % de droits de douane supplémentaires sur la Chine : plus de 19 Md$ de positions liquidées en 24 h, un record. Levier record + mauvaise surprise = cascade de liquidations."},
+];
+function dxWeekKey(day){
+  const d = new Date(day+"T12:00:00Z"), dow = (d.getUTCDay()+6)%7;
+  const thu = new Date(d.getTime()+(3-dow)*86400e3), y = thu.getUTCFullYear(), jan4 = new Date(Date.UTC(y,0,4));
+  const wk = 1 + Math.round(((thu-jan4)/86400e3 - 3 + (jan4.getUTCDay()+6)%7)/7);
+  return y+"-W"+String(wk).padStart(2,"0");
+}
+function dxCase(day){
+  const d = new Date(day+"T12:00:00Z"), mon = d.getTime() - ((d.getUTCDay()+6)%7)*86400e3;
+  const n = Math.round(mon/(7*86400e3));
+  return DX_CASES[((n%DX_CASES.length)+DX_CASES.length)%DX_CASES.length];
+}
+
+// ---------- Données ----------
+async function dxKlines(sym, iv, params, need){
+  const q = "/api/v3/klines?symbol="+sym+"&interval="+iv+"&"+params;
+  for (const base of ["https://data-api.binance.vision", "https://api.binance.com"]){
+    try{
+      const ctl = new AbortController(); const to = setTimeout(()=>ctl.abort(), 9000);
+      const r = await fetch(base+q, {signal:ctl.signal}); clearTimeout(to);
+      if (!r.ok) continue;
+      const j = await r.json();
+      if (Array.isArray(j) && j.length >= need) return j.map(k=>[+k[0], +k[1], +k[2], +k[3], +k[4], +k[5], +k[9]]);
+    }catch(e){}
+  }
+  throw new Error("klines indisponibles");
+}
+async function dxSeries(sym, iv, cut, before, after){
+  const ms = DAILY_IV_MS[iv];
+  const c = await dxKlines(sym, iv, "startTime="+(cut-(before-1)*ms)+"&limit="+(before+after), 60);
+  const ci = c.findIndex(k=>k[0]===cut);
+  if (ci < 60 || c.length-1-ci < after) throw new Error("série incomplète");
+  return {c:c.slice(0, ci+1+after), ci};
+}
+function dxRoundBase(rd){
+  return Object.assign({}, rd, {ivMs:DAILY_IV_MS[rd.iv], ivLabel:DAILY_IV_LABEL[rd.iv], ivUp:DX_UP[rd.iv][0], ivUp2:DX_UP[rd.iv][1]});
+}
+// Unité de temps supérieure jusqu'à la coupure (dernière bougie recalculée, rien de l'avenir).
+function dxLoadCtx(R, which){
+  R.ctxP = R.ctxP || {}; R.ctx = R.ctx || {};
+  if (R.ctxP[which]) return R.ctxP[which];
+  const iv = which==="up" ? R.ivUp : R.ivUp2, upMs = DAILY_IV_MS[iv], cutEnd = R.c[R.ci][0] + R.ivMs;
+  const p = dxKlines(R.sym, iv, "endTime="+(cutEnd-1)+"&limit=300", 20).then(arr=>{
+    const full = arr.filter(k=>k[0]+upMs <= cutEnd);
+    const lastOpen = full.length ? full[full.length-1][0]+upMs : null;
+    const vis = R.c.slice(0, R.ci+1).filter(k=>lastOpen!=null && k[0] >= lastOpen);
+    if (vis.length) full.push([lastOpen, vis[0][1], Math.max(...vis.map(k=>k[2])), Math.min(...vis.map(k=>k[3])), vis[vis.length-1][4], vis.reduce((s,k)=>s+k[5],0), vis.reduce((s,k)=>s+(k[6]||0),0)]);
+    R.ctx[which] = full;
+    return full;
+  });
+  R.ctxP[which] = p;
+  p.catch(()=>{ R.ctxP[which] = null; });
+  return p;
+}
+function dxTruth(R, after){
+  const a = R.c[R.ci][4], b = R.c[Math.min(R.c.length-1, R.ci+after)][4];
+  return {dir: b>=a ? "up" : "down", move:(b-a)/a*100};
+}
+function dxQual(R, mode){
+  const M = DX_MODES[mode], atr = dailyAtr(R.c, R.ci+1, 20);
+  const mv = Math.abs(R.c[Math.min(R.c.length-1, R.ci+M.after)][4] - R.c[R.ci][4]);
+  return mv >= (mode==="an" ? 3 : 1.5)*atr;
+}
+function dxPlan(mode, day){
+  const r = dailyRng("dx-"+mode+"-v1|"+day), M = DX_MODES[mode];
+  const pool = mode==="of" ? DAILY_POOL.filter(a=>a.s!=="PAXGUSDT") : DAILY_POOL;
+  const ivs = mode==="of" ? ["15m","15m","1h"] : ["1h"];
+  const end = Date.parse(day+"T00:00:00Z") - 30*86400e3, used = new Set(), out = [];
+  for (let i=0;i<10;i++){
+    let a, g = 0;
+    do { a = pool[Math.floor(r()*pool.length)]; } while (used.has(a.s) && used.size<pool.length && ++g<50);
+    used.add(a.s);
+    const iv = ivs[Math.floor(r()*ivs.length)], ms = DAILY_IV_MS[iv], span = (M.before+M.after)*ms;
+    const t = DAILY_FROM + span + Math.floor(r()*(end - DAILY_FROM - 2*span));
+    out.push({sym:a.s, name:a.n, tick:a.t, iv, cut:Math.floor(t/ms)*ms});
+  }
+  return out;
+}
+const dxCache = {};
+function dxLoad(mode, key, day){
+  if (dxCache[key]) return dxCache[key];
+  const M = DX_MODES[mode];
+  const p = (async ()=>{
+    if (mode==="fd"){
+      return Promise.all(dxPickEvents(day).map(async ev=>{
+        const t = dxEventTime(ev), s = await dxSeries("BTCUSDT", "15m", t-15*60e3, M.before, M.after);
+        return Object.assign(dxRoundBase({sym:"BTCUSDT", name:"Bitcoin", tick:"BTC", iv:"15m"}), s, {ev, t});
+      }));
+    }
+    if (mode==="wk"){
+      const cs = dxCase(day), ms = 3600e3, t = Date.parse(cs.cut);
+      const s = await dxSeries(cs.sym, "1h", Math.floor(t/ms)*ms - ms, M.before, M.after);
+      const a = DAILY_POOL.find(x=>x.s===cs.sym) || {n:cs.sym, t:cs.sym};
+      return [Object.assign(dxRoundBase({sym:cs.sym, name:a.n, tick:a.t, iv:"1h"}), s, {cs, t})];
+    }
+    const cands = dxPlan(mode, day), got = [];
+    const divOk = R=>mode!=="of" || !!dxFlow(R).div;
+    for (let i=0;i<cands.length;i+=4){
+      const res = await Promise.allSettled(cands.slice(i,i+4).map(rd=>dxSeries(rd.sym, rd.iv, rd.cut, M.before, M.after).then(s=>Object.assign(dxRoundBase(rd), s))));
+      res.forEach(x=>{ if (x.status==="fulfilled" && x.value.ci >= M.show+40) got.push(x.value); });
+      if (got.filter(R=>dxQual(R, mode) && divOk(R)).length >= M.n) break;
+    }
+    const q = got.filter(R=>dxQual(R, mode));
+    const pick = q.filter(divOk).concat(q.filter(R=>!divOk(R)));
+    got.forEach(R=>{ if (!pick.includes(R)) pick.push(R); });
+    const out = pick.slice(0, M.n);
+    if (out.length < M.n) throw new Error("klines indisponibles");
+    return out.sort((a,b)=>got.indexOf(a)-got.indexOf(b));
+  })();
+  dxCache[key] = p;
+  p.catch(()=>{ delete dxCache[key]; });
+  return p;
+}
+
+// ---------- Lectures (calculées uniquement sur les bougies visibles) ----------
+function dxNum(v, d){ return Number(v).toLocaleString("fr-FR", {maximumFractionDigits:d==null?2:d}); }
+function dxPct(v){ return (v>=0?"+":"−")+dxNum(Math.abs(v), 2)+" %"; }
+function dxP(p){ const a = Math.abs(p), d = a>=1000 ? 0 : a>=100 ? 1 : a>=10 ? 2 : a>=1 ? 3 : 4; return Number(p).toLocaleString("fr-FR", {minimumFractionDigits:d, maximumFractionDigits:d}); }
+function dxPivots(c, a, b, k){
+  const out = [];
+  for (let i=Math.max(a+k, k); i<=b-k; i++){
+    let hi = true, lo = true;
+    for (let j=i-k; j<=i+k; j++){
+      if (j===i) continue;
+      if (c[j][2] > c[i][2] || (j<i && c[j][2]===c[i][2])) hi = false;
+      if (c[j][3] < c[i][3] || (j<i && c[j][3]===c[i][3])) lo = false;
+    }
+    if (hi) out.push({k:i, p:c[i][2], hi:true});
+    if (lo) out.push({k:i, p:c[i][3], hi:false});
+  }
+  return out;
+}
+function dxStructure(c, a, b, k){
+  const pv = dxPivots(c, a, b, k), H = pv.filter(p=>p.hi), L = pv.filter(p=>!p.hi), lab = [];
+  for (let i=1;i<H.length;i++) lab.push({k:H[i].k, p:H[i].p, hi:true, t:H[i].p>H[i-1].p ? "HH" : "LH"});
+  for (let i=1;i<L.length;i++) lab.push({k:L[i].k, p:L[i].p, hi:false, t:L[i].p>L[i-1].p ? "HL" : "LL"});
+  let trend = null, why = "pas assez de sommets et de creux";
+  if (H.length>=2 && L.length>=2){
+    const hh = H[H.length-1].p > H[H.length-2].p, hl = L[L.length-1].p > L[L.length-2].p;
+    trend = hh && hl ? "up" : (!hh && !hl) ? "down" : null;
+    why = "derniers sommets "+(hh?"plus hauts":"plus bas")+", derniers creux "+(hl?"plus hauts":"plus bas");
+  }
+  const close = c[b][4], lastH = H[H.length-1], lastL = L[L.length-1];
+  const bos = lastH && close > lastH.p ? "up" : lastL && close < lastL.p ? "down" : null;
+  let dir = trend || "range";
+  if (bos){
+    why += " ; la dernière clôture casse le "+(bos==="up" ? "dernier sommet" : "dernier creux");
+    dir = !trend ? bos : (bos===trend ? trend : "range");
+  }
+  return {dir, trend, why, lab, H, L, lastH, lastL, bos};
+}
+function dxFlowOn(c, ci){
+  const n = 20, a = ci-n;
+  let vol = 0, d = 0, hasBuy = false;
+  for (let k=a+1;k<=ci;k++){ vol += c[k][5]; d += 2*(c[k][6]||0) - c[k][5]; if (c[k][6]>0) hasBuy = true; }
+  const atr = dailyAtr(c, ci+1, 14) || 1;
+  const dp = (c[ci][4]-c[a][4])/atr, dn = vol ? d/vol : 0;
+  const div = !hasBuy ? null : dp > 1 && dn < -0.02 ? "bear" : dp < -1 && dn > 0.02 ? "bull" : null;
+  const conf = hasBuy && !div && Math.abs(dp) > 1 && Math.sign(dp)===Math.sign(dn) && Math.abs(dn) > 0.03;
+  let avg = 0, m = 0;
+  for (let k=ci-50;k<=ci;k++) if (k>=0){ avg += c[k][5]; m++; }
+  avg = m ? avg/m : 0;
+  const abs = [];
+  if (hasBuy) for (let k=ci-29;k<=ci;k++){
+    const [, o, h, l, cl, v] = c[k], rg = h-l;
+    if (rg>0 && v > 2*avg && Math.abs(cl-o) < 0.35*rg) abs.push({k, side: 2*(c[k][6]||0)-v >= 0 ? "buy" : "sell"});
+  }
+  return {dp, dn, div, conf, abs, hasBuy};
+}
+function dxFlow(R){ return R.flow || (R.flow = dxFlowOn(R.c, R.ci)); }
+function dxProfile(c, a, b, bins){
+  let lo = Infinity, hi = -Infinity;
+  for (let k=a;k<=b;k++){ if (c[k][3]<lo) lo = c[k][3]; if (c[k][2]>hi) hi = c[k][2]; }
+  bins = bins || 36;
+  const step = (hi-lo)/bins || 1, v = new Array(bins).fill(0), bv = new Array(bins).fill(0);
+  for (let k=a;k<=b;k++){
+    const [, , h, l, , vol, buy] = c[k];
+    const i0 = Math.max(0, Math.min(bins-1, Math.floor((l-lo)/step))), i1 = Math.max(0, Math.min(bins-1, Math.floor((h-lo)/step)));
+    const sh = vol/(i1-i0+1), bs = (buy||0)/(i1-i0+1);
+    for (let i=i0;i<=i1;i++){ v[i] += sh; bv[i] += bs; }
+  }
+  let poc = 0; v.forEach((x,i)=>{ if (x>v[poc]) poc = i; });
+  const tot = v.reduce((s,x)=>s+x, 0);
+  let li = poc, hi2 = poc, acc = v[poc];
+  while (acc < tot*0.7 && (li>0 || hi2<bins-1)){
+    const dn = li>0 ? v[li-1] : -1, up = hi2<bins-1 ? v[hi2+1] : -1;
+    if (up>=dn){ hi2++; acc += v[hi2]; } else { li--; acc += v[li]; }
+  }
+  return {lo, hi, step, v, bv, bins, poc:lo+(poc+0.5)*step, vah:lo+(hi2+1)*step, val:lo+li*step};
+}
+function dxAvwap(c, a, b){
+  const out = []; let pv = 0, vv = 0;
+  for (let k=a;k<=b;k++){ const tp = (c[k][2]+c[k][3]+c[k][4])/3; pv += tp*c[k][5]; vv += c[k][5]; out[k] = vv ? pv/vv : tp; }
+  return out;
+}
+function dxLevels(c, a, b, atr){
+  const pv = dxPivots(c, a, b, 3).map(p=>p.p).sort((x,y)=>x-y), out = [];
+  let g = [];
+  const flush = ()=>{ if (g.length>=2) out.push({p:g.reduce((s,x)=>s+x,0)/g.length, n:g.length}); g = []; };
+  pv.forEach(p=>{ if (g.length && p-g[0] > 0.6*atr) flush(); g.push(p); });
+  flush();
+  return out;
+}
+// Lecture selon un thème : lignes de texte, annotations à dessiner, biais (up / down / null).
+function dxThemeRead(k, c, ci, a){
+  a = Math.max(1, a);
+  const atr = dailyAtr(c, ci+1, 14) || c[ci][4]*0.01, close = c[ci][4];
+  const an = {lab:[], lev:[], marks:[], zones:[]}, L = [];
+  let bias = null;
+  if (k==="dow"){
+    const S = dxStructure(c, a, ci, 3);
+    an.lab = S.lab;
+    L.push(S.dir==="up" ? "Structure haussière : "+S.why+"." : S.dir==="down" ? "Structure baissière : "+S.why+"." : "Pas de tendance nette : "+S.why+".");
+    if (S.dir==="up" && S.lastL){ an.lev.push({p:S.lastL.p, t:"Invalidation", col:"dn"}); L.push("Selon Dow, la hausse reste valide tant que le dernier creux ("+dxP(S.lastL.p)+") tient."); }
+    if (S.dir==="down" && S.lastH){ an.lev.push({p:S.lastH.p, t:"Invalidation", col:"up"}); L.push("La baisse reste valide tant que le dernier sommet ("+dxP(S.lastH.p)+") n'est pas cassé."); }
+    bias = S.dir==="range" ? null : S.dir;
+  } else if (k==="wyckoff"){
+    const a2 = Math.max(a, ci-60), e2 = ci-10;
+    let hi = -Infinity, lo = Infinity;
+    for (let j=a2;j<=e2;j++){ hi = Math.max(hi, c[j][2]); lo = Math.min(lo, c[j][3]); }
+    const width = (hi-lo)/atr;
+    let spring = null, upth = null;
+    for (let j=e2+1;j<=ci;j++){ if (c[j][3]<lo && c[j][4]>lo) spring = j; if (c[j][2]>hi && c[j][4]<hi) upth = j; }
+    if (width < 12){
+      an.lev.push({p:hi, t:"Haut du range", col:"faint"}, {p:lo, t:"Bas du range", col:"faint"});
+      const pos = (close-lo)/((hi-lo)||1);
+      L.push("Range de "+dxNum(width,1)+" ATR sur les ~50 bougies précédentes : le prix est dans le "+(pos>0.66 ? "tiers haut" : pos<0.33 ? "tiers bas" : "milieu")+" du range.");
+      if (spring!=null){ an.marks.push({k:spring, p:c[spring][3], t:"Spring", col:"up"}); L.push("Spring : passage sous le bas du range racheté dans la bougie → piège vendeur, signe d'accumulation."); bias = "up"; }
+      if (upth!=null){ an.marks.push({k:upth, p:c[upth][2], t:"Upthrust", col:"dn"}); L.push("Upthrust : sortie au-dessus du range rejetée → signe de distribution."); bias = spring!=null && spring>upth ? "up" : "down"; }
+      if (spring==null && upth==null) L.push("Ni spring ni upthrust récent : le range n'a pas encore montré sa main.");
+    } else {
+      const dir = close > c[a2][4] ? "up" : "down";
+      L.push("Pas de range : le prix est en phase de "+(dir==="up" ? "markup (hausse)" : "markdown (baisse)")+", "+dxNum(width,1)+" ATR d'amplitude.");
+      bias = dir;
+    }
+    let v10 = 0, va = 0, n = 0;
+    for (let j=ci-9;j<=ci;j++) v10 += c[j][5];
+    for (let j=ci-59;j<=ci-10;j++) if (j>=0){ va += c[j][5]; n++; }
+    va = n ? va/n*10 : v10;
+    const mv = Math.abs(close - c[ci-10][4])/atr;
+    if (v10 > 1.4*va && mv < 1){ L.push("Effort sans résultat : beaucoup de volume sur les 10 dernières bougies pour peu de déplacement → absorption, retournement possible."); bias = close >= c[ci-10][4] ? "down" : "up"; }
+    else if (v10 < 0.8*va && mv > 2) L.push("Résultat sans effort : le prix avance sur un volume faible → manque de conviction.");
+  } else if (k==="smc"){
+    const S = dxStructure(c, a, ci, 3);
+    an.lab = S.lab;
+    if (S.bos){
+      const ch = S.trend && S.trend!==S.bos;
+      L.push((ch ? "CHoCH" : "BOS")+" "+(S.bos==="up" ? "haussier" : "baissier")+" : la dernière clôture casse le "+(S.bos==="up" ? "dernier sommet" : "dernier creux")+(ch ? ", contre la tendance précédente → retournement possible." : " → continuation."));
+      bias = S.bos;
+    } else if (S.trend){ L.push("Pas de cassure récente ; structure "+(S.trend==="up" ? "haussière" : "baissière")+" ("+S.why+")."); bias = S.trend; }
+    else L.push("Structure sans direction claire ("+S.why+").");
+    const eq = (arr)=>{ const z = arr.slice(-6); for (let i=z.length-1;i>0;i--) for (let j=i-1;j>=0;j--) if (Math.abs(z[i].p-z[j].p) < 0.25*atr) return (z[i].p+z[j].p)/2; return null; };
+    const eh = eq(S.H), el = eq(S.L);
+    if (eh!=null && eh > close){ an.lev.push({p:eh, t:"Liquidité", col:"gold"}); L.push("Sommets égaux vers "+dxP(eh)+" : des stops dorment au-dessus, le prix peut aller les chercher."); }
+    if (el!=null && el < close){ an.lev.push({p:el, t:"Liquidité", col:"gold"}); L.push("Creux égaux vers "+dxP(el)+" : liquidité sous le prix."); }
+    let fvg = null;
+    for (let j=ci; j>=Math.max(a+2, ci-40) && !fvg; j--){
+      if (c[j-2][2] < c[j][3]){ const top = c[j][3], bot = c[j-2][2]; let f = false; for (let q=j+1;q<=ci;q++) if (c[q][3] <= bot){ f = true; break; } if (!f) fvg = {j, top, bot, up:true}; }
+      else if (c[j-2][3] > c[j][2]){ const top = c[j-2][3], bot = c[j][2]; let f = false; for (let q=j+1;q<=ci;q++) if (c[q][2] >= top){ f = true; break; } if (!f) fvg = {j, top, bot, up:false}; }
+    }
+    if (fvg){ an.zones.push({a:fvg.j-1, top:fvg.top, bot:fvg.bot, col:fvg.up ? "up" : "dn", t:"FVG"}); L.push("FVG "+(fvg.up ? "haussier" : "baissier")+" non comblé entre "+dxP(fvg.bot)+" et "+dxP(fvg.top)+" : zone de retour probable."); }
+    if (S.lastH && S.lastL){ const mid = (S.lastH.p+S.lastL.p)/2; L.push("Prix en zone "+(close>mid ? "premium (au-dessus du milieu du dernier swing) : on y cherche plutôt des ventes." : "discount (sous le milieu du dernier swing) : on y cherche plutôt des achats.")); }
+  } else if (k==="vwap"){
+    const av = dxAvwap(c, a, ci), vw = av[ci], P = dxProfile(c, a, ci, 36);
+    an.avwap = {arr:av, a}; an.prof = true;
+    an.lev.push({p:P.poc, t:"POC", col:"gold"}, {p:P.vah, t:"VAH", col:"faint"}, {p:P.val, t:"VAL", col:"faint"});
+    const d = (close-vw)/atr;
+    L.push("Prix "+(d>=0 ? "au-dessus" : "en dessous")+" du VWAP ancré au début du graphique ("+dxNum(Math.abs(d),1)+" ATR) : les acheteurs de la période sont "+(d>=0 ? "en gain" : "en perte")+".");
+    const inVA = close<=P.vah && close>=P.val;
+    L.push(inVA ? "Prix dans la value area ("+dxP(P.val)+" – "+dxP(P.vah)+") : marché équilibré, le POC ("+dxP(P.poc)+") agit comme un aimant."
+      : "Prix "+(close>P.vah ? "au-dessus" : "en dessous")+" de la value area : le marché cherche une nouvelle valeur.");
+    bias = inVA ? (Math.abs(close-P.poc) > 0.6*atr ? (close>P.poc ? "down" : "up") : null) : (close>P.vah ? (d>0 ? "up" : null) : (d<0 ? "down" : null));
+  } else if (k==="of"){
+    const F = dxFlowOn(c, ci);
+    if (!F.hasBuy) L.push("Volumes acheteurs / vendeurs indisponibles sur ce marché.");
+    else {
+      L.push("Sur les 20 dernières bougies : prix "+(F.dp>=0?"+":"−")+dxNum(Math.abs(F.dp),1)+" ATR, delta cumulé "+(F.dn>=0?"+":"−")+dxNum(Math.abs(F.dn*100),1)+" % du volume.");
+      if (F.div==="bear"){ L.push("Divergence baissière : la hausse n'est pas portée par les acheteurs agressifs, des vendeurs passifs absorbent."); bias = "down"; }
+      else if (F.div==="bull"){ L.push("Divergence haussière : la baisse n'est pas portée par les vendeurs agressifs, des acheteurs passifs absorbent."); bias = "up"; }
+      else if (F.conf){ L.push("Le flux confirme le mouvement : l'agression va dans le sens du prix."); bias = F.dp>0 ? "up" : "down"; }
+      else L.push("Flux sans signal net.");
+      F.abs.slice(-3).forEach(z=>an.marks.push({k:z.k, p:c[z.k][z.side==="buy" ? 2 : 3], t:"Absorption", col:z.side==="buy" ? "dn" : "up"}));
+      if (F.abs.length){ const z = F.abs[F.abs.length-1], n = ci-z.k; L.push("Absorption "+(z.side==="buy" ? "des acheteurs" : "des vendeurs")+(n ? " il y a "+n+" bougie"+(n>1?"s":"") : " sur la dernière bougie")+" : gros volume, petite bougie."); }
+    }
+  } else if (k==="mom"){
+    const cl = c.map(r=>r[4]), rsi = TA.rsi(cl, 14), mac = TA.macd(cl, 12, 26, 9), r = rsi[ci];
+    const pv = dxPivots(c, Math.max(a, ci-80), ci, 3), H = pv.filter(p=>p.hi), Lw = pv.filter(p=>!p.hi);
+    let div = null;
+    if (H.length>=2){ const h1 = H[H.length-2], h2 = H[H.length-1]; if (h2.p>h1.p && rsi[h1.k]!=null && rsi[h2.k]!=null && rsi[h2.k] < rsi[h1.k]-2){ div = "bear"; an.marks.push({k:h1.k, p:h1.p, t:"RSI "+Math.round(rsi[h1.k]), col:"dn"}, {k:h2.k, p:h2.p, t:"RSI "+Math.round(rsi[h2.k]), col:"dn"}); } }
+    if (!div && Lw.length>=2){ const l1 = Lw[Lw.length-2], l2 = Lw[Lw.length-1]; if (l2.p<l1.p && rsi[l1.k]!=null && rsi[l2.k]!=null && rsi[l2.k] > rsi[l1.k]+2){ div = "bull"; an.marks.push({k:l1.k, p:l1.p, t:"RSI "+Math.round(rsi[l1.k]), col:"up"}, {k:l2.k, p:l2.p, t:"RSI "+Math.round(rsi[l2.k]), col:"up"}); } }
+    L.push("RSI 14 : "+(r==null ? "—" : dxNum(r,0))+(r>70 ? " (momentum fort)" : r<30 ? " (momentum faible)" : "")+".");
+    if (div) L.push(div==="bear" ? "Divergence baissière : nouveau plus haut du prix mais sommet plus bas du RSI → essoufflement." : "Divergence haussière : nouveau plus bas du prix mais creux plus haut du RSI → vendeurs à bout de souffle.");
+    const m = mac.line[ci], sg = mac.signal[ci];
+    if (m!=null && sg!=null) L.push("MACD "+(m>sg ? "au-dessus" : "en dessous")+" de son signal, "+(m>0 ? "au-dessus" : "en dessous")+" de zéro.");
+    bias = div ? (div==="bear" ? "down" : "up") : (m!=null && sg!=null ? (m>sg && m>0 ? "up" : m<sg && m<0 ? "down" : null) : null);
+  } else if (k==="sr"){
+    const lv = dxLevels(c, a, ci, atr);
+    const ab = lv.filter(l=>l.p>close).sort((x,y)=>x.p-y.p)[0], be = lv.filter(l=>l.p<=close).sort((x,y)=>y.p-x.p)[0];
+    if (ab){ an.lev.push({p:ab.p, t:"Résistance ×"+ab.n, col:"dn"}); L.push("Résistance la plus proche : "+dxP(ab.p)+" ("+ab.n+" contacts), à "+dxNum((ab.p-close)/atr,1)+" ATR."); }
+    if (be){ an.lev.push({p:be.p, t:"Support ×"+be.n, col:"up"}); L.push("Support le plus proche : "+dxP(be.p)+" ("+be.n+" contacts), à "+dxNum((close-be.p)/atr,1)+" ATR."); }
+    if (!ab && !be) L.push("Aucun niveau touché plusieurs fois dans la fenêtre : le prix est en terrain libre.");
+    const da = ab ? (ab.p-close)/atr : 99, db = be ? (close-be.p)/atr : 99;
+    bias = da < 0.6 && db > 1 ? "down" : db < 0.6 && da > 1 ? "up" : null;
+    if (ab || be) L.push(bias ? "Le prix est collé "+(bias==="down" ? "à la résistance" : "au support")+" : la théorie attend une réaction, sauf cassure." : "Le prix est entre deux niveaux : pas d'avantage net.");
+  }
+  return {lines:L, annot:an, bias};
+}
+function dxBiasLine(bias, truth, who){
+  if (!bias) return "Pas de biais net selon cette lecture.";
+  return "Biais "+(bias==="up" ? "haussier" : "baissier")+" selon "+(who||"la théorie")+" → "+(bias===truth ? "confirmé par la suite." : "contredit cette fois : aucune lecture ne marche à tous les coups, d'où le stop.");
+}
+function dxStructTruth(R){
+  if (R.structT) return R.structT;
+  const up = R.ctx && R.ctx.up;
+  let S, tf;
+  if (up && up.length > 40){ const b = up.length-1; S = dxStructure(up, Math.max(0, b-120), b, 2); tf = DAILY_IV_LABEL[R.ivUp]; }
+  else { S = dxStructure(R.c, R.ci-149, R.ci, 3); tf = R.ivLabel; }
+  return (R.structT = {dir:S.dir, why:S.why, lab:S.lab, tf});
+}
+function dxSim(R, tr, after){
+  const long = tr.side==="long", risk = Math.abs(tr.entry-tr.sl) || 1e-9, rr = Math.abs(tr.tp-tr.entry)/risk;
+  for (let k=R.ci+1; k<=R.ci+after && k<R.c.length; k++){
+    const h = R.c[k][2], l = R.c[k][3];
+    if (long ? l<=tr.sl : h>=tr.sl) return {R:-1, how:"sl", k}; // stop d'abord si les deux sont touchés dans la même bougie
+    if (long ? h>=tr.tp : l<=tr.tp) return {R:rr, how:"tp", k};
+  }
+  const k = Math.min(R.c.length-1, R.ci+after), last = R.c[k][4];
+  return {R:(long ? last-tr.entry : tr.entry-last)/risk, how:"time", k};
+}
+const DX_DIR_FR = {up:"haussière", down:"baissière", range:"range", none:"pas de réponse"};
+function dxEventLines(R){
+  const ev = R.ev, s = dxEvSurprise(ev), L = [];
+  const big = ev.k==="nfp" ? "fort" : "élevé";
+  L.push(s>0 ? "Plus "+big+" que prévu : lecture « hawkish » (taux plus hauts plus longtemps) → négatif en théorie pour les actifs risqués comme le BTC."
+    : s<0 ? (ev.k==="nfp" ? "Plus faible que prévu" : ev.k==="fomc" ? "Plus accommodant que prévu" : "Plus bas que prévu")+" : lecture « dovish » → positif en théorie pour les actifs risqués."
+    : "Pas de surprise sur le chiffre principal : la réaction dépend des détails et du discours.");
+  if (ev.k==="fomc") L.push("La conférence de presse de Jerome Powell commence 30 min après le communiqué : c'est souvent elle qui donne la vraie direction.");
+  const c = R.c, ci = R.ci, p0 = c[ci][4], p1 = c[ci+1][4], p4 = c[Math.min(c.length-1, ci+16)][4];
+  const m1 = (p1-p0)/p0*100, m4 = (p4-p0)/p0*100;
+  L.push("Réaction : "+dxPct(m1)+" sur la 1re bougie de 15 min, "+dxPct(m4)+" après 4 h"+(Math.sign(m1)!==Math.sign(m4) && Math.abs(m1) > 0.15 ? " : le premier mouvement a été repris, un piège classique des annonces." : "."));
+  L.push(dxBiasLine(s>0 ? "down" : s<0 ? "up" : null, m4>=0 ? "up" : "down", "la lecture macro"));
+  L.push("Le marché réagit à l'écart avec le consensus, pas au chiffre lui-même : un « bon » chiffre déjà attendu ne fait pas monter le prix.");
+  return L;
+}
+function dxTradeLines(R, rec, mode){
+  const T = dxStructTruth(R), L = [];
+  const sa = rec.s || "none";
+  L.push("Structure "+T.tf+" : "+DX_DIR_FR[T.dir]+" ("+T.why+"). Ta réponse : "+DX_DIR_FR[sa]+(sa===T.dir ? " ✓ (+50)." : " ✗."));
+  const tr = R.trade, sim = R.sim, after = DX_MODES[mode].after;
+  const mv = dxTruth(R, after).move;
+  if (!tr && rec.a && rec.a!=="none") L.push((rec.a==="long" ? "Long" : "Short")+" : "+(rec.x>=0?"+":"−")+dxNum(Math.abs(rec.x/100),2)+" R. Le prix a fait "+dxPct(mv)+" sur "+after+" h.");
+  else if (!tr || tr.side==="none") L.push("Pas de trade : 0 R. Le prix a fait "+dxPct(mv)+" sur "+after+" h.");
+  else {
+    const riskPct = Math.abs(tr.entry-tr.sl)/tr.entry*100, rr = Math.abs(tr.tp-tr.entry)/Math.abs(tr.entry-tr.sl);
+    L.push((tr.side==="long" ? "Long" : "Short")+" à "+dxP(tr.entry)+", stop "+dxP(tr.sl)+" (1 R = "+dxNum(riskPct,2)+" %), objectif "+dxP(tr.tp)+" (+"+dxNum(rr,1)+" R).");
+    if (sim){
+      const h = Math.round((sim.k-R.ci)*R.ivMs/3600e3);
+      L.push(sim.how==="tp" ? "Objectif atteint après "+h+" h : +"+dxNum(sim.R,2)+" R." : sim.how==="sl" ? "Stop touché après "+h+" h : −1 R." : "Ni stop ni objectif en "+after+" h : clôturé à "+(sim.R>=0?"+":"−")+dxNum(Math.abs(sim.R),2)+" R.");
+      if (sim.how==="sl" && riskPct < 0.4) L.push("Stop très serré : à moins d'1 ATR, le bruit normal du marché suffit à le toucher.");
+    }
+  }
+  return L;
+}
+function dxExplainRound(mode, R, rec){
+  const th = dxTheme(D.day), M = DX_MODES[mode], a = R.ci - M.show + 1;
+  const T = dxThemeRead(th.k, R.c, R.ci, a);
+  const truth = dxTruth(R, M.after).dir;
+  const blocks = [];
+  const annot = T.annot;
+  if (mode==="of" && th.k!=="of"){
+    const F = dxThemeRead("of", R.c, R.ci, a);
+    F.lines.push(dxBiasLine(F.bias, truth, "le flux"));
+    blocks.push({h:"Order flow", lines:F.lines});
+    annot.marks = annot.marks.concat(F.annot.marks);
+  }
+  if (mode==="fd") blocks.push({h:"L'annonce", lines:dxEventLines(R)});
+  if (mode==="an" || mode==="wk") blocks.push({h:"Structure et trade", lines:dxTradeLines(R, rec, mode)});
+  if (mode==="wk") blocks.push({h:"Ce qui s'est passé", lines:[R.cs.lesson]});
+  T.lines.push(dxBiasLine(T.bias, truth));
+  blocks.push({h:"Lecture "+th.tag+" · thème du jour", lines:T.lines});
+  return {blocks, annot};
+}
+function dxExplainHtml(ex){
+  if (!ex) return "";
+  return ex.blocks.map(b=>'<div class="dx-exp-b"><span class="dd-kicker">'+dailyEsc(b.h)+'</span><ul>'+b.lines.map(l=>'<li>'+dailyEsc(l)+'</li>').join("")+'</ul></div>').join("");
+}
+
+// ---------- État, partie, enregistrement ----------
+function dxKey(mode){ const day = D.day || dailyDayKey(); return mode==="wk" ? dxWeekKey(day)+"_wk" : day+"_"+mode; }
+function dxRef(key){ return db.collection("dailyx").doc(key).collection("plays").doc(clientId); }
+function dxSt(mode){
+  const key = dxKey(mode);
+  let s = X.st[mode];
+  if (!s || s.key!==key) s = X.st[mode] = {mode, key, phase:"idle", play:null, srvN:0, rounds:null, i:0, conf:1};
+  return s;
+}
+function dxCur(){ const s = X.st[X.mode]; return s && s.rounds ? s.rounds[s.i] : null; }
+function dxBusy(){
+  if (D.phase==="playing") return true;
+  const s = X.st[X.mode];
+  return !!(s && s.phase==="playing");
+}
+async function dxEnsure(mode, quiet){
+  const s = dxSt(mode);
+  if (s.phase==="idle"){
+    s.phase = "loading";
+    if (!quiet && X.mode===mode) dxRender();
+    try{
+      const ps = await dxRef(s.key).get();
+      s.play = ps.exists ? ps.data() : null;
+      s.srvN = s.play ? (s.play.answers||[]).length : 0;
+    }catch(e){ console.warn("dx load", e); }
+    s.phase = s.play && s.play.status==="done" ? "done" : "intro";
+    dxRenderTabs();
+    if (s.play && (s.play.answers||[]).length) dxLoad(mode, s.key, D.day).then(r=>{ if (!s.rounds) s.rounds = r; if (X.mode===mode && s.phase==="done") dxRender(); }).catch(()=>{});
+  }
+  if (X.mode===mode) dxRender();
+}
+function dxSetMode(mode){
+  if (mode===X.mode) return;
+  if (dxBusy()){ appToast("Termine d'abord le graphique en cours."); return; }
+  cancelAnimationFrame(X.raf);
+  X.mode = mode;
+  const m = document.getElementById("dd-main"); if (m) m.innerHTML = "";
+  dxRenderTabs();
+  if (mode!=="classic"){ X.btab = mode; dxRenderBoardTabs(); dxLoadBoard(mode); }
+  else { X.btab = "classic"; dxRenderBoardTabs(); dailyRenderBoards(); }
+  if (mode==="classic"){ dailyRenderMain(); return; }
+  dxEnsure(mode);
+}
+async function dxStart(){
+  const mode = X.mode, s = dxSt(mode), M = DX_MODES[mode];
+  const btn = document.querySelector('[data-dx="start"]'); if (btn){ btn.disabled = true; btn.textContent = "Chargement des graphiques…"; }
+  try{ s.rounds = await dxLoad(mode, s.key, D.day); }catch(e){ s.phase = "error"; dxRender(); return; }
+  try{
+    if (!s.play){
+      const doc = {uid:clientId, username:state.username||"Trader", photoURL:state.photoURL||null, mode, key:s.key, n:M.n,
+        status:"started", answers:[], correct:0, points:0, startedAt:firebase.firestore.FieldValue.serverTimestamp()};
+      await dxRef(s.key).set(doc);
+      s.play = doc; s.srvN = 0;
+    }
+  }catch(e){
+    console.warn("dx start", e);
+    try{ const sn = await dxRef(s.key).get(); if (sn.exists){ s.play = sn.data(); s.srvN = (s.play.answers||[]).length; } }catch(e2){}
+    if (!s.play){ appToast("Impossible d'enregistrer ta partie (connexion ?). Réessaie dans un instant."); s.phase = "intro"; dxRender(); return; }
+  }
+  s.i = (s.play.answers||[]).length;
+  if (s.i >= M.n){ s.phase = "done"; dxRender(); return; }
+  dxShowRound();
+}
+async function dxShowRound(){
+  const mode = X.mode, s = dxSt(mode), M = DX_MODES[mode], R = s.rounds[s.i];
+  const an = mode==="an" || mode==="wk";
+  Object.assign(s, {phase:"playing", locked:false, view:"main", step: an ? "struct" : "dir", struct:null, trade:null, revealP:null});
+  const m = document.getElementById("dd-main");
+  if (m && !m.querySelector(".dx-game")) m.innerHTML = "";
+  dxRender();
+  const game = document.querySelector(".dx-game");
+  if (game){ const r = game.getBoundingClientRect(); if (r.top < 60 || r.top > window.innerHeight*0.35) window.scrollTo({top:window.scrollY + r.top - 72, behavior:"smooth"}); }
+  if (an){
+    const wrap = document.querySelector(".dx-chart"); if (wrap) wrap.classList.add("is-loading");
+    try{ await Promise.all([dxLoadCtx(R, "up"), dxLoadCtx(R, "up2")]); }catch(e){}
+    if (wrap) wrap.classList.remove("is-loading");
+    if (dxCur()!==R) return;
+  } else dxLoadCtx(R, "up").catch(()=>{});
+  dxRedraw();
+  s.t0 = performance.now();
+  cancelAnimationFrame(X.raf);
+  const loop = t=>{
+    if (s.locked || s.phase!=="playing" || X.mode!==mode) return;
+    const left = Math.max(0, M.time - (t-s.t0)/1000);
+    const bar = document.getElementById("dx-timer"), sec = document.getElementById("dx-sec");
+    if (bar){ bar.style.transform = "scaleX("+(left/M.time)+")"; bar.classList.toggle("low", left<10); }
+    if (sec){ const mm = Math.floor(Math.ceil(left)/60), ss = Math.ceil(left)%60, txt = mm ? mm+":"+String(ss).padStart(2,"0") : ss+" s"; if (sec.textContent!==txt) sec.textContent = txt; sec.classList.toggle("low", left<10); }
+    if (left<=0){ dxTimeout(); return; }
+    X.raf = requestAnimationFrame(loop);
+  };
+  X.raf = requestAnimationFrame(loop);
+}
+function dxTimeout(){
+  const s = dxSt(X.mode);
+  if (s.step==="dir") dxAnswerDir("none");
+  else { if (!s.trade) s.trade = {side:"none"}; dxValidate(true); }
+}
+function dxRecord(s, rec){
+  const answers = (s.play.answers||[]).concat([rec]);
+  const done = answers.length >= DX_MODES[s.mode].n;
+  Object.assign(s.play, {answers, points:(s.play.points||0)+rec.pts, correct:(s.play.correct||0)+(rec.ok?1:0), status: done ? "done" : "started"});
+  dxFlush();
+  if (done) dxRenderTabs();
+}
+function dxAnswerDir(choice){
+  const s = dxSt(X.mode);
+  if (s.locked || s.phase!=="playing" || s.step!=="dir") return;
+  s.locked = true; cancelAnimationFrame(X.raf);
+  const R = dxCur(), M = DX_MODES[X.mode];
+  const left = Math.max(0, M.time - (performance.now()-s.t0)/1000);
+  const t = dxTruth(R, M.after), ok = choice===t.dir, c = choice==="none" ? 1 : (s.conf||1);
+  const pts = choice==="none" ? 0 : ok ? (100 + Math.round(left*50/M.time))*c : -50*(c-1);
+  const rec = {a:choice, ok, pts, x:c};
+  document.querySelectorAll(".dx-game .dd-btn").forEach(b=>{ b.disabled = true; if (b.dataset.dx===choice) b.classList.add("picked"); });
+  dxRecord(s, rec);
+  dxReveal(R, rec);
+}
+function dxValidate(force){
+  const s = dxSt(X.mode);
+  if (s.locked || s.phase!=="playing") return;
+  if (!force && !s.trade){ appToast("Choisis Long, Short ou Pas de trade."); return; }
+  s.locked = true; cancelAnimationFrame(X.raf);
+  const R = dxCur(), M = DX_MODES[X.mode];
+  const T = dxStructTruth(R), sOk = !!s.struct && s.struct===T.dir;
+  const tr = s.trade || {side:"none"};
+  R.trade = tr.side==="none" ? {side:"none"} : Object.assign({}, tr);
+  R.sim = tr.side==="none" ? null : dxSim(R, tr, M.after);
+  const rv = R.sim ? Math.max(-1, Math.min(5, R.sim.R)) : 0;
+  const rec = {a:tr.side, ok:rv>0, pts:(sOk ? 50 : 0) + Math.round(rv*100), x:Math.round(rv*100), s:s.struct||"none"};
+  dxRecord(s, rec);
+  dxReveal(R, rec);
+}
+function dxReveal(R, rec){
+  const s = dxSt(X.mode), mode = X.mode;
+  s.view = "main"; dxSyncTools();
+  const ts = performance.now(), T = 1800;
+  const anim = now=>{
+    if (X.mode!==mode) return;
+    s.revealP = Math.min(1, (now-ts)/T);
+    dxRedraw();
+    if (s.revealP<1) X.raf = requestAnimationFrame(anim); else dxVerdict(R, rec);
+  };
+  X.raf = requestAnimationFrame(anim);
+}
+function dxVerdict(R, rec){
+  const mode = X.mode, s = dxSt(mode), M = DX_MODES[mode];
+  s.phase = "reveal";
+  R.rec = rec;
+  R.exp = dxExplainRound(mode, R, rec);
+  dxRenderActs(); dxSyncTools(); dxRedraw();
+  const t = dxTruth(R, M.after), last = s.i >= M.n-1;
+  let head, sub, cls;
+  if (mode==="an" || mode==="wk"){
+    head = rec.a==="none" ? "Pas de trade" : rec.x>0 ? "Trade gagnant" : rec.x<0 ? "Trade perdant" : "Trade à l'équilibre";
+    sub = rec.a==="none" ? "0 R" : (R.sim.how==="tp" ? "Objectif atteint" : R.sim.how==="sl" ? "Stop touché" : "Clôturé à l'horizon")+" · "+(rec.x>=0?"+":"−")+dxNum(Math.abs(rec.x/100),2)+" R";
+    cls = rec.x>0 ? "up" : rec.x<0 ? "down" : "";
+  } else {
+    head = rec.a==="none" ? "Temps écoulé" : rec.ok ? "Bien vu !" : "Raté";
+    sub = (t.dir==="up" ? "▲ Ça montait : " : "▼ Ça descendait : ")+dxPct(t.move);
+    cls = t.dir==="up" ? "up" : "down";
+  }
+  const v = document.getElementById("dx-verdict");
+  v.className = "dd-verdict "+(rec.ok ? "ok" : "ko");
+  v.innerHTML = '<div class="dd-v-l"><b>'+head+'</b><span class="'+cls+'">'+dailyEsc(sub)+'</span><em>'+dailyEsc(R.name)+' · bougies '+R.ivLabel+' · '+dailyEsc(dxPeriod(R))+'</em></div>'+
+    '<div class="dd-v-r"><strong class="num">'+(rec.pts>0 ? "+" : "")+rec.pts+'</strong><button class="pw-btn pw-btn-trial" data-dx="next">'+(last ? "Voir mon résultat" : "Graphique suivant →")+'</button></div>';
+  v.hidden = false;
+  const ex = document.getElementById("dx-explain");
+  if (ex){ ex.innerHTML = dxExplainHtml(R.exp); ex.hidden = false; }
+}
+function dxNext(){
+  const s = dxSt(X.mode), M = DX_MODES[X.mode];
+  s.i++;
+  if (s.i >= M.n){ s.phase = "done"; const m = document.getElementById("dd-main"); if (m) m.innerHTML = ""; dxRender(); dxLoadBoard(X.mode); return; }
+  dxShowRound();
+}
+function dxPeriod(R){
+  const f = {day:"numeric", month:"long", year:"numeric", timeZone:"UTC"};
+  const a = new Date(R.c[Math.max(0, R.ci - DX_MODES[X.mode].show + 1)][0]).toLocaleDateString("fr-FR", f), b = new Date(R.c[R.c.length-1][0]).toLocaleDateString("fr-FR", f);
+  return a===b ? a : a+" → "+b;
+}
+const dxSync = {busy:false, err:false, timer:null, delay:3000, lastErr:null};
+function dxUnsynced(){ return Object.values(X.st).some(s=>s.play && s.srvN < (s.play.answers||[]).length); }
+function dxAnsClean(a){ const o = {a:String(a.a), ok:!!a.ok, pts:Math.round(a.pts||0), x:Math.round(a.x||0)}; if (a.s) o.s = String(a.s); return o; }
+async function dxFlush(){
+  clearTimeout(dxSync.timer); dxSync.timer = null;
+  if (dxSync.busy || !dxUnsynced() || !db || !clientId){ renderSavePill(); return; }
+  dxSync.busy = true; renderSavePill();
+  let cur = null;
+  try{
+    for (const s of Object.values(X.st)){
+      const play = s.play; if (!play) continue;
+      cur = s;
+      while (s.play===play && s.srvN < play.answers.length){
+        const n = s.srvN + 1, N = DX_MODES[s.mode].n, ans = play.answers.slice(0, n).map(dxAnsClean);
+        const patch = {answers:ans, points:ans.reduce((t,a)=>t+a.pts, 0), correct:ans.filter(a=>a.ok).length, status: n>=N ? "done" : "started"};
+        if (n>=N) patch.finishedAt = firebase.firestore.FieldValue.serverTimestamp();
+        await dxRef(s.key).update(patch);
+        s.srvN = n;
+        if (n>=N) dxLoadBoard(s.mode);
+      }
+    }
+    dxSync.err = false; dxSync.delay = 3000; dxSync.lastErr = null;
+  }catch(e){
+    console.warn("dx answer", e);
+    dxSync.lastErr = (e && (e.code || e.message)) || "erreur";
+    if (cur){ try{ const sn = await dxRef(cur.key).get(); if (sn.exists && cur.play){ const k = (sn.data().answers||[]).length; if (k <= cur.play.answers.length) cur.srvN = k; } }catch(e2){} }
+    dxSync.err = true;
+    dxSync.timer = setTimeout(dxFlush, dxSync.delay);
+    dxSync.delay = Math.min(30000, dxSync.delay*2);
+  }
+  dxSync.busy = false;
+  renderSavePill();
+}
+
+// ---------- Classements ----------
+async function dxFetchBoard(mode){
+  const key = dxKey(mode);
+  try{
+    const snap = await db.collection("dailyx").doc(key).collection("plays").orderBy("points","desc").limit(40).get();
+    const rows = []; snap.forEach(d=>{ const x = d.data(); if (x.status==="done") rows.push(Object.assign({uid:d.id}, x)); });
+    rows.sort((a,b)=>(b.points||0)-(a.points||0) || (b.correct||0)-(a.correct||0));
+    X.boards[key] = rows;
+  }catch(e){ console.warn("dx board", e); X.boards[key] = X.boards[key] || []; }
+  return X.boards[key];
+}
+async function dxLoadBoard(tab){
+  if (!db) return;
+  if (tab==="gen") await Promise.all(["of","fd","an"].map(dxFetchBoard));
+  else if (tab!=="classic") await dxFetchBoard(tab);
+  if (X.btab===tab) dxRenderBoard();
+}
+function dxGeneral(){
+  const per = {};
+  const add = (rows, max, mode)=>(rows||[]).forEach(r=>{
+    const p = per[r.uid] || (per[r.uid] = {uid:r.uid, username:r.username, pts:0, modes:0});
+    p.pts += Math.max(0, r.points||0)/max*100; p.modes++; p.username = p.username || r.username;
+  });
+  add(D.board, 1250, "classic");
+  ["of","fd","an"].forEach(m=>add(X.boards[dxKey(m)], DX_MODES[m].max, m));
+  return Object.values(per).map(p=>Object.assign(p, {pts:Math.round(p.pts)})).sort((a,b)=>b.pts-a.pts || b.modes-a.modes);
+}
+function dxRenderBoardTabs(){
+  const el = document.getElementById("dx-btabs"); if (!el) return;
+  el.innerHTML = ["classic","of","fd","an","gen","wk"].map(t=>'<button type="button" data-dx-btab="'+t+'" class="'+(X.btab===t ? "on" : "")+'">'+DX_TAB[t]+'</button>').join("");
+  const h = document.getElementById("dd-board-t"); if (h) h.textContent = X.btab==="wk" ? "Classement de la semaine" : X.btab==="gen" ? "Classement général du jour" : "Classement du jour";
+}
+function dxRenderBoard(){
+  const b = document.getElementById("dd-board"), n = document.getElementById("dd-board-n");
+  if (!b || X.btab==="classic") return;
+  const medal = i=>i===0 ? "🥇" : i===1 ? "🥈" : i===2 ? "🥉" : String(i+1);
+  if (X.btab==="gen"){
+    const rows = dxGeneral();
+    if (n) n.textContent = "sur 400 · 4 modes";
+    b.innerHTML = rows.length ? rows.slice(0, 10).map((r,i)=>'<li class="'+(r.uid===clientId ? "me" : "")+'"><span class="dd-rk">'+medal(i)+'</span><span class="dd-nm">'+dailyEsc(r.username||"Trader")+'</span><span class="dd-sc">'+r.modes+'/4</span><b class="num">'+r.pts+'</b></li>').join("")
+      : '<li class="dd-li-empty">Personne n\'a encore terminé de mode aujourd\'hui.</li>';
+    return;
+  }
+  const rows = X.boards[dxKey(X.btab)] || [], N = DX_MODES[X.btab].n;
+  if (n) n.textContent = rows.length ? (rows.length>=40 ? "40+ joueurs" : rows.length+" joueur"+(rows.length>1 ? "s" : "")) : "";
+  b.innerHTML = rows.length ? rows.slice(0, 10).map((r,i)=>'<li class="'+(r.uid===clientId ? "me" : "")+'"><span class="dd-rk">'+medal(i)+'</span><span class="dd-nm">'+dailyEsc(r.username||"Trader")+'</span><span class="dd-sc">'+(r.correct||0)+'/'+N+'</span><b class="num">'+(r.points||0)+'</b></li>').join("")
+    : '<li class="dd-li-empty">Personne n\'a encore terminé ce mode. Sois le premier !</li>';
+}
+
+// ---------- Rendu ----------
+function dxRenderTabs(){
+  const el = document.getElementById("dx-modes"); if (!el) return;
+  el.innerHTML = DX_ORDER.map(m=>{
+    const done = m==="classic" ? !!(D.play && D.play.status==="done") : !!(X.st[m] && X.st[m].play && X.st[m].play.status==="done");
+    const sub = m==="classic" ? "5 × 1 min" : DX_MODES[m].sub;
+    return '<button type="button" data-dx-mode="'+m+'" class="'+(X.mode===m ? "on" : "")+(done ? " done" : "")+'"><b>'+(m==="wk" ? "Défi de la semaine" : DX_TAB[m])+'</b><small>'+(done ? "✓ terminé" : sub)+'</small></button>';
+  }).join("");
+}
+function dxRenderTheme(){
+  const el = document.getElementById("dx-theme"); if (!el) return;
+  const th = dxTheme(D.day);
+  el.innerHTML = '<button type="button" class="dx-theme-h" data-dx="theme" aria-expanded="'+X.themeOpen+'"><span class="dd-kicker">Thème du jour</span><b>'+dailyEsc(th.t)+'</b><em>'+(X.themeOpen ? "Masquer la fiche ▴" : "Voir la fiche théorie ▾")+'</em></button>'+
+    '<div class="dx-theme-b"'+(X.themeOpen ? "" : " hidden")+'><ul>'+th.card.map(l=>'<li>'+dailyEsc(l)+'</li>').join("")+'</ul>'+
+    '<p class="dx-look"><b>À chercher aujourd\'hui :</b> '+dailyEsc(th.look)+' Après chaque graphique, une lecture selon ce thème est affichée et dessinée.</p></div>';
+}
+const DX_INTRO = {
+  of:{h:"Qui agresse, <span>qui absorbe ?</span>", p:"3 graphiques crypto avec le delta, le CVD et le profil de volume. Lis le flux d'ordres, puis tranche, en misant ta confiance.",
+    rules:[["Δ","<b>Delta et CVD</b> : achats et ventes au marché, bougie par bougie"],["2:00","<b>2 minutes</b> par graphique, 30 bougies d'horizon"],["x3","<b>Confiance x1, x2, x3</b> : gain multiplié, perte si tu te trompes"]]},
+  fd:{h:"Le chiffre tombe. <span>Et après ?</span>", p:"3 vraies annonces macro : inflation, Fed, emploi. Tu vois le consensus et le chiffre publié, pas la réaction. Le BTC sera-t-il plus haut ou plus bas 4 h après ?",
+    rules:[["%","<b>Consensus contre publié</b> : c'est l'écart qui fait bouger le marché"],["1:30","<b>90 secondes</b> par annonce, horizon 4 h"],["x3","<b>Confiance x1, x2, x3</b> : gain multiplié, perte si tu te trompes"]]},
+  an:{h:"Une vraie analyse, <span>notée en R.</span>", p:"2 situations, 5 minutes chacune. Lis le 1 jour, le 4 h et le 1 h, donne la structure, puis place ton trade : entrée, stop, objectif. On rejoue les 72 heures suivantes.",
+    rules:[["1","<b>Structure 4 h</b> : haussière, baissière ou range (+50 si juste)"],["2","<b>Ton trade</b>, noté en R : 1 R = ton risque, de −1 R à +5 R"],["72h","Stop ou objectif touché en premier, sinon clôture à l'horizon"]]},
+  wk:{h:"Un moment <span>historique.</span>", p:"Un seul cas par semaine, tiré d'un grand moment de marché. Tu as le contexte de l'époque, 15 minutes et trois unités de temps. Que fais-tu ?",
+    rules:[["1","<b>Structure 4 h</b> (+50 si juste)"],["2","<b>Ton trade</b>, noté en R sur les 72 h suivantes"],["7j","<b>Une partie par semaine</b>, classement de la semaine"]]},
+};
+function dxRender(){
+  const m = document.getElementById("dd-main");
+  if (!m || X.mode==="classic") return;
+  const mode = X.mode, s = dxSt(mode), M = DX_MODES[mode];
+  if (s.phase==="idle" || s.phase==="loading"){ m.innerHTML = '<div class="dd-card dd-empty">Chargement…</div>'; return; }
+  if (s.phase==="error"){ m.innerHTML = '<div class="dd-card dd-empty"><b>Graphiques indisponibles</b><p>Impossible de joindre l\'historique Binance pour l\'instant. Vérifie ta connexion puis réessaie.</p><button class="btn-primary" data-dx="retry">Réessayer</button></div>'; return; }
+  if (s.phase==="intro"){
+    const I = DX_INTRO[mode], n = s.play ? (s.play.answers||[]).length : 0, resume = n>0 && n<M.n;
+    const cs = mode==="wk" ? dxCase(D.day) : null;
+    m.innerHTML = '<div class="dd-card dx-intro">'+
+      '<span class="dd-live"><i></i>'+(resume ? "Partie en cours" : mode==="wk" ? "Semaine "+dxWeekKey(D.day).split("-W")[1] : "Ouvert aujourd'hui")+'</span>'+
+      '<h2>'+I.h+'</h2>'+(cs ? '<p class="dx-case-t">Cette semaine : <b>'+dailyEsc(cs.title)+'</b></p>' : '')+
+      '<p>'+I.p+'</p>'+
+      '<div class="dd-rules">'+I.rules.map(r=>'<div><b>'+r[0]+'</b><span>'+r[1]+'</span></div>').join("")+'</div>'+
+      '<button class="pw-btn pw-btn-trial dd-cta" data-dx="start">'+(resume ? "Reprendre · "+(n+1)+" / "+M.n : "Lancer · "+M.n+(mode==="fd" ? " annonce" : mode==="wk" ? " cas" : " graphique")+(M.n>1 ? "s" : ""))+' <span aria-hidden="true">→</span></button>'+
+      '<p class="dd-note">'+(mode==="wk" ? "Une seule partie par semaine · " : "Une seule partie par jour · ")+'le chrono démarre à l\'affichage</p>'+
+    '</div>';
+    return;
+  }
+  if (s.phase==="done"){ m.innerHTML = dxResultHtml(s); return; }
+  // Partie en cours
+  if (!m.querySelector(".dx-game")){
+    m.innerHTML = '<div class="dd-card dd-game dx-game">'+
+      '<div class="dd-game-top"><span class="dd-round" id="dx-round"></span><span class="dd-dots" id="dx-dots"></span><span class="dd-practice">'+dailyEsc(M.label)+'</span><span class="dd-sec num" id="dx-sec"></span></div>'+
+      '<div class="dd-timer"><i id="dx-timer"></i></div>'+
+      '<div class="dd-asset"><b id="dx-asset"></b><span class="dd-chip" id="dx-tf"></span><span class="dd-chip" id="dx-hz"></span></div>'+
+      '<div id="dx-brief"></div>'+
+      '<div class="dd-tools"><div class="dd-seg" id="dx-views"></div><div class="dd-toggles" id="dx-inds"></div></div>'+
+      '<div class="dd-chart dx-chart"><canvas id="dx-canvas"></canvas><div class="dd-chart-load">Chargement des unités de temps…</div></div>'+
+      '<p class="dd-ask" id="dx-ask"></p>'+
+      '<div id="dx-act"></div>'+
+      '<div class="dd-verdict" id="dx-verdict" hidden></div>'+
+      '<div class="dx-explain" id="dx-explain" hidden></div>'+
+    '</div>';
+    dxBindCanvas(document.getElementById("dx-canvas"));
+  }
+  dxFillRound();
+}
+function dxFillRound(){
+  const mode = X.mode, s = dxSt(mode), M = DX_MODES[mode], R = dxCur();
+  if (!R) return;
+  const set = (id, v)=>{ const e = document.getElementById(id); if (e) e.textContent = v; };
+  set("dx-round", (mode==="wk" ? "Cas de la semaine" : mode==="fd" ? "Annonce "+(s.i+1)+" / "+M.n : "Graphique "+(s.i+1)+" / "+M.n));
+  const answers = (s.play && s.play.answers) || [];
+  const dots = document.getElementById("dx-dots");
+  if (dots) dots.innerHTML = M.n>1 ? Array.from({length:M.n}, (_,k)=>{ const a = answers[k]; return '<i class="'+(a ? (a.ok ? "ok" : "ko") : (k===s.i ? "cur" : ""))+'"></i>'; }).join("") : "";
+  set("dx-asset", R.name+(R.name!==R.tick ? " ("+R.tick+")" : ""));
+  set("dx-tf", "Bougies "+R.ivLabel);
+  const hzH = Math.round(M.after*R.ivMs/3600e3*10)/10;
+  set("dx-hz", "Horizon : "+M.after+" bougies = "+(hzH>=1 ? dxNum(hzH,1)+" h" : Math.round(hzH*60)+" min"));
+  const br = document.getElementById("dx-brief");
+  if (br){
+    const paris = t=>{ const d = new Date(t), f = o=>d.toLocaleString("fr-FR", Object.assign({timeZone:"Europe/Paris"}, o)); const w = f({weekday:"long", day:"numeric", month:"long", year:"numeric"}); return w.charAt(0).toUpperCase()+w.slice(1)+" à "+f({hour:"2-digit", minute:"2-digit"}).replace(":", " h "); };
+    if (mode==="fd"){
+      const ev = R.ev;
+      br.innerHTML = '<div class="dx-brief"><div class="dx-ev-h"><b>'+DX_EV_LABEL[ev.k]+(ev.m ? ' · '+dailyEsc(ev.m) : '')+'</b><span>'+dailyEsc(paris(R.t))+' (Paris)</span></div>'+
+        '<div class="dx-ev-g"><div><span>Précédent</span><b>'+dailyEsc(ev.p)+'</b></div><div><span>Consensus</span><b>'+dailyEsc(ev.e)+'</b></div><div class="pub"><span>Publié</span><b>'+dailyEsc(ev.a)+'</b></div></div>'+
+        (ev.n ? '<p>'+dailyEsc(ev.n)+'</p>' : '')+'</div>';
+    } else if (mode==="wk"){
+      br.innerHTML = '<div class="dx-brief"><div class="dx-ev-h"><b>'+dailyEsc(R.cs.title)+'</b><span>'+dailyEsc(paris(R.c[R.ci][0]+R.ivMs))+' (Paris)</span></div><p>'+dailyEsc(R.cs.ctx)+'</p></div>';
+    } else if (mode==="an"){
+      br.innerHTML = '<div class="dx-brief dx-brief-s"><p>Commence par le <b>1 jour</b> et le <b>4 h</b>, puis descends en <b>1 h</b>. Étape 1 : la structure en 4 h. Étape 2 : ton trade, entrée au dernier prix ; glisse le stop et l\'objectif sur le graphique.</p></div>';
+    } else {
+      br.innerHTML = '<div class="dx-brief dx-brief-s"><p><b>Delta</b> = achats au marché − ventes au marché, par bougie. <b>CVD</b> = delta cumulé. À droite, le <b>profil de volume</b> (vert : achats agressifs, rouge : ventes).</p></div>';
+    }
+  }
+  set("dx-ask", mode==="fd" ? "Dans 4 h, le BTC sera…" : mode==="of" ? "Dans "+M.after+" bougies, le prix de "+R.name+" sera…" : "");
+  dxSyncTools();
+  dxRenderActs();
+  const v = document.getElementById("dx-verdict"), ex = document.getElementById("dx-explain");
+  if (s.phase==="playing"){ if (v) v.hidden = true; if (ex) ex.hidden = true; }
+}
+function dxRenderActs(){
+  const el = document.getElementById("dx-act"); if (!el) return;
+  const mode = X.mode, s = dxSt(mode);
+  if (s.phase!=="playing"){ el.innerHTML = ""; return; }
+  if (s.step==="dir"){
+    el.innerHTML = '<div class="dx-conf"><span>Confiance</span><div class="dd-seg">'+[1,2,3].map(c=>'<button type="button" data-dx-conf="'+c+'" class="'+(s.conf===c ? "on" : "")+'">x'+c+'</button>').join("")+'</div>'+
+      '<em>'+(s.conf===1 ? "gain normal, rien à perdre" : "gain ×"+s.conf+" · si faux : −"+50*(s.conf-1)+" pts")+'</em></div>'+
+      '<div class="dd-actions"><button class="dd-btn up" data-dx="up"><span>▲</span>Ça monte</button><button class="dd-btn down" data-dx="down"><span>▼</span>Ça descend</button></div>'+
+      '<p class="dd-keys">Clavier : ↑ / ↓ pour répondre, 1 · 2 · 3 pour la confiance, V pour la vue d\'ensemble</p>';
+    return;
+  }
+  if (s.step==="struct"){
+    const R = dxCur();
+    el.innerHTML = '<div class="dx-q"><b>Étape 1 / 2 · Quelle est la structure en '+DAILY_IV_LABEL[R.ivUp]+' ?</b><p>Regarde la vue '+DAILY_IV_LABEL[R.ivUp]+' : sommets et creux de plus en plus hauts, de plus en plus bas, ou ni l\'un ni l\'autre ?</p>'+
+      '<div class="dx-3"><button type="button" data-dx-s="up" class="up">Haussière</button><button type="button" data-dx-s="down" class="down">Baissière</button><button type="button" data-dx-s="range">Range</button></div></div>';
+    return;
+  }
+  const t = s.trade;
+  el.innerHTML = '<div class="dx-q"><b>Étape 2 / 2 · Ton trade</b><p>Structure annoncée : '+DX_DIR_FR[s.struct]+' · <a href="#" data-dx="restruct">modifier</a>. Entrée au dernier prix ; glisse le stop (rouge) et l\'objectif (vert) sur le graphique.</p>'+
+    '<div class="dx-3"><button type="button" data-dx-t="long" class="up'+(t && t.side==="long" ? " on" : "")+'">Long</button><button type="button" data-dx-t="short" class="down'+(t && t.side==="short" ? " on" : "")+'">Short</button><button type="button" data-dx-t="none" class="'+(t && t.side==="none" ? "on" : "")+'">Pas de trade</button></div>'+
+    '<div class="dx-rr" id="dx-rr"></div>'+
+    '<button class="pw-btn pw-btn-trial dx-validate" data-dx="validate"'+(t ? "" : " disabled")+'>Valider</button></div>';
+  dxRR();
+}
+function dxRR(){
+  const el = document.getElementById("dx-rr"); if (!el) return;
+  const t = dxSt(X.mode).trade;
+  if (!t){ el.textContent = ""; return; }
+  if (t.side==="none"){ el.textContent = "Aucune position : 0 R quoi qu'il arrive (seule la structure compte)."; return; }
+  const risk = Math.abs(t.entry-t.sl), rr = Math.abs(t.tp-t.entry)/risk;
+  el.innerHTML = 'Entrée <b>'+dxP(t.entry)+'</b> · Stop <b class="down">'+dxP(t.sl)+'</b> (1 R = '+dxNum(risk/t.entry*100,2)+' %) · Objectif <b class="up">'+dxP(t.tp)+'</b> · R:R <b>1 : '+dxNum(rr,1)+'</b>';
+}
+function dxSetTrade(side){
+  const s = dxSt(X.mode), R = dxCur();
+  if (s.phase!=="playing" || s.locked || !R) return;
+  if (side==="none") s.trade = {side:"none"};
+  else {
+    const e = R.c[R.ci][4], atr = dailyAtr(R.c, R.ci+1, 14) || e*0.01, long = side==="long";
+    const keep = s.trade && s.trade.side!=="none" && s.trade.side===side;
+    s.trade = keep ? s.trade : {side, entry:e, sl: long ? e-1.5*atr : e+1.5*atr, tp: long ? e+3*atr : e-3*atr};
+    if (s.trade.sl<=0) s.trade.sl = e*0.5;
+    if (s.trade.tp<=0) s.trade.tp = e*0.5;
+  }
+  s.view = "main";
+  dxRenderActs(); dxSyncTools(); dxRedraw();
+}
+function dxInd(){
+  let v = null; try{ v = JSON.parse(localStorage.getItem(DX_IND_KEY)||"null"); }catch(e){}
+  return Object.assign({ema20:true, ema50:false, ema200:false, vwap:false, vol:true, prof:true, delta:true, cvd:true}, v||{});
+}
+function dxSetInd(k){
+  const v = dxInd(); v[k] = !v[k];
+  try{ localStorage.setItem(DX_IND_KEY, JSON.stringify(v)); }catch(e){}
+  dxSyncTools(); dxRedraw();
+}
+function dxViews(R){
+  const mode = X.mode;
+  if (mode==="an" || mode==="wk") return [["up2", DAILY_IV_LABEL[R.ivUp2]], ["up", DAILY_IV_LABEL[R.ivUp]], ["main", R.ivLabel]];
+  return [["main", "Graphique"], ["up", "Vue d'ensemble · "+DAILY_IV_LABEL[R.ivUp]]];
+}
+function dxSyncTools(){
+  const R = dxCur(), s = dxSt(X.mode); if (!R) return;
+  const vw = document.getElementById("dx-views"), ib = document.getElementById("dx-inds");
+  if (vw) vw.innerHTML = dxViews(R).map(([k, l])=>'<button type="button" data-dx-view="'+k+'" class="'+((s.view||"main")===k ? "on" : "")+'">'+l+'</button>').join("");
+  const ind = dxInd();
+  const list = [["ema20","EMA 20",TA_COLORS.ema20],["ema50","EMA 50",TA_COLORS.ema50],["ema200","EMA 200",TA_COLORS.ema200],["vwap","VWAP",TA_COLORS.vwap],["prof","Profil","var(--dd-a)"]]
+    .concat(X.mode==="of" ? [["delta","Delta","var(--long)"],["cvd","CVD","#5aa9e6"]] : [["vol","Volume","var(--text-faint)"]]);
+  if (ib) ib.innerHTML = list.map(t=>'<button type="button" data-dx-ind="'+t[0]+'" class="'+(ind[t[0]] ? "on" : "")+'"><i style="background:'+t[2]+'"></i>'+t[1]+'</button>').join("");
+  const ch = document.querySelector(".dx-chart");
+  if (ch){ const np = X.mode==="of" ? (ind.delta?1:0)+(ind.cvd?1:0) : 0; ch.classList.toggle("has-p1", np===1); ch.classList.toggle("has-p2", np===2); }
+}
+async function dxSetView(v){
+  const R = dxCur(), s = dxSt(X.mode); if (!R) return;
+  if (s.phase==="playing" && s.locked) return;
+  s.view = v; dxSyncTools();
+  if (v!=="main" && !(R.ctx && R.ctx[v])){
+    const wrap = document.querySelector(".dx-chart"); if (wrap) wrap.classList.add("is-loading");
+    try{ await dxLoadCtx(R, v); }catch(e){ appToast("Unité de temps indisponible pour ce graphique."); s.view = "main"; dxSyncTools(); }
+    if (wrap) wrap.classList.remove("is-loading");
+    if (dxCur()!==R) return;
+  }
+  dxRedraw();
+}
+function dxRedraw(){
+  if (document.body.dataset.view!=="daily" || X.mode==="classic") return;
+  const s = dxSt(X.mode), R = dxCur(), cv = document.getElementById("dx-canvas");
+  if (!R || !cv || (s.phase!=="playing" && s.phase!=="reveal")) return;
+  const done = s.phase==="reveal";
+  const p = done ? 1 : (s.locked ? (s.revealP==null ? 0 : s.revealP) : null);
+  const trade = done ? R.trade : s.trade;
+  let annot = null;
+  if (done && R.exp){ annot = (s.view||"main")==="main" ? R.exp.annot : (s.view==="up" && (X.mode==="an" || X.mode==="wk") ? {lab:dxStructTruth(R).lab, lev:[], marks:[], zones:[]} : null); }
+  cv.style.touchAction = (s.phase==="playing" && !s.locked && s.trade && s.trade.side!=="none") ? "none" : "pan-y";
+  dxDraw(cv, R, {view:s.view||"main", p, trade, sim:done ? R.sim : null, annot});
+}
+
+// ---------- Dessin ----------
+function dxDraw(cv, R, opt){
+  const dpr = Math.min(2, window.devicePixelRatio||1);
+  const W = cv.clientWidth || 600, H = cv.clientHeight || 360;
+  if (cv.width!==Math.round(W*dpr) || cv.height!==Math.round(H*dpr)){ cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr); }
+  const x = cv.getContext("2d");
+  x.setTransform(dpr,0,0,dpr,0,0); x.clearRect(0,0,W,H);
+  const css = getComputedStyle(document.documentElement);
+  const v = (k, f)=>(css.getPropertyValue(k)||"").trim() || f;
+  const up = v("--long","#31c882"), dn = v("--short","#f0546a"), faint = v("--text-faint","#8a8072"), border = v("--border","#3a352b"), gold = v("--dd-a","#d7b563"), text = v("--text","#fff");
+  const mono = v("--mono","monospace"), sans = v("--sans","sans-serif");
+  const M = DX_MODES[X.mode], ind = dxInd(), mode = X.mode;
+  const showN = W < 560 ? Math.min(90, M.show) : M.show;
+  const ctxView = opt.view!=="main" && R.ctx && R.ctx[opt.view];
+  let series, start, end, ci, slots, hidden = false;
+  if (ctxView){ series = R.ctx[opt.view]; end = series.length; ci = end-1; start = Math.max(0, end-showN); slots = end-start+4; }
+  else {
+    series = R.c; ci = R.ci; start = ci-showN+1; slots = showN + M.after;
+    hidden = opt.p==null;
+    end = ci + 1 + (hidden ? 0 : Math.round(M.after*opt.p));
+  }
+  // Échelle des prix (+ lignes du trade, sauf pendant un glisser).
+  const rangeOf = (b)=>{ let lo = Infinity, hi = -Infinity; for (let k=Math.max(0,start);k<b;k++){ if (series[k][3]<lo) lo = series[k][3]; if (series[k][2]>hi) hi = series[k][2]; } return [lo, hi]; };
+  let r0 = rangeOf(ctxView ? end : ci+1), r1 = ctxView ? r0 : rangeOf(ci+1+M.after);
+  const tr = opt.trade && opt.trade.side && opt.trade.side!=="none" ? opt.trade : null;
+  if (tr && !X.drag){ [tr.sl, tr.tp, tr.entry].forEach(pv=>{ r0 = [Math.min(r0[0], pv), Math.max(r0[1], pv)]; r1 = [Math.min(r1[0], pv), Math.max(r1[1], pv)]; }); }
+  else if (tr && X.geo && X.geo.rng){ r0 = X.geo.rng.slice(); r1 = r0; }
+  let rng;
+  if (hidden || ctxView) rng = r0;
+  else { const e = 1-Math.pow(1-opt.p, 3); rng = [r0[0]+(r1[0]-r0[0])*e, r0[1]+(r1[1]-r0[1])*e]; }
+  if (!(X.drag && tr)){ const pad = (rng[1]-rng[0])*0.07 || rng[1]*0.01; rng = [rng[0]-pad, rng[1]+pad]; }
+  const padL = 6, padR = 64, padT = 26, padB = 10;
+  const paneKeys = mode==="of" && !ctxView ? ["delta","cvd"].filter(k=>ind[k]) : [];
+  const paneH = paneKeys.length ? Math.max(42, Math.min(72, Math.round(H*0.15))) : 0, panesTot = paneKeys.length*paneH;
+  const volH = mode!=="of" && ind.vol ? Math.round((H-padT-padB-panesTot)*0.15) : 0;
+  const priceH = H - padT - padB - panesTot - (volH ? volH+8 : 0);
+  const slot = (W-padL-padR)/slots;
+  const X_ = k=>padL + (k-start)*slot + slot/2;
+  const y = p=>padT + (rng[1]-p)/(rng[1]-rng[0])*priceH;
+  X.geo = {rng, p2y:y, y2p:yy=>rng[1] - (yy-padT)/priceH*(rng[1]-rng[0]), padT, priceH};
+  // Grille + axe des prix.
+  const span = rng[1]-rng[0], raw = span/6, mag = Math.pow(10, Math.floor(Math.log10(raw))), step = [1,2,2.5,5,10].map(m=>m*mag).find(s=>s>=raw) || 10*mag;
+  x.font = "11px "+mono; x.textBaseline = "middle"; x.textAlign = "left";
+  for (let pv=Math.ceil(rng[0]/step)*step; pv<=rng[1]; pv+=step){
+    const yy = Math.round(y(pv))+.5;
+    x.strokeStyle = border; x.globalAlpha = .35; x.beginPath(); x.moveTo(padL, yy); x.lineTo(W-padR+4, yy); x.stroke(); x.globalAlpha = 1;
+    x.fillStyle = faint; x.fillText(dxP(pv), W-padR+8, yy);
+  }
+  // Zone à venir.
+  if (!ctxView){
+    const zx = padL + (ci+1-start)*slot;
+    if (hidden){
+      x.fillStyle = gold; x.globalAlpha = .07; x.fillRect(zx, padT, W-padR-zx, H-padT-padB);
+      x.globalAlpha = .5; x.strokeStyle = gold; x.setLineDash([4,5]); x.strokeRect(zx+.5, padT+.5, W-padR-zx-1, H-padT-padB-1); x.setLineDash([]);
+      x.globalAlpha = .9; x.fillStyle = gold; x.font = "800 "+Math.max(20, Math.min(40, (W-padR-zx)*0.5))+"px "+sans; x.textAlign = "center";
+      x.fillText("?", (zx+W-padR)/2, padT+priceH/2); x.textAlign = "left"; x.globalAlpha = 1;
+    } else {
+      x.strokeStyle = gold; x.globalAlpha = .7; x.setLineDash([4,5]); x.beginPath(); x.moveTo(Math.round(zx)+.5, padT); x.lineTo(Math.round(zx)+.5, H-padB); x.stroke(); x.setLineDash([]); x.globalAlpha = 1;
+    }
+    if (mode==="fd"){ x.font = "600 10px "+mono; x.fillStyle = gold; x.textAlign = "right"; x.fillText("Publication", zx-4, padT+8); x.textAlign = "left"; }
+  }
+  // Volume.
+  if (volH){
+    let mv = 0; for (let k=start;k<end;k++) mv = Math.max(mv, series[k][5]||0);
+    const vb = H - padB - panesTot, bw = Math.max(1, slot*0.62);
+    for (let k=start;k<end && mv>0;k++){ const h = (series[k][5]||0)/mv*volH; x.fillStyle = series[k][4]>=series[k][1] ? up : dn; x.globalAlpha = .3; x.fillRect(X_(k)-bw/2, vb-h, bw, h); }
+    x.globalAlpha = 1;
+  }
+  // Profil de volume (bougies visibles jusqu'à la coupure).
+  if (ind.prof && end-start > 10){
+    // À gauche du graphique : la droite reste libre pour la zone à venir et les étiquettes du trade.
+    const P = dxProfile(series, start, Math.min(ci, end-1), 40), mx = Math.max(...P.v) || 1, wMax = (W-padL-padR)*0.2, xl = padL;
+    x.save(); x.beginPath(); x.rect(padL, padT, W-padR-padL, priceH); x.clip();
+    for (let i=0;i<P.bins;i++){
+      const y0 = y(P.lo+(i+1)*P.step), y1 = y(P.lo+i*P.step), hgt = Math.max(1, y1-y0-1), w = P.v[i]/mx*wMax, wb = P.v[i] ? w*P.bv[i]/P.v[i] : 0;
+      const inVa = P.lo+i*P.step >= P.val-1e-12 && P.lo+(i+1)*P.step <= P.vah+1e-12;
+      x.globalAlpha = inVa ? .28 : .14;
+      x.fillStyle = up; x.fillRect(xl, y0, wb, hgt);
+      x.fillStyle = dn; x.fillRect(xl+wb, y0, w-wb, hgt);
+    }
+    x.globalAlpha = .8; x.strokeStyle = gold; x.setLineDash([2,3]); const py = Math.round(y(P.poc))+.5;
+    x.beginPath(); x.moveTo(xl, py); x.lineTo(xl+wMax, py); x.stroke(); x.setLineDash([]); x.globalAlpha = 1;
+    x.restore();
+    x.fillStyle = gold; x.font = "600 10px "+mono; x.fillText("POC", W-padR+8, y(P.poc)-11 < padT ? y(P.poc)+11 : y(P.poc)-11);
+  }
+  // Bougies.
+  const bw = Math.max(1, slot*0.62);
+  x.save(); x.beginPath(); x.rect(0, padT-2, W-padR+4, priceH+4); x.clip();
+  for (let k=Math.max(0,start);k<end;k++){
+    const [, o, h, l, cl] = series[k], cx = X_(k), col = cl>=o ? up : dn;
+    x.strokeStyle = col; x.fillStyle = col; x.lineWidth = 1;
+    x.beginPath(); x.moveTo(Math.round(cx)+.5, y(h)); x.lineTo(Math.round(cx)+.5, y(l)); x.stroke();
+    const top = y(Math.max(o,cl)), bot = y(Math.min(o,cl));
+    x.fillRect(cx-bw/2, top, bw, Math.max(1, bot-top));
+  }
+  // Moyennes mobiles / VWAP (calculées sur toute la série chargée).
+  const ck = ctxView ? "ix_"+opt.view : "ix";
+  if (!R[ck]){
+    const cl = series.map(k=>k[4]);
+    R[ck] = {e20:TA.ema(cl,20), e50:TA.ema(cl,50), e200:TA.ema(cl,200), vwap:TA.vwap(series.map(k=>k[2]), series.map(k=>k[3]), cl, series.map(k=>k[5]||0), series.map(k=>k[0]))};
+  }
+  const IX = R[ck], lines = [];
+  if (ind.ema20) lines.push([IX.e20, TA_COLORS.ema20, "EMA 20"]);
+  if (ind.ema50) lines.push([IX.e50, TA_COLORS.ema50, "EMA 50"]);
+  if (ind.ema200) lines.push([IX.e200, TA_COLORS.ema200, "EMA 200"]);
+  if (ind.vwap) lines.push([IX.vwap, TA_COLORS.vwap, "VWAP"]);
+  lines.forEach(([arr, col])=>{
+    x.strokeStyle = col; x.lineWidth = 1.5; x.globalAlpha = .9; x.beginPath(); let on = false;
+    for (let k=Math.max(0,start);k<end;k++){ const val = arr[k]; if (val==null) continue; if (!on){ x.moveTo(X_(k), y(val)); on = true; } else x.lineTo(X_(k), y(val)); }
+    x.stroke(); x.globalAlpha = 1; x.lineWidth = 1;
+  });
+  // Annotations de la lecture (après la réponse).
+  if (opt.annot) dxDrawAnnot(x, opt.annot, {X:X_, y, start, end, ci, padL, W, padR, padT, priceH, mono, up, dn, gold, faint, text, slot});
+  x.restore();
+  // Lignes du trade.
+  if (tr){
+    const xa = ctxView ? padL : X_(ci), xb = W-padR;
+    const zone = (a, b, col)=>{ x.fillStyle = col; x.globalAlpha = .08; x.fillRect(xa, Math.min(y(a), y(b)), xb-xa, Math.abs(y(a)-y(b))); x.globalAlpha = 1; };
+    zone(tr.entry, tr.tp, up); zone(tr.entry, tr.sl, dn);
+    const risk = Math.abs(tr.entry-tr.sl), rr = Math.abs(tr.tp-tr.entry)/risk;
+    const lvl = (pv, col, lab, dash)=>{
+      const yy = Math.round(y(pv))+.5;
+      x.strokeStyle = col; x.lineWidth = 1.4; x.setLineDash(dash||[]); x.beginPath(); x.moveTo(padL, yy); x.lineTo(W-padR+4, yy); x.stroke(); x.setLineDash([]); x.lineWidth = 1;
+      x.font = "700 10.5px "+mono; const tw = x.measureText(lab).width + 12;
+      x.fillStyle = col; x.fillRect(W-padR+2, yy-8, padR-4, 16);
+      x.fillStyle = "#111"; x.fillText(dxP(pv), W-padR+6, yy);
+      x.fillStyle = col; x.globalAlpha = .95; x.fillRect(xb-tw-4, yy-8, tw, 16); x.globalAlpha = 1;
+      x.fillStyle = "#111"; x.fillText(lab, xb-tw+2, yy);
+    };
+    lvl(tr.tp, up, "TP +"+dxNum(rr,1)+" R", [6,4]);
+    lvl(tr.sl, dn, "SL −1 R", [6,4]);
+    lvl(tr.entry, text, (tr.side==="long" ? "LONG" : "SHORT"));
+    if (opt.sim && !ctxView && opt.sim.k < end){
+      const k = opt.sim.k, pv = opt.sim.how==="tp" ? tr.tp : opt.sim.how==="sl" ? tr.sl : series[k][4];
+      x.fillStyle = opt.sim.R>0 ? up : opt.sim.R<0 ? dn : faint; x.beginPath(); x.arc(X_(k), y(pv), 5, 0, Math.PI*2); x.fill();
+      x.strokeStyle = text; x.lineWidth = 1.5; x.stroke(); x.lineWidth = 1;
+    }
+  }
+  // Panneaux delta / CVD.
+  if (paneKeys.length){
+    let cvd = 0; const cv2 = [];
+    for (let k=start;k<end;k++){ cvd += 2*(series[k][6]||0) - series[k][5]; cv2[k] = cvd; }
+    paneKeys.forEach((pk, j)=>{
+      const top0 = H - padB - panesTot + j*paneH, top = top0+14, bot = top0+paneH-4;
+      x.strokeStyle = border; x.globalAlpha = .6; x.beginPath(); x.moveTo(padL, top0+.5); x.lineTo(W-padR+4, top0+.5); x.stroke(); x.globalAlpha = 1;
+      x.font = "600 10px "+mono; x.textBaseline = "middle"; x.fillStyle = faint;
+      if (pk==="delta"){
+        let mx = 0; for (let k=start;k<end;k++) mx = Math.max(mx, Math.abs(2*(series[k][6]||0)-series[k][5]));
+        mx = mx || 1; const y0 = (top+bot)/2;
+        for (let k=start;k<end;k++){ const d = 2*(series[k][6]||0)-series[k][5], hh = d/mx*(bot-top)/2; x.fillStyle = d>=0 ? up : dn; x.globalAlpha = .6; x.fillRect(X_(k)-bw/2, Math.min(y0, y0-hh), bw, Math.max(.6, Math.abs(hh))); }
+        x.globalAlpha = 1; x.fillStyle = faint; x.fillText("DELTA", padL+4, top0+8);
+      } else {
+        let lo = Infinity, hi = -Infinity; for (let k=start;k<end;k++){ lo = Math.min(lo, cv2[k]); hi = Math.max(hi, cv2[k]); }
+        const yc = vv=>bot - (vv-lo)/((hi-lo)||1)*(bot-top);
+        x.strokeStyle = "#5aa9e6"; x.lineWidth = 1.5; x.beginPath();
+        for (let k=start;k<end;k++){ if (k===start) x.moveTo(X_(k), yc(cv2[k])); else x.lineTo(X_(k), yc(cv2[k])); }
+        x.stroke(); x.lineWidth = 1; x.fillStyle = faint; x.fillText("CVD", padL+4, top0+8);
+      }
+    });
+  }
+  // Dernier prix visible + trajet révélé.
+  const ref = series[ci][4];
+  x.fillStyle = text; x.beginPath(); x.arc(X_(ci), y(ref), 3, 0, Math.PI*2); x.fill();
+  if (!ctxView && !hidden && end > ci+1){
+    const k = end-1, fy = y(series[k][4]), col = series[k][4]>=ref ? up : dn;
+    x.strokeStyle = col; x.lineWidth = 1.5; x.setLineDash([2,3]); x.beginPath(); x.moveTo(X_(ci), y(ref)); x.lineTo(X_(k), fy); x.stroke(); x.setLineDash([]); x.lineWidth = 1;
+  }
+  // Légende.
+  x.font = "600 11px "+mono; x.textBaseline = "middle"; x.textAlign = "left";
+  let lx = padL+4;
+  const tag = (t, col)=>{ x.fillStyle = col; x.fillText(t, lx, 13); lx += x.measureText(t).width + 14; };
+  tag(R.tick+" · "+(ctxView ? DAILY_IV_LABEL[opt.view==="up" ? R.ivUp : R.ivUp2] : R.ivLabel).toUpperCase(), ctxView ? gold : faint);
+  lines.forEach(l=>tag(l[2], l[1]));
+  if (ctxView){ x.textAlign = "right"; x.fillStyle = faint; x.fillText("maintenant ●", W-padR-2, 13); x.textAlign = "left"; }
+}
+// Annotations : étiquettes de structure, niveaux, repères, zones, VWAP ancré.
+function dxDrawAnnot(x, an, g){
+  const col = c=>c==="up" ? g.up : c==="dn" ? g.dn : c==="gold" ? g.gold : g.faint;
+  x.font = "700 10px "+g.mono; x.textBaseline = "middle"; x.textAlign = "center";
+  (an.zones||[]).forEach(z=>{ const xa = Math.max(g.padL, g.X(z.a)), ya = g.y(z.top), yb = g.y(z.bot); x.fillStyle = col(z.col); x.globalAlpha = .12; x.fillRect(xa, ya, g.W-g.padR-xa, yb-ya); x.globalAlpha = .8; x.fillText(z.t, xa+16, ya-7); x.globalAlpha = 1; });
+  if (an.avwap){ x.strokeStyle = TA_COLORS.vwap; x.lineWidth = 1.6; x.setLineDash([5,3]); x.beginPath(); let on = false; for (let k=Math.max(g.start, an.avwap.a);k<=g.ci;k++){ const v = an.avwap.arr[k]; if (v==null) continue; if (!on){ x.moveTo(g.X(k), g.y(v)); on = true; } else x.lineTo(g.X(k), g.y(v)); } x.stroke(); x.setLineDash([]); x.lineWidth = 1; }
+  (an.lev||[]).forEach(l=>{ const yy = Math.round(g.y(l.p))+.5; x.strokeStyle = col(l.col); x.globalAlpha = .85; x.setLineDash([3,3]); x.beginPath(); x.moveTo(g.padL, yy); x.lineTo(g.W-g.padR, yy); x.stroke(); x.setLineDash([]);
+    x.textAlign = "left"; const tw = x.measureText(l.t).width+8; x.fillStyle = col(l.col); x.globalAlpha = .9; x.fillRect(g.padL+4, yy-7, tw, 14); x.globalAlpha = 1; x.fillStyle = "#111"; x.fillText(l.t, g.padL+8, yy); x.textAlign = "center"; });
+  (an.lab||[]).filter(p=>p.k>=g.start && p.k<=g.ci).sort((a,b)=>a.k-b.k).slice(-10).forEach(p=>{ const px = g.X(p.k), py = g.y(p.p) + (p.hi ? -10 : 10); x.fillStyle = (p.t==="HH" || p.t==="HL") ? g.up : g.dn; x.fillText(p.t, px, py); });
+  (an.marks||[]).forEach(m=>{ if (m.k<g.start || m.k>g.ci) return; const px = g.X(m.k), py = g.y(m.p); x.strokeStyle = col(m.col); x.lineWidth = 1.6; x.beginPath(); x.arc(px, py, 6, 0, Math.PI*2); x.stroke(); x.lineWidth = 1; x.fillStyle = col(m.col); x.fillText(m.t, px, py + (m.col==="dn" ? -14 : 14)); });
+  x.textAlign = "left";
+}
+function dxBindCanvas(cv){
+  if (!cv) return;
+  const near = (s, yy)=>{
+    if (!s || s.phase!=="playing" || s.locked || !s.trade || s.trade.side==="none" || !X.geo) return null;
+    const c = ["tp","sl"].map(l=>({l, d:Math.abs(X.geo.p2y(s.trade[l])-yy)})).sort((a,b)=>a.d-b.d)[0];
+    return c.d <= 12 ? c.l : null;
+  };
+  cv.addEventListener("pointerdown", e=>{
+    const s = X.st[X.mode], r = cv.getBoundingClientRect(), l = near(s, e.clientY-r.top);
+    if (!l) return;
+    X.drag = {l, pid:e.pointerId};
+    try{ cv.setPointerCapture(e.pointerId); }catch(err){}
+    e.preventDefault();
+  });
+  cv.addEventListener("pointermove", e=>{
+    const s = X.st[X.mode], r = cv.getBoundingClientRect(), yy = e.clientY-r.top;
+    if (!X.drag){ cv.style.cursor = near(s, yy) ? "ns-resize" : ""; return; }
+    if (e.pointerId!==X.drag.pid || !s || !s.trade) return;
+    const t = s.trade, long = t.side==="long", tick = t.entry*1e-5, above = (X.drag.l==="tp")===long;
+    let p = X.geo.y2p(Math.max(X.geo.padT, Math.min(X.geo.padT+X.geo.priceH, yy)));
+    p = above ? Math.max(p, t.entry+tick) : Math.min(p, t.entry-tick);
+    if (!(p>0)) return;
+    t[X.drag.l] = p;
+    dxRedraw(); dxRR();
+    e.preventDefault();
+  });
+  const end = e=>{ if (X.drag && e.pointerId===X.drag.pid){ X.drag = null; dxRedraw(); } };
+  cv.addEventListener("pointerup", end);
+  cv.addEventListener("pointercancel", end);
+}
+
+// ---------- Résultat ----------
+function dxResultHtml(s){
+  const mode = s.mode, M = DX_MODES[mode], play = s.play || {answers:[]}, ans = play.answers||[];
+  const rows = X.boards[s.key] || [], rank = rows.findIndex(r=>r.uid===clientId);
+  const an = mode==="an" || mode==="wk";
+  const totR = an ? ans.reduce((t,a)=>t+(a.x||0), 0)/100 : 0;
+  const msg = an ? (totR>0 ? "Plan respecté, compte en hausse." : totR<0 ? "Le marché t'a sorti cette fois : relis la structure." : "Aucun risque pris.")
+    : (play.correct===M.n ? "Sans-faute." : play.correct>=2 ? "Bonne lecture." : play.correct===1 ? "Le marché t'a piégé." : "Journée difficile : le marché a toujours raison.");
+  if (s.rounds) s.rounds.forEach((R,k)=>{ if (!R.exp && ans[k]) R.exp = dxExplainRound(mode, R, ans[k]); });
+  const recap = s.rounds ? '<div class="dd-recap">'+s.rounds.map((R,k)=>{
+    const a = ans[k]; if (!a) return "";
+    const t = dxTruth(R, M.after);
+    const title = mode==="fd" ? DX_EV_LABEL[R.ev.k]+(R.ev.m ? " · "+R.ev.m : "") : mode==="wk" ? R.cs.title : R.name;
+    const res = an ? (a.a==="none" ? "pas de trade" : (a.x>=0?"+":"−")+dxNum(Math.abs(a.x/100),2)+" R") : (t.dir==="up" ? "▲ " : "▼ ")+dxPct(t.move);
+    const you = an ? "structure : "+DX_DIR_FR[a.s||"none"]+(a.a!=="none" ? " · "+a.a : "") : (a.a==="none" ? "temps écoulé" : (a.a==="up" ? "tu as dit ▲" : "tu as dit ▼")+" · x"+(a.x||1));
+    return '<div class="dd-recap-row '+(a.ok ? "ok" : "ko")+'"><i>'+(a.ok ? "✓" : "✗")+'</i><div><b>'+dailyEsc(title)+'</b><span>'+dailyEsc(R.name)+' · bougies '+R.ivLabel+' · '+dailyEsc(new Date(R.c[R.ci][0]).toLocaleDateString("fr-FR", {day:"numeric", month:"long", year:"numeric", timeZone:"UTC"}))+'</span></div>'+
+      '<em class="'+(an ? (a.x>0 ? "up" : a.x<0 ? "down" : "") : (t.dir==="up" ? "up" : "down"))+'">'+dailyEsc(res)+'</em><small>'+dailyEsc(you)+' · '+(a.pts>0 ? "+" : "")+a.pts+'</small></div>'+
+      (R.exp ? '<details class="dx-rec-exp"><summary>Voir la lecture</summary>'+dxExplainHtml(R.exp)+'</details>' : '');
+  }).join("")+'</div>' : '<div class="dd-empty">Chargement du récapitulatif…</div>';
+  return '<div class="dd-card dd-result">'+
+    '<div class="dd-score"><div class="dd-score-big"><b>'+(an ? (totR>=0?"+":"−")+dxNum(Math.abs(totR),1) : (play.correct||0))+'</b><span>'+(an ? "R" : "/ "+M.n)+'</span></div>'+
+      '<div class="dd-score-txt"><span class="dd-kicker">'+dailyEsc(M.label)+(mode==="wk" ? " · "+dxWeekKey(D.day) : " · résultat du jour")+'</span><h2>'+msg+'</h2>'+
+      '<p><b class="num">'+(play.points||0).toLocaleString("fr-FR")+'</b> points'+(rank>=0 ? ' · <b>'+(rank+1)+'<sup>'+(rank===0 ? "er" : "e")+'</sup></b> '+(mode==="wk" ? "de la semaine" : "du jour") : '')+'</p>'+
+      '<div class="dd-emoji">'+dailyMarksHtml(ans)+'</div></div></div>'+
+    '<div class="dd-result-actions"><span class="dd-note">'+(mode==="wk" ? "Nouveau cas lundi." : "Nouvelle partie demain à minuit (heure de Paris).")+' Essaie les autres modes en attendant.</span></div>'+
+    recap+'</div>';
+}
+
+// ---------- Clics et clavier ----------
+function dxOnClick(e){
+  const md = e.target.closest("[data-dx-mode]"); if (md){ dxSetMode(md.dataset.dxMode); return true; }
+  const bt = e.target.closest("[data-dx-btab]"); if (bt){ X.btab = bt.dataset.dxBtab; dxRenderBoardTabs(); if (X.btab==="classic") dailyRenderBoards(); else { dxRenderBoard(); dxLoadBoard(X.btab); } return true; }
+  const vw = e.target.closest("[data-dx-view]"); if (vw){ dxSetView(vw.dataset.dxView); return true; }
+  const ib = e.target.closest("[data-dx-ind]"); if (ib){ dxSetInd(ib.dataset.dxInd); return true; }
+  const cf = e.target.closest("[data-dx-conf]"); if (cf){ const s = dxSt(X.mode); s.conf = +cf.dataset.dxConf; dxRenderActs(); return true; }
+  const sb = e.target.closest("[data-dx-s]"); if (sb){ const s = dxSt(X.mode); if (s.phase==="playing" && !s.locked){ s.struct = sb.dataset.dxS; s.step = "trade"; dxRenderActs(); } return true; }
+  const tb = e.target.closest("[data-dx-t]"); if (tb){ dxSetTrade(tb.dataset.dxT); return true; }
+  const b = e.target.closest("[data-dx]"); if (!b) return false;
+  const act = b.dataset.dx;
+  if (act==="theme"){ X.themeOpen = !X.themeOpen; dxRenderTheme(); }
+  else if (act==="start") dxStart();
+  else if (act==="retry"){ dxSt(X.mode).phase = "intro"; dxRender(); }
+  else if (act==="up" || act==="down") dxAnswerDir(act);
+  else if (act==="validate") dxValidate(false);
+  else if (act==="restruct"){ e.preventDefault(); const s = dxSt(X.mode); if (!s.locked){ s.step = "struct"; dxRenderActs(); } }
+  else if (act==="next") dxNext();
+  return true;
+}
+document.addEventListener("keydown", e=>{
+  if (document.body.dataset.view!=="daily" || X.mode==="classic") return;
+  const s = X.st[X.mode];
+  if (!s || s.phase!=="playing" || s.locked) return;
+  if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  if (e.key==="v" || e.key==="V"){ const vs = dxViews(dxCur()).map(v=>v[0]), i = vs.indexOf(s.view||"main"); dxSetView(vs[(i+1)%vs.length]); return; }
+  if (s.step==="dir"){
+    if (e.key==="ArrowUp"){ e.preventDefault(); dxAnswerDir("up"); }
+    else if (e.key==="ArrowDown"){ e.preventDefault(); dxAnswerDir("down"); }
+    else if (e.key==="1" || e.key==="2" || e.key==="3"){ s.conf = +e.key; dxRenderActs(); }
+  }
+});
+window.addEventListener("resize", ()=>dxRedraw());
 /* ============================= CERTIFICAT DE CHALLENGE ============================= */
 // Un challenge prop firm réussi (Étape 1 + Étape 2, `fundedAt` posé) donne
 // droit à un certificat : image PNG (format post LinkedIn), PDF A4, lien
@@ -26367,7 +27801,7 @@ async function adminSetEdbPlus(id, value){
       edbPlus: !!value, edbPlusRequested: false,
       // Activation manuelle : sans date de fin (une adhésion Stripe expirée
       // ne doit pas bloquer une réactivation faite par le bureau).
-      edbPlusUntil: null,
+      edbPlusUntil: null, edbPlusUntilTs: null,
       updatedAt: new Date().toISOString(),
     });
     if (value){
