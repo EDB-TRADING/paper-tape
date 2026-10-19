@@ -258,6 +258,17 @@
     background:var(--bg-raised);border-bottom:1px solid var(--border-soft);
     padding:9px 18px;font-family:var(--mono);
   }
+  .recovery-banner{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:9px 18px;font-family:var(--mono);font-size:11px;
+    background:color-mix(in srgb, var(--warn, #f2b33d) 10%, var(--bg-raised));border-bottom:1px solid color-mix(in srgb, var(--warn, #f2b33d) 40%, var(--border-soft));}
+  .recovery-banner[hidden]{display:none;}
+  .recovery-banner .rb-tag{font-weight:800;color:var(--warn, #f2b33d);letter-spacing:.04em;}
+  .recovery-banner .rb-txt{color:var(--text-dim);}
+  .recovery-banner .rb-txt b{color:var(--text);}
+  .recovery-banner .rb-prog{display:flex;align-items:center;gap:8px;}
+  .recovery-banner .rb-bar{width:120px;height:6px;border-radius:3px;background:var(--panel-2);overflow:hidden;}
+  .recovery-banner .rb-bar i{display:block;height:100%;background:var(--long);border-radius:3px;}
+  .recovery-banner button{margin-left:auto;background:var(--long);color:#06140d;border:none;border-radius:6px;padding:5px 11px;font:700 11px var(--mono);cursor:pointer;}
+  .recovery-banner .rb-help{margin-left:auto;background:none;color:var(--text-dim);border:1px solid var(--border-soft);font-weight:600;}
   .challenge-banner-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
   .challenge-tier{font-size:11.5px;font-weight:700;}
   .challenge-status{font-size:10.5px;color:var(--text-dim);}
@@ -4916,6 +4927,7 @@
 
   <div class="live-banner" id="live-banner" hidden></div>
   <div class="challenge-banner" id="challenge-banner" hidden></div>
+  <div class="recovery-banner" id="recovery-banner" hidden></div>
 
   <main>
     <!-- ================= TERMINAL ================= -->
@@ -7208,7 +7220,7 @@ function resetLocalAccountState(){
   Object.keys(STATE_DEFAULTS).forEach(k=>{ state[k] = JSON.parse(JSON.stringify(STATE_DEFAULTS[k])); });
   state.username = randHandle();
   ["weekStartEquity","weekKey","lastActiveDateKey","edbPlusTrialStartedAt","termsVersion"].forEach(k=>{ state[k] = null; });
-  state.streakDays = 0; state.hardcore200kPasses = 0; state.challenge200kOpens = 0;
+  state.streakDays = 0; state.hardcore200kPasses = 0; state.challenge200kOpens = 0; state.recovery = null;
   state.usernameDirty = true;
 }
 let selectedSymbol = "BTC";
@@ -7245,6 +7257,8 @@ const LEVERAGE_PROGRESSION = [
   {trades:150, cap:200},
 ];
 function progressiveLeverageCap(tradesClosed){
+  // Mode rattrapage (compte de 5 000 $ après un compte à 0) : levier x10 max.
+  if (typeof state!=="undefined" && state && state.recovery && state.recovery.active) return 10;
   if (typeof state!=="undefined" && state && state.isAdmin) return 200; // admins : x200 débloqué d'office (hors Challenge, plafonné à x20)
   const n = typeof tradesClosed==="number" ? tradesClosed : 0;
   let cap = LEVERAGE_PROGRESSION[0].cap;
@@ -7599,6 +7613,7 @@ function hydrateStateFromDoc(snap){
   state.tradesOpenedTotal = typeof d.tradesOpenedTotal==="number" ? d.tradesOpenedTotal : 0;
   state.replay = {best: (d.replayBest && typeof d.replayBest==="object") ? d.replayBest : {}, plays: typeof d.replayPlays==="number" ? d.replayPlays : 0};
   state.challenge200kOpens = typeof d.challenge200kOpens==="number" ? d.challenge200kOpens : 0;
+  state.recovery = (d.recovery && typeof d.recovery==="object") ? d.recovery : null;
   // Now that we actually know this trader's EDB+ status, re-check anything
   // gated by it: the display theme (may need to snap back to Ember, or be
   // restored from the saved preference) and the small lock badges on the
@@ -8023,6 +8038,7 @@ function persistAccount(){
           replayBest: (state.replay && state.replay.best) || {},
           replayPlays: (state.replay && state.replay.plays) || 0,
           challenge200kOpens: state.challenge200kOpens||0,
+          recovery: state.recovery || null,
           positions: normal.positions.slice(0,20),
           pendingOrders: normal.pendingOrders.slice(0,20),
           history: normal.history.slice(0,TRADE_HISTORY_RETAIN),
@@ -9294,6 +9310,7 @@ function afterPriceUpdate(){
     withParkedBook(()=>{ checkPendingOrders(); checkTPSL(); checkLiquidations(); });
     updateChallengeStatus();
     renderChallengeBanner();
+    recoveryTick();
     renderAll();
   }, wait);
 }
@@ -9492,6 +9509,7 @@ async function pollAllAssets(){
     withParkedBook(()=>{ checkPendingOrders(); checkTPSL(); checkLiquidations(); });
     updateChallengeStatus();
     renderChallengeBanner();
+    recoveryTick();
     renderAll();
   }
   rest.forEach((a,i)=>{ setTimeout(()=>pollAsset(a), i*180); });
@@ -14222,6 +14240,95 @@ function updatePerfStats(pnl){
     s.bestLossStreak = Math.max(s.bestLossStreak||0, s.currentStreak);
   }
 }
+
+/* ============================= MODE RATTRAPAGE =============================
+   Compte normal tombé à 0 (aucune position ouverte et moins de 10 $ de
+   cash) : le trader reçoit un compte de rattrapage de 5 000 $.
+   - hors classement (classement général et classement de la semaine) ;
+   - levier x10 maximum (progressiveLeverageCap) ;
+   - s'il retombe à 0, il repart à 5 000 $ (tentative suivante) ;
+   - à +5 % (5 250 $), il récupère ses 100 000 $ de départ et revient au
+     classement.
+   Les injections de capital (5 000 $ puis 100 000 $) ne comptent pas comme
+   des gains : weekStartEquity est décalé du même montant, donc le PnL de la
+   semaine n'est pas faussé. Ne concerne que le compte normal (jamais le
+   compte Challenge Prop Firm). */
+const RECOVERY_BASE = 5000, RECOVERY_TARGET_PCT = 5, RECOVERY_FLOOR = 10, RECOVERY_LEV_CAP = 10;
+function recoveryActive(){ return !!(state.recovery && state.recovery.active); }
+function recoveryTarget(){ return RECOVERY_BASE * (1 + RECOVERY_TARGET_PCT/100); }
+function recoveryCanRun(){
+  return !!(clientId && accountDocExists && !accountLoading && !inBackgroundBookCheck && state.activeBookName==="normal");
+}
+function recoveryInject(newCash){
+  const delta = newCash - state.cash;
+  state.pendingOrders = []; state.marginUsed = 0;
+  state.cash = newCash;
+  if (typeof state.weekStartEquity==="number") state.weekStartEquity += delta;
+}
+function recoveryTick(){
+  if (!recoveryCanRun()) { renderRecoveryBanner(); return; }
+  const noPos = !state.positions.length;
+  if (noPos && state.cash < RECOVERY_FLOOR){ recoveryStart(); return; }
+  if (recoveryActive() && noPos && state.cash >= recoveryTarget()){ recoveryRestore(); return; }
+  renderRecoveryBanner();
+}
+function recoveryStart(){
+  const again = recoveryActive();
+  const r = state.recovery || {};
+  state.recovery = {active:true, startedAt: again && r.startedAt ? r.startedAt : new Date().toISOString(), attempts:(again ? (r.attempts||1) : 0) + 1, restores:r.restores||0};
+  recoveryInject(RECOVERY_BASE);
+  if (leverage > RECOVERY_LEV_CAP){ leverage = RECOVERY_LEV_CAP; try{ saveLeverage(leverage); }catch(e){} }
+  if (typeof enforceLeverageAccess==="function") enforceLeverageAccess();
+  persistAccount(); renderAll(); renderRecoveryBanner();
+  openModal(
+    '<h3 style="margin-bottom:8px;">'+(again ? 'Compte de rattrapage à 0 : nouvelle tentative' : 'Ton compte est à 0')+'</h3>'+
+    '<p class="chart-note" style="margin-bottom:10px;">'+(again
+      ? 'Tu as perdu ton compte de rattrapage. Tu repars à <b>'+fmtMoney(RECOVERY_BASE)+'</b> (tentative n°'+state.recovery.attempts+').'
+      : 'Pas de panique : tu passes en <b>mode rattrapage</b> avec un compte de <b>'+fmtMoney(RECOVERY_BASE)+'</b>.')+'</p>'+
+    '<ul class="chart-note" style="margin:0 0 14px 18px;line-height:1.6;">'+
+      '<li>Objectif : <b>+'+RECOVERY_TARGET_PCT+' %</b>, soit '+fmtMoney(recoveryTarget())+'.</li>'+
+      '<li>Objectif atteint (positions fermées) : tu récupères tes <b>'+fmtMoney(START_CASH)+'</b>.</li>'+
+      '<li>Levier limité à <b>x'+RECOVERY_LEV_CAP+'</b>. Compte <b>hors classement</b> pendant le rattrapage.</li>'+
+      '<li>Si tu retombes à 0, tu repars à '+fmtMoney(RECOVERY_BASE)+'.</li>'+
+    '</ul>'+
+    '<button class="btn-primary" id="recovery-ok" style="width:100%;">C\'est parti</button>'
+  );
+  const ok = document.getElementById("recovery-ok"); if (ok) ok.addEventListener("click", closeModal);
+}
+function recoveryRestore(){
+  const r = state.recovery || {};
+  recoveryInject(START_CASH);
+  state.recovery = {active:false, restores:(r.restores||0)+1, lastRestoredAt:new Date().toISOString()};
+  if (typeof enforceLeverageAccess==="function") enforceLeverageAccess();
+  persistAccount(); renderAll(); renderRecoveryBanner();
+  openModal(
+    '<h3 style="margin-bottom:8px;">Rattrapage réussi 🎉</h3>'+
+    '<p class="chart-note" style="margin-bottom:14px;">+'+RECOVERY_TARGET_PCT+' % atteints : ton compte repart à <b>'+fmtMoney(START_CASH)+'</b> et tu reviens au classement. Le levier suit à nouveau ta progression.</p>'+
+    '<button class="btn-primary" id="recovery-ok" style="width:100%;">Super</button>'
+  );
+  const ok = document.getElementById("recovery-ok"); if (ok) ok.addEventListener("click", closeModal);
+}
+// « Encaisser » : objectif atteint avec des positions encore ouvertes.
+function recoveryCashOut(){
+  if (!recoveryActive() || state.activeBookName!=="normal") return;
+  [...state.positions].forEach(p=>closePosition(p.id, "closed"));
+  if (!state.positions.length && state.cash >= recoveryTarget()) recoveryRestore();
+  else { renderRecoveryBanner(); if (typeof appToast==="function") appToast("Presque : il manque "+fmtMoney(Math.max(0, recoveryTarget()-state.cash))+" (frais de clôture compris)."); }
+}
+function renderRecoveryBanner(){
+  const el = document.getElementById("recovery-banner");
+  if (!el) return;
+  if (!recoveryActive() || state.activeBookName!=="normal"){ el.hidden = true; el.innerHTML = ""; return; }
+  const eq = equity(), tgt = recoveryTarget();
+  const pct = Math.max(0, Math.min(100, (eq - RECOVERY_BASE)/(tgt - RECOVERY_BASE)*100));
+  const reached = eq >= tgt;
+  el.hidden = false;
+  el.innerHTML = '<span class="rb-tag">MODE RATTRAPAGE</span>'+
+    '<span class="rb-txt">Compte de <b>'+fmtMoney(RECOVERY_BASE)+'</b> hors classement · levier max <b>x'+RECOVERY_LEV_CAP+'</b> · tentative n°'+(state.recovery.attempts||1)+'</span>'+
+    '<span class="rb-prog"><span class="rb-txt">Objectif <b>'+fmtMoney(tgt)+'</b></span><span class="rb-bar"><i style="width:'+pct.toFixed(1)+'%"></i></span><span class="rb-txt">'+fmtMoney(eq)+'</span></span>'+
+    (reached && state.positions.length ? '<button type="button" id="recovery-cashout">Encaisser et récupérer '+fmtMoney(START_CASH)+'</button>' : '');
+  const b = document.getElementById("recovery-cashout"); if (b) b.addEventListener("click", recoveryCashOut);
+}
 function checkLiquidations(){
   // isolated: per-position check
   [...state.positions].forEach(p=>{
@@ -14457,6 +14564,7 @@ function lbMoveHtml(startRank, rank){
     '<span aria-hidden="true">'+(d>0?"▲":"▼")+'</span>'+Math.abs(d)+'<span class="sr-only"> place'+(Math.abs(d)>1?"s":"")+' '+(d>0?"gagnée":"perdue")+(Math.abs(d)>1?"s":"")+' depuis lundi</span></span>';
 }
 function renderLeaderboard(docs){
+  docs = docs.filter(doc=>{ const r = doc.data().recovery; return !(r && r.active); }); // mode rattrapage : hors classement
   const body = document.getElementById("lb-body");
   const podium = document.getElementById("lb-podium");
   const unrankedEl = document.getElementById("lb-unranked");
@@ -14539,7 +14647,7 @@ let weeklyLeaderboardDocsCache = {};
 function renderWeeklyLeaderboard(docs){
   const body = document.getElementById("lb-week-body");
   if (!body) return;
-  const rows = docs.filter(doc=>typeof doc.data().weeklyPnl==="number");
+  const rows = docs.filter(doc=>{ const d = doc.data(); return typeof d.weeklyPnl==="number" && !(d.recovery && d.recovery.active); });
   if (!rows.length){ body.innerHTML = '<tr><td colspan="4" class="empty-note">Classement de la semaine pas encore disponible — repasse un peu plus tard.</td></tr>'; return; }
   weeklyLeaderboardDocsCache = {};
   rows.forEach(doc=>{ weeklyLeaderboardDocsCache[doc.id] = doc; });
@@ -25592,7 +25700,7 @@ async function adminResetTrader(id){
       // totalTimeSpent already wasn't — that's reading/engagement history,
       // not trading-account state.
       propBook: null, propEquity: null, challenge: null, challengeHistory: [], propRank: firebase.firestore.FieldValue.delete(),
-      copyNormalToProp: false, copyPropToNormal: false,
+      copyNormalToProp: false, copyPropToNormal: false, recovery: null,
       invest: null, investValue: null, investPerf: null, investLines: null,
       weekStartEquity: START_CASH, weeklyPnl: 0, hasOpenActivity: false,
       lastActiveAt: new Date().toISOString(),
@@ -25673,7 +25781,7 @@ async function adminResetTraderTrading(id){
       cash: START_CASH, marginUsed: 0, equity: START_CASH,
       positions: [], pendingOrders: [], history: [],
       stats: freshBookStats(),
-      weekStartEquity: START_CASH, weeklyPnl: 0,
+      weekStartEquity: START_CASH, weeklyPnl: 0, recovery: null,
       hasOpenActivity: propActive,
     }));
     await adminRefreshSelf(id);
