@@ -5229,6 +5229,14 @@
                     <label><input type="checkbox" data-chart-ind="fpSig">Absorption (A) et épuisement (É)</label>
                     <div class="chart-ind-tip" style="margin:2px 0 0;">Marchés Binance : historique des dernières dizaines de minutes, puis en direct. Marchés Hyperliquid : en direct depuis l'ouverture du graphique.</div>
                   </div>
+                  <div class="chart-ind-sep">Market Profile</div>
+                  <label><input type="checkbox" data-chart-ind="tpo"><i style="background:#f2b33d"></i>TPO (Market Profile, séances UTC)<b class="chart-ind-plus">EDB+</b></label>
+                  <div class="chart-ind-lock" id="chart-tpo-lock" hidden>Réservé aux membres EDB+. <button type="button" id="chart-tpo-lock-go">Découvrir EDB+</button></div>
+                  <div class="chart-ind-sub" id="chart-tpo-opts">
+                    <span>Paramètres du TPO</span>
+                    <div class="chart-fp-tick"><span>Taille de ligne</span><input type="number" id="chart-tpo-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne du TPO (en prix)"><button type="button" id="chart-tpo-tick-auto" title="Revenir au réglage automatique">Auto</button></div>
+                    <div class="chart-ind-tip" style="margin:2px 0 0;">Une lettre par bougie : 5m, 15m, 30m (conseillé) ou 1h. Orange = POC (pointillés = POC pas encore revisité), bleu = value area 70 %, barre cyan = IB (1re heure), violet = single prints, traits à gauche = ouverture (blanc) et clôture (orange).</div>
+                  </div>
                   <div class="chart-ind-sep">Sous le graphique</div>
                   <label><input type="checkbox" data-chart-ind="rsi"><i style="background:#b388ff"></i>RSI 14</label>
                   <label><input type="checkbox" data-chart-ind="macd"><i style="background:linear-gradient(90deg,#5aa9e6 50%,#f2b33d 50%)"></i>MACD (12, 26, 9)</label>
@@ -6231,7 +6239,7 @@ let candleTimer = null;
 // aussi le nombre de bougies demandées aux API (fetchCandles*).
 const CHART_ZOOM_MIN = 12;
 // Footprint : on peut zoomer plus près (cases lisibles).
-function chartZoomMin(){ try{ return fpOn() ? 6 : CHART_ZOOM_MIN; }catch(e){ return CHART_ZOOM_MIN; } }
+function chartZoomMin(){ try{ return (fpOn() && !tpoOn()) ? 6 : CHART_ZOOM_MIN; }catch(e){ return CHART_ZOOM_MIN; } }
 const CHART_ZOOM_MAX = 1500;     // bougies visibles au maximum (dézoom)
 const CANDLE_FETCH_FULL = 1000;  // bougies chargées à l'ouverture d'un marché / d'une unité de temps
 const CANDLE_FETCH_TAIL = 30;    // rafraîchissement : seulement les dernières bougies, fusionnées
@@ -6479,7 +6487,7 @@ function scheduleEdbPlusTrialExpiry(){
 // Re-applies everything gated by isEdbPlus() after the status changes
 // (trial started or ended) and repaints the view the trader is on.
 function refreshEdbPlusGates(){
-  try{ if (typeof updateChart==="function" && chartInd.fp) updateChart(); }catch(e){} // footprint (EDB+)
+  try{ if (typeof updateChart==="function" && (chartInd.fp || chartInd.tpo)) updateChart(); }catch(e){} // footprint / TPO (EDB+)
   if (typeof enforceThemeAccess==="function") enforceThemeAccess();
   if (typeof enforceWidgetAccess==="function") enforceWidgetAccess();
   if (typeof enforceLeverageAccess==="function") enforceLeverageAccess();
@@ -10889,7 +10897,7 @@ const TA_COLORS = {ema20:"#f2b33d", ema50:"#5aa9e6", ema200:"#c77dff", bb:"#8fa3
 const CHART_IND_KEY = "paperTapeChartInd";
 const CHART_EMA = {ema20:{p:20, color:"#f2b33d", label:"MME 20"}, ema50:{p:50, color:"#5aa9e6", label:"MME 50"}, ema200:{p:200, color:"#c77dff", label:"MME 200"}};
 let chartInd = (function(){
-  const d = {fp:false, fpImb:true, fpSig:true, fpTicks:{}, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true};
+  const d = {tpo:false, tpoTicks:{}, fp:false, fpImb:true, fpSig:true, fpTicks:{}, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true};
   try{
     const s = JSON.parse(localStorage.getItem(CHART_IND_KEY)||"null");
     if (s && typeof s==="object") Object.keys(d).forEach(k=>{ if (typeof s[k]==="boolean") d[k]=s[k]; });
@@ -11150,7 +11158,7 @@ function fpSource(a){
 }
 // Footprint réservé aux membres EDB+ (et à l'essai de 24 h).
 function fpOn(){ return !!chartInd.fp && typeof isEdbPlus==="function" && isEdbPlus(); }
-function fpWanted(){ return fpOn() && chartSource==="internal"; }
+function fpWanted(){ return fpOn() && !tpoOn() && chartSource==="internal"; }
 function fpStop(){
   FP.gen++;
   if (FP.ws){ const w = FP.ws; FP.ws = null; try{ w.onclose = null; w.close(); }catch(e){} }
@@ -11576,6 +11584,121 @@ function chartFootprintLayer(g, vis){
   else if (uncovered) res.note = "Footprint depuis "+new Date(FP.covFrom).toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"});
   return res;
 }
+/* ---------- TPO / Market Profile ----------
+   Une séance = une journée UTC. Une lettre (A, B, C… puis a, b, c…) par
+   bougie : l'unité de temps du graphique (5m, 15m, 30m, 1h) fixe la période.
+   Chaque lettre est posée sur toutes les lignes de prix que la bougie a
+   touchées ; les lettres d'une ligne sont tassées vers la gauche, à partir du
+   début de la séance (profil « replié »), si bien que le profil tient toujours
+   dans la largeur de sa journée : zoom, défilement et axe du temps marchent
+   comme avec les bougies. Réservé EDB+. */
+const TPO_LET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+const TPO_TFS = ["5m","15m","30m","1h"];
+const TPO_COL = {poc:"#f2b33d", va:"#5aa9e6", ib:"#22d3ee", single:"#c77dff", close:"#ff8a3d"};
+function tpoOn(){ return !!chartInd.tpo && typeof isEdbPlus==="function" && isEdbPlus(); }
+// Profil d'une séance (bougies = périodes), en lignes de prix de taille `row`.
+function tpoSession(cands, dayStart, tfMs, row){
+  const rows = new Map();
+  let n = 0;
+  cands.forEach(c=>{
+    const j = Math.floor((c.ms-dayStart)/tfMs);
+    const r0 = Math.floor(c.l/row + 1e-9), r1 = Math.max(r0, Math.floor(c.h/row - 1e-9));
+    for (let r=r0; r<=r1 && r-r0<2000; r++){ let L = rows.get(r); if (!L){ L = []; rows.set(r, L); } if (L[L.length-1]!==j){ L.push(j); n++; } }
+  });
+  const keys = [...rows.keys()].sort((x,y)=>x-y);
+  if (!keys.length) return null;
+  const kLo = keys[0], kHi = keys[keys.length-1], mid = (kLo+kHi)/2;
+  const cnt = r=>rows.has(r) ? rows.get(r).length : 0;
+  // POC : la ligne la plus fournie (à égalité, la plus proche du milieu).
+  let poc = kLo;
+  keys.forEach(r=>{ const a = cnt(r), b = cnt(poc); if (a>b || (a===b && Math.abs(r-mid) < Math.abs(poc-mid))) poc = r; });
+  // Value area 70 % des TPO : méthode classique, on compare les deux lignes
+  // au-dessus et les deux en dessous, et on ajoute le côté le plus fourni.
+  let lo = poc, hi = poc, acc = cnt(poc);
+  while (acc < n*0.7 && (lo>kLo || hi<kHi)){
+    const up = hi<kHi ? cnt(hi+1)+cnt(hi+2) : -1, dn = lo>kLo ? cnt(lo-1)+cnt(lo-2) : -1;
+    if (up >= dn){ for (let t=0; t<2 && hi<kHi && acc<n*0.7; t++){ hi++; acc += cnt(hi); } }
+    else { for (let t=0; t<2 && lo>kLo && acc<n*0.7; t++){ lo--; acc += cnt(lo); } }
+  }
+  // IB (Initial Balance) : plus haut / plus bas de la première heure.
+  let ibHi = -Infinity, ibLo = Infinity;
+  cands.forEach(c=>{ if (c.ms-dayStart < 3600000){ if (c.h>ibHi) ibHi = c.h; if (c.l<ibLo) ibLo = c.l; } });
+  return {rows, keys, poc, vaLo:lo, vaHi:hi, ibHi, ibLo, open:cands[0].o, close:cands[cands.length-1].c, n};
+}
+function chartTpoLayer(g){
+  const res = {svg:"", tags:[], note:""};
+  const f = v=>v.toFixed(1);
+  if (!TPO_TFS.includes(g.tf)){ res.note = "TPO : choisis 5m, 15m, 30m ou 1h (une lettre par bougie)"; return res; }
+  const pxPer = g.plotH/(g.max-g.min);
+  if (!(pxPer>0) || !g.all || !g.all.length) return res;
+  const letterW = g.slotW >= 6.5;
+  let row = chartNiceStep((letterW ? 12 : 5)/pxPer);
+  const ut = chartInd.tpoTicks && +chartInd.tpoTicks[selectedSymbol];
+  if (ut > 0){ if ((g.max-g.min)/ut <= 400) row = ut; else res.note = "Taille de ligne trop fine pour ce zoom : réglage auto"; }
+  g.tpoAutoRow = chartNiceStep((letterW ? 12 : 5)/pxPer);
+  const rowPx = row*pxPer, fs = Math.min(11, g.slotW*0.95, rowPx*0.92), letters = fs >= 6;
+  const all = g.all, S = g.slotW;
+  // Séances (journées UTC) de tout l'historique chargé : il en faut aussi
+  // hors écran pour savoir si leur POC a été revisité depuis.
+  const sess = [];
+  for (let k=0; k<all.length; k++){
+    const dk = Math.floor((all[k].ms||0)/86400000), s0 = sess[sess.length-1];
+    if (s0 && s0.dk===dk) s0.i1 = k; else sess.push({dk, i0:k, i1:k});
+  }
+  const R = g.W-g.padR, L0 = g.padL, T = g.padT, B = g.H-g.padB;
+  let naked = 0;
+  for (let si = sess.length-1; si >= 0; si--){
+    const s = sess[si];
+    const xL = g.xAt(s.i0-g.start) - S/2, xR = g.xAt(s.i1-g.start) + S/2;
+    const visible = !(xR < L0 || xL > R);
+    const last = si===sess.length-1;
+    // Hors écran à gauche et déjà 3 POC non revisités trouvés : inutile d'aller plus loin.
+    if (!visible && xR < L0 && naked >= 3) break;
+    const p = tpoSession(all.slice(s.i0, s.i1+1), s.dk*86400000, g.tfMs, row);
+    if (!p) continue;
+    const pocP = (p.poc+0.5)*row, yP = g.y(pocP);
+    // POC non revisité (« naked ») : prolongé jusqu'à ce qu'une bougie le touche.
+    if (!last){
+      let touched = -1;
+      for (let k = s.i1+1; k < all.length; k++){ const c = all[k]; if (c.l <= pocP && c.h >= pocP){ touched = k; break; } }
+      const xEnd = touched >= 0 ? g.xAt(touched-g.start) : R;
+      if (touched < 0 && naked < 3){ naked++; res.tags.push({y:yP, name:"nPOC", val:chartNum(pocP, g.dec), col:TPO_COL.poc}); }
+      if (xEnd > Math.max(xR, L0) && yP >= T && yP <= B) res.svg += '<line x1="'+f(Math.max(xR, L0))+'" x2="'+f(Math.min(xEnd, R))+'" y1="'+f(yP)+'" y2="'+f(yP)+'" stroke="'+TPO_COL.poc+'" stroke-width="1" stroke-dasharray="5 4" opacity="'+(touched<0 ? 0.75 : 0.35)+'"/>';
+    }
+    if (!visible) continue;
+    let s2 = '<line x1="'+f(xL)+'" x2="'+f(xL)+'" y1="'+T+'" y2="'+B+'" stroke="'+g.pal.grid+'" stroke-width="1"/>';
+    p.keys.forEach(r=>{
+      const Lr = p.rows.get(r), yT = g.y((r+1)*row), yB = g.y(r*row);
+      if (yB < T-2 || yT > B+2) return;
+      const inVA = r >= p.vaLo && r <= p.vaHi, isPoc = r===p.poc;
+      if (Lr.length===1) s2 += '<rect x="'+f(xL)+'" y="'+f(yT)+'" width="'+f(Math.max(S, 4))+'" height="'+f(Math.max(0.6, yB-yT))+'" fill="'+TPO_COL.single+'" opacity="0.22"/>';
+      if (letters){
+        const col = isPoc ? TPO_COL.poc : inVA ? g.pal.text : g.pal.axis;
+        let txt = "";
+        Lr.forEach((j, k)=>{ const cx = xL+(k+0.5)*S; if (cx > R+S) return; txt += '<tspan x="'+f(cx)+'">'+TPO_LET[j % TPO_LET.length]+'</tspan>'; });
+        s2 += '<text y="'+f((yT+yB)/2 + fs*0.36)+'" font-size="'+fs.toFixed(1)+'" text-anchor="middle" fill="'+col+'"'+(isPoc ? ' font-weight="700"' : '')+' '+CHART_FONT+'>'+txt+'</text>';
+      } else {
+        const w = Math.min(Lr.length*S, R+S-xL);
+        if (w > 0) s2 += '<rect x="'+f(xL)+'" y="'+f(yT+0.3)+'" width="'+f(w)+'" height="'+f(Math.max(0.6, yB-yT-0.6))+'" fill="'+(isPoc ? TPO_COL.poc : inVA ? TPO_COL.va : g.pal.axis)+'" opacity="'+(isPoc ? 0.9 : inVA ? 0.6 : 0.35)+'"/>';
+      }
+    });
+    // POC, VAH / VAL sur la largeur de la séance ; IB ; ouverture / clôture.
+    const yH = g.y((p.vaHi+1)*row), yL = g.y(p.vaLo*row);
+    s2 += '<line x1="'+f(xL)+'" x2="'+f(xR)+'" y1="'+f(yP)+'" y2="'+f(yP)+'" stroke="'+TPO_COL.poc+'" stroke-width="1" opacity="0.55"/>';
+    [yH, yL].forEach(yy=>{ s2 += '<line x1="'+f(xL)+'" x2="'+f(xR)+'" y1="'+f(yy)+'" y2="'+f(yy)+'" stroke="'+TPO_COL.va+'" stroke-width="1" stroke-dasharray="3 3" opacity="0.7"/>'; });
+    if (isFinite(p.ibHi)) s2 += '<line x1="'+f(xL-3)+'" x2="'+f(xL-3)+'" y1="'+f(g.y(p.ibHi))+'" y2="'+f(g.y(p.ibLo))+'" stroke="'+TPO_COL.ib+'" stroke-width="3" stroke-linecap="round"/>';
+    s2 += '<line x1="'+f(xL-10)+'" x2="'+f(xL-5)+'" y1="'+f(g.y(p.open))+'" y2="'+f(g.y(p.open))+'" stroke="'+g.pal.text+'" stroke-width="2"/>'+
+      '<line x1="'+f(xL-10)+'" x2="'+f(xL-5)+'" y1="'+f(g.y(p.close))+'" y2="'+f(g.y(p.close))+'" stroke="'+TPO_COL.close+'" stroke-width="2"/>';
+    res.svg = s2 + res.svg;
+    if (last){
+      res.tags.push({y:yP, name:"POC", val:chartNum(pocP, g.dec), col:TPO_COL.poc});
+      res.tags.push({y:yH, name:"VAH", val:chartNum((p.vaHi+1)*row, g.dec), col:TPO_COL.va});
+      res.tags.push({y:yL, name:"VAL", val:chartNum(p.vaLo*row, g.dec), col:TPO_COL.va});
+    }
+  }
+  if (!res.note && !letters) res.note = "Zoome (+) pour lire les lettres du TPO";
+  return res;
+}
 function chartTradeMarks(sym){
   const out = [], seen = new Set();
   const addIn = (t, px, side)=>{ const k = t+"|"+side; if (seen.has(k)) return; seen.add(k); out.push({t:Date.parse(t), px, buy:side==="long", kind:"in"}); };
@@ -11649,7 +11772,8 @@ function chartRenderCandles(svg, a, m, W, H, all){
   let span = hi-lo;
   if (!(span>0)) span = Math.abs(hi)*0.002 || 1;
   const volMax = Math.max(0, ...vis.map(c=>c.v||0));
-  const volOn = chartInd.vol && volMax>0;
+  const tpoMode = tpoOn();
+  const volOn = chartInd.vol && volMax>0 && !tpoMode;
   let max = hi + span*0.06;
   let min = lo - span*(volOn ? 0.30 : 0.06);
   // Pendant un zoom / défilement, l'échelle des prix rejoint sa cible en
@@ -11741,11 +11865,11 @@ function chartRenderCandles(svg, a, m, W, H, all){
   }
   // Footprint (si activé) : calculé avant les bougies, qu'il remplace.
   fpEnsure(a);
-  const fpL = fpOn() ? chartFootprintLayer(g, vis) : null;
+  const fpL = (fpOn() && !tpoMode) ? chartFootprintLayer(g, vis) : null;
   g.fpStats = fpL ? fpL.stats : null;
   // Bougies
   let wu = "", wd = "", bu = "", bd = "", lu = "", ld = "";
-  vis.forEach((c,i)=>{
+  if (!tpoMode) vis.forEach((c,i)=>{
     if (fpL && fpL.skip.has(i)) return;
     const cx = xAt(i);
     const up = c.c>=c.o;
@@ -11896,6 +12020,14 @@ function chartRenderCandles(svg, a, m, W, H, all){
     });
     over += '<g pointer-events="none">'+svgD+'</g>';
   }
+  // TPO (Market Profile) : remplace les bougies.
+  let tpoNote = "";
+  if (tpoMode){
+    const tl = chartTpoLayer(g);
+    over += '<g pointer-events="none">'+tl.svg+'</g>';
+    tl.tags.forEach(t=>addTag(t.y, t.name, t.val, t.col));
+    tpoNote = tl.note;
+  }
   panes.forEach((k, j)=>{
     const top = H - padB + j*paneH + 6, bot = top + paneH - 10;
     paneSvg += '<line x1="'+padL+'" y1="'+(H-padB+j*paneH+0.5)+'" x2="'+(W-padR)+'" y2="'+(H-padB+j*paneH+0.5)+'" stroke="'+pal.grid+'" stroke-width="1"/>';
@@ -11990,7 +12122,8 @@ function chartRenderCandles(svg, a, m, W, H, all){
   svg.style.touchAction = (positions.length || pending.length || drawTool || (chartLimitDraft && chartLimitDraft.sym===selectedSymbol)) ? "none" : "pan-y";
   const clip = '<defs><clipPath id="chart-plot-clip"><rect x="'+padL+'" y="0" width="'+plotW+'" height="'+(H-padB)+'"/></clipPath>'+
     '<clipPath id="chart-pane-clip"><rect x="'+padL+'" y="'+(H-padB)+'" width="'+plotW+'" height="'+Math.max(0, padB-22)+'"/></clipPath></defs>';
-  const fpNote = fpL && fpL.note ? '<text x="'+(W-padR-8)+'" y="'+(H-padB-7)+'" text-anchor="end" font-size="10" fill="'+pal.axis+'" '+CHART_FONT+' stroke="'+pal.bg+'" stroke-width="3" paint-order="stroke">'+escapeHtml(fpL.note)+'</text>' : "";
+  const noteTxt = tpoNote || (fpL && fpL.note) || "";
+  const fpNote = noteTxt ? '<text x="'+(W-padR-8)+'" y="'+(H-padB-7)+'" text-anchor="end" font-size="10" fill="'+pal.axis+'" '+CHART_FONT+' stroke="'+pal.bg+'" stroke-width="3" paint-order="stroke">'+escapeHtml(noteTxt)+'</text>' : "";
   svg.innerHTML = clip+grid+'<g clip-path="url(#chart-plot-clip)">'+vol+(fpL ? '<g pointer-events="none">'+fpL.zones+'</g>' : '')+over+bars+(fpL ? '<g pointer-events="none">'+fpL.svg+fpL.marks+'</g>' : '')+emas+marks+'</g>'+fpNote+paneSvg+axis+
     '<g id="chart-draw">'+chartDrawingsHtml(g)+'</g>'+
     '<g id="chart-levels">'+positionLinesHtml(g, positions, pending)+chartDraftHtml(g)+'</g>'+
@@ -13437,28 +13570,61 @@ function initChartIndicators(){
     const v = chartInd.fpTicks && chartInd.fpTicks[selectedSymbol];
     if (document.activeElement!==tickIn) tickIn.value = v>0 ? String(FP.step0 ? Math.max(FP.step0, Math.round(v/FP.step0)*FP.step0) : v) : "";
     tickIn.placeholder = FP.autoRow && FP.sym===selectedSymbol ? "Auto ("+(+FP.autoRow.toPrecision(6))+")" : "Auto";
+    const ti = document.getElementById("chart-tpo-tick");
+    if (ti){
+      const tv = chartInd.tpoTicks && chartInd.tpoTicks[selectedSymbol];
+      if (document.activeElement!==ti) ti.value = tv>0 ? String(tv) : "";
+      ti.placeholder = chartView && chartView.tpoAutoRow ? "Auto ("+(+chartView.tpoAutoRow.toPrecision(6))+")" : "Auto";
+    }
   };
   pop.querySelectorAll("[data-chart-ind]").forEach(cb=>{
-    cb.checked = cb.dataset.chartInd==="fp" ? fpOn() : !!chartInd[cb.dataset.chartInd];
+    const key = cb.dataset.chartInd;
+    cb.checked = key==="fp" ? fpOn() : key==="tpo" ? tpoOn() : !!chartInd[key];
     cb.addEventListener("change", ()=>{
-      // Footprint : réservé EDB+.
-      if (cb.dataset.chartInd==="fp" && cb.checked && !(typeof isEdbPlus==="function" && isEdbPlus())){
-        cb.checked = false; chartInd.fp = false; saveChartInd();
-        if (fpLock) fpLock.hidden = false;
+      // Footprint et TPO : réservés EDB+.
+      const lock = key==="fp" ? fpLock : key==="tpo" ? document.getElementById("chart-tpo-lock") : null;
+      if (lock && cb.checked && !(typeof isEdbPlus==="function" && isEdbPlus())){
+        cb.checked = false; chartInd[key] = false; saveChartInd();
+        lock.hidden = false;
         return;
       }
-      chartInd[cb.dataset.chartInd] = cb.checked;
+      chartInd[key] = cb.checked;
+      if (lock) lock.hidden = true;
+      // L'un ou l'autre : le TPO remplace les bougies, le footprint aussi.
+      const other = key==="fp" ? "tpo" : key==="tpo" ? "fp" : null;
+      if (other && cb.checked && chartInd[other]){ chartInd[other] = false; pop.querySelectorAll('[data-chart-ind="'+other+'"]').forEach(x=>{ x.checked = false; }); }
       saveChartInd();
-      if (cb.dataset.chartInd==="fp" && fpLock) fpLock.hidden = true;
+      // TPO : une lettre par bougie → unité de temps 5m à 1h (30m par défaut), vue d'environ une journée et demie.
+      if (key==="tpo" && cb.checked){
+        if (!TPO_TFS.includes(currentTimeframe)){ const b30 = document.querySelector('#tf-seg button[data-tf="30m"]'); if (b30) b30.click(); }
+        const per = 86400000/(HL_INTERVAL_MS[currentTimeframe] || 1800000);
+        chartZoomTo(Math.min(CHART_ZOOM_MAX, Math.round(per*1.5)+CHART_GAP), null);
+      }
       syncVwapOpts();
       // Footprint : on resserre la vue pour que les cellules soient lisibles.
-      if (cb.dataset.chartInd==="fp" && cb.checked){ const pw = (chartView && chartView.plotW) || 600, tgt = Math.max(8, Math.min(26, Math.round(pw/62))); if (chartZoomCount > tgt+4) chartZoomTo(tgt, null); }
+      if (key==="fp" && cb.checked){ const pw = (chartView && chartView.plotW) || 600, tgt = Math.max(8, Math.min(26, Math.round(pw/62))); if (chartZoomCount > tgt+4) chartZoomTo(tgt, null); }
       updateChart();
-      if (cb.dataset.chartInd==="fp") setTimeout(syncTick, 1200);
+      if (key==="fp" || key==="tpo") setTimeout(syncTick, 1200);
     });
   });
   const lockGo = document.getElementById("chart-fp-lock-go");
   if (lockGo) lockGo.addEventListener("click", ()=>{ close(); if (typeof goToEdbPlus==="function") goToEdbPlus(); });
+  const tpoLockGo = document.getElementById("chart-tpo-lock-go");
+  if (tpoLockGo) tpoLockGo.addEventListener("click", ()=>{ close(); if (typeof goToEdbPlus==="function") goToEdbPlus(); });
+  // Taille de ligne du TPO (par marché) : vide = automatique.
+  const tpoIn = document.getElementById("chart-tpo-tick");
+  if (tpoIn){
+    const applyT = ()=>{
+      const v = parseFloat(String(tpoIn.value).replace(",", "."));
+      if (!chartInd.tpoTicks || typeof chartInd.tpoTicks!=="object") chartInd.tpoTicks = {};
+      if (v>0) chartInd.tpoTicks[selectedSymbol] = v; else delete chartInd.tpoTicks[selectedSymbol];
+      saveChartInd(); updateChart(); tpoIn.blur(); syncTick();
+    };
+    tpoIn.addEventListener("change", applyT);
+    tpoIn.addEventListener("keydown", (e)=>{ e.stopPropagation(); if (e.key==="Enter"){ e.preventDefault(); applyT(); } });
+    const ta = document.getElementById("chart-tpo-tick-auto");
+    if (ta) ta.addEventListener("click", ()=>{ tpoIn.value = ""; applyT(); });
+  }
   // Taille de ligne du footprint (par marché) : vide = automatique.
   if (tickIn){
     const applyTick = ()=>{
@@ -13476,6 +13642,7 @@ function initChartIndicators(){
   const syncVwapOpts = ()=>{
     const o = document.getElementById("chart-vwap-opts"); if (o) o.hidden = !(chartInd.vwap || chartInd.vwapw);
     const fo = document.getElementById("chart-fp-opts"); if (fo) fo.hidden = !fpOn();
+    const to = document.getElementById("chart-tpo-opts"); if (to) to.hidden = !tpoOn();
   };
   syncVwapOpts();
   const close = ()=>{ pop.hidden = true; btn.setAttribute("aria-expanded","false"); };
@@ -13504,7 +13671,9 @@ function initChartIndicators(){
     pop.hidden = !open;
     if (open){
       pop.querySelectorAll('[data-chart-ind="fp"]').forEach(cb=>{ cb.checked = fpOn(); });
+      pop.querySelectorAll('[data-chart-ind="tpo"]').forEach(cb=>{ cb.checked = tpoOn(); });
       if (fpLock) fpLock.hidden = true;
+      { const tl = document.getElementById("chart-tpo-lock"); if (tl) tl.hidden = true; }
       syncVwapOpts(); syncTick(); place();
     }
     btn.setAttribute("aria-expanded", open ? "true" : "false");
