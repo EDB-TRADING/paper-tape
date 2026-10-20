@@ -5301,7 +5301,7 @@
                   <label><input type="checkbox" data-tpo-flag="tpoLabels">Étiquettes TPOC / VPOC / VAH / VAL</label>
                   <label><input type="checkbox" data-tpo-flag="tpoVp">Profil de volume collé au TPO (+ VPOC)</label>
                   <div class="chart-fp-tick"><span>Taille de ligne (prix)</span><button type="button" class="tk-step" data-tpo-step="-1" title="Plus fin" aria-label="Taille de ligne plus fine">−</button><input type="number" id="chart-tpo-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne du TPO (en prix)"><button type="button" class="tk-step" data-tpo-step="1" title="Plus gros" aria-label="Taille de ligne plus grosse">+</button><button type="button" id="chart-tpo-tick-auto" title="Revenir au réglage automatique">Auto</button></div>
-                  <div class="chart-ind-tip" style="margin:4px 0 0;">Une lettre par période de 30 minutes (le TPO passe le graphique en 30m). Séance = journée UTC. TPOC (trait plein) = prix le plus visité dans le temps ; VPOC (tirets, avec le profil de volume) = prix le plus échangé en volume ; value area = 70 % des TPO ; barre à gauche = IB (1re heure) ; fond = single prints ; PH / PL = extrême touché par au moins 2 périodes, prolongé jusqu'à ce que le prix le dépasse ; traits à gauche = ouverture (blanc) et clôture (orange).</div>
+                  <div class="chart-ind-tip" style="margin:4px 0 0;">Une lettre par période de 30 minutes (le TPO passe le graphique en 30m). Séance = journée UTC. TPOC (trait plein) = prix le plus visité dans le temps ; VPOC (tirets, avec le profil de volume) = prix le plus échangé en volume ; value area = 70 % des TPO ; fond = single prints ; PH / PL = extrême touché par au moins 2 périodes, prolongé jusqu'à ce que le prix le dépasse ; lettre d'ouverture (1re période, au prix d'ouverture) et lettre de clôture (dernière période, au prix de clôture) en couleur.</div>
                 </div>
               </div>
             </div>
@@ -10740,7 +10740,7 @@ function initTpoPanel(){
   const swatch = t=>t.grad ? "linear-gradient(90deg,hsl(205,70%,60%),hsl(120,70%,55%),hsl(30,70%,55%))" : "linear-gradient(90deg,"+t.out+" 0 33%,"+t.va+" 33% 66%,"+t.poc+" 66%)";
   themesEl.innerHTML = Object.keys(TPO_THEMES).map(k=>'<button type="button" data-tpo-theme="'+k+'"><i style="background:'+swatch(TPO_THEMES[k])+'"></i>'+TPO_THEMES[k].name+'</button>').join("")+
     '<button type="button" data-tpo-theme="perso"><i style="background:conic-gradient(#f2b33d,#e53935,#5aa9e6,#31c882,#f2b33d)"></i>Perso</button>';
-  const COL_NAMES = {poc:"TPOC (temps)", va:"Value area", out:"Hors value area", single:"Single prints", ib:"IB", poor:"Poor high / low", vpoc:"VPOC (volume)"};
+  const COL_NAMES = {poc:"TPOC (temps)", va:"Value area", out:"Hors value area", single:"Single prints", poor:"Poor high / low", vpoc:"VPOC (volume)", open:"Lettre d'ouverture", close:"Lettre de clôture"};
   colsEl.innerHTML = TPO_COL_KEYS.map(k=>'<label><input type="color" data-tpo-col="'+k+'">'+COL_NAMES[k]+'</label>').join("");
   themesEl.querySelectorAll("[data-tpo-theme]").forEach(b=>b.addEventListener("click", ()=>{
     const k = b.dataset.tpoTheme;
@@ -11829,12 +11829,12 @@ const TPO_TFS = ["5m","15m","30m","1h"];
 // lettres colorées selon l'heure (dégradé). Chaque couleur reste modifiable
 // (thème « perso »).
 const TPO_THEMES = {
-  pt:      {name:"Paper Tape",          poc:"#f2b33d", va:"#5aa9e6", out:"#6b7686", single:"#c77dff", ib:"#22d3ee", poor:"#ff8a3d", vpoc:"#ff5252"},
-  gris:    {name:"Gris / rouge",        poc:"#e53935", va:"#e8eaed", out:"#7d838c", single:"#ffffff", ib:"#9aa4b2", poor:"#c9ced6", vpoc:"#ffb300"},
-  periode: {name:"Couleur par période", poc:"#ff5252", va:"#e8eaed", out:"#7d838c", single:"#ffffff", ib:"#22d3ee", poor:"#f2b33d", vpoc:"#4fc3f7", grad:true},
-  mono:    {name:"Monochrome",          poc:"#ffffff", va:"#b8bec8", out:"#565d68", single:"#ffffff", ib:"#8a919b", poor:"#d0d4da", vpoc:"#ffb300"},
+  pt:      {name:"Paper Tape",          poc:"#f2b33d", va:"#5aa9e6", out:"#6b7686", single:"#c77dff", ib:"#22d3ee", poor:"#ff8a3d", vpoc:"#ff5252", open:"#00e676", close:"#ff8a3d"},
+  gris:    {name:"Gris / rouge",        poc:"#e53935", va:"#e8eaed", out:"#7d838c", single:"#ffffff", ib:"#9aa4b2", poor:"#c9ced6", vpoc:"#ffb300", open:"#4fc3f7", close:"#ff8a3d"},
+  periode: {name:"Couleur par période", poc:"#ff5252", va:"#e8eaed", out:"#7d838c", single:"#ffffff", ib:"#22d3ee", poor:"#f2b33d", vpoc:"#4fc3f7", open:"#ffffff", close:"#ff8a3d", grad:true},
+  mono:    {name:"Monochrome",          poc:"#ffffff", va:"#b8bec8", out:"#565d68", single:"#ffffff", ib:"#8a919b", poor:"#d0d4da", vpoc:"#ffb300", open:"#4fc3f7", close:"#ff8a3d"},
 };
-const TPO_COL_KEYS = ["poc","va","out","single","ib","poor","vpoc"];
+const TPO_COL_KEYS = ["poc","va","out","single","poor","vpoc","open","close"];
 function tpoColors(){
   const t = TPO_THEMES[chartInd.tpoTheme] || (chartInd.tpoTheme==="perso" ? null : TPO_THEMES.pt);
   const base = Object.assign({}, TPO_THEMES.pt, t || {});
@@ -11871,12 +11871,12 @@ function tpoSession(cands, dayStart, tfMs, row){
     else { for (let t=0; t<2 && vlo>kLo && acc<n*0.7; t++){ vlo--; acc += cnt(vlo); } }
   }
   // IB (Initial Balance) : plus haut / plus bas de la première heure.
-  let ibHi = -Infinity, ibLo = Infinity, maxJ = 0;
-  cands.forEach(c=>{ const j = Math.floor((c.ms-dayStart)/tfMs); if (j>maxJ) maxJ = j; if (c.ms-dayStart < 3600000){ if (c.h>ibHi) ibHi = c.h; if (c.l<ibLo) ibLo = c.l; } });
+  let ibHi = -Infinity, ibLo = Infinity, maxJ = 0, minJ = Infinity;
+  cands.forEach(c=>{ const j = Math.floor((c.ms-dayStart)/tfMs); if (j>maxJ) maxJ = j; if (j<minJ) minJ = j; if (c.ms-dayStart < 3600000){ if (c.h>ibHi) ibHi = c.h; if (c.l<ibLo) ibLo = c.l; } });
   // Poor high / poor low : extrême touché par au moins 2 périodes, sans
   // « excès » (pas de queue de single prints) → enchère inachevée, souvent revisitée.
   const poorHi = cnt(kHi) >= 2, poorLo = cnt(kLo) >= 2;
-  return {rows, keys, kLo, kHi, poc, vaLo:vlo, vaHi:vhi, ibHi, ibLo, hi, lo, poorHi, poorLo, maxJ,
+  return {rows, keys, kLo, kHi, poc, vaLo:vlo, vaHi:vhi, ibHi, ibLo, hi, lo, poorHi, poorLo, maxJ, minJ,
     open:cands[0].o, close:cands[cands.length-1].c, n};
 }
 // Profils TPO modifiables (comme TradingView) : par défaut un profil par
@@ -11907,6 +11907,7 @@ function tpoProfiles(all){
   }
   return out;
 }
+const TPO_CACHE = {sess:new Map(), touch:new Map()}; // calculs TPO mémorisés (voir chartTpoLayer)
 let tpoHoverStart = null; // profil TPO survolé (encadré bleu), par son heure de début
 function chartTpoLayer(g){
   const res = {svg:"", tags:[], note:"", hover:""};
@@ -11931,7 +11932,31 @@ function chartTpoLayer(g){
   const R = g.W-g.padR, L0 = g.padL, T = g.padT, B = g.H-g.padB;
   const hline = (x1, x2, yy, col, dash, op, w)=>{ x1 = Math.max(x1, L0); x2 = Math.min(x2, R); if (x2<=x1 || yy<T || yy>B) return ""; return '<line x1="'+f(x1)+'" x2="'+f(x2)+'" y1="'+f(yy)+'" y2="'+f(yy)+'" stroke="'+col+'" stroke-width="'+(w||1)+'"'+(dash ? ' stroke-dasharray="'+dash+'"' : '')+' opacity="'+op+'"/>'; };
   const label = (x, yy, txt, col, anchor)=>(x<L0 || x>R || yy<T+8 || yy>B) ? "" : '<text x="'+f(x)+'" y="'+f(yy-3)+'" text-anchor="'+(anchor||"end")+'" font-size="10" font-weight="600" fill="'+col+'" '+CHART_FONT+' stroke="'+g.pal.bg+'" stroke-width="3" paint-order="stroke">'+txt+'</text>';
-  const untilTouched = (from, price)=>{ for (let k = from; k < all.length; k++){ const c = all[k]; if (c.l <= price && c.h >= price) return k; } return -1; };
+  // « Le prix est-il revenu sur ce niveau ? » — mémorisé (par heure de bougie,
+  // pas par indice : l'historique peut s'allonger par la gauche) pour ne pas
+  // rebalayer tout l'historique à chaque image.
+  const idxOfMs = ms=>{ let lo = 0, hi = all.length-1; while (lo<hi){ const m = (lo+hi)>>1; if ((all[m].ms||0) < ms) lo = m+1; else hi = m; } return lo; };
+  const untilTouched = (from, price)=>{
+    if (from >= all.length) return -1;
+    const key = selectedSymbol+"|"+g.tfMs+"|"+all[from].ms+"|"+price;
+    let m = TPO_CACHE.touch.get(key);
+    if (m && m.hitMs!=null){ const k = idxOfMs(m.hitMs); return (all[k] && all[k].ms===m.hitMs) ? k : -1; }
+    let k0 = from;
+    if (m && m.scannedMs!=null) k0 = Math.max(from, idxOfMs(m.scannedMs));
+    for (let k = k0; k < all.length; k++){ const c = all[k]; if (c.l <= price && c.h >= price){ TPO_CACHE.touch.set(key, {hitMs:c.ms}); return k; } }
+    // La dernière bougie bouge encore : on la rebalaiera la prochaine fois.
+    TPO_CACHE.touch.set(key, {scannedMs: all[all.length-1].ms});
+    if (TPO_CACHE.touch.size > 4000) TPO_CACHE.touch.clear();
+    return -1;
+  };
+  // Profil d'une séance, mémorisé : seule la séance en cours change en direct.
+  const sessOf = (s, last)=>{
+    const lc = all[s.i1];
+    const key = selectedSymbol+"|"+g.tfMs+"|"+row+"|"+s.start+"|"+all[s.i0].ms+"|"+lc.ms+(last ? "|"+lc.h+"|"+lc.l+"|"+lc.c+"|"+lc.v : "");
+    let e = TPO_CACHE.sess.get(key);
+    if (!e){ e = {p: tpoSession(all.slice(s.i0, s.i1+1), s.start, g.tfMs, row)}; TPO_CACHE.sess.set(key, e); if (TPO_CACHE.sess.size > 600) TPO_CACHE.sess.clear(); }
+    return e;
+  };
   let naked = 0, poorTags = 0;
   for (let si = sess.length-1; si >= 0; si--){
     const s = sess[si];
@@ -11939,7 +11964,7 @@ function chartTpoLayer(g){
     const visible = !(xR < L0 || xL > R);
     const last = si===sess.length-1;
     if (!visible && xR < L0 && naked >= 3 && poorTags >= 2) break;
-    const p = tpoSession(all.slice(s.i0, s.i1+1), s.start, g.tfMs, row);
+    const se = sessOf(s, last), p = se.p;
     if (!p) continue;
     const expanded = globalExp !== expSet.has(s.start);
     const pocP = (p.poc+0.5)*row, yP = g.y(pocP);
@@ -11972,17 +11997,22 @@ function chartTpoLayer(g){
     let vpW = 0, vpLeft = xL, yV = null, vPrice = null;
     if (chartInd.tpoVp){
       const nb = p.kHi - p.kLo + 1;
-      const vpr = nb <= 1500 ? chartVolProfile(all.slice(s.i0, s.i1+1), g.tfMs, p.kLo*row, (p.kHi+1)*row, nb) : null;
+      if (se.vpr===undefined) se.vpr = nb <= 1500 ? chartVolProfile(all.slice(s.i0, s.i1+1), g.tfMs, p.kLo*row, (p.kHi+1)*row, nb) : null;
+      const vpr = se.vpr;
       if (vpr && vpr.sum > 0){
         vpW = Math.max(10, Math.min(46, (contentR-xL)*0.35));
         const xr = xL-2;
+        const vpPaths = new Map(); // un <path> par couleur / opacité (bien plus léger que des milliers de <rect>)
         for (let i=0; i<nb; i++){
           if (!vpr.tot[i]) continue;
           const yT = g.y(p.kLo*row + (i+1)*row), yB = g.y(p.kLo*row + i*row);
           if (yB < T-2 || yT > B+2) continue;
-          const w = vpr.tot[i]/vpr.mx*vpW, big = vpr.tot[i] >= vpr.mx*0.7, inVa = i>=vpr.a && i<=vpr.b, isV = i===vpr.poc;
-          s2 += '<rect x="'+f(xr-w)+'" y="'+f(yT+0.4)+'" width="'+f(Math.max(0.6, w))+'" height="'+f(Math.max(0.5, yB-yT-(rowPx >= 3 ? 1.2 : 0.2)))+'" fill="'+(isV ? C.vpoc : big ? C.va : C.out)+'" opacity="'+(isV ? 0.9 : big ? 0.7 : inVa ? 0.42 : 0.26)+'"/>';
+          const w = Math.max(0.6, vpr.tot[i]/vpr.mx*vpW), big = vpr.tot[i] >= vpr.mx*0.7, inVa = i>=vpr.a && i<=vpr.b, isV = i===vpr.poc;
+          const k2 = (isV ? C.vpoc : big ? C.va : C.out)+"|"+(isV ? 0.9 : big ? 0.7 : inVa ? 0.42 : 0.26);
+          const h = Math.max(0.5, yB-yT-(rowPx >= 3 ? 1.2 : 0.2));
+          vpPaths.set(k2, (vpPaths.get(k2)||"")+"M"+f(xr-w)+" "+f(yT+0.4)+"h"+f(w)+"v"+f(h)+"h"+f(-w)+"Z");
         }
+        vpPaths.forEach((d, k2)=>{ const [c, o] = k2.split("|"); s2 += '<path d="'+d+'" fill="'+c+'" opacity="'+o+'"/>'; });
         vPrice = p.kLo*row + (vpr.poc+0.5)*row; yV = g.y(vPrice);
         if (last && showTags) res.tags.push({y:yV, name:"VPOC", val:chartNum(vPrice, g.dec), col:C.vpoc});
         vpLeft = xr - vpW;
@@ -11999,27 +12029,44 @@ function chartTpoLayer(g){
       if (C.grad){ const h = 205 - 175*(p.maxJ ? j/p.maxJ : 0); return "hsl("+h.toFixed(0)+",70%,"+(r>=p.vaLo && r<=p.vaHi ? 62 : 45)+"%)"; }
       return (r>=p.vaLo && r<=p.vaHi) ? C.va : C.out;
     };
+    // Lettre d'ouverture (1re période, au prix d'ouverture) et lettre de
+    // clôture (dernière période, au prix de clôture) : colorées à part.
+    const rOpen = Math.floor(p.open/row + 1e-9), rClose = Math.floor(p.close/row + 1e-9);
+    const colAt = (r, j)=>(r===rOpen && j===p.minJ) ? C.open : (r===rClose && j===p.maxJ) ? C.close : colOf(r, j);
+    const special = r=>r===rOpen || r===rClose;
+    const blocks = new Map(), singles = [];
+    const addBlock = (col, op, d)=>{ const k2 = col+"|"+op; blocks.set(k2, (blocks.get(k2)||"")+d); };
+    const gw = 0.6*fs; // largeur d'un caractère (police à chasse fixe)
     p.keys.forEach(r=>{
       const Lr = p.rows.get(r), yT = g.y((r+1)*row), yB = g.y(r*row);
       if (yB < T-2 || yT > B+2) return;
-      const isPoc = r===p.poc;
-      if (Lr.length===1){ const x = xOf(Lr, 0); s2 += '<rect x="'+f(x-S/2)+'" y="'+f(yT)+'" width="'+f(Math.max(S, 3))+'" height="'+f(Math.max(0.6, yB-yT))+'" fill="'+C.single+'" opacity="0.28"/>'; }
+      const isPoc = r===p.poc, inVa = r>=p.vaLo && r<=p.vaHi;
+      if (Lr.length===1){ const x = xOf(Lr, 0); singles.push("M"+f(x-S/2)+" "+f(yT)+"h"+f(Math.max(S, 3))+"v"+f(Math.max(0.6, yB-yT))+"h"+f(-Math.max(S, 3))+"Z"); }
       if (letters){
-        if (C.grad){
-          Lr.forEach((e, idx)=>{ const x = xOf(Lr, idx); if (x < L0-S || x > R+S) return; s2 += '<text x="'+f(x)+'" y="'+f((yT+yB)/2 + fs*0.36)+'" font-size="'+fs.toFixed(1)+'" text-anchor="middle" fill="'+colOf(r, e[0])+'"'+(isPoc ? ' font-weight="700"' : '')+' '+CHART_FONT+'>'+TPO_LET[e[0] % TPO_LET.length]+'</text>'; });
+        const ty = f((yT+yB)/2 + fs*0.36), fw = isPoc ? ' font-weight="700"' : '';
+        if (!expanded && !C.grad && !special(r)){
+          // Ligne entière en un seul <text> : chaque lettre occupe une case (textLength).
+          let n = Lr.length; while (n>0 && xL+(n-0.5)*S > R+S) n--;
+          if (n>0){ let txt = ""; for (let k=0; k<n; k++) txt += TPO_LET[Lr[k][0] % TPO_LET.length];
+            s2 += '<text x="'+f(xL+(S-gw)/2)+'" y="'+ty+'" font-size="'+fs.toFixed(1)+'"'+(n>1 ? ' textLength="'+f(n*S-(S-gw))+'" lengthAdjust="spacing"' : '')+' fill="'+colOf(r, 0)+'"'+fw+' '+CHART_FONT+'>'+txt+'</text>'; }
         } else {
           let txt = "";
-          Lr.forEach((e, idx)=>{ const x = xOf(Lr, idx); if (x < L0-S || x > R+S) return; txt += '<tspan x="'+f(x)+'">'+TPO_LET[e[0] % TPO_LET.length]+'</tspan>'; });
-          if (txt) s2 += '<text y="'+f((yT+yB)/2 + fs*0.36)+'" font-size="'+fs.toFixed(1)+'" text-anchor="middle" fill="'+colOf(r, 0)+'"'+(isPoc ? ' font-weight="700"' : '')+' '+CHART_FONT+'>'+txt+'</text>';
+          Lr.forEach((e, idx)=>{ const x = xOf(Lr, idx); if (x < L0-S || x > R+S) return;
+            const c = colAt(r, e[0]); txt += '<tspan x="'+f(x)+'"'+(c!==colOf(r, 0) || C.grad ? ' fill="'+c+'"' : '')+'>'+TPO_LET[e[0] % TPO_LET.length]+'</tspan>'; });
+          if (txt) s2 += '<text y="'+ty+'" font-size="'+fs.toFixed(1)+'" text-anchor="middle" fill="'+colOf(r, 0)+'"'+fw+' '+CHART_FONT+'>'+txt+'</text>';
         }
-      } else if (S >= 3 || expanded || C.grad){
-        const gap = S >= 4 ? 1 : 0, h = Math.max(0.6, yB-yT-(rowPx >= 4 ? 1 : 0));
+      } else if (S >= 3 || expanded || C.grad || special(r)){
+        const gap = S >= 4 ? 1 : 0, h = Math.max(0.6, yB-yT-(rowPx >= 4 ? 1 : 0)), w = Math.max(0.6, S-gap);
         Lr.forEach((e, idx)=>{ const x = xOf(Lr, idx); if (x < L0-S || x > R+S) return;
-          s2 += '<rect x="'+f(x-S/2+gap/2)+'" y="'+f(yT+0.3)+'" width="'+f(Math.max(0.6, S-gap))+'" height="'+f(h)+'" fill="'+colOf(r, e[0])+'" opacity="'+(isPoc ? 0.95 : (r>=p.vaLo && r<=p.vaHi) ? 0.85 : 0.6)+'"/>'; });
+          const c = colAt(r, e[0]), sp = c===C.open || c===C.close;
+          addBlock(c, sp || isPoc ? 0.95 : inVa ? 0.85 : 0.6, "M"+f(x-S/2+gap/2)+" "+f(yT+0.3)+"h"+f(w)+"v"+f(h)+"h"+f(-w)+"Z"); });
       } else {
-        s2 += '<rect x="'+f(xL)+'" y="'+f(yT+0.3)+'" width="'+f(Lr.length*S)+'" height="'+f(Math.max(0.6, yB-yT-0.6))+'" fill="'+colOf(r, 0)+'" opacity="'+(isPoc ? 0.95 : 0.7)+'"/>';
+        const w = Lr.length*S;
+        addBlock(colOf(r, 0), isPoc ? 0.95 : 0.7, "M"+f(xL)+" "+f(yT+0.3)+"h"+f(w)+"v"+f(Math.max(0.6, yB-yT-0.6))+"h"+f(-w)+"Z");
       }
     });
+    if (singles.length) s2 = s2.replace(/^(<line[^>]*\/>)/, '$1<path d="'+singles.join("")+'" fill="'+C.single+'" opacity="0.28"/>');
+    blocks.forEach((d, k2)=>{ const i = k2.lastIndexOf("|"); s2 += '<path d="'+d+'" fill="'+k2.slice(0, i)+'" opacity="'+k2.slice(i+1)+'"/>'; });
     const yH = g.y((p.vaHi+1)*row), yL = g.y(p.vaLo*row);
     // POC sur toute la séance ; VAH / VAL en pointillés jusqu'à leur étiquette,
     // posée juste à droite du profil (pas au bout de la journée, où elle
@@ -12037,11 +12084,6 @@ function chartTpoLayer(g){
       const placed = [];
       cand.forEach(l=>{ if (placed.every(q=>Math.abs(q-l.y) > 11)){ placed.push(l.y); s2 += label(lx, l.y, l.t, l.c, "start"); } });
     }
-    // IB et ouverture / clôture : à gauche du profil (et de son profil de volume).
-    const lEdge = Math.min(xL, vpLeft);
-    if (isFinite(p.ibHi)) s2 += '<line x1="'+f(lEdge-3)+'" x2="'+f(lEdge-3)+'" y1="'+f(g.y(p.ibHi))+'" y2="'+f(g.y(p.ibLo))+'" stroke="'+C.ib+'" stroke-width="'+(vpW ? 2 : 3)+'" stroke-linecap="round"/>';
-    s2 += '<line x1="'+f(lEdge-10)+'" x2="'+f(lEdge-5)+'" y1="'+f(g.y(p.open))+'" y2="'+f(g.y(p.open))+'" stroke="'+g.pal.text+'" stroke-width="2"/>'+
-      '<line x1="'+f(lEdge-10)+'" x2="'+f(lEdge-5)+'" y1="'+f(g.y(p.close))+'" y2="'+f(g.y(p.close))+'" stroke="#ff8a3d" stroke-width="2"/>';
     res.svg = s2 + res.svg;
     if (last && showTags){
       res.tags.push({y:yP, name:"TPOC", val:chartNum(pocP, g.dec), col:C.poc});
