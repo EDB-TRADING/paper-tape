@@ -5285,7 +5285,7 @@
                 <div id="chart-tpo-body">
                   <div class="tpo-lbl">Mode</div>
                   <div class="tpo-seg" data-tpo-key="tpoMode"><button type="button" data-v="left">Replié</button><button type="button" data-v="expand">Déplié</button></div>
-                  <div class="chart-ind-tip" style="margin:4px 0 0;">Clique sur un profil (clic droit sur ordinateur) pour le couper à une lettre, le fusionner avec le précédent ou le suivant, ou le déplier seul.</div>
+                  <div class="chart-ind-tip" style="margin:4px 0 0;">Clic droit sur un profil (appui long au doigt) pour le couper à une lettre, le fusionner avec le précédent ou le suivant, ou le déplier seul.</div>
                   <div class="tpo-lbl">Affichage</div>
                   <div class="tpo-seg" data-tpo-key="tpoDraw"><button type="button" data-v="letters">Lettres</button><button type="button" data-v="blocks">Blocs</button></div>
                   <div class="tpo-lbl">Couleurs</div>
@@ -5294,6 +5294,7 @@
                   <label><input type="checkbox" data-tpo-flag="tpoPoor">Poor high / poor low (PH / PL)</label>
                   <label><input type="checkbox" data-tpo-flag="tpoNaked">POC non revisités (nPOC)</label>
                   <label><input type="checkbox" data-tpo-flag="tpoLabels">Étiquettes POC / VAH / VAL</label>
+                  <label><input type="checkbox" data-tpo-flag="tpoVp">Profil de volume collé au TPO (+ VPOC)</label>
                   <div class="chart-fp-tick"><span>Taille de ligne (prix)</span><button type="button" class="tk-step" data-tpo-step="-1" title="Plus fin" aria-label="Taille de ligne plus fine">−</button><input type="number" id="chart-tpo-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne du TPO (en prix)"><button type="button" class="tk-step" data-tpo-step="1" title="Plus gros" aria-label="Taille de ligne plus grosse">+</button><button type="button" id="chart-tpo-tick-auto" title="Revenir au réglage automatique">Auto</button></div>
                   <div class="chart-ind-tip" style="margin:4px 0 0;">Une lettre par bougie : 5m, 15m, 30m (conseillé) ou 1h. Séance = journée UTC. POC = prix le plus visité ; value area = 70 % des TPO ; barre à gauche = IB (1re heure) ; fond = single prints ; PH / PL = extrême touché par au moins 2 périodes, prolongé jusqu'à ce que le prix le dépasse ; traits à gauche = ouverture (blanc) et clôture (orange).</div>
                 </div>
@@ -6274,7 +6275,9 @@ const BINANCE_FAPI_BASE = "https://fapi.binance.com/fapi/v1"; // perps USDⓈ-M 
 // see fetchTickerHyperliquid/fetchCandlesHyperliquid/fetchDepthHyperliquid).
 const HYPERLIQUID_API_BASE = "https://api.hyperliquid.xyz/info";
 const CANDLE_TIMEFRAMES = ["1m","5m","15m","30m","1h","4h","1d","1w"];
-let currentTimeframe = "1m";
+// Unité de temps du graphique interne, retenue d'une visite à l'autre.
+const CHART_TF_KEY = "paperTapeChartTf";
+let currentTimeframe = (function(){ try{ const v = localStorage.getItem(CHART_TF_KEY); return ["1m","5m","15m","30m","1h","4h","1d","1w"].includes(v) ? v : "1m"; }catch(e){ return "1m"; } })();
 let candleTimer = null;
 // Zoom du graphique interne : nombre de bougies affichées, en continu (plus
 // de paliers fixes). Molette / pincement du trackpad / pincement à deux
@@ -10516,7 +10519,10 @@ const TV_SYMBOL_MAP = {
 };
 // Le graphique interne est la vue par défaut (trading depuis le graphique,
 // lignes de position, indicateurs) ; TradingView reste à un clic via le bouton.
-let chartSource = "internal"; // "internal" | "tv" — the user's stored preference, unaffected by tvUnavailable overrides
+// "internal" | "tv" — the user's stored preference, unaffected by tvUnavailable
+// overrides. Retenu d'une visite à l'autre (le mode TPO, lui, est dans chartInd).
+const CHART_SRC_KEY = "paperTapeChartSrc";
+let chartSource = (function(){ try{ return localStorage.getItem(CHART_SRC_KEY)==="tv" ? "tv" : "internal"; }catch(e){ return "internal"; } })();
 let tvLoadedSymbol = null;
 // The source actually used to render the chart right now: same as the user's
 // `chartSource` preference for every asset today, EXCEPT an asset flagged
@@ -10624,6 +10630,7 @@ function applyChartSourceVisibility(eff){
 }
 function setChartSource(src){
   chartSource = src;
+  try{ localStorage.setItem(CHART_SRC_KEY, src); }catch(e){}
   if (src!=="internal" && typeof fpStop==="function" && FP.sym) fpStop(); // footprint : flux coupé hors graphique interne
   // Actually draw whichever source is now active. Without this, switching
   // to "Interne" just unhid an empty/stale <svg> — updateChart() is what
@@ -10676,7 +10683,7 @@ function initTpoPanel(){
   const swatch = t=>t.grad ? "linear-gradient(90deg,hsl(205,70%,60%),hsl(120,70%,55%),hsl(30,70%,55%))" : "linear-gradient(90deg,"+t.out+" 0 33%,"+t.va+" 33% 66%,"+t.poc+" 66%)";
   themesEl.innerHTML = Object.keys(TPO_THEMES).map(k=>'<button type="button" data-tpo-theme="'+k+'"><i style="background:'+swatch(TPO_THEMES[k])+'"></i>'+TPO_THEMES[k].name+'</button>').join("")+
     '<button type="button" data-tpo-theme="perso"><i style="background:conic-gradient(#f2b33d,#e53935,#5aa9e6,#31c882,#f2b33d)"></i>Perso</button>';
-  const COL_NAMES = {poc:"POC", va:"Value area", out:"Hors value area", single:"Single prints", ib:"IB", poor:"Poor high / low"};
+  const COL_NAMES = {poc:"POC", va:"Value area", out:"Hors value area", single:"Single prints", ib:"IB", poor:"Poor high / low", vpoc:"VPOC (volume)"};
   colsEl.innerHTML = TPO_COL_KEYS.map(k=>'<label><input type="color" data-tpo-col="'+k+'">'+COL_NAMES[k]+'</label>').join("");
   themesEl.querySelectorAll("[data-tpo-theme]").forEach(b=>b.addEventListener("click", ()=>{
     const k = b.dataset.tpoTheme;
@@ -11043,10 +11050,20 @@ const TA_COLORS = {ema20:"#f2b33d", ema50:"#5aa9e6", ema200:"#c77dff", bb:"#8fa3
 const CHART_IND_KEY = "paperTapeChartInd";
 const CHART_EMA = {ema20:{p:20, color:"#f2b33d", label:"MME 20"}, ema50:{p:50, color:"#5aa9e6", label:"MME 50"}, ema200:{p:200, color:"#c77dff", label:"MME 200"}};
 let chartInd = (function(){
-  const d = {tpo:false, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpTicks:{}, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true};
+  const d = {tpo:false, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpTicks:{}, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true};
   try{
     const s = JSON.parse(localStorage.getItem(CHART_IND_KEY)||"null");
-    if (s && typeof s==="object") Object.keys(d).forEach(k=>{ if (typeof s[k]==="boolean") d[k]=s[k]; });
+    // Chaque réglage est repris s'il a le même type que sa valeur par défaut :
+    // cases à cocher (booléens), choix (texte : mode / affichage / thème du
+    // TPO) et réglages par marché (objets : tailles de ligne, coupures et
+    // fusions du TPO, couleurs perso). Avant, seuls les booléens revenaient
+    // après un rechargement de la page.
+    if (s && typeof s==="object") Object.keys(d).forEach(k=>{
+      const v = s[k], t = typeof d[k];
+      if (t==="boolean" && typeof v==="boolean") d[k] = v;
+      else if (t==="string" && typeof v==="string" && v.length < 40) d[k] = v;
+      else if (t==="object" && v && typeof v==="object" && !Array.isArray(v)) d[k] = v;
+    });
   }catch(e){}
   return d;
 })();
@@ -11745,12 +11762,12 @@ const TPO_TFS = ["5m","15m","30m","1h"];
 // lettres colorées selon l'heure (dégradé). Chaque couleur reste modifiable
 // (thème « perso »).
 const TPO_THEMES = {
-  pt:      {name:"Paper Tape",          poc:"#f2b33d", va:"#5aa9e6", out:"#6b7686", single:"#c77dff", ib:"#22d3ee", poor:"#ff8a3d"},
-  gris:    {name:"Gris / rouge",        poc:"#e53935", va:"#e8eaed", out:"#7d838c", single:"#ffffff", ib:"#9aa4b2", poor:"#c9ced6"},
-  periode: {name:"Couleur par période", poc:"#ff5252", va:"#e8eaed", out:"#7d838c", single:"#ffffff", ib:"#22d3ee", poor:"#f2b33d", grad:true},
-  mono:    {name:"Monochrome",          poc:"#ffffff", va:"#b8bec8", out:"#565d68", single:"#ffffff", ib:"#8a919b", poor:"#d0d4da"},
+  pt:      {name:"Paper Tape",          poc:"#f2b33d", va:"#5aa9e6", out:"#6b7686", single:"#c77dff", ib:"#22d3ee", poor:"#ff8a3d", vpoc:"#ff5252"},
+  gris:    {name:"Gris / rouge",        poc:"#e53935", va:"#e8eaed", out:"#7d838c", single:"#ffffff", ib:"#9aa4b2", poor:"#c9ced6", vpoc:"#e53935"},
+  periode: {name:"Couleur par période", poc:"#ff5252", va:"#e8eaed", out:"#7d838c", single:"#ffffff", ib:"#22d3ee", poor:"#f2b33d", vpoc:"#ff8a3d", grad:true},
+  mono:    {name:"Monochrome",          poc:"#ffffff", va:"#b8bec8", out:"#565d68", single:"#ffffff", ib:"#8a919b", poor:"#d0d4da", vpoc:"#ff5252"},
 };
-const TPO_COL_KEYS = ["poc","va","out","single","ib","poor"];
+const TPO_COL_KEYS = ["poc","va","out","single","ib","poor","vpoc"];
 function tpoColors(){
   const t = TPO_THEMES[chartInd.tpoTheme] || (chartInd.tpoTheme==="perso" ? null : TPO_THEMES.pt);
   const base = Object.assign({}, TPO_THEMES.pt, t || {});
@@ -11823,8 +11840,9 @@ function tpoProfiles(all){
   }
   return out;
 }
+let tpoHoverStart = null; // profil TPO survolé (encadré bleu), par son heure de début
 function chartTpoLayer(g){
-  const res = {svg:"", tags:[], note:""};
+  const res = {svg:"", tags:[], note:"", hover:""};
   const f = v=>v.toFixed(1);
   g.tpoVis = [];
   if (!TPO_TFS.includes(g.tf)){ res.note = "TPO : choisis 5m, 15m, 30m ou 1h (une lettre par bougie)"; return res; }
@@ -11878,8 +11896,34 @@ function chartTpoLayer(g){
     }
     res.svg = ext + res.svg;
     if (!visible) continue;
-    g.tpoVis.push({si, start:s.start, i0:s.i0, i1:s.i1, xL, xR, expanded, rows:p.rows, row, first:si===0, last});
     let s2 = '<line x1="'+f(xL)+'" x2="'+f(xL)+'" y1="'+T+'" y2="'+B+'" stroke="'+g.pal.grid+'" stroke-width="1"/>';
+    // Profil de volume collé au TPO (à sa gauche, mêmes lignes de prix) + VPOC.
+    let vpW = 0;
+    if (chartInd.tpoVp){
+      const nb = p.kHi - p.kLo + 1;
+      const vpr = nb <= 1500 ? chartVolProfile(all.slice(s.i0, s.i1+1), g.tfMs, p.kLo*row, (p.kHi+1)*row, nb) : null;
+      if (vpr && vpr.sum > 0){
+        vpW = Math.max(16, Math.min(70, (xR-xL)*0.3));
+        const xr = xL-12;
+        for (let i=0; i<nb; i++){
+          if (!vpr.tot[i]) continue;
+          const yT = g.y(p.kLo*row + (i+1)*row), yB = g.y(p.kLo*row + i*row);
+          if (yB < T-2 || yT > B+2) continue;
+          const w = vpr.tot[i]/vpr.mx*vpW, inVa = i>=vpr.a && i<=vpr.b, isV = i===vpr.poc;
+          s2 += '<rect x="'+f(xr-w)+'" y="'+f(yT+0.3)+'" width="'+f(Math.max(0.6, w))+'" height="'+f(Math.max(0.6, yB-yT-(rowPx >= 4 ? 1 : 0)))+'" fill="'+(isV ? C.vpoc : inVa ? C.va : C.out)+'" opacity="'+(isV ? 0.95 : inVa ? 0.8 : 0.55)+'"/>';
+        }
+        const vP = p.kLo*row + (vpr.poc+0.5)*row, yV = g.y(vP);
+        s2 += hline(xr-vpW, xR, yV, C.vpoc, null, 0.9, 1.2);
+        if (showLab && xR-xL > 70) s2 += label(xR-4, yV+12, "VPOC", C.vpoc);
+        if (last && showTags) res.tags.push({y:yV, name:"VPOC", val:chartNum(vP, g.dec), col:C.vpoc});
+        vpW += 12;
+      }
+    }
+    // Cadre du profil (survol à la souris) : contenu réel, profil de volume compris.
+    let maxLen = 0; p.rows.forEach(L=>{ if (L.length > maxLen) maxLen = L.length; });
+    const box = {x1: xL - (vpW || 0) - 2, x2: expanded ? xR : Math.min(xR, xL + maxLen*S) + 2, y1: g.y(p.hi) - 3, y2: g.y(p.lo) + 3};
+    g.tpoVis.push({si, start:s.start, i0:s.i0, i1:s.i1, xL, xR, expanded, rows:p.rows, row, first:si===0, last, box, vpW});
+    if (tpoHoverStart===s.start) res.hover = '<rect x="'+f(box.x1)+'" y="'+f(box.y1)+'" width="'+f(Math.max(4, box.x2-box.x1))+'" height="'+f(Math.max(4, box.y2-box.y1))+'" rx="2" fill="#4f8dff" fill-opacity="0.06" stroke="#4f8dff" stroke-width="2"/>';
     const xOf = (L, idx)=>expanded ? g.xAt(s.i0+L[idx][1]-g.start) : xL+(idx+0.5)*S;
     const colOf = (r, j)=>{
       if (r===p.poc) return C.poc;
@@ -11925,11 +11969,26 @@ function chartTpoLayer(g){
   return res;
 }
 // ---- Menu d'un profil TPO (clic sur un profil) ----
-function tpoMenuClose(){ const m = document.getElementById("chart-tpo-menu"); if (m) m.hidden = true; }
+function tpoMenuClose(){ const m = document.getElementById("chart-tpo-menu"); if (m && !m.hidden){ m.hidden = true; if (!matchMedia("(hover: hover)").matches) tpoSetHover(null); } }
 // Profil sous le point (x, y) du graphique et bougie de la lettre visée.
+// Profil visible sous l'abscisse x (sa journée, profil de volume collé compris).
+function tpoProfileAtX(x){
+  const v = chartView; if (!v || !v.tpoVis) return null;
+  return v.tpoVis.find(p=>x >= Math.min(p.xL, p.box ? p.box.x1 : p.xL) && x <= p.xR) || null;
+}
+// Encadré bleu du profil survolé, posé sans redessiner tout le graphique.
+function tpoSetHover(pr){
+  const st = pr ? pr.start : null;
+  if (st===tpoHoverStart) return;
+  tpoHoverStart = st;
+  const el = document.getElementById("chart-tpo-hover");
+  if (!el) return;
+  const b = pr && pr.box, f = v=>v.toFixed(1);
+  el.innerHTML = b ? '<rect x="'+f(b.x1)+'" y="'+f(b.y1)+'" width="'+f(Math.max(4, b.x2-b.x1))+'" height="'+f(Math.max(4, b.y2-b.y1))+'" rx="2" fill="#4f8dff" fill-opacity="0.06" stroke="#4f8dff" stroke-width="2"/>' : "";
+}
 function tpoHit(x, y){
   const v = chartView; if (!v || !v.tpoVis) return null;
-  const pr = v.tpoVis.find(p=>x >= p.xL && x <= p.xR);
+  const pr = tpoProfileAtX(x);
   if (!pr) return null;
   let k = Math.round((x - v.padL)/v.slotW + v.left - 0.5); // bougie sous le curseur (mode déplié)
   if (!pr.expanded){
@@ -11942,6 +12001,7 @@ function tpoHit(x, y){
 }
 function tpoApply(fn){ fn(tpoEdits()); saveChartInd(); updateChart(); }
 function tpoOpenMenu(clientX, clientY, hit){
+  tpoSetHover(hit.pr); // le profil visé reste encadré pendant que le menu est ouvert
   let m = document.getElementById("chart-tpo-menu");
   if (!m){ m = document.createElement("div"); m.id = "chart-tpo-menu"; m.className = "chart-tpo-menu"; m.setAttribute("role", "menu"); document.body.appendChild(m); }
   const v = chartView, ed = tpoEdits(), pr = hit.pr;
@@ -12002,18 +12062,46 @@ function initTpoMenu(){
     if (x < v.padL || x > v.W-v.padR || y < v.padT || y > v.H-v.padB) return false;
     return {x, y};
   };
-  svg.addEventListener("pointerdown", (e)=>{ down = (e.button===0 || e.pointerType!=="mouse") ? {x:e.clientX, y:e.clientY, t:performance.now(), id:e.pointerId} : null; });
-  svg.addEventListener("pointerup", (e)=>{
-    const d = down; down = null;
-    if (!d || d.id!==e.pointerId || Math.hypot(e.clientX-d.x, e.clientY-d.y) > 6 || performance.now()-d.t > 600) return;
+  // Menu du profil : clic droit uniquement (le clic gauche ne l'ouvre plus).
+  // Au doigt, pas de clic droit : appui long (½ s) sans bouger.
+  let lastTouchOpen = 0;
+  svg.addEventListener("pointerdown", (e)=>{
+    if (down && down.timer) clearTimeout(down.timer);
+    down = null;
+    if (e.pointerType==="mouse") return;
     const pt = eligible(e); if (!pt) return;
-    const hit = tpoHit(pt.x, pt.y); if (!hit) return;
-    setTimeout(()=>tpoOpenMenu(e.clientX, e.clientY, hit), 0);
+    const cx = e.clientX, cy = e.clientY;
+    down = {x:cx, y:cy, id:e.pointerId, timer:setTimeout(()=>{
+      const hit = tpoHit(pt.x, pt.y); if (!hit) return;
+      lastTouchOpen = Date.now(); down = null;
+      tpoOpenMenu(cx, cy, hit);
+    }, 500)};
   });
+  const cancelPress = (e)=>{ if (down && (e.type!=="pointermove" || Math.hypot(e.clientX-down.x, e.clientY-down.y) > 8)){ clearTimeout(down.timer); down = null; } };
+  svg.addEventListener("pointermove", cancelPress);
+  svg.addEventListener("pointerup", cancelPress);
+  svg.addEventListener("pointercancel", cancelPress);
+  // Survol : encadré bleu autour du profil sous la souris ; le clic droit ouvre son menu.
+  svg.addEventListener("pointermove", (e)=>{
+    if (e.pointerType!=="mouse" || e.buttons) return;
+    const m = document.getElementById("chart-tpo-menu");
+    if (m && !m.hidden) return; // garde le cadre du profil dont le menu est ouvert
+    const pt = eligible(e);
+    tpoSetHover(pt ? tpoProfileAtX(pt.x) : null);
+  });
+  svg.addEventListener("pointerleave", ()=>{ const m = document.getElementById("chart-tpo-menu"); if (!m || m.hidden) tpoSetHover(null); });
+  // Clic droit maintenu + glisser = zoom libre du graphique : dans ce cas,
+  // pas de menu (ou on le referme s'il s'est ouvert au moment de l'appui, sur Mac).
+  let rDown = null;
+  svg.addEventListener("pointerdown", (e)=>{ if (e.pointerType==="mouse" && e.button===2) rDown = {x:e.clientX, y:e.clientY}; });
+  svg.addEventListener("pointermove", (e)=>{ if (rDown && (e.buttons & 2) && Math.hypot(e.clientX-rDown.x, e.clientY-rDown.y) > 6){ rDown.moved = true; tpoMenuClose(); } });
   svg.addEventListener("contextmenu", (e)=>{
     const pt = eligible(e); if (!pt) return;
+    e.preventDefault();
+    if (Date.now()-lastTouchOpen < 900) return; // appui long déjà traité (Android)
+    if (rDown && rDown.moved){ rDown = null; return; }
     const hit = tpoHit(pt.x, pt.y); if (!hit) return;
-    e.preventDefault(); tpoOpenMenu(e.clientX, e.clientY, hit);
+    tpoOpenMenu(e.clientX, e.clientY, hit);
   });
   document.addEventListener("pointerdown", (e)=>{ const m = document.getElementById("chart-tpo-menu"); if (m && !m.hidden && !e.target.closest("#chart-tpo-menu")) tpoMenuClose(); }, true);
   document.addEventListener("keydown", (e)=>{ if (e.key==="Escape") tpoMenuClose(); });
@@ -12345,7 +12433,7 @@ function chartRenderCandles(svg, a, m, W, H, all){
     const tl = chartTpoLayer(g);
     // Le TPO s'affiche seul : ni indicateurs (moyennes, VWAP, profils…) ni étiquettes d'indicateurs.
     emas = ""; g.emas = {}; g.bb = g.vwap = g.vwapw = g.st = null; indTagQ.length = 0;
-    over = '<g pointer-events="none">'+tl.svg+'</g>';
+    over = '<g pointer-events="none">'+tl.svg+'</g><g id="chart-tpo-hover" pointer-events="none">'+tl.hover+'</g>';
     tl.tags.forEach(t=>addTag(t.y, t.name, t.val, t.col));
     tpoNote = tl.note;
   }
@@ -25827,6 +25915,7 @@ function initEvents(){
     b.addEventListener("click", ()=>{
       if (b.dataset.tf===currentTimeframe) return;
       currentTimeframe = b.dataset.tf;
+      try{ localStorage.setItem(CHART_TF_KEY, currentTimeframe); }catch(e){}
       document.querySelectorAll("#tf-seg button").forEach(x=>x.classList.toggle("active", x===b));
       scheduleCandleRefresh();
     });
