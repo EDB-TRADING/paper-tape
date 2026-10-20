@@ -5296,7 +5296,7 @@
                   <label><input type="checkbox" data-tpo-flag="tpoLabels">Étiquettes POC / VAH / VAL</label>
                   <label><input type="checkbox" data-tpo-flag="tpoVp">Profil de volume collé au TPO (+ VPOC)</label>
                   <div class="chart-fp-tick"><span>Taille de ligne (prix)</span><button type="button" class="tk-step" data-tpo-step="-1" title="Plus fin" aria-label="Taille de ligne plus fine">−</button><input type="number" id="chart-tpo-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne du TPO (en prix)"><button type="button" class="tk-step" data-tpo-step="1" title="Plus gros" aria-label="Taille de ligne plus grosse">+</button><button type="button" id="chart-tpo-tick-auto" title="Revenir au réglage automatique">Auto</button></div>
-                  <div class="chart-ind-tip" style="margin:4px 0 0;">Une lettre par bougie : 5m, 15m, 30m (conseillé) ou 1h. Séance = journée UTC. POC = prix le plus visité ; value area = 70 % des TPO ; barre à gauche = IB (1re heure) ; fond = single prints ; PH / PL = extrême touché par au moins 2 périodes, prolongé jusqu'à ce que le prix le dépasse ; traits à gauche = ouverture (blanc) et clôture (orange).</div>
+                  <div class="chart-ind-tip" style="margin:4px 0 0;">Une lettre par période de 30 minutes (le TPO passe le graphique en 30m). Séance = journée UTC. POC = prix le plus visité ; value area = 70 % des TPO ; barre à gauche = IB (1re heure) ; fond = single prints ; PH / PL = extrême touché par au moins 2 périodes, prolongé jusqu'à ce que le prix le dépasse ; traits à gauche = ouverture (blanc) et clôture (orange).</div>
                 </div>
               </div>
             </div>
@@ -7379,6 +7379,15 @@ async function fetchOlderCandles(symbol, tf){
 // (Re)start the candle refresh cycle for whichever symbol is currently on
 // the chart. Only the selected symbol's candles are fetched (not all six
 // assets) to keep API usage proportional to what's actually being looked at.
+// TPO actif : passe en 30m si besoin (au chargement de la page, au clic sur TPO…).
+function tpoForceTf(){
+  if (currentTimeframe==="30m") return false;
+  currentTimeframe = "30m";
+  try{ localStorage.setItem(CHART_TF_KEY, currentTimeframe); }catch(e){}
+  document.querySelectorAll("#tf-seg button").forEach(x=>x.classList.toggle("active", x.dataset.tf==="30m"));
+  scheduleCandleRefresh();
+  return true;
+}
 function scheduleCandleRefresh(){
   clearInterval(candleTimer);
   chartPan = 0; chartHover = null; // nouveau marché / unité de temps : retour au direct
@@ -10596,6 +10605,12 @@ function applyChartSourceVisibility(eff){
   const themeSeg = document.getElementById("candle-theme-seg");
   const zoomSeg = document.getElementById("chart-zoom-seg");
   const tpoAct = chartSource==="internal" && eff!=="tv" && typeof tpoOn==="function" && tpoOn();
+  // TPO : unité de temps imposée (30m), les autres boutons sont grisés.
+  document.querySelectorAll("#tf-seg button").forEach(b=>{
+    const lock = tpoAct && b.dataset.tf!=="30m";
+    b.disabled = lock; b.classList.toggle("disabled", lock);
+    b.title = lock ? "Le TPO utilise toujours des périodes de 30 minutes" : "";
+  });
   document.getElementById("chart-src-internal").classList.toggle("active", chartSource==="internal" && !tpoAct);
   { const tb = document.getElementById("chart-src-tpo"); if (tb) tb.classList.toggle("active", tpoAct);
     const gb = document.getElementById("chart-tpo-gear"); if (gb) gb.hidden = !tpoAct; }
@@ -10739,9 +10754,10 @@ function initTpoPanel(){
     chartInd.tpo = true; chartInd.fp = false;
     saveChartInd();
     // Une lettre par bougie → unité de temps 5m à 1h (30m par défaut), vue d'environ une journée et demie.
-    if (!TPO_TFS.includes(currentTimeframe)){ const b30 = document.querySelector('#tf-seg button[data-tf="30m"]'); if (b30) b30.click(); }
-    const per = 86400000/(HL_INTERVAL_MS[currentTimeframe] || 1800000);
-    chartZoomTo(Math.min(CHART_ZOOM_MAX, Math.round(per*1.5)+CHART_GAP), null);
+    // TPO : toujours en 30m (l'unité d'avant est gardée pour le retour sur « Graphique »).
+    if (currentTimeframe!=="30m"){ chartInd.tpoPrevTf = currentTimeframe; saveChartInd(); }
+    tpoForceTf();
+    chartZoomTo(Math.min(CHART_ZOOM_MAX, 72+CHART_GAP), null);
     setChartSource("internal");
   });
   if (gear) gear.addEventListener("click", (e)=>{ e.stopPropagation(); if (pop.hidden) open(gear); else tpoPanelClose(); });
@@ -10755,8 +10771,15 @@ function initTpoPanel(){
 function initChartSourceToggle(){
   // « Graphique » = bougies (TPO coupé) ; « TPO » = graphique interne en Market Profile.
   document.getElementById("chart-src-internal").addEventListener("click", ()=>{
+    const wasTpo = chartInd.tpo;
     if (chartInd.tpo){ chartInd.tpo = false; saveChartInd(); }
     tpoPanelClose();
+    // Retour aux bougies : on reprend l'unité de temps d'avant le TPO.
+    if (wasTpo && chartInd.tpoPrevTf && chartInd.tpoPrevTf!==currentTimeframe && ["1m","5m","15m","30m","1h","4h","1d","1w"].includes(chartInd.tpoPrevTf)){
+      currentTimeframe = chartInd.tpoPrevTf;
+      try{ localStorage.setItem(CHART_TF_KEY, currentTimeframe); }catch(e){}
+      scheduleCandleRefresh();
+    }
     setChartSource("internal");
   });
   initTpoPanel();
@@ -11050,7 +11073,7 @@ const TA_COLORS = {ema20:"#f2b33d", ema50:"#5aa9e6", ema200:"#c77dff", bb:"#8fa3
 const CHART_IND_KEY = "paperTapeChartInd";
 const CHART_EMA = {ema20:{p:20, color:"#f2b33d", label:"MME 20"}, ema50:{p:50, color:"#5aa9e6", label:"MME 50"}, ema200:{p:200, color:"#c77dff", label:"MME 200"}};
 let chartInd = (function(){
-  const d = {tpo:false, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpTicks:{}, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true};
+  const d = {tpo:false, tpoPrevTf:"", tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpTicks:{}, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true};
   try{
     const s = JSON.parse(localStorage.getItem(CHART_IND_KEY)||"null");
     // Chaque réglage est repris s'il a le même type que sa valeur par défaut :
@@ -11898,30 +11921,32 @@ function chartTpoLayer(g){
     if (!visible) continue;
     let s2 = '<line x1="'+f(xL)+'" x2="'+f(xL)+'" y1="'+T+'" y2="'+B+'" stroke="'+g.pal.grid+'" stroke-width="1"/>';
     // Profil de volume collé au TPO (à sa gauche, mêmes lignes de prix) + VPOC.
-    let vpW = 0;
+    let maxLen = 0; p.rows.forEach(L=>{ if (L.length > maxLen) maxLen = L.length; });
+    const contentR = expanded ? xR : Math.min(xR, xL + maxLen*S); // bord droit des lettres / blocs
+    // Discret : étroit (≈ ⅓ du TPO), collé à gauche, barres fines espacées, gris
+    // clair seulement pour les gros volumes ; VPOC = sa barre colorée, sans ligne.
+    let vpW = 0, vpLeft = xL;
     if (chartInd.tpoVp){
       const nb = p.kHi - p.kLo + 1;
       const vpr = nb <= 1500 ? chartVolProfile(all.slice(s.i0, s.i1+1), g.tfMs, p.kLo*row, (p.kHi+1)*row, nb) : null;
       if (vpr && vpr.sum > 0){
-        vpW = Math.max(16, Math.min(70, (xR-xL)*0.3));
-        const xr = xL-12;
+        vpW = Math.max(10, Math.min(46, (contentR-xL)*0.35));
+        const xr = xL-2;
         for (let i=0; i<nb; i++){
           if (!vpr.tot[i]) continue;
           const yT = g.y(p.kLo*row + (i+1)*row), yB = g.y(p.kLo*row + i*row);
           if (yB < T-2 || yT > B+2) continue;
-          const w = vpr.tot[i]/vpr.mx*vpW, inVa = i>=vpr.a && i<=vpr.b, isV = i===vpr.poc;
-          s2 += '<rect x="'+f(xr-w)+'" y="'+f(yT+0.3)+'" width="'+f(Math.max(0.6, w))+'" height="'+f(Math.max(0.6, yB-yT-(rowPx >= 4 ? 1 : 0)))+'" fill="'+(isV ? C.vpoc : inVa ? C.va : C.out)+'" opacity="'+(isV ? 0.95 : inVa ? 0.8 : 0.55)+'"/>';
+          const w = vpr.tot[i]/vpr.mx*vpW, big = vpr.tot[i] >= vpr.mx*0.7, inVa = i>=vpr.a && i<=vpr.b, isV = i===vpr.poc;
+          s2 += '<rect x="'+f(xr-w)+'" y="'+f(yT+0.4)+'" width="'+f(Math.max(0.6, w))+'" height="'+f(Math.max(0.5, yB-yT-(rowPx >= 3 ? 1.2 : 0.2)))+'" fill="'+(isV ? C.vpoc : big ? C.va : C.out)+'" opacity="'+(isV ? 0.9 : big ? 0.7 : inVa ? 0.42 : 0.26)+'"/>';
         }
-        const vP = p.kLo*row + (vpr.poc+0.5)*row, yV = g.y(vP);
-        s2 += hline(xr-vpW, xR, yV, C.vpoc, null, 0.9, 1.2);
-        if (showLab && xR-xL > 70) s2 += label(xR-4, yV+12, "VPOC", C.vpoc);
-        if (last && showTags) res.tags.push({y:yV, name:"VPOC", val:chartNum(vP, g.dec), col:C.vpoc});
-        vpW += 12;
+        const vP = p.kLo*row + (vpr.poc+0.5)*row;
+        if (last && showTags) res.tags.push({y:g.y(vP), name:"VPOC", val:chartNum(vP, g.dec), col:C.vpoc});
+        vpLeft = xr - vpW;
       }
     }
     // Cadre du profil (survol à la souris) : contenu réel, profil de volume compris.
-    let maxLen = 0; p.rows.forEach(L=>{ if (L.length > maxLen) maxLen = L.length; });
-    const box = {x1: xL - (vpW || 0) - 2, x2: expanded ? xR : Math.min(xR, xL + maxLen*S) + 2, y1: g.y(p.hi) - 3, y2: g.y(p.lo) + 3};
+    const box = {x1: Math.min(xL, vpLeft) - 2, x2: contentR + 2, y1: g.y(p.hi) - 3, y2: g.y(p.lo) + 3};
+    vpW = xL - Math.min(xL, vpLeft);
     g.tpoVis.push({si, start:s.start, i0:s.i0, i1:s.i1, xL, xR, expanded, rows:p.rows, row, first:si===0, last, box, vpW});
     if (tpoHoverStart===s.start) res.hover = '<rect x="'+f(box.x1)+'" y="'+f(box.y1)+'" width="'+f(Math.max(4, box.x2-box.x1))+'" height="'+f(Math.max(4, box.y2-box.y1))+'" rx="2" fill="#4f8dff" fill-opacity="0.06" stroke="#4f8dff" stroke-width="2"/>';
     const xOf = (L, idx)=>expanded ? g.xAt(s.i0+L[idx][1]-g.start) : xL+(idx+0.5)*S;
@@ -11952,12 +11977,21 @@ function chartTpoLayer(g){
       }
     });
     const yH = g.y((p.vaHi+1)*row), yL = g.y(p.vaLo*row);
+    // POC sur toute la séance ; VAH / VAL en pointillés jusqu'à leur étiquette,
+    // posée juste à droite du profil (pas au bout de la journée, où elle
+    // tombait sur le profil suivant).
+    const lx = contentR + 6, room = xR - lx >= 34;
     s2 += hline(xL, xR, yP, C.poc, null, 0.75, 1.2);
-    [yH, yL].forEach(yy=>{ s2 += hline(xL, xR, yy, C.va, "3 3", 0.75); });
-    if (showLab && xR-xL > 70) s2 += label(xR-4, yP, "POC", C.poc) + label(xR-4, yH, "VAH", C.va) + label(xR-4, yL+12, "VAL", C.va);
-    if (isFinite(p.ibHi)) s2 += '<line x1="'+f(xL-3)+'" x2="'+f(xL-3)+'" y1="'+f(g.y(p.ibHi))+'" y2="'+f(g.y(p.ibLo))+'" stroke="'+C.ib+'" stroke-width="3" stroke-linecap="round"/>';
-    s2 += '<line x1="'+f(xL-10)+'" x2="'+f(xL-5)+'" y1="'+f(g.y(p.open))+'" y2="'+f(g.y(p.open))+'" stroke="'+g.pal.text+'" stroke-width="2"/>'+
-      '<line x1="'+f(xL-10)+'" x2="'+f(xL-5)+'" y1="'+f(g.y(p.close))+'" y2="'+f(g.y(p.close))+'" stroke="#ff8a3d" stroke-width="2"/>';
+    [yH, yL].forEach(yy=>{ s2 += hline(xL, room ? lx+30 : xR, yy, C.va, "3 3", 0.7); });
+    if (showLab && room){
+      s2 += label(lx, yH, "VAH", g.pal.axis, "start") + label(lx, yL+12, "VAL", g.pal.axis, "start");
+      if (Math.abs(yP-yH) > 12 && Math.abs(yP-yL) > 12) s2 += label(lx, yP, "POC", C.poc, "start");
+    }
+    // IB et ouverture / clôture : à gauche du profil (et de son profil de volume).
+    const lEdge = Math.min(xL, vpLeft);
+    if (isFinite(p.ibHi)) s2 += '<line x1="'+f(lEdge-3)+'" x2="'+f(lEdge-3)+'" y1="'+f(g.y(p.ibHi))+'" y2="'+f(g.y(p.ibLo))+'" stroke="'+C.ib+'" stroke-width="'+(vpW ? 2 : 3)+'" stroke-linecap="round"/>';
+    s2 += '<line x1="'+f(lEdge-10)+'" x2="'+f(lEdge-5)+'" y1="'+f(g.y(p.open))+'" y2="'+f(g.y(p.open))+'" stroke="'+g.pal.text+'" stroke-width="2"/>'+
+      '<line x1="'+f(lEdge-10)+'" x2="'+f(lEdge-5)+'" y1="'+f(g.y(p.close))+'" y2="'+f(g.y(p.close))+'" stroke="#ff8a3d" stroke-width="2"/>';
     res.svg = s2 + res.svg;
     if (last && showTags){
       res.tags.push({y:yP, name:"POC", val:chartNum(pocP, g.dec), col:C.poc});
@@ -14154,6 +14188,9 @@ function updateChart(forceDuringDrag){
   if ((chartLineDrag || chartPendDrag) && !forceDuringDrag) return;
   const eff = effectiveChartSource();
   applyChartSourceVisibility(eff);
+  // TPO restauré au chargement avec une autre unité de temps : on repasse en 30m
+  // (les bougies 30m se chargent puis redessinent le graphique).
+  if (eff!=="tv" && typeof tpoOn==="function" && tpoOn() && tpoForceTf()) return;
   if (eff==="tv"){
     document.getElementById("chart-sym").innerHTML = '<span style="color:'+((ASSETS.find(x=>x.symbol===selectedSymbol)||{}).color||"inherit")+';">'+((ASSETS.find(x=>x.symbol===selectedSymbol)||{}).icon||"")+'</span> '+selectedSymbol;
     document.getElementById("chart-name").textContent = (ASSETS.find(x=>x.symbol===selectedSymbol)||{}).name||"";
