@@ -26813,6 +26813,24 @@ function initWidgetWheel(){
   document.querySelectorAll(".card.widget").forEach(el=>{
     el.addEventListener("pointerleave", ()=>el.classList.remove("is-wheel-active"));
   });
+  // Ordinateur, comme sur mobile : une fois le graphique cliqué, et tant que la
+  // souris reste sur le widget Graphique, la page est gelée — la molette / le
+  // trackpad ne la font plus défiler, où que soit le curseur dans le widget
+  // (en-tête, barre d'outils, axes, panneaux du bas). Seuls les panneaux qui
+  // ont eux-mêmes quelque chose à faire défiler (Indicateurs, réglages TPO…)
+  // défilent encore. Sur le tracé, la molette continue de zoomer.
+  document.addEventListener("wheel", (e)=>{
+    const w = e.target.closest && e.target.closest('.card.widget[data-widget="chart"].is-wheel-active');
+    if (!w || e.ctrlKey) return;
+    if (e.target.closest("#chart-svg")) return; // géré par le zoom du graphique
+    const dy = e.deltaY || 0;
+    for (let n = e.target; n && n!==w; n = n.parentElement){
+      if (n.nodeType!==1) continue;
+      const oy = getComputedStyle(n).overflowY;
+      if ((oy==="auto" || oy==="scroll") && n.scrollHeight > n.clientHeight + 1 && (dy>0 ? n.scrollTop + n.clientHeight < n.scrollHeight - 1 : n.scrollTop > 0)) return;
+    }
+    e.preventDefault();
+  }, {passive:false, capture:true});
   // La page défile TOUJOURS de façon native (plus de window.scrollBy en JS) :
   // avant, la molette au-dessus d'une liste (Historique, Marchés…) était
   // interceptée et rejouée en JS pendant que le navigateur animait déjà son
