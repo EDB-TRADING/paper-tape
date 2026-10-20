@@ -6599,7 +6599,7 @@ function openEdbPlusTrialModal(){
   }
   openModal(
     '<h3 style="margin-bottom:8px;">✨ Essayer EDB+ gratuitement pendant 24 h</h3>'+
-    '<p class="chart-note" style="margin-bottom:10px;">Challenge Prop Firm, Concours EDB+, Replay, quiz et fiches, Trades EDB+, Ressources, footprint & TPO et les 6 thèmes : tout est débloqué pendant 24 h, sans paiement ni engagement.</p>'+
+    '<p class="chart-note" style="margin-bottom:10px;">Challenge Prop Firm, Concours EDB+, Replay, quiz et fiches, Trades EDB+, footprint & TPO et les 6 thèmes : tout est débloqué pendant 24 h, sans paiement ni engagement.</p>'+
     '<p class="chart-note" style="margin-bottom:14px;"><strong>Valable une seule fois</strong> : le compte à rebours démarre dès que tu confirmes. À la fin, tout se reverrouille automatiquement (ta progression est gardée).</p>'+
     '<div class="chart-note" id="edbplus-trial-err" style="color:var(--short);margin-bottom:8px;" hidden></div>'+
     '<button class="btn-primary" id="edbplus-trial-confirm" style="width:100%;">Démarrer mon essai de 24 h</button>'+
@@ -6715,13 +6715,12 @@ const EDB_PLUS_FEATURES = {
   theme:     {label:"Le changement de thème",    detail:"personnaliser l'interface (Ember, Sage, Ink, Noir, Gold, Azure)", img:"https://images.pexels.com/photos/10275089/pexels-photo-10275089.jpeg?auto=compress&cs=tinysrgb&w=1600"},
   tradesedb: {label:"Trades EDB+",               detail:"suivre les trades partagés par le bureau et le trade swing hebdomadaire", img:"https://images.unsplash.com/photo-1745270917233-65e776a47547?auto=format&fit=crop&w=1600&q=80"},
   replay:    {label:"Le Replay",                 detail:"rejouer des séances de marché passées en accéléré, grands moments ou séance sur mesure, et battre ton record"},
-  resources: {label:"Ressources trading",        detail:"accéder à la sélection d'outils externes recommandés par EDB", img:"https://images.unsplash.com/photo-1744782211816-c5224434614f?auto=format&fit=crop&w=1600&q=80"},
   // Réutilise la même photo hero que la page débloquée (.cedb-hero, voir
   // #concoursedbplus-unlocked) — même image pour l'état verrouillé et
   // déverrouillé de cette page, plutôt qu'une image différente à chaque fois.
   concoursedbplus: {label:"Le Concours EDB+ (Challenge Hardcore)", detail:"tenter le Challenge 200 000 $ et gagner une vraie Prop Firm 100 000 $ ou 400 €", img:"https://images.unsplash.com/photo-1555963153-11ff60182d08?auto=format&fit=crop&w=1600&q=80"},
 };
-const EDB_PLUS_FEATURE_ICONS = {quiz:"📚", orderflow:"📊", challenge:"🏅", replay:"⏪", theme:"🎨", tradesedb:"📈", resources:"🔗", concoursedbplus:"💎"};
+const EDB_PLUS_FEATURE_ICONS = {quiz:"📚", orderflow:"📊", challenge:"🏅", replay:"⏪", theme:"🎨", tradesedb:"📈", concoursedbplus:"💎"};
 // Reusable "EDB+ requise" card — dropped into a feature's own container in
 // place of its real content. `key` picks the wording from EDB_PLUS_FEATURES
 // above; the CTA button is wired by wireEdbPlusCta(key) right after this
@@ -6747,7 +6746,6 @@ function edbPlusPitch(key){
     theme:     {title:"Un terminal à ton image", sub:"Ember, Sage, Ink, Noir, Gold, Azure : choisis l'ambiance dans laquelle tu trades."},
     tradesedb: {title:"Trade aux côtés du bureau EDB", sub:"Les trades partagés par le bureau, avec leur raisonnement, et le trade swing de la semaine."},
     replay:    {title:"Remonte le temps et trade les grands moments", sub:"Chute de FTX, krach du yen, nuit électorale américaine : rejoue ces séances bougie par bougie, en accéléré, et bats ton record. Ou choisis ta propre séance, jusqu'à 14 jours."},
-    resources: {title:"Les outils des pros, triés pour toi", sub:"Terminaux order flow, data crypto, courtiers et prop firms : la sélection EDB, avec le layout MMT prêt à l'emploi."},
     concoursedbplus: {title:"Gagne une vraie prop firm de 100 000 $", sub:"Le Challenge Hardcore à 200 000 $ : le meilleur trader EDB+ repart avec un vrai compte financé de 100 000 $ ou 400 €."},
   };
   return P[key] || {title:(EDB_PLUS_FEATURES[key]||{}).label || "Réservé aux membres EDB+", sub:""};
@@ -6757,13 +6755,13 @@ const EDB_PLUS_COMPARE = [
   ["Terminal de trading démo (crypto, forex, indices…)", true],
   ["Investissement PEA / compte-titres fictif", true],
   ["Classements, badges et chat de l'association", true],
+  ["Ressources trading + layout MMT", true],
   ["Connaissances & Quiz : tous les cours et quiz", false],
   ["Footprint, TPO / Market Profile (order flow)", false],
   ["Challenge prop firm en 2 étapes", false],
   ["Concours EDB+ : une vraie prop firm à gagner", false],
   ["Replay : rejouer des séances de marché passées", false],
   ["Trades EDB+ partagés par le bureau", false],
-  ["Ressources trading + layout MMT", false],
   ["Widgets carnet d'ordres, calendrier éco, calculateur de taille", false],
   ["6 thèmes d'interface", false],
 ];
@@ -6860,7 +6858,7 @@ function edbPlusPaywallHtml(key){
         '<ul>'+
           '<li>Tous les cours, quiz et classements</li>'+
           '<li>Challenge prop firm + Concours à 100 000 $</li>'+
-          '<li>Trades du bureau, footprint & TPO, ressources</li>'+
+          '<li>Trades du bureau, footprint & TPO</li>'+
           '<li>Tu soutiens l\'association EDB</li>'+
         '</ul>'+
         edbPlusCtaButtons(key, "price")+
@@ -6896,7 +6894,7 @@ function goToEdbPlus(){
 // this badge is just a heads-up before clicking).
 function updateEdbPlusNavBadges(){
   const locked = !isEdbPlus();
-  [["quiz","📚"],["challenge","🏅"],["replay","⏪"],["tradesedb","📈"],["resources","🔗"],["concoursedbplus","💎"]].forEach(([view,emoji])=>{
+  [["quiz","📚"],["challenge","🏅"],["replay","⏪"],["tradesedb","📈"],["concoursedbplus","💎"]].forEach(([view,emoji])=>{
     document.querySelectorAll('nav.tabs button[data-view="'+view+'"]').forEach(btn=>{
       let badge = btn.querySelector(".nav-lock-badge");
       if (locked){
@@ -7012,7 +7010,7 @@ function ep2Bento(nCourses, nQ){
     '<article class="ep2-tile t-themes reveal">'+
       '<div class="ep2-t-k">'+ep2Ic("i-palette")+'Thèmes & outils pro</div>'+
       '<h3>Ton terminal, tes couleurs.</h3>'+
-      '<div class="ep2-widgets"><span>Carnet d\'ordres</span><span>Calendrier éco</span><span>Calculateur de taille</span><span>Layout MMT</span><span>Ressources</span></div>'+
+      '<div class="ep2-widgets"><span>Carnet d\'ordres</span><span>Calendrier éco</span><span>Calculateur de taille</span></div>'+
       '<div class="ep2-swatches">'+sw.map(s=>'<span><i style="--s:'+s[1]+';"></i>'+s[0]+'</span>').join("")+'</div>'+
     '</article>'+
   '</div>';
@@ -7025,9 +7023,9 @@ function epPitchHtml(){
   const nQ = (typeof QUIZ_DECKS!=="undefined") ? QUIZ_DECKS.reduce((a,d)=>a+d.questions.length,0) : 100;
   const stripe = !!EDB_PLUS_STRIPE_LINK;
   const rows = [
-    ["Terminal de trading démo", true],["Investissement PEA / compte-titres", true],["Classements, badges, chat", true],
+    ["Terminal de trading démo", true],["Investissement PEA / compte-titres", true],["Classements, badges, chat", true],["Ressources + layout MMT", true],
     ["Cours & quiz ("+nCourses+" cours, "+nQ+" questions)", false],["Challenge prop firm 2 étapes", false],["Concours : une vraie prop firm à gagner", false],
-    ["Trades du bureau + footprint & TPO", false],["Ressources + layout MMT", false],["Widgets pro + 6 thèmes", false],
+    ["Trades du bureau + footprint & TPO", false],["Widgets pro + 6 thèmes", false],
   ];
   const trust = [
     stripe ? [ep2Ic("i-lock"), "Paiement sécurisé par Stripe"] : [ep2Ic("i-lock"), "Paiement Wero ou virement"],
@@ -7100,7 +7098,7 @@ function epPitchHtml(){
   '</div>';
 }
 function epStatusHtml(kind){
-  const links = [["quiz","i-book","Cours & quiz","Apprendre et se tester"],["challenge","i-target","Challenge prop firm","Passer l'évaluation"],["concoursedbplus","i-gem","Concours EDB+","100 000 $ à gagner"],["tradesedb","i-trend","Trades du bureau","Les idées de l'EDB"],["resources","i-link","Ressources","Outils et layout MMT"]];
+  const links = [["quiz","i-book","Cours & quiz","Apprendre et se tester"],["challenge","i-target","Challenge prop firm","Passer l'évaluation"],["concoursedbplus","i-gem","Concours EDB+","100 000 $ à gagner"],["tradesedb","i-trend","Trades du bureau","Les idées de l'EDB"]];
   let head = "", body = "", actions = "", card = "";
   if (kind==="member"){
     head = '<span class="ep2-eyebrow"><i></i>Membre EDB+</span><h1>Tout Paper Tape est <span class="ep2-gold">à toi</span>.</h1>';
@@ -20501,14 +20499,8 @@ function resourceCardHtml(r, color){
 function renderResources(){
   const el = document.getElementById("resources-card");
   if (!el) return;
-  if (!isEdbPlus()){
-    el.classList.remove("rs-page");
-    delete el.dataset.built;
-    el.innerHTML = edbPlusPaywallHtml("resources");
-    wireEdbPlusCta("resources");
-    return;
-  }
-  if (el.dataset.built) return;
+  // Ressources (liens trading + layout MMT) : ouvertes à tous depuis 2026-10.
+  if (el.dataset.built && !el.querySelector(".edbplus-paywall")) return;
   el.dataset.built = "1";
   el.classList.add("rs-page");
   const featured = RESOURCES.find(r=>r.featured);
