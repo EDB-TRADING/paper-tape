@@ -6538,7 +6538,30 @@ function scheduleEdbPlusTrialExpiry(){
 }
 // Re-applies everything gated by isEdbPlus() after the status changes
 // (trial started or ended) and repaints the view the trader is on.
+// Footprint et TPO sont réservés EDB+ : quand l'accès s'arrête (fin de l'essai
+// de 24 h, adhésion expirée), ils sont vraiment désactivés — pas seulement
+// masqués — et ne reviennent pas tout seuls si l'accès revient.
+function chartEnforcePlus(){
+  if (typeof isEdbPlus!=="function" || isEdbPlus() || typeof chartInd==="undefined") return;
+  if (!chartInd.fp && !chartInd.tpo) return;
+  const wasTpo = chartInd.tpo;
+  chartInd.fp = false; chartInd.tpo = false;
+  saveChartInd();
+  if (typeof fpStop==="function" && FP.sym) fpStop();
+  if (wasTpo){
+    if (typeof tpoPanelClose==="function") tpoPanelClose();
+    if (typeof tpoMenuClose==="function") tpoMenuClose();
+    if (chartInd.tpoPrevTf && chartInd.tpoPrevTf!==currentTimeframe && ["1m","5m","15m","30m","1h","4h","1d","1w"].includes(chartInd.tpoPrevTf)){
+      currentTimeframe = chartInd.tpoPrevTf;
+      try{ localStorage.setItem(CHART_TF_KEY, currentTimeframe); }catch(e){}
+      if (typeof scheduleCandleRefresh==="function") scheduleCandleRefresh();
+    }
+  }
+  document.querySelectorAll('#chart-ind-pop [data-chart-ind="fp"]').forEach(cb=>{ cb.checked = false; });
+  if (typeof updateChart==="function") updateChart();
+}
 function refreshEdbPlusGates(){
+  if (typeof accountDocExists==="undefined" || accountDocExists) chartEnforcePlus();
   try{ if (typeof updateChart==="function" && (chartInd.fp || chartInd.tpo)) updateChart(); }catch(e){} // footprint / TPO (EDB+)
   if (typeof enforceThemeAccess==="function") enforceThemeAccess();
   if (typeof enforceWidgetAccess==="function") enforceWidgetAccess();
@@ -7926,6 +7949,7 @@ function hydrateStateFromDoc(snap){
   if (typeof enforceThemeAccess==="function") enforceThemeAccess();
   if (typeof enforceWidgetAccess==="function") enforceWidgetAccess();
   if (typeof enforceLeverageAccess==="function") enforceLeverageAccess();
+  if (typeof chartEnforcePlus==="function") chartEnforcePlus();
   if (typeof updateEdbPlusNavBadges==="function") updateEdbPlusNavBadges();
   if (typeof checkDailyStreak==="function") checkDailyStreak();
 }
@@ -10769,11 +10793,12 @@ function initTpoPanel(){
     e.stopPropagation();
     if (!(typeof isEdbPlus==="function" && isEdbPlus())){ open(btn); return; } // réservé EDB+ : le panneau l'explique
     if (chartSource==="internal" && tpoOn()){ if (pop.hidden) open(btn); else tpoPanelClose(); return; } // déjà actif : réglages
-    chartInd.tpo = true; chartInd.fp = false;
+    chartInd.tpo = true; // le footprint reste activé : il réapparaît en revenant sur « Graphique »
     saveChartInd();
     // Une lettre par bougie → unité de temps 5m à 1h (30m par défaut), vue d'environ une journée et demie.
     // TPO : toujours en 30m (l'unité d'avant est gardée pour le retour sur « Graphique »).
-    if (currentTimeframe!=="30m"){ chartInd.tpoPrevTf = currentTimeframe; saveChartInd(); }
+    if (currentTimeframe!=="30m"){ chartInd.tpoPrevTf = currentTimeframe; }
+    chartInd.tpoPrevZoom = Math.round(chartZoomCount); saveChartInd(); // zoom d'avant, repris au retour
     tpoForceTf();
     chartZoomTo(Math.min(CHART_ZOOM_MAX, 72+CHART_GAP), null);
     chartKeepActive(); setChartSource("internal");
@@ -10798,6 +10823,7 @@ function initChartSourceToggle(){
       try{ localStorage.setItem(CHART_TF_KEY, currentTimeframe); }catch(e){}
       scheduleCandleRefresh();
     }
+    if (wasTpo && chartInd.tpoPrevZoom > 0) chartZoomTo(chartInd.tpoPrevZoom, null); // ex. retrouve le zoom du footprint
     chartKeepActive(); setChartSource("internal");
   });
   initTpoPanel();
@@ -11091,7 +11117,7 @@ const TA_COLORS = {ema20:"#f2b33d", ema50:"#5aa9e6", ema200:"#c77dff", bb:"#8fa3
 const CHART_IND_KEY = "paperTapeChartInd";
 const CHART_EMA = {ema20:{p:20, color:"#f2b33d", label:"MME 20"}, ema50:{p:50, color:"#5aa9e6", label:"MME 50"}, ema200:{p:200, color:"#c77dff", label:"MME 200"}};
 let chartInd = (function(){
-  const d = {tpo:false, tpoPrevTf:"", tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpTicks:{}, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true};
+  const d = {tpo:false, tpoPrevTf:"", tpoPrevZoom:0, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpTicks:{}, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true};
   try{
     const s = JSON.parse(localStorage.getItem(CHART_IND_KEY)||"null");
     // Chaque réglage est repris s'il a le même type que sa valeur par défaut :
@@ -26849,6 +26875,25 @@ function initWidgetWheel(){
   document.querySelectorAll(".card.widget").forEach(el=>{
     el.addEventListener("pointerleave", ()=>el.classList.remove("is-wheel-active"));
   });
+  // Gel de la page (ordinateur, comme sur mobile) : une fois le graphique
+  // activé (clic sur le tracé, ou choix Graphique / TPO / TradingView), et tant
+  // que la souris reste sur le widget Graphique, la molette / le trackpad ne
+  // font plus défiler la page, où que soit le curseur dans le widget (en-tête,
+  // barre d'outils, axes, panneaux du bas). Sur le tracé, la molette zoome.
+  // Seuls les panneaux qui ont eux-mêmes quelque chose à faire défiler
+  // (Indicateurs, réglages TPO…) défilent encore.
+  document.addEventListener("wheel", (e)=>{
+    const w = e.target.closest && e.target.closest('.card.widget[data-widget="chart"].is-wheel-active');
+    if (!w || e.ctrlKey) return;
+    if (e.target.closest("#chart-svg") && chartSource==="internal") return; // zoom du graphique
+    const dy = e.deltaY || 0;
+    for (let n = e.target; n && n!==w; n = n.parentElement){
+      if (n.nodeType!==1) continue;
+      const oy = getComputedStyle(n).overflowY;
+      if ((oy==="auto" || oy==="scroll") && n.scrollHeight > n.clientHeight + 1 && (dy>0 ? n.scrollTop + n.clientHeight < n.scrollHeight - 1 : n.scrollTop > 0)) return;
+    }
+    e.preventDefault();
+  }, {passive:false, capture:true});
   // La page défile TOUJOURS de façon native (plus de window.scrollBy en JS) :
   // avant, la molette au-dessus d'une liste (Historique, Marchés…) était
   // interceptée et rejouée en JS pendant que le navigateur animait déjà son
