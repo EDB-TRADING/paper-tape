@@ -798,6 +798,24 @@
   .chart-ind-pop i{width:14px;height:3px;border-radius:2px;flex:none;}
   .chart-ind-sub{display:flex;flex-direction:column;gap:1px;margin:0 0 4px 22px;padding:4px 0 4px 8px;border-left:2px solid color-mix(in srgb, #ff8a3d 55%, transparent);}
   .chart-ind-sub[hidden]{display:none;}
+  .chart-ind-plus{margin-left:auto;font:700 9px/1 var(--mono);letter-spacing:.04em;color:#f2b33d;border:1px solid color-mix(in srgb, #f2b33d 55%, transparent);border-radius:4px;padding:2px 4px;}
+  .chart-ind-lock{margin:0 0 4px 22px;padding:6px 8px;font-size:11.5px;color:var(--text-dim);background:color-mix(in srgb, #f2b33d 10%, transparent);border-radius:6px;}
+  .chart-ind-lock[hidden]{display:none;}
+  .chart-ind-lock button{margin-left:4px;border:none;background:none;color:#f2b33d;font:600 11.5px var(--sans);cursor:pointer;padding:0;text-decoration:underline;}
+  .chart-fp-tick{display:flex;align-items:center;gap:6px;padding:4px 7px;font-size:12px;color:var(--text-dim);}
+  .chart-fp-tick > span{white-space:nowrap;}
+  .chart-fp-tick input{width:64px;min-width:0;padding:4px 6px;border:1px solid var(--border);border-radius:5px;background:var(--bg-raised);color:var(--text);font:12px var(--mono);}
+  .chart-fp-tick button{border:1px solid var(--border);background:var(--bg-raised);color:var(--text-dim);border-radius:5px;padding:3px 7px;font:11px var(--sans);cursor:pointer;}
+  .chart-ind-head{position:sticky;top:-6px;z-index:2;background:var(--panel-2);display:flex;align-items:center;gap:6px;padding:4px 2px 6px 7px;margin:-6px -6px 2px;padding-left:13px;padding-right:8px;border-bottom:1px solid var(--border-soft);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;}
+  .chart-ind-head.dragging{cursor:grabbing;}
+  .chart-ind-head b{flex:1;font:600 12px var(--sans);color:var(--text);}
+  .chart-ind-head .grip{color:var(--text-faint);font-size:12px;letter-spacing:-2px;}
+  .chart-ind-head button{border:none;background:none;color:var(--text-faint);width:24px;height:22px;border-radius:5px;cursor:pointer;font-size:14px;line-height:1;display:inline-flex;align-items:center;justify-content:center;}
+  .chart-ind-head button:hover{background:var(--bg-raised);color:var(--text);}
+  .chart-ind-pop.is-min > :not(.chart-ind-head){display:none !important;}
+  .chart-ind-pop.is-min{height:auto !important;min-height:0 !important;resize:none !important;overflow:hidden !important;}
+  .chart-ind-pop.is-min .chart-ind-head{border-bottom:none;margin-bottom:0;padding-bottom:2px;}
+  @media (hover:hover) and (pointer:fine){ .chart-ind-pop{resize:both;min-width:220px;min-height:120px;} }
   .chart-ind-sub > span{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);padding:2px 7px;}
   .chart-ind-sep{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);padding:8px 7px 3px;border-top:1px solid var(--border-soft);margin-top:4px;}
   .chart-ind-pop i.tri{height:0;width:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:8px solid var(--long);border-radius:0;margin:0 2px;}
@@ -5202,9 +5220,11 @@
                   <label><input type="checkbox" data-chart-ind="pdl"><i style="background:#c9b37e"></i>Plus haut / bas de la veille + ouverture du jour</label>
                   <label><input type="checkbox" data-chart-ind="vpd"><i style="background:#8fa3b8"></i>Profil de volume par séance (jour)</label>
                   <div class="chart-ind-sep">Footprint</div>
-                  <label><input type="checkbox" data-chart-ind="fp"><i style="background:linear-gradient(90deg,#f0546a 50%,#31c882 50%)"></i>Footprint (vendeurs × acheteurs par prix)</label>
+                  <label><input type="checkbox" data-chart-ind="fp"><i style="background:linear-gradient(90deg,#f0546a 50%,#31c882 50%)"></i>Footprint (vendeurs × acheteurs par prix)<b class="chart-ind-plus">EDB+</b></label>
+                  <div class="chart-ind-lock" id="chart-fp-lock" hidden>Réservé aux membres EDB+. <button type="button" id="chart-fp-lock-go">Découvrir EDB+</button></div>
                   <div class="chart-ind-sub" id="chart-fp-opts">
                     <span>Paramètres du footprint</span>
+                    <div class="chart-fp-tick"><span>Taille de ligne</span><input type="number" id="chart-fp-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne du footprint (en prix)"><button type="button" id="chart-fp-tick-auto" title="Revenir au réglage automatique">Auto</button></div>
                     <label><input type="checkbox" data-chart-ind="fpImb">Déséquilibres à 300 % + zones de 3 déséquilibres empilés</label>
                     <label><input type="checkbox" data-chart-ind="fpSig">Absorption (A) et épuisement (É)</label>
                     <div class="chart-ind-tip" style="margin:2px 0 0;">Marchés Binance : historique des dernières dizaines de minutes, puis en direct. Marchés Hyperliquid : en direct depuis l'ouverture du graphique.</div>
@@ -5215,6 +5235,7 @@
                   <label><input type="checkbox" data-chart-ind="stoch"><i style="background:linear-gradient(90deg,#5aa9e6 50%,#f2b33d 50%)"></i>Stochastique (14, 3, 3)</label>
                   <label><input type="checkbox" data-chart-ind="atr"><i style="background:#4fd1c5"></i>ATR 14 (volatilité)</label>
                   <label><input type="checkbox" data-chart-ind="obv"><i style="background:#f78fb3"></i>OBV (volume cumulé)</label>
+                  <label><input type="checkbox" data-chart-ind="cvd"><i style="background:#5aa9e6"></i>CVD (delta cumulé acheteurs − vendeurs)</label>
                   <div class="chart-ind-sep">Affichage</div>
                   <label><input type="checkbox" data-chart-ind="trades"><i class="tri"></i>Mes trades (▲ achat ▼ vente)</label>
                   <label><input type="checkbox" data-chart-ind="qt"><i style="background:linear-gradient(90deg,#f0546a 50%,#31c882 50%)"></i>Trader depuis le graphique</label>
@@ -6210,7 +6231,7 @@ let candleTimer = null;
 // aussi le nombre de bougies demandées aux API (fetchCandles*).
 const CHART_ZOOM_MIN = 12;
 // Footprint : on peut zoomer plus près (cases lisibles).
-function chartZoomMin(){ try{ return (chartInd && chartInd.fp) ? 6 : CHART_ZOOM_MIN; }catch(e){ return CHART_ZOOM_MIN; } }
+function chartZoomMin(){ try{ return fpOn() ? 6 : CHART_ZOOM_MIN; }catch(e){ return CHART_ZOOM_MIN; } }
 const CHART_ZOOM_MAX = 1500;     // bougies visibles au maximum (dézoom)
 const CANDLE_FETCH_FULL = 1000;  // bougies chargées à l'ouverture d'un marché / d'une unité de temps
 const CANDLE_FETCH_TAIL = 30;    // rafraîchissement : seulement les dernières bougies, fusionnées
@@ -6458,6 +6479,7 @@ function scheduleEdbPlusTrialExpiry(){
 // Re-applies everything gated by isEdbPlus() after the status changes
 // (trial started or ended) and repaints the view the trader is on.
 function refreshEdbPlusGates(){
+  try{ if (typeof updateChart==="function" && chartInd.fp) updateChart(); }catch(e){} // footprint (EDB+)
   if (typeof enforceThemeAccess==="function") enforceThemeAccess();
   if (typeof enforceWidgetAccess==="function") enforceWidgetAccess();
   if (typeof enforceLeverageAccess==="function") enforceLeverageAccess();
@@ -7241,6 +7263,7 @@ function parseCandleRows(raw){
   return (raw||[]).map(c=>({
     o: parseFloat(c.open), h: parseFloat(c.high), l: parseFloat(c.low), c: parseFloat(c.close),
     t: c.timestamp, ms: Date.parse(c.timestamp), v: parseFloat(c.volume)||0,
+    ...(c.takerBuy!=null && isFinite(parseFloat(c.takerBuy)) ? {bv: parseFloat(c.takerBuy)} : {}),
   })).filter(c=>isFinite(c.o)&&isFinite(c.h)&&isFinite(c.l)&&isFinite(c.c)&&isFinite(c.ms));
 }
 const candleOlderState = {}; // "SYM|tf" -> {busy, done}
@@ -9400,6 +9423,7 @@ async function fetchCandlesBinance(binanceSymbol, tf, base, opt){
   // Each row: [openTime, open, high, low, close, volume, closeTime, ...]
   return raw.map(row=>({
     open:row[1], high:row[2], low:row[3], close:row[4], volume:row[5],
+    takerBuy: row[9], // volume des achats agressifs (sert au CVD)
     timestamp: new Date(Number(row[0])).toISOString(),
   }));
 }
@@ -10861,11 +10885,11 @@ const TA = {
     return {line, dir};
   },
 };
-const TA_COLORS = {ema20:"#f2b33d", ema50:"#5aa9e6", ema200:"#c77dff", bb:"#8fa3b8", vwap:"#ff8a3d", vwapw:"#e879f9", rsi:"#b388ff", macd:"#5aa9e6", signal:"#f2b33d", stoch:"#5aa9e6", stochD:"#f2b33d", atr:"#4fd1c5", obv:"#f78fb3", vp:"#8fa3b8", pdl:"#c9b37e"};
+const TA_COLORS = {ema20:"#f2b33d", ema50:"#5aa9e6", ema200:"#c77dff", bb:"#8fa3b8", vwap:"#ff8a3d", vwapw:"#e879f9", rsi:"#b388ff", macd:"#5aa9e6", signal:"#f2b33d", stoch:"#5aa9e6", stochD:"#f2b33d", atr:"#4fd1c5", obv:"#f78fb3", cvd:"#5aa9e6", vp:"#8fa3b8", pdl:"#c9b37e"};
 const CHART_IND_KEY = "paperTapeChartInd";
 const CHART_EMA = {ema20:{p:20, color:"#f2b33d", label:"MME 20"}, ema50:{p:50, color:"#5aa9e6", label:"MME 50"}, ema200:{p:200, color:"#c77dff", label:"MME 200"}};
 let chartInd = (function(){
-  const d = {fp:false, fpImb:true, fpSig:true, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true};
+  const d = {fp:false, fpImb:true, fpSig:true, fpTicks:{}, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true};
   try{
     const s = JSON.parse(localStorage.getItem(CHART_IND_KEY)||"null");
     if (s && typeof s==="object") Object.keys(d).forEach(k=>{ if (typeof s[k]==="boolean") d[k]=s[k]; });
@@ -11124,7 +11148,9 @@ function fpSource(a){
   for (const [kind, ref] of priceSources(a)) if (kind==="hl" || kind==="bf" || kind==="bn") return {kind, ref};
   return null;
 }
-function fpWanted(){ return !!chartInd.fp && chartSource==="internal"; }
+// Footprint réservé aux membres EDB+ (et à l'essai de 24 h).
+function fpOn(){ return !!chartInd.fp && typeof isEdbPlus==="function" && isEdbPlus(); }
+function fpWanted(){ return fpOn() && chartSource==="internal"; }
 function fpStop(){
   FP.gen++;
   if (FP.ws){ const w = FP.ws; FP.ws = null; try{ w.onclose = null; w.close(); }catch(e){} }
@@ -11150,7 +11176,7 @@ function fpAdd(t, px, qty, buy){
   if (!FP.step0){
     const a = ASSETS.find(x=>x.symbol===FP.sym);
     const tick = a && isFinite(a.decimals) ? Math.pow(10, -a.decimals) : 1e-8;
-    FP.step0 = Math.max(tick, chartNiceStep(px*0.00002));
+    FP.step0 = Math.max(tick, chartNiceStep(px*0.000005));
   }
   const mKey = Math.floor(t/60000)*60000;
   let lv = FP.min.get(mKey); if (!lv){ lv = new Map(); FP.min.set(mKey, lv); }
@@ -11346,6 +11372,28 @@ function chartProfileBars(g, pr, x0, wMax, opIn, opOut){
   }
   return s;
 }
+// CVD : somme cumulée du delta (achats agressifs − ventes agressives) par
+// bougie, remise à zéro au début de la zone visible. Delta exact quand le
+// footprint couvre la bougie, sinon volume « taker buy » de Binance, sinon
+// estimation par la position de la clôture dans la bougie (marchés Hyperliquid).
+function chartCvd(all, tfMs, start, n){
+  const arr = new Array(all.length).fill(null);
+  const fpOk = fpOn() && FP.sym===selectedSymbol && FP.step0>0;
+  let acc = 0, est = false;
+  for (let i=start; i<Math.min(all.length, start+n); i++){
+    const c = all[i];
+    let d = null;
+    if (fpOk && c.ms >= FP.covFrom){
+      let b = 0, s2 = 0, any = false;
+      for (let t = Math.floor(c.ms/60000)*60000; t < c.ms+tfMs; t += 60000){ const m = FP.min.get(t); if (!m) continue; any = true; m.forEach(cell=>{ b += cell[0]; s2 += cell[1]; }); }
+      if (any) d = b-s2;
+    }
+    if (d==null && typeof c.bv==="number" && c.v>0) d = 2*c.bv - c.v;
+    if (d==null){ const r = c.h-c.l; d = r>0 ? (c.v||0)*((c.c-c.l)-(c.h-c.c))/r : 0; if (c.v>0) est = true; }
+    acc += d; arr[i] = acc;
+  }
+  return {arr, est};
+}
 // Couche footprint du graphique : cellules, zones de déséquilibres empilés,
 // repères d'absorption (A) / d'épuisement (É). `skip` = bougies dessinées en
 // footprint (le dessin normal de ces bougies est sauté).
@@ -11361,6 +11409,14 @@ function chartFootprintLayer(g, vis){
   const fsW = (cw0-4)/(4*0.62), textOn = fsW >= 7;
   let row = chartNiceStep((textOn ? 13 : 6)/pxPer);
   row = Math.max(FP.step0, Math.round(row/FP.step0)*FP.step0);
+  FP.autoRow = row;
+  // Taille de ligne choisie par l'utilisateur (par marché), arrondie au pas des données.
+  const userTick = chartInd.fpTicks && +chartInd.fpTicks[selectedSymbol];
+  if (userTick > 0){
+    const ur = Math.max(FP.step0, Math.round(userTick/FP.step0)*FP.step0);
+    if ((g.max-g.min)/ur <= 600) row = ur; else res.note = "Taille de ligne trop fine pour ce zoom : réglage auto";
+  }
+  FP.row = row;
   const rowPx = row*pxPer, fs = Math.max(7, Math.min(10, rowPx-3, fsW));
   const zones = []; // {lo, hi, buy, i}
   let covered = 0, uncovered = 0;
@@ -11458,7 +11514,8 @@ function chartFootprintLayer(g, vis){
     res.zones += '<rect x="'+f(x1)+'" y="'+f(yT)+'" width="'+f(xEnd-x1)+'" height="'+f(Math.max(1, yB-yT))+'" fill="'+col+'" opacity="0.13"/>'+
       '<line x1="'+f(x1)+'" x2="'+f(xEnd)+'" y1="'+f(z.buy ? yB : yT)+'" y2="'+f(z.buy ? yB : yT)+'" stroke="'+col+'" stroke-width="1" opacity="0.6"/>';
   });
-  if (FP.hist==="loading") res.note = "Footprint : chargement de l'historique…";
+  if (res.note) {}
+  else if (FP.hist==="loading") res.note = "Footprint : chargement de l'historique…";
   else if (FP.note) res.note = FP.note;
   else if (!covered) res.note = "Footprint : en attente de transactions…";
   else if (!cellsOn) res.note = "Zoome (+) pour lire le footprint";
@@ -11558,7 +11615,7 @@ function chartRenderCandles(svg, a, m, W, H, all){
   chartYDisp = {key:yKey, min, max};
   const range = max-min;
 
-  const panes = ["rsi","macd","stoch","atr","obv"].filter(k=>chartInd[k]);
+  const panes = ["rsi","macd","stoch","atr","obv","cvd"].filter(k=>chartInd[k]);
   // Les panneaux du bas ne prennent jamais plus de la moitié de la hauteur.
   const paneH = panes.length ? Math.max(34, Math.min(90, Math.round(H*0.17), Math.floor(H*0.5/panes.length))) : 0;
   const padL = 0, padT = 6, padB = 22 + panes.length*paneH;
@@ -11631,7 +11688,7 @@ function chartRenderCandles(svg, a, m, W, H, all){
   }
   // Footprint (si activé) : calculé avant les bougies, qu'il remplace.
   fpEnsure(a);
-  const fpL = chartInd.fp ? chartFootprintLayer(g, vis) : null;
+  const fpL = fpOn() ? chartFootprintLayer(g, vis) : null;
   g.fpStats = fpL ? fpL.stats : null;
   // Bougies
   let wu = "", wd = "", bu = "", bd = "", lu = "", ld = "";
@@ -11796,18 +11853,19 @@ function chartRenderCandles(svg, a, m, W, H, all){
         '<text x="'+(W-padR+6)+'" y="'+(yr(lv)+3.5).toFixed(1)+'" fill="'+pal.axis+'" font-size="9.5" '+CHART_FONT+'>'+lv+'</text>'; });
       paneSvg += '<path d="'+pathOf(r, yr)+'" fill="none" stroke="'+TA_COLORS.rsi+'" stroke-width="1.3" clip-path="url(#chart-pane-clip)"/>';
       g.panes.push({k, top, bot, label:"RSI 14", series:[[r, TA_COLORS.rsi]]});
-    } else if (k==="stoch" || k==="atr" || k==="obv"){
+    } else if (k==="stoch" || k==="atr" || k==="obv" || k==="cvd"){
       const hiA = all.map(c=>c.h), loA = all.map(c=>c.l);
       let series, label, lv = [];
       if (k==="stoch"){ const st2 = TA.stoch(hiA, loA, cl, 14, 3, 3); series = [[st2.k, TA_COLORS.stoch], [st2.d, TA_COLORS.stochD]]; label = "Stoch 14 3 3"; lv = [80, 20]; }
       else if (k==="atr"){ series = [[TA.atr(hiA, loA, cl, 14), TA_COLORS.atr]]; label = "ATR 14"; }
+      else if (k==="cvd"){ const cv = chartCvd(all, tfMs, start, n); series = [[cv.arr, TA_COLORS.cvd]]; label = cv.est ? "CVD (estimé)" : "CVD"; lv = [0]; }
       else { series = [[TA.obv(cl, all.map(c=>c.v||0)), TA_COLORS.obv]]; label = "OBV"; }
       let lo3 = Infinity, hi3 = -Infinity;
       if (k==="stoch"){ lo3 = 0; hi3 = 100; }
       else vis.forEach((c,i)=>series.forEach(([arr])=>{ const v = arr[start+i]; if (v!=null){ if (v<lo3) lo3 = v; if (v>hi3) hi3 = v; } }));
       if (!(hi3>lo3)){ hi3 = (isFinite(hi3) ? hi3 : 1) + 1; lo3 = (isFinite(lo3) ? lo3 : 0) - 1; }
       const yp = v=>bot - (v-lo3)/(hi3-lo3)*(bot-top);
-      lv.forEach(l=>{ paneSvg += '<line x1="'+padL+'" y1="'+yp(l).toFixed(1)+'" x2="'+(W-padR)+'" y2="'+yp(l).toFixed(1)+'" stroke="'+pal.axis+'" stroke-width="1" stroke-dasharray="2,3" opacity="0.5"/>'+
+      lv.forEach(l=>{ if (l<lo3 || l>hi3) return; paneSvg += '<line x1="'+padL+'" y1="'+yp(l).toFixed(1)+'" x2="'+(W-padR)+'" y2="'+yp(l).toFixed(1)+'" stroke="'+pal.axis+'" stroke-width="1" stroke-dasharray="2,3" opacity="0.5"/>'+
         '<text x="'+(W-padR+6)+'" y="'+(yp(l)+3.5).toFixed(1)+'" fill="'+pal.axis+'" font-size="9.5" '+CHART_FONT+'>'+l+'</text>'; });
       series.forEach(([arr, col])=>{ paneSvg += '<path d="'+pathOf(arr, yp)+'" fill="none" stroke="'+col+'" stroke-width="1.3" clip-path="url(#chart-pane-clip)"/>'; });
       g.panes.push({k, top, bot, label, series});
@@ -11956,7 +12014,7 @@ function chartDrawOverlay(){
     }
   }
   (v.panes||[]).forEach(pn=>{
-    const vals = pn.series.map(([arr, col])=>{ const val = arr[v.start+i]; return '<tspan fill="'+col+'" dx="6">'+(val==null ? "—" : (pn.k==="rsi" || pn.k==="stoch" ? val.toFixed(1) : pn.k==="obv" ? chartCompact(val) : chartNum(val, Math.max(2, v.dec))))+'</tspan>'; }).join("");
+    const vals = pn.series.map(([arr, col])=>{ const val = arr[v.start+i]; return '<tspan fill="'+col+'" dx="6">'+(val==null ? "—" : (pn.k==="rsi" || pn.k==="stoch" ? val.toFixed(1) : pn.k==="obv" ? chartCompact(val) : pn.k==="cvd" ? (val<0 ? "−" : "+")+fpFmt(val) : chartNum(val, Math.max(2, v.dec))))+'</tspan>'; }).join("");
     xs += '<text x="'+(v.padL+6)+'" y="'+(pn.top+9)+'" font-size="10" '+CHART_FONT+' stroke="'+v.pal.bg+'" stroke-width="3" paint-order="stroke"><tspan fill="'+v.pal.axis+'">'+pn.label+'</tspan>'+vals+'</text>';
   });
   xh.innerHTML = xs;
@@ -12882,6 +12940,14 @@ function drawSetTool(t){
   drawTool = (t && t===drawTool) ? null : (t || null);
   drawPending = null;
   if (drawTool) drawSel = null;
+  // Mobile : choisir un outil active directement le graphique (sans le toucher d'abord).
+  if (drawTool && document.querySelector(".ct-shield") && !document.documentElement.classList.contains("chart-locked")) chartTouchLock(true);
+  // VWAP ancré : l'aperçu part tout de suite de la dernière bougie, puis suit
+  // le curseur bougie par bougie ; le clic fixe l'ancre.
+  if (drawTool==="avwap" && chartView && chartView.all && chartView.all.length){
+    const lc = chartView.all[chartView.all.length-1];
+    drawPending = {type:"avwap", p:[{t:lc.ms, v:lc.c}], pid:null};
+  }
   document.querySelectorAll("#chart-draw-seg [data-draw-tool]").forEach(b=>b.classList.toggle("active", b.dataset.drawTool===drawTool));
   const svg = document.getElementById("chart-svg");
   if (svg){ svg.classList.toggle("chart-drawing", !!drawTool); if (drawTool) svg.style.touchAction = "none"; }
@@ -12980,6 +13046,13 @@ function chartDrawDown(e, svg, toView){
   if (drawTool){
     const pt = toView(e); if (!pt) return true;
     const q = DRAW_FREE[drawTool] ? drawPointFree(v, pt) : drawPoint(v, pt);
+    if (drawTool==="avwap" && e.pointerType!=="mouse"){
+      // Au doigt : l'ancre suit le doigt tant qu'il est posé, fixée au relâchement.
+      drawPending = {type:"avwap", p:[q], pid:e.pointerId};
+      try{ svg.setPointerCapture(e.pointerId); }catch(err){}
+      chartDrawPatch(); e.preventDefault(); return true;
+    }
+    if (drawTool==="avwap"){ const lc = v.all[v.all.length-1]; if (lc && q.t > lc.ms) q.t = lc.ms; }
     if (drawTool==="hline" || drawTool==="vline" || drawTool==="avwap"){ drawCommit({type:drawTool, p:[q]}); e.preventDefault(); return true; }
     if (drawTool==="text"){
       drawCommit({type:"text", p:[q], text:"Texte"});
@@ -13033,6 +13106,16 @@ function chartDrawMove(e, svg, toView){
     if (e.pointerId!==drawPending.pid) return true;
     const pt = toView(e); if (!pt) return true;
     if (Math.hypot(pt.x-drawPending.last.x, pt.y-drawPending.last.y) >= 2.5){ drawPending.p.push(drawPointFree(v, pt)); drawPending.last = pt; chartDrawPatch(); }
+    e.preventDefault();
+    return true;
+  }
+  if (drawPending && drawPending.type==="avwap"){
+    if (drawPending.pid!=null && e.pointerId!==drawPending.pid) return true;
+    const pt = toView(e); if (!pt) return true;
+    const q = drawPoint(v, pt), last = v.all[v.all.length-1];
+    if (last && q.t > last.ms) q.t = last.ms; // pas d'ancre dans l'espace vide à droite
+    if (q.t!==drawPending.p[0].t){ drawPending.p[0] = q; chartDrawPatch(); }
+    if (e.pointerType==="mouse"){ chartHover = pt; chartDrawOverlay(); }
     e.preventDefault();
     return true;
   }
@@ -13090,6 +13173,10 @@ function chartDrawUp(e, svg){
     return true;
   }
   if (drawPending && drawPending.type==="poly") return true;
+  if (drawPending && drawPending.type==="avwap"){
+    if (drawPending.pid!=null && e.pointerId===drawPending.pid){ try{ svg.releasePointerCapture(e.pointerId); }catch(err){} drawCommit(drawPending); }
+    return true;
+  }
   if (drawPending && e.pointerId===drawPending.pid){
     // Cliquer-glisser : le tracé se termine au relâchement. Simple clic :
     // il attend le second clic (le point suit la souris).
@@ -13274,45 +13361,150 @@ function initChartIndicators(){
   const btn = document.getElementById("chart-ind-btn");
   const pop = document.getElementById("chart-ind-pop");
   if (!btn || !pop) return;
+  // En-tête du panneau : poignée de déplacement, réduire, fermer.
+  if (!pop.querySelector(".chart-ind-head")){
+    const head = document.createElement("div");
+    head.className = "chart-ind-head"; head.id = "chart-ind-head";
+    head.title = "Glisser pour déplacer · double-clic pour le remettre sous le bouton";
+    head.innerHTML = '<span class="grip" aria-hidden="true">⋮⋮</span><b>Indicateurs</b><button type="button" id="chart-ind-min" title="Réduire" aria-label="Réduire">–</button><button type="button" id="chart-ind-close" title="Fermer" aria-label="Fermer">×</button>';
+    pop.insertBefore(head, pop.firstChild);
+  }
+  const head = document.getElementById("chart-ind-head");
+  const POS_KEY = "paperTapeIndPop";
+  // Position / taille / réduit, retenus d'une visite à l'autre. `x`/`y` posés
+  // = panneau déplacé (« épinglé ») : il reste là et ne se ferme plus en
+  // cliquant à côté, pour garder le graphique visible pendant les réglages.
+  let ps = (function(){ try{ return JSON.parse(localStorage.getItem(POS_KEY)||"{}")||{}; }catch(e){ return {}; } })();
+  const savePs = ()=>{ try{ localStorage.setItem(POS_KEY, JSON.stringify(ps)); }catch(e){} };
+  const pinned = ()=>typeof ps.x==="number" && typeof ps.y==="number";
+  const fpLock = document.getElementById("chart-fp-lock");
+  const tickIn = document.getElementById("chart-fp-tick");
+  const syncTick = ()=>{
+    if (!tickIn) return;
+    const v = chartInd.fpTicks && chartInd.fpTicks[selectedSymbol];
+    if (document.activeElement!==tickIn) tickIn.value = v>0 ? String(FP.step0 ? Math.max(FP.step0, Math.round(v/FP.step0)*FP.step0) : v) : "";
+    tickIn.placeholder = FP.autoRow && FP.sym===selectedSymbol ? "Auto ("+(+FP.autoRow.toPrecision(6))+")" : "Auto";
+  };
   pop.querySelectorAll("[data-chart-ind]").forEach(cb=>{
-    cb.checked = !!chartInd[cb.dataset.chartInd];
+    cb.checked = cb.dataset.chartInd==="fp" ? fpOn() : !!chartInd[cb.dataset.chartInd];
     cb.addEventListener("change", ()=>{
+      // Footprint : réservé EDB+.
+      if (cb.dataset.chartInd==="fp" && cb.checked && !(typeof isEdbPlus==="function" && isEdbPlus())){
+        cb.checked = false; chartInd.fp = false; saveChartInd();
+        if (fpLock) fpLock.hidden = false;
+        return;
+      }
       chartInd[cb.dataset.chartInd] = cb.checked;
       saveChartInd();
+      if (cb.dataset.chartInd==="fp" && fpLock) fpLock.hidden = true;
       syncVwapOpts();
       // Footprint : on resserre la vue pour que les cellules soient lisibles.
       if (cb.dataset.chartInd==="fp" && cb.checked){ const pw = (chartView && chartView.plotW) || 600, tgt = Math.max(8, Math.min(26, Math.round(pw/62))); if (chartZoomCount > tgt+4) chartZoomTo(tgt, null); }
       updateChart();
+      if (cb.dataset.chartInd==="fp") setTimeout(syncTick, 1200);
     });
   });
-  // Paramètres du VWAP : visibles seulement quand un VWAP est affiché.
+  const lockGo = document.getElementById("chart-fp-lock-go");
+  if (lockGo) lockGo.addEventListener("click", ()=>{ close(); if (typeof goToEdbPlus==="function") goToEdbPlus(); });
+  // Taille de ligne du footprint (par marché) : vide = automatique.
+  if (tickIn){
+    const applyTick = ()=>{
+      const v = parseFloat(String(tickIn.value).replace(",", "."));
+      if (!chartInd.fpTicks || typeof chartInd.fpTicks!=="object") chartInd.fpTicks = {};
+      if (v>0) chartInd.fpTicks[selectedSymbol] = v; else delete chartInd.fpTicks[selectedSymbol];
+      saveChartInd(); updateChart(); tickIn.blur(); syncTick();
+    };
+    tickIn.addEventListener("change", applyTick);
+    tickIn.addEventListener("keydown", (e)=>{ e.stopPropagation(); if (e.key==="Enter"){ e.preventDefault(); applyTick(); } });
+    const auto = document.getElementById("chart-fp-tick-auto");
+    if (auto) auto.addEventListener("click", ()=>{ tickIn.value = ""; applyTick(); });
+  }
+  // Paramètres visibles seulement quand l'indicateur concerné est affiché.
   const syncVwapOpts = ()=>{
     const o = document.getElementById("chart-vwap-opts"); if (o) o.hidden = !(chartInd.vwap || chartInd.vwapw);
-    const fo = document.getElementById("chart-fp-opts"); if (fo) fo.hidden = !chartInd.fp;
+    const fo = document.getElementById("chart-fp-opts"); if (fo) fo.hidden = !fpOn();
   };
   syncVwapOpts();
   const close = ()=>{ pop.hidden = true; btn.setAttribute("aria-expanded","false"); };
   // Placé en position fixe et recalé dans l'écran : sur mobile, ancré à droite
-  // du bouton, il sortait par la gauche (liste coupée).
+  // du bouton, il sortait par la gauche (liste coupée). Déplacé : on garde sa
+  // place (recalée dans l'écran si la fenêtre a changé de taille).
   const place = ()=>{
     const r = btn.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
-    const w = Math.min(260, vw-16);
+    const w = Math.max(200, Math.min(typeof ps.w==="number" ? ps.w : 260, vw-16));
     const tab = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--tabbar-h")) || 0;
     const bottomGap = document.documentElement.classList.contains("touch-ui") ? tab+12 : 12;
+    pop.classList.toggle("is-min", !!ps.min);
+    if (pinned()){
+      const x = Math.max(8, Math.min(vw-w-8, ps.x)), y = Math.max(8, Math.min(vh-bottomGap-40, ps.y));
+      const maxH = Math.max(120, vh - y - bottomGap);
+      Object.assign(pop.style, {position:"fixed", width:w+"px", left:x+"px", right:"auto", top:y+"px", maxHeight:maxH+"px", height:(typeof ps.h==="number" && !ps.min) ? Math.min(ps.h, maxH)+"px" : "", overflowY:"auto"});
+      return;
+    }
     let top = r.bottom+6, maxH = vh - top - bottomGap;
     if (maxH < 220 && r.top > vh/2){ maxH = Math.min(420, r.top-14); top = r.top-6-maxH; }
-    Object.assign(pop.style, {position:"fixed", width:w+"px", left:Math.max(8, Math.min(vw-w-8, r.left))+"px", right:"auto", top:Math.max(8, top)+"px", maxHeight:Math.max(160, maxH)+"px", overflowY:"auto"});
+    Object.assign(pop.style, {position:"fixed", width:w+"px", left:Math.max(8, Math.min(vw-w-8, r.left))+"px", right:"auto", top:Math.max(8, top)+"px", maxHeight:Math.max(160, maxH)+"px", height:(typeof ps.h==="number" && !ps.min) ? Math.min(ps.h, Math.max(160, maxH))+"px" : "", overflowY:"auto"});
   };
   btn.addEventListener("click", (e)=>{
     e.stopPropagation();
     const open = pop.hidden;
     pop.hidden = !open;
-    if (open) place();
+    if (open){
+      pop.querySelectorAll('[data-chart-ind="fp"]').forEach(cb=>{ cb.checked = fpOn(); });
+      if (fpLock) fpLock.hidden = true;
+      syncVwapOpts(); syncTick(); place();
+    }
     btn.setAttribute("aria-expanded", open ? "true" : "false");
   });
+  document.getElementById("chart-ind-close").addEventListener("click", (e)=>{ e.stopPropagation(); close(); });
+  document.getElementById("chart-ind-min").addEventListener("click", (e)=>{
+    e.stopPropagation(); ps.min = !ps.min; savePs(); place();
+    e.currentTarget.textContent = ps.min ? "+" : "–"; e.currentTarget.title = ps.min ? "Agrandir" : "Réduire";
+  });
+  if (ps.min){ const mb = document.getElementById("chart-ind-min"); mb.textContent = "+"; mb.title = "Agrandir"; }
+  // Glisser l'en-tête pour déplacer le panneau (souris ou doigt).
+  let drag = null;
+  head.addEventListener("pointerdown", (e)=>{
+    if (e.target.closest("button") || (e.pointerType==="mouse" && e.button!==0)) return;
+    const r = pop.getBoundingClientRect();
+    drag = {id:e.pointerId, dx:e.clientX-r.left, dy:e.clientY-r.top};
+    try{ head.setPointerCapture(e.pointerId); }catch(err){}
+    head.classList.add("dragging"); e.preventDefault();
+  });
+  head.addEventListener("pointermove", (e)=>{
+    if (!drag || e.pointerId!==drag.id) return;
+    const w = pop.offsetWidth, vw = window.innerWidth, vh = window.innerHeight;
+    ps.x = Math.max(8, Math.min(vw-w-8, e.clientX-drag.dx));
+    ps.y = Math.max(8, Math.min(vh-48, e.clientY-drag.dy));
+    pop.style.left = ps.x+"px"; pop.style.top = ps.y+"px";
+  });
+  const endDrag = (e)=>{
+    if (!drag || e.pointerId!==drag.id) return;
+    drag = null; head.classList.remove("dragging");
+    try{ head.releasePointerCapture(e.pointerId); }catch(err){}
+    savePs(); place();
+  };
+  head.addEventListener("pointerup", endDrag);
+  head.addEventListener("pointercancel", endDrag);
+  head.addEventListener("dblclick", (e)=>{ if (e.target.closest("button")) return; delete ps.x; delete ps.y; savePs(); place(); });
+  // Taille choisie à la souris (coin bas-droit) : retenue.
+  if (typeof ResizeObserver!=="undefined"){
+    let rzT = 0;
+    new ResizeObserver(()=>{
+      if (pop.hidden || ps.min || drag || !(window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches)) return;
+      clearTimeout(rzT);
+      rzT = setTimeout(()=>{
+        const w = pop.offsetWidth, h = pop.offsetHeight;
+        if (!w || !h) return;
+        // Seul un redimensionnement à la main fixe une hauteur (style.height posé par le navigateur).
+        if (Math.abs(w-(ps.w||260))>2){ ps.w = w; savePs(); }
+        if (pop.style.height && Math.abs(h-(ps.h||0))>2){ ps.h = h; savePs(); }
+      }, 250);
+    }).observe(pop);
+  }
   window.addEventListener("resize", ()=>{ if (!pop.hidden) place(); });
-  window.addEventListener("scroll", ()=>{ if (!pop.hidden) place(); }, {passive:true, capture:true});
-  document.addEventListener("pointerdown", (e)=>{ if (!pop.hidden && !e.target.closest("#chart-ind")) close(); });
+  window.addEventListener("scroll", ()=>{ if (!pop.hidden && !pinned()) place(); }, {passive:true, capture:true});
+  document.addEventListener("pointerdown", (e)=>{ if (!pop.hidden && !pinned() && !e.target.closest("#chart-ind")) close(); });
   document.addEventListener("keydown", (e)=>{ if (e.key==="Escape" && !pop.hidden) close(); });
 }
 function updateChart(forceDuringDrag){
@@ -13344,7 +13536,7 @@ function updateChart(forceDuringDrag){
   const svg = document.getElementById("chart-svg");
   // Plusieurs indicateurs sous le graphique : la zone grandit (si la carte
   // n'a pas une hauteur fixe) pour que les bougies gardent leur place.
-  { const nP = ["rsi","macd","stoch","atr","obv"].filter(k=>chartInd[k]).length;
+  { const nP = ["rsi","macd","stoch","atr","obv","cvd"].filter(k=>chartInd[k]).length;
     const fixedBox = svg.closest(".chart-fs") || (svg.closest(".has-h") && window.innerWidth>720);
     const mh = (!fixedBox && nP>1) ? (230 + (nP-1)*64)+"px" : "";
     if (svg.style.minHeight !== mh) svg.style.minHeight = mh; }
