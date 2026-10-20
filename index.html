@@ -11919,13 +11919,14 @@ function chartTpoLayer(g){
   const C = tpoColors(), globalExp = chartInd.tpoMode==="expand";
   const ed = tpoEdits(), expSet = new Set(ed.exp);
   const wantLetters = chartInd.tpoDraw!=="blocks";
-  const letterW = wantLetters && g.slotW >= 6.5;
-  const autoRow = chartNiceStep((letterW ? 12 : 5)/pxPer);
+  // Lignes de ~12 px pour les lettres, ~9 px pour les blocs (petits carrés).
+  const autoRow = chartNiceStep((wantLetters ? 12 : 9)/pxPer);
   let row = autoRow;
   const ut = chartInd.tpoTicks && +chartInd.tpoTicks[selectedSymbol];
   if (ut > 0){ if ((g.max-g.min)/ut <= 1200) row = ut; else res.note = "Taille de ligne trop fine pour ce zoom : réglage auto"; }
   g.tpoAutoRow = autoRow; g.tpoRow = row;
-  const rowPx = row*pxPer, fs = Math.min(11, g.slotW*0.95, rowPx*0.92), letters = wantLetters && fs >= 6;
+  const rowPx = row*pxPer, fs0 = Math.min(11, rowPx*0.92);
+  let letters = wantLetters && fs0 >= 6; // ajusté par profil (un profil déplié suit la largeur des bougies)
   const all = g.all, S = g.slotW;
   const showPoor = chartInd.tpoPoor!==false, showLab = chartInd.tpoLabels!==false, showNaked = chartInd.tpoNaked!==false, showTags = chartInd.tpoTags!==false;
   const sess = tpoProfiles(all);
@@ -11991,7 +11992,15 @@ function chartTpoLayer(g){
     let s2 = '<line x1="'+f(xL)+'" x2="'+f(xL)+'" y1="'+T+'" y2="'+B+'" stroke="'+g.pal.grid+'" stroke-width="1"/>';
     // Profil de volume collé au TPO (à sa gauche, mêmes lignes de prix) + VPOC.
     let maxLen = 0; p.rows.forEach(L=>{ if (L.length > maxLen) maxLen = L.length; });
-    const contentR = expanded ? xR : Math.min(xR, xL + maxLen*S); // bord droit des lettres / blocs
+    // Pas horizontal d'un TPO : replié = cases carrées (blocs) ou serrées
+    // (lettres), indépendantes de la largeur des bougies — comme sur
+    // TradingView ; déplié = une colonne par bougie.
+    const fs = expanded ? Math.min(fs0, S*0.95) : fs0;
+    letters = wantLetters && fs >= 6;
+    // (plafonné pour que le profil tienne dans sa journée et ne déborde pas sur la suivante)
+    const pitch = expanded ? S : Math.max(1.5, Math.min(letters ? Math.max(6, fs*0.8) : Math.max(2, rowPx), (xR-xL)*0.96/Math.max(1, maxLen)));
+    if (!expanded && letters && pitch < fs*0.62) letters = false; // trop serré pour des lettres : blocs
+    const contentR = expanded ? xR : xL + maxLen*pitch; // bord droit des lettres / blocs
     // Discret : étroit (≈ ⅓ du TPO), collé à gauche, barres fines espacées, gris
     // clair seulement pour les gros volumes ; VPOC = sa barre colorée, sans ligne.
     let vpW = 0, vpLeft = xL, yV = null, vPrice = null;
@@ -12021,9 +12030,17 @@ function chartTpoLayer(g){
     // Cadre du profil (survol à la souris) : contenu réel, profil de volume compris.
     const box = {x1: Math.min(xL, vpLeft) - 2, x2: contentR + 2, y1: g.y(p.hi) - 3, y2: g.y(p.lo) + 3};
     vpW = xL - Math.min(xL, vpLeft);
-    g.tpoVis.push({si, start:s.start, i0:s.i0, i1:s.i1, xL, xR, expanded, rows:p.rows, row, first:si===0, last, box, vpW});
+    g.tpoVis.push({si, start:s.start, i0:s.i0, i1:s.i1, xL, xR, expanded, rows:p.rows, row, first:si===0, last, box, vpW, pitch});
     if (tpoHoverStart===s.start) res.hover = '<rect x="'+f(box.x1)+'" y="'+f(box.y1)+'" width="'+f(Math.max(4, box.x2-box.x1))+'" height="'+f(Math.max(4, box.y2-box.y1))+'" rx="2" fill="#4f8dff" fill-opacity="0.06" stroke="#4f8dff" stroke-width="2"/>';
-    const xOf = (L, idx)=>expanded ? g.xAt(s.i0+L[idx][1]-g.start) : xL+(idx+0.5)*S;
+    const xOf = (L, idx)=>expanded ? g.xAt(s.i0+L[idx][1]-g.start) : xL+(idx+0.5)*pitch;
+    // Dégradé des blocs : plus clair à gauche (premières périodes), plus
+    // sombre vers la droite, en 6 nuances (peu de <path> différents).
+    const mixHex = (a, b, t)=>{ const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16);
+      const ch = sh=>Math.round(((pa>>sh)&255)*(1-t) + ((pb>>sh)&255)*t);
+      return "#"+((1<<24)+(ch(16)<<16)+(ch(8)<<8)+ch(0)).toString(16).slice(1); };
+    const hexOk = c=>/^#[0-9a-f]{6}$/i.test(c||"");
+    const dark = hexOk(g.pal.bg) ? g.pal.bg : "#111111";
+    const shade = (c, idx, n)=>{ if (!hexOk(c) || n<2) return c; const t = Math.round(idx/(n-1)*5)/5; return mixHex(c, dark, t*0.45); };
     const colOf = (r, j)=>{
       if (r===p.poc) return C.poc;
       if (C.grad){ const h = 205 - 175*(p.maxJ ? j/p.maxJ : 0); return "hsl("+h.toFixed(0)+",70%,"+(r>=p.vaLo && r<=p.vaHi ? 62 : 45)+"%)"; }
@@ -12041,27 +12058,30 @@ function chartTpoLayer(g){
       const Lr = p.rows.get(r), yT = g.y((r+1)*row), yB = g.y(r*row);
       if (yB < T-2 || yT > B+2) return;
       const isPoc = r===p.poc, inVa = r>=p.vaLo && r<=p.vaHi;
-      if (Lr.length===1){ const x = xOf(Lr, 0); singles.push("M"+f(x-S/2)+" "+f(yT)+"h"+f(Math.max(S, 3))+"v"+f(Math.max(0.6, yB-yT))+"h"+f(-Math.max(S, 3))+"Z"); }
+      if (Lr.length===1){ const x = xOf(Lr, 0), pw = Math.max(pitch, 3); singles.push("M"+f(x-pw/2)+" "+f(yT)+"h"+f(pw)+"v"+f(Math.max(0.6, yB-yT))+"h"+f(-pw)+"Z"); }
       if (letters){
         const ty = f((yT+yB)/2 + fs*0.36), fw = isPoc ? ' font-weight="700"' : '';
         if (!expanded && !C.grad && !special(r)){
           // Ligne entière en un seul <text> : chaque lettre occupe une case (textLength).
-          let n = Lr.length; while (n>0 && xL+(n-0.5)*S > R+S) n--;
+          let n = Lr.length; while (n>0 && xL+(n-0.5)*pitch > R+pitch) n--;
           if (n>0){ let txt = ""; for (let k=0; k<n; k++) txt += TPO_LET[Lr[k][0] % TPO_LET.length];
-            s2 += '<text x="'+f(xL+(S-gw)/2)+'" y="'+ty+'" font-size="'+fs.toFixed(1)+'"'+(n>1 ? ' textLength="'+f(n*S-(S-gw))+'" lengthAdjust="spacing"' : '')+' fill="'+colOf(r, 0)+'"'+fw+' '+CHART_FONT+'>'+txt+'</text>'; }
+            s2 += '<text x="'+f(xL+(pitch-gw)/2)+'" y="'+ty+'" font-size="'+fs.toFixed(1)+'"'+(n>1 ? ' textLength="'+f(n*pitch-(pitch-gw))+'" lengthAdjust="spacing"' : '')+' fill="'+colOf(r, 0)+'"'+fw+' '+CHART_FONT+'>'+txt+'</text>'; }
         } else {
           let txt = "";
           Lr.forEach((e, idx)=>{ const x = xOf(Lr, idx); if (x < L0-S || x > R+S) return;
             const c = colAt(r, e[0]); txt += '<tspan x="'+f(x)+'"'+(c!==colOf(r, 0) || C.grad ? ' fill="'+c+'"' : '')+'>'+TPO_LET[e[0] % TPO_LET.length]+'</tspan>'; });
           if (txt) s2 += '<text y="'+ty+'" font-size="'+fs.toFixed(1)+'" text-anchor="middle" fill="'+colOf(r, 0)+'"'+fw+' '+CHART_FONT+'>'+txt+'</text>';
         }
-      } else if (S >= 3 || expanded || C.grad || special(r)){
-        const gap = S >= 4 ? 1 : 0, h = Math.max(0.6, yB-yT-(rowPx >= 4 ? 1 : 0)), w = Math.max(0.6, S-gap);
-        Lr.forEach((e, idx)=>{ const x = xOf(Lr, idx); if (x < L0-S || x > R+S) return;
-          const c = colAt(r, e[0]), sp = c===C.open || c===C.close;
-          addBlock(c, sp || isPoc ? 0.95 : inVa ? 0.85 : 0.6, "M"+f(x-S/2+gap/2)+" "+f(yT+0.3)+"h"+f(w)+"v"+f(h)+"h"+f(-w)+"Z"); });
+      } else if (rowPx >= 2.5 || expanded || C.grad || special(r)){
+        // Petits carrés bien séparés (1 px d'écart dans les deux sens).
+        const cw = expanded ? Math.min(S, rowPx) : pitch, gap = cw >= 4 ? 1 : 0;
+        const h = Math.max(0.6, yB-yT-(rowPx >= 4 ? 1 : 0)), w = Math.max(0.6, cw-gap), n = Lr.length;
+        Lr.forEach((e, idx)=>{ const x = xOf(Lr, idx); if (x < L0-cw || x > R+cw) return;
+          const c0 = colAt(r, e[0]), sp = c0===C.open || c0===C.close;
+          const c = (sp || isPoc || C.grad) ? c0 : shade(c0, idx, n);
+          addBlock(c, sp || isPoc ? 0.95 : inVa ? 0.9 : 0.7, "M"+f(x-cw/2+gap/2)+" "+f(yT+0.3)+"h"+f(w)+"v"+f(h)+"h"+f(-w)+"Z"); });
       } else {
-        const w = Lr.length*S;
+        const w = Lr.length*pitch;
         addBlock(colOf(r, 0), isPoc ? 0.95 : 0.7, "M"+f(xL)+" "+f(yT+0.3)+"h"+f(w)+"v"+f(Math.max(0.6, yB-yT-0.6))+"h"+f(-w)+"Z");
       }
     });
@@ -12071,7 +12091,7 @@ function chartTpoLayer(g){
     // POC sur toute la séance ; VAH / VAL en pointillés jusqu'à leur étiquette,
     // posée juste à droite du profil (pas au bout de la journée, où elle
     // tombait sur le profil suivant).
-    const lx = contentR + 6, room = xR - lx >= 34;
+    const lx = contentR + 6, room = lx + 34 <= R;
     // TPOC (prix le plus visité en temps) : trait plein sur toute la séance.
     // VPOC (prix le plus échangé en volume) : tirets plus épais, autre couleur,
     // du profil de volume jusqu'à son étiquette — on ne les confond plus.
@@ -12120,7 +12140,7 @@ function tpoHit(x, y){
   let k = Math.round((x - v.padL)/v.slotW + v.left - 0.5); // bougie sous le curseur (mode déplié)
   if (!pr.expanded){
     const price = v.min + (1-(y-v.padT)/v.plotH)*(v.max-v.min), r = Math.floor(price/pr.row + 1e-9);
-    const L = pr.rows.get(r), idx = Math.floor((x-pr.xL)/v.slotW);
+    const L = pr.rows.get(r), idx = Math.floor((x-pr.xL)/(pr.pitch || v.slotW));
     if (L && idx >= 0 && idx < L.length) k = pr.i0 + L[idx][1];
   }
   k = Math.max(pr.i0, Math.min(pr.i1, k));
