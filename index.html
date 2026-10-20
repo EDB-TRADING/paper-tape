@@ -11143,7 +11143,7 @@ function extendRangeForPositions(min, max, positions){
    (début ≥ covFrom) sont dessinées en footprint ; les autres restent en bougies. */
 const FP_IMB = 3;    // déséquilibre : un côté ≥ 300 % de l'autre (en diagonale)
 const FP_STACK = 3;  // 3 déséquilibres empilés = zone de support / résistance
-const FP = {sym:null, src:null, step0:0, min:new Map(), covFrom:Infinity, ws:null, wsBackoff:2000, hist:"idle", lastId:0, buf:[], tids:new Set(), ver:0, histVer:0, cache:new Map(), drawT:0, gen:0, note:""};
+const FP = {sym:null, src:null, step0:0, stepA:0, exactFrom:Infinity, backBusy:false, backDone:false, backFailAt:0, min:new Map(), covFrom:Infinity, ws:null, wsBackoff:2000, hist:"idle", lastId:0, buf:[], tids:new Set(), ver:0, histVer:0, cache:new Map(), drawT:0, gen:0, note:""};
 function fpSource(a){
   for (const [kind, ref] of priceSources(a)) if (kind==="hl" || kind==="bf" || kind==="bn") return {kind, ref};
   return null;
@@ -11154,7 +11154,7 @@ function fpWanted(){ return fpOn() && chartSource==="internal"; }
 function fpStop(){
   FP.gen++;
   if (FP.ws){ const w = FP.ws; FP.ws = null; try{ w.onclose = null; w.close(); }catch(e){} }
-  Object.assign(FP, {sym:null, src:null, step0:0, min:new Map(), covFrom:Infinity, hist:"idle", lastId:0, buf:[], tids:new Set(), cache:new Map(), note:"", wsBackoff:2000});
+  Object.assign(FP, {sym:null, src:null, step0:0, stepA:0, exactFrom:Infinity, backBusy:false, backDone:false, backFailAt:0, min:new Map(), covFrom:Infinity, hist:"idle", lastId:0, buf:[], tids:new Set(), cache:new Map(), note:"", wsBackoff:2000});
   FP.ver++; FP.histVer++;
 }
 function fpEnsure(a){
@@ -11273,10 +11273,58 @@ async function fpLoadBinance(src, gen){
   FP.buf.forEach(tr=>{ if (tr.id > FP.lastId){ fpAdd(tr.t, tr.p, tr.q, tr.buy); FP.lastId = tr.id; if (tr.t < minT) minT = tr.t; } });
   FP.buf = [];
   FP.covFrom = isFinite(minT) ? minT : Date.now();
+  FP.exactFrom = FP.covFrom; // transactions exactes à partir d'ici ; avant : bougies d'une seconde
   FP.hist = "done";
   FP.note = pages.length ? "" : "Historique des transactions indisponible : footprint en direct seulement.";
   FP.histVer++;
   fpTouched(true);
+}
+// Historique approximé (marchés Binance spot) : bougies d'une seconde, avec
+// leur volume acheteur (« taker buy ») exact. Le volume de chaque seconde est
+// réparti à parts égales entre son plus bas et son plus haut (sur BTC, une
+// seconde ne bouge en général que de quelques dollars). Plafond : 24 h.
+function fpAddRange(t, h, l, v, bv){
+  if (!(v>0) || !(h>0) || !(l>0) || !isFinite(t)) return;
+  if (!FP.step0){ const a = ASSETS.find(x=>x.symbol===FP.sym); const tick = a && isFinite(a.decimals) ? Math.pow(10, -a.decimals) : 1e-8; FP.step0 = Math.max(tick, chartNiceStep(h*0.000005)); }
+  if (!FP.stepA) FP.stepA = Math.max(FP.step0, Math.round(chartNiceStep(h*0.00002)/FP.step0)*FP.step0);
+  const stA = FP.stepA, i0 = Math.round(l/stA), i1 = Math.max(i0, Math.round(h/stA)), nLv = Math.min(60, i1-i0+1);
+  const buy = Math.max(0, Math.min(v, bv||0)), b = buy/nLv, s2 = (v-buy)/nLv;
+  const mKey = Math.floor(t/60000)*60000;
+  let lv = FP.min.get(mKey); if (!lv){ lv = new Map(); FP.min.set(mKey, lv); }
+  for (let j=0; j<nLv; j++){
+    const k = Math.round((i0+j)*stA/FP.step0);
+    let cell = lv.get(k); if (!cell){ cell = [0, 0]; lv.set(k, cell); }
+    cell[0] += b; cell[1] += s2;
+  }
+}
+async function fpLoadBack(targetMs){
+  const src = FP.src;
+  if (!src || src.kind!=="bn" || FP.backBusy || FP.backDone || FP.hist!=="done" || !isFinite(FP.covFrom)) return;
+  if (Date.now()-FP.backFailAt < 30000) return;
+  const goal = Math.max(targetMs, Date.now()-24*3600e3);
+  if (!(FP.covFrom > goal+1000)){ if (goal > targetMs) FP.backDone = true; return; }
+  FP.backBusy = true;
+  const gen = FP.gen;
+  try{
+    // Tranches de 1 000 s (une requête = 1 000 bougies d'une seconde au plus),
+    // bornées par startTime / endTime : pas de chevauchement possible.
+    const end = Math.floor(FP.covFrom/1000)*1000 - 1;
+    const nReq = Math.max(1, Math.min(8, Math.ceil((end-goal)/1e6)));
+    const get = (k)=>fetch(BINANCE_API_BASE+"/klines?symbol="+encodeURIComponent(src.ref)+"&interval=1s&limit=1000&startTime="+(end-(k+1)*1e6+1)+"&endTime="+(end-k*1e6), {signal:AbortSignal.timeout(10000)})
+      .then(r=>r.ok ? r.json() : null).catch(()=>null);
+    const res = await Promise.all(Array.from({length:nReq}, (_, k)=>get(k)));
+    if (gen!==FP.gen) return;
+    let from = FP.covFrom, ok = 0;
+    for (let k=0; k<res.length; k++){
+      const rows = res[k];
+      if (!Array.isArray(rows)){ FP.backFailAt = Date.now(); break; } // erreur : on garde la partie continue
+      rows.forEach(r=>{ const t = +r[0]; if (t+1000 > FP.exactFrom) return; fpAddRange(t, +r[2], +r[3], +r[5], +r[9]); });
+      from = end-(k+1)*1e6+1; ok++;
+    }
+    if (ok){ FP.covFrom = Math.min(FP.covFrom, from); FP.histVer++; }
+  } finally {
+    if (gen===FP.gen){ FP.backBusy = false; fpTouched(true); }
+  }
 }
 function fpOpenHl(hl, gen){
   if (typeof WebSocket==="undefined") return;
@@ -11324,7 +11372,7 @@ function fpCandle(ms, tfMs, row){
       c[0] += cell[0]; c[1] += cell[1]; buy += cell[0]; sell += cell[1];
     });
   }
-  const r = {lv, buy, sell, partial: ms < FP.covFrom};
+  const r = {lv, buy, sell, partial: ms < FP.covFrom, approx: ms < FP.exactFrom && isFinite(FP.exactFrom)};
   if (FP.cache.size > 4000) FP.cache.clear();
   FP.cache.set(key, {r, v:FP.ver, hv:FP.histVer, done: now > ms+tfMs+5000});
   return r;
@@ -11419,13 +11467,17 @@ function chartFootprintLayer(g, vis){
   FP.row = row;
   const rowPx = row*pxPer, fs = Math.max(7, Math.min(10, rowPx-3, fsW));
   const zones = []; // {lo, hi, buy, i}
-  let covered = 0, uncovered = 0;
+  let covered = 0, uncovered = 0, anyApprox = false;
+  // Bougies visibles plus anciennes que les données : on complète l'historique
+  // (marchés Binance spot) avec les bougies d'une seconde, en remontant.
+  if (vis.length && vis[0].ms < FP.covFrom && FP.src && FP.src.kind==="bn" && FP.hist==="done") setTimeout(()=>fpLoadBack(vis[0].ms), 0);
   const imbOn = chartInd.fpImb!==false, sigOn = chartInd.fpSig!==false;
   vis.forEach((c, i)=>{
     const fc = c.ms ? fpCandle(c.ms, g.tfMs, row) : null;
     if (!fc || !(fc.buy+fc.sell > 0)){ uncovered++; return; }
     if (fc.partial) uncovered++; else covered++;
-    res.stats[i] = {buy:fc.buy, sell:fc.sell};
+    res.stats[i] = {buy:fc.buy, sell:fc.sell, approx:fc.approx};
+    if (fc.approx) anyApprox = true;
     const keys = [...fc.lv.keys()].sort((x,y)=>x-y);
     const get = r=>fc.lv.get(r) || [0, 0];
     const kLo = keys[0], kHi = keys[keys.length-1];
@@ -11479,7 +11531,7 @@ function chartFootprintLayer(g, vis){
     // Seulement sur un vrai extrême : plus haut (ou plus bas) des 5 bougies précédentes.
     const gi = g.start+i, prev = g.all.slice(Math.max(0, gi-5), gi);
     const swingHi = prev.length>=3 && prev.every(p=>c.h >= p.h), swingLo = prev.length>=3 && prev.every(p=>c.l <= p.l);
-    if (sigOn && !fc.partial && keys.length >= 5 && (swingHi || swingLo)){
+    if (sigOn && !fc.partial && !fc.approx && keys.length >= 5 && (swingHi || swingLo)){
       const rng = c.h-c.l, pos = rng>0 ? (c.c-c.l)/rng : 0.5;
       const top2 = keys.slice(-2), bot2 = keys.slice(0, 2);
       const buyTop = top2.reduce((s,r)=>s+get(r)[0], 0), sellBot = bot2.reduce((s,r)=>s+get(r)[1], 0);
@@ -11519,6 +11571,7 @@ function chartFootprintLayer(g, vis){
   else if (FP.note) res.note = FP.note;
   else if (!covered) res.note = "Footprint : en attente de transactions…";
   else if (!cellsOn) res.note = "Zoome (+) pour lire le footprint";
+  else if (anyApprox) res.note = "Exact depuis "+new Date(FP.exactFrom).toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"})+" · avant : approx. (1 s)"+(FP.backBusy ? " · chargement…" : "");
   else if (uncovered && FP.src && FP.src.kind==="hl") res.note = "Footprint en direct depuis "+new Date(FP.covFrom).toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"})+" (pas d'historique sur ce marché)";
   else if (uncovered) res.note = "Footprint depuis "+new Date(FP.covFrom).toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"});
   return res;
@@ -11937,7 +11990,7 @@ function chartRenderCandles(svg, a, m, W, H, all){
   svg.style.touchAction = (positions.length || pending.length || drawTool || (chartLimitDraft && chartLimitDraft.sym===selectedSymbol)) ? "none" : "pan-y";
   const clip = '<defs><clipPath id="chart-plot-clip"><rect x="'+padL+'" y="0" width="'+plotW+'" height="'+(H-padB)+'"/></clipPath>'+
     '<clipPath id="chart-pane-clip"><rect x="'+padL+'" y="'+(H-padB)+'" width="'+plotW+'" height="'+Math.max(0, padB-22)+'"/></clipPath></defs>';
-  const fpNote = fpL && fpL.note ? '<text x="'+(W-padR-8)+'" y="'+(padT+12)+'" text-anchor="end" font-size="10" fill="'+pal.axis+'" '+CHART_FONT+' stroke="'+pal.bg+'" stroke-width="3" paint-order="stroke">'+escapeHtml(fpL.note)+'</text>' : "";
+  const fpNote = fpL && fpL.note ? '<text x="'+(W-padR-8)+'" y="'+(H-padB-7)+'" text-anchor="end" font-size="10" fill="'+pal.axis+'" '+CHART_FONT+' stroke="'+pal.bg+'" stroke-width="3" paint-order="stroke">'+escapeHtml(fpL.note)+'</text>' : "";
   svg.innerHTML = clip+grid+'<g clip-path="url(#chart-plot-clip)">'+vol+(fpL ? '<g pointer-events="none">'+fpL.zones+'</g>' : '')+over+bars+(fpL ? '<g pointer-events="none">'+fpL.svg+fpL.marks+'</g>' : '')+emas+marks+'</g>'+fpNote+paneSvg+axis+
     '<g id="chart-draw">'+chartDrawingsHtml(g)+'</g>'+
     '<g id="chart-levels">'+positionLinesHtml(g, positions, pending)+chartDraftHtml(g)+'</g>'+
@@ -12043,7 +12096,7 @@ function chartDrawOverlay(){
   if (v.bb && v.bb.mid[v.start+i]!=null) items.push([TA_COLORS.bb, 'BB '+f(v.bb.lo[v.start+i])+' – '+f(v.bb.up[v.start+i])]);
   if (v.vwap && v.vwap[v.start+i]!=null) items.push([TA_COLORS.vwap, 'VWAP '+f(v.vwap[v.start+i])]);
   if (v.vwapw && v.vwapw[v.start+i]!=null) items.push([TA_COLORS.vwapw, 'VWAP W '+f(v.vwapw[v.start+i])]);
-  if (v.fpStats && v.fpStats[i]){ const fs2 = v.fpStats[i], dl = fs2.buy-fs2.sell; items.push([dl>=0 ? v.cc.up : v.cc.down, 'Δ '+(dl>=0 ? "+" : "−")+fpFmt(dl)+' · Vol '+fpFmt(fs2.buy+fs2.sell)]); }
+  if (v.fpStats && v.fpStats[i]){ const fs2 = v.fpStats[i], dl = fs2.buy-fs2.sell; items.push([dl>=0 ? v.cc.up : v.cc.down, 'Δ '+(dl>=0 ? "+" : "−")+fpFmt(dl)+' · Vol '+fpFmt(fs2.buy+fs2.sell)+(fs2.approx ? ' (approx.)' : '')]); }
   if (v.st && v.st.line[v.start+i]!=null) items.push([v.st.dir[v.start+i]===1 ? v.cc.up : v.cc.down, 'Supertrend '+f(v.st.line[v.start+i])]);
   // Plusieurs lignes si besoin, pour ne rien couper sur les petits écrans.
   let cur = "", curW = 0;
