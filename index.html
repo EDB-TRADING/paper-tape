@@ -798,12 +798,31 @@
   .chart-ind-pop i{width:14px;height:3px;border-radius:2px;flex:none;}
   .chart-ind-sub{display:flex;flex-direction:column;gap:1px;margin:0 0 4px 22px;padding:4px 0 4px 8px;border-left:2px solid color-mix(in srgb, #ff8a3d 55%, transparent);}
   .chart-ind-sub[hidden]{display:none;}
+  .chart-tpo-pop{width:280px;}
+  .chart-tpo-head{cursor:default;}
+  .chart-tpo-head b:first-child{flex:1;}
+  .chart-tpo-head .chart-ind-plus{flex:none;margin-left:0;}
+  .chart-tpo-pop .tpo-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);padding:8px 7px 4px;}
+  .tpo-seg{display:flex;gap:3px;padding:0 6px;flex-wrap:wrap;}
+  .tpo-seg button{flex:1 1 auto;border:1px solid var(--border);background:var(--bg-raised);color:var(--text-dim);border-radius:6px;padding:5px 6px;font:12px var(--sans);cursor:pointer;}
+  .tpo-seg button.on{border-color:var(--accent);color:var(--text);background:color-mix(in srgb, var(--accent) 16%, var(--bg-raised));}
+  .tpo-themes{display:flex;flex-wrap:wrap;gap:4px;padding:0 6px;}
+  .tpo-themes button{display:flex;align-items:center;gap:5px;border:1px solid var(--border);background:var(--bg-raised);color:var(--text-dim);border-radius:6px;padding:4px 7px;font:11.5px var(--sans);cursor:pointer;}
+  .tpo-themes button.on{border-color:var(--accent);color:var(--text);}
+  .tpo-themes i{width:22px;height:10px;border-radius:3px;flex:none;}
+  .tpo-cols{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;padding:6px 7px 2px;}
+  .tpo-cols label{padding:3px 0 !important;font-size:11.5px !important;gap:6px !important;}
+  .tpo-cols input[type=color]{width:22px;height:18px;padding:0;border:1px solid var(--border);border-radius:4px;background:none;cursor:pointer;flex:none;}
+  .chart-tpo-gear{display:inline-flex;align-items:center;justify-content:center;padding-left:8px !important;padding-right:8px !important;}
+  .chart-tpo-gear[hidden]{display:none !important;}
   .chart-ind-plus{margin-left:auto;font:700 9px/1 var(--mono);letter-spacing:.04em;color:#f2b33d;border:1px solid color-mix(in srgb, #f2b33d 55%, transparent);border-radius:4px;padding:2px 4px;}
   .chart-ind-lock{margin:0 0 4px 22px;padding:6px 8px;font-size:11.5px;color:var(--text-dim);background:color-mix(in srgb, #f2b33d 10%, transparent);border-radius:6px;}
   .chart-ind-lock[hidden]{display:none;}
   .chart-ind-lock button{margin-left:4px;border:none;background:none;color:#f2b33d;font:600 11.5px var(--sans);cursor:pointer;padding:0;text-decoration:underline;}
   .chart-fp-tick{display:flex;align-items:center;gap:6px;padding:4px 7px;font-size:12px;color:var(--text-dim);}
-  .chart-fp-tick > span{white-space:nowrap;}
+  .chart-fp-tick{flex-wrap:wrap;}
+  .chart-fp-tick > span{white-space:nowrap;flex-basis:100%;}
+  .chart-fp-tick .tk-step{width:28px;padding:3px 0;font:600 14px/1 var(--sans);}
   .chart-fp-tick input{width:64px;min-width:0;padding:4px 6px;border:1px solid var(--border);border-radius:5px;background:var(--bg-raised);color:var(--text);font:12px var(--mono);}
   .chart-fp-tick button{border:1px solid var(--border);background:var(--bg-raised);color:var(--text-dim);border-radius:5px;padding:3px 7px;font:11px var(--sans);cursor:pointer;}
   .chart-ind-head{position:sticky;top:-6px;z-index:2;background:var(--panel-2);display:flex;align-items:center;gap:6px;padding:4px 2px 6px 7px;margin:-6px -6px 2px;padding-left:13px;padding-right:8px;border-bottom:1px solid var(--border-soft);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;}
@@ -5224,18 +5243,10 @@
                   <div class="chart-ind-lock" id="chart-fp-lock" hidden>Réservé aux membres EDB+. <button type="button" id="chart-fp-lock-go">Découvrir EDB+</button></div>
                   <div class="chart-ind-sub" id="chart-fp-opts">
                     <span>Paramètres du footprint</span>
-                    <div class="chart-fp-tick"><span>Taille de ligne</span><input type="number" id="chart-fp-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne du footprint (en prix)"><button type="button" id="chart-fp-tick-auto" title="Revenir au réglage automatique">Auto</button></div>
+                    <div class="chart-fp-tick"><span>Taille de ligne (prix)</span><button type="button" class="tk-step" data-tick-step="fp:-1" title="Plus fin" aria-label="Taille de ligne plus fine">−</button><input type="number" id="chart-fp-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne du footprint (en prix)"><button type="button" class="tk-step" data-tick-step="fp:1" title="Plus gros" aria-label="Taille de ligne plus grosse">+</button><button type="button" id="chart-fp-tick-auto" title="Revenir au réglage automatique">Auto</button></div>
                     <label><input type="checkbox" data-chart-ind="fpImb">Déséquilibres à 300 % + zones de 3 déséquilibres empilés</label>
                     <label><input type="checkbox" data-chart-ind="fpSig">Absorption (A) et épuisement (É)</label>
                     <div class="chart-ind-tip" style="margin:2px 0 0;">Marchés Binance : historique des dernières dizaines de minutes, puis en direct. Marchés Hyperliquid : en direct depuis l'ouverture du graphique.</div>
-                  </div>
-                  <div class="chart-ind-sep">Market Profile</div>
-                  <label><input type="checkbox" data-chart-ind="tpo"><i style="background:#f2b33d"></i>TPO (Market Profile, séances UTC)<b class="chart-ind-plus">EDB+</b></label>
-                  <div class="chart-ind-lock" id="chart-tpo-lock" hidden>Réservé aux membres EDB+. <button type="button" id="chart-tpo-lock-go">Découvrir EDB+</button></div>
-                  <div class="chart-ind-sub" id="chart-tpo-opts">
-                    <span>Paramètres du TPO</span>
-                    <div class="chart-fp-tick"><span>Taille de ligne</span><input type="number" id="chart-tpo-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne du TPO (en prix)"><button type="button" id="chart-tpo-tick-auto" title="Revenir au réglage automatique">Auto</button></div>
-                    <div class="chart-ind-tip" style="margin:2px 0 0;">Une lettre par bougie : 5m, 15m, 30m (conseillé) ou 1h. Orange = POC (pointillés = POC pas encore revisité), bleu = value area 70 %, barre cyan = IB (1re heure), violet = single prints, traits à gauche = ouverture (blanc) et clôture (orange).</div>
                   </div>
                   <div class="chart-ind-sep">Sous le graphique</div>
                   <label><input type="checkbox" data-chart-ind="rsi"><i style="background:#b388ff"></i>RSI 14</label>
@@ -5251,8 +5262,28 @@
                 </div>
               </div>
               <div class="seg" id="chart-source-seg" style="margin-left:auto;">
-                <button type="button" id="chart-src-internal" class="on-mode active">Interne</button>
+                <button type="button" id="chart-src-internal" class="on-mode active">Graphique</button>
                 <button type="button" id="chart-src-tv" class="on-mode">TradingView</button>
+                <button type="button" id="chart-src-tpo" class="on-mode" title="TPO / Market Profile (EDB+) — cliquer à nouveau pour les réglages">TPO</button>
+                <button type="button" id="chart-tpo-gear" class="on-mode chart-tpo-gear" title="Réglages du TPO" aria-label="Réglages du TPO" hidden><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button>
+              </div>
+              <div class="chart-ind-pop chart-tpo-pop" id="chart-tpo-pop" hidden>
+                <div class="chart-ind-head chart-tpo-head"><b>TPO · Market Profile</b><b class="chart-ind-plus">EDB+</b><button type="button" id="chart-tpo-close" title="Fermer" aria-label="Fermer">×</button></div>
+                <div class="chart-ind-lock" id="chart-tpo-lock" hidden style="margin-left:0;">Le TPO est réservé aux membres EDB+. <button type="button" id="chart-tpo-lock-go">Découvrir EDB+</button></div>
+                <div id="chart-tpo-body">
+                  <div class="tpo-lbl">Mode</div>
+                  <div class="tpo-seg" data-tpo-key="tpoMode"><button type="button" data-v="expand">Déplié</button><button type="button" data-v="left">Replié à gauche</button><button type="button" data-v="right">Replié à droite</button></div>
+                  <div class="tpo-lbl">Affichage</div>
+                  <div class="tpo-seg" data-tpo-key="tpoDraw"><button type="button" data-v="letters">Lettres</button><button type="button" data-v="blocks">Blocs</button></div>
+                  <div class="tpo-lbl">Couleurs</div>
+                  <div class="tpo-themes" id="chart-tpo-themes"></div>
+                  <div class="tpo-cols" id="chart-tpo-cols"></div>
+                  <label><input type="checkbox" data-tpo-flag="tpoPoor">Poor high / poor low (PH / PL)</label>
+                  <label><input type="checkbox" data-tpo-flag="tpoNaked">POC non revisités (nPOC)</label>
+                  <label><input type="checkbox" data-tpo-flag="tpoLabels">Étiquettes POC / VAH / VAL</label>
+                  <div class="chart-fp-tick"><span>Taille de ligne (prix)</span><button type="button" class="tk-step" data-tpo-step="-1" title="Plus fin" aria-label="Taille de ligne plus fine">−</button><input type="number" id="chart-tpo-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne du TPO (en prix)"><button type="button" class="tk-step" data-tpo-step="1" title="Plus gros" aria-label="Taille de ligne plus grosse">+</button><button type="button" id="chart-tpo-tick-auto" title="Revenir au réglage automatique">Auto</button></div>
+                  <div class="chart-ind-tip" style="margin:4px 0 0;">Une lettre par bougie : 5m, 15m, 30m (conseillé) ou 1h. Séance = journée UTC. POC = prix le plus visité ; value area = 70 % des TPO ; barre à gauche = IB (1re heure) ; fond = single prints ; PH / PL = extrême touché par au moins 2 périodes, prolongé jusqu'à ce que le prix le dépasse ; traits à gauche = ouverture (blanc) et clôture (orange).</div>
+                </div>
               </div>
             </div>
             <div class="chart-stage" id="chart-stage">
@@ -6444,7 +6475,7 @@ const REFETCH_MS_VISIBLE_CHALLENGE = 2000;
    nothing — only an admin write to `edbPlus` does. See SERVER_SETUP.md for
    the Firestore-rules note on why a trader can't just self-write
    edbPlus:true from devtools in a hardened deployment.
-   Gated behind EDB+: the prop-firm challenge, Connaissances & Quiz, News,
+   Gated behind EDB+: the prop-firm challenge, Connaissances & Quiz, footprint & TPO (News is open to everyone since 2026-10),
    and switching the UI theme (all 6 themes, not just the 2 new ones) — see
    each feature's own render function for the actual gate. This block only
    holds the shared helpers: the access check, the reusable "paywall" card,
@@ -6524,7 +6555,7 @@ function openEdbPlusTrialModal(){
   }
   openModal(
     '<h3 style="margin-bottom:8px;">✨ Essayer EDB+ gratuitement pendant 24 h</h3>'+
-    '<p class="chart-note" style="margin-bottom:10px;">Challenge Prop Firm, Concours EDB+, Replay, quiz et fiches, Trades EDB+, Ressources, News et les 6 thèmes : tout est débloqué pendant 24 h, sans paiement ni engagement.</p>'+
+    '<p class="chart-note" style="margin-bottom:10px;">Challenge Prop Firm, Concours EDB+, Replay, quiz et fiches, Trades EDB+, Ressources, footprint & TPO et les 6 thèmes : tout est débloqué pendant 24 h, sans paiement ni engagement.</p>'+
     '<p class="chart-note" style="margin-bottom:14px;"><strong>Valable une seule fois</strong> : le compte à rebours démarre dès que tu confirmes. À la fin, tout se reverrouille automatiquement (ta progression est gardée).</p>'+
     '<div class="chart-note" id="edbplus-trial-err" style="color:var(--short);margin-bottom:8px;" hidden></div>'+
     '<button class="btn-primary" id="edbplus-trial-confirm" style="width:100%;">Démarrer mon essai de 24 h</button>'+
@@ -6635,7 +6666,7 @@ const EDB_PLUS_FEATURES = {
   // paywall/une seule clé pour les deux — l'ancienne clé "learn" séparée a
   // disparu.
   quiz:      {label:"Connaissances & Quiz",     detail:"réviser chaque sujet puis tester tes connaissances et grimper au classement des quiz", img:"https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=1600&q=80"},
-  news:      {label:"Les actualités marché",     detail:"suivre l'actualité macro/crypto en direct depuis le terminal", img:"https://images.pexels.com/photos/7054384/pexels-photo-7054384.jpeg?auto=compress&cs=tinysrgb&w=1600"},
+  orderflow: {label:"Footprint, TPO & order flow", detail:"lire le footprint (acheteurs × vendeurs par prix, déséquilibres, absorption) et le TPO / Market Profile sur le graphique"},
   challenge: {label:"Le challenge prop firm",    detail:"trader un compte démo calqué sur une vraie évaluation prop firm en 2 étapes", img:"https://images.unsplash.com/photo-1767424412548-1a1ac7f4b9bc?w=1600&q=80&auto=format&fit=crop"},
   theme:     {label:"Le changement de thème",    detail:"personnaliser l'interface (Ember, Sage, Ink, Noir, Gold, Azure)", img:"https://images.pexels.com/photos/10275089/pexels-photo-10275089.jpeg?auto=compress&cs=tinysrgb&w=1600"},
   tradesedb: {label:"Trades EDB+",               detail:"suivre les trades partagés par le bureau et le trade swing hebdomadaire", img:"https://images.unsplash.com/photo-1745270917233-65e776a47547?auto=format&fit=crop&w=1600&q=80"},
@@ -6646,7 +6677,7 @@ const EDB_PLUS_FEATURES = {
   // déverrouillé de cette page, plutôt qu'une image différente à chaque fois.
   concoursedbplus: {label:"Le Concours EDB+ (Challenge Hardcore)", detail:"tenter le Challenge 200 000 $ et gagner une vraie Prop Firm 100 000 $ ou 400 €", img:"https://images.unsplash.com/photo-1555963153-11ff60182d08?auto=format&fit=crop&w=1600&q=80"},
 };
-const EDB_PLUS_FEATURE_ICONS = {quiz:"📚", news:"📰", challenge:"🏅", replay:"⏪", theme:"🎨", tradesedb:"📈", resources:"🔗", concoursedbplus:"💎"};
+const EDB_PLUS_FEATURE_ICONS = {quiz:"📚", orderflow:"📊", challenge:"🏅", replay:"⏪", theme:"🎨", tradesedb:"📈", resources:"🔗", concoursedbplus:"💎"};
 // Reusable "EDB+ requise" card — dropped into a feature's own container in
 // place of its real content. `key` picks the wording from EDB_PLUS_FEATURES
 // above; the CTA button is wired by wireEdbPlusCta(key) right after this
@@ -6667,7 +6698,7 @@ function edbPlusPitch(key){
   const nQ = (typeof QUIZ_DECKS!=="undefined") ? QUIZ_DECKS.reduce((a,d)=>a+d.questions.length,0) : 100;
   const P = {
     quiz:      {title:"Deviens incollable sur les marchés", sub:nCourses+" cours complets et "+nQ+" questions de quiz, de la lecture du carnet d'ordres aux options. Apprends, teste-toi, grimpe au classement."},
-    news:      {title:"L'actu qui fait bouger les marchés, en direct", sub:"Macro, crypto, banques centrales : suis ce qui fait vraiment bouger les prix, sans quitter le terminal."},
+    orderflow: {title:"Lis ce qui se passe vraiment dans le carnet", sub:"Footprint, déséquilibres, absorption, TPO / Market Profile : les outils des traders d'order flow, directement sur le graphique."},
     challenge: {title:"Passe une évaluation prop firm, sans risquer un euro", sub:"Un compte démo calqué sur une vraie évaluation en 2 étapes : objectifs, perte max, règles. Entraîne-toi avant de payer un vrai challenge."},
     theme:     {title:"Un terminal à ton image", sub:"Ember, Sage, Ink, Noir, Gold, Azure : choisis l'ambiance dans laquelle tu trades."},
     tradesedb: {title:"Trade aux côtés du bureau EDB", sub:"Les trades partagés par le bureau, avec leur raisonnement, et le trade swing de la semaine."},
@@ -6683,7 +6714,7 @@ const EDB_PLUS_COMPARE = [
   ["Investissement PEA / compte-titres fictif", true],
   ["Classements, badges et chat de l'association", true],
   ["Connaissances & Quiz : tous les cours et quiz", false],
-  ["Actualités marché en direct", false],
+  ["Footprint, TPO / Market Profile (order flow)", false],
   ["Challenge prop firm en 2 étapes", false],
   ["Concours EDB+ : une vraie prop firm à gagner", false],
   ["Replay : rejouer des séances de marché passées", false],
@@ -6785,7 +6816,7 @@ function edbPlusPaywallHtml(key){
         '<ul>'+
           '<li>Tous les cours, quiz et classements</li>'+
           '<li>Challenge prop firm + Concours à 100 000 $</li>'+
-          '<li>Trades du bureau, actus, ressources</li>'+
+          '<li>Trades du bureau, footprint & TPO, ressources</li>'+
           '<li>Tu soutiens l\'association EDB</li>'+
         '</ul>'+
         edbPlusCtaButtons(key, "price")+
@@ -6821,7 +6852,7 @@ function goToEdbPlus(){
 // this badge is just a heads-up before clicking).
 function updateEdbPlusNavBadges(){
   const locked = !isEdbPlus();
-  [["quiz","📚"],["news","📰"],["challenge","🏅"],["replay","⏪"],["tradesedb","📈"],["resources","🔗"],["concoursedbplus","💎"]].forEach(([view,emoji])=>{
+  [["quiz","📚"],["challenge","🏅"],["replay","⏪"],["tradesedb","📈"],["resources","🔗"],["concoursedbplus","💎"]].forEach(([view,emoji])=>{
     document.querySelectorAll('nav.tabs button[data-view="'+view+'"]').forEach(btn=>{
       let badge = btn.querySelector(".nav-lock-badge");
       if (locked){
@@ -6926,12 +6957,12 @@ function ep2Bento(nCourses, nQ){
       spark+
     '</article>'+
     '<article class="ep2-tile t-news reveal">'+
-      '<div class="ep2-t-k">'+ep2Ic("i-news")+'Actus en direct<span class="live">LIVE</span></div>'+
-      '<h3>Le marché en continu, dans le terminal.</h3>'+
+      '<div class="ep2-t-k">'+ep2Ic("i-trend")+'Order flow<span class="live">PRO</span></div>'+
+      '<h3>Footprint et TPO, sur le graphique.</h3>'+
       '<ul class="ep2-news">'+
-        '<li><time>08:30</time><em style="--t:var(--warn, #e3ac4b)">Macro</em><b>Banques centrales : ce que le marché attend</b></li>'+
-        '<li><time>10:12</time><em style="--t:#37c7db">Crypto</em><b>Bitcoin : les flux de la semaine</b></li>'+
-        '<li><time>15:45</time><em style="--t:#a98bf0">Actions</em><b>Saison des résultats : les chiffres à suivre</b></li>'+
+        '<li><time>Footprint</time><em style="--t:#31c882">Achats</em><b>Acheteurs × vendeurs à chaque prix, déséquilibres empilés</b></li>'+
+        '<li><time>Signaux</time><em style="--t:#f0546a">A / É</em><b>Absorption et épuisement aux extrêmes</b></li>'+
+        '<li><time>TPO</time><em style="--t:#f2b33d">POC</em><b>Market Profile : value area, IB, poor high / low</b></li>'+
       '</ul>'+
     '</article>'+
     '<article class="ep2-tile t-themes reveal">'+
@@ -6952,7 +6983,7 @@ function epPitchHtml(){
   const rows = [
     ["Terminal de trading démo", true],["Investissement PEA / compte-titres", true],["Classements, badges, chat", true],
     ["Cours & quiz ("+nCourses+" cours, "+nQ+" questions)", false],["Challenge prop firm 2 étapes", false],["Concours : une vraie prop firm à gagner", false],
-    ["Trades du bureau + actus en direct", false],["Ressources + layout MMT", false],["Widgets pro + 6 thèmes", false],
+    ["Trades du bureau + footprint & TPO", false],["Ressources + layout MMT", false],["Widgets pro + 6 thèmes", false],
   ];
   const trust = [
     stripe ? [ep2Ic("i-lock"), "Paiement sécurisé par Stripe"] : [ep2Ic("i-lock"), "Paiement Wero ou virement"],
@@ -6979,7 +7010,7 @@ function epPitchHtml(){
       '<div class="ep2-hero-main">'+
         '<span class="ep2-eyebrow"><i></i>Adhésion École de la Bourse</span>'+
         '<h1>Passe en <span class="ep2-gold">EDB+</span>.</h1>'+
-        '<p class="ep2-sub">Tout Paper Tape débloqué : <b>challenge prop firm</b>, <b>cours et quiz</b>, <b>trades du bureau</b>, actus en direct. Et une <b>vraie prop firm de 100&nbsp;000&nbsp;$</b> à gagner.</p>'+
+        '<p class="ep2-sub">Tout Paper Tape débloqué : <b>challenge prop firm</b>, <b>cours et quiz</b>, <b>trades du bureau</b>, footprint & TPO. Et une <b>vraie prop firm de 100&nbsp;000&nbsp;$</b> à gagner.</p>'+
         '<div class="ep2-price"><b>25 €</b><span>/ an</span><em>soit 2,08 € par mois</em></div>'+
         ep2Ctas("hero")+
         '<div class="ep2-trust">'+trust.map(t=>'<span>'+t[0]+escapeHtml(t[1])+'</span>').join("")+'</div>'+
@@ -7025,7 +7056,7 @@ function epPitchHtml(){
   '</div>';
 }
 function epStatusHtml(kind){
-  const links = [["quiz","i-book","Cours & quiz","Apprendre et se tester"],["challenge","i-target","Challenge prop firm","Passer l'évaluation"],["concoursedbplus","i-gem","Concours EDB+","100 000 $ à gagner"],["tradesedb","i-trend","Trades du bureau","Les idées de l'EDB"],["news","i-news","Actualités","Le marché en direct"],["resources","i-link","Ressources","Outils et layout MMT"]];
+  const links = [["quiz","i-book","Cours & quiz","Apprendre et se tester"],["challenge","i-target","Challenge prop firm","Passer l'évaluation"],["concoursedbplus","i-gem","Concours EDB+","100 000 $ à gagner"],["tradesedb","i-trend","Trades du bureau","Les idées de l'EDB"],["resources","i-link","Ressources","Outils et layout MMT"]];
   let head = "", body = "", actions = "", card = "";
   if (kind==="member"){
     head = '<span class="ep2-eyebrow"><i></i>Membre EDB+</span><h1>Tout Paper Tape est <span class="ep2-gold">à toi</span>.</h1>';
@@ -7491,7 +7522,7 @@ function saveLeverage(n){
 // this is meant to discourage, and a paying EDB+ member is no less prone to
 // it than anyone else. Same rule for every trader now, EDB+ or not — see
 // progressiveLeverageCap()/enforceLeverageAccess() below. (EDB+ still gates
-// everything in EDB_PLUS_FEATURES — challenge, quiz, news, theme, tradesedb,
+// everything in EDB_PLUS_FEATURES — challenge, quiz, orderflow, theme, tradesedb,
 // resources, concoursedbplus — this is the one exception that came out.)
 const LEVERAGE_PROGRESSION = [
   {trades:0,   cap:10},
@@ -7866,7 +7897,6 @@ function hydrateStateFromDoc(snap){
   if (typeof enforceWidgetAccess==="function") enforceWidgetAccess();
   if (typeof enforceLeverageAccess==="function") enforceLeverageAccess();
   if (typeof updateEdbPlusNavBadges==="function") updateEdbPlusNavBadges();
-  if (typeof refreshNews==="function") refreshNews(); // no-op if not EDB+; gets a freshly-granted member their first news load without waiting on the 5-min interval
   if (typeof checkDailyStreak==="function") checkDailyStreak();
 }
 // Loads (or creates) the trader doc for `id` into `state`. Used at boot for
@@ -10164,7 +10194,6 @@ async function fetchNewsSet(feeds){
   return items.slice(0,60);
 }
 async function refreshNews(){
-  if (!isEdbPlus()) return; // EDB+ gate — also protects the 5-minute setInterval below, not just the tab click
   if (newsLoading) return;
   newsLoading = true;
   const rb = document.getElementById("news-refresh");
@@ -10547,7 +10576,10 @@ function applyChartSourceVisibility(eff){
   const tfSeg = document.getElementById("tf-seg");
   const themeSeg = document.getElementById("candle-theme-seg");
   const zoomSeg = document.getElementById("chart-zoom-seg");
-  document.getElementById("chart-src-internal").classList.toggle("active", chartSource==="internal");
+  const tpoAct = chartSource==="internal" && eff!=="tv" && typeof tpoOn==="function" && tpoOn();
+  document.getElementById("chart-src-internal").classList.toggle("active", chartSource==="internal" && !tpoAct);
+  { const tb = document.getElementById("chart-src-tpo"); if (tb) tb.classList.toggle("active", tpoAct);
+    const gb = document.getElementById("chart-tpo-gear"); if (gb) gb.hidden = !tpoAct; }
   // The TV button only lights up "active" when TradingView is actually the
   // one in effect — updateChartSourceToggleAvailability() is what keeps it
   // unclickable in the first place while the selected asset is tvUnavailable.
@@ -10607,8 +10639,107 @@ function updateChartSourceToggleAvailability(){
   btn.classList.toggle("disabled", unavailable);
   btn.title = unavailable ? "Graphique TradingView indisponible pour "+a.symbol+" (marché fermé chez ce fournisseur, ou prix d'un autre fournisseur que celui utilisé pour trader) — graphique interne (prix réel) affiché à la place." : "";
 }
+// ---- Panneau de réglages du TPO (bouton « TPO » à côté de Graphique / TradingView) ----
+function tpoPanelClose(){ const p = document.getElementById("chart-tpo-pop"); if (p) p.hidden = true; }
+function initTpoPanel(){
+  const btn = document.getElementById("chart-src-tpo"), gear = document.getElementById("chart-tpo-gear");
+  const pop = document.getElementById("chart-tpo-pop");
+  if (!btn || !pop) return;
+  const lock = document.getElementById("chart-tpo-lock"), body = document.getElementById("chart-tpo-body");
+  const tickIn = document.getElementById("chart-tpo-tick");
+  const save = ()=>{ saveChartInd(); updateChart(); sync(); };
+  const place = (anchor)=>{
+    const r = (anchor || btn).getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
+    const w = Math.min(290, vw-16);
+    const tab = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--tabbar-h")) || 0;
+    const bottomGap = document.documentElement.classList.contains("touch-ui") ? tab+12 : 12;
+    let top = r.bottom+6, maxH = vh-top-bottomGap;
+    if (maxH < 240 && r.top > vh/2){ maxH = Math.min(520, r.top-14); top = r.top-6-maxH; }
+    Object.assign(pop.style, {position:"fixed", width:w+"px", left:Math.max(8, Math.min(vw-w-8, r.right-w))+"px", right:"auto", top:Math.max(8, top)+"px", maxHeight:Math.max(200, maxH)+"px", overflowY:"auto", zIndex:60});
+  };
+  const open = (anchor)=>{ sync(); pop.hidden = false; place(anchor); };
+  // Thèmes (pastilles) + couleurs modifiables une à une.
+  const themesEl = document.getElementById("chart-tpo-themes"), colsEl = document.getElementById("chart-tpo-cols");
+  const swatch = t=>t.grad ? "linear-gradient(90deg,hsl(205,70%,60%),hsl(120,70%,55%),hsl(30,70%,55%))" : "linear-gradient(90deg,"+t.out+" 0 33%,"+t.va+" 33% 66%,"+t.poc+" 66%)";
+  themesEl.innerHTML = Object.keys(TPO_THEMES).map(k=>'<button type="button" data-tpo-theme="'+k+'"><i style="background:'+swatch(TPO_THEMES[k])+'"></i>'+TPO_THEMES[k].name+'</button>').join("")+
+    '<button type="button" data-tpo-theme="perso"><i style="background:conic-gradient(#f2b33d,#e53935,#5aa9e6,#31c882,#f2b33d)"></i>Perso</button>';
+  const COL_NAMES = {poc:"POC", va:"Value area", out:"Hors value area", single:"Single prints", ib:"IB", poor:"Poor high / low"};
+  colsEl.innerHTML = TPO_COL_KEYS.map(k=>'<label><input type="color" data-tpo-col="'+k+'">'+COL_NAMES[k]+'</label>').join("");
+  themesEl.querySelectorAll("[data-tpo-theme]").forEach(b=>b.addEventListener("click", ()=>{
+    const k = b.dataset.tpoTheme;
+    if (k==="perso"){ // part des couleurs affichées
+      const cur = tpoColors(); chartInd.tpoCols = {}; TPO_COL_KEYS.forEach(c=>{ chartInd.tpoCols[c] = cur[c]; });
+    }
+    chartInd.tpoTheme = k; save();
+  }));
+  colsEl.querySelectorAll("[data-tpo-col]").forEach(inp=>inp.addEventListener("input", ()=>{
+    if (chartInd.tpoTheme!=="perso"){ const cur = tpoColors(); chartInd.tpoCols = {}; TPO_COL_KEYS.forEach(c=>{ chartInd.tpoCols[c] = cur[c]; }); chartInd.tpoTheme = "perso"; }
+    chartInd.tpoCols[inp.dataset.tpoCol] = inp.value;
+    saveChartInd(); updateChart();
+    themesEl.querySelectorAll("[data-tpo-theme]").forEach(x=>x.classList.toggle("on", x.dataset.tpoTheme==="perso"));
+  }));
+  pop.querySelectorAll(".tpo-seg").forEach(seg=>seg.querySelectorAll("button").forEach(b=>b.addEventListener("click", ()=>{ chartInd[seg.dataset.tpoKey] = b.dataset.v; save(); })));
+  pop.querySelectorAll("[data-tpo-flag]").forEach(cb=>cb.addEventListener("change", ()=>{ chartInd[cb.dataset.tpoFlag] = cb.checked; save(); }));
+  // Taille de ligne : saisie, − / + (suite 1, 2, 2,5, 5 × 10ⁿ), Auto.
+  const setTick = (v)=>{
+    if (!chartInd.tpoTicks || typeof chartInd.tpoTicks!=="object") chartInd.tpoTicks = {};
+    if (v>0) chartInd.tpoTicks[selectedSymbol] = +(+v).toPrecision(6); else delete chartInd.tpoTicks[selectedSymbol];
+    save();
+  };
+  tickIn.addEventListener("change", ()=>{ setTick(parseFloat(String(tickIn.value).replace(",", "."))); tickIn.blur(); });
+  tickIn.addEventListener("keydown", (e)=>{ e.stopPropagation(); if (e.key==="Enter"){ e.preventDefault(); setTick(parseFloat(String(tickIn.value).replace(",", "."))); tickIn.blur(); } });
+  document.getElementById("chart-tpo-tick-auto").addEventListener("click", ()=>{ tickIn.value = ""; setTick(0); });
+  pop.querySelectorAll("[data-tpo-step]").forEach(b=>b.addEventListener("click", ()=>{
+    const dir = +b.dataset.tpoStep, a = ASSETS.find(x=>x.symbol===selectedSymbol);
+    const minV = a && isFinite(a.decimals) ? Math.pow(10, -a.decimals) : 1e-8;
+    const cur = (chartInd.tpoTicks && +chartInd.tpoTicks[selectedSymbol]) || (chartView && chartView.tpoRow) || minV;
+    const e10 = Math.floor(Math.log10(cur)), cands = [];
+    for (let k=e10-2; k<=e10+2; k++) [1, 2, 2.5, 5].forEach(m=>cands.push(+(m*Math.pow(10, k)).toPrecision(6)));
+    cands.sort((x,y)=>x-y);
+    const next = dir>0 ? cands.find(v=>v > cur*1.0001) : [...cands].reverse().find(v=>v < cur*0.9999);
+    if (next!=null) setTick(Math.max(minV, next));
+  }));
+  function sync(){
+    const plus = typeof isEdbPlus==="function" && isEdbPlus();
+    lock.hidden = plus; body.hidden = !plus;
+    pop.querySelectorAll(".tpo-seg").forEach(seg=>{ const key = seg.dataset.tpoKey, v = chartInd[key] || (key==="tpoMode" ? "left" : "letters"); seg.querySelectorAll("button").forEach(b=>b.classList.toggle("on", b.dataset.v===v)); });
+    pop.querySelectorAll("[data-tpo-flag]").forEach(cb=>{ cb.checked = chartInd[cb.dataset.tpoFlag]!==false; });
+    const th = chartInd.tpoTheme || "pt";
+    themesEl.querySelectorAll("[data-tpo-theme]").forEach(x=>x.classList.toggle("on", x.dataset.tpoTheme===th));
+    const cur = tpoColors();
+    colsEl.querySelectorAll("[data-tpo-col]").forEach(inp=>{ inp.value = /^#[0-9a-f]{6}$/i.test(cur[inp.dataset.tpoCol]) ? cur[inp.dataset.tpoCol] : "#888888"; });
+    const tv = chartInd.tpoTicks && chartInd.tpoTicks[selectedSymbol];
+    if (document.activeElement!==tickIn) tickIn.value = tv>0 ? String(tv) : "";
+    tickIn.placeholder = chartView && chartView.tpoAutoRow ? "Auto ("+(+chartView.tpoAutoRow.toPrecision(6))+")" : "Auto";
+  }
+  btn.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    if (!(typeof isEdbPlus==="function" && isEdbPlus())){ open(btn); return; } // réservé EDB+ : le panneau l'explique
+    if (chartSource==="internal" && tpoOn()){ if (pop.hidden) open(btn); else tpoPanelClose(); return; } // déjà actif : réglages
+    chartInd.tpo = true; chartInd.fp = false;
+    saveChartInd();
+    // Une lettre par bougie → unité de temps 5m à 1h (30m par défaut), vue d'environ une journée et demie.
+    if (!TPO_TFS.includes(currentTimeframe)){ const b30 = document.querySelector('#tf-seg button[data-tf="30m"]'); if (b30) b30.click(); }
+    const per = 86400000/(HL_INTERVAL_MS[currentTimeframe] || 1800000);
+    chartZoomTo(Math.min(CHART_ZOOM_MAX, Math.round(per*1.5)+CHART_GAP), null);
+    setChartSource("internal");
+  });
+  if (gear) gear.addEventListener("click", (e)=>{ e.stopPropagation(); if (pop.hidden) open(gear); else tpoPanelClose(); });
+  document.getElementById("chart-tpo-close").addEventListener("click", (e)=>{ e.stopPropagation(); tpoPanelClose(); });
+  const go = document.getElementById("chart-tpo-lock-go");
+  if (go) go.addEventListener("click", ()=>{ tpoPanelClose(); if (typeof goToEdbPlus==="function") goToEdbPlus(); });
+  document.addEventListener("pointerdown", (e)=>{ if (!pop.hidden && !e.target.closest("#chart-tpo-pop, #chart-src-tpo, #chart-tpo-gear")) tpoPanelClose(); });
+  document.addEventListener("keydown", (e)=>{ if (e.key==="Escape" && !pop.hidden) tpoPanelClose(); });
+  window.addEventListener("resize", ()=>{ if (!pop.hidden) place(gear && !gear.hidden ? gear : btn); });
+}
 function initChartSourceToggle(){
-  document.getElementById("chart-src-internal").addEventListener("click", ()=>setChartSource("internal"));
+  // « Graphique » = bougies (TPO coupé) ; « TPO » = graphique interne en Market Profile.
+  document.getElementById("chart-src-internal").addEventListener("click", ()=>{
+    if (chartInd.tpo){ chartInd.tpo = false; saveChartInd(); }
+    tpoPanelClose();
+    setChartSource("internal");
+  });
+  initTpoPanel();
   // Belt-and-suspenders alongside the disabled attribute set by
   // updateChartSourceToggleAvailability(): even if the button were ever
   // reachable despite looking disabled, this still refuses to force
@@ -10616,6 +10747,7 @@ function initChartSourceToggle(){
   document.getElementById("chart-src-tv").addEventListener("click", ()=>{
     const a = ASSETS.find(x=>x.symbol===selectedSymbol);
     if (a && a.tvUnavailable) return;
+    tpoPanelClose();
     setChartSource("tv");
   });
   updateChartSourceToggleAvailability();
@@ -10897,7 +11029,7 @@ const TA_COLORS = {ema20:"#f2b33d", ema50:"#5aa9e6", ema200:"#c77dff", bb:"#8fa3
 const CHART_IND_KEY = "paperTapeChartInd";
 const CHART_EMA = {ema20:{p:20, color:"#f2b33d", label:"MME 20"}, ema50:{p:50, color:"#5aa9e6", label:"MME 50"}, ema200:{p:200, color:"#c77dff", label:"MME 200"}};
 let chartInd = (function(){
-  const d = {tpo:false, tpoTicks:{}, fp:false, fpImb:true, fpSig:true, fpTicks:{}, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true};
+  const d = {tpo:false, tpoTicks:{}, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpTicks:{}, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true};
   try{
     const s = JSON.parse(localStorage.getItem(CHART_IND_KEY)||"null");
     if (s && typeof s==="object") Object.keys(d).forEach(k=>{ if (typeof s[k]==="boolean") d[k]=s[k]; });
@@ -11470,7 +11602,7 @@ function chartFootprintLayer(g, vis){
   const userTick = chartInd.fpTicks && +chartInd.fpTicks[selectedSymbol];
   if (userTick > 0){
     const ur = Math.max(FP.step0, Math.round(userTick/FP.step0)*FP.step0);
-    if ((g.max-g.min)/ur <= 600) row = ur; else res.note = "Taille de ligne trop fine pour ce zoom : réglage auto";
+    if ((g.max-g.min)/ur <= 1500) row = ur; else res.note = "Taille de ligne trop fine pour ce zoom : réglage auto";
   }
   FP.row = row;
   const rowPx = row*pxPer, fs = Math.max(7, Math.min(10, rowPx-3, fsW));
@@ -11594,16 +11726,36 @@ function chartFootprintLayer(g, vis){
    comme avec les bougies. Réservé EDB+. */
 const TPO_LET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 const TPO_TFS = ["5m","15m","30m","1h"];
-const TPO_COL = {poc:"#f2b33d", va:"#5aa9e6", ib:"#22d3ee", single:"#c77dff", close:"#ff8a3d"};
+// Thèmes de couleurs du TPO (comme les couleurs des bougies) : POC, value
+// area, hors value area, single prints, IB, poor high / low. « periode » =
+// lettres colorées selon l'heure (dégradé). Chaque couleur reste modifiable
+// (thème « perso »).
+const TPO_THEMES = {
+  pt:      {name:"Paper Tape",          poc:"#f2b33d", va:"#5aa9e6", out:"#6b7686", single:"#c77dff", ib:"#22d3ee", poor:"#ff8a3d"},
+  gris:    {name:"Gris / rouge",        poc:"#e53935", va:"#e8eaed", out:"#7d838c", single:"#ffffff", ib:"#9aa4b2", poor:"#c9ced6"},
+  periode: {name:"Couleur par période", poc:"#ff5252", va:"#e8eaed", out:"#7d838c", single:"#ffffff", ib:"#22d3ee", poor:"#f2b33d", grad:true},
+  mono:    {name:"Monochrome",          poc:"#ffffff", va:"#b8bec8", out:"#565d68", single:"#ffffff", ib:"#8a919b", poor:"#d0d4da"},
+};
+const TPO_COL_KEYS = ["poc","va","out","single","ib","poor"];
+function tpoColors(){
+  const t = TPO_THEMES[chartInd.tpoTheme] || (chartInd.tpoTheme==="perso" ? null : TPO_THEMES.pt);
+  const base = Object.assign({}, TPO_THEMES.pt, t || {});
+  if (chartInd.tpoTheme==="perso" && chartInd.tpoCols && typeof chartInd.tpoCols==="object")
+    TPO_COL_KEYS.forEach(k=>{ const v = chartInd.tpoCols[k]; if (typeof v==="string" && /^#[0-9a-f]{6}$/i.test(v)) base[k] = v; });
+  base.grad = !!(t && t.grad);
+  return base;
+}
 function tpoOn(){ return !!chartInd.tpo && typeof isEdbPlus==="function" && isEdbPlus(); }
 // Profil d'une séance (bougies = périodes), en lignes de prix de taille `row`.
+// rows : ligne → [[j, k]…] (j = n° de période dans la séance, k = rang de la bougie).
 function tpoSession(cands, dayStart, tfMs, row){
   const rows = new Map();
-  let n = 0;
-  cands.forEach(c=>{
+  let n = 0, hi = -Infinity, lo = Infinity;
+  cands.forEach((c, k)=>{
     const j = Math.floor((c.ms-dayStart)/tfMs);
+    if (c.h>hi) hi = c.h; if (c.l<lo) lo = c.l;
     const r0 = Math.floor(c.l/row + 1e-9), r1 = Math.max(r0, Math.floor(c.h/row - 1e-9));
-    for (let r=r0; r<=r1 && r-r0<2000; r++){ let L = rows.get(r); if (!L){ L = []; rows.set(r, L); } if (L[L.length-1]!==j){ L.push(j); n++; } }
+    for (let r=r0; r<=r1 && r-r0<2000; r++){ let L = rows.get(r); if (!L){ L = []; rows.set(r, L); } if (!L.length || L[L.length-1][0]!==j){ L.push([j, k]); n++; } }
   });
   const keys = [...rows.keys()].sort((x,y)=>x-y);
   if (!keys.length) return null;
@@ -11614,16 +11766,20 @@ function tpoSession(cands, dayStart, tfMs, row){
   keys.forEach(r=>{ const a = cnt(r), b = cnt(poc); if (a>b || (a===b && Math.abs(r-mid) < Math.abs(poc-mid))) poc = r; });
   // Value area 70 % des TPO : méthode classique, on compare les deux lignes
   // au-dessus et les deux en dessous, et on ajoute le côté le plus fourni.
-  let lo = poc, hi = poc, acc = cnt(poc);
-  while (acc < n*0.7 && (lo>kLo || hi<kHi)){
-    const up = hi<kHi ? cnt(hi+1)+cnt(hi+2) : -1, dn = lo>kLo ? cnt(lo-1)+cnt(lo-2) : -1;
-    if (up >= dn){ for (let t=0; t<2 && hi<kHi && acc<n*0.7; t++){ hi++; acc += cnt(hi); } }
-    else { for (let t=0; t<2 && lo>kLo && acc<n*0.7; t++){ lo--; acc += cnt(lo); } }
+  let vlo = poc, vhi = poc, acc = cnt(poc);
+  while (acc < n*0.7 && (vlo>kLo || vhi<kHi)){
+    const up = vhi<kHi ? cnt(vhi+1)+cnt(vhi+2) : -1, dn = vlo>kLo ? cnt(vlo-1)+cnt(vlo-2) : -1;
+    if (up >= dn){ for (let t=0; t<2 && vhi<kHi && acc<n*0.7; t++){ vhi++; acc += cnt(vhi); } }
+    else { for (let t=0; t<2 && vlo>kLo && acc<n*0.7; t++){ vlo--; acc += cnt(vlo); } }
   }
   // IB (Initial Balance) : plus haut / plus bas de la première heure.
-  let ibHi = -Infinity, ibLo = Infinity;
-  cands.forEach(c=>{ if (c.ms-dayStart < 3600000){ if (c.h>ibHi) ibHi = c.h; if (c.l<ibLo) ibLo = c.l; } });
-  return {rows, keys, poc, vaLo:lo, vaHi:hi, ibHi, ibLo, open:cands[0].o, close:cands[cands.length-1].c, n};
+  let ibHi = -Infinity, ibLo = Infinity, maxJ = 0;
+  cands.forEach(c=>{ const j = Math.floor((c.ms-dayStart)/tfMs); if (j>maxJ) maxJ = j; if (c.ms-dayStart < 3600000){ if (c.h>ibHi) ibHi = c.h; if (c.l<ibLo) ibLo = c.l; } });
+  // Poor high / poor low : extrême touché par au moins 2 périodes, sans
+  // « excès » (pas de queue de single prints) → enchère inachevée, souvent revisitée.
+  const poorHi = cnt(kHi) >= 2, poorLo = cnt(kLo) >= 2;
+  return {rows, keys, kLo, kHi, poc, vaLo:vlo, vaHi:vhi, ibHi, ibLo, hi, lo, poorHi, poorLo, maxJ,
+    open:cands[0].o, close:cands[cands.length-1].c, n};
 }
 function chartTpoLayer(g){
   const res = {svg:"", tags:[], note:""};
@@ -11631,72 +11787,111 @@ function chartTpoLayer(g){
   if (!TPO_TFS.includes(g.tf)){ res.note = "TPO : choisis 5m, 15m, 30m ou 1h (une lettre par bougie)"; return res; }
   const pxPer = g.plotH/(g.max-g.min);
   if (!(pxPer>0) || !g.all || !g.all.length) return res;
-  const letterW = g.slotW >= 6.5;
-  let row = chartNiceStep((letterW ? 12 : 5)/pxPer);
+  const C = tpoColors(), mode = ["expand","left","right"].includes(chartInd.tpoMode) ? chartInd.tpoMode : "left";
+  const wantLetters = chartInd.tpoDraw!=="blocks";
+  const letterW = wantLetters && g.slotW >= 6.5;
+  const autoRow = chartNiceStep((letterW ? 12 : 5)/pxPer);
+  let row = autoRow;
   const ut = chartInd.tpoTicks && +chartInd.tpoTicks[selectedSymbol];
-  if (ut > 0){ if ((g.max-g.min)/ut <= 400) row = ut; else res.note = "Taille de ligne trop fine pour ce zoom : réglage auto"; }
-  g.tpoAutoRow = chartNiceStep((letterW ? 12 : 5)/pxPer);
-  const rowPx = row*pxPer, fs = Math.min(11, g.slotW*0.95, rowPx*0.92), letters = fs >= 6;
+  if (ut > 0){ if ((g.max-g.min)/ut <= 1200) row = ut; else res.note = "Taille de ligne trop fine pour ce zoom : réglage auto"; }
+  g.tpoAutoRow = autoRow; g.tpoRow = row;
+  const rowPx = row*pxPer, fs = Math.min(11, g.slotW*0.95, rowPx*0.92), letters = wantLetters && fs >= 6;
   const all = g.all, S = g.slotW;
+  const showPoor = chartInd.tpoPoor!==false, showLab = chartInd.tpoLabels!==false, showNaked = chartInd.tpoNaked!==false;
   // Séances (journées UTC) de tout l'historique chargé : il en faut aussi
-  // hors écran pour savoir si leur POC a été revisité depuis.
+  // hors écran pour savoir si leur POC / leurs poor high-low ont été revisités.
   const sess = [];
   for (let k=0; k<all.length; k++){
     const dk = Math.floor((all[k].ms||0)/86400000), s0 = sess[sess.length-1];
     if (s0 && s0.dk===dk) s0.i1 = k; else sess.push({dk, i0:k, i1:k});
   }
   const R = g.W-g.padR, L0 = g.padL, T = g.padT, B = g.H-g.padB;
-  let naked = 0;
+  const hline = (x1, x2, yy, col, dash, op, w)=>{ x1 = Math.max(x1, L0); x2 = Math.min(x2, R); if (x2<=x1 || yy<T || yy>B) return ""; return '<line x1="'+f(x1)+'" x2="'+f(x2)+'" y1="'+f(yy)+'" y2="'+f(yy)+'" stroke="'+col+'" stroke-width="'+(w||1)+'"'+(dash ? ' stroke-dasharray="'+dash+'"' : '')+' opacity="'+op+'"/>'; };
+  const label = (x, yy, txt, col, anchor)=>(x<L0 || x>R || yy<T+8 || yy>B) ? "" : '<text x="'+f(x)+'" y="'+f(yy-3)+'" text-anchor="'+(anchor||"end")+'" font-size="10" font-weight="600" fill="'+col+'" '+CHART_FONT+' stroke="'+g.pal.bg+'" stroke-width="3" paint-order="stroke">'+txt+'</text>';
+  // Prolonge un niveau vers la droite jusqu'à ce qu'une bougie suivante le touche.
+  const untilTouched = (from, price)=>{ for (let k = from; k < all.length; k++){ const c = all[k]; if (c.l <= price && c.h >= price) return k; } return -1; };
+  let naked = 0, poorTags = 0;
   for (let si = sess.length-1; si >= 0; si--){
     const s = sess[si];
     const xL = g.xAt(s.i0-g.start) - S/2, xR = g.xAt(s.i1-g.start) + S/2;
     const visible = !(xR < L0 || xL > R);
     const last = si===sess.length-1;
-    // Hors écran à gauche et déjà 3 POC non revisités trouvés : inutile d'aller plus loin.
-    if (!visible && xR < L0 && naked >= 3) break;
+    if (!visible && xR < L0 && naked >= 3 && poorTags >= 2) break;
     const p = tpoSession(all.slice(s.i0, s.i1+1), s.dk*86400000, g.tfMs, row);
     if (!p) continue;
     const pocP = (p.poc+0.5)*row, yP = g.y(pocP);
-    // POC non revisité (« naked ») : prolongé jusqu'à ce qu'une bougie le touche.
-    if (!last){
-      let touched = -1;
-      for (let k = s.i1+1; k < all.length; k++){ const c = all[k]; if (c.l <= pocP && c.h >= pocP){ touched = k; break; } }
-      const xEnd = touched >= 0 ? g.xAt(touched-g.start) : R;
-      if (touched < 0 && naked < 3){ naked++; res.tags.push({y:yP, name:"nPOC", val:chartNum(pocP, g.dec), col:TPO_COL.poc}); }
-      if (xEnd > Math.max(xR, L0) && yP >= T && yP <= B) res.svg += '<line x1="'+f(Math.max(xR, L0))+'" x2="'+f(Math.min(xEnd, R))+'" y1="'+f(yP)+'" y2="'+f(yP)+'" stroke="'+TPO_COL.poc+'" stroke-width="1" stroke-dasharray="5 4" opacity="'+(touched<0 ? 0.75 : 0.35)+'"/>';
+    let ext = "";
+    // POC non revisité (« naked ») : en pointillés jusqu'au retour du prix.
+    if (!last && showNaked){
+      const tk = untilTouched(s.i1+1, pocP);
+      if (tk < 0 && naked < 3){ naked++; res.tags.push({y:yP, name:"nPOC", val:chartNum(pocP, g.dec), col:C.poc}); }
+      ext += hline(xR, tk>=0 ? g.xAt(tk-g.start) : R, yP, C.poc, "5 4", tk<0 ? 0.8 : 0.35);
     }
+    // Poor high / poor low : trait plein jusqu'à ce que le prix le dépasse.
+    if (showPoor){
+      [[p.poorHi, p.hi, "PH", "Poor high"], [p.poorLo, p.lo, "PL", "Poor low"]].forEach(([on, price, short, long])=>{
+        if (!on) return;
+        const tk = last ? -1 : untilTouched(s.i1+1, price);
+        const yy = g.y(price), xEnd = tk>=0 ? g.xAt(tk-g.start) : R;
+        ext += hline(xL, xEnd, yy, C.poor, null, tk<0 ? 0.85 : 0.35, 1.2);
+        if (tk<0 && visible) ext += label(xL+4, short==="PL" ? yy+13 : yy, short, C.poor, "start");
+        if (tk<0 && poorTags < 2){ poorTags++; res.tags.push({y:yy, name:short, val:chartNum(price, g.dec), col:C.poor}); }
+      });
+    }
+    res.svg = ext + res.svg;
     if (!visible) continue;
     let s2 = '<line x1="'+f(xL)+'" x2="'+f(xL)+'" y1="'+T+'" y2="'+B+'" stroke="'+g.pal.grid+'" stroke-width="1"/>';
+    // Position horizontale de chaque TPO selon le mode.
+    const xOf = (L, idx)=>mode==="expand" ? g.xAt(s.i0+L[idx][1]-g.start) : mode==="right" ? xR-(L.length-idx-0.5)*S : xL+(idx+0.5)*S;
+    const colOf = (r, j)=>{
+      if (r===p.poc) return C.poc;
+      if (C.grad){ const h = 205 - 175*(p.maxJ ? j/p.maxJ : 0); return "hsl("+h.toFixed(0)+",70%,"+(r>=p.vaLo && r<=p.vaHi ? 62 : 45)+"%)"; }
+      return (r>=p.vaLo && r<=p.vaHi) ? C.va : C.out;
+    };
     p.keys.forEach(r=>{
       const Lr = p.rows.get(r), yT = g.y((r+1)*row), yB = g.y(r*row);
       if (yB < T-2 || yT > B+2) return;
-      const inVA = r >= p.vaLo && r <= p.vaHi, isPoc = r===p.poc;
-      if (Lr.length===1) s2 += '<rect x="'+f(xL)+'" y="'+f(yT)+'" width="'+f(Math.max(S, 4))+'" height="'+f(Math.max(0.6, yB-yT))+'" fill="'+TPO_COL.single+'" opacity="0.22"/>';
+      const isPoc = r===p.poc, single = Lr.length===1;
+      if (single){ const x = xOf(Lr, 0); s2 += '<rect x="'+f(x-S/2)+'" y="'+f(yT)+'" width="'+f(Math.max(S, 3))+'" height="'+f(Math.max(0.6, yB-yT))+'" fill="'+C.single+'" opacity="0.28"/>'; }
       if (letters){
-        const col = isPoc ? TPO_COL.poc : inVA ? g.pal.text : g.pal.axis;
-        let txt = "";
-        Lr.forEach((j, k)=>{ const cx = xL+(k+0.5)*S; if (cx > R+S) return; txt += '<tspan x="'+f(cx)+'">'+TPO_LET[j % TPO_LET.length]+'</tspan>'; });
-        s2 += '<text y="'+f((yT+yB)/2 + fs*0.36)+'" font-size="'+fs.toFixed(1)+'" text-anchor="middle" fill="'+col+'"'+(isPoc ? ' font-weight="700"' : '')+' '+CHART_FONT+'>'+txt+'</text>';
+        if (C.grad){
+          Lr.forEach((e, idx)=>{ const x = xOf(Lr, idx); if (x < L0-S || x > R+S) return; s2 += '<text x="'+f(x)+'" y="'+f((yT+yB)/2 + fs*0.36)+'" font-size="'+fs.toFixed(1)+'" text-anchor="middle" fill="'+colOf(r, e[0])+'"'+(isPoc ? ' font-weight="700"' : '')+' '+CHART_FONT+'>'+TPO_LET[e[0] % TPO_LET.length]+'</text>'; });
+        } else {
+          let txt = "";
+          Lr.forEach((e, idx)=>{ const x = xOf(Lr, idx); if (x < L0-S || x > R+S) return; txt += '<tspan x="'+f(x)+'">'+TPO_LET[e[0] % TPO_LET.length]+'</tspan>'; });
+          if (txt) s2 += '<text y="'+f((yT+yB)/2 + fs*0.36)+'" font-size="'+fs.toFixed(1)+'" text-anchor="middle" fill="'+colOf(r, 0)+'"'+(isPoc ? ' font-weight="700"' : '')+' '+CHART_FONT+'>'+txt+'</text>';
+        }
+      } else if (S >= 3 || mode==="expand" || C.grad){
+        // Blocs (un carré par TPO, petit espace entre eux).
+        const gap = S >= 4 ? 1 : 0, h = Math.max(0.6, yB-yT-(rowPx >= 4 ? 1 : 0));
+        Lr.forEach((e, idx)=>{ const x = xOf(Lr, idx); if (x < L0-S || x > R+S) return;
+          s2 += '<rect x="'+f(x-S/2+gap/2)+'" y="'+f(yT+0.3)+'" width="'+f(Math.max(0.6, S-gap))+'" height="'+f(h)+'" fill="'+colOf(r, e[0])+'" opacity="'+(isPoc ? 0.95 : (r>=p.vaLo && r<=p.vaHi) ? 0.85 : 0.6)+'"/>'; });
       } else {
-        const w = Math.min(Lr.length*S, R+S-xL);
-        if (w > 0) s2 += '<rect x="'+f(xL)+'" y="'+f(yT+0.3)+'" width="'+f(w)+'" height="'+f(Math.max(0.6, yB-yT-0.6))+'" fill="'+(isPoc ? TPO_COL.poc : inVA ? TPO_COL.va : g.pal.axis)+'" opacity="'+(isPoc ? 0.9 : inVA ? 0.6 : 0.35)+'"/>';
+        // Très dézoomé : une barre par ligne.
+        const x0 = mode==="right" ? xR-Lr.length*S : xL, w = Lr.length*S;
+        s2 += '<rect x="'+f(x0)+'" y="'+f(yT+0.3)+'" width="'+f(w)+'" height="'+f(Math.max(0.6, yB-yT-0.6))+'" fill="'+colOf(r, 0)+'" opacity="'+(isPoc ? 0.95 : 0.7)+'"/>';
       }
     });
     // POC, VAH / VAL sur la largeur de la séance ; IB ; ouverture / clôture.
     const yH = g.y((p.vaHi+1)*row), yL = g.y(p.vaLo*row);
-    s2 += '<line x1="'+f(xL)+'" x2="'+f(xR)+'" y1="'+f(yP)+'" y2="'+f(yP)+'" stroke="'+TPO_COL.poc+'" stroke-width="1" opacity="0.55"/>';
-    [yH, yL].forEach(yy=>{ s2 += '<line x1="'+f(xL)+'" x2="'+f(xR)+'" y1="'+f(yy)+'" y2="'+f(yy)+'" stroke="'+TPO_COL.va+'" stroke-width="1" stroke-dasharray="3 3" opacity="0.7"/>'; });
-    if (isFinite(p.ibHi)) s2 += '<line x1="'+f(xL-3)+'" x2="'+f(xL-3)+'" y1="'+f(g.y(p.ibHi))+'" y2="'+f(g.y(p.ibLo))+'" stroke="'+TPO_COL.ib+'" stroke-width="3" stroke-linecap="round"/>';
-    s2 += '<line x1="'+f(xL-10)+'" x2="'+f(xL-5)+'" y1="'+f(g.y(p.open))+'" y2="'+f(g.y(p.open))+'" stroke="'+g.pal.text+'" stroke-width="2"/>'+
-      '<line x1="'+f(xL-10)+'" x2="'+f(xL-5)+'" y1="'+f(g.y(p.close))+'" y2="'+f(g.y(p.close))+'" stroke="'+TPO_COL.close+'" stroke-width="2"/>';
+    s2 += hline(xL, xR, yP, C.poc, null, 0.75, 1.2);
+    [yH, yL].forEach(yy=>{ s2 += hline(xL, xR, yy, C.va, "3 3", 0.75); });
+    if (showLab && xR-xL > 70){
+      const lx = mode==="right" ? xL+4 : xR-4, an = mode==="right" ? "start" : "end";
+      s2 += label(lx, yP, "POC", C.poc, an) + label(lx, yH, "VAH", C.va, an) + label(lx, yL+12, "VAL", C.va, an);
+    }
+    const side = mode==="right" ? xR+3 : xL-3, tick0 = mode==="right" ? xR+5 : xL-10;
+    if (isFinite(p.ibHi)) s2 += '<line x1="'+f(side)+'" x2="'+f(side)+'" y1="'+f(g.y(p.ibHi))+'" y2="'+f(g.y(p.ibLo))+'" stroke="'+C.ib+'" stroke-width="3" stroke-linecap="round"/>';
+    s2 += '<line x1="'+f(tick0)+'" x2="'+f(tick0+5)+'" y1="'+f(g.y(p.open))+'" y2="'+f(g.y(p.open))+'" stroke="'+g.pal.text+'" stroke-width="2"/>'+
+      '<line x1="'+f(tick0)+'" x2="'+f(tick0+5)+'" y1="'+f(g.y(p.close))+'" y2="'+f(g.y(p.close))+'" stroke="#ff8a3d" stroke-width="2"/>';
     res.svg = s2 + res.svg;
     if (last){
-      res.tags.push({y:yP, name:"POC", val:chartNum(pocP, g.dec), col:TPO_COL.poc});
-      res.tags.push({y:yH, name:"VAH", val:chartNum((p.vaHi+1)*row, g.dec), col:TPO_COL.va});
-      res.tags.push({y:yL, name:"VAL", val:chartNum(p.vaLo*row, g.dec), col:TPO_COL.va});
+      res.tags.push({y:yP, name:"POC", val:chartNum(pocP, g.dec), col:C.poc});
+      res.tags.push({y:yH, name:"VAH", val:chartNum((p.vaHi+1)*row, g.dec), col:C.va});
+      res.tags.push({y:yL, name:"VAL", val:chartNum(p.vaLo*row, g.dec), col:C.va});
     }
   }
-  if (!res.note && !letters) res.note = "Zoome (+) pour lire les lettres du TPO";
+  if (!res.note && wantLetters && !letters) res.note = "Zoome (+) pour lire les lettres du TPO";
   return res;
 }
 function chartTradeMarks(sym){
@@ -13570,12 +13765,6 @@ function initChartIndicators(){
     const v = chartInd.fpTicks && chartInd.fpTicks[selectedSymbol];
     if (document.activeElement!==tickIn) tickIn.value = v>0 ? String(FP.step0 ? Math.max(FP.step0, Math.round(v/FP.step0)*FP.step0) : v) : "";
     tickIn.placeholder = FP.autoRow && FP.sym===selectedSymbol ? "Auto ("+(+FP.autoRow.toPrecision(6))+")" : "Auto";
-    const ti = document.getElementById("chart-tpo-tick");
-    if (ti){
-      const tv = chartInd.tpoTicks && chartInd.tpoTicks[selectedSymbol];
-      if (document.activeElement!==ti) ti.value = tv>0 ? String(tv) : "";
-      ti.placeholder = chartView && chartView.tpoAutoRow ? "Auto ("+(+chartView.tpoAutoRow.toPrecision(6))+")" : "Auto";
-    }
   };
   pop.querySelectorAll("[data-chart-ind]").forEach(cb=>{
     const key = cb.dataset.chartInd;
@@ -13609,22 +13798,6 @@ function initChartIndicators(){
   });
   const lockGo = document.getElementById("chart-fp-lock-go");
   if (lockGo) lockGo.addEventListener("click", ()=>{ close(); if (typeof goToEdbPlus==="function") goToEdbPlus(); });
-  const tpoLockGo = document.getElementById("chart-tpo-lock-go");
-  if (tpoLockGo) tpoLockGo.addEventListener("click", ()=>{ close(); if (typeof goToEdbPlus==="function") goToEdbPlus(); });
-  // Taille de ligne du TPO (par marché) : vide = automatique.
-  const tpoIn = document.getElementById("chart-tpo-tick");
-  if (tpoIn){
-    const applyT = ()=>{
-      const v = parseFloat(String(tpoIn.value).replace(",", "."));
-      if (!chartInd.tpoTicks || typeof chartInd.tpoTicks!=="object") chartInd.tpoTicks = {};
-      if (v>0) chartInd.tpoTicks[selectedSymbol] = v; else delete chartInd.tpoTicks[selectedSymbol];
-      saveChartInd(); updateChart(); tpoIn.blur(); syncTick();
-    };
-    tpoIn.addEventListener("change", applyT);
-    tpoIn.addEventListener("keydown", (e)=>{ e.stopPropagation(); if (e.key==="Enter"){ e.preventDefault(); applyT(); } });
-    const ta = document.getElementById("chart-tpo-tick-auto");
-    if (ta) ta.addEventListener("click", ()=>{ tpoIn.value = ""; applyT(); });
-  }
   // Taille de ligne du footprint (par marché) : vide = automatique.
   if (tickIn){
     const applyTick = ()=>{
@@ -13638,14 +13811,38 @@ function initChartIndicators(){
     const auto = document.getElementById("chart-fp-tick-auto");
     if (auto) auto.addEventListener("click", ()=>{ tickIn.value = ""; applyTick(); });
   }
+  // Boutons − / + : taille de ligne précédente / suivante dans la suite
+  // 1, 2, 2,5, 5 × 10ⁿ, en partant de la valeur choisie (ou de l'auto).
+  pop.querySelectorAll("[data-tick-step]").forEach(b=>b.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    const [kind, d] = b.dataset.tickStep.split(":"), dir = +d;
+    const store = kind==="fp" ? "fpTicks" : "tpoTicks";
+    if (!chartInd[store] || typeof chartInd[store]!=="object") chartInd[store] = {};
+    const a = ASSETS.find(x=>x.symbol===selectedSymbol);
+    const minV = kind==="fp" ? (FP.step0 || 1e-8) : (a && isFinite(a.decimals) ? Math.pow(10, -a.decimals) : 1e-8);
+    const cur = +chartInd[store][selectedSymbol] || (kind==="fp" ? (FP.sym===selectedSymbol && FP.row) : (chartView && chartView.tpoRow)) || minV;
+    const e10 = Math.floor(Math.log10(cur));
+    const cands = [];
+    for (let k=e10-2; k<=e10+2; k++) [1, 2, 2.5, 5].forEach(m=>cands.push(+(m*Math.pow(10, k)).toPrecision(6)));
+    cands.sort((x,y)=>x-y);
+    let next = dir>0 ? cands.find(v=>v > cur*1.0001) : [...cands].reverse().find(v=>v < cur*0.9999);
+    if (next==null) return;
+    if (kind==="fp" && FP.step0) next = Math.max(FP.step0, Math.round(next/FP.step0)*FP.step0);
+    next = Math.max(minV, +next.toPrecision(6));
+    chartInd[store][selectedSymbol] = next;
+    saveChartInd(); updateChart(); syncTick();
+  }));
   // Paramètres visibles seulement quand l'indicateur concerné est affiché.
   const syncVwapOpts = ()=>{
     const o = document.getElementById("chart-vwap-opts"); if (o) o.hidden = !(chartInd.vwap || chartInd.vwapw);
     const fo = document.getElementById("chart-fp-opts"); if (fo) fo.hidden = !fpOn();
-    const to = document.getElementById("chart-tpo-opts"); if (to) to.hidden = !tpoOn();
   };
   syncVwapOpts();
-  const close = ()=>{ pop.hidden = true; btn.setAttribute("aria-expanded","false"); };
+  const close = ()=>{
+    pop.hidden = true; btn.setAttribute("aria-expanded","false");
+    // Réduit puis fermé : il se rouvre en grand.
+    if (ps.min){ ps.min = false; savePs(); pop.classList.remove("is-min"); const mb = document.getElementById("chart-ind-min"); if (mb){ mb.textContent = "–"; mb.title = "Réduire"; } }
+  };
   // Placé en position fixe et recalé dans l'écran : sur mobile, ancré à droite
   // du bouton, il sortait par la gauche (liste coupée). Déplacé : on garde sa
   // place (recalée dans l'écran si la fenêtre a changé de taille).
@@ -13671,9 +13868,7 @@ function initChartIndicators(){
     pop.hidden = !open;
     if (open){
       pop.querySelectorAll('[data-chart-ind="fp"]').forEach(cb=>{ cb.checked = fpOn(); });
-      pop.querySelectorAll('[data-chart-ind="tpo"]').forEach(cb=>{ cb.checked = tpoOn(); });
       if (fpLock) fpLock.hidden = true;
-      { const tl = document.getElementById("chart-tpo-lock"); if (tl) tl.hidden = true; }
       syncVwapOpts(); syncTick(); place();
     }
     btn.setAttribute("aria-expanded", open ? "true" : "false");
@@ -24389,22 +24584,7 @@ function switchView(name){
     const status = document.getElementById("news-status");
     const langSeg = document.getElementById("news-lang-seg");
     const header = document.getElementById("news-card-header");
-    if (!isEdbPlus()){
-      if (status) status.hidden = true;
-      if (langSeg) langSeg.hidden = true;
-      // Hides the whole title/refresh header row (not just the language
-      // toggle above) so the full-bleed Apple-style paywall below can go
-      // edge-to-edge instead of sitting under an already-indented heading
-      // — same reasoning as the Challenge page's title (see
-      // renderChallengeProfileCard()). Setting .hidden wouldn't actually
-      // hide anything here: this row has its own inline style="display:
-      // flex", and an inline style always wins over the `[hidden]{display:
-      // none}` the browser applies via its default stylesheet — so the
-      // display property has to be set directly instead.
-      if (header) header.style.display = "none";
-      list.innerHTML = edbPlusPaywallHtml("news");
-      wireEdbPlusCta("news");
-    } else {
+    // Actualités : ouvertes à tous (plus réservées à EDB+).
       if (status) status.hidden = false;
       if (langSeg) langSeg.hidden = false;
       if (header) header.style.display = "flex";
@@ -24414,7 +24594,6 @@ function switchView(name){
       } else {
         paintNewsTab();
       }
-    }
   }
 }
 
@@ -27396,8 +27575,8 @@ async function adminToggleEdbPlus(id){
   const d = doc ? doc.data() : {};
   const next = !d.edbPlus;
   const question = next
-    ? 'Activer EDB+ pour "'+label+'" ? À faire uniquement après réception des 25€ (espèces/virement/HelloAsso). Débloque challenge prop, quiz, connaissances, news et tous les thèmes.'
-    : 'Retirer EDB+ à "'+label+'" ? Le trader perd l\'accès au challenge prop, au quiz, aux connaissances, aux news et au changement de thème (retour au thème par défaut).';
+    ? 'Activer EDB+ pour "'+label+'" ? À faire uniquement après réception des 25€ (espèces/virement/HelloAsso). Débloque challenge prop, quiz, connaissances, footprint & TPO et tous les thèmes.'
+    : 'Retirer EDB+ à "'+label+'" ? Le trader perd l\'accès au challenge prop, au quiz, aux connaissances, au footprint / TPO et au changement de thème (retour au thème par défaut).';
   if (!confirm(question)) return;
   adminSetEdbPlus(id, next);
 }
@@ -27414,7 +27593,7 @@ async function adminSetEdbPlus(id, value){
       // Close the loop in the trader's own chat thread — this is the "je
       // répondrai au plus vite" moment landing, whether or not they ever
       // opened the conversation themselves.
-      await sendEdbPlusChatMessage(id, "admin", "🎉 Ton abonnement EDB+ est activé ! Challenge prop, quiz, connaissances, news et tous les thèmes sont débloqués. Merci d'avoir rejoint EDB+.");
+      await sendEdbPlusChatMessage(id, "admin", "🎉 Ton abonnement EDB+ est activé ! Challenge prop, quiz, connaissances, footprint & TPO et tous les thèmes sont débloqués. Merci d'avoir rejoint EDB+.");
       try{ await db.collection("edbplusChats").doc(id).set({status:"closed"}, {merge:true}); }catch(e2){}
     }
     if (id===clientId){ hydrateStateFromDoc(await db.collection("traders").doc(id).get()); renderAll(); }
