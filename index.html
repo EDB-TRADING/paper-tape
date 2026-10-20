@@ -12011,10 +12011,11 @@ function chartTpoLayer(g){
 // ---- Menu d'un profil TPO (clic sur un profil) ----
 function tpoMenuClose(){ const m = document.getElementById("chart-tpo-menu"); if (m && !m.hidden){ m.hidden = true; if (!matchMedia("(hover: hover)").matches) tpoSetHover(null); } }
 // Profil sous le point (x, y) du graphique et bougie de la lettre visée.
-// Profil visible sous l'abscisse x (sa journée, profil de volume collé compris).
-function tpoProfileAtX(x){
+// Profil dont le contenu (lettres / blocs + profil de volume collé) est sous le
+// point (x, y) — pas toute la colonne de la journée : ailleurs, ni cadre ni menu.
+function tpoProfileAt(x, y){
   const v = chartView; if (!v || !v.tpoVis) return null;
-  return v.tpoVis.find(p=>x >= Math.min(p.xL, p.box ? p.box.x1 : p.xL) && x <= p.xR) || null;
+  return v.tpoVis.find(p=>p.box && x >= p.box.x1 && x <= p.box.x2 && y >= p.box.y1 && y <= p.box.y2) || null;
 }
 // Encadré bleu du profil survolé, posé sans redessiner tout le graphique.
 function tpoSetHover(pr){
@@ -12028,7 +12029,7 @@ function tpoSetHover(pr){
 }
 function tpoHit(x, y){
   const v = chartView; if (!v || !v.tpoVis) return null;
-  const pr = tpoProfileAtX(x);
+  const pr = tpoProfileAt(x, y);
   if (!pr) return null;
   let k = Math.round((x - v.padL)/v.slotW + v.left - 0.5); // bougie sous le curseur (mode déplié)
   if (!pr.expanded){
@@ -12127,7 +12128,7 @@ function initTpoMenu(){
     const m = document.getElementById("chart-tpo-menu");
     if (m && !m.hidden) return; // garde le cadre du profil dont le menu est ouvert
     const pt = eligible(e);
-    tpoSetHover(pt ? tpoProfileAtX(pt.x) : null);
+    tpoSetHover(pt ? tpoProfileAt(pt.x, pt.y) : null);
   });
   svg.addEventListener("pointerleave", ()=>{ const m = document.getElementById("chart-tpo-menu"); if (!m || m.hidden) tpoSetHover(null); });
   // Clic droit maintenu + glisser = zoom libre du graphique : dans ce cas,
@@ -13383,11 +13384,13 @@ function drawSafeCol(c){ return (typeof c==="string" && /^#[0-9a-f]{6}$/i.test(c
 function drawColor(d){ return drawSafeCol(d.c) || (d.type==="fib" ? DRAW_FIB : d.type==="avwap" ? "#22d3ee" : d.type==="avp" ? "#8fa3b8" : DRAW_COL); }
 // ---- Annuler / rétablir (Ctrl+Z / ⌘Z, Ctrl+Maj+Z / ⌘⇧Z / Ctrl+Y) ----
 const drawUndo = [], drawRedo = [];
-function drawSnap(){ return {sym:selectedSymbol, list:JSON.parse(JSON.stringify(chartDrawings[selectedSymbol]||[]))}; }
+// Dessins séparés pour le graphique en bougies et pour le TPO (clé « BTC » / « BTC|tpo »).
+function drawKey(){ return (typeof tpoOn==="function" && chartSource==="internal" && tpoOn()) ? selectedSymbol+"|tpo" : selectedSymbol; }
+function drawSnap(){ return {sym:drawKey(), list:JSON.parse(JSON.stringify(chartDrawings[drawKey()]||[]))}; }
 function drawPushUndo(){ drawUndo.push(drawSnap()); if (drawUndo.length>100) drawUndo.shift(); drawRedo.length = 0; }
 function drawRestore(from, to){
   // Historique propre à chaque marché : on annule le dernier changement du marché affiché.
-  let i = from.length-1; while (i>=0 && from[i].sym!==selectedSymbol) i--;
+  let i = from.length-1; while (i>=0 && from[i].sym!==drawKey()) i--;
   if (i<0) return false;
   const snap = from.splice(i, 1)[0];
   to.push(drawSnap());
@@ -13399,7 +13402,7 @@ function drawRestore(from, to){
   return true;
 }
 function saveDrawings(){ try{ localStorage.setItem(CHART_DRAW_KEY, JSON.stringify(chartDrawings)); }catch(e){} }
-function drawList(){ return chartDrawings[selectedSymbol] || (chartDrawings[selectedSymbol] = []); }
+function drawList(){ const k = drawKey(); return chartDrawings[k] || (chartDrawings[k] = []); }
 function drawFind(id){ return drawList().find(d=>d.id===id); }
 // Heure <-> position (en rangs de bougie, décimaux) sur l'historique chargé.
 function drawIdxOfT(g, t){
@@ -13432,7 +13435,7 @@ function drawFibLevel(d, l){ return d.p[1].v + (d.p[0].v - d.p[1].v)*l; } // 1 =
 let drawLastSym = null;
 function chartDrawingsHtml(g){
   if (!g || !g.all || !g.all.length || !g.plotW) return "";
-  if (drawLastSym!==selectedSymbol){ drawLastSym = selectedSymbol; drawSel = null; drawPending = null; drawDrag = null; setTimeout(drawSyncDel, 0); }
+  if (drawLastSym!==drawKey()){ drawLastSym = drawKey(); drawSel = null; drawPending = null; drawDrag = null; setTimeout(drawSyncDel, 0); }
   const list = drawList().slice();
   if (drawPending) list.push(Object.assign({id:"__pending"}, drawPending));
   const L = g.padL, R = g.W-g.padR, T = g.padT, B = g.H-g.padB;
@@ -13642,13 +13645,13 @@ function drawSyncDel(){
   drawSyncProps();
   const b = document.getElementById("chart-draw-del");
   if (!b) return;
-  const n = (chartDrawings[selectedSymbol]||[]).length;
+  const n = (chartDrawings[drawKey()]||[]).length;
   b.disabled = !n;
   b.title = drawSel ? "Effacer le dessin sélectionné (Suppr)" : (n ? "Effacer tous les dessins de ce marché" : "Aucun dessin");
 }
 function drawDelete(id){
   drawPushUndo();
-  chartDrawings[selectedSymbol] = drawList().filter(d=>d.id!==id);
+  chartDrawings[drawKey()] = drawList().filter(d=>d.id!==id);
   if (drawSel===id) drawSel = null;
   saveDrawings(); drawSyncDel(); chartDrawPatch();
 }
@@ -13838,7 +13841,7 @@ function initChartDrawing(){
   if (del) del.addEventListener("click", ()=>{
     if (drawSel){ drawDelete(drawSel); return; }
     const n = drawList().length;
-    if (n && confirm("Effacer les "+n+" dessin"+(n>1?"s":"")+" de "+selectedSymbol+" ? (Ctrl+Z / ⌘Z pour annuler)")){ drawPushUndo(); chartDrawings[selectedSymbol] = []; saveDrawings(); drawSyncDel(); chartDrawPatch(); }
+    if (n && confirm("Effacer les "+n+" dessin"+(n>1?"s":"")+" de "+selectedSymbol+" ? (Ctrl+Z / ⌘Z pour annuler)")){ drawPushUndo(); chartDrawings[drawKey()] = []; saveDrawings(); drawSyncDel(); chartDrawPatch(); }
   });
   const panel = document.getElementById("draw-props");
   if (panel){
