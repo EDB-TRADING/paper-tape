@@ -13,8 +13,24 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="2800">
+<meta name="pt-build" content="2820">
 <title>Paper Tape</title>
+<script>
+/* Un seul fichier pour deux sites :
+   - site EDB (GitHub Pages) : élèves de l'École de la Bourse ;
+   - site public (papertape.fr, ou les adresses *.web.app / *.firebaseapp.com
+     du projet Firebase public) : sans contenu propre à l'EDB, sur un projet
+     Firebase séparé (comptes, classement, paiements à part).
+   Test : ajouter ?site=public (ou ?site=edb) à l'adresse, retenu pour l'onglet. */
+(function(){
+  try{ var q = new URLSearchParams(location.search).get("site"); if (q==="public" || q==="edb") sessionStorage.setItem("ptSite", q); }catch(e){}
+  var s = null; try{ s = sessionStorage.getItem("ptSite"); }catch(e){}
+  var h = location.hostname || "";
+  var pub = s ? s==="public" : (/(^|\.)papertape\.fr$/i.test(h) || ((/\.web\.app$/i.test(h) || /\.firebaseapp\.com$/i.test(h)) && !/^paper-tape-edb\./i.test(h)));
+  window.PT_PUBLIC = pub;
+  if (pub){ document.documentElement.classList.add("site-public"); document.title = "Paper Tape — Terminal de trading simulé"; }
+})();
+</script>
 <!-- Favicon / app icon -->
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -999,6 +1015,12 @@
   .ci-num > div{display:flex;gap:4px;align-items:center;}
   .ci-num input{width:86px;min-width:0;padding:4px 6px;border:1px solid var(--border);border-radius:5px;background:var(--bg-raised);color:var(--text);font:12px var(--mono);text-align:center;}
   .ci-num .tk-step{width:26px;border:1px solid var(--border);background:var(--bg-raised);color:var(--text-dim);border-radius:5px;padding:3px 0;font:600 14px/1 var(--sans);cursor:pointer;}
+  /* Site public : pas de Concours EDB+ (financé par l'association) ni de Trades EDB+ (bureau). */
+  html.site-public [data-view="concoursedbplus"], html.site-public [data-view="tradesedb"]{display:none !important;}
+  .liq-pop{padding:10px 8px 10px;}
+  .liq-pop-h{font:600 12.5px var(--sans);color:var(--text);padding:0 6px 4px;}
+  .liq-pop-l{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);padding:8px 7px 4px;}
+  .liq-pop .tpo-themes button{flex:1 1 30%;justify-content:center;}
   .ci-themes button{display:inline-flex;align-items:center;justify-content:center;gap:5px;flex:1 1 30%;}
   .ci-sw-grad{display:inline-block;width:18px !important;height:8px !important;border-radius:2px !important;flex:none;}
   .chart-ind-tip{font-family:var(--sans);font-size:10.5px;color:var(--text-faint);border-top:1px solid var(--border-soft);margin-top:4px;padding:7px 7px 3px;line-height:1.45;}
@@ -5449,7 +5471,7 @@
                 <button type="button" id="chart-src-internal" class="on-mode active">Graphique</button>
                 <button type="button" id="chart-src-tv" class="on-mode">TradingView</button>
                 <button type="button" id="chart-src-tpo" class="on-mode" title="TPO / Market Profile (EDB+) — cliquer à nouveau pour les réglages">TPO</button>
-                <button type="button" id="chart-src-liq" class="on-mode" title="Heatmap des liquidations estimées d'après l'open interest Binance (EDB+) — cliquer à nouveau pour la sensibilité">Liquidations</button>
+                <button type="button" id="chart-src-liq" class="on-mode" title="Heatmap des liquidations estimées d'après l'open interest Binance (EDB+) — cliquer à nouveau pour les réglages (sensibilité, couleurs)">Liquidations</button>
                 <button type="button" id="chart-tpo-gear" class="on-mode chart-tpo-gear" title="Réglages du TPO" aria-label="Réglages du TPO" hidden><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button>
               </div>
               <div class="chart-ind-pop chart-tpo-pop" id="chart-tpo-pop" hidden>
@@ -6265,7 +6287,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2800 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v2820 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -6829,7 +6851,10 @@ function edbPlusTrialCtaHtml(id){
 //  - Stripe prévient la fonction Firebase « stripeWebhook », qui active EDB+
 //    pour un an sur ce compte, sans intervention du bureau ;
 //  - au retour (?edbplus=merci), l'appli attend l'activation et l'annonce.
-const EDB_PLUS_STRIPE_LINK = "https://buy.stripe.com/3cI28q7jN2Dq37ggprbMQ00";
+// Site public : lien de paiement Stripe de TON compte (pas celui de l'EDB) ;
+// vide = offre « bientôt disponible ».
+const PT_PUBLIC_STRIPE_LINK = "";
+const EDB_PLUS_STRIPE_LINK = window.PT_PUBLIC ? PT_PUBLIC_STRIPE_LINK : "https://buy.stripe.com/3cI28q7jN2Dq37ggprbMQ00";
 function edbPlusStripeUrl(){
   if (!EDB_PLUS_STRIPE_LINK) return null;
   try{
@@ -7086,7 +7111,7 @@ function goToEdbPlus(){
 // this badge is just a heads-up before clicking).
 function updateEdbPlusNavBadges(){
   const locked = !isEdbPlus();
-  [["quiz","📚"],["challenge","🏅"],["replay","⏪"],["tradesedb","📈"],["concoursedbplus","💎"]].forEach(([view,emoji])=>{
+  [["quiz","📚"],["challenge","🏅"],["replay","⏪"],["tradesedb","📈"],["concoursedbplus","💎"]].filter(([v])=>!(window.PT_PUBLIC && (v==="tradesedb" || v==="concoursedbplus"))).forEach(([view,emoji])=>{
     document.querySelectorAll('nav.tabs button[data-view="'+view+'"]').forEach(btn=>{
       let badge = btn.querySelector(".nav-lock-badge");
       if (locked){
@@ -7238,13 +7263,15 @@ function epPitchHtml(){
     ["À quoi sert l'argent ?","L'adhésion finance l'association École de la Bourse et ses projets, dont les récompenses réelles du Concours EDB+."],
   ];
   if (stripe) faq.push(["Paper Tape voit-il ma carte ?","Non. Le paiement par carte est traité entièrement par Stripe : Paper Tape ne voit jamais tes coordonnées bancaires."]);
-  faq.push(["Je peux payer autrement ?","Oui : Wero, virement ou espèces auprès du bureau. Clique sur « Devenir membre » puis « Autre moyen »."]);
+  if (!window.PT_PUBLIC) faq.push(["Je peux payer autrement ?","Oui : Wero, virement ou espèces auprès du bureau. Clique sur « Devenir membre » puis « Autre moyen »."]);
   return '<div class="ep ep2 edbplus-paywall-page">'+
     '<section class="ep2-hero">'+
       '<div class="ep2-hero-main">'+
-        '<span class="ep2-eyebrow"><i></i>Adhésion École de la Bourse</span>'+
+        (window.PT_PUBLIC ? '<span class="ep2-eyebrow"><i></i>Abonnement Paper Tape</span>' : '<span class="ep2-eyebrow"><i></i>Adhésion École de la Bourse</span>')+
         '<h1>Passe en <span class="ep2-gold">EDB+</span>.</h1>'+
-        '<p class="ep2-sub">Tout Paper Tape débloqué : <b>challenge prop firm</b>, <b>cours et quiz</b>, <b>trades du bureau</b>, footprint & TPO. Et une <b>vraie prop firm de 100&nbsp;000&nbsp;$</b> à gagner.</p>'+
+        (window.PT_PUBLIC
+          ? '<p class="ep2-sub">Tout Paper Tape débloqué : <b>challenge prop firm</b>, <b>cours et quiz</b>, footprint, TPO, heatmap de liquidité et des liquidations.</p>'
+          : '<p class="ep2-sub">Tout Paper Tape débloqué : <b>challenge prop firm</b>, <b>cours et quiz</b>, <b>trades du bureau</b>, footprint & TPO. Et une <b>vraie prop firm de 100&nbsp;000&nbsp;$</b> à gagner.</p>')+
         '<div class="ep2-price"><b>25 €</b><span>/ an</span><em>soit 2,08 € par mois</em></div>'+
         ep2Ctas("hero")+
         '<div class="ep2-trust">'+trust.map(t=>'<span>'+t[0]+escapeHtml(t[1])+'</span>').join("")+'</div>'+
@@ -7290,7 +7317,7 @@ function epPitchHtml(){
   '</div>';
 }
 function epStatusHtml(kind){
-  const links = [["quiz","i-book","Cours & quiz","Apprendre et se tester"],["challenge","i-target","Challenge prop firm","Passer l'évaluation"],["concoursedbplus","i-gem","Concours EDB+","100 000 $ à gagner"],["tradesedb","i-trend","Trades du bureau","Les idées de l'EDB"]];
+  const links = [["quiz","i-book","Cours & quiz","Apprendre et se tester"],["challenge","i-target","Challenge prop firm","Passer l'évaluation"],["concoursedbplus","i-gem","Concours EDB+","100 000 $ à gagner"],["tradesedb","i-trend","Trades du bureau","Les idées de l'EDB"]].filter(l=>!(window.PT_PUBLIC && (l[0]==="tradesedb" || l[0]==="concoursedbplus")));
   let head = "", body = "", actions = "", card = "";
   if (kind==="member"){
     head = '<span class="ep2-eyebrow"><i></i>Membre EDB+</span><h1>Tout Paper Tape est <span class="ep2-gold">à toi</span>.</h1>';
@@ -7398,6 +7425,11 @@ function renderEdbPlusProfileCard(){
 // happens (an automatic message to the bureau + an automatic reply with the
 // payment details) so nothing fires silently on a stray click.
 function openEdbPlusRequestConfirmModal(){
+  if (window.PT_PUBLIC && !EDB_PLUS_STRIPE_LINK){
+    // Site public : pas de demande au bureau ni de Wero / RIB de l'association.
+    openModal('<h3 style="margin-bottom:8px;">Paper Tape+ arrive bientôt</h3><p class="chart-note">L\'abonnement n\'est pas encore ouvert. En attendant, profite de l\'essai gratuit de 24 h.</p>');
+    return;
+  }
   if (EDB_PLUS_STRIPE_LINK){
     openModal(
       '<h3 style="margin-bottom:8px;">Devenir membre EDB+</h3>'+
@@ -7466,7 +7498,7 @@ async function cancelMyEdbPlusRequest(){
 // secret — every Firebase web app ships this in its client-side code; access
 // is controlled by Firestore Security Rules, not by hiding these values.
 // See FIREBASE_SETUP.md for the exact steps if you haven't created a project yet.
-const FIREBASE_CONFIG = {
+const FIREBASE_CONFIG_EDB = {
   apiKey: "AIzaSyCzAcrKDcw4yLT9pfrR1eskDrYv3HgqXoQ",
   authDomain: "paper-tape-edb.firebaseapp.com",
   projectId: "paper-tape-edb",
@@ -7474,6 +7506,58 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "611656704909",
   appId: "1:611656704909:web:096f1a7fcd3333fd2d93c4",
 };
+// Site public (papertape.fr) : projet Firebase SÉPARÉ. Coller ici la config
+// de ce projet (Paramètres du projet → Général → Vos applications → Config).
+// Tant qu'elle n'est pas remplie, le site public marche en local seulement
+// (pas de connexion, pas de classement) — pratique pour l'aperçu.
+const FIREBASE_CONFIG_PUBLIC = {
+  apiKey: "REMPLACE_PAR_LA_CLE_DU_PROJET_PUBLIC",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: "",
+};
+const FIREBASE_CONFIG = window.PT_PUBLIC ? FIREBASE_CONFIG_PUBLIC : FIREBASE_CONFIG_EDB;
+// Nom affiché de l'organisation et de l'offre payante selon le site.
+function PT_ORG(){ return window.PT_PUBLIC ? "Paper Tape" : "École de la Bourse"; }
+const PT_PLUS_NAME = "Paper Tape+";
+// Site public : les textes propres à l'EDB sont réécrits à l'affichage
+// (« École de la Bourse » → « Paper Tape », « EDB+ » → « Paper Tape+ »…),
+// y compris ceux ajoutés plus tard par l'appli. Le graphique (SVG) est ignoré.
+(function ptPublicRewrite(){
+  if (!window.PT_PUBLIC || typeof MutationObserver==="undefined") return;
+  const RULES = [
+    [/l['’]association École de la Bourse \(EDB\)/g, "Paper Tape"], [/l['’]association École de la Bourse/g, "Paper Tape"],
+    [/de l['’]École de la Bourse/g, "de Paper Tape"], [/à l['’]École de la Bourse/g, "à Paper Tape"],
+    [/École de la Bourse \((EDB|ISG Bordeaux)\)/g, "Paper Tape"], [/École de la Bourse · ISG/g, "Paper Tape"], [/École de la Bourse/g, "Paper Tape"],
+    [/ \(ISG Bordeaux\)/g, ""], [/Concours EDB\+/g, "Concours"], [/Trades EDB\+/g, "Trades"], [/bureau (de l['’])?EDB/g, "équipe Paper Tape"],
+    [/EDB\+/g, PT_PLUS_NAME], [/\bl['’]EDB\b/g, "Paper Tape"], [/\bEDB\b/g, "Paper Tape"],
+  ];
+  const fix = (s)=>{ if (!s || (s.indexOf("EDB")<0 && s.indexOf("École de la Bourse")<0 && s.indexOf("ISG")<0)) return s; RULES.forEach(([re, to])=>{ s = s.replace(re, to); }); return s; };
+  const ATTRS = ["title", "placeholder", "aria-label", "alt"];
+  const inSvg = (n)=>{ const el = n.nodeType===1 ? n : n.parentNode; return !!(el && el.closest && el.closest("svg")); };
+  const walk = (root)=>{
+    if (!root || inSvg(root)) return;
+    if (root.nodeType===3){ const v = fix(root.data); if (v!==root.data) root.data = v; return; }
+    if (root.nodeType!==1 || root.tagName==="SCRIPT" || root.tagName==="STYLE") return;
+    ATTRS.forEach(a=>{ const v = root.getAttribute(a); if (v){ const w = fix(v); if (w!==v) root.setAttribute(a, w); } });
+    const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, {acceptNode:(n)=>n.nodeType===1 && (n.tagName==="SCRIPT" || n.tagName==="STYLE" || n.tagName==="svg") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT});
+    let n; while ((n = tw.nextNode())){
+      if (n.nodeType===3){ const v = fix(n.data); if (v!==n.data) n.data = v; }
+      else ATTRS.forEach(a=>{ const v = n.getAttribute(a); if (v){ const w = fix(v); if (w!==v) n.setAttribute(a, w); } });
+    }
+  };
+  walk(document.body);
+  new MutationObserver(muts=>{
+    for (const m of muts){
+      if (inSvg(m.target)) continue;
+      if (m.type==="characterData") walk(m.target);
+      else if (m.type==="attributes") walk(m.target.nodeType===1 ? m.target : null);
+      else m.addedNodes.forEach(walk);
+    }
+  }).observe(document.body, {childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:ATTRS});
+})();
 
 /* ============================= MARKET (live via Crypto.com MCP) ============================= */
 const market = {};
@@ -11527,11 +11611,7 @@ function initChartSourceToggle(){
       setTimeout(()=>{ if (typeof goToEdbPlus==="function") goToEdbPlus(); }, 900);
       return;
     }
-    if (chartSource==="internal" && liqOn()){
-      chartInd.liqSens = String(((+chartInd.liqSens||2) % 3) + 1); saveChartInd();
-      chartToast("Sensibilité de la heatmap : "+({1:"basse", 2:"normale", 3:"haute"})[chartInd.liqSens]+".", "info");
-      updateChart(); return;
-    }
+    if (chartSource==="internal" && liqOn()){ liqSettingsToggle(liqBtn); return; } // déjà affichée : réglages
     const wasTpo = chartInd.tpo;
     chartInd.tpo = false; chartInd.liq = true; saveChartInd();
     if (wasTpo && chartInd.tpoPrevTf && chartInd.tpoPrevTf!==currentTimeframe && ["1m","5m","15m","30m","1h","4h","1d","1w"].includes(chartInd.tpoPrevTf)){
@@ -11830,7 +11910,7 @@ const TA_COLORS = {ema20:"#f2b33d", ema50:"#5aa9e6", ema200:"#c77dff", bb:"#8fa3
 const CHART_IND_KEY = "paperTapeChartInd";
 const CHART_EMA = {ema20:{p:20, color:"#f2b33d", label:"MME 20"}, ema50:{p:50, color:"#5aa9e6", label:"MME 50"}, ema200:{p:200, color:"#c77dff", label:"MME 200"}};
 let chartInd = (function(){
-  const d = {tpo:false, tpoPrevTf:"", tpoPrevZoom:0, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpSum:true, fpTicks:{}, fpDisplay:"cluster", fpDigits:"auto", fpMode:"standard", fpText:"auto", fpHideText:false, fpRound:true, fpGrad:true, lhm:false, lhmSens:"2", lhmTicks:{}, lhmVals:false, lhmTheme:"classic", lhmStyle:"heat", lhmCalc:"close", lhmRes:"sd", lhmProfile:true, lhmProfOutline:true, lhmProfW:"0.15", lhmProfScale:"1", lhmLo:"0", lhmHi:"1", lhmGamma:"1.6", lhmOpacity:"0.9", lhmMin:"0", lhmMax:"0", lhmCursor:true, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true, zoomSpeed:"1", dataSrc:"auto", vpTicks:{}, vpFill:true, vpBox:false, vpSide:"left", vpStyle:"split", vpCol:"#8fa3b8", vpBuyCol:"", vpSellCol:"", vpPocCol:"#8fa3b8", vpPocStyle:"dash", vpVa:true, vpVaCol:"#8fa3b8", vpGrade:false, liq:false, liqSens:"2"};
+  const d = {tpo:false, tpoPrevTf:"", tpoPrevZoom:0, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpSum:true, fpTicks:{}, fpDisplay:"cluster", fpDigits:"auto", fpMode:"standard", fpText:"auto", fpHideText:false, fpRound:true, fpGrad:true, lhm:false, lhmSens:"2", lhmTicks:{}, lhmVals:false, lhmTheme:"classic", lhmStyle:"heat", lhmCalc:"close", lhmRes:"sd", lhmProfile:true, lhmProfOutline:true, lhmProfW:"0.15", lhmProfScale:"1", lhmLo:"0", lhmHi:"1", lhmGamma:"1.6", lhmOpacity:"0.9", lhmMin:"0", lhmMax:"0", lhmCursor:true, liqTheme:"classic", cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true, zoomSpeed:"1", dataSrc:"auto", vpTicks:{}, vpFill:true, vpBox:false, vpSide:"left", vpStyle:"split", vpCol:"#8fa3b8", vpBuyCol:"", vpSellCol:"", vpPocCol:"#8fa3b8", vpPocStyle:"dash", vpVa:true, vpVaCol:"#8fa3b8", vpGrade:false, liq:false, liqSens:"2"};
   try{
     const s = JSON.parse(localStorage.getItem(CHART_IND_KEY)||"null");
     // Chaque réglage est repris s'il a le même type que sa valeur par défaut :
@@ -13342,9 +13422,44 @@ function liqModel(all, tfMs){
 }
 // Dégradé : violet sombre → bleu → turquoise → vert → jaune (zones les plus chargées).
 const LIQ_RAMP = [[0, 40,16,70,0], [0.15, 52,22,98,55], [0.38, 40,86,170,125], [0.62, 26,168,160,175], [0.85, 120,214,90,215], [1, 252,232,80,242]];
+// Réglages de la heatmap des liquidations : petit panneau sous le bouton
+// « Liquidations » (2e clic) — sensibilité et palette de couleurs.
+function liqSettingsToggle(anchor){
+  let pop = document.getElementById("chart-liq-pop");
+  if (pop && !pop.hidden){ pop.hidden = true; return; }
+  if (!pop){
+    pop = document.createElement("div"); pop.id = "chart-liq-pop"; pop.className = "chart-tpo-menu liq-pop";
+    document.body.appendChild(pop);
+    document.addEventListener("pointerdown", (e)=>{ if (!pop.hidden && !e.target.closest("#chart-liq-pop") && !e.target.closest("#chart-src-liq")) pop.hidden = true; }, true);
+    document.addEventListener("keydown", (e)=>{ if (e.key==="Escape") pop.hidden = true; });
+  }
+  const sw = (k)=>{ const R = LIQ_THEMES[k]; return 'linear-gradient(90deg,'+[0.25, 0.5, 0.75, 1].map(t=>{ let i = 0; while (i<R.length-2 && t > R[i+1][0]) i++; const a = R[i], b = R[i+1], u = Math.max(0, Math.min(1, (t-a[0])/(b[0]-a[0]))); return 'rgb('+[1,2,3].map(j=>Math.round(a[j]+(b[j]-a[j])*u)).join(",")+')'; }).join(",")+')'; };
+  const names = {classic:"Classique", magma:"Magma", fire:"Feu", ice:"Glace", green:"Vert", mono:"Gris"};
+  const cur = chartInd.liqTheme || "classic", sens = String(chartInd.liqSens || "2");
+  pop.innerHTML = '<div class="liq-pop-h">Heatmap des liquidations</div>'+
+    '<div class="liq-pop-l">Sensibilité</div><div class="tpo-seg">'+[["1","Basse"],["2","Normale"],["3","Haute"]].map(([v, l])=>'<button type="button" data-liq-sens="'+v+'" class="'+(sens===v ? "on" : "")+'">'+l+'</button>').join("")+'</div>'+
+    '<div class="liq-pop-l">Couleurs</div><div class="tpo-themes">'+Object.keys(LIQ_THEMES).map(k=>'<button type="button" data-liq-theme="'+k+'" class="'+(cur===k ? "on" : "")+'"><i style="background:'+sw(k)+'"></i>'+names[k]+'</button>').join("")+'</div>';
+  pop.querySelectorAll("[data-liq-sens]").forEach(b=>b.addEventListener("click", ()=>{ chartInd.liqSens = b.dataset.liqSens; saveChartInd(); pop.querySelectorAll("[data-liq-sens]").forEach(x=>x.classList.toggle("on", x===b)); updateChart(); }));
+  pop.querySelectorAll("[data-liq-theme]").forEach(b=>b.addEventListener("click", ()=>{ chartInd.liqTheme = b.dataset.liqTheme; saveChartInd(); pop.querySelectorAll("[data-liq-theme]").forEach(x=>x.classList.toggle("on", x===b)); updateChart(); }));
+  pop.hidden = false;
+  const r = anchor.getBoundingClientRect(), w = Math.min(300, window.innerWidth-16);
+  pop.style.width = w+"px";
+  pop.style.left = Math.max(8, Math.min(window.innerWidth-w-8, r.right-w))+"px";
+  pop.style.top = (r.bottom+6)+"px";
+}
+// Palettes de la heatmap des liquidations (réglages : 2e clic sur « Liquidations »).
+const LIQ_THEMES = {
+  classic: LIQ_RAMP,
+  magma: [[0, 20, 5, 40, 0], [0.15, 70, 15, 110, 60], [0.4, 170, 40, 120, 130], [0.65, 240, 100, 60, 185], [0.85, 252, 180, 50, 220], [1, 252, 245, 160, 242]],
+  fire: [[0, 40, 0, 0, 0], [0.15, 110, 10, 10, 70], [0.4, 220, 50, 20, 150], [0.7, 255, 160, 30, 210], [1, 255, 245, 200, 242]],
+  ice: [[0, 5, 15, 45, 0], [0.15, 15, 40, 120, 70], [0.4, 40, 120, 230, 150], [0.7, 120, 220, 255, 210], [1, 245, 252, 255, 242]],
+  green: [[0, 0, 30, 15, 0], [0.15, 10, 80, 40, 70], [0.4, 30, 170, 80, 150], [0.7, 150, 235, 90, 210], [1, 240, 255, 220, 242]],
+  mono: [[0, 30, 30, 30, 0], [0.15, 70, 70, 70, 60], [0.4, 140, 140, 140, 140], [0.7, 210, 210, 210, 200], [1, 255, 255, 255, 242]],
+};
 function liqColor(t){
-  let i = 0; while (i<LIQ_RAMP.length-2 && t > LIQ_RAMP[i+1][0]) i++;
-  const a = LIQ_RAMP[i], b = LIQ_RAMP[i+1], u = Math.max(0, Math.min(1, (t-a[0])/(b[0]-a[0])));
+  const RMP = LIQ_THEMES[chartInd.liqTheme] || LIQ_RAMP;
+  let i = 0; while (i<RMP.length-2 && t > RMP[i+1][0]) i++;
+  const a = RMP[i], b = RMP[i+1], u = Math.max(0, Math.min(1, (t-a[0])/(b[0]-a[0])));
   return [a[1]+(b[1]-a[1])*u, a[2]+(b[2]-a[2])*u, a[3]+(b[3]-a[3])*u, a[4]+(b[4]-a[4])*u];
 }
 let liqCanvas = null;
@@ -13600,7 +13715,7 @@ function hmLayer(g, md, start, fpSkip){
 // bougie précédente / survolée / suivante × ligne de prix au-dessus / sous le
 // curseur / en dessous, avec le prix de chaque ligne. Option « Infobulle 3 × 3 ».
 function hmCursorBox(v, i, price, h){
-  if (typeof hmOn!=="function" || !hmOn() || chartInd.lhmCursor===false) return "";
+  if (typeof hmOn!=="function" || !hmOn() || chartInd.lhmCursor===false || (typeof liqOn==="function" && liqOn())) return "";
   const md = HM.md;
   if (!md || HM.sym!==selectedSymbol || !(md.stp>0)) return "";
   const j = v.start+i-md.i0, b = Math.floor((price-md.lo)/md.stp);
@@ -13652,7 +13767,7 @@ function hmLayerImg(g, md, start, op){
 function liqLayer(g, md, start, end){
   const {min, max, padR, W, slotW, xAt, y, live} = g;
   const R = md.R, n = md.n, sens = +chartInd.liqSens || 2;
-  const key = [LIQ.modelKey, LIQ.modelAt, sens].join("|");
+  const key = [LIQ.modelKey, LIQ.modelAt, sens, chartInd.liqTheme||"classic"].join("|");
   if (LIQ.imgKey!==key){
     // Échelle : 99,8e centile des cellules non nulles (un seul amas énorme n'écrase pas le reste).
     const vals = [];
@@ -14020,7 +14135,8 @@ function chartRenderCandles(svg, a, m, W, H, all){
   }
   // Heatmap de liquidité (EDB+) : sous les bougies (et sous la heatmap des liquidations).
   let hmNote = "";
-  if (!tpoMode && hmOn() && chartSource==="internal"){
+  // (Masquée quand la heatmap des liquidations est affichée : les deux se chevauchaient.)
+  if (!tpoMode && hmOn() && chartSource==="internal" && !liqOn()){
     const hmd = hmModel(all, tfMs);
     const srcN = LAD.src ? srcKindName(LAD.src.kind) : "";
     HM.gridNote = "";
@@ -16513,7 +16629,7 @@ function drawShareCardClassic(ctx, W, H, d){
   ctx.fillText("📟 PAPER TAPE", 64, 100);
   ctx.fillStyle = faint; ctx.font = "500 22px IBM Plex Mono, monospace";
   ctx.textAlign = "right";
-  ctx.fillText("École de la Bourse", W-64, 100);
+  ctx.fillText(PT_ORG(), W-64, 100);
   ctx.textAlign = "center";
   ctx.fillStyle = text; ctx.font = "700 56px IBM Plex Sans, sans-serif";
   ctx.fillText(d.icon+"  "+d.symbol, W/2, 250);
@@ -16603,7 +16719,7 @@ function drawShareCardMinimal(ctx, W, H, d){
   ctx.fillText("PAPER TAPE", 64, 100);
   ctx.textAlign = "right";
   ctx.fillStyle = faint; ctx.font = "500 20px IBM Plex Mono, monospace";
-  ctx.fillText("École de la Bourse · ISG", W-64, 100);
+  ctx.fillText(window.PT_PUBLIC ? "Paper Tape" : "École de la Bourse · ISG", W-64, 100);
   ctx.strokeStyle = line; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(64,130); ctx.lineTo(W-64,130); ctx.stroke();
   ctx.textAlign = "left";
   ctx.fillStyle = text; ctx.font = "700 48px IBM Plex Sans, sans-serif";
@@ -16671,7 +16787,7 @@ function drawShareCardTerminal(ctx, W, H, d){
   ctx.textAlign = "center";
   ctx.font = "500 22px IBM Plex Mono, monospace";
   ctx.fillStyle = dimGreen;
-  ctx.fillText("paper-tape // École de la Bourse // simulation only", W/2, H-70);
+  ctx.fillText("paper-tape // "+PT_ORG()+" // simulation only", W/2, H-70);
 }
 function shareCardFilename(d){
   return "papertape-"+(d?d.symbol:"position")+"-"+Date.now()+".png";
@@ -26497,7 +26613,7 @@ function certPdfBlob(jpeg, w, h){
 }
 function certLinkedInAddUrl(cert){
   const d = new Date(cert.fundedAt);
-  const p = new URLSearchParams({startTask:"CERTIFICATION_NAME", name:"Challenge Prop Firm "+certMoney(cert.tier)+" (simulation)", organizationName:"École de la Bourse (ISG Bordeaux) · Paper Tape",
+  const p = new URLSearchParams({startTask:"CERTIFICATION_NAME", name:"Challenge Prop Firm "+certMoney(cert.tier)+" (simulation)", organizationName:window.PT_PUBLIC ? "Paper Tape" : "École de la Bourse (ISG Bordeaux) · Paper Tape",
     issueYear:String(d.getFullYear()), issueMonth:String(d.getMonth()+1), certUrl:certUrl(cert.id), certId:cert.id});
   return "https://www.linkedin.com/profile/add?"+p.toString();
 }
@@ -26605,7 +26721,7 @@ async function certVerifyBoot(){
     ];
     if (c.perf!=null) rows.push(["Performance", certPct(c.perf)+" sur le compte"]);
     if (c.days) rows.push(["Durée", c.days+" jour"+(c.days>1?"s":"")+" du départ au financement"]);
-    rows.push(["Délivré par", "École de la Bourse (ISG Bordeaux), via Paper Tape"]);
+    rows.push(["Délivré par", window.PT_PUBLIC ? "Paper Tape" : "École de la Bourse (ISG Bordeaux), via Paper Tape"]);
     box.innerHTML =
       '<div class="cv-brand"><span>PAPER TAPE</span><em>École de la Bourse</em></div>'+
       '<div class="cv-status ok"><span>✓</span><div><b>Certificat authentique</b><p>Ce certificat correspond bien à un challenge réussi enregistré sur Paper Tape.</p></div></div>'+
