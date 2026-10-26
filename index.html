@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="2680">
+<meta name="pt-build" content="2690">
 <title>Paper Tape</title>
 <!-- Favicon / app icon -->
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -6243,7 +6243,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2680 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v2690 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -9922,7 +9922,7 @@ function ladSetStep(v){
 function ladOpenDepthBinance(src, gen){
   if (typeof WebSocket==="undefined") return;
   const fut = src.kind==="bf";
-  let ws; try{ ws = new WebSocket((fut ? "wss://fstream.binance.com/ws/" : "wss://stream.binance.com:9443/ws/")+src.ref.toLowerCase()+"@depth@100ms"); }catch(e){ return; }
+  let ws; try{ ws = new WebSocket((fut ? "wss://fstream.binance.com/ws/" : "wss://stream.binance.com:443/ws/")+src.ref.toLowerCase()+"@depth@100ms"); }catch(e){ return; }
   LAD.ws = ws; LAD.ready = false; LAD.buf = []; LAD.prevU = null;
   ws.onopen = ()=>ladSnapshot(src, gen);
   ws.onmessage = (ev)=>{
@@ -9975,7 +9975,7 @@ function ladAddTrade(t, px, q, buy){
 }
 function ladOpenTradesBinance(src, gen){
   if (typeof WebSocket==="undefined") return;
-  let ws; try{ ws = new WebSocket((src.kind==="bf" ? "wss://fstream.binance.com/ws/" : "wss://stream.binance.com:9443/ws/")+src.ref.toLowerCase()+"@aggTrade"); }catch(e){ return; }
+  let ws; try{ ws = new WebSocket((src.kind==="bf" ? "wss://fstream.binance.com/ws/" : "wss://stream.binance.com:443/ws/")+src.ref.toLowerCase()+"@aggTrade"); }catch(e){ return; }
   LAD.wsT = ws;
   ws.onmessage = (ev)=>{
     if (gen!==LAD.gen) return;
@@ -10210,7 +10210,7 @@ function initDom(){
      se coupe (réseau, onglet en veille).
    L'affichage (PnL, positions, graphique…) et les vérifications TP / SL /
    liquidations suivent, au plus deux fois par seconde. */
-const BINANCE_WS_SPOT = "wss://stream.binance.com:9443/stream?streams=";
+const BINANCE_WS_SPOT = "wss://stream.binance.com:443/stream?streams=";
 const BINANCE_WS_FUT = "wss://fstream.binance.com/stream?streams=";
 const HL_FAST_MS = 1500;
 const binanceWs = {spot:null, fut:null};
@@ -12092,9 +12092,14 @@ function fpRetry(gen){
     if (FP.src.kind==="hl") fpOpenHl(FP.src.ref, gen); else fpOpenBinance(FP.src, gen);
   }, d);
 }
+// Flux spot : port 443 (le 9443 est souvent bloqué sur les réseaux d'école /
+// d'entreprise) ; si le flux reste muet alors que le marché bouge, on essaie
+// l'autre adresse de Binance (données de marché seulement).
+const FP_SPOT_WS = ["wss://stream.binance.com:443/ws/", "wss://data-stream.binance.vision/ws/"];
+let fpSpotWsI = 0;
 function fpOpenBinance(src, gen){
   if (typeof WebSocket==="undefined") return;
-  const url = (src.kind==="bf" ? "wss://fstream.binance.com/ws/" : "wss://stream.binance.com:9443/ws/")+src.ref.toLowerCase()+"@aggTrade";
+  const url = (src.kind==="bf" ? "wss://fstream.binance.com/ws/" : FP_SPOT_WS[fpSpotWsI % FP_SPOT_WS.length])+src.ref.toLowerCase()+"@aggTrade";
   let ws; try{ ws = new WebSocket(url); }catch(e){ fpRetry(gen); return; }
   FP.ws = ws;
   ws.onopen = ()=>{ FP.wsBackoff = 2000; };
@@ -12154,15 +12159,19 @@ async function fpCatchUp(){
       const a = ASSETS.find(x=>x.symbol===FP.sym);
       if (full>=8 && Date.now()-FP.lastT > 20*60e3 && a && fpWanted()){ fpStart(a); return; }
       if (got) fpTouched(true);
-      // Le marché bouge mais le flux est muet depuis 30 s : on rouvre le flux.
-      if (got && FP.ws && Date.now()-FP.wsAt > 30000){ const w = FP.ws; FP.ws = null; try{ w.onclose = null; w.close(); }catch(e){} FP.wsAt = Date.now(); fpOpenBinance(src, gen); }
+      // Le marché bouge mais le flux est muet depuis 15 s : on rouvre le flux
+      // (en spot, sur l'autre adresse Binance).
+      if (got && Date.now()-FP.wsAt > 15000){ if (FP.ws){ const w = FP.ws; FP.ws = null; try{ w.onclose = null; w.close(); }catch(e){} } if (src.kind!=="bf") fpSpotWsI++; FP.wsAt = Date.now(); fpOpenBinance(src, gen); }
     }
   }
 }
+// Flux muet depuis 3 s : rattrapage toutes les 1,5 s en spot (poids 4 sur
+// 6 000 / min), toutes les 4 s en perps (poids 20 sur 2 400 / min).
 setInterval(()=>{
   if (!FP.src || FP.hist!=="done" || !fpWanted() || document.visibilityState==="hidden") return;
-  if (Date.now()-FP.wsAt > 6000 || FP.pend.length) fpCatchUp();
-}, 4000);
+  if (FP.src.kind==="bf" && Date.now()-FP.catchAt < 3900) return;
+  if (Date.now()-FP.wsAt > 3000 || FP.pend.length) fpCatchUp();
+}, 1500);
 document.addEventListener("visibilitychange", ()=>{ if (document.visibilityState==="visible" && FP.src && FP.hist==="done") fpCatchUp(); });
 // Heure de début de l'historique visé : les bougies affichées (au plus 40).
 function fpHistTarget(){
@@ -19658,12 +19667,19 @@ function updPaintDot(){
   if (fab){ fab.title = on ? "Nouvelle mise à jour du site — et pour signaler un bug / proposer une idée" : "Signaler un bug / proposer une idée"; }
   const tb = document.getElementById("fb-tab-upd"); if (tb) tb.classList.toggle("has-upd", on);
 }
+// Coût Firestore : on ne lit que les mises à jour plus récentes que la
+// dernière vue sur cet appareil (souvent aucune = 1 lecture), au plus une
+// fois par minute, et toutes les 10 min en fond.
+let updLastCheck = 0;
 async function checkSiteUpdates(){
   if (!dbReady || !db) return;
+  if (updOk && Date.now()-updLastCheck < 60000) return true;
   try{
-    const snap = await db.collection("siteUpdates").orderBy("createdAt","desc").limit(20).get();
+    const since = new Date(updSeenAt() || 0).toISOString();
+    const snap = await db.collection("siteUpdates").where("createdAt", ">", since).orderBy("createdAt","desc").limit(20).get();
+    updLastCheck = Date.now();
     const times = snap.docs.map(x=>Date.parse((x.data()||{}).createdAt) || 0);
-    updLatestAt = times.length ? Math.max(...times) : 0;
+    if (times.length) updLatestAt = Math.max(updLatestAt, ...times);
     // Premier passage sur cet appareil : seules les mises à jour de moins de 7 jours comptent comme nouvelles.
     if (!updSeenAt() && times.length){ const old = times.filter(t=>Date.now()-t > 7*86400e3); if (old.length){ try{ localStorage.setItem(UPD_SEEN_KEY, String(Math.max(...old))); }catch(e){} } }
     const seen = updSeenAt();
@@ -19679,7 +19695,7 @@ function initSiteUpdates(){
   let tries = 0;
   const first = async ()=>{ if (updOk || tries++ > 40) return; if (!(await checkSiteUpdates())) setTimeout(first, 3000); };
   setTimeout(first, 1500);
-  setInterval(checkSiteUpdates, 5*60*1000);
+  setInterval(checkSiteUpdates, 10*60*1000);
   document.addEventListener("visibilitychange", ()=>{ if (document.visibilityState==="visible") checkSiteUpdates(); });
 }
 function renderSiteUpdates(docs){
