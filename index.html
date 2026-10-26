@@ -10573,6 +10573,22 @@ async function fetchNewsSet(feeds){
   items.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));
   return items.slice(0,60);
 }
+// Source principale : le document marketData/news, rempli toutes les
+// 15 minutes par la Cloud Function newsRefresh (les flux RSS y sont lus côté
+// serveur : pas de CORS, pas de quota par visiteur). rss2json ne sert plus
+// que de secours si ce document manque ou date de plus de 3 h.
+const NEWS_SERVER_FRESH_MS = 3*3600*1000;
+async function newsFromServer(){
+  for (let i=0; i<20 && !(dbReady && db); i++) await new Promise(r=>setTimeout(r, 250)); // la base démarre parfois juste après
+  if (!(dbReady && db)) return null;
+  try{
+    const snap = await db.collection("marketData").doc("news").get();
+    const d = snap && snap.exists ? snap.data() : null;
+    if (!d) return null;
+    const ok = a=>Array.isArray(a) ? a.filter(it=>it && it.title && it.link) : [];
+    return {intl:ok(d.intl), fr:ok(d.fr), at:trialTimestampToMs(d.updatedAt) || 0};
+  }catch(e){ return null; }
+}
 async function refreshNews(){
   if (newsLoading) return;
   newsLoading = true;
@@ -10582,15 +10598,24 @@ async function refreshNews(){
   newsCache.fr.status = "Actualisation…";
   paintNewsTab();
   try{
-    const [itemsIntl, itemsFr] = await Promise.all([fetchNewsSet(NEWS_FEEDS), fetchNewsSet(NEWS_FEEDS_FR)]);
-    const t = new Date().toLocaleTimeString("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit"});
+    const srv = await newsFromServer();
+    const srvFresh = !!(srv && srv.at && Date.now()-srv.at < NEWS_SERVER_FRESH_MS);
+    let itemsIntl = srvFresh ? srv.intl : [], itemsFr = srvFresh ? srv.fr : [];
+    let atIntl = srvFresh ? srv.at : Date.now(), atFr = atIntl;
+    if (!itemsIntl.length || !itemsFr.length){
+      const [a, b] = await Promise.all([itemsIntl.length ? null : fetchNewsSet(NEWS_FEEDS), itemsFr.length ? null : fetchNewsSet(NEWS_FEEDS_FR)]);
+      if (a && a.length){ itemsIntl = a; atIntl = Date.now(); } else if (!itemsIntl.length && srv && srv.intl.length){ itemsIntl = srv.intl; atIntl = srv.at; }
+      if (b && b.length){ itemsFr = b; atFr = Date.now(); } else if (!itemsFr.length && srv && srv.fr.length){ itemsFr = srv.fr; atFr = srv.at; }
+    }
+    const hhmm = ms=>new Date(ms || Date.now()).toLocaleTimeString("fr-FR",{timeZone:"Europe/Paris",hour:"2-digit",minute:"2-digit"});
+    const t = hhmm(atIntl), tFr = hhmm(atFr);
     newsCache.intl.items = itemsIntl;
     newsCache.intl.status = itemsIntl.length>0
       ? "Mis à jour à "+t+" (heure de Paris) · "+itemsIntl.length+" articles"
       : "Actualités indisponibles pour le moment — nouvelle tentative automatique dans quelques minutes.";
     newsCache.fr.items = itemsFr;
     newsCache.fr.status = itemsFr.length>0
-      ? "Mis à jour à "+t+" (heure de Paris) · "+itemsFr.length+" articles"
+      ? "Mis à jour à "+tFr+" (heure de Paris) · "+itemsFr.length+" articles"
       : "Actualités indisponibles pour le moment — nouvelle tentative automatique dans quelques minutes.";
   }catch(e){
     if (newsCache.intl.items.length===0) newsCache.intl.status = "Actualités indisponibles pour le moment.";
