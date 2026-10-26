@@ -12,6 +12,8 @@
 <meta charset="utf-8">
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
+<meta name="pt-build" content="2580">
 <title>Paper Tape</title>
 <!-- Favicon / app icon -->
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -1082,6 +1084,15 @@
   .google-btn:hover{box-shadow:0 1px 3px rgba(0,0,0,.25);}
   .google-btn:disabled{opacity:.6;cursor:not-allowed;box-shadow:none;}
   .google-btn svg{flex:none;}
+  .new-build{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);z-index:1100;display:flex;align-items:center;gap:10px;max-width:calc(100vw - 24px);padding:9px 10px 9px 14px;border-radius:12px;background:var(--panel-2);border:1px solid var(--accent);box-shadow:0 14px 34px -12px rgba(0,0,0,.7);font:13px var(--sans);color:var(--text);animation:nbIn .25s ease-out;}
+  .new-build[hidden]{display:none;}
+  .new-build span{min-width:0;}
+  #new-build-go{flex:none;border:none;border-radius:8px;padding:7px 12px;background:var(--accent);color:var(--on-accent, #fff);font:600 12.5px var(--sans);cursor:pointer;}
+  #new-build-x{flex:none;border:none;background:none;color:var(--text-faint);cursor:pointer;font-size:13px;padding:4px;}
+  @keyframes nbIn{from{opacity:0;transform:translate(-50%, 10px);}to{opacity:1;transform:translate(-50%, 0);}}
+  html.touch-ui .new-build{bottom:calc(var(--tabbar-h, 60px) + 12px + env(safe-area-inset-bottom, 0px));}
+  @media (max-width:600px){ .new-build{left:12px;right:12px;transform:none;animation:none;} .new-build span{flex:1;} }
+  .new-build span{white-space:normal;}
   .app-version-tag{position:fixed;bottom:6px;left:8px;font-family:var(--mono);font-size:9px;color:var(--text-faint);opacity:.35;pointer-events:none;z-index:5;user-select:none;}
   .quiz-progress{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:10.5px;color:var(--text-faint);margin-bottom:10px;}
   .quiz-cat{
@@ -6175,7 +6186,8 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2026.09.14 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v2580 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
   <div class="modal-overlay" id="modal-overlay" hidden>
@@ -19121,6 +19133,39 @@ function initFeedPosting(){
   });
 }
 
+/* ============================= NOUVELLE VERSION EN LIGNE =============================
+   Chaque mise en ligne change <meta name="pt-build">. Toutes les 2 minutes (et
+   au retour sur l'onglet), le site relit la page en ligne (sans cache) et, si
+   le numéro diffère du sien, affiche « Nouvelle version disponible —
+   Recharger ». « ✕ » masque l'avis jusqu'à la version suivante. */
+const PT_BUILD = (document.querySelector('meta[name="pt-build"]')||{}).content || "";
+let ptBuildDismissed = "";
+async function checkNewBuild(){
+  if (!PT_BUILD || location.protocol==="file:" || document.visibilityState==="hidden") return;
+  try{
+    const r = await fetch(location.pathname+"?_b="+Date.now(), {cache:"no-store", signal:AbortSignal.timeout(10000)});
+    if (!r.ok) return;
+    const head = (await r.text()).slice(0, 4000);
+    const m = head.match(/<meta name="pt-build" content="([^"]+)"/);
+    if (!m || m[1]===PT_BUILD || m[1]===ptBuildDismissed) return;
+    const box = document.getElementById("new-build");
+    if (box){ box.dataset.build = m[1]; box.hidden = false; }
+  }catch(e){ /* hors ligne : on réessaiera */ }
+}
+function initNewBuildCheck(){
+  const box = document.getElementById("new-build");
+  if (!box) return;
+  document.getElementById("new-build-go").addEventListener("click", ()=>{
+    // Les données du compte sont enregistrées avant de recharger.
+    try{ if (typeof persistAccount==="function") persistAccount(); if (typeof flushPersist==="function") flushPersist(true); }catch(e){}
+    setTimeout(()=>location.reload(), 250);
+  });
+  document.getElementById("new-build-x").addEventListener("click", ()=>{ ptBuildDismissed = box.dataset.build || ""; box.hidden = true; });
+  setTimeout(checkNewBuild, 30000);
+  setInterval(checkNewBuild, 2*60*1000);
+  document.addEventListener("visibilitychange", ()=>{ if (document.visibilityState==="visible") checkNewBuild(); });
+}
+
 /* ============================= FEEDBACK ============================= */
 let fbType = "bug";
 function renderFeedbackModalHtml(){
@@ -26911,6 +26956,7 @@ function initEvents(){
 
   document.getElementById("feedback-fab").addEventListener("click", ()=>openFeedbackModal());
   initSiteUpdates();
+  initNewBuildCheck();
   document.getElementById("journal-submit").addEventListener("click", ()=>{
     const ta = document.getElementById("journal-input");
     if (addJournalEntry(ta.value)) ta.value = "";
