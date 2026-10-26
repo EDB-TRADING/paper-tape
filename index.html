@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="2700">
+<meta name="pt-build" content="2710">
 <title>Paper Tape</title>
 <!-- Favicon / app icon -->
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -2800,6 +2800,10 @@
   .adm-user b{display:block;font-size:13.5px;font-weight:600;}
   .adm-user b em{font-style:normal;font-weight:400;color:var(--text-faint);font-size:12px;}
   .adm-user small{display:block;font-size:11.5px;color:var(--text-faint);}
+  .adm-ver-line{display:block;margin-top:2px;}
+  .adm-ver{font:600 10.5px var(--mono);white-space:nowrap;}
+  .adm-ver.ok{color:var(--long);}
+  .adm-ver.old{color:#f2b33d;}
   .adm-tags{display:flex;gap:5px;flex-wrap:wrap;}
   .adm-tag{font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:6px;background:var(--panel-2);color:var(--text-dim);white-space:nowrap;}
   .adm-tag.plus{color:var(--gold);background:color-mix(in srgb, var(--gold) 13%, transparent);}
@@ -5967,7 +5971,7 @@
           <div class="adm-filters" id="adm-filters">
             <button type="button" class="nw-chip is-active" data-adm-filter="all">Tous</button>
             <button type="button" class="nw-chip" data-adm-filter="plus">EDB+</button>
-            <button type="button" class="nw-chip" data-adm-filter="req">Demandes</button>
+            <button type="button" class="nw-chip" data-adm-filter="req">Demandes</button><button type="button" class="nw-chip" data-adm-filter="old" title="Dernière connexion sur une ancienne version du site">Pas à jour</button>
             <button type="button" class="nw-chip" data-adm-filter="admin">Admins</button>
           </div>
           <button class="pos-close" id="admin-refresh">🔄 Actualiser</button>
@@ -6243,7 +6247,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2700 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v2710 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -7562,6 +7566,16 @@ function chartLivePx(symbol){
   if (!chartSrcDiffers(a)) return m.last;
   return (m.srcKey===chartSrcKey(chartSrcAsset(a)) && Date.now()-(m.srcPxAt||0) < 15000) ? m.srcPx : NaN;
 }
+// Prix de la ligne « dernier prix » du graphique : celui de la source du
+// graphique (sinon la clôture de la bougie en cours), le prix du site sinon.
+function chartLinePx(m){
+  const a = ASSETS.find(x=>x.symbol===selectedSymbol);
+  if (!chartSrcDiffers(a)) return m.last;
+  const p = chartLivePx(selectedSymbol);
+  if (isFinite(p)) return p;
+  const d = m.candles && m.candles.data, L = d && d[d.length-1];
+  return L && isFinite(L.c) ? L.c : m.last;
+}
 let chartSrcPxBusy = false;
 setInterval(async ()=>{
   if (chartSrcPxBusy || document.visibilityState==="hidden" || typeof selectedSymbol==="undefined") return;
@@ -8665,6 +8679,9 @@ function persistAccount(){
           // so it never races the client that's already handling it.
           lastActiveAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
+          // Version du site et appareil de la dernière connexion (vus dans Admin).
+          ptBuild: (document.querySelector('meta[name="pt-build"]')||{}).content || null,
+          ptClient: ptClientKind(),
           writerTab: TAB_ID,
           rev: accountRev+1,
           hasOpenActivity,
@@ -13391,7 +13408,7 @@ function chartRenderCandles(svg, a, m, W, H, all){
 
   let lo = Infinity, hi = -Infinity;
   vis.forEach(c=>{ if (c.l<lo) lo = c.l; if (c.h>hi) hi = c.h; });
-  if (live && m.last!=null){ lo = Math.min(lo, m.last); hi = Math.max(hi, m.last); }
+  if (live && m.last!=null){ const lpx = chartLinePx(m); lo = Math.min(lo, lpx); hi = Math.max(hi, lpx); }
   [lo, hi] = extendRangeForPositions(lo, hi, positions);
   if (chartLimitDraft && chartLimitDraft.sym===selectedSymbol && !chartDraftDrag)
     [chartLimitDraft.entry, chartLimitDraft.tp, chartLimitDraft.sl].forEach(v=>{ if (v<lo) lo = v; if (v>hi) hi = v; });
@@ -13733,12 +13750,14 @@ function chartRenderCandles(svg, a, m, W, H, all){
       marks += '<polygon points="'+pts+'" fill="'+(t.kind==="in"?col:pal.bg)+'" stroke="'+(t.kind==="in"?pal.bg:col)+'" stroke-width="1.2"/>';
     });
   }
-  // Dernier prix : ligne pointillée + étiquette sur l'axe (+ compte à rebours)
+  // Dernier prix : ligne pointillée + étiquette sur l'axe (+ compte à rebours).
+  // Suit la source du graphique (ex. Binance perps) comme la bougie en cours.
   let lastTag = "", priceBox = null;
   if (m.last!=null){
     const lastC = all[all.length-1];
     const lpColor = (lastC ? lastC.c>=lastC.o : m.changePct>=0) ? cc.up : cc.down;
-    const ly = y(m.last);
+    const linePx = chartLinePx(m);
+    const ly = y(linePx);
     const cd = live ? chartCountdownText() : "";
     const tagH = cd ? 28 : 16;
     if (live && ly>=padT && ly<=H-padB) lastTag += '<line x1="'+padL+'" y1="'+ly.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+ly.toFixed(1)+'" stroke="'+lpColor+'" stroke-width="1" stroke-dasharray="2,3" opacity="0.8"/>';
@@ -13746,7 +13765,7 @@ function chartRenderCandles(svg, a, m, W, H, all){
     priceBox = {t:ty, b:ty+tagH};
     const ink = chartInkOn(lpColor);
     lastTag += '<rect x="'+(W-padR+1)+'" y="'+ty.toFixed(1)+'" width="'+(padR-2)+'" height="'+tagH+'" rx="3" fill="'+lpColor+'"/>'+
-      '<text x="'+(W-padR+6)+'" y="'+(ty+11.6).toFixed(1)+'" fill="'+ink+'" font-size="10" font-weight="700" '+CHART_FONT+'>'+chartNum(m.last, dec)+'</text>'+
+      '<text x="'+(W-padR+6)+'" y="'+(ty+11.6).toFixed(1)+'" fill="'+ink+'" font-size="10" font-weight="700" '+CHART_FONT+'>'+chartNum(linePx, dec)+'</text>'+
       (cd ? '<text id="chart-cd" x="'+(W-padR+6)+'" y="'+(ty+23.5).toFixed(1)+'" fill="'+ink+'" font-size="9.5" '+CHART_FONT+' opacity="0.85">'+cd+'</text>' : "");
   }
   // Bouton « Direct » quand on a remonté le temps
@@ -28738,6 +28757,20 @@ function updateAdminNavVisibility(){
   const btn = document.getElementById("nav-admin-btn");
   if (btn) btn.hidden = !state.isAdmin;
 }
+// « App iPhone », « Navigateur Mac »… (app = installée sur l'écran d'accueil / le Dock).
+function ptClientKind(){
+  const ua = navigator.userAgent || "";
+  const os = /iphone|ipod/i.test(ua) ? "iPhone" : (/ipad/i.test(ua) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1)) ? "iPad" : /android/i.test(ua) ? "Android" : /mac/i.test(ua) ? "Mac" : /win/i.test(ua) ? "Windows" : /linux|cros/i.test(ua) ? "Linux" : "Autre";
+  let app = false; try{ app = pwaIsStandalone(); }catch(e){}
+  return (app ? "App " : "Navigateur ")+os;
+}
+// Version du site lors de la dernière connexion d'un trader, comparée à celle de cette page.
+function adminBuildHtml(d, long){
+  const cur = (document.querySelector('meta[name="pt-build"]')||{}).content || "";
+  if (!d.ptBuild) return '<span class="adm-ver old" title="Pas reconnecté depuis la v2710 (version inconnue)">'+(long ? "Inconnue (pas reconnecté depuis la v2710)" : "avant v2710")+'</span>';
+  const ok = cur && +d.ptBuild >= +cur;
+  return '<span class="adm-ver '+(ok ? "ok" : "old")+'" title="'+(ok ? "À jour" : "Ancienne version : il doit recharger la page / rouvrir l'app")+'">v'+escapeHtml(String(d.ptBuild))+(d.ptClient ? ' · '+escapeHtml(String(d.ptClient)) : '')+(long && !ok ? " · pas à jour" : "")+'</span>';
+}
 function fmtWhen(iso){
   if (!iso) return "—";
   const d = new Date(iso);
@@ -28784,6 +28817,7 @@ function adminFilteredDocs(){
     if (adminFilter==="plus" && !d.edbPlus) return false;
     if (adminFilter==="req" && !(d.edbPlusRequested && !d.edbPlus)) return false;
     if (adminFilter==="admin" && !d.isAdmin) return false;
+    if (adminFilter==="old"){ const cur = (document.querySelector('meta[name="pt-build"]')||{}).content || ""; if (d.ptBuild && +d.ptBuild >= +cur) return false; }
     if (q && !((d.username||"")+" "+(d.email||"")).toLowerCase().includes(q)) return false;
     return true;
   });
@@ -28809,7 +28843,7 @@ function renderAdminTable(){
       '<tr class="adm-row">'+
         '<td><div class="adm-user"><span class="tx-avatar">'+escapeHtml(name.charAt(0).toUpperCase())+'</span><span><b>'+escapeHtml(name)+(id===clientId?' <em>(toi)</em>':'')+'</b><small>'+escapeHtml(d.email||"invité")+'</small></span></div></td>'+
         '<td class="num">'+fmtMoney(eq)+'</td>'+
-        '<td>'+fmtWhen(d.lastActiveAt)+'</td>'+
+        '<td>'+fmtWhen(d.lastActiveAt)+'<small class="adm-ver-line">'+adminBuildHtml(d)+'</small></td>'+
         '<td class="num adm-col-opt">'+fmtDuration(d.totalTimeSpent)+'</td>'+
         '<td><div class="adm-tags">'+(tags.join("")||'<span class="chart-note" style="display:inline;">—</span>')+'</div></td>'+
         '<td class="adm-cell-btn"><button class="adm-manage" data-admin-view="'+id+'">Gérer</button></td>'+
@@ -29642,7 +29676,8 @@ function adminDetailHtml(d){
     adminDetailRow("Équité", fmtMoney(eq)) +
     adminDetailRow("Marge utilisée", fmtMoney(typeof d.marginUsed==="number"?d.marginUsed:0)) +
     adminDetailRow("Temps passé", fmtDuration(d.totalTimeSpent)) +
-    adminDetailRow("Dernière activité", fmtWhen(d.lastActiveAt))
+    adminDetailRow("Dernière activité", fmtWhen(d.lastActiveAt)) +
+    adminDetailRow("Version du site", adminBuildHtml(d, true))
   );
 
   html += (typeof adminRiskProfileHtml==="function" ? adminRiskProfileHtml(d) : "");
