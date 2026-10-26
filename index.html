@@ -681,6 +681,9 @@
   /* chart panel */
   .chart-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 14px;margin-bottom:8px;}
   .chart-head-sym{white-space:nowrap;}
+  .src-chip{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;border:1px solid var(--border);font:600 10px var(--mono);color:var(--text-dim);vertical-align:middle;letter-spacing:.02em;}
+  .src-chip.perp{border-color:color-mix(in srgb, #f0b90b 55%, var(--border));color:#f0b90b;}
+  .dom-sym .src-chip{margin-left:6px;}
   @media (max-width:720px){ .chart-head .chart-qt{order:3;flex-basis:100%;justify-content:flex-start;} }
   .chart-head .sym-big{font-family:var(--mono);font-size:20px;font-weight:700;}
   .chart-head .name-big{font-family:var(--sans);font-size:11px;color:var(--text-faint);margin-left:8px;}
@@ -783,7 +786,8 @@
   .tpsl-hit{cursor:ns-resize;}
   .tpsl-chip{cursor:ns-resize;}
   #chart-svg.tpsl-dragging{cursor:ns-resize;}
-  #chart-svg{cursor:crosshair;user-select:none;-webkit-user-select:none;}
+  #chart-svg{cursor:crosshair;user-select:none;-webkit-user-select:none;contain:layout paint style;}
+  /* contain : redessiner le graphique (zoom, défilement) ne recalcule plus la mise en page du reste de la page. */
   #chart-svg.chart-panning{cursor:grabbing;}
   #chart-svg.chart-zooming{cursor:zoom-in;}
   #chart-svg.chart-drawing{cursor:crosshair;}
@@ -1335,6 +1339,22 @@
   /* feedback FAB + modal */
   .feedback-fab{position:fixed;bottom:20px;right:20px;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg, var(--accent-light), var(--accent-dark));color:var(--on-accent);border:none;font-size:20px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.4);z-index:40;}
   .feedback-fab:hover{filter:brightness(1.08);}
+  .feedback-fab.has-upd::after{content:"";position:absolute;top:1px;right:1px;width:12px;height:12px;border-radius:50%;background:#e5484d;box-shadow:0 0 0 2px var(--bg);}
+  .fb-tabs{display:flex;gap:6px;margin:0 0 12px;}
+  .fb-tabs button{position:relative;}
+  .fb-tabs button.has-upd::after{content:"";position:absolute;top:4px;right:5px;width:8px;height:8px;border-radius:50%;background:#e5484d;}
+  .upd-item{padding:10px 0;border-bottom:1px solid var(--border-soft);}
+  .upd-tip{display:flex;flex-direction:column;gap:3px;margin:0 0 10px;padding:9px 11px;border-radius:9px;background:var(--bg-raised);border:1px solid var(--border-soft);font-size:12px;line-height:1.45;color:var(--text-dim);}
+  .upd-tip b{color:var(--text);font-weight:600;}
+  .upd-tip span{display:grid;grid-template-columns:78px 1fr;gap:6px;}
+  .upd-tip em{font-style:normal;font-weight:600;color:var(--text);}
+  .upd-tip i{font-style:normal;}
+  .upd-item:last-child{border-bottom:none;}
+  .upd-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--text-faint);margin-bottom:4px;}
+  .upd-new{font-family:var(--sans);font-size:10.5px;font-weight:700;color:#fff;background:#e5484d;border-radius:999px;padding:1px 7px;margin-left:6px;}
+  .upd-text{white-space:pre-wrap;font-size:13.5px;line-height:1.5;color:var(--text);}
+  .upd-del{border:none;background:none;color:var(--text-faint);cursor:pointer;font-size:12px;}
+  .upd-del:hover{color:var(--short);}
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;}
   .modal-overlay[hidden]{display:none;}
   .modal-box{position:relative;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;max-width:480px;width:100%;max-height:85vh;overflow-y:auto;}
@@ -5228,7 +5248,7 @@
           <div class="card widget" draggable="true" data-widget="chart">
             <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Graphique</h3><button type="button" class="widget-fs-toggle" id="chart-fs-btn" title="Plein écran" aria-label="Plein écran" aria-pressed="false"><svg class="fs-in" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><svg class="fs-out" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg><span class="fs-lbl">Quitter</span></button><button type="button" class="widget-free-toggle" data-widget-free="chart" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="chart" title="Masquer ce widget">✕</button></div>
             <div class="chart-head">
-              <div class="chart-head-sym"><span class="sym-big" id="chart-sym">BTC</span><span class="name-big" id="chart-name">Bitcoin</span></div>
+              <div class="chart-head-sym"><span class="sym-big" id="chart-sym">BTC</span><span class="name-big" id="chart-name">Bitcoin</span><span class="src-chip" id="chart-src-chip" hidden></span></div>
               <div class="chart-qt" id="chart-qt">
                 <div class="qt-row">
                   <button type="button" class="qt-btn qt-sell" id="qt-sell" title="Short au marché avec les réglages du ticket d'ordre"><span class="qt-l">Short</span><span class="qt-p" id="qt-bid">—</span></button>
@@ -7421,6 +7441,9 @@ function chartSrcAsset(a){
   if (mode==="spot") return a.binanceSymbol ? Object.assign({}, a, strip, {binanceSymbol:a.binanceSymbol}) : a;
   return a;
 }
+// Nom court de la source réellement utilisée (affiché à côté du nom de l'actif).
+function srcKindName(kind){ return kind==="bf" ? "Binance perps" : kind==="bn" ? "Binance spot" : kind==="hl" ? "Hyperliquid" : kind==="cdc" ? "Crypto.com" : ""; }
+function chartSrcChip(a){ const s = a ? priceSources(chartSrcAsset(a))[0] : null; return s ? {kind:s[0], name:srcKindName(s[0])} : null; }
 function chartSrcLabel(a){
   const b = chartSrcAsset(a);
   if (!a) return "";
@@ -7535,7 +7558,7 @@ function fmtMoneySigned(v){
 }
 function fmtPrice(v,decimals){
   if (typeof v!=="number" || !isFinite(v)) return "—"; // prix pas encore reçu (ex. juste après le chargement du compte)
-  return "$"+v.toLocaleString("en-US",{minimumFractionDigits:decimals,maximumFractionDigits:decimals});
+  return "$"+numFmt(decimals).format(v);
 }
 function fmtPct(v){
   const s = (v>=0?"+":"")+v.toFixed(2)+"%";
@@ -9712,7 +9735,10 @@ const LAD = {sym:null, src:null, gen:0, ws:null, wsT:null, bids:new Map(), asks:
   lastId:0, tbuf:[], drawT:0, sess:0, hlSig:null, built:false, menu:null};
 const LAD_STEP_KEY = "paperTapeDomStep";
 function ladWanted(){ const el = widgetEl("dom"); return !!(el && !el.hidden && el.offsetParent!==null); }
-function ladSource(a){ for (const [kind, ref] of priceSources(a)) if (kind==="hl" || kind==="bf" || kind==="bn") return {kind, ref}; return null; }
+function ladSource(a){
+  const pick = x=>{ for (const [kind, ref] of priceSources(x)) if (kind==="hl" || kind==="bf" || kind==="bn") return {kind, ref}; return null; };
+  return (typeof chartSrcAsset==="function" ? pick(chartSrcAsset(a)) : null) || pick(a); // même source que le graphique (Binance spot / perps)
+}
 function ladStop(){
   LAD.gen++;
   [LAD.ws, LAD.wsT].forEach(w=>{ if (w){ try{ w.onclose = null; w.close(); }catch(e){} } });
@@ -9725,8 +9751,12 @@ function refreshDom(){
   const a = ASSETS.find(x=>x.symbol===selectedSymbol);
   if (!a) return;
   const symEl = document.getElementById("dom-sym");
-  if (symEl) symEl.textContent = a.symbol+" — "+a.name;
-  if (LAD.sym!==a.symbol) ladStart(a);
+  if (symEl){
+    const s = ladSource(a), nm = s ? srcKindName(s.kind) : "";
+    symEl.innerHTML = escapeHtml(a.symbol+" — "+a.name)+(nm ? '<span class="src-chip'+(s.kind==="bf" ? " perp" : "")+'">'+nm+'</span>' : "");
+  }
+  const want = ladSource(a);
+  if (LAD.sym!==a.symbol || (want && LAD.src && (want.kind!==LAD.src.kind || want.ref!==LAD.src.ref))) ladStart(a); // nouveau marché ou nouvelle source
   else if (Date.now() >= LAD.sess + 86400000) ladNewSession();
 }
 function ladNewSession(){ LAD.sess = Math.floor(Date.now()/86400000)*86400000; LAD.vol = new Map(); LAD.vwapN = 0; LAD.vwapD = 0; LAD.histFrom = LAD.sess; }
@@ -10927,9 +10957,9 @@ const CANDLE_THEMES = {
 let candleTheme = "classic";
 function candleColors(){
   if (candleTheme==="mono"){
-    const cs = getComputedStyle(document.documentElement);
-    const text = (cs.getPropertyValue("--text")||"#e7ecf3").trim();
-    const bg = (cs.getPropertyValue("--bg")||"#0a0d12").trim();
+    const pal = chartPalette(); // couleurs du thème en cache
+    const text = pal.strong || "#e7ecf3";
+    const bg = pal.page || "#0a0d12";
     // up candles hollow (outline only, bg-filled), down candles solid — the
     // classic paper-ticker convention, no hue at all.
     return {up:text, down:text, upFill:bg, downFill:text};
@@ -11608,11 +11638,28 @@ const CHART_TP_COLOR = "#31c882", CHART_SL_COLOR = "#f0546a";
 let chartLimitDraft = null;
 let chartDraftDrag = null; // {pid, leg:"entry"|"tp"|"sl", y0, entry, tp, sl}
 
+// Couleurs du thème lues une fois puis gardées en cache (lire les variables
+// CSS à chaque image forçait un recalcul des styles de toute la page) ; le
+// cache est vidé quand le thème change (classe / attribut de <html> ou <body>).
+let chartPalCache = null;
 function chartPalette(){
+  if (chartPalCache) return chartPalCache;
   const cs = getComputedStyle(document.documentElement);
   const g = (n, d)=>((cs.getPropertyValue(n)||"").trim() || d);
-  return {grid:g("--border-soft","#2d2820"), axis:g("--text-faint","#8a8072"), text:g("--text-dim","#c9bfa9"),
-    strong:g("--text","#fbf7f0"), bg:g("--panel","#211d18"), warn:g("--warn","#e3ac4b"), accent:g("--accent","#e8552b")};
+  chartPalCache = {grid:g("--border-soft","#2d2820"), axis:g("--text-faint","#8a8072"), text:g("--text-dim","#c9bfa9"),
+    strong:g("--text","#fbf7f0"), bg:g("--panel","#211d18"), warn:g("--warn","#e3ac4b"), accent:g("--accent","#e8552b"),
+    page:g("--bg","#0a0d12")};
+  if (!chartPalette.__obs){
+    chartPalette.__obs = true;
+    const reset = ()=>{ chartPalCache = null; };
+    try{
+      const mo = new MutationObserver(reset);
+      mo.observe(document.documentElement, {attributes:true, attributeFilter:["class", "data-theme", "style"]});
+      if (document.body) mo.observe(document.body, {attributes:true, attributeFilter:["class", "data-theme", "style"]});
+    }catch(e){}
+    try{ window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", reset); }catch(e){}
+  }
+  return chartPalCache;
 }
 // Texte lisible (noir ou blanc) posé sur une pastille de couleur `c`.
 function chartInkOn(c){
@@ -11622,7 +11669,12 @@ function chartInkOn(c){
   const r = parseInt(h.slice(0,2),16)/255, g = parseInt(h.slice(2,4),16)/255, b = parseInt(h.slice(4,6),16)/255;
   return (0.2126*r+0.7152*g+0.0722*b) > 0.55 ? "#111111" : "#ffffff";
 }
-function chartNum(v, dec){ return v.toLocaleString("en-US",{minimumFractionDigits:dec, maximumFractionDigits:dec}).replace(/^-(0(\.0+)?)$/, "$1"); }
+// Formateurs de nombres mis en cache : toLocaleString() en recrée un à
+// chaque appel, et le graphique en formate des centaines par image (axe,
+// étiquettes, légende) — c'était une bonne part du temps de rendu.
+const NUM_FMT_CACHE = {};
+function numFmt(dec){ dec = Math.max(0, Math.min(20, dec|0)); return NUM_FMT_CACHE[dec] || (NUM_FMT_CACHE[dec] = new Intl.NumberFormat("en-US", {minimumFractionDigits:dec, maximumFractionDigits:dec})); }
+function chartNum(v, dec){ return numFmt(dec).format(v).replace(/^-(0(\.0+)?)$/, "$1"); }
 function chartTextW(s, size){ return String(s).length*size*0.6; }
 function chartNiceStep(raw){
   if (!(raw>0) || !isFinite(raw)) return 1;
@@ -11995,18 +12047,22 @@ function fpAddRange(t, h, l, v, bv){
 }
 async function fpLoadBack(targetMs){
   const src = FP.src;
-  if (!src || src.kind!=="bn" || FP.backBusy || FP.backDone || FP.hist!=="done" || !isFinite(FP.covFrom)) return;
+  if (!src || (src.kind!=="bn" && src.kind!=="bf") || FP.backBusy || FP.backDone || FP.hist!=="done" || !isFinite(FP.covFrom)) return;
   if (Date.now()-FP.backFailAt < 30000) return;
   const goal = Math.max(targetMs, Date.now()-24*3600e3);
   if (!(FP.covFrom > goal+1000)){ if (goal > targetMs) FP.backDone = true; return; }
   FP.backBusy = true;
   const gen = FP.gen;
   try{
-    // Tranches de 1 000 s (une requête = 1 000 bougies d'une seconde au plus),
-    // bornées par startTime / endTime : pas de chevauchement possible.
-    const end = Math.floor(FP.covFrom/1000)*1000 - 1;
-    const nReq = Math.max(1, Math.min(8, Math.ceil((end-goal)/1e6)));
-    const get = (k)=>fetch(BINANCE_API_BASE+"/klines?symbol="+encodeURIComponent(src.ref)+"&interval=1s&limit=1000&startTime="+(end-(k+1)*1e6+1)+"&endTime="+(end-k*1e6), {signal:AbortSignal.timeout(10000)})
+    // Tranches de 1 000 bougies (une requête), bornées par startTime / endTime :
+    // pas de chevauchement possible. Spot : bougies d'une seconde. Perps
+    // (Binance n'a pas de bougies d'une seconde en futures) : bougies d'une
+    // minute, avec leur volume acheteur exact — plus grossier, mais le
+    // footprint perps a ainsi lui aussi ~24 h d'historique.
+    const perp = src.kind==="bf", unit = perp ? 60000 : 1000, span = unit*1000;
+    const end = Math.floor(FP.covFrom/unit)*unit - 1;
+    const nReq = Math.max(1, Math.min(perp ? 2 : 8, Math.ceil((end-goal)/span)));
+    const get = (k)=>fetch((perp ? BINANCE_FAPI_BASE : BINANCE_API_BASE)+"/klines?symbol="+encodeURIComponent(src.ref)+"&interval="+(perp ? "1m" : "1s")+"&limit=1000&startTime="+(end-(k+1)*span+1)+"&endTime="+(end-k*span), {signal:AbortSignal.timeout(10000)})
       .then(r=>r.ok ? r.json() : null).catch(()=>null);
     const res = await Promise.all(Array.from({length:nReq}, (_, k)=>get(k)));
     if (gen!==FP.gen) return;
@@ -12014,8 +12070,8 @@ async function fpLoadBack(targetMs){
     for (let k=0; k<res.length; k++){
       const rows = res[k];
       if (!Array.isArray(rows)){ FP.backFailAt = Date.now(); break; } // erreur : on garde la partie continue
-      rows.forEach(r=>{ const t = +r[0]; if (t+1000 > FP.exactFrom) return; fpAddRange(t, +r[2], +r[3], +r[5], +r[9]); });
-      from = end-(k+1)*1e6+1; ok++;
+      rows.forEach(r=>{ const t = +r[0]; if (t+unit > FP.exactFrom) return; fpAddRange(t, +r[2], +r[3], +r[5], +r[9]); });
+      from = end-(k+1)*span+1; ok++;
     }
     if (ok){ FP.covFrom = Math.min(FP.covFrom, from); FP.histVer++; }
   } finally {
@@ -12205,7 +12261,7 @@ function chartFootprintLayer(g, vis){
   let covered = 0, uncovered = 0, anyApprox = false;
   // Bougies visibles plus anciennes que les données : on complète l'historique
   // (marchés Binance spot) avec les bougies d'une seconde, en remontant.
-  if (vis.length && vis[0].ms < FP.covFrom && FP.src && FP.src.kind==="bn" && FP.hist==="done") setTimeout(()=>fpLoadBack(vis[0].ms), 0);
+  if (vis.length && vis[0].ms < FP.covFrom && FP.src && (FP.src.kind==="bn" || FP.src.kind==="bf") && FP.hist==="done") setTimeout(()=>fpLoadBack(vis[0].ms), 0);
   const imbOn = chartInd.fpImb!==false, sigOn = chartInd.fpSig!==false;
   vis.forEach((c, i)=>{
     const fc = c.ms ? fpCandle(c.ms, g.tfMs, row) : null;
@@ -12892,40 +12948,61 @@ function liqColor(t){
   return [a[1]+(b[1]-a[1])*u, a[2]+(b[2]-a[2])*u, a[3]+(b[3]-a[3])*u, a[4]+(b[4]-a[4])*u];
 }
 let liqCanvas = null;
-// Image de la heatmap pour la zone visible (une colonne par bougie, prolongée
-// jusqu'au bord droit avec l'état actuel), placée sous les bougies.
+// Image de la heatmap pour TOUT le modèle (une colonne par bougie + une
+// colonne finale = état actuel, étirée jusqu'au bord droit), générée une fois
+// puis seulement replacée / étirée au zoom et au défilement : la régénérer à
+// chaque image (encodage + décodage PNG) faisait saccader le zoom.
 function liqLayer(g, md, start, end){
-  const {min, max, padL, padR, W, slotW, xAt, y, live} = g;
-  const c0 = Math.max(start, md.i0), c1 = end; // [c0, c1[
-  if (c1 <= c0) return "";
-  const lastX = xAt(c1-1-start)+slotW/2;
-  const gap = live ? Math.max(0, Math.min(400, Math.ceil((W-padR-lastX)/slotW))) : 0;
-  const rb0 = Math.max(0, Math.floor((min-md.lo)/md.stp)), rb1 = Math.min(md.R, Math.ceil((max-md.lo)/md.stp));
-  if (rb1 <= rb0) return "";
-  const nc = c1-c0, w = nc+gap, h = rb1-rb0;
-  const val = (col, b)=> col < nc ? md.cols[(c0+col-md.i0)*md.R+b] : md.cols[(md.n-1)*md.R+b];
-  let vmax = 0;
-  for (let col=0; col<w; col++) for (let b=rb0; b<rb1; b++){ const v = val(col, b); if (v>vmax) vmax = v; }
-  if (!(vmax>0)) return "";
-  const sens = +chartInd.liqSens || 2, gam = sens===1 ? 0.9 : sens===3 ? 0.42 : 0.6;
-  const key = [LIQ.modelKey, LIQ.modelAt, c0, c1, gap, rb0, rb1, sens].join("|");
+  const {min, max, padR, W, slotW, xAt, y, live} = g;
+  const R = md.R, n = md.n, sens = +chartInd.liqSens || 2;
+  const key = [LIQ.modelKey, LIQ.modelAt, sens].join("|");
   if (LIQ.imgKey!==key){
-    if (!liqCanvas) liqCanvas = document.createElement("canvas");
-    liqCanvas.width = w; liqCanvas.height = h;
-    const ctx = liqCanvas.getContext("2d"), im = ctx.createImageData(w, h), d = im.data;
-    for (let col=0; col<w; col++) for (let b=rb0; b<rb1; b++){
-      const v = val(col, b); if (!(v>0)) continue;
-      const t = Math.pow(v/vmax, gam); if (t < 0.06) continue;
-      const [r, gg, bb, al] = liqColor(t), o = ((rb1-1-b)*w + col)*4;
-      d[o] = r; d[o+1] = gg; d[o+2] = bb; d[o+3] = al;
+    // Échelle : 99,8e centile des cellules non nulles (un seul amas énorme n'écrase pas le reste).
+    const vals = [];
+    for (let i=0; i<md.cols.length; i+=3) if (md.cols[i]>0) vals.push(md.cols[i]);
+    vals.sort((a, b)=>a-b);
+    const vmax = vals.length ? vals[Math.min(vals.length-1, Math.floor(vals.length*0.998))] : 0;
+    LIQ.img = ""; LIQ.imgKey = key; LIQ.imgN = n;
+    if (vmax>0){
+      const gam = sens===1 ? 0.9 : sens===3 ? 0.42 : 0.6, w = n+1;
+      if (!liqCanvas) liqCanvas = document.createElement("canvas");
+      liqCanvas.width = w; liqCanvas.height = R;
+      const ctx = liqCanvas.getContext("2d"), im = ctx.createImageData(w, R), d = im.data;
+      for (let col=0; col<w; col++){
+        const off = Math.min(col, n-1)*R;
+        for (let b=0; b<R; b++){
+          const v = md.cols[off+b]; if (!(v>0)) continue;
+          const t = Math.pow(Math.min(1, v/vmax), gam); if (t < 0.06) continue;
+          const [r, gg, bb, al] = liqColor(t), o = ((R-1-b)*w + col)*4;
+          d[o] = r; d[o+1] = gg; d[o+2] = bb; d[o+3] = al;
+        }
+      }
+      ctx.putImageData(im, 0, 0);
+      // Adresse blob: courte (au lieu d'une longue data: URL recopiée dans le SVG à chaque image),
+      // décodée une seule fois par le navigateur.
+      const k0 = key;
+      try{
+        liqCanvas.toBlob(bl=>{
+          if (!bl || LIQ.imgKey!==k0) return;
+          if (LIQ.imgUrl) URL.revokeObjectURL(LIQ.imgUrl);
+          LIQ.imgUrl = URL.createObjectURL(bl); LIQ.img = LIQ.imgUrl;
+          scheduleChartFrame();
+        }, "image/png");
+      }catch(e){}
+      if (LIQ.imgUrl && !LIQ.img) LIQ.img = LIQ.imgUrl; // l'ancienne image reste affichée le temps de générer la nouvelle
     }
-    ctx.putImageData(im, 0, 0);
-    try{ LIQ.img = liqCanvas.toDataURL("image/png"); }catch(e){ LIQ.img = ""; }
-    LIQ.imgKey = key;
   }
   if (!LIQ.img) return "";
-  const x = xAt(c0-start)-slotW/2, yT = y(md.lo+rb1*md.stp), yB = y(md.lo+rb0*md.stp);
-  return '<image href="'+LIQ.img+'" x="'+x.toFixed(1)+'" y="'+yT.toFixed(1)+'" width="'+(w*slotW).toFixed(1)+'" height="'+(yB-yT).toFixed(1)+'" preserveAspectRatio="none" opacity="0.92" pointer-events="none"/>';
+  // Colonnes 0..n-1 = bougies md.i0..; la dernière (état actuel) va jusqu'au bord droit en direct.
+  const x0 = xAt(md.i0-start)-slotW/2, xLast = xAt(md.i0+n-1-start)+slotW/2;
+  const extra = live ? Math.max(slotW, (W-padR)-xLast) : slotW;
+  const yT = y(md.lo+R*md.stp), yB = y(md.lo);
+  // L'image fait n+1 colonnes : les n premières à la largeur d'une bougie, la dernière étirée (via un 2e <image> rogné).
+  const wMain = n*slotW;
+  return '<svg x="'+x0.toFixed(1)+'" y="'+yT.toFixed(1)+'" width="'+wMain.toFixed(1)+'" height="'+(yB-yT).toFixed(1)+'" viewBox="0 0 '+n+' '+R+'" preserveAspectRatio="none" overflow="hidden" pointer-events="none">'+
+      '<image href="'+LIQ.img+'" x="0" y="0" width="'+(n+1)+'" height="'+R+'" preserveAspectRatio="none" opacity="0.92"/></svg>'+
+    '<svg x="'+xLast.toFixed(1)+'" y="'+yT.toFixed(1)+'" width="'+extra.toFixed(1)+'" height="'+(yB-yT).toFixed(1)+'" viewBox="'+n+' 0 1 '+R+'" preserveAspectRatio="none" overflow="hidden" pointer-events="none">'+
+      '<image href="'+LIQ.img+'" x="0" y="0" width="'+(n+1)+'" height="'+R+'" preserveAspectRatio="none" opacity="0.92"/></svg>';
 }
 // Les plus gros amas de liquidations encore en attente, au-dessus et en dessous du prix.
 function liqTopLevels(md, price, vMin, vMax){
@@ -14817,6 +14894,7 @@ function initChartExtraOpts(){
       const m = market[selectedSymbol];
       if (m){ m.candles = {tf:currentTimeframe, data:[], loading:true, error:null}; Object.keys(candleOlderState).forEach(k=>{ if (k.startsWith(selectedSymbol+"|")) delete candleOlderState[k]; }); }
       fetchCandles(selectedSymbol, currentTimeframe, "full");
+      if (typeof refreshDom==="function") refreshDom(); // le carnet d'ordres suit la même source
     }
     updateChart(); sync();
   })));
@@ -15034,6 +15112,7 @@ function updateChart(forceDuringDrag){
   if (eff==="tv"){
     document.getElementById("chart-sym").innerHTML = '<span style="color:'+((ASSETS.find(x=>x.symbol===selectedSymbol)||{}).color||"inherit")+';">'+((ASSETS.find(x=>x.symbol===selectedSymbol)||{}).icon||"")+'</span> '+selectedSymbol;
     document.getElementById("chart-name").textContent = (ASSETS.find(x=>x.symbol===selectedSymbol)||{}).name||"";
+    { const chip = document.getElementById("chart-src-chip"); if (chip) chip.hidden = true; }
     const m = market[selectedSymbol];
     const priceEl = document.getElementById("chart-price");
     if (m && m.last!==null){ priceEl.textContent = fmtPrice(m.last, (ASSETS.find(x=>x.symbol===selectedSymbol)||{}).decimals); priceEl.className = "price-big num flat"; }
@@ -15045,6 +15124,8 @@ function updateChart(forceDuringDrag){
   const m = market[selectedSymbol];
   document.getElementById("chart-sym").innerHTML = '<span style="color:'+(a.color||"inherit")+';">'+(a.icon||"")+'</span> '+a.symbol;
   document.getElementById("chart-name").textContent = a.name;
+  { const chip = document.getElementById("chart-src-chip"), s = chartSrcChip(a);
+    if (chip){ chip.hidden = !s; if (s){ chip.textContent = s.name; chip.className = "src-chip"+(s.kind==="bf" ? " perp" : ""); chip.title = "Source des bougies et du footprint (Indicateurs › Affichage › Données du graphique)"; } } }
   document.querySelectorAll("#tf-seg button").forEach(b=>b.classList.toggle("active", b.dataset.tf===currentTimeframe));
   const priceEl = document.getElementById("chart-price");
   const svg = document.getElementById("chart-svg");
@@ -15054,8 +15135,15 @@ function updateChart(forceDuringDrag){
     const fixedBox = svg.closest(".chart-fs") || (svg.closest(".has-h") && window.innerWidth>720);
     const mh = (!fixedBox && nP>1) ? (230 + (nP-1)*64)+"px" : "";
     if (svg.style.minHeight !== mh) svg.style.minHeight = mh; }
-  // Dessiné à la taille réelle de la boîte (1 unité = 1 px).
-  const box = svg.getBoundingClientRect();
+  // Dessiné à la taille réelle de la boîte (1 unité = 1 px). Taille suivie par
+  // un ResizeObserver plutôt que lue à chaque image : getBoundingClientRect()
+  // forçait un recalcul de mise en page de toute la page à chaque image de
+  // zoom / défilement (saccades).
+  if (!svg.__ro && typeof ResizeObserver==="function"){
+    svg.__ro = new ResizeObserver(entries=>{ const r = entries[entries.length-1].contentRect; const nw = Math.round(r.width), nh = Math.round(r.height); if (!svg.__box || svg.__box.width!==nw || svg.__box.height!==nh){ svg.__box = {width:nw, height:nh}; scheduleChartFrame(); } });
+    svg.__ro.observe(svg);
+  }
+  const box = (svg.__box && svg.__box.width>40 && svg.__box.height>40 && !svg.hidden) ? svg.__box : svg.getBoundingClientRect();
   const W = box.width>40 ? Math.round(box.width) : 640;
   const H = box.height>40 ? Math.round(box.height) : 220;
   svg.setAttribute("viewBox", "0 0 "+W+" "+H);
@@ -19035,6 +19123,17 @@ function initFeedPosting(){
 let fbType = "bug";
 function renderFeedbackModalHtml(){
   return '<h3 style="margin-bottom:10px;">Bug ou idée ?</h3>'+
+    '<div class="seg fb-tabs"><button id="fb-tab-send" class="on-mode active">💬 Bug ou idée</button><button id="fb-tab-upd" class="on-mode'+(updUnread()?' has-upd':'')+'">📣 Mises à jour</button></div>'+
+    '<div id="fb-pane-upd" hidden>'+
+      (state.isAdmin ? '<div style="margin-bottom:12px;"><textarea class="journal-textarea" id="upd-input" rows="4" maxlength="1500" placeholder="Nouvelle mise à jour (une ligne par nouveauté)…"></textarea>'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;"><span class="chart-note" id="upd-msg" style="margin:0;">Visible par tous · pastille rouge pour ceux qui ne l\'ont pas encore lue</span><button class="btn-primary" id="upd-submit">Publier</button></div></div>' : '')+
+      '<div class="upd-tip"><b>Tu ne vois pas une nouveauté ?</b> Recharge la page (la mise en ligne peut prendre jusqu\'à ~10 min) :'+
+        '<span><em>Mac</em><i>Cmd + R · forcé : Cmd + Maj + R</i></span>'+
+        '<span><em>Windows</em><i>Ctrl + R ou F5 · forcé : Ctrl + Maj + R</i></span>'+
+        '<span><em>Téléphone</em><i>tire la page vers le bas, ou ferme et rouvre l\'onglet</i></span></div>'+
+      '<div id="upd-list" style="max-height:360px;overflow-y:auto;"><div class="empty-note">Chargement…</div></div>'+
+    '</div>'+
+    '<div id="fb-pane-send">'+
     '<div class="seg" style="margin-bottom:10px;">'+
       '<button id="fb-type-bug" class="on-mode active">🐛 Bug</button>'+
       '<button id="fb-type-idea" class="on-mode">💡 Idée</button>'+
@@ -19048,11 +19147,26 @@ function renderFeedbackModalHtml(){
     '<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border-soft);">'+
       '<div class="quiz-cat" style="margin-bottom:8px;">Retours récents de tous les élèves</div>'+
       '<div id="fb-list" style="max-height:220px;overflow-y:auto;"><div class="empty-note">Chargement…</div></div>'+
+    '</div>'+
     '</div>';
 }
-function openFeedbackModal(){
+function openFeedbackModal(tab){
   openModal(renderFeedbackModalHtml());
   fbType = "bug";
+  const showTab = (t)=>{
+    document.getElementById("fb-tab-send").classList.toggle("active", t==="send");
+    document.getElementById("fb-tab-upd").classList.toggle("active", t==="upd");
+    document.getElementById("fb-pane-send").hidden = t!=="send";
+    document.getElementById("fb-pane-upd").hidden = t!=="upd";
+    if (t==="upd") subscribeSiteUpdates();
+  };
+  document.getElementById("fb-tab-send").addEventListener("click", ()=>showTab("send"));
+  document.getElementById("fb-tab-upd").addEventListener("click", ()=>showTab("upd"));
+  const us = document.getElementById("upd-submit");
+  if (us) us.addEventListener("click", publishSiteUpdate);
+  modalCloseHook = ()=>{ if (updUnsub){ try{ updUnsub(); }catch(e){} updUnsub = null; } };
+  // Une mise à jour pas encore lue : on ouvre directement dessus.
+  showTab(tab || (updUnread() ? "upd" : "send"));
   document.getElementById("fb-type-bug").addEventListener("click", ()=>{
     fbType="bug";
     document.getElementById("fb-type-bug").classList.add("active");
@@ -19114,6 +19228,85 @@ function subscribeFeedback(){
       (err)=>{ const el=document.getElementById("fb-list"); if (el) el.innerHTML='<div class="empty-note">Retours indisponibles.</div>'; }
     );
   }catch(e){}
+}
+
+/* ============================= MISES À JOUR DU SITE =============================
+   Onglet « Mises à jour » de la fenêtre Bug ou idée : le bureau y écrit les
+   nouveautés (collection siteUpdates, lecture : comptes connectés, écriture :
+   admins — voir firestore.rules). Pastille rouge sur le bouton 💬 tant qu'une
+   mise à jour n'a pas été lue sur cet appareil. */
+const UPD_SEEN_KEY = "paperTapeUpdatesSeen";
+let updLatestAt = 0, updUnsub = null;
+function updSeenAt(){ try{ return +localStorage.getItem(UPD_SEEN_KEY) || 0; }catch(e){ return 0; } }
+function updUnread(){ return updLatestAt > updSeenAt(); }
+function updMarkSeen(){
+  try{ localStorage.setItem(UPD_SEEN_KEY, String(Math.max(updLatestAt, updSeenAt()))); }catch(e){}
+  updPaintDot();
+}
+function updPaintDot(){
+  const on = updUnread();
+  const fab = document.getElementById("feedback-fab");
+  if (fab){ fab.classList.toggle("has-upd", on); fab.title = on ? "Nouvelle mise à jour du site — et pour signaler un bug / proposer une idée" : "Signaler un bug / proposer une idée"; }
+  const tb = document.getElementById("fb-tab-upd"); if (tb) tb.classList.toggle("has-upd", on);
+}
+async function checkSiteUpdates(){
+  if (!dbReady || !db) return;
+  try{
+    const snap = await db.collection("siteUpdates").orderBy("createdAt","desc").limit(1).get();
+    const d = snap.docs[0] && snap.docs[0].data();
+    updLatestAt = d ? (Date.parse(d.createdAt) || 0) : 0;
+    // Premier passage sur cet appareil : seule une mise à jour de moins de 7 jours compte comme nouvelle.
+    if (!updSeenAt() && updLatestAt && Date.now()-updLatestAt > 7*86400e3){ try{ localStorage.setItem(UPD_SEEN_KEY, String(updLatestAt)); }catch(e){} }
+    updPaintDot();
+  }catch(e){ /* pas encore connecté, ou règles pas encore déployées : on réessaiera */ }
+}
+function initSiteUpdates(){
+  setTimeout(checkSiteUpdates, 4000);
+  setInterval(checkSiteUpdates, 5*60*1000);
+  document.addEventListener("visibilitychange", ()=>{ if (document.visibilityState==="visible") checkSiteUpdates(); });
+}
+function renderSiteUpdates(docs){
+  const el = document.getElementById("upd-list");
+  if (!el) return;
+  const seen = updSeenAt();
+  if (!docs.length){ el.innerHTML = '<div class="empty-note">Aucune mise à jour publiée pour le moment.</div>'; return; }
+  el.innerHTML = docs.map(doc=>{
+    const d = doc.data(), t = Date.parse(d.createdAt) || 0;
+    const when = t ? new Date(t).toLocaleDateString("fr-FR", {day:"numeric", month:"long", year:"numeric"}) : "";
+    return '<div class="upd-item"><div class="upd-meta"><span>'+escapeHtml(when)+(t > seen ? '<span class="upd-new">Nouveau</span>' : '')+'</span>'+
+      (state.isAdmin ? '<button type="button" class="upd-del" data-upd-del="'+escapeHtml(doc.id)+'" title="Supprimer cette mise à jour">Supprimer</button>' : '')+'</div>'+
+      '<div class="upd-text">'+escapeHtml(d.text||"")+'</div></div>';
+  }).join("");
+  el.querySelectorAll("[data-upd-del]").forEach(b=>b.addEventListener("click", async ()=>{
+    if (!confirm("Supprimer cette mise à jour ?")) return;
+    try{ await db.collection("siteUpdates").doc(b.dataset.updDel).delete(); }catch(e){ alert("Échec de la suppression — vérifie que les règles Firestore sont déployées."); }
+  }));
+  const newest = docs[0] ? (Date.parse(docs[0].data().createdAt) || 0) : 0;
+  if (newest > updLatestAt) updLatestAt = newest;
+  updMarkSeen(); // lue : la pastille disparaît (le badge « Nouveau » reste affiché jusqu'à la fermeture)
+}
+function subscribeSiteUpdates(){
+  if (updUnsub) return;
+  const el = document.getElementById("upd-list");
+  if (!dbReady || !db){ if (el) el.innerHTML = '<div class="empty-note">Mises à jour indisponibles hors connexion.</div>'; return; }
+  try{
+    updUnsub = db.collection("siteUpdates").orderBy("createdAt","desc").limit(30).onSnapshot(
+      snap=>renderSiteUpdates(snap.docs),
+      ()=>{ const e2 = document.getElementById("upd-list"); if (e2) e2.innerHTML = '<div class="empty-note">Mises à jour indisponibles (règles Firestore à déployer ?).</div>'; }
+    );
+  }catch(e){}
+}
+async function publishSiteUpdate(){
+  const ta = document.getElementById("upd-input"), msg = document.getElementById("upd-msg"), btn = document.getElementById("upd-submit");
+  const text = (ta && ta.value || "").trim();
+  if (!text || !state.isAdmin || !dbReady || !db) return;
+  btn.disabled = true;
+  try{
+    await db.collection("siteUpdates").doc(uid()).set({text:text.slice(0, 1500), createdAt:new Date().toISOString(), by:state.username || ""});
+    ta.value = "";
+    if (msg) msg.textContent = "Publié ✓";
+  }catch(e){ if (msg){ msg.textContent = "Échec — déploie les règles Firestore (SERVER_SETUP.md)."; msg.style.color = "var(--warn)"; } }
+  btn.disabled = false;
 }
 
 /* ============================= EDB+ CHAT ============================= */
@@ -26702,7 +26895,8 @@ function initEvents(){
     renderFlashIntro();
   });
 
-  document.getElementById("feedback-fab").addEventListener("click", openFeedbackModal);
+  document.getElementById("feedback-fab").addEventListener("click", ()=>openFeedbackModal());
+  initSiteUpdates();
   document.getElementById("journal-submit").addEventListener("click", ()=>{
     const ta = document.getElementById("journal-input");
     if (addJournalEntry(ta.value)) ta.value = "";
