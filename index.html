@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="2820">
+<meta name="pt-build" content="2830">
 <title>Paper Tape</title>
 <script>
 /* Un seul fichier pour deux sites :
@@ -6287,7 +6287,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2820 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v2830 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -13670,10 +13670,26 @@ function hmLayer(g, md, start, fpSkip){
     const jLo = Math.max(0, Math.floor(start-md.i0)-1), jHi = Math.min(n-1, Math.ceil(start-md.i0+(W-padR-g.padL)/slotW)+1);
     const cells = (jHi-jLo+1)*(bHi-bLo+1);
     const fs = Math.max(7, Math.min(11, rowPx*0.55, slotW*0.3));
+    let band = "", bandTxt = ""; // bandes (sous le profil) et chiffres (par-dessus)
+    // Bougie en cours : pas de case, une bande par prix qui part de la bougie
+    // jusqu'au bord droit, avec le carnet actuel écrit contre l'axe des prix.
+    const lastC = g.all[md.i0+n-1], forming = live && lastC && lastC.ms + g.tfMs > Date.now();
+    if (forming){
+      const xl = xAt(md.i0+n-1-start)-slotW/2, xr = W-padR, off = (n-1)*R, fsB = Math.max(8, Math.min(12, rowPx*0.6));
+      if (xr > xl+2) for (let b=bLo; b<=bHi; b++){
+        const v = md.cols[off+b]; if (!(v>0) || v < P.minQ) continue;
+        const t = hmT(v, P);
+        const [r, gg, bb] = hmColor(Math.max(0.15, t)), yTop = y(md.lo+(b+1)*md.stp);
+        const lum = (0.299*r+0.587*gg+0.114*bb)/255;
+        band += '<rect x="'+(Math.max(g.padL, xl)+0.5).toFixed(1)+'" y="'+(yTop+0.5).toFixed(1)+'" width="'+(xr-Math.max(g.padL, xl)-1).toFixed(1)+'" height="'+Math.max(1, rowPx-1).toFixed(1)+'" fill="rgb('+Math.round(r)+','+Math.round(gg)+','+Math.round(bb)+')" opacity="'+(P.op*(0.4+0.6*t)).toFixed(2)+'"/>'+
+          '';
+        if (rowPx >= 9) bandTxt += ('<text x="'+(xr-6).toFixed(1)+'" y="'+(yTop+rowPx/2+fsB*0.36).toFixed(1)+'" text-anchor="end" font-size="'+fsB.toFixed(1)+'" fill="'+pal.strong+'" stroke="'+pal.bg+'" stroke-width="2.5" paint-order="stroke" '+CHART_FONT+'>'+fpFmt(v)+'</text>');
+      }
+    }
     if (rowPx >= 11 && slotW >= 22 && cells <= 4000){
-      let out = "";
+      let out = band;
       const ph = Math.max(1, rowPx-1), pw = Math.max(1, slotW-1);
-      for (let j=jLo; j<=jHi; j++){
+      for (let j=jLo; j<=(forming ? Math.min(jHi, n-2) : jHi); j++){
         const fpZ = fpSkip && fpSkip.get(md.i0+j-start); // footprint dessus : dans sa zone, couleurs seulement
         const xl = xAt(md.i0+j-start)-slotW/2, off = j*R;
         for (let b=bLo; b<=bHi; b++){
@@ -13685,9 +13701,10 @@ function hmLayer(g, md, start, fpSkip){
             '<text x="'+(xl+slotW/2).toFixed(1)+'" y="'+(yTop+rowPx/2+fs*0.36).toFixed(1)+'" text-anchor="middle" font-size="'+fs.toFixed(1)+'" fill="'+(lum > 0.62 && t > 0.5 ? "#111" : pal.strong)+'" '+CHART_FONT+'>'+fpFmt(v)+'</text>');
         }
       }
-      return '<g pointer-events="none">'+out+'</g>'+prof;
+      return '<g pointer-events="none">'+out+'</g>'+prof+(bandTxt ? '<g pointer-events="none">'+bandTxt+'</g>' : '');
     }
     HM.gridNote = "Zoome pour voir les valeurs";
+    if (band) prof = '<g pointer-events="none">'+band+'</g>'+prof+(bandTxt ? '<g pointer-events="none">'+bandTxt+'</g>' : ''); // le carnet actuel reste écrit
   }
   if (!HM.img) return prof;
   // Quantités écrites sur la heatmap (option), niveaux qui comptent seulement.
