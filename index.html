@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="2580">
+<meta name="pt-build" content="2590">
 <title>Paper Tape</title>
 <!-- Favicon / app icon -->
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -883,6 +883,10 @@
   .ci-row{display:flex;flex-direction:column;gap:4px;padding:5px 7px 3px;font-size:12px;color:var(--text-dim);}
   .ci-row .tpo-seg{padding:0;}
   .ci-row .tpo-seg button{font-size:11.5px;padding:4px 5px;}
+  .ci-colors{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:5px 7px;font-size:12px;color:var(--text-dim);}
+  .ci-colors label{display:inline-flex;align-items:center;gap:5px;padding:0 !important;cursor:pointer;}
+  .ci-colors input[type=color]{width:24px;height:20px;padding:0;border:1px solid var(--border);border-radius:4px;background:none;cursor:pointer;}
+  .ci-colors button{border:1px solid var(--border);background:var(--bg-raised);color:var(--text-dim);border-radius:6px;padding:3px 8px;font:11.5px var(--sans);cursor:pointer;}
   .ci-eq{font-style:normal;color:var(--text-faint);font-family:var(--mono);font-size:11px;margin-left:4px;}
   .chart-fp-tick > span{white-space:nowrap;flex-basis:100%;}
   .chart-fp-tick .tk-step{width:28px;padding:3px 0;font:600 14px/1 var(--sans);}
@@ -5339,6 +5343,15 @@
                     <label><input type="checkbox" data-chart-ind="vpFill">Histogramme plein (sinon contour seul)</label>
                     <label><input type="checkbox" data-chart-ind="vpBox">Encadré (box) autour de chaque profil</label>
                     <div class="ci-row"><span>Disposition</span><div class="tpo-seg ci-seg" data-ci-key="vpSide"><button type="button" data-v="left">Gauche</button><button type="button" data-v="right">Droite</button></div></div>
+                    <div class="ci-row"><span>Couleur des barres</span><div class="tpo-seg ci-seg" data-ci-key="vpStyle"><button type="button" data-v="split">Achat / vente</button><button type="button" data-v="solid">Couleur unie</button></div></div>
+                    <label><input type="checkbox" data-chart-ind="vpGrade">Color grading (barres plus vives selon le volume)</label>
+                    <label><input type="checkbox" data-chart-ind="vpVa">Lignes VAH / VAL (value area 70 %)</label>
+                    <div class="ci-colors">
+                      <label><input type="color" data-ci-color="vpCol">Profil</label>
+                      <label><input type="color" data-ci-color="vpPocCol">POC</label>
+                      <label><input type="color" data-ci-color="vpVaCol">VAH / VAL</label>
+                      <button type="button" id="chart-vp-col-reset" title="Couleurs par défaut">Défaut</button>
+                    </div>
                   </div>
                   <div class="chart-ind-sep">Footprint</div>
                   <label><input type="checkbox" data-chart-ind="fp"><i style="background:linear-gradient(90deg,#f0546a 50%,#31c882 50%)"></i>Footprint (vendeurs × acheteurs par prix)<b class="chart-ind-plus">EDB+</b></label>
@@ -6186,7 +6199,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2580 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v2590 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -11619,7 +11632,7 @@ const TA_COLORS = {ema20:"#f2b33d", ema50:"#5aa9e6", ema200:"#c77dff", bb:"#8fa3
 const CHART_IND_KEY = "paperTapeChartInd";
 const CHART_EMA = {ema20:{p:20, color:"#f2b33d", label:"MME 20"}, ema50:{p:50, color:"#5aa9e6", label:"MME 50"}, ema200:{p:200, color:"#c77dff", label:"MME 200"}};
 let chartInd = (function(){
-  const d = {tpo:false, tpoPrevTf:"", tpoPrevZoom:0, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpTicks:{}, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true, zoomSpeed:"1", dataSrc:"auto", vpTicks:{}, vpFill:true, vpBox:false, vpSide:"left", liq:false, liqSens:"2"};
+  const d = {tpo:false, tpoPrevTf:"", tpoPrevZoom:0, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpTicks:{}, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true, zoomSpeed:"1", dataSrc:"auto", vpTicks:{}, vpFill:true, vpBox:false, vpSide:"left", vpStyle:"split", vpCol:"#8fa3b8", vpPocCol:"#8fa3b8", vpVa:true, vpVaCol:"#8fa3b8", vpGrade:false, liq:false, liqSens:"2"};
   try{
     const s = JSON.parse(localStorage.getItem(CHART_IND_KEY)||"null");
     // Chaque réglage est repris s'il a le même type que sa valeur par défaut :
@@ -12173,7 +12186,12 @@ function chartVolProfile(cands, tfMs, lo, hi, bins){
   while (sum>0 && acc < sum*0.7 && (a>0 || b<bins-1)){ const dn = a>0 ? tot[a-1] : -1, up = b<bins-1 ? tot[b+1] : -1; if (up>=dn) acc += tot[++b]; else acc += tot[--a]; }
   return {vu, vd, tot, mx, sum, poc, a, b, stp, lo};
 }
+// Couleurs choisies pour les profils de volume (Indicateurs › Paramètres des profils).
+const VP_DEF_COL = "#8fa3b8";
+function vpColor(k){ const v = chartInd[k]; return /^#[0-9a-f]{6}$/i.test(v||"") ? v : VP_DEF_COL; }
 // Histogramme horizontal d'un profil, à partir de x0 (largeur max wMax).
+// Style « achat / vente » (couleurs des bougies) ou « couleur unie » (couleur
+// choisie) ; « color grading » : chaque ligne plus ou moins intense selon son volume.
 // dir = 1 : barres vers la droite (profil à gauche) ; -1 : vers la gauche
 // (profil à droite). Réglage « Histogramme plein » coupé : contour seul.
 function chartProfileBars(g, pr, x0, wMax, opIn, opOut, dir, fill){
@@ -12191,13 +12209,23 @@ function chartProfileBars(g, pr, x0, wMax, opIn, opOut, dir, fill){
     }
     if (d) d += "L"+f(x0)+","+f(g.y(pr.lo+pr.tot.length*pr.stp))+"Z";
     const yA = g.y(pr.lo+(pr.b+1)*pr.stp), yZ = g.y(pr.lo+pr.a*pr.stp);
-    return (d ? '<path d="'+d+'" fill="'+TA_COLORS.vp+'" fill-opacity="0.05" stroke="'+TA_COLORS.vp+'" stroke-width="1.1" stroke-linejoin="round" opacity="0.9"/>' : '')+
-      '<rect x="'+f(dir>0 ? x0 : x0-wMax)+'" y="'+f(yA)+'" width="'+f(wMax)+'" height="'+f(Math.max(0, yZ-yA))+'" fill="'+TA_COLORS.vp+'" opacity="0.06"/>';
+    const col = vpColor("vpCol");
+    return (d ? '<path d="'+d+'" fill="'+col+'" fill-opacity="0.05" stroke="'+col+'" stroke-width="1.1" stroke-linejoin="round" opacity="0.9"/>' : '')+
+      '<rect x="'+f(dir>0 ? x0 : x0-wMax)+'" y="'+f(yA)+'" width="'+f(wMax)+'" height="'+f(Math.max(0, yZ-yA))+'" fill="'+col+'" opacity="0.06"/>';
   }
+  const solid = chartInd.vpStyle==="solid", grade = !!chartInd.vpGrade, col = vpColor("vpCol");
   for (let i=0; i<pr.tot.length; i++){
     if (!pr.tot[i]) continue;
     const yT = g.y(pr.lo+(i+1)*pr.stp), yB = g.y(pr.lo+i*pr.stp), h = Math.max(0.8, yB-yT-(yB-yT>3 ? 0.6 : 0.15));
-    const wu = pr.vu[i]/pr.mx*wMax, wd = pr.vd[i]/pr.mx*wMax, op = (i>=pr.a && i<=pr.b) ? opIn : opOut;
+    const wu = pr.vu[i]/pr.mx*wMax, wd = pr.vd[i]/pr.mx*wMax;
+    let op = (i>=pr.a && i<=pr.b) ? opIn : opOut;
+    if (grade){ const r = pr.tot[i]/pr.mx; op = Math.min(0.95, op*(0.3 + 2.1*r*r)); } // faible volume estompé, gros volume vif
+    op = +op.toFixed(3);
+    if (solid){
+      const w = wu+wd;
+      if (w>0.3) s += '<rect x="'+f(dir>0 ? x0 : x0-w)+'" y="'+f(yT)+'" width="'+f(w)+'" height="'+f(h)+'" fill="'+col+'" opacity="'+Math.min(0.95, op*1.5).toFixed(3)+'"/>';
+      continue;
+    }
     const xu = dir>0 ? x0 : x0-wu, xd = dir>0 ? x0+wu : x0-wu-wd;
     if (wu>0.3) s += '<rect x="'+f(xu)+'" y="'+f(yT)+'" width="'+f(wu)+'" height="'+f(h)+'" fill="'+g.cc.up+'" opacity="'+op+'"/>';
     if (wd>0.3) s += '<rect x="'+f(xd)+'" y="'+f(yT)+'" width="'+f(wd)+'" height="'+f(h)+'" fill="'+g.cc.down+'" opacity="'+op+'"/>';
@@ -12223,7 +12251,7 @@ function chartVpGrid(a, lo, hi, autoBins){
 }
 // Encadré (box) d'un profil.
 function chartVpBox(x1, x2, y1, y2){
-  return '<rect x="'+Math.min(x1, x2).toFixed(1)+'" y="'+Math.min(y1, y2).toFixed(1)+'" width="'+Math.abs(x2-x1).toFixed(1)+'" height="'+Math.abs(y2-y1).toFixed(1)+'" fill="none" stroke="'+TA_COLORS.vp+'" stroke-width="1" opacity="0.7"/>';
+  return '<rect x="'+Math.min(x1, x2).toFixed(1)+'" y="'+Math.min(y1, y2).toFixed(1)+'" width="'+Math.abs(x2-x1).toFixed(1)+'" height="'+Math.abs(y2-y1).toFixed(1)+'" fill="none" stroke="'+vpColor("vpCol")+'" stroke-width="1" opacity="0.7"/>';
 }
 // CVD : somme cumulée du delta (achats agressifs − ventes agressives) par
 // bougie, remise à zéro au début de la zone visible. Delta exact quand le
@@ -13284,8 +13312,15 @@ function chartRenderCandles(svg, a, m, W, H, all){
       let svgV = chartProfileBars(g, pr, x0, wMax, 0.34, 0.16, right ? -1 : 1);
       if (chartInd.vpBox) svgV += chartVpBox(x0, x0+(right ? -wMax : wMax), y(gr.hi), y(gr.lo));
       const pocP = pr.lo+(pr.poc+0.5)*pr.stp;
-      over += '<g pointer-events="none">'+svgV+'<line x1="'+padL+'" x2="'+(W-padR)+'" y1="'+y(pocP).toFixed(1)+'" y2="'+y(pocP).toFixed(1)+'" stroke="'+TA_COLORS.vp+'" stroke-width="1" stroke-dasharray="4,3" opacity="0.8"/></g>';
-      addTag(y(pocP), "POC", chartNum(pocP, dec), TA_COLORS.vp);
+      const pocC = vpColor("vpPocCol"), vaC = vpColor("vpVaCol");
+      let lines = '<line x1="'+padL+'" x2="'+(W-padR)+'" y1="'+y(pocP).toFixed(1)+'" y2="'+y(pocP).toFixed(1)+'" stroke="'+pocC+'" stroke-width="1" stroke-dasharray="4,3" opacity="0.85"/>';
+      if (chartInd.vpVa!==false){
+        const vah = pr.lo+(pr.b+1)*pr.stp, val = pr.lo+pr.a*pr.stp;
+        [vah, val].forEach(v=>{ lines += '<line x1="'+padL+'" x2="'+(W-padR)+'" y1="'+y(v).toFixed(1)+'" y2="'+y(v).toFixed(1)+'" stroke="'+vaC+'" stroke-width="1" stroke-dasharray="2,4" opacity="0.7"/>'; });
+        addTag(y(vah), "VAH", chartNum(vah, dec), vaC); addTag(y(val), "VAL", chartNum(val, dec), vaC);
+      }
+      over += '<g pointer-events="none">'+svgV+lines+'</g>';
+      addTag(y(pocP), "POC", chartNum(pocP, dec), pocC);
       g.vpRow = gr.row; g.vpCapped = gr.capped;
     }
   }
@@ -13311,9 +13346,9 @@ function chartRenderCandles(svg, a, m, W, H, all){
       if (chartInd.vpBox) svgD += chartVpBox(x1, x2, y(gr.hi), y(gr.lo));
       g.vpRow = gr.row; g.vpCapped = gr.capped;
       const yP = y(pr.lo+(pr.poc+0.5)*pr.stp), yH = y(pr.lo+(pr.b+1)*pr.stp), yL = y(pr.lo+pr.a*pr.stp);
-      svgD += '<line x1="'+x1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y1="'+yP.toFixed(1)+'" y2="'+yP.toFixed(1)+'" stroke="'+TA_COLORS.vp+'" stroke-width="1.2" opacity="0.9"/>'+
-        [yH, yL].map(yy=>'<line x1="'+x1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y1="'+yy.toFixed(1)+'" y2="'+yy.toFixed(1)+'" stroke="'+TA_COLORS.vp+'" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>').join("")+
-        '<line x1="'+x1.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y1="'+padT+'" y2="'+(H-padB)+'" stroke="'+TA_COLORS.vp+'" stroke-width="1" stroke-dasharray="1,3" opacity="0.35"/>';
+      svgD += '<line x1="'+x1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y1="'+yP.toFixed(1)+'" y2="'+yP.toFixed(1)+'" stroke="'+vpColor("vpPocCol")+'" stroke-width="1.2" opacity="0.95"/>'+
+        (chartInd.vpVa!==false ? [yH, yL].map(yy=>'<line x1="'+x1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y1="'+yy.toFixed(1)+'" y2="'+yy.toFixed(1)+'" stroke="'+vpColor("vpVaCol")+'" stroke-width="1" stroke-dasharray="3,3" opacity="0.7"/>').join("") : "")+
+        '<line x1="'+x1.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y1="'+padT+'" y2="'+(H-padB)+'" stroke="'+vpColor("vpCol")+'" stroke-width="1" stroke-dasharray="1,3" opacity="0.35"/>';
     });
     over += '<g pointer-events="none">'+svgD+'</g>';
   }
@@ -14876,7 +14911,15 @@ function initChartExtraOpts(){
       eq.textContent = row>0 ? "= "+fmtPrice(row, Math.max(a.decimals, Math.min(8, Math.ceil(-Math.log10(row))+1)))+" par ligne"+(t ? "" : " (auto)")+(chartView && chartView.vpCapped && t ? " · plafonné à "+VP_MAX_ROWS+" lignes" : "") : "";
     }
     const note = document.getElementById("chart-datasrc-note"); if (note) note.textContent = chartSrcLabel(a);
+    pop.querySelectorAll("[data-ci-color]").forEach(inp=>{ if (document.activeElement!==inp) inp.value = vpColor(inp.dataset.ciColor); });
   };
+  let colRaf = 0;
+  pop.querySelectorAll("[data-ci-color]").forEach(inp=>inp.addEventListener("input", ()=>{
+    chartInd[inp.dataset.ciColor] = inp.value; saveChartInd();
+    if (!colRaf) colRaf = requestAnimationFrame(()=>{ colRaf = 0; updateChart(); });
+  }));
+  const colReset = document.getElementById("chart-vp-col-reset");
+  if (colReset) colReset.addEventListener("click", (e)=>{ e.stopPropagation(); ["vpCol","vpPocCol","vpVaCol"].forEach(k=>{ chartInd[k] = VP_DEF_COL; }); saveChartInd(); updateChart(); sync(); });
   const setTicks = (v)=>{
     if (!chartInd.vpTicks || typeof chartInd.vpTicks!=="object") chartInd.vpTicks = {};
     if (v>=1) chartInd.vpTicks[selectedSymbol] = Math.min(1e7, Math.round(v)); else delete chartInd.vpTicks[selectedSymbol];
