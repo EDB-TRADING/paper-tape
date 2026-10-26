@@ -19126,7 +19126,7 @@ function renderFeedbackModalHtml(){
     '<div class="seg fb-tabs"><button id="fb-tab-send" class="on-mode active">💬 Bug ou idée</button><button id="fb-tab-upd" class="on-mode'+(updUnread()?' has-upd':'')+'">📣 Mises à jour</button></div>'+
     '<div id="fb-pane-upd" hidden>'+
       (state.isAdmin ? '<div style="margin-bottom:12px;"><textarea class="journal-textarea" id="upd-input" rows="4" maxlength="1500" placeholder="Nouvelle mise à jour (une ligne par nouveauté)…"></textarea>'+
-        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;"><span class="chart-note" id="upd-msg" style="margin:0;">Visible par tous · pastille rouge pour ceux qui ne l\'ont pas encore lue</span><button class="btn-primary" id="upd-submit">Publier</button></div></div>' : '')+
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;"><span class="chart-note" id="upd-msg" style="margin:0;"></span><button class="btn-primary" id="upd-submit">Publier</button></div></div>' : '')+
       '<div class="upd-tip"><b>Tu ne vois pas une nouveauté ?</b> Recharge la page (la mise en ligne peut prendre jusqu\'à ~10 min) :'+
         '<span><em>Mac</em><i>Cmd + R · forcé : Cmd + Maj + R</i></span>'+
         '<span><em>Windows</em><i>Ctrl + R ou F5 · forcé : Ctrl + Maj + R</i></span>'+
