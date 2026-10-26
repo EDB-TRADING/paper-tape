@@ -1339,7 +1339,8 @@
   /* feedback FAB + modal */
   .feedback-fab{position:fixed;bottom:20px;right:20px;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg, var(--accent-light), var(--accent-dark));color:var(--on-accent);border:none;font-size:20px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.4);z-index:40;}
   .feedback-fab:hover{filter:brightness(1.08);}
-  .feedback-fab.has-upd::after{content:"";position:absolute;top:1px;right:1px;width:12px;height:12px;border-radius:50%;background:#e5484d;box-shadow:0 0 0 2px var(--bg);}
+  .fab-badge{position:absolute;top:-4px;right:-4px;min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:#e5484d;color:#fff;font:700 11px/19px var(--sans);text-align:center;box-shadow:0 0 0 2px var(--bg);pointer-events:none;}
+  .fab-badge[hidden]{display:none;}
   .fb-tabs{display:flex;gap:6px;margin:0 0 12px;}
   .fb-tabs button{position:relative;}
   .fb-tabs button.has-upd::after{content:"";position:absolute;top:4px;right:5px;width:8px;height:8px;border-radius:50%;background:#e5484d;}
@@ -6176,7 +6177,7 @@
 
   <div class="app-version-tag" id="app-version-tag">v2026.09.14 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="badge-toast" id="badge-toast" hidden></div>
-  <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬</button>
+  <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
   <div class="modal-overlay" id="modal-overlay" hidden>
     <div class="modal-box" id="modal-box"></div>
   </div>
@@ -8973,6 +8974,7 @@ function initAuth(){
           await loadAccountForClientId(user.uid);
           hideAuthGate();
           updateAdminNavVisibility();
+          if (typeof checkSiteUpdates==="function") checkSiteUpdates(); // pastille « Mises à jour » dès la connexion
           renderAll();
           if (isFreshAccount){
             isFreshAccount = false;
@@ -19236,32 +19238,44 @@ function subscribeFeedback(){
    admins — voir firestore.rules). Pastille rouge sur le bouton 💬 tant qu'une
    mise à jour n'a pas été lue sur cet appareil. */
 const UPD_SEEN_KEY = "paperTapeUpdatesSeen";
-let updLatestAt = 0, updUnsub = null;
+let updLatestAt = 0, updUnsub = null, updUnreadN = 0, updOk = false;
 function updSeenAt(){ try{ return +localStorage.getItem(UPD_SEEN_KEY) || 0; }catch(e){ return 0; } }
 function updUnread(){ return updLatestAt > updSeenAt(); }
+function updCount(){ return updUnread() ? Math.max(1, updUnreadN) : 0; }
 function updMarkSeen(){
   try{ localStorage.setItem(UPD_SEEN_KEY, String(Math.max(updLatestAt, updSeenAt()))); }catch(e){}
+  updUnreadN = 0;
   updPaintDot();
 }
 function updPaintDot(){
-  const on = updUnread();
+  const on = updUnread(), n = updCount();
   const fab = document.getElementById("feedback-fab");
-  if (fab){ fab.classList.toggle("has-upd", on); fab.title = on ? "Nouvelle mise à jour du site — et pour signaler un bug / proposer une idée" : "Signaler un bug / proposer une idée"; }
+  const badge = document.getElementById("feedback-fab-badge");
+  if (badge){ badge.hidden = !on; badge.textContent = n>9 ? "9+" : String(n); }
+  if (fab){ fab.title = on ? "Nouvelle mise à jour du site — et pour signaler un bug / proposer une idée" : "Signaler un bug / proposer une idée"; }
   const tb = document.getElementById("fb-tab-upd"); if (tb) tb.classList.toggle("has-upd", on);
 }
 async function checkSiteUpdates(){
   if (!dbReady || !db) return;
   try{
-    const snap = await db.collection("siteUpdates").orderBy("createdAt","desc").limit(1).get();
-    const d = snap.docs[0] && snap.docs[0].data();
-    updLatestAt = d ? (Date.parse(d.createdAt) || 0) : 0;
-    // Premier passage sur cet appareil : seule une mise à jour de moins de 7 jours compte comme nouvelle.
-    if (!updSeenAt() && updLatestAt && Date.now()-updLatestAt > 7*86400e3){ try{ localStorage.setItem(UPD_SEEN_KEY, String(updLatestAt)); }catch(e){} }
+    const snap = await db.collection("siteUpdates").orderBy("createdAt","desc").limit(20).get();
+    const times = snap.docs.map(x=>Date.parse((x.data()||{}).createdAt) || 0);
+    updLatestAt = times.length ? Math.max(...times) : 0;
+    // Premier passage sur cet appareil : seules les mises à jour de moins de 7 jours comptent comme nouvelles.
+    if (!updSeenAt() && times.length){ const old = times.filter(t=>Date.now()-t > 7*86400e3); if (old.length){ try{ localStorage.setItem(UPD_SEEN_KEY, String(Math.max(...old))); }catch(e){} } }
+    const seen = updSeenAt();
+    updUnreadN = times.filter(t=>t > seen).length;
+    updOk = true;
     updPaintDot();
-  }catch(e){ /* pas encore connecté, ou règles pas encore déployées : on réessaiera */ }
+    return true;
+  }catch(e){ return false; /* pas encore connecté, ou règles pas encore déployées : on réessaie */ }
 }
 function initSiteUpdates(){
-  setTimeout(checkSiteUpdates, 4000);
+  // Au chargement la connexion au compte prend quelques secondes : on réessaie
+  // toutes les 3 s jusqu'à la première lecture réussie, puis toutes les 5 min.
+  let tries = 0;
+  const first = async ()=>{ if (updOk || tries++ > 40) return; if (!(await checkSiteUpdates())) setTimeout(first, 3000); };
+  setTimeout(first, 1500);
   setInterval(checkSiteUpdates, 5*60*1000);
   document.addEventListener("visibilitychange", ()=>{ if (document.visibilityState==="visible") checkSiteUpdates(); });
 }
