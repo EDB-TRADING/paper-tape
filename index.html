@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="2710">
+<meta name="pt-build" content="2720">
 <title>Paper Tape</title>
 <!-- Favicon / app icon -->
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -5409,7 +5409,7 @@
                   <section class="ci-grp" data-grp="base"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Les bases</b><small>Tendance et activité : de quoi lire un graphique</small></span><span class="ci-lvl ci-lvl-b">Débutant</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><div class="ci-starter" id="ci-starter"><span>Tu débutes ? Volume + MME 20 et 50 suffisent pour lire la tendance.</span><button type="button" id="ci-starter-go">Activer</button></div><label class="ci-it"><i style="background:linear-gradient(90deg,#31c882 50%,#f0546a 50%)"></i><span class="ci-tx"><b>Volume</b><small>Quantité échangée à chaque bougie : confirme la force d'un mouvement</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vol"></label><label class="ci-it"><i style="background:#f2b33d"></i><span class="ci-tx"><b>Moyenne mobile 20</b><small>Tendance courte : prix au-dessus = plutôt haussier</small></span><input type="checkbox" class="ci-tg" data-chart-ind="ema20"></label><label class="ci-it"><i style="background:#5aa9e6"></i><span class="ci-tx"><b>Moyenne mobile 50</b><small>Tendance de fond sur la période</small></span><input type="checkbox" class="ci-tg" data-chart-ind="ema50"></label><label class="ci-it"><i style="background:#c77dff"></i><span class="ci-tx"><b>Moyenne mobile 200</b><small>La grande tendance, très suivie par les traders</small></span><input type="checkbox" class="ci-tg" data-chart-ind="ema200"></label></div></section>
                   <section class="ci-grp" data-grp="lvl"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Niveaux clés</b><small>Prix où le marché réagit souvent</small></span><span class="ci-lvl ci-lvl-i">Intermédiaire</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><label class="ci-it"><i style="background:#ff8a3d"></i><span class="ci-tx"><b>VWAP de la séance</b><small>Prix moyen payé depuis l'ouverture, pondéré par le volume</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vwap"></label><label class="ci-it"><i style="background:#e879f9"></i><span class="ci-tx"><b>VWAP de la semaine</b><small>Même calcul, depuis lundi</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vwapw"></label><div class="chart-ind-sub ci-opt" id="chart-vwap-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages du VWAP</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><label><input type="checkbox" data-chart-ind="vwapGap">Masquer la jonction entre deux séances</label><label><input type="checkbox" data-chart-ind="vwapBands">Bandes d'écart-type (±1σ, ±2σ)</label></div></div><label class="ci-it"><i style="background:#c9b37e"></i><span class="ci-tx"><b>Hier : plus haut / plus bas</b><small>+ ouverture du jour : niveaux souvent testés</small></span><input type="checkbox" class="ci-tg" data-chart-ind="pdl"></label><label class="ci-it"><i style="background:#8fa3b8"></i><span class="ci-tx"><b>Bandes de Bollinger</b><small>Enveloppe de volatilité autour d'une moyenne (20, 2)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="bb"></label><label class="ci-it"><i style="background:linear-gradient(90deg,#31c882 50%,#f0546a 50%)"></i><span class="ci-tx"><b>Supertrend</b><small>Vert = tendance haussière, rouge = baissière (10, 3)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="st"></label></div></section>
                   <section class="ci-grp" data-grp="vp"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Volume par prix</b><small>Où se sont faits les échanges</small></span><span class="ci-lvl ci-lvl-i">Intermédiaire</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><label class="ci-it"><i style="background:#8fa3b8"></i><span class="ci-tx"><b>Profil de volume (écran)</b><small>Volume échangé à chaque prix, sur la zone affichée</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vp"></label><label class="ci-it"><i style="background:#8fa3b8"></i><span class="ci-tx"><b>Profil de volume par jour</b><small>Un profil par séance, avec son POC</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vpd"></label><div class="chart-ind-sub ci-opt" id="chart-vp-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages des profils</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><div class="ci-h">Lignes</div><div class="chart-fp-tick"><span>Ticks par ligne <em id="chart-vp-tick-eq" class="ci-eq"></em></span><button type="button" class="tk-step" data-vp-step="-1" title="Lignes plus fines" aria-label="Moins de ticks par ligne">−</button><input type="number" id="chart-vp-tick" min="1" step="1" inputmode="numeric" placeholder="Auto" aria-label="Nombre de ticks par ligne du profil de volume"><button type="button" class="tk-step" data-vp-step="1" title="Lignes plus grosses" aria-label="Plus de ticks par ligne">+</button><button type="button" id="chart-vp-tick-auto" title="Revenir au réglage automatique">Auto</button></div><div class="ci-h">Apparence</div><label><input type="checkbox" data-chart-ind="vpFill">Histogramme plein (sinon contour seul)</label><label><input type="checkbox" data-chart-ind="vpBox">Encadré (box) autour de chaque profil</label><div class="ci-row"><span>Disposition</span><div class="tpo-seg ci-seg" data-ci-key="vpSide"><button type="button" data-v="left">Gauche</button><button type="button" data-v="right">Droite</button></div></div><div class="ci-row"><span>Couleur des barres</span><div class="tpo-seg ci-seg" data-ci-key="vpStyle"><button type="button" data-v="split">Achat / vente</button><button type="button" data-v="solid">Couleur unie</button></div></div><label><input type="checkbox" data-chart-ind="vpGrade">Dégradé : barres plus vives là où il y a plus de volume</label><label><input type="checkbox" data-chart-ind="vpVa">Lignes VAH / VAL (value area 70 %)</label><div class="ci-row"><span>Trait du POC</span><div class="tpo-seg ci-seg" data-ci-key="vpPocStyle"><button type="button" data-v="dash">Pointillés</button><button type="button" data-v="dot">Points</button><button type="button" data-v="solid">Plein</button></div></div><div class="ci-colors"><label data-vp-show="split"><input type="color" data-ci-color="vpBuyCol">Achats</label><label data-vp-show="split"><input type="color" data-ci-color="vpSellCol">Ventes</label><label data-vp-show="solid"><input type="color" data-ci-color="vpCol">Profil</label><label><input type="color" data-ci-color="vpPocCol">POC</label><label><input type="color" data-ci-color="vpVaCol">VAH / VAL</label><button type="button" id="chart-vp-col-reset" title="Couleurs par défaut">Défaut</button></div></div></div></div></section>
-                  <section class="ci-grp" data-grp="of"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Order flow</b><small>Acheteurs contre vendeurs, prix par prix</small></span><span class="ci-lvl ci-lvl-a">Avancé</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><label class="ci-it"><i style="background:linear-gradient(90deg,#f0546a 50%,#31c882 50%)"></i><span class="ci-tx"><b>Footprint <span class="chart-ind-plus">EDB+</span></b><small>Achats et ventes agressifs à chaque prix, dans chaque bougie</small></span><input type="checkbox" class="ci-tg" data-chart-ind="fp"></label><div class="chart-ind-lock" id="chart-fp-lock" hidden>Réservé aux membres EDB+. <button type="button" id="chart-fp-lock-go">Découvrir EDB+</button></div><div class="chart-ind-sub ci-opt" id="chart-fp-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages du footprint</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><div class="chart-fp-tick"><span>Taille de ligne (prix)</span><button type="button" class="tk-step" data-tick-step="fp:-1" title="Plus fin" aria-label="Taille de ligne plus fine">−</button><input type="number" id="chart-fp-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne du footprint (en prix)"><button type="button" class="tk-step" data-tick-step="fp:1" title="Plus gros" aria-label="Taille de ligne plus grosse">+</button><button type="button" id="chart-fp-tick-auto" title="Revenir au réglage automatique">Auto</button></div><div class="ci-h">Affichage</div><div class="ci-row"><span>Forme</span><div class="tpo-seg ci-seg" data-ci-key="fpDisplay"><button type="button" data-v="cluster" title="Une case par niveau de prix">Cases</button><button type="button" data-v="profile" title="Une barre par niveau de prix, plus longue là où il y a plus de quantité">Profil</button></div></div><div class="ci-row"><span>Couleurs selon</span><div class="tpo-seg ci-seg" data-ci-key="fpMode"><button type="button" data-v="standard" title="Ventes en rouge, achats en vert">Achats / ventes</button><button type="button" data-v="delta" title="Vert si plus d'achats, rouge si plus de ventes">Delta</button><button type="button" data-v="volume" title="Une seule couleur, plus vive là où il y a plus de volume">Volume</button></div></div><div class="ci-row"><span>Chiffres</span><div class="tpo-seg ci-seg" data-ci-key="fpText"><button type="button" data-v="auto" title="Selon les couleurs choisies">Auto</button><button type="button" data-v="delta">Delta</button><button type="button" data-v="volume">Volume</button><button type="button" data-v="split">Ventes | achats</button></div></div><label><input type="checkbox" data-chart-ind="fpHideText">Masquer les chiffres</label><label><input type="checkbox" data-chart-ind="fpRound">Arrondir les valeurs (1,2k au lieu de 1234)</label><label><input type="checkbox" data-chart-ind="fpGrad">Dégradé : plus vif là où il y a plus de quantité</label><div class="ci-h">Signaux</div><label><input type="checkbox" data-chart-ind="fpImb">Déséquilibres à 300 % (+ zones de 3 empilés)</label><label><input type="checkbox" data-chart-ind="fpSig">Absorption (A) et épuisement (É)</label><label><input type="checkbox" data-chart-ind="fpSum">Récap delta / volume de chaque bougie</label><div class="chart-ind-tip">Binance : historique rechargé à l'ouverture (précis sur ~2 h, approximé au-delà), puis en direct. Hyperliquid : en direct depuis l'ouverture du graphique.</div></div></div></div></section>
+                  <section class="ci-grp" data-grp="of"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Order flow</b><small>Acheteurs contre vendeurs, prix par prix</small></span><span class="ci-lvl ci-lvl-a">Avancé</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><label class="ci-it"><i style="background:linear-gradient(90deg,#f0546a 50%,#31c882 50%)"></i><span class="ci-tx"><b>Footprint <span class="chart-ind-plus">EDB+</span></b><small>Achats et ventes agressifs à chaque prix, dans chaque bougie</small></span><input type="checkbox" class="ci-tg" data-chart-ind="fp"></label><div class="chart-ind-lock" id="chart-fp-lock" hidden>Réservé aux membres EDB+. <button type="button" id="chart-fp-lock-go">Découvrir EDB+</button></div><div class="chart-ind-sub ci-opt" id="chart-fp-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages du footprint</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><div class="chart-fp-tick"><span>Taille de ligne (prix)</span><button type="button" class="tk-step" data-tick-step="fp:-1" title="Plus fin" aria-label="Taille de ligne plus fine">−</button><input type="number" id="chart-fp-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne du footprint (en prix)"><button type="button" class="tk-step" data-tick-step="fp:1" title="Plus gros" aria-label="Taille de ligne plus grosse">+</button><button type="button" id="chart-fp-tick-auto" title="Revenir au réglage automatique">Auto</button></div><div class="ci-h">Affichage</div><div class="ci-row"><span>Forme</span><div class="tpo-seg ci-seg" data-ci-key="fpDisplay"><button type="button" data-v="cluster" title="Une case par niveau de prix">Cases</button><button type="button" data-v="profile" title="Une barre par niveau de prix, plus longue là où il y a plus de quantité">Profil</button></div></div><div class="ci-row"><span>Couleurs selon</span><div class="tpo-seg ci-seg" data-ci-key="fpMode"><button type="button" data-v="standard" title="Ventes en rouge, achats en vert">Achats / ventes</button><button type="button" data-v="delta" title="Vert si plus d'achats, rouge si plus de ventes">Delta</button><button type="button" data-v="volume" title="Une seule couleur, plus vive là où il y a plus de volume">Volume</button></div></div><div class="ci-row"><span>Chiffres</span><div class="tpo-seg ci-seg" data-ci-key="fpText"><button type="button" data-v="auto" title="Selon les couleurs choisies">Auto</button><button type="button" data-v="delta">Delta</button><button type="button" data-v="volume">Volume</button><button type="button" data-v="split">Ventes | achats</button></div></div><label><input type="checkbox" data-chart-ind="fpHideText">Masquer les chiffres</label><label><input type="checkbox" data-chart-ind="fpRound">Arrondir les valeurs (1,2k au lieu de 1234)</label><label><input type="checkbox" data-chart-ind="fpGrad">Dégradé : plus vif là où il y a plus de quantité</label><div class="ci-h">Signaux</div><label><input type="checkbox" data-chart-ind="fpImb">Déséquilibres à 300 % (+ zones de 3 empilés)</label><label><input type="checkbox" data-chart-ind="fpSig">Absorption (A) et épuisement (É)</label><label><input type="checkbox" data-chart-ind="fpSum">Récap delta / volume de chaque bougie</label><div class="chart-ind-tip">Binance : historique rechargé à l'ouverture (précis sur ~2 h, approximé au-delà), puis en direct. Hyperliquid : en direct depuis l'ouverture du graphique.</div></div><label class="ci-it"><i style="background:linear-gradient(90deg,#14378c,#00a5c8,#f5cd2d)"></i><span class="ci-tx"><b>Heatmap de liquidité <span class="chart-ind-plus">EDB+</span></b><small>Ordres en attente dans le carnet, prix par prix et dans le temps (enregistrés depuis l'ouverture du graphique)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="lhm"></label><div class="chart-ind-lock" id="chart-lhm-lock" hidden>Réservé aux membres EDB+. <button type="button" class="ci-lock-go">Découvrir EDB+</button></div><div class="chart-ind-sub ci-opt" id="chart-lhm-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages de la heatmap</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><div class="ci-row"><span>Sensibilité</span><div class="tpo-seg ci-seg" data-ci-key="lhmSens"><button type="button" data-v="1" title="Seuls les très gros ordres ressortent">Faible</button><button type="button" data-v="2">Normale</button><button type="button" data-v="3" title="Les petits ordres apparaissent aussi">Forte</button></div></div><div class="chart-ind-tip">Bleu foncé = peu d'ordres, jaune / blanc = gros murs d'ordres. Binance : le carnet s'étoffe au fil des premières minutes. Les carnets passés ne sont publiés nulle part : la heatmap repart à zéro au rechargement de la page.</div></div></div></div></div></section>
                   <section class="ci-grp" data-grp="osc"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Sous le graphique</b><small>Oscillateurs dans un panneau à part</small></span><span class="ci-lvl ci-lvl-i">Intermédiaire</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><label class="ci-it"><i style="background:#b388ff"></i><span class="ci-tx"><b>RSI 14</b><small>Force du mouvement de 0 à 100 : &gt; 70 suracheté, &lt; 30 survendu</small></span><input type="checkbox" class="ci-tg" data-chart-ind="rsi"></label><label class="ci-it"><i style="background:linear-gradient(90deg,#5aa9e6 50%,#f2b33d 50%)"></i><span class="ci-tx"><b>MACD</b><small>Croisements de moyennes : la dynamique change (12, 26, 9)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="macd"></label><label class="ci-it"><i style="background:linear-gradient(90deg,#5aa9e6 50%,#f2b33d 50%)"></i><span class="ci-tx"><b>Stochastique</b><small>Où est le prix dans sa fourchette récente (14, 3, 3)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="stoch"></label><label class="ci-it"><i style="background:#4fd1c5"></i><span class="ci-tx"><b>ATR 14</b><small>Taille moyenne d'une bougie : utile pour placer son stop</small></span><input type="checkbox" class="ci-tg" data-chart-ind="atr"></label><label class="ci-it"><i style="background:#f78fb3"></i><span class="ci-tx"><b>OBV</b><small>Volume cumulé, ajouté si la bougie monte, retiré si elle baisse</small></span><input type="checkbox" class="ci-tg" data-chart-ind="obv"></label><label class="ci-it"><i style="background:#5aa9e6"></i><span class="ci-tx"><b>CVD</b><small>Acheteurs agressifs − vendeurs agressifs, cumulé</small></span><input type="checkbox" class="ci-tg" data-chart-ind="cvd"></label></div></section>
                   <div class="ci-foot"><button type="button" id="ci-clear">Tout retirer</button><span>Tes choix sont gardés sur cet appareil.</span></div>
                   </div>
@@ -6247,7 +6247,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2710 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v2720 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -9917,7 +9917,9 @@ const LAD = {sym:null, src:null, gen:0, ws:null, wsT:null, bids:new Map(), asks:
   fine:0, vol:new Map(), recent:[], snaps:[], snapStep:0, step:0, center:null, auto:true, vwapN:0, vwapD:0, hist:"idle", histFrom:0,
   lastId:0, tbuf:[], drawT:0, sess:0, hlSig:null, built:false, menu:null};
 const LAD_STEP_KEY = "paperTapeDomStep";
-function ladWanted(){ const el = widgetEl("dom"); return !!(el && !el.hidden && el.offsetParent!==null); }
+function ladDomVisible(){ const el = widgetEl("dom"); return !!(el && !el.hidden && el.offsetParent!==null); }
+// Le carnet tourne aussi pour la heatmap de liquidité, même si le widget est masqué.
+function ladWanted(){ return ladDomVisible() || (typeof hmWanted==="function" && hmWanted()); }
 function ladSource(a){
   const pick = x=>{ for (const [kind, ref] of priceSources(x)) if (kind==="hl" || kind==="bf" || kind==="bn") return {kind, ref}; return null; };
   return (typeof chartSrcAsset==="function" ? pick(chartSrcAsset(a)) : null) || pick(a); // même source que le graphique (Binance spot / perps)
@@ -9926,7 +9928,7 @@ function ladStop(){
   LAD.gen++;
   [LAD.ws, LAD.wsT].forEach(w=>{ if (w){ try{ w.onclose = null; w.close(); }catch(e){} } });
   Object.assign(LAD, {sym:null, src:null, ws:null, wsT:null, bids:new Map(), asks:new Map(), lastU:0, prevU:null, ready:false, buf:[], fine:0,
-    vol:new Map(), recent:[], snaps:[], vwapN:0, vwapD:0, hist:"idle", histFrom:0, lastId:0, tbuf:[], center:null, hlSig:null});
+    vol:new Map(), recent:[], snaps:[], vwapN:0, vwapD:0, hist:"idle", histFrom:0, lastId:0, tbuf:[], center:null, hlSig:null, tradesOn:false});
 }
 // Appelée au changement de marché, à l'affichage du widget, et toutes les 2 s.
 function refreshDom(){
@@ -9940,7 +9942,10 @@ function refreshDom(){
   }
   const want = ladSource(a);
   if (LAD.sym!==a.symbol || (want && LAD.src && (want.kind!==LAD.src.kind || want.ref!==LAD.src.ref))) ladStart(a); // nouveau marché ou nouvelle source
-  else if (Date.now() >= LAD.sess + 86400000) ladNewSession();
+  else {
+    if (ladDomVisible() && !LAD.tradesOn && LAD.src && LAD.src.kind!=="hl"){ LAD.tradesOn = true; ladOpenTradesBinance(LAD.src, LAD.gen); ladLoadHistory(LAD.src, LAD.gen); }
+    if (Date.now() >= LAD.sess + 86400000) ladNewSession();
+  }
 }
 function ladNewSession(){ LAD.sess = Math.floor(Date.now()/86400000)*86400000; LAD.vol = new Map(); LAD.vwapN = 0; LAD.vwapD = 0; LAD.histFrom = LAD.sess; }
 function ladStart(a){
@@ -9953,7 +9958,12 @@ function ladStart(a){
   if (!src){ ladRender(); return; }
   const gen = LAD.gen;
   if (src.kind==="hl") ladOpenHl(src.ref, gen);
-  else { ladOpenDepthBinance(src, gen); ladOpenTradesBinance(src, gen); ladLoadHistory(src, gen); }
+  else {
+    ladOpenDepthBinance(src, gen);
+    // Transactions (Vol, Δ, exécuté) : seulement si le widget est affiché ;
+    // pour la heatmap de liquidité seule, le carnet suffit.
+    if (ladDomVisible()){ LAD.tradesOn = true; ladOpenTradesBinance(src, gen); ladLoadHistory(src, gen); }
+  }
   ladRender();
 }
 function ladTick(){ const a = ASSETS.find(x=>x.symbol===LAD.sym); return a && isFinite(a.decimals) ? Math.pow(10, -a.decimals) : 0.01; }
@@ -10167,7 +10177,7 @@ function ladOpenMenu(price, x, y){
 }
 function ladRender(force){
   const body = document.getElementById("dom-body");
-  if (!body) return;
+  if (!body || !ladDomVisible()) return;
   LAD.drawT = Date.now();
   const a = ASSETS.find(x=>x.symbol===selectedSymbol);
   if (!a) return;
@@ -11802,7 +11812,7 @@ const TA_COLORS = {ema20:"#f2b33d", ema50:"#5aa9e6", ema200:"#c77dff", bb:"#8fa3
 const CHART_IND_KEY = "paperTapeChartInd";
 const CHART_EMA = {ema20:{p:20, color:"#f2b33d", label:"MME 20"}, ema50:{p:50, color:"#5aa9e6", label:"MME 50"}, ema200:{p:200, color:"#c77dff", label:"MME 200"}};
 let chartInd = (function(){
-  const d = {tpo:false, tpoPrevTf:"", tpoPrevZoom:0, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpSum:true, fpTicks:{}, fpDisplay:"cluster", fpMode:"standard", fpText:"auto", fpHideText:false, fpRound:true, fpGrad:true, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true, zoomSpeed:"1", dataSrc:"auto", vpTicks:{}, vpFill:true, vpBox:false, vpSide:"left", vpStyle:"split", vpCol:"#8fa3b8", vpBuyCol:"", vpSellCol:"", vpPocCol:"#8fa3b8", vpPocStyle:"dash", vpVa:true, vpVaCol:"#8fa3b8", vpGrade:false, liq:false, liqSens:"2"};
+  const d = {tpo:false, tpoPrevTf:"", tpoPrevZoom:0, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpSum:true, fpTicks:{}, fpDisplay:"cluster", fpMode:"standard", fpText:"auto", fpHideText:false, fpRound:true, fpGrad:true, lhm:false, lhmSens:"2", cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true, zoomSpeed:"1", dataSrc:"auto", vpTicks:{}, vpFill:true, vpBox:false, vpSide:"left", vpStyle:"split", vpCol:"#8fa3b8", vpBuyCol:"", vpSellCol:"", vpPocCol:"#8fa3b8", vpPocStyle:"dash", vpVa:true, vpVaCol:"#8fa3b8", vpGrade:false, liq:false, liqSens:"2"};
   try{
     const s = JSON.parse(localStorage.getItem(CHART_IND_KEY)||"null");
     // Chaque réglage est repris s'il a le même type que sa valeur par défaut :
@@ -13312,6 +13322,125 @@ let liqCanvas = null;
 // colonne finale = état actuel, étirée jusqu'au bord droit), générée une fois
 // puis seulement replacée / étirée au zoom et au défilement : la régénérer à
 // chaque image (encodage + décodage PNG) faisait saccader le zoom.
+/* ---------- Heatmap de liquidité (EDB+) ----------
+   Ordres limites en attente dans le carnet, à chaque prix et dans le temps
+   (façon Bookmap). Même carnet que le widget « Carnet d'ordres », sur la même
+   source que le graphique : Binance (photo de 1 000 niveaux + flux complet
+   @depth, donc le carnet s'étoffe au fil des minutes) ou Hyperliquid
+   (l2Book regroupé). Relevé toutes les 2 s, moyenné par minute puis par
+   bougie. Les carnets passés ne sont publiés nulle part : la heatmap
+   commence à l'ouverture du graphique (6 h gardées en mémoire, perdues au
+   rechargement de la page). Aucun appel Firebase. */
+const HM = {key:"", sym:null, bin:0, min:new Map(), n:0, from0:0, kLo:Infinity, kHi:-Infinity, img:"", imgUrl:"", imgKey:"", md:null, mdKey:""};
+const HM_KEEP_MIN = 360;
+const HM_RAMP = [[0, 10, 25, 70, 0], [0.12, 20, 55, 150, 110], [0.35, 0, 165, 200, 185], [0.65, 245, 205, 45, 225], [1, 255, 250, 235, 245]];
+let hmCanvas = null;
+function hmOn(){ return !!chartInd.lhm && typeof isEdbPlus==="function" && isEdbPlus(); }
+function hmWanted(){ return hmOn() && chartSource==="internal" && !(typeof tpoOn==="function" && tpoOn()); }
+function hmReset(){
+  if (HM.imgUrl){ try{ URL.revokeObjectURL(HM.imgUrl); }catch(e){} }
+  Object.assign(HM, {key:"", sym:null, bin:0, min:new Map(), n:0, from0:0, kLo:Infinity, kHi:-Infinity, img:"", imgUrl:"", imgKey:"", md:null, mdKey:""});
+}
+function hmSample(){
+  if (!hmWanted() || document.visibilityState==="hidden") return;
+  if (!LAD.ready || LAD.sym!==selectedSymbol || !LAD.src || !LAD.bids.size || !LAD.asks.size) return;
+  const key = LAD.sym+"|"+LAD.src.kind+":"+LAD.src.ref;
+  if (HM.key!==key){ hmReset(); HM.key = key; HM.sym = LAD.sym; }
+  let bb = -Infinity, ba = Infinity;
+  LAD.bids.forEach((q, p)=>{ if (p>bb) bb = p; }); LAD.asks.forEach((q, p)=>{ if (p<ba) ba = p; });
+  const mid = (bb+ba)/2; if (!(mid>0) || !isFinite(mid)) return;
+  if (!HM.bin) HM.bin = chartNiceStep(mid*0.00005);
+  const bin = HM.bin, lo = mid*0.985, hi = mid*1.015, now = Date.now(), mk = Math.floor(now/60000)*60000;
+  let e = HM.min.get(mk);
+  if (!e){
+    e = {n:0, v:new Map()}; HM.min.set(mk, e);
+    if (HM.min.size > HM_KEEP_MIN){ const old = Math.min(...HM.min.keys()); HM.min.delete(old); HM.from0 = Math.max(HM.from0, old+60000); }
+  }
+  const add = (q, p)=>{ if (p<lo || p>hi || !(q>0)) return; const k = Math.floor(p/bin); e.v.set(k, (e.v.get(k)||0)+q); if (k<HM.kLo) HM.kLo = k; if (k>HM.kHi) HM.kHi = k; };
+  LAD.bids.forEach(add); LAD.asks.forEach(add);
+  e.n++; HM.n++;
+  if (!HM.from0) HM.from0 = now;
+  if (chartSource==="internal") scheduleChartFrame();
+}
+setInterval(hmSample, 2000);
+// Modèle : une colonne par bougie (moyenne des relevés de ses minutes), une ligne par pas de prix.
+function hmModel(all, tfMs){
+  if (!HM.n || !HM.bin || HM.sym!==selectedSymbol || !all.length || !(HM.kHi>=HM.kLo)) return null;
+  const key = [HM.key, HM.n, tfMs, all[0].ms, all.length].join("|");
+  if (HM.mdKey===key) return HM.md;
+  let i0 = all.length-1;
+  while (i0>0 && all[i0-1].ms+tfMs > HM.from0) i0--;
+  const n = all.length-i0;
+  // Au plus ~700 lignes : pas regroupés si le carnet couvre une large zone.
+  const span = HM.kHi-HM.kLo+1, grp = Math.max(1, Math.ceil(span/700)), R = Math.ceil(span/grp);
+  const cols = new Float32Array(n*R);
+  for (let j=0; j<n; j++){
+    const c = all[i0+j]; if (!c || !c.ms) continue;
+    let ns = 0; const off = j*R;
+    for (let t = Math.floor(c.ms/60000)*60000; t < c.ms+tfMs; t += 60000){
+      const e = HM.min.get(t); if (!e) continue;
+      ns += e.n;
+      e.v.forEach((q, k)=>{ const b = Math.floor((k-HM.kLo)/grp); if (b>=0 && b<R) cols[off+b] += q; });
+    }
+    if (ns) for (let b=0; b<R; b++) cols[off+b] /= ns;
+  }
+  HM.md = {i0, n, R, cols, lo:HM.kLo*HM.bin, stp:HM.bin*grp};
+  HM.mdKey = key;
+  return HM.md;
+}
+function hmColor(t){
+  let i = 0; while (i<HM_RAMP.length-2 && t > HM_RAMP[i+1][0]) i++;
+  const a = HM_RAMP[i], b = HM_RAMP[i+1], u = Math.max(0, Math.min(1, (t-a[0])/(b[0]-a[0])));
+  return [a[1]+(b[1]-a[1])*u, a[2]+(b[2]-a[2])*u, a[3]+(b[3]-a[3])*u, a[4]+(b[4]-a[4])*u];
+}
+// Image générée une fois par relevé (toutes les 2 s), puis seulement replacée
+// et étirée au zoom / défilement (même principe que la heatmap des liquidations).
+function hmLayer(g, md, start){
+  const {padR, W, slotW, xAt, y, live} = g, R = md.R, n = md.n;
+  const sens = +chartInd.lhmSens || 2;
+  const key = HM.mdKey+"|"+sens;
+  if (HM.imgKey!==key){
+    const vals = [];
+    for (let i=0; i<md.cols.length; i+=2) if (md.cols[i]>0) vals.push(md.cols[i]);
+    vals.sort((a, b)=>a-b);
+    const vmax = vals.length ? vals[Math.min(vals.length-1, Math.floor(vals.length*(sens===1 ? 0.999 : sens===3 ? 0.95 : 0.985)))] : 0;
+    HM.imgKey = key; HM.img = "";
+    if (vmax>0){
+      const gam = sens===1 ? 0.85 : sens===3 ? 0.45 : 0.6, w = n+1;
+      if (!hmCanvas) hmCanvas = document.createElement("canvas");
+      hmCanvas.width = w; hmCanvas.height = R;
+      const ctx = hmCanvas.getContext("2d"), im = ctx.createImageData(w, R), d = im.data;
+      for (let col=0; col<w; col++){
+        const off = Math.min(col, n-1)*R;
+        for (let b=0; b<R; b++){
+          const v = md.cols[off+b]; if (!(v>0)) continue;
+          const t = Math.pow(Math.min(1, v/vmax), gam); if (t < 0.04) continue;
+          const [r, gg, bb, al] = hmColor(t), o = ((R-1-b)*w + col)*4;
+          d[o] = r; d[o+1] = gg; d[o+2] = bb; d[o+3] = al;
+        }
+      }
+      ctx.putImageData(im, 0, 0);
+      const k0 = key;
+      try{
+        hmCanvas.toBlob(bl=>{
+          if (!bl || HM.imgKey!==k0) return;
+          if (HM.imgUrl) URL.revokeObjectURL(HM.imgUrl);
+          HM.imgUrl = URL.createObjectURL(bl); HM.img = HM.imgUrl;
+          scheduleChartFrame();
+        }, "image/png");
+      }catch(e){}
+      if (HM.imgUrl && !HM.img) HM.img = HM.imgUrl;
+    }
+  }
+  if (!HM.img) return "";
+  const x0 = xAt(md.i0-start)-slotW/2, xLast = xAt(md.i0+n-1-start)+slotW/2;
+  const extra = live ? Math.max(slotW, (W-padR)-xLast) : slotW;
+  const yT = y(md.lo+R*md.stp), yB = y(md.lo), wMain = n*slotW;
+  return '<svg x="'+x0.toFixed(1)+'" y="'+yT.toFixed(1)+'" width="'+wMain.toFixed(1)+'" height="'+(yB-yT).toFixed(1)+'" viewBox="0 0 '+n+' '+R+'" preserveAspectRatio="none" overflow="hidden" pointer-events="none">'+
+      '<image href="'+HM.img+'" x="0" y="0" width="'+(n+1)+'" height="'+R+'" preserveAspectRatio="none" opacity="0.9"/></svg>'+
+    '<svg x="'+xLast.toFixed(1)+'" y="'+yT.toFixed(1)+'" width="'+extra.toFixed(1)+'" height="'+(yB-yT).toFixed(1)+'" viewBox="'+n+' 0 1 '+R+'" preserveAspectRatio="none" overflow="hidden" pointer-events="none">'+
+      '<image href="'+HM.img+'" x="0" y="0" width="'+(n+1)+'" height="'+R+'" preserveAspectRatio="none" opacity="0.9"/></svg>';
+}
 function liqLayer(g, md, start, end){
   const {min, max, padR, W, slotW, xAt, y, live} = g;
   const R = md.R, n = md.n, sens = +chartInd.liqSens || 2;
@@ -13681,6 +13810,15 @@ function chartRenderCandles(svg, a, m, W, H, all){
     }
     liqNote = LIQ.err || (md ? (plotW < 520 ? "Liquidations estimées (modèle OI)" : "Liquidations estimées · OI Binance "+LIQ.fsym+" ("+LIQ.period+") · leviers x10–x100 · modèle") : "Chargement de l'open interest…");
   }
+  // Heatmap de liquidité (EDB+) : sous les bougies (et sous la heatmap des liquidations).
+  let hmNote = "";
+  if (!tpoMode && hmOn() && chartSource==="internal"){
+    const hmd = hmModel(all, tfMs);
+    if (hmd) heat = hmLayer(g, hmd, start) + heat;
+    const srcN = LAD.src ? srcKindName(LAD.src.kind) : "";
+    hmNote = !LAD.src ? "Heatmap de liquidité indisponible sur ce marché" : !HM.n ? "Heatmap de liquidité : lecture du carnet…" :
+      (plotW < 520 ? "Liquidité depuis "+new Date(HM.from0).toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"}) : "Heatmap de liquidité · carnet "+srcN+" · depuis "+new Date(HM.from0).toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"})+" (ouverture du graphique)");
+  }
   // TPO (Market Profile) : remplace les bougies.
   let tpoNote = "";
   if (tpoMode){
@@ -13787,7 +13925,7 @@ function chartRenderCandles(svg, a, m, W, H, all){
   svg.style.touchAction = (positions.length || pending.length || drawTool || (chartLimitDraft && chartLimitDraft.sym===selectedSymbol)) ? "none" : "pan-y";
   const clip = '<defs><clipPath id="chart-plot-clip"><rect x="'+padL+'" y="0" width="'+plotW+'" height="'+(H-padB)+'"/></clipPath>'+
     '<clipPath id="chart-pane-clip"><rect x="'+padL+'" y="'+(H-padB)+'" width="'+plotW+'" height="'+Math.max(0, padB-22)+'"/></clipPath></defs>';
-  const noteTxt = tpoNote || liqNote || (fpL && fpL.note) || "";
+  const noteTxt = tpoNote || liqNote || (fpL && fpL.note) || hmNote || "";
   const fpNote = noteTxt ? '<text x="'+(W-padR-8)+'" y="'+(H-padB-7)+'" text-anchor="end" font-size="10" fill="'+pal.axis+'" '+CHART_FONT+' stroke="'+pal.bg+'" stroke-width="3" paint-order="stroke">'+escapeHtml(noteTxt)+'</text>' : "";
   svg.innerHTML = clip+grid+'<g clip-path="url(#chart-plot-clip)">'+heat+vol+(fpL ? '<g pointer-events="none">'+fpL.zones+'</g>' : '')+over+bars+(fpL ? '<g pointer-events="none">'+fpL.svg+fpL.marks+'</g>' : '')+emas+marks+'</g>'+fpNote+paneSvg+axis+
     '<g id="chart-draw">'+chartDrawingsHtml(g)+'</g>'+
@@ -15317,7 +15455,7 @@ function initChartIndicators(){
     cb.checked = key==="fp" ? fpOn() : key==="tpo" ? tpoOn() : !!chartInd[key];
     cb.addEventListener("change", ()=>{
       // Footprint et TPO : réservés EDB+.
-      const lock = key==="fp" ? fpLock : key==="tpo" ? document.getElementById("chart-tpo-lock") : null;
+      const lock = key==="fp" ? fpLock : key==="tpo" ? document.getElementById("chart-tpo-lock") : key==="lhm" ? document.getElementById("chart-lhm-lock") : null;
       if (lock && cb.checked && !(typeof isEdbPlus==="function" && isEdbPlus())){
         cb.checked = false; chartInd[key] = false; saveChartInd();
         lock.hidden = false;
@@ -15340,10 +15478,12 @@ function initChartIndicators(){
       if (key==="fp" && cb.checked){ const pw = (chartView && chartView.plotW) || 600, tgt = Math.max(8, Math.min(26, Math.round(pw/62))); if (chartZoomCount > tgt+4) chartZoomTo(tgt, null); }
       updateChart();
       if (key==="fp" || key==="tpo") setTimeout(syncTick, 1200);
+      if (key==="lhm" && typeof refreshDom==="function") refreshDom(); // le carnet démarre tout de suite
     });
   });
   const lockGo = document.getElementById("chart-fp-lock-go");
   if (lockGo) lockGo.addEventListener("click", ()=>{ close(); if (typeof goToEdbPlus==="function") goToEdbPlus(); });
+  pop.querySelectorAll(".ci-lock-go").forEach(b=>b.addEventListener("click", ()=>{ close(); if (typeof goToEdbPlus==="function") goToEdbPlus(); }));
   // Taille de ligne du footprint (par marché) : vide = automatique.
   if (tickIn){
     const applyTick = ()=>{
@@ -15382,6 +15522,7 @@ function initChartIndicators(){
   const syncVwapOpts = ()=>{
     const o = document.getElementById("chart-vwap-opts"); if (o) o.hidden = !(chartInd.vwap || chartInd.vwapw);
     const fo = document.getElementById("chart-fp-opts"); if (fo) fo.hidden = !fpOn();
+    const ho = document.getElementById("chart-lhm-opts"); if (ho) ho.hidden = !(typeof hmOn==="function" && hmOn());
   };
   syncVwapOpts();
   const close = ()=>{
