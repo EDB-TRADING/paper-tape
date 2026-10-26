@@ -874,6 +874,10 @@
   .chart-ind-lock button{margin-left:4px;border:none;background:none;color:#f2b33d;font:600 11.5px var(--sans);cursor:pointer;padding:0;text-decoration:underline;}
   .chart-fp-tick{display:flex;align-items:center;gap:6px;padding:4px 7px;font-size:12px;color:var(--text-dim);}
   .chart-fp-tick{flex-wrap:wrap;}
+  .ci-row{display:flex;flex-direction:column;gap:4px;padding:5px 7px 3px;font-size:12px;color:var(--text-dim);}
+  .ci-row .tpo-seg{padding:0;}
+  .ci-row .tpo-seg button{font-size:11.5px;padding:4px 5px;}
+  .ci-eq{font-style:normal;color:var(--text-faint);font-family:var(--mono);font-size:11px;margin-left:4px;}
   .chart-fp-tick > span{white-space:nowrap;flex-basis:100%;}
   .chart-fp-tick .tk-step{width:28px;padding:3px 0;font:600 14px/1 var(--sans);}
   .chart-fp-tick input{width:64px;min-width:0;padding:4px 6px;border:1px solid var(--border);border-radius:5px;background:var(--bg-raised);color:var(--text);font:12px var(--mono);}
@@ -4912,7 +4916,8 @@
   /* Bouton d'envoi : dégradé, lueur, deux lignes */
   .ticket .submit-btn{display:flex;flex-direction:column;align-items:center;gap:2px;margin-top:12px;padding:12px 14px;border-radius:12px;font-family:var(--sans);
     font-size:15px;font-weight:800;letter-spacing:.01em;text-transform:none;transition:transform .12s, box-shadow .2s, filter .2s;}
-  .ticket .submit-btn .sb-sub{font-size:11px;font-weight:600;font-family:var(--mono);letter-spacing:0;color:inherit;opacity:.72;}
+  .ticket .submit-btn .sb-sub{font-size:11px;font-weight:600;font-family:var(--mono);letter-spacing:0;color:inherit;opacity:.72;white-space:normal;max-width:100%;text-align:center;line-height:1.35;overflow-wrap:anywhere;}
+  .ticket .submit-btn{min-width:0;max-width:100%;box-sizing:border-box;}
   .ticket .submit-btn.long .sb-sub{color:#03150e;}
   .ticket .submit-btn.short .sb-sub{color:#200609;}
   .ticket .submit-btn:disabled .sb-sub{color:var(--text-faint);}
@@ -5296,6 +5301,13 @@
                   <label><input type="checkbox" data-chart-ind="vp"><i style="background:#8fa3b8"></i>Profil de volume (zone visible)</label>
                   <label><input type="checkbox" data-chart-ind="pdl"><i style="background:#c9b37e"></i>Plus haut / bas de la veille + ouverture du jour</label>
                   <label><input type="checkbox" data-chart-ind="vpd"><i style="background:#8fa3b8"></i>Profil de volume par séance (jour)</label>
+                  <div class="chart-ind-sub" id="chart-vp-opts">
+                    <span>Paramètres des profils de volume</span>
+                    <div class="chart-fp-tick"><span>Ticks par ligne <em id="chart-vp-tick-eq" class="ci-eq"></em></span><button type="button" class="tk-step" data-vp-step="-1" title="Lignes plus fines" aria-label="Moins de ticks par ligne">−</button><input type="number" id="chart-vp-tick" min="1" step="1" inputmode="numeric" placeholder="Auto" aria-label="Nombre de ticks par ligne du profil de volume"><button type="button" class="tk-step" data-vp-step="1" title="Lignes plus grosses" aria-label="Plus de ticks par ligne">+</button><button type="button" id="chart-vp-tick-auto" title="Revenir au réglage automatique">Auto</button></div>
+                    <label><input type="checkbox" data-chart-ind="vpFill">Histogramme plein (sinon contour seul)</label>
+                    <label><input type="checkbox" data-chart-ind="vpBox">Encadré (box) autour de chaque profil</label>
+                    <div class="ci-row"><span>Disposition</span><div class="tpo-seg ci-seg" data-ci-key="vpSide"><button type="button" data-v="left">Gauche</button><button type="button" data-v="right">Droite</button></div></div>
+                  </div>
                   <div class="chart-ind-sep">Footprint</div>
                   <label><input type="checkbox" data-chart-ind="fp"><i style="background:linear-gradient(90deg,#f0546a 50%,#31c882 50%)"></i>Footprint (vendeurs × acheteurs par prix)<b class="chart-ind-plus">EDB+</b></label>
                   <div class="chart-ind-lock" id="chart-fp-lock" hidden>Réservé aux membres EDB+. <button type="button" id="chart-fp-lock-go">Découvrir EDB+</button></div>
@@ -5316,6 +5328,9 @@
                   <div class="chart-ind-sep">Affichage</div>
                   <label><input type="checkbox" data-chart-ind="trades"><i class="tri"></i>Mes trades (▲ achat ▼ vente)</label>
                   <label><input type="checkbox" data-chart-ind="qt"><i style="background:linear-gradient(90deg,#f0546a 50%,#31c882 50%)"></i>Trader depuis le graphique</label>
+                  <div class="ci-row"><span>Vitesse du zoom</span><div class="tpo-seg ci-seg" data-ci-key="zoomSpeed"><button type="button" data-v="0.5">Lente</button><button type="button" data-v="1">Normale</button><button type="button" data-v="2">Rapide</button><button type="button" data-v="3">Très rapide</button></div></div>
+                  <div class="ci-row"><span>Données du graphique</span><div class="tpo-seg ci-seg" data-ci-key="dataSrc"><button type="button" data-v="auto">Auto</button><button type="button" data-v="spot">Binance spot</button><button type="button" data-v="perp">Binance perps</button></div></div>
+                  <div class="chart-ind-tip" id="chart-datasrc-note" style="margin-top:0;"></div>
                   <div class="chart-ind-tip">Glisse le graphique (à gauche ou à droite) pour te déplacer · Ctrl + défilement, pincement ou clic droit maintenu pour zoomer sur une zone précise · double-clic pour tout remettre en automatique.</div>
                 </div>
               </div>
@@ -5323,6 +5338,7 @@
                 <button type="button" id="chart-src-internal" class="on-mode active">Graphique</button>
                 <button type="button" id="chart-src-tv" class="on-mode">TradingView</button>
                 <button type="button" id="chart-src-tpo" class="on-mode" title="TPO / Market Profile (EDB+) — cliquer à nouveau pour les réglages">TPO</button>
+                <button type="button" id="chart-src-liq" class="on-mode" title="Heatmap des liquidations estimées d'après l'open interest Binance (EDB+) — cliquer à nouveau pour la sensibilité">Liquidations</button>
                 <button type="button" id="chart-tpo-gear" class="on-mode chart-tpo-gear" title="Réglages du TPO" aria-label="Réglages du TPO" hidden><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button>
               </div>
               <div class="chart-ind-pop chart-tpo-pop" id="chart-tpo-pop" hidden>
@@ -6421,8 +6437,12 @@ function chartZoomTo(count, anchorX){
   clearTimeout(chartZoomSaveTimer);
   chartZoomSaveTimer = setTimeout(()=>{ try{ localStorage.setItem(CHART_ZOOM_COUNT_KEY, String(Math.round(chartZoomCount*10)/10)); }catch(e){} }, 400);
 }
-// Boutons −/+ : zoom animé (×1,6) sur ~180 ms.
+// Vitesse du zoom (Indicateurs › Affichage) : multiplie la sensibilité de la
+// molette, du trackpad et des boutons − / +. 1 = normale.
+function chartZoomSpeed(){ const v = parseFloat(typeof chartInd!=="undefined" && chartInd ? chartInd.zoomSpeed : 1); return v>0 && v<=5 ? v : 1; }
+// Boutons −/+ : zoom animé (×1,6 à vitesse normale) sur ~180 ms.
 function chartZoomAnimate(factor){
+  factor = Math.pow(factor, chartZoomSpeed());
   cancelAnimationFrame(chartZoomTweenRaf);
   const from = chartZoomCount;
   const to = Math.max(chartZoomMin(), Math.min(CHART_ZOOM_MAX, from*factor));
@@ -6487,11 +6507,11 @@ function initChartZoomControls(){
         // Ctrl + défilement (ou pincement du trackpad), ou défilement clic droit
         // maintenu : zoom en largeur ET en hauteur autour du curseur.
         const ay = (e.clientY-r.top)/r.height*v.H;
-        const f = Math.exp(Math.max(-60, Math.min(60, dy))*(e.ctrlKey ? 0.012 : 0.0025));
+        const f = Math.exp(Math.max(-60, Math.min(60, dy))*(e.ctrlKey ? 0.012 : 0.0025)*chartZoomSpeed());
         chartZoom2D(f, f, ax, ay);
         return;
       }
-      chartZoomTo(chartZoomCount*Math.exp(Math.max(-60, Math.min(60, dy))*0.0022), ax);
+      chartZoomTo(chartZoomCount*Math.exp(Math.max(-60, Math.min(60, dy))*0.0022*chartZoomSpeed()), ax);
     }, {passive:false});
   }
   updateChartZoomLabel();
@@ -6584,9 +6604,9 @@ function scheduleEdbPlusTrialExpiry(){
 // masqués — et ne reviennent pas tout seuls si l'accès revient.
 function chartEnforcePlus(){
   if (typeof isEdbPlus!=="function" || isEdbPlus() || typeof chartInd==="undefined") return;
-  if (!chartInd.fp && !chartInd.tpo) return;
+  if (!chartInd.fp && !chartInd.tpo && !chartInd.liq) return;
   const wasTpo = chartInd.tpo;
-  chartInd.fp = false; chartInd.tpo = false;
+  chartInd.fp = false; chartInd.tpo = false; chartInd.liq = false;
   saveChartInd();
   if (typeof fpStop==="function" && FP.sym) fpStop();
   if (wasTpo){
@@ -6751,7 +6771,7 @@ const EDB_PLUS_FEATURES = {
   // paywall/une seule clé pour les deux — l'ancienne clé "learn" séparée a
   // disparu.
   quiz:      {label:"Connaissances & Quiz",     detail:"réviser chaque sujet puis tester tes connaissances et grimper au classement des quiz", img:"https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=1600&q=80"},
-  orderflow: {label:"Footprint, TPO & order flow", detail:"lire le footprint (acheteurs × vendeurs par prix, déséquilibres, absorption) et le TPO / Market Profile sur le graphique"},
+  orderflow: {label:"Footprint, TPO & order flow", detail:"lire le footprint (acheteurs × vendeurs par prix, déséquilibres, absorption), le TPO / Market Profile et la heatmap des liquidations sur le graphique"},
   challenge: {label:"Le challenge prop firm",    detail:"trader un compte démo calqué sur une vraie évaluation prop firm en 2 étapes", img:"https://images.unsplash.com/photo-1767424412548-1a1ac7f4b9bc?w=1600&q=80&auto=format&fit=crop"},
   theme:     {label:"Le changement de thème",    detail:"personnaliser l'interface (Ember, Sage, Ink, Noir, Gold, Azure)", img:"https://images.pexels.com/photos/10275089/pexels-photo-10275089.jpeg?auto=compress&cs=tinysrgb&w=1600"},
   tradesedb: {label:"Trades EDB+",               detail:"suivre les trades partagés par le bureau et le trade swing hebdomadaire", img:"https://images.unsplash.com/photo-1745270917233-65e776a47547?auto=format&fit=crop&w=1600&q=80"},
@@ -6782,7 +6802,7 @@ function edbPlusPitch(key){
   const nQ = (typeof QUIZ_DECKS!=="undefined") ? QUIZ_DECKS.reduce((a,d)=>a+d.questions.length,0) : 100;
   const P = {
     quiz:      {title:"Deviens incollable sur les marchés", sub:nCourses+" cours complets et "+nQ+" questions de quiz, de la lecture du carnet d'ordres aux options. Apprends, teste-toi, grimpe au classement."},
-    orderflow: {title:"Lis ce qui se passe vraiment dans le carnet", sub:"Footprint, déséquilibres, absorption, TPO / Market Profile : les outils des traders d'order flow, directement sur le graphique."},
+    orderflow: {title:"Lis ce qui se passe vraiment dans le carnet", sub:"Footprint, déséquilibres, absorption, TPO / Market Profile, heatmap des liquidations : les outils des traders d'order flow, directement sur le graphique."},
     challenge: {title:"Passe une évaluation prop firm, sans risquer un euro", sub:"Un compte démo calqué sur une vraie évaluation en 2 étapes : objectifs, perte max, règles. Entraîne-toi avant de payer un vrai challenge."},
     theme:     {title:"Un terminal à ton image", sub:"Ember, Sage, Ink, Noir, Gold, Azure : choisis l'ambiance dans laquelle tu trades."},
     tradesedb: {title:"Trade aux côtés du bureau EDB", sub:"Les trades partagés par le bureau, avec leur raisonnement, et le trade swing de la semaine."},
@@ -6798,7 +6818,7 @@ const EDB_PLUS_COMPARE = [
   ["Classements, badges et chat de l'association", true],
   ["Ressources trading + layout MMT", true],
   ["Connaissances & Quiz : tous les cours et quiz", false],
-  ["Footprint, TPO / Market Profile (order flow)", false],
+  ["Footprint, TPO / Market Profile, heatmap des liquidations", false],
   ["Challenge prop firm en 2 étapes", false],
   ["Concours EDB+ : une vraie prop firm à gagner", false],
   ["Replay : rejouer des séances de marché passées", false],
@@ -7389,6 +7409,34 @@ function parseCandleRows(raw){
   })).filter(c=>isFinite(c.o)&&isFinite(c.h)&&isFinite(c.l)&&isFinite(c.c)&&isFinite(c.ms));
 }
 const candleOlderState = {}; // "SYM|tf" -> {busy, done}
+// Source des données du graphique (Indicateurs › Affichage) : « Auto » garde
+// l'ordre habituel des sources ; « Binance spot » / « Binance perps » forcent
+// la paire Binance correspondante pour les bougies et le footprint, quand
+// elle existe. Le prix d'exécution des ordres, lui, ne change pas.
+function chartSrcAsset(a){
+  const mode = (typeof chartInd!=="undefined" && chartInd && chartInd.dataSrc) || "auto";
+  if (!a || mode==="auto") return a;
+  const strip = {hyperliquid:null, hlFallback:null, instrument:null, cdcRatio:null, binanceSymbol:null, binanceFutures:null};
+  if (mode==="perp"){ const s = a.binanceFutures || a.binanceSymbol; return s ? Object.assign({}, a, strip, {binanceFutures:s}) : a; }
+  if (mode==="spot") return a.binanceSymbol ? Object.assign({}, a, strip, {binanceSymbol:a.binanceSymbol}) : a;
+  return a;
+}
+function chartSrcLabel(a){
+  const b = chartSrcAsset(a);
+  if (!a) return "";
+  const mode = chartInd.dataSrc || "auto";
+  if (mode!=="auto" && b===a) return a.symbol+" : pas de paire Binance "+(mode==="perp" ? "perps" : "spot")+", source habituelle conservée.";
+  const s = priceSources(b)[0];
+  if (!s) return "";
+  const name = s[0]==="bf" ? "Binance perps ("+s[1]+")" : s[0]==="bn" ? "Binance spot ("+s[1]+")" : s[0]==="hl" ? "Hyperliquid" : "Crypto.com";
+  return a.symbol+" : bougies et footprint "+name+". Le prix d'exécution des ordres ne change pas.";
+}
+// Bougies via la source choisie ; si cette paire n'existe pas (ex. pas de perp), source habituelle.
+async function fetchCandlesChart(a, tf, opt){
+  const b = chartSrcAsset(a);
+  if (b===a) return fetchCandlesRest(a, tf, opt);
+  try{ return await fetchCandlesRest(b, tf, opt); }catch(e){ return fetchCandlesRest(a, tf, opt); }
+}
 async function fetchCandles(symbol, tf, mode){
   const a = ASSETS.find(x=>x.symbol===symbol);
   const m = market[symbol];
@@ -7397,7 +7445,7 @@ async function fetchCandles(symbol, tf, mode){
   if (mode==="tail" && !have) mode = "full";
   if (mode==="full"){ m.candles.loading = true; if (selectedSymbol===symbol) updateChart(); }
   try{
-    const raw = await fetchCandlesRest(a, tf, {limit: mode==="tail" ? CANDLE_FETCH_TAIL : CANDLE_FETCH_FULL});
+    const raw = await fetchCandlesChart(a, tf, {limit: mode==="tail" ? CANDLE_FETCH_TAIL : CANDLE_FETCH_FULL});
     const parsed = parseCandleRows(raw);
     if (mode==="tail" && m.candles && m.candles.tf===tf && m.candles.data.length){
       // Fusion : on remplace les bougies déjà connues (même heure) et on ajoute les nouvelles.
@@ -7433,7 +7481,7 @@ async function fetchOlderCandles(symbol, tf){
   try{
     const a = ASSETS.find(x=>x.symbol===symbol);
     const first = m.candles.data[0];
-    const parsed = parseCandleRows(await fetchCandlesRest(a, tf, {limit: CANDLE_FETCH_OLDER, endTime: first.ms-1})).filter(c=>c.ms<first.ms);
+    const parsed = parseCandleRows(await fetchCandlesChart(a, tf, {limit: CANDLE_FETCH_OLDER, endTime: first.ms-1})).filter(c=>c.ms<first.ms);
     if (!parsed.length){ st.done = true; return; }
     if (!(m.candles && m.candles.tf===tf && m.candles.data[0]===first)) return; // marché changé entre-temps
     m.candles.data = parsed.concat(m.candles.data);
@@ -8407,6 +8455,7 @@ function persistAccount(){
         // weekStartEquity/weekKey straight through unchanged. Falls back to
         // the current equity the very first time (pre-first-reset), which
         // correctly starts everyone at a 0 weekly PnL rather than a bogus one.
+        weekRollover(normal); // nouvelle semaine (ou jamais remise à zéro) : point de départ recalculé ici
         const weekStartEquity = typeof state.weekStartEquity==="number" ? state.weekStartEquity : normalEquity;
         const payload = {
           username: state.username,
@@ -8631,9 +8680,39 @@ function subscribePropLeaderboard(){
 // /functions/index.js). A trader who hasn't persisted since this field was
 // introduced simply has no weeklyPnl yet, so orderBy() naturally excludes
 // them until their next persist, same transition behavior as hasOpenActivity.
+// Semaine du classement : du lundi 00:00 (heure de Paris) au dimanche.
+// Même clé que la Cloud Function weeklyLeaderboardReset (date du lundi,
+// AAAA-MM-JJ), calculée ici sans dépendre du fuseau de l'appareil.
+function parisWeekInfo(ms){
+  const parts = {};
+  new Intl.DateTimeFormat("en-GB", {timeZone:"Europe/Paris", year:"numeric", month:"2-digit", day:"2-digit", weekday:"short"}).formatToParts(new Date(ms)).forEach(p=>{ parts[p.type] = p.value; });
+  const idx = {Mon:0, Tue:1, Wed:2, Thu:3, Fri:4, Sat:5, Sun:6}[parts.weekday] || 0;
+  const mon = new Date(Date.UTC(+parts.year, +parts.month-1, +parts.day - idx));
+  return {key:mon.toISOString().slice(0, 10), startMs:zonedTimeToUtc(mon.getUTCFullYear(), mon.getUTCMonth(), mon.getUTCDate(), 0, 0, "Europe/Paris").getTime()};
+}
+// Le classement de la semaine ne dépend plus seulement de la remise à zéro
+// du lundi côté serveur : si ce compte n'a pas encore le point de départ de
+// la semaine en cours (fonction serveur pas passée, onglet resté ouvert
+// pendant le week-end, ou point de départ jamais posé), on le reconstitue :
+// équité actuelle moins ce qui a été gagné / perdu depuis lundi 00:00
+// (trades clôturés depuis lundi, et positions ouvertes depuis lundi).
+// Avant, un compte sans remise à zéro gardait le même point de départ pour
+// toujours : « cette semaine » affichait des gains vieux d'un mois.
+function weekRollover(normal){
+  const {key, startMs} = parisWeekInfo(Date.now());
+  if (state.weekKey===key && typeof state.weekStartEquity==="number") return false;
+  if (!normal) return false;
+  const eq = bookEquity(normal);
+  let since = 0;
+  (normal.history||[]).forEach(h=>{ const t = Date.parse((h && h.closedAt) || ""); if (t>=startMs && typeof h.pnl==="number") since += h.pnl - Math.max(0, (h.feesPaid||0)-(h.exitFee||0)); });
+  (normal.positions||[]).forEach(p=>{ const t = Date.parse((p && p.openedAt) || ""); if (t>=startMs){ const u = posUnrealized(p); since += (isFinite(u) ? u : 0) - (p.entryFee||0); } });
+  state.weekStartEquity = Math.round((eq - since)*100)/100;
+  state.weekKey = key;
+  return true;
+}
 function subscribeWeeklyLeaderboard(){
   try{
-    return db.collection("traders").orderBy("weeklyPnl","desc").limit(50).onSnapshot(
+    return db.collection("traders").orderBy("weeklyPnl","desc").limit(100).onSnapshot(
       (snap)=>renderWeeklyLeaderboard(snap.docs),
       (err)=>{ console.warn("week lb error", err); renderWeeklyLeaderboardError(); }
     );
@@ -10996,7 +11075,9 @@ function applyChartSourceVisibility(eff){
     b.disabled = lock; b.classList.toggle("disabled", lock);
     b.title = lock ? "Le TPO utilise toujours des périodes de 30 minutes" : "";
   });
-  document.getElementById("chart-src-internal").classList.toggle("active", chartSource==="internal" && !tpoAct);
+  const liqAct = chartSource==="internal" && eff!=="tv" && !tpoAct && typeof liqOn==="function" && liqOn();
+  document.getElementById("chart-src-internal").classList.toggle("active", chartSource==="internal" && !tpoAct && !liqAct);
+  { const lb = document.getElementById("chart-src-liq"); if (lb) lb.classList.toggle("active", liqAct); }
   { const tb = document.getElementById("chart-src-tpo"); if (tb) tb.classList.toggle("active", tpoAct);
     const gb = document.getElementById("chart-tpo-gear"); if (gb) gb.hidden = !tpoAct; }
   // The TV button only lights up "active" when TradingView is actually the
@@ -11145,6 +11226,7 @@ function initTpoPanel(){
     if (!(typeof isEdbPlus==="function" && isEdbPlus())){ open(btn); return; } // réservé EDB+ : le panneau l'explique
     if (chartSource==="internal" && tpoOn()){ if (pop.hidden) open(btn); else tpoPanelClose(); return; } // déjà actif : réglages
     chartInd.tpo = true; // le footprint reste activé : il réapparaît en revenant sur « Graphique »
+    chartInd.liq = false;
     saveChartInd();
     // Une lettre par bougie → unité de temps 5m à 1h (30m par défaut), vue d'environ une journée et demie.
     // TPO : toujours en 30m (l'unité d'avant est gardée pour le retour sur « Graphique »).
@@ -11167,6 +11249,7 @@ function initChartSourceToggle(){
   document.getElementById("chart-src-internal").addEventListener("click", ()=>{
     const wasTpo = chartInd.tpo;
     if (chartInd.tpo){ chartInd.tpo = false; saveChartInd(); }
+    if (chartInd.liq){ chartInd.liq = false; saveChartInd(); }
     tpoPanelClose();
     // Retour aux bougies : on reprend l'unité de temps d'avant le TPO.
     if (wasTpo && chartInd.tpoPrevTf && chartInd.tpoPrevTf!==currentTimeframe && ["1m","5m","15m","30m","1h","4h","1d","1w"].includes(chartInd.tpoPrevTf)){
@@ -11179,6 +11262,30 @@ function initChartSourceToggle(){
   });
   initTpoPanel();
   initTpoMenu();
+  // « Liquidations » : graphique en bougies + heatmap des liquidations (EDB+).
+  // Déjà actif : un clic change la sensibilité (basse → normale → haute).
+  const liqBtn = document.getElementById("chart-src-liq");
+  if (liqBtn) liqBtn.addEventListener("click", ()=>{
+    tpoPanelClose();
+    if (!(typeof isEdbPlus==="function" && isEdbPlus())){
+      chartToast("Heatmap des liquidations : réservée aux membres EDB+ (essai gratuit de 24 h disponible).", "info");
+      setTimeout(()=>{ if (typeof goToEdbPlus==="function") goToEdbPlus(); }, 900);
+      return;
+    }
+    if (chartSource==="internal" && liqOn()){
+      chartInd.liqSens = String(((+chartInd.liqSens||2) % 3) + 1); saveChartInd();
+      chartToast("Sensibilité de la heatmap : "+({1:"basse", 2:"normale", 3:"haute"})[chartInd.liqSens]+".", "info");
+      updateChart(); return;
+    }
+    const wasTpo = chartInd.tpo;
+    chartInd.tpo = false; chartInd.liq = true; saveChartInd();
+    if (wasTpo && chartInd.tpoPrevTf && chartInd.tpoPrevTf!==currentTimeframe && ["1m","5m","15m","30m","1h","4h","1d","1w"].includes(chartInd.tpoPrevTf)){
+      currentTimeframe = chartInd.tpoPrevTf;
+      try{ localStorage.setItem(CHART_TF_KEY, currentTimeframe); }catch(e){}
+      scheduleCandleRefresh();
+    }
+    chartKeepActive(); setChartSource("internal");
+  });
   // Belt-and-suspenders alongside the disabled attribute set by
   // updateChartSourceToggleAvailability(): even if the button were ever
   // reachable despite looking disabled, this still refuses to force
@@ -11468,7 +11575,7 @@ const TA_COLORS = {ema20:"#f2b33d", ema50:"#5aa9e6", ema200:"#c77dff", bb:"#8fa3
 const CHART_IND_KEY = "paperTapeChartInd";
 const CHART_EMA = {ema20:{p:20, color:"#f2b33d", label:"MME 20"}, ema50:{p:50, color:"#5aa9e6", label:"MME 50"}, ema200:{p:200, color:"#c77dff", label:"MME 200"}};
 let chartInd = (function(){
-  const d = {tpo:false, tpoPrevTf:"", tpoPrevZoom:0, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpTicks:{}, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true};
+  const d = {tpo:false, tpoPrevTf:"", tpoPrevZoom:0, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpTicks:{}, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true, zoomSpeed:"1", dataSrc:"auto", vpTicks:{}, vpFill:true, vpBox:false, vpSide:"left", liq:false, liqSens:"2"};
   try{
     const s = JSON.parse(localStorage.getItem(CHART_IND_KEY)||"null");
     // Chaque réglage est repris s'il a le même type que sa valeur par défaut :
@@ -11753,7 +11860,7 @@ function fpEnsure(a){
 function fpStart(a){
   fpStop();
   FP.sym = a.symbol;
-  const src = fpSource(a);
+  const src = fpSource(chartSrcAsset(a)) || fpSource(a);
   if (!src){ FP.note = "Footprint indisponible sur ce marché (pas de flux de transactions)."; return; }
   FP.src = src;
   const gen = FP.gen;
@@ -11997,17 +12104,56 @@ function chartVolProfile(cands, tfMs, lo, hi, bins){
   return {vu, vd, tot, mx, sum, poc, a, b, stp, lo};
 }
 // Histogramme horizontal d'un profil, à partir de x0 (largeur max wMax).
-function chartProfileBars(g, pr, x0, wMax, opIn, opOut){
+// dir = 1 : barres vers la droite (profil à gauche) ; -1 : vers la gauche
+// (profil à droite). Réglage « Histogramme plein » coupé : contour seul.
+function chartProfileBars(g, pr, x0, wMax, opIn, opOut, dir, fill){
+  dir = dir===-1 ? -1 : 1;
+  if (fill===undefined) fill = chartInd.vpFill!==false;
   let s = "";
   const f = v=>v.toFixed(1);
+  if (!fill){
+    // Contour : une seule ligne en escalier qui suit le volume total de chaque ligne.
+    let d = "", started = false;
+    for (let i=0; i<pr.tot.length; i++){
+      const yT = g.y(pr.lo+(i+1)*pr.stp), yB = g.y(pr.lo+i*pr.stp), x = x0 + dir*(pr.tot[i]/pr.mx*wMax);
+      d += (started ? "L" : "M"+f(x0)+","+f(yB)+"L")+f(x)+","+f(yB)+"L"+f(x)+","+f(yT);
+      started = true;
+    }
+    if (d) d += "L"+f(x0)+","+f(g.y(pr.lo+pr.tot.length*pr.stp))+"Z";
+    const yA = g.y(pr.lo+(pr.b+1)*pr.stp), yZ = g.y(pr.lo+pr.a*pr.stp);
+    return (d ? '<path d="'+d+'" fill="'+TA_COLORS.vp+'" fill-opacity="0.05" stroke="'+TA_COLORS.vp+'" stroke-width="1.1" stroke-linejoin="round" opacity="0.9"/>' : '')+
+      '<rect x="'+f(dir>0 ? x0 : x0-wMax)+'" y="'+f(yA)+'" width="'+f(wMax)+'" height="'+f(Math.max(0, yZ-yA))+'" fill="'+TA_COLORS.vp+'" opacity="0.06"/>';
+  }
   for (let i=0; i<pr.tot.length; i++){
     if (!pr.tot[i]) continue;
-    const yT = g.y(pr.lo+(i+1)*pr.stp), yB = g.y(pr.lo+i*pr.stp), h = Math.max(0.8, yB-yT-0.6);
+    const yT = g.y(pr.lo+(i+1)*pr.stp), yB = g.y(pr.lo+i*pr.stp), h = Math.max(0.8, yB-yT-(yB-yT>3 ? 0.6 : 0.15));
     const wu = pr.vu[i]/pr.mx*wMax, wd = pr.vd[i]/pr.mx*wMax, op = (i>=pr.a && i<=pr.b) ? opIn : opOut;
-    if (wu>0.3) s += '<rect x="'+f(x0)+'" y="'+f(yT)+'" width="'+f(wu)+'" height="'+f(h)+'" fill="'+g.cc.up+'" opacity="'+op+'"/>';
-    if (wd>0.3) s += '<rect x="'+f(x0+wu)+'" y="'+f(yT)+'" width="'+f(wd)+'" height="'+f(h)+'" fill="'+g.cc.down+'" opacity="'+op+'"/>';
+    const xu = dir>0 ? x0 : x0-wu, xd = dir>0 ? x0+wu : x0-wu-wd;
+    if (wu>0.3) s += '<rect x="'+f(xu)+'" y="'+f(yT)+'" width="'+f(wu)+'" height="'+f(h)+'" fill="'+g.cc.up+'" opacity="'+op+'"/>';
+    if (wd>0.3) s += '<rect x="'+f(xd)+'" y="'+f(yT)+'" width="'+f(wd)+'" height="'+f(h)+'" fill="'+g.cc.down+'" opacity="'+op+'"/>';
   }
   return s;
+}
+// Grille des lignes d'un profil de volume : « ticks par ligne » choisi pour ce
+// marché (1 tick = plus petit écart de prix affiché), sinon `autoBins` lignes.
+// Plafonné à 400 lignes par profil pour garder le graphique fluide.
+const VP_MAX_ROWS = 400;
+function vpTick(a){ return a && isFinite(a.decimals) ? Math.pow(10, -a.decimals) : 0.01; }
+function vpTicksFor(sym){ const t = chartInd.vpTicks && +chartInd.vpTicks[sym]; return t>=1 ? Math.round(t) : 0; }
+function chartVpGrid(a, lo, hi, autoBins){
+  const ticks = vpTicksFor(a && a.symbol);
+  if (ticks && hi>lo){
+    let row = ticks*vpTick(a);
+    const lo2 = Math.floor(lo/row)*row, hi2 = Math.ceil(hi/row)*row;
+    let bins = Math.max(1, Math.round((hi2-lo2)/row));
+    if (bins > VP_MAX_ROWS){ bins = VP_MAX_ROWS; row = (hi2-lo2)/bins; }
+    return {lo:lo2, hi:lo2+bins*row, bins, row, capped: row!==ticks*vpTick(a)};
+  }
+  return {lo, hi, bins:autoBins, row:(hi-lo)/autoBins, capped:false};
+}
+// Encadré (box) d'un profil.
+function chartVpBox(x1, x2, y1, y2){
+  return '<rect x="'+Math.min(x1, x2).toFixed(1)+'" y="'+Math.min(y1, y2).toFixed(1)+'" width="'+Math.abs(x2-x1).toFixed(1)+'" height="'+Math.abs(y2-y1).toFixed(1)+'" fill="none" stroke="'+TA_COLORS.vp+'" stroke-width="1" opacity="0.7"/>';
 }
 // CVD : somme cumulée du delta (achats agressifs − ventes agressives) par
 // bougie, remise à zéro au début de la zone visible. Delta exact quand le
@@ -12650,6 +12796,154 @@ function chartTickCountdown(){
   if (el) el.textContent = chartCountdownText();
 }
 
+/* ---------- Heatmap des liquidations (EDB+), modèle d'après l'open interest ----------
+   Pas de données publiques des positions ouvertes par prix : comme les
+   heatmaps des terminaux pro, c'est un MODÈLE.
+   - Open interest des perps Binance (USDⓈ-M), historique /futures/data/openInterestHist
+     (période ≈ unité du graphique, 5 min minimum, 30 derniers jours au plus).
+   - Quand l'OI monte pendant une bougie, les nouvelles positions sont placées
+     au prix moyen de la bougie, réparties longs / shorts selon le volume
+     acheteur (taker buy) de la bougie, puis sur 4 leviers (x10, x25, x50, x100)
+     → prix de liquidation estimés : longs en dessous, shorts au-dessus.
+   - Quand l'OI baisse, les positions restantes diminuent d'autant.
+   - Un niveau disparaît dès que le prix le touche (liquidé).
+   Couleur = montant estimé en attente à ce prix à cet instant. */
+const LIQ = {key:"", fsym:"", period:"", oi:[], at:0, busy:false, err:"", model:null, modelKey:"", modelAt:0, img:"", imgKey:""};
+const LIQ_PERIODS = [["5m",3e5],["15m",9e5],["30m",18e5],["1h",36e5],["2h",72e5],["4h",144e5],["6h",216e5],["12h",432e5],["1d",864e5]];
+const LIQ_LEV = [[10,0.30],[25,0.30],[50,0.25],[100,0.15]];
+const LIQ_MMR = 0.005, LIQ_ROWS = 280;
+function liqOn(){ return !!chartInd.liq && typeof isEdbPlus==="function" && isEdbPlus(); }
+function liqFutSym(a){ return a ? (a.binanceFutures || a.binanceSymbol || null) : null; }
+function liqPeriod(tfMs){ let p = LIQ_PERIODS[0]; LIQ_PERIODS.forEach(x=>{ if (x[1] <= tfMs) p = x; }); return p; }
+async function liqEnsure(a, tfMs){
+  const fs = liqFutSym(a);
+  if (!fs){ LIQ.err = "Heatmap indisponible pour "+a.symbol+" : pas de contrat perpétuel Binance."; LIQ.key = ""; LIQ.oi = []; return; }
+  const [per, perMs] = liqPeriod(tfMs), key = fs+"|"+per;
+  if (LIQ.busy || (LIQ.key===key && Date.now()-LIQ.at < Math.max(60e3, Math.min(perMs, 300e3)))) return;
+  LIQ.busy = true;
+  const sym0 = a.symbol;
+  try{
+    const r = await fetch(BINANCE_FAPI_BASE.replace(/\/fapi\/v1\/?$/, "")+"/futures/data/openInterestHist?symbol="+encodeURIComponent(fs)+"&period="+per+"&limit=500", {signal:AbortSignal.timeout(10000)});
+    if (!r.ok) throw new Error("http_"+r.status);
+    const j = await r.json();
+    const oi = (Array.isArray(j) ? j : []).map(x=>({t:+x.timestamp, oi:+x.sumOpenInterest})).filter(x=>isFinite(x.t) && x.oi>0).sort((p, q)=>p.t-q.t);
+    if (!oi.length) throw new Error("empty");
+    Object.assign(LIQ, {oi, key, fsym:fs, period:per, at:Date.now(), err:"", modelKey:""});
+  }catch(e){
+    if (LIQ.key!==key) LIQ.oi = [];
+    Object.assign(LIQ, {key, fsym:fs, period:per, at:Date.now(), err:"Open interest Binance indisponible pour "+fs+" — nouvel essai dans une minute."});
+  }
+  LIQ.busy = false;
+  if (selectedSymbol===sym0) updateChart();
+}
+// Modèle sur toutes les bougies chargées (recalculé au plus toutes les 3 s pendant le direct).
+function liqModel(all, tfMs){
+  const oi = LIQ.oi, nAll = all.length;
+  if (!oi.length || !nAll) return null;
+  const key = LIQ.key+"|"+tfMs+"|"+nAll+"|"+all[0].ms+"|"+all[nAll-1].ms+"|"+oi[oi.length-1].t+"|"+oi.length;
+  if (LIQ.model && LIQ.modelKey===key && Date.now()-LIQ.modelAt < 3000) return LIQ.model;
+  let i0 = 0; while (i0<nAll && all[i0].ms + tfMs <= oi[0].t) i0++;
+  if (i0>=nAll-1) return null;
+  let lo = Infinity, hi = -Infinity;
+  for (let i=i0; i<nAll; i++){ if (all[i].l<lo) lo = all[i].l; if (all[i].h>hi) hi = all[i].h; }
+  const gLo = lo*0.88, gHi = hi*1.12, R = LIQ_ROWS, stp = (gHi-gLo)/R;
+  const L = new Float64Array(R), S = new Float64Array(R), n = nAll-i0, cols = new Float32Array(n*R);
+  const bin = p=>Math.floor((p-gLo)/stp);
+  let k = 0;
+  const oiAt = t=>{ // interpolation linéaire, figée au dernier relevé
+    if (t <= oi[0].t) return oi[0].oi;
+    while (k<oi.length-2 && oi[k+1].t < t) k++;
+    const a = oi[k], b = oi[Math.min(oi.length-1, k+1)];
+    if (t >= b.t) return b.oi;
+    return a.oi + (b.oi-a.oi)*(t-a.t)/(b.t-a.t || 1);
+  };
+  const put = (arr, p, v)=>{ const b = bin(p); if (b<1 || b>=R-1) return; arr[b-1] += v*0.25; arr[b] += v*0.5; arr[b+1] += v*0.25; };
+  for (let i=i0; i<nAll; i++){
+    const c = all[i];
+    // 1. Le prix de la bougie liquide les niveaux qu'il touche.
+    const bl = Math.max(0, bin(c.l)), bh = Math.min(R-1, bin(c.h));
+    for (let b=bl; b<R; b++) L[b] = 0;
+    for (let b=0; b<=bh; b++) S[b] = 0;
+    // 2. Variation de l'open interest pendant la bougie.
+    const o1 = oiAt(c.ms), o2 = oiAt(c.ms+tfMs), tp = (c.h+c.l+c.c)/3;
+    if (o2 > o1){
+      const usd = (o2-o1)*tp;
+      const buy = (typeof c.bv==="number" && c.v>0) ? Math.max(0.15, Math.min(0.85, c.bv/c.v)) : (c.c>=c.o ? 0.55 : 0.45);
+      LIQ_LEV.forEach(([lev, w])=>{
+        put(L, tp*(1-1/lev+LIQ_MMR), usd*buy*w);
+        put(S, tp*(1+1/lev-LIQ_MMR), usd*(1-buy)*w);
+      });
+    } else if (o2 < o1 && o1 > 0){
+      const f = Math.max(0, o2/o1);
+      for (let b=0; b<R; b++){ L[b] *= f; S[b] *= f; }
+    }
+    const off = (i-i0)*R;
+    for (let b=0; b<R; b++) cols[off+b] = L[b]+S[b];
+  }
+  LIQ.model = {i0, R, lo:gLo, stp, cols, n, L:Array.from(L), S:Array.from(S)};
+  LIQ.modelKey = key; LIQ.modelAt = Date.now();
+  return LIQ.model;
+}
+// Dégradé : violet sombre → bleu → turquoise → vert → jaune (zones les plus chargées).
+const LIQ_RAMP = [[0, 40,16,70,0], [0.15, 52,22,98,55], [0.38, 40,86,170,125], [0.62, 26,168,160,175], [0.85, 120,214,90,215], [1, 252,232,80,242]];
+function liqColor(t){
+  let i = 0; while (i<LIQ_RAMP.length-2 && t > LIQ_RAMP[i+1][0]) i++;
+  const a = LIQ_RAMP[i], b = LIQ_RAMP[i+1], u = Math.max(0, Math.min(1, (t-a[0])/(b[0]-a[0])));
+  return [a[1]+(b[1]-a[1])*u, a[2]+(b[2]-a[2])*u, a[3]+(b[3]-a[3])*u, a[4]+(b[4]-a[4])*u];
+}
+let liqCanvas = null;
+// Image de la heatmap pour la zone visible (une colonne par bougie, prolongée
+// jusqu'au bord droit avec l'état actuel), placée sous les bougies.
+function liqLayer(g, md, start, end){
+  const {min, max, padL, padR, W, slotW, xAt, y, live} = g;
+  const c0 = Math.max(start, md.i0), c1 = end; // [c0, c1[
+  if (c1 <= c0) return "";
+  const lastX = xAt(c1-1-start)+slotW/2;
+  const gap = live ? Math.max(0, Math.min(400, Math.ceil((W-padR-lastX)/slotW))) : 0;
+  const rb0 = Math.max(0, Math.floor((min-md.lo)/md.stp)), rb1 = Math.min(md.R, Math.ceil((max-md.lo)/md.stp));
+  if (rb1 <= rb0) return "";
+  const nc = c1-c0, w = nc+gap, h = rb1-rb0;
+  const val = (col, b)=> col < nc ? md.cols[(c0+col-md.i0)*md.R+b] : md.cols[(md.n-1)*md.R+b];
+  let vmax = 0;
+  for (let col=0; col<w; col++) for (let b=rb0; b<rb1; b++){ const v = val(col, b); if (v>vmax) vmax = v; }
+  if (!(vmax>0)) return "";
+  const sens = +chartInd.liqSens || 2, gam = sens===1 ? 0.9 : sens===3 ? 0.42 : 0.6;
+  const key = [LIQ.modelKey, LIQ.modelAt, c0, c1, gap, rb0, rb1, sens].join("|");
+  if (LIQ.imgKey!==key){
+    if (!liqCanvas) liqCanvas = document.createElement("canvas");
+    liqCanvas.width = w; liqCanvas.height = h;
+    const ctx = liqCanvas.getContext("2d"), im = ctx.createImageData(w, h), d = im.data;
+    for (let col=0; col<w; col++) for (let b=rb0; b<rb1; b++){
+      const v = val(col, b); if (!(v>0)) continue;
+      const t = Math.pow(v/vmax, gam); if (t < 0.06) continue;
+      const [r, gg, bb, al] = liqColor(t), o = ((rb1-1-b)*w + col)*4;
+      d[o] = r; d[o+1] = gg; d[o+2] = bb; d[o+3] = al;
+    }
+    ctx.putImageData(im, 0, 0);
+    try{ LIQ.img = liqCanvas.toDataURL("image/png"); }catch(e){ LIQ.img = ""; }
+    LIQ.imgKey = key;
+  }
+  if (!LIQ.img) return "";
+  const x = xAt(c0-start)-slotW/2, yT = y(md.lo+rb1*md.stp), yB = y(md.lo+rb0*md.stp);
+  return '<image href="'+LIQ.img+'" x="'+x.toFixed(1)+'" y="'+yT.toFixed(1)+'" width="'+(w*slotW).toFixed(1)+'" height="'+(yB-yT).toFixed(1)+'" preserveAspectRatio="none" opacity="0.92" pointer-events="none"/>';
+}
+// Les plus gros amas de liquidations encore en attente, au-dessus et en dessous du prix.
+function liqTopLevels(md, price, vMin, vMax){
+  if (!md || !(price>0)) return [];
+  vMin = vMin==null ? -Infinity : vMin; vMax = vMax==null ? Infinity : vMax;
+  const out = [];
+  let bu = -1, bd = -1;
+  for (let b=0; b<md.R; b++){
+    const p = md.lo+(b+0.5)*md.stp;
+    if (p < vMin || p > vMax) continue; // seulement dans la zone affichée
+    if (p > price && (bu<0 || md.S[b] > md.S[bu])) bu = b;
+    if (p < price && (bd<0 || md.L[b] > md.L[bd])) bd = b;
+  }
+  if (bu>=0 && md.S[bu]>0) out.push({p:md.lo+(bu+0.5)*md.stp, v:md.S[bu], up:true});
+  if (bd>=0 && md.L[bd]>0) out.push({p:md.lo+(bd+0.5)*md.stp, v:md.L[bd], up:false});
+  return out;
+}
+function liqFmtUsd(v){ const a = Math.abs(v); return "$"+(a>=1e9 ? (a/1e9).toFixed(2)+"B" : a>=1e6 ? (a/1e6).toFixed(1)+"M" : a>=1e3 ? (a/1e3).toFixed(0)+"k" : a.toFixed(0)); }
 function chartRenderCandles(svg, a, m, W, H, all){
   const pal = chartPalette();
   const cc = candleColors();
@@ -12887,25 +13181,22 @@ function chartRenderCandles(svg, a, m, W, H, all){
     if (last.pdl!=null) addTag(y(last.pdl), "PDL", chartNum(last.pdl, dec), col);
     if (last.op!=null) addTag(y(last.op), "Ouv.", chartNum(last.op, dec), col);
   }
-  // Profil de volume des bougies visibles, à gauche du graphique (POC + value area 70 %).
+  // Profil de volume des bougies visibles, sur le côté du graphique (gauche ou
+  // droite selon le réglage), avec POC + value area 70 %.
   if (chartInd.vp && n>3){
     let vlo = Infinity, vhi = -Infinity; vis.forEach(c=>{ if (c.l<vlo) vlo = c.l; if (c.h>vhi) vhi = c.h; });
-    const bins = 48, stp = (vhi-vlo)/bins || 1, vu = new Array(bins).fill(0), vd = vu.slice();
-    vis.forEach(c=>{ const i0 = Math.max(0, Math.min(bins-1, Math.floor((c.l-vlo)/stp))), i1 = Math.max(0, Math.min(bins-1, Math.floor((c.h-vlo)/stp))), sh = (c.v||0)/(i1-i0+1);
-      for (let b=i0;b<=i1;b++){ if (c.c>=c.o) vu[b] += sh; else vd[b] += sh; } });
-    const tot = vu.map((v,i)=>v+vd[i]), mx = Math.max(...tot) || 1, sum = tot.reduce((a,b)=>a+b, 0);
-    let poc = 0; tot.forEach((v,i)=>{ if (v>tot[poc]) poc = i; });
-    let a = poc, b = poc, acc = tot[poc];
-    while (acc < sum*0.7 && (a>0 || b<bins-1)){ const dn = a>0 ? tot[a-1] : -1, up = b<bins-1 ? tot[b+1] : -1; if (up>=dn) acc += tot[++b]; else acc += tot[--a]; }
-    const wMax = plotW*0.22;
-    let bars = "";
-    for (let i=0;i<bins;i++){ if (!tot[i]) continue;
-      const yT = y(vlo+(i+1)*stp), yB = y(vlo+i*stp), h = Math.max(0.8, yB-yT-0.6), wu2 = vu[i]/mx*wMax, wd = vd[i]/mx*wMax, op = (i>=a && i<=b) ? 0.34 : 0.16;
-      bars += '<rect x="'+padL.toFixed(1)+'" y="'+yT.toFixed(1)+'" width="'+wu2.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+cc.up+'" opacity="'+op+'"/>'+
-        '<rect x="'+(padL+wu2).toFixed(1)+'" y="'+yT.toFixed(1)+'" width="'+wd.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+cc.down+'" opacity="'+op+'"/>'; }
-    const pocP = vlo+(poc+0.5)*stp;
-    over += '<g pointer-events="none">'+bars+'<line x1="'+padL+'" x2="'+(W-padR)+'" y1="'+y(pocP).toFixed(1)+'" y2="'+y(pocP).toFixed(1)+'" stroke="'+TA_COLORS.vp+'" stroke-width="1" stroke-dasharray="4,3" opacity="0.8"/></g>';
-    addTag(y(pocP), "POC", chartNum(pocP, dec), TA_COLORS.vp);
+    if (vhi>vlo){
+      const gr = chartVpGrid(a, vlo, vhi, 48);
+      const pr = chartVolProfile(vis, tfMs, gr.lo, gr.hi, gr.bins);
+      const right = chartInd.vpSide==="right";
+      const wMax = plotW*0.22, x0 = right ? W-padR : padL;
+      let svgV = chartProfileBars(g, pr, x0, wMax, 0.34, 0.16, right ? -1 : 1);
+      if (chartInd.vpBox) svgV += chartVpBox(x0, x0+(right ? -wMax : wMax), y(gr.hi), y(gr.lo));
+      const pocP = pr.lo+(pr.poc+0.5)*pr.stp;
+      over += '<g pointer-events="none">'+svgV+'<line x1="'+padL+'" x2="'+(W-padR)+'" y1="'+y(pocP).toFixed(1)+'" y2="'+y(pocP).toFixed(1)+'" stroke="'+TA_COLORS.vp+'" stroke-width="1" stroke-dasharray="4,3" opacity="0.8"/></g>';
+      addTag(y(pocP), "POC", chartNum(pocP, dec), TA_COLORS.vp);
+      g.vpRow = gr.row; g.vpCapped = gr.capped;
+    }
   }
   // Profil de volume par séance (jour UTC) : un histogramme au début de chaque
   // journée visible, avec son POC et sa value area (70 %) sur toute la journée.
@@ -12920,17 +13211,31 @@ function chartRenderCandles(svg, a, m, W, H, all){
       const cands = all.slice(i0, i1+1);
       let dlo = Infinity, dhi = -Infinity; cands.forEach(c=>{ if (c.l<dlo) dlo = c.l; if (c.h>dhi) dhi = c.h; });
       if (!(dhi>dlo)) return;
-      const bins = Math.max(12, Math.min(60, Math.round((y(dlo)-y(dhi))/5)));
-      const pr = chartVolProfile(cands, tfMs, dlo, dhi, bins);
+      const gr = chartVpGrid(a, dlo, dhi, Math.max(12, Math.min(60, Math.round((y(dlo)-y(dhi))/5))));
+      const pr = chartVolProfile(cands, tfMs, gr.lo, gr.hi, gr.bins);
       const x1 = xAt(i0-start)-slotW/2, x2 = xAt(i1-start)+slotW/2;
       if (x2 < padL || x1 > W-padR) return;
-      svgD += chartProfileBars(g, pr, x1, Math.max(8, (x2-x1)*0.4), 0.32, 0.14);
+      const right = chartInd.vpSide==="right";
+      svgD += chartProfileBars(g, pr, right ? x2 : x1, Math.max(8, (x2-x1)*0.4), 0.32, 0.14, right ? -1 : 1);
+      if (chartInd.vpBox) svgD += chartVpBox(x1, x2, y(gr.hi), y(gr.lo));
+      g.vpRow = gr.row; g.vpCapped = gr.capped;
       const yP = y(pr.lo+(pr.poc+0.5)*pr.stp), yH = y(pr.lo+(pr.b+1)*pr.stp), yL = y(pr.lo+pr.a*pr.stp);
       svgD += '<line x1="'+x1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y1="'+yP.toFixed(1)+'" y2="'+yP.toFixed(1)+'" stroke="'+TA_COLORS.vp+'" stroke-width="1.2" opacity="0.9"/>'+
         [yH, yL].map(yy=>'<line x1="'+x1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y1="'+yy.toFixed(1)+'" y2="'+yy.toFixed(1)+'" stroke="'+TA_COLORS.vp+'" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>').join("")+
         '<line x1="'+x1.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y1="'+padT+'" y2="'+(H-padB)+'" stroke="'+TA_COLORS.vp+'" stroke-width="1" stroke-dasharray="1,3" opacity="0.35"/>';
     });
     over += '<g pointer-events="none">'+svgD+'</g>';
+  }
+  // Heatmap des liquidations (EDB+) : sous les bougies.
+  let heat = "", liqNote = "";
+  if (!tpoMode && liqOn() && chartSource==="internal"){
+    liqEnsure(a, tfMs);
+    const md = liqModel(all, tfMs);
+    if (md){
+      heat = liqLayer(g, md, start, Math.max(start, end));
+      liqTopLevels(md, m.last!=null ? m.last : (vis.length ? vis[vis.length-1].c : 0), min+(max-min)*0.03, max-(max-min)*0.03).forEach(l=>addTag(y(l.p), (l.up ? "Liq ▲ " : "Liq ▼ ")+liqFmtUsd(l.v), chartNum(l.p, dec), l.up ? "#f2c94c" : "#38c6b4"));
+    }
+    liqNote = LIQ.err || (md ? (plotW < 520 ? "Liquidations estimées (modèle OI)" : "Liquidations estimées · OI Binance "+LIQ.fsym+" ("+LIQ.period+") · leviers x10–x100 · modèle") : "Chargement de l'open interest…");
   }
   // TPO (Market Profile) : remplace les bougies.
   let tpoNote = "";
@@ -13036,9 +13341,9 @@ function chartRenderCandles(svg, a, m, W, H, all){
   svg.style.touchAction = (positions.length || pending.length || drawTool || (chartLimitDraft && chartLimitDraft.sym===selectedSymbol)) ? "none" : "pan-y";
   const clip = '<defs><clipPath id="chart-plot-clip"><rect x="'+padL+'" y="0" width="'+plotW+'" height="'+(H-padB)+'"/></clipPath>'+
     '<clipPath id="chart-pane-clip"><rect x="'+padL+'" y="'+(H-padB)+'" width="'+plotW+'" height="'+Math.max(0, padB-22)+'"/></clipPath></defs>';
-  const noteTxt = tpoNote || (fpL && fpL.note) || "";
+  const noteTxt = tpoNote || liqNote || (fpL && fpL.note) || "";
   const fpNote = noteTxt ? '<text x="'+(W-padR-8)+'" y="'+(H-padB-7)+'" text-anchor="end" font-size="10" fill="'+pal.axis+'" '+CHART_FONT+' stroke="'+pal.bg+'" stroke-width="3" paint-order="stroke">'+escapeHtml(noteTxt)+'</text>' : "";
-  svg.innerHTML = clip+grid+'<g clip-path="url(#chart-plot-clip)">'+vol+(fpL ? '<g pointer-events="none">'+fpL.zones+'</g>' : '')+over+bars+(fpL ? '<g pointer-events="none">'+fpL.svg+fpL.marks+'</g>' : '')+emas+marks+'</g>'+fpNote+paneSvg+axis+
+  svg.innerHTML = clip+grid+'<g clip-path="url(#chart-plot-clip)">'+heat+vol+(fpL ? '<g pointer-events="none">'+fpL.zones+'</g>' : '')+over+bars+(fpL ? '<g pointer-events="none">'+fpL.svg+fpL.marks+'</g>' : '')+emas+marks+'</g>'+fpNote+paneSvg+axis+
     '<g id="chart-draw">'+chartDrawingsHtml(g)+'</g>'+
     '<g id="chart-levels">'+positionLinesHtml(g, positions, pending)+chartDraftHtml(g)+'</g>'+
     '<g pointer-events="none">'+chartPlaceTags(g, indTagQ, priceBox)+'</g>'+lastTag+liveBtn+yAuto+'<g id="chart-legend" pointer-events="none"></g><g id="chart-xh" pointer-events="none"></g>';
@@ -13550,7 +13855,7 @@ function initChartTrading(){
     if (!e.ctrlKey && w && !w.classList.contains("is-wheel-active")) return;
     const base = startRange(); if (!base) return;
     e.preventDefault();
-    applyScale(base, Math.exp(Math.max(-60, Math.min(60, e.deltaY*(e.deltaMode===1?16:1)))*0.004));
+    applyScale(base, Math.exp(Math.max(-60, Math.min(60, e.deltaY*(e.deltaMode===1?16:1)))*0.004*chartZoomSpeed()));
   }, {passive:false});
 }
 function initChartInteractions(){
@@ -14461,6 +14766,65 @@ function initChartFullscreen(){
   });
   // En changeant de page, on sort du plein écran.
   document.addEventListener("click", (e)=>{ const nb = e.target.closest && e.target.closest("button[data-view], a[data-view]"); if (nb && chartFs && !nb.closest(".card.widget.chart-fs")) chartFsSet(false); }, true);
+}
+// Réglages ajoutés au panneau Indicateurs : profils de volume (ticks par
+// ligne, plein / contour, encadré, gauche / droite), vitesse du zoom et
+// source des données du graphique (Binance spot / perps).
+function initChartExtraOpts(){
+  const pop = document.getElementById("chart-ind-pop");
+  if (!pop) return;
+  const tickIn = document.getElementById("chart-vp-tick"), eq = document.getElementById("chart-vp-tick-eq");
+  const sync = ()=>{
+    const vo = document.getElementById("chart-vp-opts"); if (vo) vo.hidden = !(chartInd.vp || chartInd.vpd);
+    pop.querySelectorAll(".ci-seg").forEach(seg=>{ const v = String(chartInd[seg.dataset.ciKey]); seg.querySelectorAll("button").forEach(b=>b.classList.toggle("on", b.dataset.v===v)); });
+    const a = ASSETS.find(x=>x.symbol===selectedSymbol);
+    const t = vpTicksFor(selectedSymbol);
+    if (tickIn && document.activeElement!==tickIn) tickIn.value = t ? String(t) : "";
+    if (eq && a){
+      const row = t ? t*vpTick(a) : (chartView && chartView.vpRow) || 0;
+      eq.textContent = row>0 ? "= "+fmtPrice(row, Math.max(a.decimals, Math.min(8, Math.ceil(-Math.log10(row))+1)))+" par ligne"+(t ? "" : " (auto)")+(chartView && chartView.vpCapped && t ? " · plafonné à "+VP_MAX_ROWS+" lignes" : "") : "";
+    }
+    const note = document.getElementById("chart-datasrc-note"); if (note) note.textContent = chartSrcLabel(a);
+  };
+  const setTicks = (v)=>{
+    if (!chartInd.vpTicks || typeof chartInd.vpTicks!=="object") chartInd.vpTicks = {};
+    if (v>=1) chartInd.vpTicks[selectedSymbol] = Math.min(1e7, Math.round(v)); else delete chartInd.vpTicks[selectedSymbol];
+    saveChartInd(); updateChart(); setTimeout(sync, 0);
+  };
+  if (tickIn){
+    tickIn.addEventListener("change", ()=>{ setTicks(parseFloat(tickIn.value)); tickIn.blur(); });
+    tickIn.addEventListener("keydown", (e)=>{ e.stopPropagation(); if (e.key==="Enter"){ e.preventDefault(); setTicks(parseFloat(tickIn.value)); tickIn.blur(); } });
+  }
+  const auto = document.getElementById("chart-vp-tick-auto");
+  if (auto) auto.addEventListener("click", (e)=>{ e.stopPropagation(); setTicks(0); });
+  // − / + : suite 1, 2, 5, 10, 20, 50… ticks (en partant de l'auto si rien n'est choisi).
+  pop.querySelectorAll("[data-vp-step]").forEach(b=>b.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    const a = ASSETS.find(x=>x.symbol===selectedSymbol), dir = +b.dataset.vpStep;
+    const cur = vpTicksFor(selectedSymbol) || Math.max(1, Math.round(((chartView && chartView.vpRow) || vpTick(a))/vpTick(a)));
+    const seq = []; for (let k=0; k<=8; k++) [1, 2, 5].forEach(m=>seq.push(m*Math.pow(10, k)));
+    const next = dir>0 ? seq.find(v=>v>cur) : [...seq].reverse().find(v=>v<cur);
+    if (next) setTicks(next);
+  }));
+  pop.querySelectorAll(".ci-seg").forEach(seg=>seg.querySelectorAll("button").forEach(b=>b.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    const key = seg.dataset.ciKey;
+    if (String(chartInd[key])===b.dataset.v) return;
+    chartInd[key] = b.dataset.v; saveChartInd();
+    if (key==="dataSrc"){
+      // Nouvelle source : on recharge les bougies et on relance le footprint.
+      if (typeof fpStop==="function" && FP.sym) fpStop();
+      const m = market[selectedSymbol];
+      if (m){ m.candles = {tf:currentTimeframe, data:[], loading:true, error:null}; Object.keys(candleOlderState).forEach(k=>{ if (k.startsWith(selectedSymbol+"|")) delete candleOlderState[k]; }); }
+      fetchCandles(selectedSymbol, currentTimeframe, "full");
+    }
+    updateChart(); sync();
+  })));
+  pop.addEventListener("change", ()=>setTimeout(sync, 0));
+  const btn = document.getElementById("chart-ind-btn");
+  if (btn) btn.addEventListener("click", ()=>setTimeout(sync, 0));
+  window.chartExtraOptsSync = sync;
+  sync();
 }
 function initChartIndicators(){
   const btn = document.getElementById("chart-ind-btn");
@@ -17079,7 +17443,10 @@ let weeklyLeaderboardDocsCache = {};
 function renderWeeklyLeaderboard(docs){
   const body = document.getElementById("lb-week-body");
   if (!body) return;
-  const rows = docs.filter(doc=>{ const d = doc.data(); return typeof d.weeklyPnl==="number" && !(d.recovery && d.recovery.active); });
+  // Seulement les comptes dont le point de départ est celui de CETTE semaine
+  // (les autres afficheraient le gain d'une semaine passée, voire d'un mois).
+  const wk = parisWeekInfo(Date.now()).key;
+  const rows = docs.filter(doc=>{ const d = doc.data(); return typeof d.weeklyPnl==="number" && d.weekKey===wk && !(d.recovery && d.recovery.active); }).slice(0, 50);
   if (!rows.length){ body.innerHTML = '<tr><td colspan="4" class="empty-note">Classement de la semaine pas encore disponible — repasse un peu plus tard.</td></tr>'; return; }
   weeklyLeaderboardDocsCache = {};
   rows.forEach(doc=>{ weeklyLeaderboardDocsCache[doc.id] = doc; });
@@ -25352,7 +25719,7 @@ const INVEST_VENUES = {
   xetra:    {label:"Xetra (Francfort)", sess:{name:"Xetra", timeZone:"Europe/Berlin", openH:9, openM:0, closeH:17, closeM:30}},
   crypto:   {label:"Crypto 24/7",    sess:null},
 };
-const INVEST_CATS = [["all","Tout"],["etf","ETF"],["eu","Actions Europe"],["stock","Actions US"],["commodity","Matières premières"],["crypto","Crypto"]];
+const INVEST_CATS = [["all","Tout"],["etf","ETF"],["eu","Actions Europe"],["stock","Actions US"],["semi","Semi-conducteurs"],["commodity","Matières premières"],["crypto","Crypto"]];
 // src.symbol → priced off the Terminal's own feed (market[symbol].last,
 // already in index points for SPY/QQQ) times `ratio`, so the ETF has a
 // realistic unit price but exactly the index's return. src.xyz → Hyperliquid
@@ -25393,18 +25760,30 @@ const INVEST_ASSETS = [
   {id:"KER",  name:"Kering",             short:"KER",  cat:"eu", pea:true, venue:"euronext", src:{eu:"KER.PA"}},
   {id:"CAPG", name:"Capgemini",          short:"CAP",  cat:"eu", pea:true, venue:"euronext", src:{eu:"CAP.PA"}},
   {id:"DSY",  name:"Dassault Systèmes",  short:"DSY",  cat:"eu", pea:true, venue:"euronext", src:{eu:"DSY.PA"}},
-  {id:"ASML", name:"ASML",               short:"ASML", cat:"eu", pea:true, venue:"amsterdam", src:{eu:"ASML.AS"}},
+  {id:"EL",   name:"EssilorLuxottica",   short:"EL",   cat:"eu", pea:true, venue:"euronext", src:{eu:"EL.PA"}},
+  {id:"ASML", name:"ASML",               short:"ASML", cat:"eu", pea:true, venue:"amsterdam", src:{eu:"ASML.AS"}, semi:true},
+  {id:"STM",  name:"STMicroelectronics", short:"STMPA", cat:"eu", pea:true, venue:"euronext", src:{eu:"STMPA.PA"}, semi:true},
+  {id:"SOI",  name:"Soitec",             short:"SOI",  cat:"eu", pea:true, venue:"euronext", src:{eu:"SOI.PA"}, semi:true},
+  {id:"IFX",  name:"Infineon",           short:"IFX",  cat:"eu", pea:true, venue:"xetra", src:{eu:"IFX.DE"}, semi:true},
+  {id:"ASMI", name:"ASM International",  short:"ASM",  cat:"eu", pea:true, venue:"amsterdam", src:{eu:"ASM.AS"}, semi:true},
+  {id:"BESI", name:"BE Semiconductor",   short:"BESI", cat:"eu", pea:true, venue:"amsterdam", src:{eu:"BESI.AS"}, semi:true},
   {id:"SAP",  name:"SAP",                short:"SAP",  cat:"eu", pea:true, venue:"xetra", src:{eu:"SAP.DE"}},
   {id:"SIE",  name:"Siemens",            short:"SIE",  cat:"eu", pea:true, venue:"xetra", src:{eu:"SIE.DE"}},
   {id:"AAPL",  name:"Apple",      short:"AAPL",  cat:"stock", venue:"nyse", src:{xyz:"AAPL"}},
   {id:"MSFT",  name:"Microsoft",  short:"MSFT",  cat:"stock", venue:"nyse", src:{xyz:"MSFT"}},
-  {id:"NVDA",  name:"Nvidia",     short:"NVDA",  cat:"stock", venue:"nyse", src:{xyz:"NVDA"}},
+  {id:"NVDA",  name:"Nvidia",     short:"NVDA",  cat:"stock", venue:"nyse", src:{xyz:"NVDA"}, semi:true},
   {id:"GOOGL", name:"Alphabet",   short:"GOOGL", cat:"stock", venue:"nyse", src:{xyz:"GOOGL"}},
   {id:"AMZN",  name:"Amazon",     short:"AMZN",  cat:"stock", venue:"nyse", src:{xyz:"AMZN"}},
   {id:"META",  name:"Meta",       short:"META",  cat:"stock", venue:"nyse", src:{xyz:"META"}},
   {id:"TSLA",  name:"Tesla",      short:"TSLA",  cat:"stock", venue:"nyse", src:{xyz:"TSLA"}},
   {id:"NFLX",  name:"Netflix",    short:"NFLX",  cat:"stock", venue:"nyse", src:{xyz:"NFLX"}},
-  {id:"AMD",   name:"AMD",        short:"AMD",   cat:"stock", venue:"nyse", src:{xyz:"AMD"}},
+  {id:"AMD",   name:"AMD",        short:"AMD",   cat:"stock", venue:"nyse", src:{xyz:"AMD"}, semi:true},
+  // Semi-conducteurs US (affichés seulement si le marché existe sur la source des cours US).
+  {id:"TSM",   name:"TSMC",       short:"TSM",   cat:"stock", venue:"nyse", src:{xyz:"TSM"}, semi:true},
+  {id:"AVGO",  name:"Broadcom",   short:"AVGO",  cat:"stock", venue:"nyse", src:{xyz:"AVGO"}, semi:true},
+  {id:"MU",    name:"Micron",     short:"MU",    cat:"stock", venue:"nyse", src:{xyz:"MU"}, semi:true},
+  {id:"INTC",  name:"Intel",      short:"INTC",  cat:"stock", venue:"nyse", src:{xyz:"INTC"}, semi:true},
+  {id:"QCOM",  name:"Qualcomm",   short:"QCOM",  cat:"stock", venue:"nyse", src:{xyz:"QCOM"}, semi:true},
   {id:"LLY",   name:"Eli Lilly",  short:"LLY",   cat:"stock", venue:"nyse", src:{xyz:"LLY"}},
   {id:"GOLDETC",   name:"Or physique (ETC)",  short:"OR",     cat:"commodity", venue:"euronext", src:{symbol:"GOLD", ratio:1/10},
     desc:"ETC adossé à de l'or physique (1 part = 1/10e d'once). Un ETC n'est pas un ETF : il n'est pas éligible au PEA."},
@@ -25419,6 +25798,8 @@ function investEnvName(env){ return env==="pea" ? "PEA" : "CTO"; }
 
 /* ---- prices ---- */
 const investXyz = {};
+const investXyzMissing = new Set(); // actions US absentes de la source des cours : masquées de la liste
+let investXyzListDirty = false;
 let investXyzTimer = null, investXyzLoading = false, investXyzError = null, investXyzLastAt = 0;
 async function pollInvestXyz(){
   if (investXyzLoading) return;
@@ -25430,6 +25811,7 @@ async function pollInvestXyz(){
     INVEST_ASSETS.forEach(a=>{
       if (!a.src.xyz) return;
       const idx = uni.findIndex(u=>u && (u.name===a.src.xyz || u.name==="xyz:"+a.src.xyz));
+      if (uni.length){ const had = investXyzMissing.has(a.src.xyz); if (idx<0) investXyzMissing.add(a.src.xyz); else investXyzMissing.delete(a.src.xyz); if (had!==(idx<0)) investXyzListDirty = true; }
       const c = (idx>=0 && Array.isArray(ctxs)) ? ctxs[idx] : null;
       const last = c && c.markPx!=null ? parseFloat(c.markPx) : NaN;
       if (!isFinite(last)) return;
@@ -25440,6 +25822,7 @@ async function pollInvestXyz(){
     investXyzLastAt = Date.now();
   }catch(e){ investXyzError = (e && e.code) || "indisponible"; }
   investXyzLoading = false;
+  if (investXyzListDirty){ investXyzListDirty = false; if (document.body.dataset.view==="invest" && typeof renderInvest==="function") renderInvest(); }
   investOnPrices();
 }
 function investHoldsXyz(){
@@ -25786,7 +26169,8 @@ function investEnvCardHtml(env){
   '</div>';
 }
 function investMarketHtml(){
-  const list = INVEST_ASSETS.filter(a=>investFilter==="all" || a.cat===investFilter);
+  const held = id=>!!(state.invest && ["pea","cto"].some(env=>state.invest[env].holdings[id]));
+  const list = INVEST_ASSETS.filter(a=>(investFilter==="all" || (investFilter==="semi" ? a.semi : a.cat===investFilter)) && !(a.src.xyz && investXyzMissing.has(a.src.xyz) && !held(a.id)));
   return '<div class="card inv-market">'+
     '<div class="inv-sec-head"><h3>Marché</h3>'+
       '<div class="inv-chips" role="tablist">'+INVEST_CATS.map(([k,l])=>'<button type="button" class="inv-chip'+(investFilter===k?" active":"")+'" data-inv-act="filter" data-cat="'+k+'">'+l+'</button>').join("")+'</div>'+
@@ -29275,6 +29659,7 @@ async function init(){
   initBottomLock();
   initColumnFill();
   initChartIndicators();
+  initChartExtraOpts();
   initChartTrading();
   initSaveStatus();
   setChartSource(chartSource); // sync the static markup (buttons/svg/tv-wrap) to the "internal" default above
