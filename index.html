@@ -28365,6 +28365,7 @@ function adminActionsHtml(id, d){
       btn("data-admin-reset-trading","Trading", "warn")+
       btn("data-admin-prop-menu","Prop firm…"+(d.challenge||(Array.isArray(d.challengeHistory)&&d.challengeHistory.length)?"":" (vide)"), "warn")+
       btn("data-admin-quiz-menu","Quiz…")+
+      btn("data-admin-daily-menu","Défi du jour…", "warn")+
       btn("data-admin-reset-invest","Investissement"+(hasInvest?"":" (vide)"), "warn")+
       btn("data-admin-reset","Tout le compte", "warn")+
     '</div>'+
@@ -28607,6 +28608,73 @@ async function adminResetTraderProp(id, all){
 }
 // Fenêtre « Quiz » de l'admin : chaque quiz se remet à zéro séparément, le
 // Superflash aussi, et un bouton remet tout à zéro (adminResetTraderQuiz).
+// Admin › Défi du jour : rend au trader ses parties d'aujourd'hui (classique,
+// modes avancés), celle de la semaine, et/ou remet sa série à zéro. Supprime
+// les documents de partie (daily/{jour}/plays/{id}, dailyx/{clé}/plays/{id})
+// ou de série (dailyStats/{id}) — réservé aux admins par firestore.rules.
+async function adminOpenDailyReset(id){
+  const doc = adminFindDoc(id);
+  if (!doc) return;
+  const d = doc.data(), today = dailyDayKey();
+  const items = [
+    {k:"classic", label:"Classique", ico:"🎯", ref:db.collection("daily").doc(today).collection("plays").doc(id), n:5},
+    ...["of","fd","an"].map(m=>({k:m, label:DX_MODES[m].label, ico:"⚡", ref:db.collection("dailyx").doc(today+"_"+m).collection("plays").doc(id), n:DX_MODES[m].n})),
+    {k:"wk", label:DX_MODES.wk.label, ico:"📅", ref:db.collection("dailyx").doc(dxWeekKey(today)+"_wk").collection("plays").doc(id), n:DX_MODES.wk.n},
+    {k:"stats", label:"Série (jours d'affilée)", ico:"🔥", ref:db.collection("dailyStats").doc(id), stats:true},
+  ];
+  const row = (it, txt, has)=>'<div class="adm-q-row'+(has?'':' is-empty')+'"><span class="adm-q-ico">'+it.ico+'</span>'+
+    '<div class="adm-q-main"><b>'+escapeHtml(it.label)+'</b><span>'+escapeHtml(txt)+'</span></div>'+
+    '<button type="button" class="adm-act warn" data-d-reset="'+it.k+'"'+(has?'':' disabled')+'>Réinitialiser</button></div>';
+  openModal(
+    '<h3 style="margin-bottom:6px;">Défi du jour — '+escapeHtml(d.username||id)+'</h3>'+
+    '<div class="chart-note" style="margin-bottom:12px;">Aujourd\'hui : '+escapeHtml(dailyDayLabel(today))+'. Réinitialiser une partie la rend rejouable (ses points du jour disparaissent du classement). Le reste du compte n\'est pas touché.</div>'+
+    '<div class="adm-q-list" id="adm-d-list"><div class="empty-note">Chargement…</div></div>'+
+    '<div class="chart-note" id="adm-d-msg" style="margin:10px 0;min-height:14px;"></div>'+
+    '<button type="button" class="adm-act danger" id="adm-d-all" style="width:100%;padding:10px;">Tout réinitialiser (parties du jour + semaine)</button>'
+  );
+  const list = document.getElementById("adm-d-list"), msg = document.getElementById("adm-d-msg");
+  const snaps = {};
+  const load = async ()=>{
+    const res = await Promise.all(items.map(it=>it.ref.get().then(s=>s, ()=>null)));
+    if (!document.getElementById("adm-d-list")) return;
+    list.innerHTML = items.map((it, i)=>{
+      const s = res[i]; snaps[it.k] = s && s.exists;
+      if (!s){ return row(it, "Lecture impossible", false); }
+      if (!s.exists) return row(it, it.stats ? "Pas de série" : "Pas encore joué", false);
+      const v = s.data();
+      if (it.stats) return row(it, "Série "+(v.streak||0)+" · record "+(v.best||0)+" · "+(v.played||0)+" jour"+((v.played||0)>1?"s":"")+" joués", true);
+      const k = (v.answers||[]).length;
+      return row(it, (v.status==="done" ? "Terminé" : "En cours "+k+"/"+(v.n||it.n))+" · "+(v.points||0)+" pts", true);
+    }).join("");
+  };
+  const reset = async (keys, label)=>{
+    msg.style.color = ""; msg.textContent = "Réinitialisation…";
+    try{
+      await Promise.all(items.filter(it=>keys.includes(it.k) && snaps[it.k]).map(it=>it.ref.delete()));
+      if (id===clientId){ // son propre compte : l'écran du défi se recharge
+        try{ localStorage.removeItem(DAILY_DONE_KEY); }catch(e){}
+        D.day = null;
+        if (typeof dailyNavDot==="function") dailyNavDot();
+      }
+      msg.textContent = label+" réinitialisé"+(keys.length>1?"s":"")+". Le trader doit recharger la page pour rejouer.";
+      await load();
+    }catch(e){
+      console.warn("admin daily reset", e);
+      msg.style.color = "var(--warn)"; msg.textContent = "Échec — déploie les règles Firestore (SERVER_SETUP.md, « Défi du jour : réinitialisation admin »).";
+    }
+  };
+  list.addEventListener("click", (e)=>{
+    const b = e.target.closest("[data-d-reset]"); if (!b || b.disabled) return;
+    const it = items.find(x=>x.k===b.dataset.dReset);
+    if (!confirm("Réinitialiser « "+it.label+" » pour "+(d.username||id)+" ?")) return;
+    reset([it.k], it.label);
+  });
+  document.getElementById("adm-d-all").addEventListener("click", ()=>{
+    if (!confirm("Réinitialiser toutes les parties du jour et de la semaine de "+(d.username||id)+" ? (la série n'est pas touchée)")) return;
+    reset(["classic","of","fd","an","wk"], "Défi du jour");
+  });
+  load();
+}
 function adminOpenQuizReset(id){
   const doc = adminFindDoc(id);
   if (!doc) return;
@@ -29684,6 +29752,7 @@ function initAdminUI(){
       else if (t.dataset.adminIsadmin) adminToggleIsAdmin(t.dataset.adminIsadmin);
       else if (t.dataset.adminResetQuiz) adminResetTraderQuiz(t.dataset.adminResetQuiz);
       else if (t.dataset.adminQuizMenu) adminOpenQuizReset(t.dataset.adminQuizMenu);
+      else if (t.dataset.adminDailyMenu) adminOpenDailyReset(t.dataset.adminDailyMenu);
       else if (t.dataset.adminResetTrading) adminResetTraderTrading(t.dataset.adminResetTrading);
       else if (t.dataset.adminPropMenu) adminOpenPropReset(t.dataset.adminPropMenu);
       else if (t.dataset.adminResetInvest) adminResetTraderInvest(t.dataset.adminResetInvest);
