@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="2660">
+<meta name="pt-build" content="2670">
 <title>Paper Tape</title>
 <!-- Favicon / app icon -->
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -6243,7 +6243,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2660 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v2670 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -12035,7 +12035,7 @@ function extendRangeForPositions(min, max, positions){
    (début ≥ covFrom) sont dessinées en footprint ; les autres restent en bougies. */
 const FP_IMB = 3;    // déséquilibre : un côté ≥ 300 % de l'autre (en diagonale)
 const FP_STACK = 3;  // 3 déséquilibres empilés = zone de support / résistance
-const FP = {sym:null, src:null, step0:0, stepA:0, exactFrom:Infinity, backBusy:false, backDone:false, backFailAt:0, min:new Map(), covFrom:Infinity, ws:null, wsBackoff:2000, hist:"idle", lastId:0, buf:[], tids:new Set(), ver:0, histVer:0, cache:new Map(), drawT:0, gen:0, note:""};
+const FP = {sym:null, src:null, step0:0, stepA:0, exactFrom:Infinity, backBusy:false, backDone:false, backFailAt:0, min:new Map(), covFrom:Infinity, ws:null, wsBackoff:2000, hist:"idle", lastId:0, lastT:0, wsAt:0, pend:[], catchBusy:false, catchAt:0, buf:[], tids:new Set(), ver:0, histVer:0, cache:new Map(), drawT:0, gen:0, note:""};
 function fpSource(a){
   for (const [kind, ref] of priceSources(a)) if (kind==="hl" || kind==="bf" || kind==="bn") return {kind, ref};
   return null;
@@ -12046,7 +12046,7 @@ function fpWanted(){ return fpOn() && !tpoOn() && chartSource==="internal"; }
 function fpStop(){
   FP.gen++;
   if (FP.ws){ const w = FP.ws; FP.ws = null; try{ w.onclose = null; w.close(); }catch(e){} }
-  Object.assign(FP, {sym:null, src:null, step0:0, stepA:0, exactFrom:Infinity, backBusy:false, backDone:false, backFailAt:0, min:new Map(), covFrom:Infinity, hist:"idle", lastId:0, buf:[], tids:new Set(), cache:new Map(), note:"", wsBackoff:2000});
+  Object.assign(FP, {sym:null, src:null, step0:0, stepA:0, exactFrom:Infinity, backBusy:false, backDone:false, backFailAt:0, min:new Map(), covFrom:Infinity, hist:"idle", lastId:0, lastT:0, wsAt:0, pend:[], catchBusy:false, catchAt:0, buf:[], tids:new Set(), cache:new Map(), note:"", wsBackoff:2000});
   FP.ver++; FP.histVer++;
 }
 function fpEnsure(a){
@@ -12104,15 +12104,66 @@ function fpOpenBinance(src, gen){
     if (d && d.data) d = d.data;
     if (!d || d.e!=="aggTrade") return;
     const tr = {id:+d.a, t:+d.T, p:+d.p, q:+d.q, buy:!d.m}; // m = l'acheteur est le « maker » → c'est un vendeur agressif
+    FP.wsAt = Date.now();
     if (FP.hist!=="done"){ if (FP.buf.length < 60000) FP.buf.push(tr); return; }
     if (tr.id<=FP.lastId) return;
-    FP.lastId = tr.id;
+    // Trou dans la suite des identifiants (flux recoupé, reconnexion…) : on
+    // met de côté et on va chercher les transactions manquantes par l'API.
+    if ((FP.lastId && tr.id > FP.lastId+1) || FP.pend.length){ if (FP.pend.length < 60000) FP.pend.push(tr); fpCatchUp(); return; }
+    FP.lastId = tr.id; FP.lastT = tr.t;
     fpAdd(tr.t, tr.p, tr.q, tr.buy);
     fpTouched();
   };
   ws.onclose = ()=>{ if (FP.ws===ws){ FP.ws = null; fpRetry(gen); } };
   ws.onerror = ()=>{ try{ ws.close(); }catch(e){} };
 }
+// Rattrapage par l'API (marchés Binance). Le flux en direct peut se couper
+// sans prévenir (Mac en veille, changement de Wi-Fi, réseau qui bloque le
+// port 9443…) : le footprint s'arrêtait alors à l'heure du chargement et les
+// bougies suivantes restaient vides (visible en changeant d'unité de temps).
+// Ici : dès que le flux est muet quelques secondes, on demande les
+// transactions qui suivent la dernière reçue (aggTrades fromId), 8 pages de
+// 1 000 au plus par passage ; trop de retard (> 20 min) = rechargement complet.
+async function fpCatchUp(){
+  const src = FP.src;
+  if (!src || (src.kind!=="bn" && src.kind!=="bf") || FP.hist!=="done" || FP.catchBusy || !FP.lastId) return;
+  FP.catchBusy = true; FP.catchAt = Date.now();
+  const gen = FP.gen, base = src.kind==="bf" ? BINANCE_FAPI_BASE : BINANCE_API_BASE;
+  let got = 0, ok = true, full = 0;
+  try{
+    for (let pg=0; pg<8; pg++){
+      let rows = null;
+      try{ const r = await fetch(base+"/aggTrades?symbol="+encodeURIComponent(src.ref)+"&limit=1000&fromId="+(FP.lastId+1), {signal:AbortSignal.timeout(8000)}); rows = r.ok ? await r.json() : null; }catch(e){ rows = null; }
+      if (gen!==FP.gen) return;
+      if (!Array.isArray(rows)){ ok = false; break; }
+      rows.forEach(t=>{ const id = +t.a; if (!(id > FP.lastId)) return; fpAdd(+t.T, +t.p, +t.q, !t.m); FP.lastId = id; FP.lastT = +t.T; got++; });
+      if (rows.length < 1000) break;
+      full++;
+    }
+  } finally {
+    if (gen===FP.gen){
+      // Transactions du flux mises de côté : celles qui suivent ce qu'on a déjà.
+      // (Si l'API ne répond pas, on les prend quand même après 10 s.)
+      if (FP.pend.length && (ok || Date.now()-FP.pend[0].t > 10000)){
+        FP.pend.sort((x,y)=>x.id-y.id).forEach(tr=>{ if (tr.id > FP.lastId){ fpAdd(tr.t, tr.p, tr.q, tr.buy); FP.lastId = tr.id; FP.lastT = tr.t; got++; } });
+        FP.pend = [];
+      }
+      FP.catchBusy = false;
+      // Encore plus de 20 min de retard après 8 pages pleines (longue veille) :
+      // on recharge tout plutôt que de remonter page par page.
+      const a = ASSETS.find(x=>x.symbol===FP.sym);
+      if (full>=8 && Date.now()-FP.lastT > 20*60e3 && a && fpWanted()){ fpStart(a); return; }
+      if (got) fpTouched(true);
+      // Le marché bouge mais le flux est muet depuis 30 s : on rouvre le flux.
+      if (got && FP.ws && Date.now()-FP.wsAt > 30000){ const w = FP.ws; FP.ws = null; try{ w.onclose = null; w.close(); }catch(e){} FP.wsAt = Date.now(); fpOpenBinance(src, gen); }
+    }
+  }
+}
+setInterval(()=>{
+  if (!FP.src || FP.hist!=="done" || !fpWanted() || document.visibilityState==="hidden") return;
+  if (Date.now()-FP.wsAt > 6000 || FP.pend.length) fpCatchUp();
+}, 4000);
+document.addEventListener("visibilitychange", ()=>{ if (document.visibilityState==="visible" && FP.src && FP.hist==="done") fpCatchUp(); });
 // Heure de début de l'historique visé : les bougies affichées (au plus 40).
 function fpHistTarget(){
   const tfMs = HL_INTERVAL_MS[currentTimeframe] || 60000;
@@ -12162,7 +12213,8 @@ async function fpLoadBinance(src, gen){
     if (+t.T < minT) minT = +t.T;
   }));
   FP.lastId = maxId;
-  FP.buf.forEach(tr=>{ if (tr.id > FP.lastId){ fpAdd(tr.t, tr.p, tr.q, tr.buy); FP.lastId = tr.id; if (tr.t < minT) minT = tr.t; } });
+  pages.forEach(pg=>pg.forEach(t=>{ if (+t.a===maxId) FP.lastT = +t.T; }));
+  FP.buf.forEach(tr=>{ if (tr.id > FP.lastId){ fpAdd(tr.t, tr.p, tr.q, tr.buy); FP.lastId = tr.id; FP.lastT = tr.t; if (tr.t < minT) minT = tr.t; } });
   FP.buf = [];
   FP.covFrom = isFinite(minT) ? minT : Date.now();
   FP.exactFrom = FP.covFrom; // transactions exactes à partir d'ici ; avant : bougies d'une seconde
