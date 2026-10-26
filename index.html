@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="2650">
+<meta name="pt-build" content="2660">
 <title>Paper Tape</title>
 <!-- Favicon / app icon -->
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -909,6 +909,80 @@
   .chart-ind-sub > span{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);padding:2px 7px;}
   .chart-ind-sep{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);padding:8px 7px 3px;border-top:1px solid var(--border-soft);margin-top:4px;}
   .chart-ind-pop i.tri{height:0;width:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:8px solid var(--long);border-radius:0;margin:0 2px;}
+  /* Panneau Indicateurs (v2660) : onglets, familles repliables, interrupteurs, réglages repliés. */
+  #chart-ind-pop{width:340px;padding:0 0 6px;gap:0;}
+  @media (hover:hover) and (pointer:fine){ #chart-ind-pop{min-width:300px;} }
+  #chart-ind-pop .chart-ind-head{flex-wrap:wrap;margin:0 0 2px;top:0;padding:8px 8px 8px 13px;}
+  .chart-ind-head .ci-tabs{flex-basis:100%;display:flex;gap:2px;margin-top:7px;background:var(--bg-raised);border-radius:7px;padding:2px;}
+  .chart-ind-head .ci-tabs button{flex:1;width:auto;height:auto;border-radius:5px;padding:6px 8px;font:600 12px var(--sans);color:var(--text-dim);gap:5px;}
+  .chart-ind-head .ci-tabs button.on{background:var(--panel-2);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.35);}
+  .chart-ind-pop.is-min .ci-tabs{display:none;}
+  .ci-tabs em{font-style:normal;font:700 9.5px/15px var(--mono);min-width:15px;padding:0 4px;border-radius:999px;background:var(--accent);color:#fff;}
+  .ci-tabs em[hidden]{display:none;}
+  .ci-pane{display:flex;flex-direction:column;padding:6px 6px 0;}
+  .ci-pane[hidden]{display:none;}
+  .ci-active{display:flex;flex-wrap:wrap;align-items:center;gap:5px;padding:2px 2px 8px;}
+  .ci-active .ci-empty{font:11.5px/1.4 var(--sans);color:var(--text-faint);padding:2px 2px 0;}
+  .ci-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--bg-raised);color:var(--text);border-radius:999px;padding:2px 2px 2px 9px;font:11.5px var(--sans);}
+  .ci-chip i{width:9px !important;height:9px !important;border-radius:50% !important;}
+  .ci-chip button{border:none;background:none;color:var(--text-faint);width:20px;height:20px;border-radius:50%;cursor:pointer;font-size:13px;line-height:1;display:inline-flex;align-items:center;justify-content:center;padding:0;}
+  .ci-chip button:hover{background:var(--panel-2);color:var(--text);}
+  .ci-grp{border:1px solid var(--border-soft);border-radius:9px;margin:0 0 6px;background:color-mix(in srgb, var(--bg-raised) 40%, transparent);}
+  .ci-grp-h{display:flex;align-items:center;gap:8px;width:100%;border:none;background:none;text-align:left;padding:9px 10px;cursor:pointer;color:var(--text);border-radius:9px;}
+  .ci-grp-h:hover{background:var(--bg-raised);}
+  .ci-grp-t{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .ci-grp-t b{font:600 13px var(--sans);color:var(--text);}
+  .ci-grp-t small{font:11px/1.3 var(--sans);color:var(--text-faint);}
+  .ci-lvl{flex:none;font:600 9.5px/1 var(--mono);letter-spacing:.02em;padding:3px 5px;border-radius:4px;border:1px solid;}
+  .ci-lvl-b{color:#31c882;border-color:color-mix(in srgb, #31c882 45%, transparent);}
+  .ci-lvl-i{color:#5aa9e6;border-color:color-mix(in srgb, #5aa9e6 45%, transparent);}
+  .ci-lvl-a{color:#f2b33d;border-color:color-mix(in srgb, #f2b33d 45%, transparent);}
+  .ci-grp-n{flex:none;font-style:normal;font:700 9.5px/16px var(--mono);min-width:16px;padding:0 4px;text-align:center;border-radius:999px;background:var(--accent);color:#fff;}
+  .ci-grp-n[hidden]{display:none;}
+  .ci-chev{flex:none;color:var(--text-faint);font-size:17px;line-height:1;transition:transform .15s;}
+  .ci-grp.open > .ci-grp-h .ci-chev, .ci-opt.open > .ci-opt-h .ci-chev{transform:rotate(90deg);}
+  .ci-grp:not(.open) > .ci-grp-b{display:none;}
+  .ci-grp-b{display:flex;flex-direction:column;gap:1px;padding:0 4px 5px;}
+  #chart-ind-pop label.ci-it{gap:10px;padding:7px 8px;border-radius:7px;align-items:center;}
+  #chart-ind-pop label.ci-it > i{width:4px;height:24px;border-radius:2px;}
+  #chart-ind-pop label.ci-it > i.tri{width:0;height:0;margin:0 0 0 -3px;}
+  #chart-ind-pop label.ci-it:has(input:checked){background:color-mix(in srgb, var(--accent) 9%, transparent);}
+  .ci-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+  .ci-tx b{font:500 12.5px var(--sans);color:var(--text);display:flex;align-items:center;gap:6px;}
+  .ci-tx b .chart-ind-plus{margin-left:0;}
+  .ci-tx small{font:11px/1.35 var(--sans);color:var(--text-faint);}
+  #chart-ind-pop input[type=checkbox]{appearance:none;-webkit-appearance:none;position:relative;flex:none;width:30px;height:17px;border-radius:999px;background:color-mix(in srgb, var(--text-faint) 45%, transparent);cursor:pointer;transition:background .15s;margin:0;}
+  #chart-ind-pop input[type=checkbox]::before{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.35);transition:transform .15s;}
+  #chart-ind-pop input[type=checkbox]:checked{background:var(--accent);}
+  #chart-ind-pop input[type=checkbox]:checked::before{transform:translateX(13px);}
+  #chart-ind-pop input[type=checkbox]:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  #chart-ind-pop .ci-opt-b > label, #chart-ind-pop .ci-opt-b > label:hover{color:var(--text-dim);}
+  #chart-ind-pop .ci-opt-b > label input[type=checkbox]{order:2;margin-left:auto;width:26px;height:15px;}
+  #chart-ind-pop .ci-opt-b > label input[type=checkbox]::before{width:11px;height:11px;}
+  #chart-ind-pop .ci-opt-b > label input[type=checkbox]:checked::before{transform:translateX(11px);}
+  #chart-ind-pop .ci-opt{margin:2px 4px 6px 20px;padding:0;border:1px dashed var(--border);border-radius:8px;gap:0;}
+  .ci-opt-h{display:flex;align-items:center;gap:7px;width:100%;border:none;background:none;color:var(--accent);font:600 11.5px var(--sans);padding:7px 9px;cursor:pointer;text-align:left;border-radius:8px;}
+  .ci-opt-h:hover{background:var(--bg-raised);}
+  .ci-opt-h > span:first-of-type{flex:1;}
+  .ci-opt:not(.open) > .ci-opt-b{display:none;}
+  .ci-opt-b{display:flex;flex-direction:column;gap:1px;padding:0 3px 6px;}
+  #chart-ind-pop .ci-h{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);padding:9px 8px 3px;}
+  #chart-ind-pop .ci-opt-b .ci-h{padding-top:6px;}
+  #chart-ind-pop .chart-ind-lock{margin:0 4px 4px 20px;}
+  .ci-starter{display:flex;align-items:center;gap:9px;margin:0 2px 5px;padding:8px 9px;border-radius:7px;background:color-mix(in srgb, var(--accent) 11%, transparent);font:11.5px/1.4 var(--sans);color:var(--text-dim);}
+  .ci-starter[hidden]{display:none;}
+  .ci-starter span{flex:1;}
+  .ci-starter button{flex:none;border:none;background:var(--accent);color:#fff;font:600 11.5px var(--sans);border-radius:6px;padding:5px 10px;cursor:pointer;}
+  .ci-foot{display:flex;align-items:center;gap:8px;padding:2px 4px 2px;font:10.5px var(--sans);color:var(--text-faint);}
+  .ci-foot button{flex:none;border:1px solid var(--border);background:var(--bg-raised);color:var(--text-dim);border-radius:6px;padding:4px 9px;font:11.5px var(--sans);cursor:pointer;}
+  .ci-foot button:hover:not(:disabled){color:var(--text);border-color:var(--text-faint);}
+  .ci-foot button:disabled{opacity:.45;cursor:default;}
+  #chart-ind-pop .ci-note{border-top:none;margin-top:0;padding-top:4px;}
+  .ci-keys{display:grid;grid-template-columns:max-content 1fr;gap:6px 10px;align-items:baseline;padding:4px 8px 4px;margin:0;font:11.5px/1.35 var(--sans);}
+  .ci-keys dt{justify-self:start;font:600 10.5px var(--mono);color:var(--text);background:var(--bg-raised);border:1px solid var(--border);border-radius:4px;padding:2px 6px;white-space:nowrap;}
+  .ci-keys dd{margin:0;color:var(--text-dim);}
+  .chart-ind-btn .ci-count{font-style:normal;margin-left:5px;background:var(--accent);color:#fff;border-radius:999px;padding:0 5px;font:700 9.5px/14px var(--mono);display:inline-block;min-width:14px;text-align:center;}
+  .chart-ind-btn .ci-count[hidden]{display:none;}
   .chart-ind-tip{font-family:var(--sans);font-size:10.5px;color:var(--text-faint);border-top:1px solid var(--border-soft);margin-top:4px;padding:7px 7px 3px;line-height:1.45;}
 
   /* order ticket */
@@ -5324,68 +5398,29 @@
                 <button type="button" id="chart-draw-del" class="draw-del" title="Effacer"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></svg></button>
               </div>
               <div class="chart-ind" id="chart-ind">
-                <button type="button" class="chart-ind-btn" id="chart-ind-btn" aria-expanded="false" aria-haspopup="true" title="Indicateurs du graphique">ƒx <span>Indicateurs</span></button>
+                <button type="button" class="chart-ind-btn" id="chart-ind-btn" aria-expanded="false" aria-haspopup="true" title="Indicateurs du graphique">ƒx <span>Indicateurs</span><em class="ci-count" id="chart-ind-count" hidden></em></button>
                 <div class="chart-ind-pop" id="chart-ind-pop" hidden>
-                  <label><input type="checkbox" data-chart-ind="vol"><i style="background:linear-gradient(90deg,#31c882 50%,#f0546a 50%)"></i>Volume</label>
-                  <label><input type="checkbox" data-chart-ind="ema20"><i style="background:#f2b33d"></i>Moyenne mobile 20 (MME)</label>
-                  <label><input type="checkbox" data-chart-ind="ema50"><i style="background:#5aa9e6"></i>Moyenne mobile 50 (MME)</label>
-                  <label><input type="checkbox" data-chart-ind="ema200"><i style="background:#c77dff"></i>Moyenne mobile 200 (MME)</label>
-                  <label><input type="checkbox" data-chart-ind="bb"><i style="background:#8fa3b8"></i>Bandes de Bollinger (20, 2)</label>
-                  <label><input type="checkbox" data-chart-ind="vwap"><i style="background:#ff8a3d"></i>VWAP (séance)</label>
-                  <label><input type="checkbox" data-chart-ind="vwapw"><i style="background:#e879f9"></i>VWAP hebdo (depuis lundi)</label>
-                  <div class="chart-ind-sub" id="chart-vwap-opts">
-                    <span>Paramètres du VWAP</span>
-                    <label><input type="checkbox" data-chart-ind="vwapGap">Masquer la jonction entre deux séances</label>
-                    <label><input type="checkbox" data-chart-ind="vwapBands">Bandes d'écart-type (±1σ, ±2σ)</label>
+                  <div class="ci-pane" data-pane="ind">
+                  <div class="ci-active" id="ci-active"></div>
+                  <section class="ci-grp" data-grp="base"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Les bases</b><small>Tendance et activité : de quoi lire un graphique</small></span><span class="ci-lvl ci-lvl-b">Débutant</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><div class="ci-starter" id="ci-starter"><span>Tu débutes ? Volume + MME 20 et 50 suffisent pour lire la tendance.</span><button type="button" id="ci-starter-go">Activer</button></div><label class="ci-it"><i style="background:linear-gradient(90deg,#31c882 50%,#f0546a 50%)"></i><span class="ci-tx"><b>Volume</b><small>Quantité échangée à chaque bougie : confirme la force d'un mouvement</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vol"></label><label class="ci-it"><i style="background:#f2b33d"></i><span class="ci-tx"><b>Moyenne mobile 20</b><small>Tendance courte : prix au-dessus = plutôt haussier</small></span><input type="checkbox" class="ci-tg" data-chart-ind="ema20"></label><label class="ci-it"><i style="background:#5aa9e6"></i><span class="ci-tx"><b>Moyenne mobile 50</b><small>Tendance de fond sur la période</small></span><input type="checkbox" class="ci-tg" data-chart-ind="ema50"></label><label class="ci-it"><i style="background:#c77dff"></i><span class="ci-tx"><b>Moyenne mobile 200</b><small>La grande tendance, très suivie par les traders</small></span><input type="checkbox" class="ci-tg" data-chart-ind="ema200"></label></div></section>
+                  <section class="ci-grp" data-grp="lvl"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Niveaux clés</b><small>Prix où le marché réagit souvent</small></span><span class="ci-lvl ci-lvl-i">Intermédiaire</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><label class="ci-it"><i style="background:#ff8a3d"></i><span class="ci-tx"><b>VWAP de la séance</b><small>Prix moyen payé depuis l'ouverture, pondéré par le volume</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vwap"></label><label class="ci-it"><i style="background:#e879f9"></i><span class="ci-tx"><b>VWAP de la semaine</b><small>Même calcul, depuis lundi</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vwapw"></label><div class="chart-ind-sub ci-opt" id="chart-vwap-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages du VWAP</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><label><input type="checkbox" data-chart-ind="vwapGap">Masquer la jonction entre deux séances</label><label><input type="checkbox" data-chart-ind="vwapBands">Bandes d'écart-type (±1σ, ±2σ)</label></div></div><label class="ci-it"><i style="background:#c9b37e"></i><span class="ci-tx"><b>Hier : plus haut / plus bas</b><small>+ ouverture du jour : niveaux souvent testés</small></span><input type="checkbox" class="ci-tg" data-chart-ind="pdl"></label><label class="ci-it"><i style="background:#8fa3b8"></i><span class="ci-tx"><b>Bandes de Bollinger</b><small>Enveloppe de volatilité autour d'une moyenne (20, 2)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="bb"></label><label class="ci-it"><i style="background:linear-gradient(90deg,#31c882 50%,#f0546a 50%)"></i><span class="ci-tx"><b>Supertrend</b><small>Vert = tendance haussière, rouge = baissière (10, 3)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="st"></label></div></section>
+                  <section class="ci-grp" data-grp="vp"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Volume par prix</b><small>Où se sont faits les échanges</small></span><span class="ci-lvl ci-lvl-i">Intermédiaire</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><label class="ci-it"><i style="background:#8fa3b8"></i><span class="ci-tx"><b>Profil de volume (écran)</b><small>Volume échangé à chaque prix, sur la zone affichée</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vp"></label><label class="ci-it"><i style="background:#8fa3b8"></i><span class="ci-tx"><b>Profil de volume par jour</b><small>Un profil par séance, avec son POC</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vpd"></label><div class="chart-ind-sub ci-opt" id="chart-vp-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages des profils</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><div class="ci-h">Lignes</div><div class="chart-fp-tick"><span>Ticks par ligne <em id="chart-vp-tick-eq" class="ci-eq"></em></span><button type="button" class="tk-step" data-vp-step="-1" title="Lignes plus fines" aria-label="Moins de ticks par ligne">−</button><input type="number" id="chart-vp-tick" min="1" step="1" inputmode="numeric" placeholder="Auto" aria-label="Nombre de ticks par ligne du profil de volume"><button type="button" class="tk-step" data-vp-step="1" title="Lignes plus grosses" aria-label="Plus de ticks par ligne">+</button><button type="button" id="chart-vp-tick-auto" title="Revenir au réglage automatique">Auto</button></div><div class="ci-h">Apparence</div><label><input type="checkbox" data-chart-ind="vpFill">Histogramme plein (sinon contour seul)</label><label><input type="checkbox" data-chart-ind="vpBox">Encadré (box) autour de chaque profil</label><div class="ci-row"><span>Disposition</span><div class="tpo-seg ci-seg" data-ci-key="vpSide"><button type="button" data-v="left">Gauche</button><button type="button" data-v="right">Droite</button></div></div><div class="ci-row"><span>Couleur des barres</span><div class="tpo-seg ci-seg" data-ci-key="vpStyle"><button type="button" data-v="split">Achat / vente</button><button type="button" data-v="solid">Couleur unie</button></div></div><label><input type="checkbox" data-chart-ind="vpGrade">Dégradé : barres plus vives là où il y a plus de volume</label><label><input type="checkbox" data-chart-ind="vpVa">Lignes VAH / VAL (value area 70 %)</label><div class="ci-row"><span>Trait du POC</span><div class="tpo-seg ci-seg" data-ci-key="vpPocStyle"><button type="button" data-v="dash">Pointillés</button><button type="button" data-v="dot">Points</button><button type="button" data-v="solid">Plein</button></div></div><div class="ci-colors"><label data-vp-show="split"><input type="color" data-ci-color="vpBuyCol">Achats</label><label data-vp-show="split"><input type="color" data-ci-color="vpSellCol">Ventes</label><label data-vp-show="solid"><input type="color" data-ci-color="vpCol">Profil</label><label><input type="color" data-ci-color="vpPocCol">POC</label><label><input type="color" data-ci-color="vpVaCol">VAH / VAL</label><button type="button" id="chart-vp-col-reset" title="Couleurs par défaut">Défaut</button></div></div></div></div></section>
+                  <section class="ci-grp" data-grp="of"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Order flow</b><small>Acheteurs contre vendeurs, prix par prix</small></span><span class="ci-lvl ci-lvl-a">Avancé</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><label class="ci-it"><i style="background:linear-gradient(90deg,#f0546a 50%,#31c882 50%)"></i><span class="ci-tx"><b>Footprint <span class="chart-ind-plus">EDB+</span></b><small>Achats et ventes agressifs à chaque prix, dans chaque bougie</small></span><input type="checkbox" class="ci-tg" data-chart-ind="fp"></label><div class="chart-ind-lock" id="chart-fp-lock" hidden>Réservé aux membres EDB+. <button type="button" id="chart-fp-lock-go">Découvrir EDB+</button></div><div class="chart-ind-sub ci-opt" id="chart-fp-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages du footprint</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><div class="chart-fp-tick"><span>Taille de ligne (prix)</span><button type="button" class="tk-step" data-tick-step="fp:-1" title="Plus fin" aria-label="Taille de ligne plus fine">−</button><input type="number" id="chart-fp-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne du footprint (en prix)"><button type="button" class="tk-step" data-tick-step="fp:1" title="Plus gros" aria-label="Taille de ligne plus grosse">+</button><button type="button" id="chart-fp-tick-auto" title="Revenir au réglage automatique">Auto</button></div><label><input type="checkbox" data-chart-ind="fpImb">Déséquilibres à 300 % (+ zones de 3 empilés)</label><label><input type="checkbox" data-chart-ind="fpSig">Absorption (A) et épuisement (É)</label><label><input type="checkbox" data-chart-ind="fpSum">Récap delta / volume de chaque bougie</label><div class="chart-ind-tip">Binance : historique rechargé à l'ouverture (précis sur ~2 h, approximé au-delà), puis en direct. Hyperliquid : en direct depuis l'ouverture du graphique.</div></div></div></div></section>
+                  <section class="ci-grp" data-grp="osc"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Sous le graphique</b><small>Oscillateurs dans un panneau à part</small></span><span class="ci-lvl ci-lvl-i">Intermédiaire</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><label class="ci-it"><i style="background:#b388ff"></i><span class="ci-tx"><b>RSI 14</b><small>Force du mouvement de 0 à 100 : &gt; 70 suracheté, &lt; 30 survendu</small></span><input type="checkbox" class="ci-tg" data-chart-ind="rsi"></label><label class="ci-it"><i style="background:linear-gradient(90deg,#5aa9e6 50%,#f2b33d 50%)"></i><span class="ci-tx"><b>MACD</b><small>Croisements de moyennes : la dynamique change (12, 26, 9)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="macd"></label><label class="ci-it"><i style="background:linear-gradient(90deg,#5aa9e6 50%,#f2b33d 50%)"></i><span class="ci-tx"><b>Stochastique</b><small>Où est le prix dans sa fourchette récente (14, 3, 3)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="stoch"></label><label class="ci-it"><i style="background:#4fd1c5"></i><span class="ci-tx"><b>ATR 14</b><small>Taille moyenne d'une bougie : utile pour placer son stop</small></span><input type="checkbox" class="ci-tg" data-chart-ind="atr"></label><label class="ci-it"><i style="background:#f78fb3"></i><span class="ci-tx"><b>OBV</b><small>Volume cumulé, ajouté si la bougie monte, retiré si elle baisse</small></span><input type="checkbox" class="ci-tg" data-chart-ind="obv"></label><label class="ci-it"><i style="background:#5aa9e6"></i><span class="ci-tx"><b>CVD</b><small>Acheteurs agressifs − vendeurs agressifs, cumulé</small></span><input type="checkbox" class="ci-tg" data-chart-ind="cvd"></label></div></section>
+                  <div class="ci-foot"><button type="button" id="ci-clear">Tout retirer</button><span>Tes choix sont gardés sur cet appareil.</span></div>
                   </div>
-                  <label><input type="checkbox" data-chart-ind="st"><i style="background:linear-gradient(90deg,#31c882 50%,#f0546a 50%)"></i>Supertrend (10, 3)</label>
-                  <label><input type="checkbox" data-chart-ind="vp"><i style="background:#8fa3b8"></i>Profil de volume (zone visible)</label>
-                  <label><input type="checkbox" data-chart-ind="pdl"><i style="background:#c9b37e"></i>Plus haut / bas de la veille + ouverture du jour</label>
-                  <label><input type="checkbox" data-chart-ind="vpd"><i style="background:#8fa3b8"></i>Profil de volume par séance (jour)</label>
-                  <div class="chart-ind-sub" id="chart-vp-opts">
-                    <span>Paramètres des profils de volume</span>
-                    <div class="chart-fp-tick"><span>Ticks par ligne <em id="chart-vp-tick-eq" class="ci-eq"></em></span><button type="button" class="tk-step" data-vp-step="-1" title="Lignes plus fines" aria-label="Moins de ticks par ligne">−</button><input type="number" id="chart-vp-tick" min="1" step="1" inputmode="numeric" placeholder="Auto" aria-label="Nombre de ticks par ligne du profil de volume"><button type="button" class="tk-step" data-vp-step="1" title="Lignes plus grosses" aria-label="Plus de ticks par ligne">+</button><button type="button" id="chart-vp-tick-auto" title="Revenir au réglage automatique">Auto</button></div>
-                    <label><input type="checkbox" data-chart-ind="vpFill">Histogramme plein (sinon contour seul)</label>
-                    <label><input type="checkbox" data-chart-ind="vpBox">Encadré (box) autour de chaque profil</label>
-                    <div class="ci-row"><span>Disposition</span><div class="tpo-seg ci-seg" data-ci-key="vpSide"><button type="button" data-v="left">Gauche</button><button type="button" data-v="right">Droite</button></div></div>
-                    <div class="ci-row"><span>Couleur des barres</span><div class="tpo-seg ci-seg" data-ci-key="vpStyle"><button type="button" data-v="split">Achat / vente</button><button type="button" data-v="solid">Couleur unie</button></div></div>
-                    <label><input type="checkbox" data-chart-ind="vpGrade">Color grading (barres plus vives selon le volume)</label>
-                    <label><input type="checkbox" data-chart-ind="vpVa">Lignes VAH / VAL (value area 70 %)</label>
-                    <div class="ci-row"><span>Trait du POC</span><div class="tpo-seg ci-seg" data-ci-key="vpPocStyle"><button type="button" data-v="dash">Pointillés</button><button type="button" data-v="dot">Points</button><button type="button" data-v="solid">Plein</button></div></div>
-                    <div class="ci-colors">
-                      <label data-vp-show="split"><input type="color" data-ci-color="vpBuyCol">Achats</label>
-                      <label data-vp-show="split"><input type="color" data-ci-color="vpSellCol">Ventes</label>
-                      <label data-vp-show="solid"><input type="color" data-ci-color="vpCol">Profil</label>
-                      <label><input type="color" data-ci-color="vpPocCol">POC</label>
-                      <label><input type="color" data-ci-color="vpVaCol">VAH / VAL</label>
-                      <button type="button" id="chart-vp-col-reset" title="Couleurs par défaut">Défaut</button>
-                    </div>
+                  <div class="ci-pane" data-pane="set" hidden>
+                  <div class="ci-h">Sur le graphique</div>
+                  <label class="ci-it"><i class="tri"></i><span class="ci-tx"><b>Mes trades</b><small>Tes entrées ▲ et sorties ▼ sur les bougies</small></span><input type="checkbox" class="ci-tg" data-chart-ind="trades"></label>
+                  <label class="ci-it"><i style="background:linear-gradient(90deg,#f0546a 50%,#31c882 50%)"></i><span class="ci-tx"><b>Trader depuis le graphique</b><small>Boutons Short / Long et lignes d'ordre déplaçables</small></span><input type="checkbox" class="ci-tg" data-chart-ind="qt"></label>
+                  <div class="ci-h">Zoom</div>
+                  <div class="ci-row"><span>Vitesse</span><div class="tpo-seg ci-seg" data-ci-key="zoomSpeed"><button type="button" data-v="0.5">Lente</button><button type="button" data-v="1">Normale</button><button type="button" data-v="2">Rapide</button><button type="button" data-v="3">Très rapide</button></div></div>
+                  <div class="ci-h">Données</div>
+                  <div class="ci-row"><span>Source des bougies, du footprint et du carnet</span><div class="tpo-seg ci-seg" data-ci-key="dataSrc"><button type="button" data-v="auto">Auto</button><button type="button" data-v="spot">Binance spot</button><button type="button" data-v="perp">Binance perps</button></div></div>
+                  <div class="chart-ind-tip ci-note" id="chart-datasrc-note"></div>
+                  <div class="ci-h">Se déplacer</div>
+                  <dl class="ci-keys"><dt>Glisser</dt><dd>avancer / reculer dans le temps</dd><dt>Ctrl / ⌘ + molette</dt><dd>zoomer (aussi : pincement, clic droit maintenu)</dd><dt>Axe des prix</dt><dd>le glisser pour étirer / écraser l'échelle</dd><dt>Double-clic</dt><dd>tout remettre en automatique</dd></dl>
                   </div>
-                  <div class="chart-ind-sep">Footprint</div>
-                  <label><input type="checkbox" data-chart-ind="fp"><i style="background:linear-gradient(90deg,#f0546a 50%,#31c882 50%)"></i>Footprint (vendeurs × acheteurs par prix)<b class="chart-ind-plus">EDB+</b></label>
-                  <div class="chart-ind-lock" id="chart-fp-lock" hidden>Réservé aux membres EDB+. <button type="button" id="chart-fp-lock-go">Découvrir EDB+</button></div>
-                  <div class="chart-ind-sub" id="chart-fp-opts">
-                    <span>Paramètres du footprint</span>
-                    <div class="chart-fp-tick"><span>Taille de ligne (prix)</span><button type="button" class="tk-step" data-tick-step="fp:-1" title="Plus fin" aria-label="Taille de ligne plus fine">−</button><input type="number" id="chart-fp-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne du footprint (en prix)"><button type="button" class="tk-step" data-tick-step="fp:1" title="Plus gros" aria-label="Taille de ligne plus grosse">+</button><button type="button" id="chart-fp-tick-auto" title="Revenir au réglage automatique">Auto</button></div>
-                    <label><input type="checkbox" data-chart-ind="fpImb">Déséquilibres à 300 % + zones de 3 déséquilibres empilés</label>
-                    <label><input type="checkbox" data-chart-ind="fpSig">Absorption (A) et épuisement (É)</label>
-                    <label><input type="checkbox" data-chart-ind="fpSum">Récap de chaque bougie : delta et volume (au-dessus si delta +, en dessous si −)</label>
-                    <div class="chart-ind-tip" style="margin:2px 0 0;">Marchés Binance : historique des dernières dizaines de minutes, puis en direct. Marchés Hyperliquid : en direct depuis l'ouverture du graphique.</div>
-                  </div>
-                  <div class="chart-ind-sep">Sous le graphique</div>
-                  <label><input type="checkbox" data-chart-ind="rsi"><i style="background:#b388ff"></i>RSI 14</label>
-                  <label><input type="checkbox" data-chart-ind="macd"><i style="background:linear-gradient(90deg,#5aa9e6 50%,#f2b33d 50%)"></i>MACD (12, 26, 9)</label>
-                  <label><input type="checkbox" data-chart-ind="stoch"><i style="background:linear-gradient(90deg,#5aa9e6 50%,#f2b33d 50%)"></i>Stochastique (14, 3, 3)</label>
-                  <label><input type="checkbox" data-chart-ind="atr"><i style="background:#4fd1c5"></i>ATR 14 (volatilité)</label>
-                  <label><input type="checkbox" data-chart-ind="obv"><i style="background:#f78fb3"></i>OBV (volume cumulé)</label>
-                  <label><input type="checkbox" data-chart-ind="cvd"><i style="background:#5aa9e6"></i>CVD (delta cumulé acheteurs − vendeurs)</label>
-                  <div class="chart-ind-sep">Affichage</div>
-                  <label><input type="checkbox" data-chart-ind="trades"><i class="tri"></i>Mes trades (▲ achat ▼ vente)</label>
-                  <label><input type="checkbox" data-chart-ind="qt"><i style="background:linear-gradient(90deg,#f0546a 50%,#31c882 50%)"></i>Trader depuis le graphique</label>
-                  <div class="ci-row"><span>Vitesse du zoom</span><div class="tpo-seg ci-seg" data-ci-key="zoomSpeed"><button type="button" data-v="0.5">Lente</button><button type="button" data-v="1">Normale</button><button type="button" data-v="2">Rapide</button><button type="button" data-v="3">Très rapide</button></div></div>
-                  <div class="ci-row"><span>Données du graphique</span><div class="tpo-seg ci-seg" data-ci-key="dataSrc"><button type="button" data-v="auto">Auto</button><button type="button" data-v="spot">Binance spot</button><button type="button" data-v="perp">Binance perps</button></div></div>
-                  <div class="chart-ind-tip" id="chart-datasrc-note" style="margin-top:0;"></div>
-                  <div class="chart-ind-tip">Glisse le graphique (à gauche ou à droite) pour te déplacer · Ctrl + défilement, pincement ou clic droit maintenu pour zoomer sur une zone précise · double-clic pour tout remettre en automatique.</div>
                 </div>
               </div>
               <div class="seg" id="chart-source-seg" style="margin-left:auto;">
@@ -6208,7 +6243,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2650 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v2660 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -6692,7 +6727,7 @@ function chartEnforcePlus(){
       if (typeof scheduleCandleRefresh==="function") scheduleCandleRefresh();
     }
   }
-  document.querySelectorAll('#chart-ind-pop [data-chart-ind="fp"]').forEach(cb=>{ cb.checked = false; });
+  document.querySelectorAll('#chart-ind-pop [data-chart-ind="fp"]').forEach(cb=>{ cb.checked = false; }); if (typeof window.chartIndUiSync==="function") window.chartIndUiSync();
   if (typeof updateChart==="function") updateChart();
 }
 function refreshEdbPlusGates(){
@@ -15084,7 +15119,7 @@ function initChartIndicators(){
     const head = document.createElement("div");
     head.className = "chart-ind-head"; head.id = "chart-ind-head";
     head.title = "Glisser pour déplacer · double-clic pour le remettre sous le bouton";
-    head.innerHTML = '<span class="grip" aria-hidden="true">⋮⋮</span><b>Indicateurs</b><button type="button" id="chart-ind-min" title="Réduire" aria-label="Réduire">–</button><button type="button" id="chart-ind-close" title="Fermer" aria-label="Fermer">×</button>';
+    head.innerHTML = '<span class="grip" aria-hidden="true">⋮⋮</span><b>Indicateurs</b><button type="button" id="chart-ind-min" title="Réduire" aria-label="Réduire">–</button><button type="button" id="chart-ind-close" title="Fermer" aria-label="Fermer">×</button><div class="ci-tabs" role="tablist"><button type="button" role="tab" data-ci-tab="ind">Indicateurs <em id="ci-tab-n" hidden></em></button><button type="button" role="tab" data-ci-tab="set">Réglages</button></div>';
     pop.insertBefore(head, pop.firstChild);
   }
   const head = document.getElementById("chart-ind-head");
@@ -15185,7 +15220,7 @@ function initChartIndicators(){
   // place (recalée dans l'écran si la fenêtre a changé de taille).
   const place = ()=>{
     const r = btn.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
-    const w = Math.max(200, Math.min(typeof ps.w==="number" ? ps.w : 260, vw-16));
+    const w = Math.max(200, Math.min(typeof ps.w==="number" && ps.w>=300 ? ps.w : 340, vw-16));
     const tab = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--tabbar-h")) || 0;
     const bottomGap = document.documentElement.classList.contains("touch-ui") ? tab+12 : 12;
     pop.classList.toggle("is-min", !!ps.min);
@@ -15257,11 +15292,70 @@ function initChartIndicators(){
         const w = pop.offsetWidth, h = pop.offsetHeight;
         if (!w || !h) return;
         // Seul un redimensionnement à la main fixe une hauteur (style.height posé par le navigateur).
-        if (Math.abs(w-(ps.w||260))>2){ ps.w = w; savePs(); }
+        if (Math.abs(w-(ps.w||340))>2){ ps.w = w; savePs(); }
         if (pop.style.height && Math.abs(h-(ps.h||0))>2){ ps.h = h; savePs(); }
       }, 250);
     }).observe(pop);
   }
+  // ---- Mise en forme v2660 : onglets, familles repliables, indicateurs
+  // affichés en pastilles (× pour retirer), pack débutant, tout retirer,
+  // compteur sur le bouton. Les cases gardent leur logique ci-dessus : ici on
+  // ne fait que cliquer dessus / relire leur état.
+  const indPane = pop.querySelector('.ci-pane[data-pane="ind"]');
+  const mainCbs = ()=>indPane ? Array.from(indPane.querySelectorAll('label.ci-it input[data-chart-ind]')) : [];
+  const cbName = (cb)=>{ const b = cb.closest("label").querySelector(".ci-tx b"); return b ? String(b.childNodes[0].textContent).trim() : cb.dataset.chartInd; };
+  const setTab = (t)=>{
+    ps.tab = t==="set" ? "set" : "ind";
+    pop.querySelectorAll(".ci-pane").forEach(p=>{ p.hidden = p.dataset.pane!==ps.tab; });
+    pop.querySelectorAll("[data-ci-tab]").forEach(b=>{ const on = b.dataset.ciTab===ps.tab; b.classList.toggle("on", on); b.setAttribute("aria-selected", on ? "true" : "false"); });
+  };
+  pop.querySelectorAll("[data-ci-tab]").forEach(b=>b.addEventListener("click", (e)=>{ e.stopPropagation(); setTab(b.dataset.ciTab); savePs(); if (typeof window.chartExtraOptsSync==="function") window.chartExtraOptsSync(); }));
+  if (!ps.grp || typeof ps.grp!=="object"){
+    ps.grp = {base:true};
+    pop.querySelectorAll(".ci-grp").forEach(g=>{ if (Array.from(g.querySelectorAll("label.ci-it input[data-chart-ind]")).some(cb=>{ const k = cb.dataset.chartInd; return k==="fp" ? fpOn() : !!chartInd[k]; })) ps.grp[g.dataset.grp] = true; });
+  }
+  if (!ps.opt || typeof ps.opt!=="object") ps.opt = {};
+  pop.querySelectorAll(".ci-grp").forEach(g=>{
+    const h = g.querySelector(".ci-grp-h"), set = (on)=>{ g.classList.toggle("open", on); h.setAttribute("aria-expanded", on ? "true" : "false"); };
+    set(!!ps.grp[g.dataset.grp]);
+    h.addEventListener("click", (e)=>{ e.stopPropagation(); const on = !g.classList.contains("open"); set(on); ps.grp[g.dataset.grp] = on; savePs(); });
+  });
+  pop.querySelectorAll(".ci-opt").forEach(o=>{
+    const h = o.querySelector(".ci-opt-h"), set = (on)=>{ o.classList.toggle("open", on); h.setAttribute("aria-expanded", on ? "true" : "false"); };
+    set(!!ps.opt[o.id]);
+    h.addEventListener("click", (e)=>{ e.stopPropagation(); const on = !o.classList.contains("open"); set(on); ps.opt[o.id] = on; savePs(); });
+  });
+  const uiSync = ()=>{
+    const cbs = mainCbs();
+    cbs.forEach(cb=>{ const k = cb.dataset.chartInd; cb.checked = k==="fp" ? fpOn() : !!chartInd[k]; });
+    const on = cbs.filter(cb=>cb.checked);
+    const act = document.getElementById("ci-active");
+    if (act){
+      act.innerHTML = "";
+      if (!on.length){ const s = document.createElement("span"); s.className = "ci-empty"; s.textContent = "Aucun indicateur affiché. Ouvre une famille ci-dessous et active un interrupteur."; act.appendChild(s); }
+      on.forEach(cb=>{
+        const chip = document.createElement("span"); chip.className = "ci-chip";
+        const sw = cb.closest("label").querySelector("i"); const i = document.createElement("i"); if (sw) i.setAttribute("style", sw.getAttribute("style")||""); chip.appendChild(i);
+        chip.appendChild(document.createTextNode(cbName(cb)));
+        const x = document.createElement("button"); x.type = "button"; x.textContent = "×"; x.title = "Retirer"; x.setAttribute("aria-label", "Retirer "+cbName(cb));
+        x.addEventListener("click", (e)=>{ e.stopPropagation(); if (cb.checked) cb.click(); });
+        chip.appendChild(x); act.appendChild(chip);
+      });
+    }
+    pop.querySelectorAll(".ci-grp").forEach(g=>{ const n = Array.from(g.querySelectorAll("label.ci-it input[data-chart-ind]")).filter(cb=>cb.checked).length; const em = g.querySelector(".ci-grp-n"); if (em){ em.hidden = !n; em.textContent = String(n); em.title = n+" affiché"+(n>1 ? "s" : ""); } });
+    const st = document.getElementById("ci-starter"); if (st) st.hidden = ["vol","ema20","ema50"].every(k=>chartInd[k]);
+    const clr = document.getElementById("ci-clear"); if (clr) clr.disabled = !on.length;
+    const tn = document.getElementById("ci-tab-n"); if (tn){ tn.hidden = !on.length; tn.textContent = String(on.length); }
+    const bc = document.getElementById("chart-ind-count"); if (bc){ bc.hidden = !on.length; bc.textContent = String(on.length); }
+  };
+  window.chartIndUiSync = uiSync;
+  const starter = document.getElementById("ci-starter-go");
+  if (starter) starter.addEventListener("click", (e)=>{ e.stopPropagation(); ["vol","ema20","ema50"].forEach(k=>{ const cb = indPane && indPane.querySelector('label.ci-it input[data-chart-ind="'+k+'"]'); if (cb && !cb.checked) cb.click(); }); });
+  const clear = document.getElementById("ci-clear");
+  if (clear) clear.addEventListener("click", (e)=>{ e.stopPropagation(); mainCbs().filter(cb=>cb.checked).forEach(cb=>cb.click()); });
+  pop.addEventListener("change", ()=>setTimeout(uiSync, 0));
+  btn.addEventListener("click", ()=>{ if (!pop.hidden) uiSync(); });
+  setTab(ps.tab); uiSync();
   window.addEventListener("resize", ()=>{ if (!pop.hidden) place(); });
   window.addEventListener("scroll", ()=>{ if (!pop.hidden && !pinned()) place(); }, {passive:true, capture:true});
   document.addEventListener("pointerdown", (e)=>{ if (!pop.hidden && !pinned() && !e.target.closest("#chart-ind")) close(); });
