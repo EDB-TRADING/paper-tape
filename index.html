@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="2590">
+<meta name="pt-build" content="2600">
 <title>Paper Tape</title>
 <!-- Favicon / app icon -->
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -884,6 +884,7 @@
   .ci-row .tpo-seg{padding:0;}
   .ci-row .tpo-seg button{font-size:11.5px;padding:4px 5px;}
   .ci-colors{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:5px 7px;font-size:12px;color:var(--text-dim);}
+  .ci-colors label[hidden]{display:none !important;}
   .ci-colors label{display:inline-flex;align-items:center;gap:5px;padding:0 !important;cursor:pointer;}
   .ci-colors input[type=color]{width:24px;height:20px;padding:0;border:1px solid var(--border);border-radius:4px;background:none;cursor:pointer;}
   .ci-colors button{border:1px solid var(--border);background:var(--bg-raised);color:var(--text-dim);border-radius:6px;padding:3px 8px;font:11.5px var(--sans);cursor:pointer;}
@@ -1090,6 +1091,7 @@
   .google-btn svg{flex:none;}
   .new-build{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);z-index:1100;display:flex;align-items:center;gap:10px;max-width:calc(100vw - 24px);padding:9px 10px 9px 14px;border-radius:12px;background:var(--panel-2);border:1px solid var(--accent);box-shadow:0 14px 34px -12px rgba(0,0,0,.7);font:13px var(--sans);color:var(--text);animation:nbIn .25s ease-out;}
   .new-build[hidden]{display:none;}
+  .gate-inline-btn{border:1px solid var(--border);background:var(--bg-raised);color:var(--text);border-radius:6px;padding:3px 9px;font:12px var(--sans);cursor:pointer;margin-top:4px;}
   .new-build span{min-width:0;}
   #new-build-go{flex:none;border:none;border-radius:8px;padding:7px 12px;background:var(--accent);color:var(--on-accent, #fff);font:600 12.5px var(--sans);cursor:pointer;}
   #new-build-x{flex:none;border:none;background:none;color:var(--text-faint);cursor:pointer;font-size:13px;padding:4px;}
@@ -5346,8 +5348,11 @@
                     <div class="ci-row"><span>Couleur des barres</span><div class="tpo-seg ci-seg" data-ci-key="vpStyle"><button type="button" data-v="split">Achat / vente</button><button type="button" data-v="solid">Couleur unie</button></div></div>
                     <label><input type="checkbox" data-chart-ind="vpGrade">Color grading (barres plus vives selon le volume)</label>
                     <label><input type="checkbox" data-chart-ind="vpVa">Lignes VAH / VAL (value area 70 %)</label>
+                    <div class="ci-row"><span>Trait du POC</span><div class="tpo-seg ci-seg" data-ci-key="vpPocStyle"><button type="button" data-v="dash">Pointillés</button><button type="button" data-v="dot">Points</button><button type="button" data-v="solid">Plein</button></div></div>
                     <div class="ci-colors">
-                      <label><input type="color" data-ci-color="vpCol">Profil</label>
+                      <label data-vp-show="split"><input type="color" data-ci-color="vpBuyCol">Achats</label>
+                      <label data-vp-show="split"><input type="color" data-ci-color="vpSellCol">Ventes</label>
+                      <label data-vp-show="solid"><input type="color" data-ci-color="vpCol">Profil</label>
                       <label><input type="color" data-ci-color="vpPocCol">POC</label>
                       <label><input type="color" data-ci-color="vpVaCol">VAH / VAL</label>
                       <button type="button" id="chart-vp-col-reset" title="Couleurs par défaut">Défaut</button>
@@ -6199,7 +6204,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2590 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v2600 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -8996,7 +9001,10 @@ function initAuth(){
         if (user){
           rememberAuthMethod(user);
           state.email = user.email; // seeds a brand-new doc with the right email; hydrateStateFromDoc reconfirms it for existing ones
-          await loadAccountForClientId(user.uid);
+          gateLoadMsg("Connexion à ton compte…");
+          try{ await loadAccountForClientId(user.uid); }
+          catch(err){ gateLoadFailed(user); throw err; }
+          gateLoadMsg("");
           hideAuthGate();
           updateAdminNavVisibility();
           if (typeof checkSiteUpdates==="function") checkSiteUpdates(); // pastille « Mises à jour » dès la connexion
@@ -9024,6 +9032,44 @@ function initAuth(){
     });
     checkGoogleRedirectResult();
   }catch(e){ console.warn("auth init failed", e); hideAuthGate(); }
+}
+// Compte connecté mais pas encore chargé : la page de connexion le dit, au
+// lieu de rester figée (ses boutons sont volontairement bloqués quand on est
+// déjà connecté). En cas d'échec (réseau instable juste après un
+// rechargement…), nouvel essai automatique + boutons « Réessayer » et
+// « Se déconnecter ».
+function gateLoadMsg(txt){
+  const m = document.getElementById("gate-msg");
+  if (!m) return;
+  m.style.color = ""; m.textContent = txt;
+}
+let gateRetryTimer = null;
+function gateLoadFailed(user){
+  const m = document.getElementById("gate-msg");
+  clearTimeout(gateRetryTimer);
+  if (m){
+    m.style.color = "var(--warn)";
+    m.innerHTML = 'Impossible de charger ton compte pour le moment (connexion instable). Nouvel essai automatique… '+
+      '<button type="button" id="gate-retry-btn" class="gate-inline-btn">Réessayer</button> '+
+      '<button type="button" id="gate-logout-btn" class="gate-inline-btn">Se déconnecter</button>';
+    const r = document.getElementById("gate-retry-btn"), o = document.getElementById("gate-logout-btn");
+    if (r) r.addEventListener("click", ()=>retryAccountLoad(user));
+    if (o) o.addEventListener("click", ()=>{ try{ firebase.auth().signOut(); }catch(e){} gateLoadMsg(""); });
+  }
+  gateRetryTimer = setTimeout(()=>retryAccountLoad(user), 5000);
+}
+async function retryAccountLoad(user){
+  clearTimeout(gateRetryTimer);
+  if (!user || authUser!==user) return;
+  gateLoadMsg("Connexion à ton compte…");
+  try{
+    await loadAccountForClientId(user.uid);
+    gateLoadMsg("");
+    hideAuthGate();
+    updateAdminNavVisibility();
+    if (typeof checkSiteUpdates==="function") checkSiteUpdates();
+    renderAll();
+  }catch(e){ gateLoadFailed(user); }
 }
 function askFirstPseudo(done){
   let finished = false;
@@ -11632,7 +11678,7 @@ const TA_COLORS = {ema20:"#f2b33d", ema50:"#5aa9e6", ema200:"#c77dff", bb:"#8fa3
 const CHART_IND_KEY = "paperTapeChartInd";
 const CHART_EMA = {ema20:{p:20, color:"#f2b33d", label:"MME 20"}, ema50:{p:50, color:"#5aa9e6", label:"MME 50"}, ema200:{p:200, color:"#c77dff", label:"MME 200"}};
 let chartInd = (function(){
-  const d = {tpo:false, tpoPrevTf:"", tpoPrevZoom:0, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpTicks:{}, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true, zoomSpeed:"1", dataSrc:"auto", vpTicks:{}, vpFill:true, vpBox:false, vpSide:"left", vpStyle:"split", vpCol:"#8fa3b8", vpPocCol:"#8fa3b8", vpVa:true, vpVaCol:"#8fa3b8", vpGrade:false, liq:false, liqSens:"2"};
+  const d = {tpo:false, tpoPrevTf:"", tpoPrevZoom:0, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpTicks:{}, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true, zoomSpeed:"1", dataSrc:"auto", vpTicks:{}, vpFill:true, vpBox:false, vpSide:"left", vpStyle:"split", vpCol:"#8fa3b8", vpBuyCol:"", vpSellCol:"", vpPocCol:"#8fa3b8", vpPocStyle:"dash", vpVa:true, vpVaCol:"#8fa3b8", vpGrade:false, liq:false, liqSens:"2"};
   try{
     const s = JSON.parse(localStorage.getItem(CHART_IND_KEY)||"null");
     // Chaque réglage est repris s'il a le même type que sa valeur par défaut :
@@ -12188,7 +12234,15 @@ function chartVolProfile(cands, tfMs, lo, hi, bins){
 }
 // Couleurs choisies pour les profils de volume (Indicateurs › Paramètres des profils).
 const VP_DEF_COL = "#8fa3b8";
-function vpColor(k){ const v = chartInd[k]; return /^#[0-9a-f]{6}$/i.test(v||"") ? v : VP_DEF_COL; }
+function vpColor(k){
+  const v = chartInd[k];
+  if (/^#[0-9a-f]{6}$/i.test(v||"")) return v;
+  // Achats / ventes : par défaut, les couleurs des bougies.
+  if (k==="vpBuyCol" || k==="vpSellCol"){ const cc = candleColors(); const x = k==="vpBuyCol" ? cc.up : cc.down; return /^#[0-9a-f]{6}$/i.test(x||"") ? x : (k==="vpBuyCol" ? "#31c882" : "#f0546a"); }
+  return VP_DEF_COL;
+}
+// Trait du POC : pointillés, points ou plein.
+function vpPocDash(){ return chartInd.vpPocStyle==="solid" ? "" : chartInd.vpPocStyle==="dot" ? ' stroke-dasharray="1.5,3"' : ' stroke-dasharray="5,3"'; }
 // Histogramme horizontal d'un profil, à partir de x0 (largeur max wMax).
 // Style « achat / vente » (couleurs des bougies) ou « couleur unie » (couleur
 // choisie) ; « color grading » : chaque ligne plus ou moins intense selon son volume.
@@ -12213,7 +12267,7 @@ function chartProfileBars(g, pr, x0, wMax, opIn, opOut, dir, fill){
     return (d ? '<path d="'+d+'" fill="'+col+'" fill-opacity="0.05" stroke="'+col+'" stroke-width="1.1" stroke-linejoin="round" opacity="0.9"/>' : '')+
       '<rect x="'+f(dir>0 ? x0 : x0-wMax)+'" y="'+f(yA)+'" width="'+f(wMax)+'" height="'+f(Math.max(0, yZ-yA))+'" fill="'+col+'" opacity="0.06"/>';
   }
-  const solid = chartInd.vpStyle==="solid", grade = !!chartInd.vpGrade, col = vpColor("vpCol");
+  const solid = chartInd.vpStyle==="solid", grade = !!chartInd.vpGrade, col = vpColor("vpCol"), cBuy = vpColor("vpBuyCol"), cSell = vpColor("vpSellCol");
   for (let i=0; i<pr.tot.length; i++){
     if (!pr.tot[i]) continue;
     const yT = g.y(pr.lo+(i+1)*pr.stp), yB = g.y(pr.lo+i*pr.stp), h = Math.max(0.8, yB-yT-(yB-yT>3 ? 0.6 : 0.15));
@@ -12227,8 +12281,8 @@ function chartProfileBars(g, pr, x0, wMax, opIn, opOut, dir, fill){
       continue;
     }
     const xu = dir>0 ? x0 : x0-wu, xd = dir>0 ? x0+wu : x0-wu-wd;
-    if (wu>0.3) s += '<rect x="'+f(xu)+'" y="'+f(yT)+'" width="'+f(wu)+'" height="'+f(h)+'" fill="'+g.cc.up+'" opacity="'+op+'"/>';
-    if (wd>0.3) s += '<rect x="'+f(xd)+'" y="'+f(yT)+'" width="'+f(wd)+'" height="'+f(h)+'" fill="'+g.cc.down+'" opacity="'+op+'"/>';
+    if (wu>0.3) s += '<rect x="'+f(xu)+'" y="'+f(yT)+'" width="'+f(wu)+'" height="'+f(h)+'" fill="'+cBuy+'" opacity="'+op+'"/>';
+    if (wd>0.3) s += '<rect x="'+f(xd)+'" y="'+f(yT)+'" width="'+f(wd)+'" height="'+f(h)+'" fill="'+cSell+'" opacity="'+op+'"/>';
   }
   return s;
 }
@@ -13313,7 +13367,7 @@ function chartRenderCandles(svg, a, m, W, H, all){
       if (chartInd.vpBox) svgV += chartVpBox(x0, x0+(right ? -wMax : wMax), y(gr.hi), y(gr.lo));
       const pocP = pr.lo+(pr.poc+0.5)*pr.stp;
       const pocC = vpColor("vpPocCol"), vaC = vpColor("vpVaCol");
-      let lines = '<line x1="'+padL+'" x2="'+(W-padR)+'" y1="'+y(pocP).toFixed(1)+'" y2="'+y(pocP).toFixed(1)+'" stroke="'+pocC+'" stroke-width="1" stroke-dasharray="4,3" opacity="0.85"/>';
+      let lines = '<line x1="'+padL+'" x2="'+(W-padR)+'" y1="'+y(pocP).toFixed(1)+'" y2="'+y(pocP).toFixed(1)+'" stroke="'+pocC+'" stroke-width="'+(chartInd.vpPocStyle==="solid" ? 1.3 : 1.1)+'"'+vpPocDash()+' opacity="0.9"/>';
       if (chartInd.vpVa!==false){
         const vah = pr.lo+(pr.b+1)*pr.stp, val = pr.lo+pr.a*pr.stp;
         [vah, val].forEach(v=>{ lines += '<line x1="'+padL+'" x2="'+(W-padR)+'" y1="'+y(v).toFixed(1)+'" y2="'+y(v).toFixed(1)+'" stroke="'+vaC+'" stroke-width="1" stroke-dasharray="2,4" opacity="0.7"/>'; });
@@ -13346,7 +13400,7 @@ function chartRenderCandles(svg, a, m, W, H, all){
       if (chartInd.vpBox) svgD += chartVpBox(x1, x2, y(gr.hi), y(gr.lo));
       g.vpRow = gr.row; g.vpCapped = gr.capped;
       const yP = y(pr.lo+(pr.poc+0.5)*pr.stp), yH = y(pr.lo+(pr.b+1)*pr.stp), yL = y(pr.lo+pr.a*pr.stp);
-      svgD += '<line x1="'+x1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y1="'+yP.toFixed(1)+'" y2="'+yP.toFixed(1)+'" stroke="'+vpColor("vpPocCol")+'" stroke-width="1.2" opacity="0.95"/>'+
+      svgD += '<line x1="'+x1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y1="'+yP.toFixed(1)+'" y2="'+yP.toFixed(1)+'" stroke="'+vpColor("vpPocCol")+'" stroke-width="1.3"'+vpPocDash()+' opacity="0.95"/>'+
         (chartInd.vpVa!==false ? [yH, yL].map(yy=>'<line x1="'+x1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y1="'+yy.toFixed(1)+'" y2="'+yy.toFixed(1)+'" stroke="'+vpColor("vpVaCol")+'" stroke-width="1" stroke-dasharray="3,3" opacity="0.7"/>').join("") : "")+
         '<line x1="'+x1.toFixed(1)+'" x2="'+x1.toFixed(1)+'" y1="'+padT+'" y2="'+(H-padB)+'" stroke="'+vpColor("vpCol")+'" stroke-width="1" stroke-dasharray="1,3" opacity="0.35"/>';
     });
@@ -14912,6 +14966,8 @@ function initChartExtraOpts(){
     }
     const note = document.getElementById("chart-datasrc-note"); if (note) note.textContent = chartSrcLabel(a);
     pop.querySelectorAll("[data-ci-color]").forEach(inp=>{ if (document.activeElement!==inp) inp.value = vpColor(inp.dataset.ciColor); });
+    // Couleurs proposées selon le style : achats + ventes, ou couleur unie.
+    pop.querySelectorAll("[data-vp-show]").forEach(l=>{ l.hidden = l.dataset.vpShow!==(chartInd.vpStyle==="solid" ? "solid" : "split"); });
   };
   let colRaf = 0;
   pop.querySelectorAll("[data-ci-color]").forEach(inp=>inp.addEventListener("input", ()=>{
@@ -14919,7 +14975,7 @@ function initChartExtraOpts(){
     if (!colRaf) colRaf = requestAnimationFrame(()=>{ colRaf = 0; updateChart(); });
   }));
   const colReset = document.getElementById("chart-vp-col-reset");
-  if (colReset) colReset.addEventListener("click", (e)=>{ e.stopPropagation(); ["vpCol","vpPocCol","vpVaCol"].forEach(k=>{ chartInd[k] = VP_DEF_COL; }); saveChartInd(); updateChart(); sync(); });
+  if (colReset) colReset.addEventListener("click", (e)=>{ e.stopPropagation(); ["vpCol","vpPocCol","vpVaCol"].forEach(k=>{ chartInd[k] = VP_DEF_COL; }); chartInd.vpBuyCol = ""; chartInd.vpSellCol = ""; chartInd.vpPocStyle = "dash"; saveChartInd(); updateChart(); sync(); });
   const setTicks = (v)=>{
     if (!chartInd.vpTicks || typeof chartInd.vpTicks!=="object") chartInd.vpTicks = {};
     if (v>=1) chartInd.vpTicks[selectedSymbol] = Math.min(1e7, Math.round(v)); else delete chartInd.vpTicks[selectedSymbol];
@@ -19199,9 +19255,9 @@ function initNewBuildCheck(){
   const box = document.getElementById("new-build");
   if (!box) return;
   document.getElementById("new-build-go").addEventListener("click", ()=>{
-    // Les données du compte sont enregistrées avant de recharger.
-    try{ if (typeof persistAccount==="function") persistAccount(); if (typeof flushPersist==="function") flushPersist(true); }catch(e){}
-    setTimeout(()=>location.reload(), 250);
+    // Rechargement simple (la sauvegarde finale part toute seule au moment de
+    // quitter la page, comme pour Cmd + R).
+    location.reload();
   });
   document.getElementById("new-build-x").addEventListener("click", ()=>{ ptBuildDismissed = box.dataset.build || ""; box.hidden = true; });
   setTimeout(checkNewBuild, 30000);
