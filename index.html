@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="2690">
+<meta name="pt-build" content="2700">
 <title>Paper Tape</title>
 <!-- Favicon / app icon -->
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -6243,7 +6243,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2690 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v2700 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -7498,7 +7498,7 @@ function processTicker(symbol, payload){
   // once per fetchCandles() cycle.
   // (patchLiveCandle ouvre aussi la bougie suivante quand la période est
   // écoulée ; si on regarde l'historique, la vue reste sur les mêmes bougies.)
-  if (patchLiveCandle(m, m.last) && symbol===selectedSymbol && chartPan>0) chartPan++;
+  if (patchLiveCandle(m, chartLivePx(symbol)) && symbol===selectedSymbol && chartPan>0) chartPan++;
 }
 // Fetch up to 50 real OHLC candles for a symbol at a given timeframe via a
 // direct call to fetchCandlesRest() (Crypto.com's public REST API — see
@@ -7543,6 +7543,41 @@ function chartSrcLabel(a){
   const name = s[0]==="bf" ? "Binance perps ("+s[1]+")" : s[0]==="bn" ? "Binance spot ("+s[1]+")" : s[0]==="hl" ? "Hyperliquid" : "Crypto.com";
   return a.symbol+" : bougies et footprint "+name+". Le prix d'exécution des ordres ne change pas.";
 }
+// Bougie en cours quand le graphique suit une autre source que le prix du
+// site (ex. bougies Binance perps, prix d'exécution Binance spot) : on la fait
+// avancer avec le dernier prix de CETTE source (transactions du footprint ou
+// du carnet, sinon petit relevé du prix toutes les 2 s), pas avec le prix du
+// site. Avant, l'écart spot / perps déformait la bougie en cours (corps qui
+// dépassait les cases du footprint), corrigé seulement au rechargement suivant.
+function chartSrcKey(a){ const s = a ? priceSources(a)[0] : null; return s ? s[0]+":"+s[1] : ""; }
+function chartSrcDiffers(a){ if (!a) return false; const b = chartSrcAsset(a); return b!==a && chartSrcKey(b)!==chartSrcKey(a); }
+function chartSrcPxSet(symbol, kind, ref, px){
+  const m = market[symbol];
+  if (!m || !(px>0)) return;
+  m.srcPx = px; m.srcPxAt = Date.now(); m.srcKey = kind+":"+ref;
+}
+function chartLivePx(symbol){
+  const m = market[symbol], a = ASSETS.find(x=>x.symbol===symbol);
+  if (!m) return NaN;
+  if (!chartSrcDiffers(a)) return m.last;
+  return (m.srcKey===chartSrcKey(chartSrcAsset(a)) && Date.now()-(m.srcPxAt||0) < 15000) ? m.srcPx : NaN;
+}
+let chartSrcPxBusy = false;
+setInterval(async ()=>{
+  if (chartSrcPxBusy || document.visibilityState==="hidden" || typeof selectedSymbol==="undefined") return;
+  const a = ASSETS.find(x=>x.symbol===selectedSymbol), m = a && market[a.symbol];
+  if (!m || !chartSrcDiffers(a)) return;
+  const key = chartSrcKey(chartSrcAsset(a));
+  if (m.srcKey===key && Date.now()-(m.srcPxAt||0) < 3000) return; // déjà alimenté par un flux
+  const [kind, ref] = key.split(":");
+  if (kind!=="bn" && kind!=="bf") return;
+  chartSrcPxBusy = true;
+  try{
+    const r = await fetch((kind==="bf" ? BINANCE_FAPI_BASE : BINANCE_API_BASE)+"/ticker/price?symbol="+encodeURIComponent(ref), {signal:AbortSignal.timeout(5000)});
+    const j = r.ok ? await r.json() : null;
+    if (j && +j.price>0){ chartSrcPxSet(a.symbol, kind, ref, +j.price); if (patchLiveCandle(m, +j.price) && chartPan>0) chartPan++; if (typeof scheduleChartFrame==="function") scheduleChartFrame(); }
+  }catch(e){} finally { chartSrcPxBusy = false; }
+}, 2000);
 // Bougies via la source choisie ; si cette paire n'existe pas (ex. pas de perp), source habituelle.
 async function fetchCandlesChart(a, tf, opt){
   const b = chartSrcAsset(a);
@@ -9985,6 +10020,7 @@ function ladOpenTradesBinance(src, gen){
     if (LAD.hist!=="done"){ if (LAD.tbuf.length < 60000) LAD.tbuf.push(tr); return; }
     if (tr.id <= LAD.lastId) return;
     LAD.lastId = tr.id; ladAddTrade(tr.t, tr.p, tr.q, tr.buy); ladTouched();
+    if (LAD.sym) chartSrcPxSet(LAD.sym, src.kind, src.ref, tr.p);
   };
   ws.onclose = ()=>{ if (LAD.wsT===ws){ LAD.wsT = null; setTimeout(()=>{ if (gen===LAD.gen && ladWanted()) ladOpenTradesBinance(src, gen); }, 3000); } };
   ws.onerror = ()=>{ try{ ws.close(); }catch(e){} };
@@ -12117,6 +12153,7 @@ function fpOpenBinance(src, gen){
     if ((FP.lastId && tr.id > FP.lastId+1) || FP.pend.length){ if (FP.pend.length < 60000) FP.pend.push(tr); fpCatchUp(); return; }
     FP.lastId = tr.id; FP.lastT = tr.t;
     fpAdd(tr.t, tr.p, tr.q, tr.buy);
+    chartSrcPxSet(FP.sym, src.kind, src.ref, tr.p);
     fpTouched();
   };
   ws.onclose = ()=>{ if (FP.ws===ws){ FP.ws = null; fpRetry(gen); } };
@@ -12142,6 +12179,7 @@ async function fpCatchUp(){
       if (gen!==FP.gen) return;
       if (!Array.isArray(rows)){ ok = false; break; }
       rows.forEach(t=>{ const id = +t.a; if (!(id > FP.lastId)) return; fpAdd(+t.T, +t.p, +t.q, !t.m); FP.lastId = id; FP.lastT = +t.T; got++; });
+      if (rows.length && Date.now()-FP.lastT < 10000) chartSrcPxSet(FP.sym, src.kind, src.ref, +rows[rows.length-1].p);
       if (rows.length < 1000) break;
       full++;
     }
@@ -13147,7 +13185,8 @@ function chartTickCountdown(){
     const last = m.candles.data[m.candles.data.length-1];
     const tfMs = HL_INTERVAL_MS[m.candles.tf];
     if (tfMs && last.ms && Date.now() >= last.ms + tfMs && !chartLineDrag && !chartPanDrag){
-      patchLiveCandle(m, m.last);
+      const lp = chartLivePx(selectedSymbol);
+      patchLiveCandle(m, isFinite(lp) ? lp : last.c);
       updateChart();
       return;
     }
