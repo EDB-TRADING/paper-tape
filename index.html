@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="2630">
+<meta name="pt-build" content="2650">
 <title>Paper Tape</title>
 <!-- Favicon / app icon -->
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -5369,6 +5369,7 @@
                     <div class="chart-fp-tick"><span>Taille de ligne (prix)</span><button type="button" class="tk-step" data-tick-step="fp:-1" title="Plus fin" aria-label="Taille de ligne plus fine">−</button><input type="number" id="chart-fp-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne du footprint (en prix)"><button type="button" class="tk-step" data-tick-step="fp:1" title="Plus gros" aria-label="Taille de ligne plus grosse">+</button><button type="button" id="chart-fp-tick-auto" title="Revenir au réglage automatique">Auto</button></div>
                     <label><input type="checkbox" data-chart-ind="fpImb">Déséquilibres à 300 % + zones de 3 déséquilibres empilés</label>
                     <label><input type="checkbox" data-chart-ind="fpSig">Absorption (A) et épuisement (É)</label>
+                    <label><input type="checkbox" data-chart-ind="fpSum">Récap de chaque bougie : delta et volume (au-dessus si delta +, en dessous si −)</label>
                     <div class="chart-ind-tip" style="margin:2px 0 0;">Marchés Binance : historique des dernières dizaines de minutes, puis en direct. Marchés Hyperliquid : en direct depuis l'ouverture du graphique.</div>
                   </div>
                   <div class="chart-ind-sep">Sous le graphique</div>
@@ -6207,7 +6208,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2630 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v2650 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -11713,7 +11714,7 @@ const TA_COLORS = {ema20:"#f2b33d", ema50:"#5aa9e6", ema200:"#c77dff", bb:"#8fa3
 const CHART_IND_KEY = "paperTapeChartInd";
 const CHART_EMA = {ema20:{p:20, color:"#f2b33d", label:"MME 20"}, ema50:{p:50, color:"#5aa9e6", label:"MME 50"}, ema200:{p:200, color:"#c77dff", label:"MME 200"}};
 let chartInd = (function(){
-  const d = {tpo:false, tpoPrevTf:"", tpoPrevZoom:0, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpTicks:{}, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true, zoomSpeed:"1", dataSrc:"auto", vpTicks:{}, vpFill:true, vpBox:false, vpSide:"left", vpStyle:"split", vpCol:"#8fa3b8", vpBuyCol:"", vpSellCol:"", vpPocCol:"#8fa3b8", vpPocStyle:"dash", vpVa:true, vpVaCol:"#8fa3b8", vpGrade:false, liq:false, liqSens:"2"};
+  const d = {tpo:false, tpoPrevTf:"", tpoPrevZoom:0, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpSum:true, fpTicks:{}, cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true, zoomSpeed:"1", dataSrc:"auto", vpTicks:{}, vpFill:true, vpBox:false, vpSide:"left", vpStyle:"split", vpCol:"#8fa3b8", vpBuyCol:"", vpSellCol:"", vpPocCol:"#8fa3b8", vpPocStyle:"dash", vpVa:true, vpVaCol:"#8fa3b8", vpGrade:false, liq:false, liqSens:"2"};
   try{
     const s = JSON.parse(localStorage.getItem(CHART_IND_KEY)||"null");
     // Chaque réglage est repris s'il a le même type que sa valeur par défaut :
@@ -12167,10 +12168,15 @@ async function fpLoadBack(targetMs){
     // (Binance n'a pas de bougies d'une seconde en futures) : bougies d'une
     // minute, avec leur volume acheteur exact — plus grossier, mais le
     // footprint perps a ainsi lui aussi ~24 h d'historique.
-    const perp = src.kind==="bf", unit = perp ? 60000 : 1000, span = unit*1000;
+    // Spot : bougies d'une seconde pour les ~2 dernières heures avant le direct
+    // (précis), puis bougies d'une minute au-delà : en passant en 15m / 1h,
+    // une seule requête couvre ~16 h au lieu de dizaines de requêtes de
+    // 1 000 s (le footprint semblait « disparaître » le temps du chargement).
+    const coarse = src.kind==="bf" || (FP.exactFrom - FP.covFrom) > 2*3600e3 || (FP.covFrom - goal) > 3*3600e3;
+    const perp = coarse, unit = perp ? 60000 : 1000, span = unit*1000;
     const end = Math.floor(FP.covFrom/unit)*unit - 1;
     const nReq = Math.max(1, Math.min(perp ? 2 : 8, Math.ceil((end-goal)/span)));
-    const get = (k)=>fetch((perp ? BINANCE_FAPI_BASE : BINANCE_API_BASE)+"/klines?symbol="+encodeURIComponent(src.ref)+"&interval="+(perp ? "1m" : "1s")+"&limit=1000&startTime="+(end-(k+1)*span+1)+"&endTime="+(end-k*span), {signal:AbortSignal.timeout(10000)})
+    const get = (k)=>fetch((src.kind==="bf" ? BINANCE_FAPI_BASE : BINANCE_API_BASE)+"/klines?symbol="+encodeURIComponent(src.ref)+"&interval="+(perp ? "1m" : "1s")+"&limit=1000&startTime="+(end-(k+1)*span+1)+"&endTime="+(end-k*span), {signal:AbortSignal.timeout(10000)})
       .then(r=>r.ok ? r.json() : null).catch(()=>null);
     const res = await Promise.all(Array.from({length:nReq}, (_, k)=>get(k)));
     if (gen!==FP.gen) return;
@@ -12393,7 +12399,9 @@ function chartFootprintLayer(g, vis){
   // Bougies visibles plus anciennes que les données : on complète l'historique
   // (marchés Binance spot) avec les bougies d'une seconde, en remontant.
   if (vis.length && vis[0].ms < FP.covFrom && FP.src && (FP.src.kind==="bn" || FP.src.kind==="bf") && FP.hist==="done") setTimeout(()=>fpLoadBack(vis[0].ms), 0);
-  const imbOn = chartInd.fpImb!==false, sigOn = chartInd.fpSig!==false;
+  const imbOn = chartInd.fpImb!==false, sigOn = chartInd.fpSig!==false, sumOn = chartInd.fpSum!==false;
+  // Récap par bougie : seulement si les chiffres tiennent dans la largeur d'une bougie.
+  const sumFs = Math.max(8, Math.min(10.5, slotW*0.2)), sumOk = sumOn && slotW >= 22, sumTag = slotW >= 46;
   vis.forEach((c, i)=>{
     const fc = c.ms ? fpCandle(c.ms, g.tfMs, row) : null;
     if (!fc || !(fc.buy+fc.sell > 0)){ uncovered++; return; }
@@ -12470,9 +12478,22 @@ function chartFootprintLayer(g, vis){
         const b3 = keys.slice(0, 3).map(r=>get(r)[1]), maxS = Math.max(...keys.map(r=>get(r)[1]));
         if (swingLo && !botSig && maxS>0 && b3[2]>b3[1] && b3[1]>b3[0] && b3[0] <= 0.1*maxS) botSig = "É";
       }
+      const sumShift = (sumOk && (topSig || botSig)) ? sumFs*2+6 : 0;
       const tagAt = (txt, yy, col)=>'<g><rect x="'+f(g.xAt(i)-7)+'" y="'+f(yy-7)+'" width="14" height="14" rx="3" fill="'+col+'"/><text x="'+f(g.xAt(i))+'" y="'+f(yy+3.6)+'" text-anchor="middle" font-size="10" font-weight="700" fill="'+chartInkOn(col)+'" '+CHART_FONT+'>'+txt+'</text></g>';
-      if (topSig) res.marks += tagAt(topSig, g.y(c.h)-12, g.cc.down);
-      if (botSig) res.marks += tagAt(botSig, g.y(c.l)+12, g.cc.up);
+      const dPos = fc.buy-fc.sell >= 0;
+      if (topSig) res.marks += tagAt(topSig, g.y(c.h)-12-(dPos ? sumShift : 0), g.cc.down);
+      if (botSig) res.marks += tagAt(botSig, g.y(c.l)+12+(dPos ? 0 : sumShift), g.cc.up);
+    }
+    // Récap : delta (achats − ventes agressifs) et volume total de la bougie,
+    // au-dessus de la mèche si le delta est positif, en dessous s'il est négatif.
+    if (sumOk){
+      const d = fc.buy-fc.sell, v = fc.buy+fc.sell, pos = d >= 0, x = g.xAt(i);
+      const dTxt = (sumTag ? "Δ " : "")+(d>0 ? "+" : d<0 ? "−" : "")+fpFmt(d), vTxt = (sumTag ? "Vol " : "")+fpFmt(v);
+      const lh = sumFs+2, y1 = pos ? g.y(c.h)-5-lh : g.y(c.l)+5+sumFs, y2 = y1+lh; // ligne 1 : delta, ligne 2 : volume
+      const tw = Math.max(dTxt.length, vTxt.length)*sumFs*0.62+6, bTop = y1-sumFs, bH = lh+sumFs+3;
+      res.marks += '<rect x="'+f(x-tw/2)+'" y="'+f(bTop)+'" width="'+f(tw)+'" height="'+f(bH)+'" rx="3" fill="'+g.pal.bg+'" opacity="0.78"/>'+
+        '<text x="'+f(x)+'" y="'+f(y1)+'" text-anchor="middle" font-size="'+sumFs.toFixed(1)+'" font-weight="700" fill="'+(pos ? g.cc.up : g.cc.down)+'" '+CHART_FONT+'>'+dTxt+'</text>'+
+        '<text x="'+f(x)+'" y="'+f(y2)+'" text-anchor="middle" font-size="'+sumFs.toFixed(1)+'" fill="'+g.pal.text+'" '+CHART_FONT+'>'+vTxt+(fc.partial || fc.approx ? "~" : "")+'</text>';
     }
   });
   // Zones de déséquilibres empilés : prolongées vers la droite jusqu'à ce
@@ -12493,7 +12514,8 @@ function chartFootprintLayer(g, vis){
   else if (FP.note) res.note = FP.note;
   else if (!covered) res.note = "Footprint : en attente de transactions…";
   else if (!cellsOn) res.note = "Zoome (+) pour lire le footprint";
-  else if (anyApprox) res.note = "Exact depuis "+new Date(FP.exactFrom).toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"})+" · avant : approx. (1 s)"+(FP.backBusy ? " · chargement…" : "");
+  else if (FP.backBusy && uncovered) res.note = "Footprint : chargement de l'historique de ces bougies…";
+  else if (anyApprox) res.note = "Exact depuis "+new Date(FP.exactFrom).toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"})+" · avant : approx."+(FP.backBusy ? " · chargement…" : "");
   else if (uncovered && FP.src && FP.src.kind==="hl") res.note = "Footprint en direct depuis "+new Date(FP.covFrom).toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"})+" (pas d'historique sur ce marché)";
   else if (uncovered) res.note = "Footprint depuis "+new Date(FP.covFrom).toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"});
   return res;
