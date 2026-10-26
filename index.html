@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="2610">
+<meta name="pt-build" content="2630">
 <title>Paper Tape</title>
 <!-- Favicon / app icon -->
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -519,8 +519,8 @@
   .widget-grip:active{cursor:grabbing;}
   .widget-hide{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;line-height:1;padding:2px 4px;border-radius:4px;}
   .widget-hide:hover{color:var(--warn);background:var(--bg-raised);}
-  .widget-fs-toggle{display:inline-flex;align-items:center;gap:5px;background:none;border:none;color:var(--text-faint);cursor:pointer;line-height:1;padding:3px 5px;border-radius:5px;font-family:var(--mono);font-size:10.5px;font-weight:700;}
-  .widget-fs-toggle:hover{color:var(--accent);background:var(--panel-2);}
+  .widget-fs-toggle{display:inline-flex;align-items:center;gap:5px;background:color-mix(in srgb, var(--accent) 14%, transparent);border:1px solid color-mix(in srgb, var(--accent) 55%, var(--border));color:var(--accent);cursor:pointer;line-height:1;padding:4px 7px;border-radius:6px;font-family:var(--mono);font-size:10.5px;font-weight:700;}
+  .widget-fs-toggle:hover{color:var(--on-accent, #fff);background:var(--accent);border-color:var(--accent);}
   .widget-fs-toggle .fs-out, .widget-fs-toggle .fs-lbl{display:none;}
   /* Graphique en plein écran : le widget est déplacé dans <body> (au-dessus
      de tout, quelles que soient les colonnes / widgets libres) et remplit la
@@ -532,7 +532,10 @@
   .card.widget.chart-fs #chart-svg{flex:1 1 auto;height:auto !important;min-height:0;}
   .card.widget.chart-fs #tv-chart-wrap{flex:1 1 auto;height:auto !important;min-height:0;}
   .card.widget.chart-fs .wz-grip, .card.widget.chart-fs .widget-grip, .card.widget.chart-fs .widget-free-toggle, .card.widget.chart-fs .widget-hide, .card.widget.chart-fs .wz-size-badge{display:none !important;}
-  .card.widget.chart-fs .widget-fs-toggle{color:var(--text);border:1px solid var(--border);padding:5px 9px;}
+  .card.widget.chart-fs .widget-fs-toggle{padding:6px 11px;}
+  /* Plein écran : Graphique / TradingView / TPO / Liquidations en haut, au centre, toujours visibles. */
+  .card.widget.chart-fs #chart-source-seg{position:absolute;top:9px;left:50%;transform:translateX(-50%);margin:0 !important;z-index:5;}
+  @media (max-width:720px){ .card.widget.chart-fs #chart-source-seg{position:static;transform:none;align-self:flex-start;} }
   .card.widget.chart-fs .widget-fs-toggle .fs-in{display:none;}
   .card.widget.chart-fs .widget-fs-toggle .fs-out, .card.widget.chart-fs .widget-fs-toggle .fs-lbl{display:inline;}
   .card.widget.chart-fs .ct-shield{display:none !important;}
@@ -6204,7 +6207,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2610 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v2630 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -6528,6 +6531,7 @@ function updateChartZoomLabel(){
   if (outBtn) outBtn.disabled = chartZoomCount>=maxCount-0.5;
   if (inBtn) inBtn.disabled = chartZoomCount<=chartZoomMin()+0.5;
 }
+let chartPinchWheelAt = 0;
 function initChartZoomControls(){
   const outBtn = document.getElementById("chart-zoom-out");
   const inBtn = document.getElementById("chart-zoom-in");
@@ -6539,12 +6543,13 @@ function initChartZoomControls(){
       if (chartSource!=="internal" || !chartView) return;
       const unit = e.deltaMode===1 ? 16 : e.deltaMode===2 ? 400 : 1;
       const dx = e.deltaX*unit, dy = e.deltaY*unit;
-      const horizontal = !e.ctrlKey && !(e.buttons & 2) && Math.abs(dx) > Math.abs(dy);
+      const mod = e.ctrlKey || e.metaKey; // pincement du trackpad (ctrl) ou Cmd + défilement : zoom libre
+      const horizontal = !mod && !(e.buttons & 2) && Math.abs(dx) > Math.abs(dy);
       // Molette verticale : seulement quand le widget Graphique a été cliqué
       // (voir initWidgetWheel), sinon elle fait défiler la page. Le pincement
       // du trackpad (ctrlKey) et le glissement horizontal marchent toujours.
       const w = svg.closest(".card.widget");
-      if (!e.ctrlKey && !(e.buttons & 2) && !horizontal && w && !w.classList.contains("is-wheel-active")){
+      if (!mod && !(e.buttons & 2) && !horizontal && w && !w.classList.contains("is-wheel-active")){
         if (typeof wzShowWheelHint==="function") wzShowWheelHint(w, "Clique sur le graphique, puis molette pour zoomer");
         return;
       }
@@ -6557,16 +6562,30 @@ function initChartZoomControls(){
         return;
       }
       const ax = (e.clientX-r.left)/r.width*v.W;
-      if (e.ctrlKey || (e.buttons & 2)){
+      if (mod || (e.buttons & 2)){
         // Ctrl + défilement (ou pincement du trackpad), ou défilement clic droit
         // maintenu : zoom en largeur ET en hauteur autour du curseur.
         const ay = (e.clientY-r.top)/r.height*v.H;
-        const f = Math.exp(Math.max(-60, Math.min(60, dy))*(e.ctrlKey ? 0.012 : 0.0025)*chartZoomSpeed());
+        if (e.ctrlKey) chartPinchWheelAt = performance.now();
+        const f = Math.exp(Math.max(-60, Math.min(60, dy))*(e.ctrlKey ? 0.012 : e.metaKey ? 0.004 : 0.0025)*chartZoomSpeed());
         chartZoom2D(f, f, ax, ay);
         return;
       }
       chartZoomTo(chartZoomCount*Math.exp(Math.max(-60, Math.min(60, dy))*0.0022*chartZoomSpeed()), ax);
     }, {passive:false});
+    // Safari (Mac) : le pincement du trackpad arrive aussi en « gesture » ;
+    // utilisé seulement si le navigateur n'envoie pas déjà ctrl + molette.
+    let gScale = 1;
+    svg.addEventListener("gesturestart", (e)=>{ if (chartSource!=="internal") return; e.preventDefault(); gScale = e.scale || 1; });
+    svg.addEventListener("gesturechange", (e)=>{
+      if (chartSource!=="internal" || !chartView) return;
+      e.preventDefault();
+      if (performance.now()-chartPinchWheelAt < 200) return; // déjà géré par la molette
+      const s = e.scale || 1, f = Math.pow(gScale/s, chartZoomSpeed()); gScale = s;
+      const r = svg.getBoundingClientRect(), v = chartView;
+      chartZoom2D(f, f, (e.clientX-r.left)/r.width*v.W, (e.clientY-r.top)/r.height*v.H);
+    });
+    svg.addEventListener("gestureend", (e)=>{ if (chartSource==="internal") e.preventDefault(); });
   }
   updateChartZoomLabel();
 }
@@ -10161,26 +10180,33 @@ const HL_FAST_MS = 1500;
 const binanceWs = {spot:null, fut:null};
 const binanceWsBackoff = {spot:2000, fut:2000};
 const binanceWsBook = {};
-let priceRenderTimer = null, priceRenderLastAt = 0, priceRenderDefer = 0;
+let priceRenderTimer = null, priceRenderLastAt = 0, priceRenderDefer = 0, pageRenderTimer = null;
 function afterPriceUpdate(){
   if (priceRenderTimer) return;
   const wait = Math.max(0, 500-(Date.now()-priceRenderLastAt));
-  const run = ()=>{
-    // Pendant un zoom / défilement du graphique, le gros rafraîchissement de
-    // la page (positions, historique, marchés…) attend un peu (au plus ~1,5 s).
-    if (typeof chartBusy==="function" && chartBusy() && priceRenderDefer < 6){ priceRenderDefer++; priceRenderTimer = setTimeout(run, 250); return; }
-    priceRenderDefer = 0;
+  priceRenderTimer = setTimeout(()=>{
     priceRenderTimer = null;
     priceRenderLastAt = Date.now();
     clearLiveBanner();
+    // Ordres en attente, TP / SL, liquidations : toujours tout de suite.
     checkPendingOrders(); checkTPSL(); checkLiquidations();
     withParkedBook(()=>{ checkPendingOrders(); checkTPSL(); checkLiquidations(); });
     updateChallengeStatus();
-    renderChallengeBanner();
     recoveryTick();
+    // Seul l'affichage du reste de la page (positions, historique, marchés…)
+    // attend pendant un zoom / défilement du graphique (au plus ~1,5 s).
+    renderAfterPrice();
+  }, wait);
+}
+function renderAfterPrice(){
+  if (pageRenderTimer) return;
+  const go = ()=>{
+    if (typeof chartBusy==="function" && chartBusy() && priceRenderDefer < 6){ priceRenderDefer++; pageRenderTimer = setTimeout(go, 250); return; }
+    priceRenderDefer = 0; pageRenderTimer = null;
+    renderChallengeBanner();
     renderAll();
   };
-  priceRenderTimer = setTimeout(run, wait);
+  go();
 }
 function priceFeedFresh(a){
   const m = market[a.symbol];
@@ -14194,7 +14220,8 @@ function initChartInteractions(){
     if (chartZoomDrag && e.pointerId===chartZoomDrag.pid){
       const dx = e.clientX - chartZoomDrag.lx, dy = e.clientY - chartZoomDrag.ly;
       chartZoomDrag.lx = e.clientX; chartZoomDrag.ly = e.clientY;
-      if (dx || dy) chartZoom2D(Math.exp(-dx*0.006), Math.exp(dy*0.006), chartZoomDrag.ax, chartZoomDrag.ay);
+      const zs = 0.006*chartZoomSpeed();
+      if (dx || dy) chartZoom2D(Math.exp(-dx*zs), Math.exp(dy*zs), chartZoomDrag.ax, chartZoomDrag.ay);
       e.preventDefault();
       return;
     }
