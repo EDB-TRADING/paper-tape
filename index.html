@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3120">
+<meta name="pt-build" content="3140">
 <title>Paper Tape</title>
 <script>
 /* Un seul fichier pour deux sites :
@@ -55,7 +55,7 @@
 <meta name="twitter:description" content="Terminal de trading simulé de l'École de la Bourse (ISG Bordeaux) — positions live, classement, challenge prop firm.">
 <meta name="twitter:image" content="https://edb-trading.github.io/paper-tape/og-image.png">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
 
   /* ---------- theme palette ----------
      3 selectable themes (Ember / Sage / Ink), swapped by [data-theme] on
@@ -3488,88 +3488,124 @@
   .dd-actions[hidden], .dd-verdict[hidden], .dd-q[hidden]{display:none !important;}
   .dd-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;padding:30px 32px;border-radius:22px;border:1px solid var(--border-soft);
     background:radial-gradient(700px 300px at 0% 0%, color-mix(in srgb, var(--dd-a) 13%, transparent), transparent 70%), linear-gradient(180deg, var(--panel), var(--bg));}
-  /* ---------- Jeux · Quiz graphique ---------- */
-  .gq{--pw-gold:var(--dd-a);display:flex;flex-direction:column;gap:26px;max-width:1180px;margin:0 auto;width:100%;}
-  .gq-hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);align-items:center;gap:32px;padding:38px 40px;border-radius:24px;border:1px solid var(--border-soft);
-    background:radial-gradient(800px 340px at 100% 0%, color-mix(in srgb, var(--dd-a) 16%, transparent), transparent 65%), radial-gradient(500px 260px at 0% 100%, color-mix(in srgb, var(--long) 7%, transparent), transparent 70%), var(--panel);}
-  .gq-hero h1{margin:10px 0 12px;font-size:38px;line-height:1.08;letter-spacing:-.025em;}
-  .gq-hero h1 span{color:var(--dd-a);}
-  .gq-hero p{margin:0 0 22px;color:var(--text-dim);max-width:560px;line-height:1.6;font-size:15px;}
-  .gq-hero-cta .pw-btn{font-size:15px;padding:13px 22px;}
-  .gq-kpis{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;}
-  .gq-kpis div{flex:1;min-width:110px;padding:12px 14px;border-radius:14px;border:1px solid var(--border-soft);background:color-mix(in srgb, var(--bg) 70%, transparent);display:flex;flex-direction:column;gap:3px;}
-  .gq-kpis b{font-family:var(--mono);font-size:22px;} .gq-kpis b small{font-size:13px;color:var(--text-faint);font-weight:500;}
-  .gq-kpis span{font-size:12px;color:var(--text-faint);}
-  .gq-hero-art{display:flex;justify-content:center;}
-  .gq-art{width:100%;max-width:360px;height:auto;filter:drop-shadow(0 18px 40px rgba(0,0,0,.25));}
-  .gq-art .gq-a-box{fill:var(--bg);stroke:var(--border-soft);stroke-width:1.5;}
-  .gq-art .gq-a-on{fill:var(--bg);stroke:var(--long);stroke-width:2.5;}
-  .gq-art .a-up{fill:var(--long);} .gq-art .a-dn{fill:var(--short);}
-  .gq-art .gq-a-tag rect{fill:var(--long);} .gq-art .gq-a-tag text{fill:#0b1a12;font:800 13px var(--sans, system-ui);}
-  .gq-sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px;}
-  .gq-sec-h h2{margin:0;font-size:19px;letter-spacing:-.01em;} .gq-sec-h span{font-size:12.5px;color:var(--text-faint);font-family:var(--mono);}
-  .gq-themes{display:grid;grid-template-columns:repeat(auto-fill, minmax(205px,1fr));gap:12px;}
-  .gq-th{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;padding:18px;border-radius:18px;border:1px solid var(--border-soft);background:var(--panel);color:var(--text);font:inherit;cursor:pointer;overflow:hidden;transition:border-color .15s, transform .12s, background .15s;}
-  .gq-th:hover{border-color:color-mix(in srgb, var(--dd-a) 55%, var(--border-soft));transform:translateY(-2px);background:color-mix(in srgb, var(--dd-a) 4%, var(--panel));}
-  .gq-th-ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;margin-bottom:6px;color:var(--dd-a);background:color-mix(in srgb, var(--dd-a) 13%, transparent);}
-  .gq-th-ic svg{width:20px;height:20px;}
-  .gq-th b{font-size:16px;} .gq-th small{color:var(--text-dim);font-size:13px;line-height:1.45;min-height:38px;}
-  .gq-th em{font-style:normal;font-family:var(--mono);font-size:11.5px;color:var(--text-faint);margin-top:4px;}
-  .gq-th u{position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--border-soft);text-decoration:none;}
-  .gq-th u i{display:block;height:100%;background:var(--long);}
-  .gq-load{display:flex;flex-direction:column;align-items:center;gap:10px;padding:80px 20px;text-align:center;border-radius:20px;border:1px dashed var(--border-soft);}
-  .gq-load b{font-size:16px;} .gq-load span{color:var(--text-faint);font-size:13px;}
-  .gq-play{display:flex;flex-direction:column;gap:18px;}
-  .gq-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 12px;border-radius:14px;border:1px solid var(--border-soft);background:var(--panel);}
-  .gq-chip{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dd-a);padding:5px 10px;border-radius:999px;background:color-mix(in srgb, var(--dd-a) 12%, transparent);}
-  .gq-dots{flex:1;display:flex;gap:5px;justify-content:center;min-width:140px;}
-  .gq-dots i{flex:1;max-width:34px;height:6px;border-radius:99px;background:var(--border-soft);}
-  .gq-dots i.ok{background:var(--long);} .gq-dots i.ko{background:var(--short);} .gq-dots i.cur{background:var(--dd-a);box-shadow:0 0 0 3px color-mix(in srgb, var(--dd-a) 22%, transparent);}
-  .gq-score{font-family:var(--mono);font-size:13px;font-weight:700;padding:5px 10px;border-radius:9px;background:var(--bg);border:1px solid var(--border-soft);}
-  .gq-q{display:flex;flex-direction:column;gap:6px;}
-  .gq-num{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);}
-  .gq-q h2{margin:0;font-size:24px;letter-spacing:-.015em;line-height:1.25;}
-  .gq-q p{margin:0;color:var(--text-dim);font-size:14.5px;line-height:1.5;max-width:820px;}
-  .gq-grid{display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:14px;}
-  .gq-opt{position:relative;display:flex;flex-direction:column;padding:0;border-radius:18px;border:2px solid var(--border-soft);background:var(--bg);overflow:hidden;cursor:pointer;font:inherit;color:var(--text);transition:border-color .15s, transform .12s, box-shadow .15s, opacity .2s;}
-  .gq-opt:hover:not([disabled]){border-color:color-mix(in srgb, var(--dd-a) 60%, var(--border-soft));transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.18);}
-  .gq-opt canvas{display:block;width:100%;height:250px;}
-  .gq-l{position:absolute;top:9px;left:9px;z-index:1;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:14px;background:var(--panel-2);border:1px solid var(--border-soft);}
-  .gq-opt.ok{border-color:var(--long);box-shadow:0 0 0 4px color-mix(in srgb, var(--long) 16%, transparent);} .gq-opt.ok .gq-l{background:var(--long);color:#0b1a12;border-color:var(--long);}
-  .gq-opt.ko{border-color:var(--short);} .gq-opt.ko .gq-l{background:var(--short);color:#fff;border-color:var(--short);}
-  .gq-opt.dim{opacity:.5;}
-  .gq-opt[disabled]{cursor:default;}
-  .gq-meta{position:absolute;left:46px;top:15px;font-family:var(--mono);font-size:11px;color:var(--text-faint);}
-  .gq-why{display:flex;align-items:center;gap:18px;padding:18px 20px;border-radius:16px;border:1px solid var(--border-soft);background:var(--panel);}
-  .gq-why > div{flex:1;display:flex;flex-direction:column;gap:5px;}
-  .gq-why.ok{border-color:color-mix(in srgb, var(--long) 50%, var(--border-soft));background:color-mix(in srgb, var(--long) 6%, var(--panel));}
-  .gq-why.ko{border-color:color-mix(in srgb, var(--short) 45%, var(--border-soft));background:color-mix(in srgb, var(--short) 5%, var(--panel));}
-  .gq-why b{font-size:17px;} .gq-why span{color:var(--text-dim);font-size:14px;line-height:1.55;}
-  .gq-why .pw-btn{flex:none;}
-  .gq-res{display:flex;flex-direction:column;gap:18px;max-width:760px;margin:0 auto;width:100%;}
-  .gq-res-top{display:flex;align-items:center;gap:22px;padding:26px 28px;border-radius:22px;border:1px solid var(--border-soft);background:radial-gradient(600px 240px at 0% 0%, color-mix(in srgb, var(--dd-a) 14%, transparent), transparent 70%), var(--panel);}
-  .gq-res-top h2{margin:0;font-size:56px;font-family:var(--mono);line-height:1;} .gq-res-top h2 small{font-size:22px;color:var(--text-faint);}
-  .gq-res-top div{display:flex;flex-direction:column;gap:4px;} .gq-res-top b{font-size:19px;} .gq-res-top span{color:var(--text-dim);font-size:14px;}
-  .gq-recap{display:flex;flex-direction:column;border-radius:16px;border:1px solid var(--border-soft);overflow:hidden;}
-  .gq-recap div{display:flex;align-items:center;gap:12px;padding:11px 16px;font-size:14px;background:var(--panel);}
-  .gq-recap div + div{border-top:1px solid var(--border-soft);}
-  .gq-recap i{flex:none;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:12px;}
-  .gq-recap .ok i{background:color-mix(in srgb, var(--long) 22%, transparent);color:var(--long);} .gq-recap .ko i{background:color-mix(in srgb, var(--short) 20%, transparent);color:var(--short);}
-  .gq-recap .ko span{color:var(--text-dim);}
-  .ch-end-act{display:flex;gap:10px;flex-wrap:wrap;}
-  @media (max-width:900px){ .gq-hero{grid-template-columns:1fr;} .gq-hero-art{display:none;} }
+  /* ---------- Coup d'œil (quiz graphique) ---------- */
+  .gq{--gq-serif:'Instrument Serif', Georgia, 'Times New Roman', serif;max-width:1240px;margin:0 auto;width:100%;}
+  .gq kbd{font:600 10.5px var(--mono);padding:2px 6px;border-radius:5px;border:1px solid currentColor;opacity:.6;margin-left:6px;}
+  .gq-eyebrow{font:600 11px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dd-a);}
+  .gq-go{display:inline-flex;align-items:center;gap:4px;font:700 15px var(--sans);padding:13px 22px;border-radius:999px;border:0;cursor:pointer;color:#120d06;background:var(--dd-a);transition:transform .12s, filter .15s;}
+  .gq-go:hover{transform:translateY(-1px);filter:brightness(1.08);}
+  .gq-link{font:600 13px var(--sans);color:var(--text-dim);background:none;border:0;padding:6px 0;cursor:pointer;}
+  .gq-link:hover{color:var(--text);}
+  /* Sommaire */
+  .gq-hub{display:flex;flex-direction:column;gap:44px;padding-bottom:30px;}
+  .gq-mast{position:relative;overflow:hidden;border-bottom:1px solid var(--border-soft);}
+  .gq-mast-art{position:absolute;top:0;right:-10px;bottom:74px;left:34%;pointer-events:none;
+    -webkit-mask-image:linear-gradient(90deg, transparent 0%, #000 42%);mask-image:linear-gradient(90deg, transparent 0%, #000 42%);}
+  .gq-mast-art canvas{width:100%;height:100%;display:block;}
+  .gq-mast-art span{position:absolute;right:20px;bottom:6px;font:500 11px var(--mono);color:var(--text-faint);}
+  .gq-mast-in{position:relative;padding:54px 0 60px;max-width:560px;}
+  .gq-title{font-family:var(--gq-serif);font-weight:400;font-size:clamp(64px, 9vw, 116px);line-height:.92;letter-spacing:-.02em;margin:18px 0 22px;}
+  .gq-title span{color:var(--dd-a);}
+  .gq-lede{font-size:17px;line-height:1.55;color:var(--text-dim);margin:0 0 30px;max-width:470px;}
+  .gq-mast-act{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+  .gq-mast-act > span{font-size:12.5px;line-height:1.5;color:var(--text-faint);}
+  .gq-ledger{position:relative;display:grid;grid-template-columns:repeat(4, minmax(0,1fr));margin:0;border-top:1px solid var(--border-soft);}
+  .gq-ledger div{padding:14px 0 16px;display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding-right:22px;}
+  .gq-ledger div + div{padding-left:22px;border-left:1px solid var(--border-soft);}
+  .gq-ledger dt{font:600 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);}
+  .gq-ledger dd{margin:0;font:600 22px var(--mono);} .gq-ledger dd small{font-size:13px;color:var(--text-faint);font-weight:500;}
+  .gq-toc > header{display:flex;align-items:baseline;gap:20px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--text-faint);}
+  .gq-toc h2{margin:0;font-family:var(--gq-serif);font-weight:400;font-size:40px;letter-spacing:-.01em;}
+  .gq-toc > header span{font-size:13.5px;color:var(--text-faint);}
+  .gq-toc ol{list-style:none;margin:0;padding:0;}
+  .gq-toc li{border-bottom:1px solid var(--border-soft);}
+  .gq-row{width:100%;display:grid;grid-template-columns:64px minmax(0,1fr) 170px 40px;align-items:center;gap:18px;padding:22px 6px;background:none;border:0;color:var(--text);font:inherit;text-align:left;cursor:pointer;transition:background .15s, padding .2s;}
+  .gq-row:hover{background:linear-gradient(90deg, color-mix(in srgb, var(--dd-a) 8%, transparent), transparent 80%);padding-left:16px;}
+  .gq-row-n{font-family:var(--gq-serif);font-size:38px;line-height:1;color:var(--text-faint);transition:color .15s;}
+  .gq-row:hover .gq-row-n{color:var(--dd-a);}
+  .gq-row-t{display:flex;flex-direction:column;gap:6px;min-width:0;}
+  .gq-row-t b{font-size:20px;font-weight:650;letter-spacing:-.01em;}
+  .gq-row-t small{font-size:13px;color:var(--text-dim);line-height:1.5;}
+  .gq-row-t small i{font-style:normal;color:var(--text-faint);margin:0 7px;}
+  .gq-row-s{display:grid;grid-template-columns:auto 1fr;align-items:baseline;column-gap:8px;row-gap:6px;}
+  .gq-row-s b{font:600 18px var(--mono);} .gq-row-s em{font-style:normal;font-size:12px;color:var(--text-faint);}
+  .gq-row-s u{grid-column:1 / -1;height:2px;background:var(--border-soft);text-decoration:none;} .gq-row-s u i{display:block;height:100%;background:var(--long);}
+  .gq-row-go{font-size:20px;color:var(--text-faint);transition:transform .2s, color .15s;justify-self:end;}
+  .gq-row:hover .gq-row-go{color:var(--dd-a);transform:translateX(4px);}
+  /* En jeu */
+  .gq-play{display:grid;grid-template-columns:330px minmax(0,1fr);grid-template-rows:auto 1fr;grid-template-areas:"side grid" "why grid";column-gap:30px;row-gap:20px;align-items:start;padding-top:6px;}
+  .gq-side{grid-area:side;display:flex;flex-direction:column;gap:18px;}
+  .gq-side-top{display:flex;justify-content:space-between;align-items:center;font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);}
+  .gq-prog{display:flex;gap:4px;} .gq-prog i{flex:1;height:4px;border-radius:2px;background:var(--border-soft);}
+  .gq-prog i.ok{background:var(--long);} .gq-prog i.ko{background:var(--short);} .gq-prog i.cur{background:var(--dd-a);}
+  .gq-qhead{display:flex;flex-direction:column;gap:10px;}
+  .gq-chap{font:600 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dd-a);}
+  .gq-qt{margin:0;font-family:var(--gq-serif);font-weight:400;font-size:36px;line-height:1.08;letter-spacing:-.01em;}
+  .gq-qs{margin:0;font-size:14px;line-height:1.55;color:var(--text-dim);}
+  .gq-tally{display:flex;align-items:center;gap:18px;padding-top:14px;border-top:1px solid var(--border-soft);font-size:12.5px;color:var(--text-faint);}
+  .gq-tally b{font:700 15px var(--mono);color:var(--text);margin-left:4px;}
+  .gq-keys{margin-left:auto;} .gq-keys kbd{margin-left:3px;}
+  .gq-grid{grid-area:grid;display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:12px;}
+  .gq-opt{position:relative;display:block;padding:0;border-radius:14px;border:1px solid var(--border-soft);background:var(--bg);overflow:hidden;cursor:pointer;font:inherit;color:var(--text);transition:border-color .15s, box-shadow .15s, opacity .2s;}
+  .gq-opt:hover:not([disabled]){border-color:var(--dd-a);box-shadow:0 0 0 1px var(--dd-a);}
+  .gq-opt canvas{display:block;width:100%;height:clamp(190px, calc((100vh - 190px) / 2), 330px);}
+  .gq-l{position:absolute;top:10px;left:12px;z-index:1;font-family:var(--gq-serif);font-size:26px;line-height:1;color:var(--text-dim);}
+  .gq-opt:hover:not([disabled]) .gq-l{color:var(--dd-a);}
+  .gq-opt.ok{border-color:var(--long);box-shadow:0 0 0 2px var(--long);} .gq-opt.ok .gq-l{color:var(--long);}
+  .gq-opt.ko{border-color:var(--short);box-shadow:0 0 0 2px var(--short);} .gq-opt.ko .gq-l{color:var(--short);}
+  .gq-opt.dim{opacity:.45;} .gq-opt[disabled]{cursor:default;}
+  .gq-meta{position:absolute;left:36px;top:15px;font:500 11px var(--mono);color:var(--text-faint);}
+  .gq-why{grid-area:why;display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding-left:16px;border-left:3px solid var(--border-soft);}
+  .gq-why.ok{border-left-color:var(--long);} .gq-why.ko{border-left-color:var(--short);}
+  .gq-why b{font-family:var(--gq-serif);font-weight:400;font-size:28px;line-height:1.1;}
+  .gq-why.ok b{color:var(--long);} .gq-why.ko b{color:var(--short);}
+  .gq-why p{margin:0 0 6px;font-size:14px;line-height:1.6;color:var(--text-dim);}
+  .gq-wait{display:flex;flex-direction:column;align-items:center;gap:10px;padding:110px 20px;text-align:center;}
+  .gq-wait b{font-family:var(--gq-serif);font-weight:400;font-size:30px;} .gq-wait span{color:var(--text-faint);font-size:13.5px;}
+  /* Fin de partie */
+  .gq-end{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:56px;padding-top:30px;align-items:start;}
+  .gq-end-l{display:flex;flex-direction:column;gap:12px;}
+  .gq-end-score{font-family:var(--gq-serif);font-size:clamp(110px, 14vw, 170px);line-height:.85;letter-spacing:-.03em;margin-top:10px;}
+  .gq-end-score span{font-size:.36em;color:var(--text-faint);margin-left:6px;}
+  .gq-end-msg{margin:0;font-size:24px;font-weight:650;letter-spacing:-.01em;}
+  .gq-end-sub{margin:0;font-size:14px;color:var(--text-dim);}
+  .gq-end-by{margin:10px 0 0;border-top:1px solid var(--border-soft);}
+  .gq-end-by div{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border-soft);font-size:13.5px;}
+  .gq-end-by dt{color:var(--text-dim);} .gq-end-by dd{margin:0;font:600 13.5px var(--mono);}
+  .gq-end-act{display:flex;align-items:center;gap:22px;margin-top:16px;flex-wrap:wrap;}
+  .gq-end-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--text-faint);counter-reset:q;}
+  .gq-end-list li{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:12px;align-items:baseline;padding:13px 0;border-bottom:1px solid var(--border-soft);font-size:14.5px;}
+  .gq-end-list i{font-style:normal;font-weight:800;font-size:13px;} .gq-end-list .ok i{color:var(--long);} .gq-end-list .ko i{color:var(--short);}
+  .gq-end-list .ko span{color:var(--text-dim);}
+  .gq-end-list em{font-style:normal;font:500 11px var(--mono);color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;}
+  @media (max-width:1100px){
+    .gq-play{grid-template-columns:1fr;grid-template-areas:"side" "grid" "why";}
+    .gq-qt{font-size:30px;}
+    .gq-opt canvas{height:clamp(170px, 32vw, 280px);}
+  }
+  @media (max-width:820px){
+    .gq-mast-art{left:0;opacity:.22;-webkit-mask-image:linear-gradient(180deg, #000 30%, transparent 100%);mask-image:linear-gradient(180deg, #000 30%, transparent 100%);bottom:auto;height:62%;}
+    .gq-ledger{grid-template-columns:repeat(2, minmax(0,1fr));}
+    .gq-ledger div:nth-child(3){padding-left:0;border-left:0;} .gq-ledger div:nth-child(n+3){border-top:1px solid var(--border-soft);}
+    .gq-row{grid-template-columns:44px minmax(0,1fr) 28px;gap:12px;padding:18px 2px;}
+    .gq-row-n{font-size:30px;} .gq-row-t b{font-size:17px;}
+    .gq-row-s{grid-column:2;grid-row:2;display:flex;gap:8px;} .gq-row-s u{display:none;} .gq-row-s b{font-size:14px;}
+    .gq-row-go{grid-column:3;grid-row:1;}
+    .gq-end{grid-template-columns:1fr;gap:30px;padding-top:10px;}
+  }
   @media (max-width:720px){
-    .gq{gap:18px;}
-    .gq-hero{padding:22px;} .gq-hero h1{font-size:27px;}
-    .gq-grid{gap:8px;} .gq-opt canvas{height:165px;} .gq-opt{border-radius:14px;}
-    .gq-q h2{font-size:19px;}
-    .gq-why{flex-direction:column;align-items:stretch;} 
-    .gq-dots{order:3;flex-basis:100%;}
+    .gq-hub{gap:30px;}
+    .gq-mast-in{padding:34px 0 36px;}
+    .gq-lede{font-size:15.5px;}
+    .gq-mast-act > span{display:none;}
+    .gq-ledger dd{font-size:18px;}
+    .gq-toc h2{font-size:32px;}
+    .gq-grid{gap:8px;} .gq-opt{border-radius:12px;} .gq-opt canvas{height:170px;}
+    .gq-qt{font-size:26px;}
+    .gq-keys{display:none;}
     .gq-meta{display:none;}
-    .gq-res-top{padding:20px;} .gq-res-top h2{font-size:42px;}
-    .gq-kpis{gap:6px;} .gq-kpis div{min-width:0;padding:10px;} .gq-kpis b{font-size:18px;} .gq-kpis span{font-size:11px;}
-    .gq-sec-h{flex-direction:column;gap:2px;}
-    .gq-themes{grid-template-columns:1fr 1fr;gap:8px;} .gq-th{padding:14px;} .gq-th small{display:none;} .gq-th b{font-size:14.5px;} .gq-th-ic{width:32px;height:32px;margin-bottom:2px;}
+    .gq-why{padding-bottom:10px;}
+    .gq kbd{display:none;}
   }
   .dd-kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dd-a);}
   .dd-head h1{font-size:40px;letter-spacing:-.035em;line-height:1.05;margin:10px 0 10px;}
@@ -5341,6 +5377,7 @@
     <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></symbol>
     <symbol id="i-pie" viewBox="0 0 24 24"><path d="M21 12c.55 0 1-.45.95-1A10 10 0 0 0 13 2.05c-.55-.05-1 .4-1 .95v8a1 1 0 0 0 1 1z"/><path d="M21.2 15.9A10 10 0 1 1 8 2.8"/></symbol>
     <symbol id="i-replay" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 4v5h5"/><path d="m10.5 9 4.5 3-4.5 3z"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><path d="M12 9.2v5.6"/><rect x="10.6" y="10.3" width="2.8" height="3.2" rx=".6"/></symbol>
     <symbol id="i-game" viewBox="0 0 24 24"><path d="M7 8h10a4 4 0 0 1 4 4v1.5a3.5 3.5 0 0 1-6.3 2.1L13.5 14h-3l-1.2 1.6A3.5 3.5 0 0 1 3 13.5V12a4 4 0 0 1 4-4z"/><path d="M7.5 10.5v3M6 12h3"/><circle cx="16" cy="11.2" r=".6" fill="currentColor"/><circle cx="17.6" cy="12.8" r=".6" fill="currentColor"/></symbol>
     <symbol id="i-daily" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M3 9.5h18"/><path d="M8 2.5v4M16 2.5v4"/><path d="m7.5 17 3-3 2 2 4-4"/></symbol>
     <symbol id="i-trend" viewBox="0 0 24 24"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
@@ -5434,7 +5471,7 @@
       <button data-view="challenge"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg><span class="sb-label">Challenge</span><span class="sb-short">Challenge</span></button>
       <button data-view="replay"><svg class="ic" aria-hidden="true"><use href="#i-replay"/></svg><span class="sb-label">Replay</span><span class="sb-short">Replay</span></button>
       <button data-view="daily"><svg class="ic" aria-hidden="true"><use href="#i-daily"/></svg><span class="sb-label">Défi du jour</span><span class="sb-short">Défi</span></button>
-      <button data-view="games" id="nav-games-btn" hidden><svg class="ic" aria-hidden="true"><use href="#i-game"/></svg><span class="sb-label">Jeux</span><span class="sb-short">Jeux</span></button>
+      <button data-view="games" id="nav-games-btn"><svg class="ic" aria-hidden="true"><use href="#i-eye"/></svg><span class="sb-label">Coup d'œil</span><span class="sb-short">Œil</span></button>
       <button data-view="concoursedbplus"><svg class="ic" aria-hidden="true"><use href="#i-gem"/></svg><span class="sb-label">Concours EDB+</span><span class="sb-short">Concours</span></button>
       <div class="sb-section">Communauté</div>
       <button data-view="leaderboard"><svg class="ic" aria-hidden="true"><use href="#i-trophy"/></svg><span class="sb-label">Classement</span><span class="sb-short">Classement</span></button>
@@ -6147,6 +6184,7 @@
           <button type="button" class="on-mode active" data-adm-tab="traders">👥 Traders</button>
           <button type="button" class="on-mode" data-adm-tab="requests">💬 Demandes EDB+ <i id="adm-t-req"></i></button>
           <button type="button" class="on-mode" data-adm-tab="publish">📈 Publier</button>
+          <button type="button" class="on-mode" data-adm-tab="glance">👁 Coup d'œil</button>
           <button type="button" class="on-mode" data-adm-tab="feedback">🐞 Retours <i id="adm-t-fb"></i></button>
         </div>
         <div class="adm-pane" data-adm-pane="traders">
@@ -6316,6 +6354,23 @@
       </div>
           </div>
         </div>
+        <div class="adm-pane" data-adm-pane="glance" hidden>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+          <h3 style="margin:0;">Coup d'œil — joueurs et scores</h3>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="pos-close" id="admin-glance-refresh">🔄 Actualiser</button><button class="pos-close" id="admin-glance-reset" style="color:var(--short);">Tout réinitialiser</button></div>
+        </div>
+        <div class="chart-note" style="margin-bottom:10px;">Une ligne par trader qui a répondu à au moins une question (la partie est comptée à la fin, ou dès qu'il quitte). « Réinitialiser » efface ses stats : record, parties, justesse, série. « Tout réinitialiser » efface celles de tout le monde.</div>
+        <div id="admin-glance-status" class="chart-note"></div>
+        <div id="admin-glance-hard" class="chart-note" style="margin:6px 0 12px;"></div>
+        <div style="overflow-x:auto;">
+          <table class="lb-table">
+            <thead><tr><th>Trader</th><th class="num">Parties</th><th class="num">Record</th><th class="num">Justesse</th><th class="num">Série</th><th>Par chapitre</th><th>Dernière partie</th><th></th></tr></thead>
+            <tbody id="admin-glance-body"><tr><td colspan="8" class="empty-note">Chargement…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+        </div>
         <div class="adm-pane" data-adm-pane="feedback" hidden>
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
@@ -6435,7 +6490,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3120 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3140 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -26087,25 +26142,133 @@ function dailyDraw(cv, rd, opt){
 }
 window.addEventListener("resize", ()=>dailyRedraw());
 /* ===================== JEUX · Quiz graphique (admins, en test) =====================
-   Une question, quatre vrais graphiques (A, B, C, D) : choisis celui qui
-   correspond. La bonne réponse est calculée sur le graphique lui-même
-   (jamais sur la suite) et les leurres sont choisis NETTEMENT à l'opposé :
-   chaque type de question a un critère strict pour le bon graphique et un
-   critère strict, contraire, pour les trois autres (sinon la question
-   n'est pas posée). 5 thèmes, partie mixte ou par thème, 10 questions.
-   Graphiques : mêmes sources que le Défi du jour (Binance, 15 min / 1 h /
-   4 h, 2021 → aujourd'hui), 120 bougies. Stats gardées sur l'appareil. */
+   « Coup d'œil » : une question, quatre vrais graphiques (A, B, C, D), on
+   choisit celui qui correspond. La bonne réponse est calculée sur le
+   graphique lui-même (jamais sur la suite) et les leurres sont choisis
+   NETTEMENT à l'opposé : critère strict pour le bon graphique, critère
+   strict contraire pour les trois autres (sinon la question n'est pas
+   posée). Questions « relatives » (volatilité) : le bon graphique doit
+   dépasser les autres d'un facteur net, et les quatre sont dessinés à la
+   même échelle en %. 5 chapitres, partie mixte ou par chapitre, 10
+   questions. Graphiques : mêmes sources que le Défi du jour (Binance,
+   15 min / 1 h / 4 h, 2021 → aujourd'hui), 120 bougies. Stats sur l'appareil. */
 const GQ_N = 10, GQ_SHOW = 120, GQ_KEY = "paperTapeChartQuiz";
 const GQ = {view:"hub", theme:"mix", charts:[], used:new Set(), loading:null, s:null};
 const GQ_THEMES = [
-  {k:"structure", t:"Structure", d:"Tendance haussière, baissière ou range : lire les sommets et les creux.", ic:'<path d="M3 17l5-6 4 3 4-6 5 4"/><path d="M3 21h18"/>'},
-  {k:"tendance", t:"Tendance & moyennes", d:"EMA 50 / 200, croisements, prix face au VWAP.", ic:'<path d="M3 16c4-1 6-8 10-8s5 4 8 3"/><path d="M3 20c5 0 7-5 11-5s5 2 7 2"/>'},
-  {k:"momentum", t:"Momentum", d:"RSI en surachat / survente, divergences, MACD.", ic:'<path d="M3 12h3l3-7 4 14 3-7h5"/>'},
-  {k:"volume", t:"Volume & volatilité", d:"Explosion de volume, bandes de Bollinger qui se resserrent, value area.", ic:'<path d="M5 20V12M10 20V6M15 20v-9M20 20V9"/>'},
-  {k:"liquidite", t:"Liquidité & figures", d:"Prises de liquidité, sommets égaux, double sommet / creux.", ic:'<path d="M4 8h16M4 8l3 10h10l3-10"/><path d="M9 4l3 4 3-4"/>'},
+  {k:"structure", t:"Structure", d:"Lire les sommets et les creux : tendance, range, accumulation / manipulation / distribution."},
+  {k:"tendance", t:"Moyennes & VWAP", d:"EMA 50 / 200, croisements, prix face au VWAP."},
+  {k:"momentum", t:"Momentum", d:"RSI en surachat / survente, divergences, MACD."},
+  {k:"volume", t:"Volume & volatilité", d:"Pics de volume, squeeze, value area, graphiques nerveux ou endormis."},
+  {k:"liquidite", t:"Liquidité & figures", d:"Prises de liquidité, clusters liquidés, sommets égaux, doubles sommets."},
 ];
-function gqStats(){ let v = null; try{ v = JSON.parse(localStorage.getItem(GQ_KEY)||"null"); }catch(e){} return Object.assign({best:0, plays:0, th:{}}, v||{}); }
-function gqSaveStats(v){ try{ localStorage.setItem(GQ_KEY, JSON.stringify(v)); }catch(e){} }
+const gqMaxH = (c,k0,k1)=>{ let m = -Infinity; for (let j=k0;j<=k1;j++) m = Math.max(m, c[j][2]); return m; };
+const gqMinL = (c,k0,k1)=>{ let m = Infinity; for (let j=k0;j<=k1;j++) m = Math.min(m, c[j][3]); return m; };
+// AMD (accumulation → manipulation → distribution). sc = sévérité (1 strict,
+// 0.5 souple). Renvoie aussi les cassures « franches » (range puis sortie
+// directe, sans fausse sortie) comme leurres de choix.
+function gqAmd(f, c, sc){
+  const {a, ci, atr} = f, cl = k=>c[k][4], lz = sc<1; // lz : détection très large (pour écarter les leurres ambigus)
+  let go = null;
+  for (let e=ci-10; e>=a+19; e--) for (const L of [20, 28, 36, 46]){
+    const s0 = e-L+1; if (s0 < a) continue;
+    const rh = gqMaxH(c,s0,e), rl = gqMinL(c,s0,e), W = rh-rl;
+    if (W < (lz ? 0.8 : 1.2)*atr || W > (lz ? 7 : 4.5)*atr || W > (lz ? 0.6 : 0.4)*f.span) continue;
+    if (Math.abs(cl(e)-cl(s0)) > (lz ? 0.8 : 0.5)*W) continue;
+    let th = 0, tb = 0; for (let k=s0;k<=e;k++){ if (c[k][2] >= rh-0.15*W) th++; if (c[k][3] <= rl+0.15*W) tb++; }
+    if (th<(lz ? 1 : 2) || tb<(lz ? 1 : 2)) continue;
+    if (!lz){ let big = false; for (let k=s0;k<=e;k++) if (c[k][2]-c[k][3] > 0.7*W){ big = true; break; } if (big) continue; }
+    let x = -1; for (let k=e+1;k<=Math.min(ci, e+10);k++) if (c[k][2] > rh || c[k][3] < rl){ x = k; break; }
+    if (x<0 || (c[x][2] > rh && c[x][3] < rl)) continue;
+    const dn = c[x][3] < rl; // fausse sortie par le bas → distribution haussière
+    let back = -1; for (let k=x;k<=Math.min(ci, x+(lz ? 14 : 6));k++) if (dn ? cl(k) > rl : cl(k) < rh){ back = k; break; }
+    if (back<0){
+      // Pas de retour : cassure directe. Leurre idéal si elle part loin.
+      const far = dn ? gqMinL(c,x,ci) <= rl-W : gqMaxH(c,x,ci) >= rh+W;
+      if (far && !go) go = {s:s0, e, rh, rl};
+      continue;
+    }
+    let mk = x; for (let k=x;k<=back;k++) if (dn ? c[k][3] < c[mk][3] : c[k][2] > c[mk][2]) mk = k;
+    const mp = dn ? c[mk][3] : c[mk][2], depth = dn ? rl-mp : mp-rh;
+    if (depth < (lz ? 0.03 : 0.15)*W || depth > (lz ? 2.5 : 1.3)*W) continue;
+    if (back>=ci) continue;
+    if (!lz && (dn ? gqMinL(c,back+1,ci) < mp : gqMaxH(c,back+1,ci) > mp)) continue; // extrême de manipulation repris
+    // Distribution mesurée sur les CLÔTURES (pas une simple mèche), qui dure.
+    let dk = back+1; for (let k=back+1;k<=ci;k++) if (dn ? cl(k) > cl(dk) : cl(k) < cl(dk)) dk = k;
+    const dp = cl(dk), ext = dn ? dp-rh : rl-dp, hold = dn ? cl(ci)-rh : rl-cl(ci);
+    if (ext < (lz ? 0.5*W : Math.max(W, 2*atr))) continue;
+    if (!lz && (dk-back < 4 || hold < 0.5*W)) continue;
+    return {amd:{s:s0, e, rh, rl, W, mk, mp, dk, dp, up:dn}, go};
+  }
+  return {amd:null, go};
+}
+// Cluster de liquidité (≥ 3 sommets / creux intacts empilés) percé sur un
+// pic de volume, puis fade (le prix repart nettement dans l'autre sens).
+function gqCluster(f, c, sc){
+  const {a, ci, atr} = f;
+  const v = []; for (let k=a;k<=ci;k++) v.push(c[k][5]); v.sort((x,y)=>x-y); const med = v[Math.floor(v.length/2)] || 0;
+  let go = null;
+  for (let j=ci-3; j>=a+25; j--) for (const hi of [true, false]){
+    const P = (hi ? f.H : f.L).filter(p=>p.k<=j-3 && p.k>=Math.max(a, j-80) && (hi ? gqMaxH(c,p.k+1,j-1) <= p.p : gqMinL(c,p.k+1,j-1) >= p.p));
+    const swept = P.filter(p=>hi ? c[j][2] > p.p : c[j][3] < p.p).sort((x,y)=>hi ? y.p-x.p : x.p-y.p);
+    if (!swept.length) continue;
+    const g = swept.filter(p=>Math.abs(p.p-swept[0].p) <= (sc>=1 ? 0.8 : 1.5)*atr);
+    if (g.length < (sc>=1 ? 3 : 1)) continue;
+    const top = swept[0].p, bot = hi ? Math.min(...g.map(p=>p.p)) : Math.max(...g.map(p=>p.p));
+    const vx = Math.max(c[j-1][5], c[j][5], c[Math.min(ci,j+1)][5]) / (med||1);
+    const after = hi ? gqMaxH(c,j+1,ci) : gqMinL(c,j+1,ci), spike = hi ? c[j][2] : c[j][3];
+    // Fade mesuré sur les CLÔTURES, et toujours en place à la fin du graphique.
+    let fk = j+1; for (let k=j+1;k<=ci;k++) if (hi ? c[k][4] < c[fk][4] : c[k][4] > c[fk][4]) fk = k;
+    const fade = c[fk][4], last = c[ci][4];
+    const fd = sc>=1 ? 2*atr : 0.8*atr, faded = (hi ? after <= spike : after >= spike) && (hi ? fade <= bot-fd : fade >= bot+fd) && (sc<1 || (fk-j >= 3 && (hi ? last <= bot-atr : last >= bot+atr)));
+    if (faded && vx >= (sc>=1 ? 2 : 0)){
+      return {clu:{j, hi, g, top, bot, vx, fk, fp:fade, k0:Math.min(...g.map(p=>p.k))}, go};
+    }
+    // Cluster percé puis continuation : leurre idéal.
+    if (!go && g.length>=2 && (hi ? after >= spike+2*atr && gqMinL(c,j+1,ci) > bot : after <= spike-2*atr && gqMaxH(c,j+1,ci) < bot)) go = {j, hi};
+  }
+  return {clu:null, go};
+}
+// ---------- Stats : glance/{uid} dans Firestore = source de vérité ----------
+// (copie locale en cache). Une écriture par partie (à la fin, ou quand on
+// quitte en cours de route) ; l'admin peut lire et effacer (remise à zéro).
+function gqStatsEmpty(){ return {best:0, plays:0, ok:0, n:0, streak:0, th:{}, q:{}, games:[]}; }
+function gqStatsLocal(){ let v = null; try{ v = JSON.parse(localStorage.getItem(GQ_KEY)||"null"); }catch(e){} return Object.assign(gqStatsEmpty(), v||{}); }
+function gqStats(){ return GQ.remote && GQ.remoteUid===clientId ? GQ.remote : gqStatsLocal(); }
+function gqCanSync(){ return typeof dbReady!=="undefined" && dbReady && typeof db!=="undefined" && db && clientId; }
+async function gqLoadRemote(force){
+  if (!gqCanSync() || (!force && (GQ.remoteUid===clientId || GQ.remoteTried===clientId))) return GQ.remote;
+  GQ.remoteTried = clientId;
+  try{
+    const s = await db.collection("glance").doc(clientId).get();
+    GQ.remote = s.exists ? Object.assign(gqStatsEmpty(), s.data()) : gqStatsEmpty(); GQ.remoteUid = clientId;
+    try{ localStorage.setItem(GQ_KEY, JSON.stringify(GQ.remote)); }catch(e){}
+  }catch(e){ console.warn("glance load", e); }
+  return GQ.remote;
+}
+// Envoie ce qui n'a pas encore été compté de la partie en cours.
+async function gqFlush(finished){
+  const S = GQ.s; if (!S || !S.done.length) return;
+  const P = S.pend; if (!P.n && S.counted && !finished) return;
+  S.pend = {ok:0, n:0, th:{}, q:{}};
+  // Relit le document juste avant d'écrire : une remise à zéro par l'admin entre-temps est respectée.
+  let base = gqCanSync() ? await gqLoadRemote(true) : null;
+  base = Object.assign(gqStatsEmpty(), JSON.parse(JSON.stringify(base || gqStatsLocal())));
+  base.ok += P.ok; base.n += P.n;
+  const add = (o, k, x)=>{ o[k] = o[k] || {ok:0, n:0}; o[k].ok += x.ok; o[k].n += x.n; };
+  Object.keys(P.th).forEach(k=>add(base.th, k, P.th[k])); Object.keys(P.q).forEach(k=>add(base.q, k, P.q[k]));
+  if (!S.counted){ base.plays++; S.counted = true; }
+  if (S.bestStreak > (base.streak||0)){ base.streak = S.bestStreak; S.recStreak = true; }
+  if (finished && S.score > base.best){ base.best = S.score; S.record = true; }
+  const g = {id:S.id, s:S.score, a:S.done.length, t:S.theme, at:Date.now()};
+  base.games = (base.games||[]).filter(x=>x.id!==S.id).concat([g]).slice(-20);
+  base.last = g.at;
+  try{ localStorage.setItem(GQ_KEY, JSON.stringify(base)); }catch(e){}
+  if (gqCanSync()){
+    GQ.remote = base; GQ.remoteUid = clientId;
+    try{ await db.collection("glance").doc(clientId).set(Object.assign({}, base, {uid:clientId, username:String(state.username||""), updatedAt:firebase.firestore.FieldValue.serverTimestamp()})); }
+    catch(e){ console.warn("glance save", e); }
+  }
+}
 
 // ---------- Caractéristiques d'un graphique (fenêtre visible) ----------
 function gqFeatures(rd){
@@ -26178,6 +26341,11 @@ function gqFeatures(rd){
   const near = (arr)=>{ for (let i=0;i<arr.length;i++) for (let j=i+1;j<arr.length;j++) if (arr[j].k-arr[i].k>=6 && Math.abs(arr[j].p-arr[i].p) < 0.6*atr) return true; return false; };
   f.nearH = near(f.H); f.nearL = near(f.L);
   try{ f.pat = dailyPA("pattern", c, ci, a); }catch(e){ f.pat = null; }
+  // Volatilité : taille médiane d'une bougie, en % du prix.
+  { const r = []; for (let k=a;k<=ci;k++) r.push((c[k][2]-c[k][3])/c[k][4]); r.sort((x,y)=>x-y); f.volPct = r[Math.floor(r.length/2)] || 0; f.spanPct = Math.log(hi/lo); }
+  { let m = 0; for (let k=a;k<=ci;k++){ const [, o, h, l, x] = c[k]; m = Math.max(m, h-Math.max(o,x), Math.min(o,x)-l); } f.maxWick = m/atr; }
+  { const A1 = gqAmd(f, c, 1), A2 = gqAmd(f, c, 0.5); f.amd = A1.amd; f.amdLoose = A2.amd; f.rgo = A1.go; }
+  { const C1 = gqCluster(f, c, 1), C2 = gqCluster(f, c, 0.5); f.clu = C1.clu; f.cluLoose = C2.clu; f.cluGo = C1.go; }
   return f;
 }
 function gqAnnStruct(f){ const an = {lab:f.T.lab.filter(l=>l.k>=f.a), lev:[], marks:[], zones:[]}; if (f.T.inv) an.lev.push({p:f.T.inv.p, t:"Invalidation", col:f.T.trend==="up" ? "dn" : "up"}); if (f.T.bos && f.T.bos.k>=f.a) an.marks.push({k:f.T.bos.k, p:f.T.bos.p, t:"BOS", col:f.T.trend==="up" ? "up" : "dn"}); return an; }
@@ -26186,67 +26354,80 @@ function gqAnnDiv(d, col){ return {lab:[], lev:[], zones:[], marks:[{k:d.p1.k, p
 const pct = v=>dxNum(v, 0);
 const GQ_QS = [
   // Structure
-  {th:"structure", k:"up", q:"Sur quel graphique la structure est-elle haussière ?", sub:"Sommets et creux de plus en plus hauts.",
+  {th:"structure", k:"up", nm:"haussière", q:"Sur quel graphique la structure est-elle haussière ?", sub:"Sommets et creux de plus en plus hauts.",
     pos:f=>f.T.trend==="up" && f.T.streak>=2 && f.r2>=0.45 && f.net>0.3, neg:f=>f.T.trend==="down" && f.net<-0.3 && f.r2>=0.35, why:f=>dxSwingLine(f.T, "Ici"), an:gqAnnStruct},
-  {th:"structure", k:"down", q:"Sur quel graphique la structure est-elle baissière ?", sub:"Sommets et creux de plus en plus bas.",
+  {th:"structure", k:"down", nm:"baissière", q:"Sur quel graphique la structure est-elle baissière ?", sub:"Sommets et creux de plus en plus bas.",
     pos:f=>f.T.trend==="down" && f.T.streak>=2 && f.r2>=0.45 && f.net<-0.3, neg:f=>f.T.trend==="up" && f.net>0.3 && f.r2>=0.35, why:f=>dxSwingLine(f.T, "Ici"), an:gqAnnStruct},
-  {th:"structure", k:"range", q:"Lequel est en range ?", sub:"Le prix fait des allers-retours entre deux bornes, sans tendance.",
+  {th:"structure", k:"range", nm:"range", q:"Lequel est en range ?", sub:"Le prix fait des allers-retours entre deux bornes, sans tendance.",
     pos:f=>!f.T.trend && f.r2<=0.2 && Math.abs(f.net)<0.25 && f.topTouch>=2 && f.botTouch>=2,
     neg:f=>!!f.T.trend && f.T.streak>=2 && f.r2>=0.65 && Math.abs(f.net)>=0.6,
     why:f=>"Le prix touche plusieurs fois le haut ("+dxP(f.hi)+") et le bas ("+dxP(f.lo)+") de la zone, et finit à peu près où il a commencé : pas de tendance. Les trois autres graphiques sont en tendance nette.", an:gqAnnRange},
+  // Structure · AMD
+  {th:"structure", k:"amd", nm:"AMD", q:"Lequel fait un AMD ?", sub:"Accumulation (range), Manipulation (fausse sortie d'un côté), Distribution (le vrai départ de l'autre côté).",
+    pos:f=>!!f.amd, neg:f=>!f.amdLoose && (!!f.rgo || (f.r2>=0.6 && Math.abs(f.net)>=0.5)), pref:f=>!!f.rgo,
+    why:f=>{ const A = f.amd; return "Range de "+(A.e-A.s+1)+" bougies entre "+dxP(A.rl)+" et "+dxP(A.rh)+" (A), fausse sortie par le "+(A.up ? "bas" : "haut")+" jusqu'à "+dxP(A.mp)+" qui piège les "+(A.up ? "vendeurs" : "acheteurs")+" (M), puis départ "+(A.up ? "haussier" : "baissier")+" jusqu'à "+dxP(A.dp)+" (D), "+dxNum(Math.abs(A.dp-(A.up ? A.rh : A.rl))/A.W, 1)+" fois la hauteur du range. Les autres n'ont pas de fausse sortie avant le mouvement."; },
+    an:f=>{ const A = f.amd; return {lab:[], lev:[], zones:[], box:[{k1:A.s, k2:A.e, top:A.rh, bot:A.rl, t:"A", col:"gold"}], pts:[{k:A.mk, p:A.mp, t:"M", col:A.up ? "dn" : "up", above:!A.up}, {k:A.dk, p:A.dp, t:"D", col:A.up ? "up" : "dn", above:A.up}]}; }},
   // Tendance & moyennes
-  {th:"tendance", k:"emaup", ov:{ema:true}, q:"Sur lequel la tendance de fond est-elle haussière d'après les moyennes mobiles ?", sub:"Prix au-dessus de l'EMA 200 (violet) et EMA 50 (bleu) au-dessus de l'EMA 200, depuis au moins 30 bougies.",
+  {th:"tendance", k:"emaup", nm:"EMA haussières", ov:{ema:true}, q:"Sur lequel la tendance de fond est-elle haussière d'après les moyennes mobiles ?", sub:"Prix au-dessus de l'EMA 200 (violet) et EMA 50 (bleu) au-dessus de l'EMA 200, depuis au moins 30 bougies.",
     pos:f=>f.emaUp, neg:f=>f.emaDn, why:()=>"Depuis plus de 30 bougies, le prix et l'EMA 50 sont au-dessus de l'EMA 200, et l'EMA 50 monte : tendance de fond haussière. Les autres sont tous sous l'EMA 200."},
-  {th:"tendance", k:"emadn", ov:{ema:true}, q:"Sur lequel la tendance de fond est-elle baissière d'après les moyennes mobiles ?", sub:"Prix sous l'EMA 200 (violet) et EMA 50 (bleu) sous l'EMA 200, depuis au moins 30 bougies.",
+  {th:"tendance", k:"emadn", nm:"EMA baissières", ov:{ema:true}, q:"Sur lequel la tendance de fond est-elle baissière d'après les moyennes mobiles ?", sub:"Prix sous l'EMA 200 (violet) et EMA 50 (bleu) sous l'EMA 200, depuis au moins 30 bougies.",
     pos:f=>f.emaDn, neg:f=>f.emaUp, why:()=>"Depuis plus de 30 bougies, le prix et l'EMA 50 sont sous l'EMA 200, et l'EMA 50 baisse : tendance de fond baissière. Les autres sont tous au-dessus de l'EMA 200."},
-  {th:"tendance", k:"x200up", ov:{ema200:true}, q:"Sur lequel le prix vient-il de repasser au-dessus de l'EMA 200 ?", sub:"Sous l'EMA 200 pendant longtemps, au-dessus sur les dernières bougies.",
+  {th:"tendance", k:"x200up", nm:"reprise de l'EMA 200", ov:{ema200:true}, q:"Sur lequel le prix vient-il de repasser au-dessus de l'EMA 200 ?", sub:"Sous l'EMA 200 pendant longtemps, au-dessus sur les dernières bougies.",
     pos:f=>f.x200up, neg:f=>f.no200x, why:()=>"Le prix était sous l'EMA 200 depuis plus de 40 bougies et clôture maintenant au-dessus : premier signe de changement de tendance de fond. Sur les autres, le prix reste du même côté de l'EMA 200.", an:f=>({lab:[], lev:[], zones:[], marks:[{k:f.ci, p:f.e200[f.ci], t:"Cassure", col:"up"}]})},
-  {th:"tendance", k:"x200dn", ov:{ema200:true}, q:"Sur lequel le prix vient-il de repasser sous l'EMA 200 ?", sub:"Au-dessus de l'EMA 200 pendant longtemps, dessous sur les dernières bougies.",
+  {th:"tendance", k:"x200dn", nm:"perte de l'EMA 200", ov:{ema200:true}, q:"Sur lequel le prix vient-il de repasser sous l'EMA 200 ?", sub:"Au-dessus de l'EMA 200 pendant longtemps, dessous sur les dernières bougies.",
     pos:f=>f.x200dn, neg:f=>f.no200x, why:()=>"Le prix était au-dessus de l'EMA 200 depuis plus de 40 bougies et clôture maintenant dessous. Sur les autres, le prix reste du même côté de l'EMA 200.", an:f=>({lab:[], lev:[], zones:[], marks:[{k:f.ci, p:f.e200[f.ci], t:"Cassure", col:"dn"}]})},
-  {th:"tendance", k:"vwup", ov:{vwap:true}, q:"Sur lequel le prix est-il au-dessus du VWAP ?", sub:"VWAP ancré au début du graphique (prix moyen pondéré par le volume, en orange).",
+  {th:"tendance", k:"vwup", nm:"au-dessus du VWAP", ov:{vwap:true}, q:"Sur lequel le prix est-il au-dessus du VWAP ?", sub:"VWAP ancré au début du graphique (prix moyen pondéré par le volume, en orange).",
     pos:f=>f.vwUp, neg:f=>f.vwDn, why:f=>"Le prix clôture "+dxNum((f.rd.c[f.ci][4]-f.vwap[f.ci])/f.atr, 1)+" ATR au-dessus du VWAP et y est depuis au moins 15 bougies : les acheteurs de la période sont en gain."},
-  {th:"tendance", k:"vwdn", ov:{vwap:true}, q:"Sur lequel le prix est-il sous le VWAP ?", sub:"VWAP ancré au début du graphique (prix moyen pondéré par le volume, en orange).",
+  {th:"tendance", k:"vwdn", nm:"sous le VWAP", ov:{vwap:true}, q:"Sur lequel le prix est-il sous le VWAP ?", sub:"VWAP ancré au début du graphique (prix moyen pondéré par le volume, en orange).",
     pos:f=>f.vwDn, neg:f=>f.vwUp, why:f=>"Le prix clôture "+dxNum((f.vwap[f.ci]-f.rd.c[f.ci][4])/f.atr, 1)+" ATR sous le VWAP et y est depuis au moins 15 bougies : les acheteurs de la période sont en perte."},
   // Momentum
-  {th:"momentum", k:"rsiob", ov:{rsi:true}, q:"Sur lequel le RSI est-il en surachat ?", sub:"RSI 14 au-dessus de 70 sur la dernière bougie.",
+  {th:"momentum", k:"rsiob", nm:"surachat", ov:{rsi:true}, q:"Sur lequel le RSI est-il en surachat ?", sub:"RSI 14 au-dessus de 70 sur la dernière bougie.",
     pos:f=>f.rsi>=72, neg:f=>f.rsi!=null && f.rsi<55, why:f=>"RSI à "+pct(f.rsi)+" sur la dernière bougie : au-dessus de 70, zone de surachat. Les autres sont sous 55."},
-  {th:"momentum", k:"rsios", ov:{rsi:true}, q:"Sur lequel le RSI est-il en survente ?", sub:"RSI 14 sous 30 sur la dernière bougie.",
+  {th:"momentum", k:"rsios", nm:"survente", ov:{rsi:true}, q:"Sur lequel le RSI est-il en survente ?", sub:"RSI 14 sous 30 sur la dernière bougie.",
     pos:f=>f.rsi!=null && f.rsi<=28, neg:f=>f.rsi!=null && f.rsi>45, why:f=>"RSI à "+pct(f.rsi)+" sur la dernière bougie : sous 30, zone de survente. Les autres sont au-dessus de 45."},
-  {th:"momentum", k:"divbear", ov:{rsi:true}, q:"Sur lequel vois-tu une divergence baissière sur le RSI ?", sub:"Le prix fait un sommet plus haut, mais le RSI fait un sommet plus bas.",
+  {th:"momentum", k:"divbear", nm:"divergence baissière", ov:{rsi:true}, q:"Sur lequel vois-tu une divergence baissière sur le RSI ?", sub:"Le prix fait un sommet plus haut, mais le RSI fait un sommet plus bas.",
     pos:f=>f.dH && f.dH.kind==="div", neg:f=>f.dH && f.dH.kind==="conf" && !(f.dL && f.dL.kind==="div"),
     why:f=>"Sommet 2 plus haut que le sommet 1 sur le prix, mais RSI plus bas ("+pct(f.dH.r1)+" → "+pct(f.dH.r2)+") : la hausse s'essouffle. Sur les autres, le RSI confirme le prix.", an:f=>gqAnnDiv(f.dH, "dn")},
-  {th:"momentum", k:"divbull", ov:{rsi:true}, q:"Sur lequel vois-tu une divergence haussière sur le RSI ?", sub:"Le prix fait un creux plus bas, mais le RSI fait un creux plus haut.",
+  {th:"momentum", k:"divbull", nm:"divergence haussière", ov:{rsi:true}, q:"Sur lequel vois-tu une divergence haussière sur le RSI ?", sub:"Le prix fait un creux plus bas, mais le RSI fait un creux plus haut.",
     pos:f=>f.dL && f.dL.kind==="div", neg:f=>f.dL && f.dL.kind==="conf" && !(f.dH && f.dH.kind==="div"),
     why:f=>"Creux 2 plus bas que le creux 1 sur le prix, mais RSI plus haut ("+pct(f.dL.r1)+" → "+pct(f.dL.r2)+") : les vendeurs s'essoufflent. Sur les autres, le RSI confirme le prix.", an:f=>gqAnnDiv(f.dL, "up")},
-  {th:"momentum", k:"macdup", ov:{macd:true}, q:"Sur lequel le MACD est-il haussier ?", sub:"Ligne MACD au-dessus de sa ligne de signal ET au-dessus de zéro, sur les 10 dernières bougies.",
+  {th:"momentum", k:"macdup", nm:"MACD haussier", ov:{macd:true}, q:"Sur lequel le MACD est-il haussier ?", sub:"Ligne MACD au-dessus de sa ligne de signal ET au-dessus de zéro, sur les 10 dernières bougies.",
     pos:f=>f.macUp, neg:f=>f.macDn, why:()=>"Sur les 10 dernières bougies, la ligne MACD reste au-dessus de son signal et de zéro : momentum haussier. Les autres sont sous leur signal et sous zéro."},
-  {th:"momentum", k:"macddn", ov:{macd:true}, q:"Sur lequel le MACD est-il baissier ?", sub:"Ligne MACD sous sa ligne de signal ET sous zéro, sur les 10 dernières bougies.",
+  {th:"momentum", k:"macddn", nm:"MACD baissier", ov:{macd:true}, q:"Sur lequel le MACD est-il baissier ?", sub:"Ligne MACD sous sa ligne de signal ET sous zéro, sur les 10 dernières bougies.",
     pos:f=>f.macDn, neg:f=>f.macUp, why:()=>"Sur les 10 dernières bougies, la ligne MACD reste sous son signal et sous zéro : momentum baissier. Les autres sont au-dessus de leur signal et de zéro."},
   // Volume & volatilité
-  {th:"volume", k:"volx", ov:{vol:true}, q:"Sur lequel le volume explose-t-il sur les dernières bougies ?", sub:"Volume des 3 dernières bougies bien au-dessus de la normale du graphique.",
+  {th:"volume", k:"volx", nm:"pic de volume", ov:{vol:true}, q:"Sur lequel le volume explose-t-il sur les dernières bougies ?", sub:"Volume des 3 dernières bougies bien au-dessus de la normale du graphique.",
     pos:f=>f.volX>=3, neg:f=>f.volX>0 && f.volX<=1.1, why:f=>"Les 3 dernières bougies ont un volume moyen "+dxNum(f.volX, 1)+" fois supérieur à la normale du graphique : un gros intervenant ou une nouvelle. Ailleurs, le volume est normal."},
-  {th:"volume", k:"squeeze", ov:{bb:true}, q:"Sur lequel les bandes de Bollinger se resserrent-elles fortement ?", sub:"Volatilité qui se contracte : souvent avant un gros mouvement.",
+  {th:"volume", k:"squeeze", nm:"squeeze", ov:{bb:true}, q:"Sur lequel les bandes de Bollinger se resserrent-elles fortement ?", sub:"Volatilité qui se contracte : souvent avant un gros mouvement.",
     pos:f=>f.squeeze, neg:f=>f.noSqueeze, why:()=>"L'écart entre les bandes est aujourd'hui moins de la moitié de son écart habituel sur le graphique : la volatilité se contracte (squeeze). Ailleurs, les bandes sont au moins aussi larges que d'habitude."},
-  {th:"volume", k:"vaup", ov:{vp:true}, q:"Sur lequel le prix clôture-t-il au-dessus de la value area ?", sub:"Value area : la zone où 70 % du volume du graphique s'est échangé (entre VAL et VAH).",
+  {th:"volume", k:"vaup", nm:"au-dessus de la value area", ov:{vp:true}, q:"Sur lequel le prix clôture-t-il au-dessus de la value area ?", sub:"Value area : la zone où 70 % du volume du graphique s'est échangé (entre VAL et VAH).",
     pos:f=>f.aboveVA, neg:f=>f.insideVA, why:f=>"Clôture à "+dxP(f.rd.c[f.ci][4])+", au-dessus de la VAH ("+dxP(f.P.vah)+") : le marché sort de sa zone de valeur, vers le haut. Les autres clôturent à l'intérieur."},
-  {th:"volume", k:"vadn", ov:{vp:true}, q:"Sur lequel le prix clôture-t-il sous la value area ?", sub:"Value area : la zone où 70 % du volume du graphique s'est échangé (entre VAL et VAH).",
+  {th:"volume", k:"vadn", nm:"sous la value area", ov:{vp:true}, q:"Sur lequel le prix clôture-t-il sous la value area ?", sub:"Value area : la zone où 70 % du volume du graphique s'est échangé (entre VAL et VAH).",
     pos:f=>f.belowVA, neg:f=>f.insideVA, why:f=>"Clôture à "+dxP(f.rd.c[f.ci][4])+", sous la VAL ("+dxP(f.P.val)+") : le marché sort de sa zone de valeur, vers le bas. Les autres clôturent à l'intérieur."},
+  {th:"volume", k:"volhi", nm:"le plus volatil", ov:{same:true}, rel:{key:f=>f.volPct, hi:true, r:1.8, key2:f=>f.spanPct, r2:1.25}, q:"Quel graphique est le plus volatil ?", sub:"Les quatre graphiques sont à la même échelle en % : compare la taille des bougies.",
+    why:(f, O)=>"Bougie médiane de "+dxNum(f.volPct*100, 2)+" % du prix, contre "+dxNum(Math.max(...O.filter(o=>o!==f).map(o=>o.volPct))*100, 2)+" % au plus sur les autres : plus de "+dxNum(f.volPct/Math.max(...O.filter(o=>o!==f).map(o=>o.volPct)), 1)+" fois plus nerveux."},
+  {th:"volume", k:"vollo", nm:"le moins volatil", ov:{same:true}, rel:{key:f=>f.volPct, hi:false, r:1.8, key2:f=>f.spanPct, r2:1.25}, q:"Quel graphique est très peu volatil ?", sub:"Les quatre graphiques sont à la même échelle en % : cherche les bougies minuscules.",
+    why:(f, O)=>"Bougie médiane de "+dxNum(f.volPct*100, 2)+" % du prix seulement, contre au moins "+dxNum(Math.min(...O.filter(o=>o!==f).map(o=>o.volPct))*100, 2)+" % sur les autres : marché endormi."},
   // Liquidité & figures
-  {th:"liquidite", k:"sweeph", show:80, q:"Sur lequel le prix a-t-il pris la liquidité au-dessus d'un sommet, puis chuté ?", sub:"Une mèche dépasse un sommet encore intact, clôture dessous, et le prix redescend nettement.",
+  {th:"liquidite", k:"sweeph", nm:"sweep d'un sommet", show:80, q:"Sur lequel le prix a-t-il pris la liquidité au-dessus d'un sommet, puis chuté ?", sub:"Une mèche dépasse un sommet encore intact, clôture dessous, et le prix redescend nettement.",
     pos:f=>!!f.swH, neg:f=>f.noSweep, why:f=>"La mèche est passée au-dessus du sommet à "+dxP(f.swH.h.p)+" (stops des vendeurs déclenchés), la bougie a clôturé dessous et le prix a ensuite perdu "+dxNum((f.swH.h.p-f.rd.c[f.ci][4])/f.atr, 1)+" ATR : piège acheteur.",
     an:f=>({lab:[], zones:[], lev:[{p:f.swH.h.p, t:"Liquidité", col:"gold"}], marks:[{k:f.swH.j, p:f.rd.c[f.swH.j][2], t:"Sweep", col:"dn"}]})},
-  {th:"liquidite", k:"sweepl", show:80, q:"Sur lequel le prix a-t-il pris la liquidité sous un creux, puis rebondi ?", sub:"Une mèche passe sous un creux encore intact, clôture au-dessus, et le prix remonte nettement.",
+  {th:"liquidite", k:"sweepl", nm:"sweep d'un creux", show:80, q:"Sur lequel le prix a-t-il pris la liquidité sous un creux, puis rebondi ?", sub:"Une mèche passe sous un creux encore intact, clôture au-dessus, et le prix remonte nettement.",
     pos:f=>!!f.swL, neg:f=>f.noSweep, why:f=>"La mèche est passée sous le creux à "+dxP(f.swL.l.p)+" (stops des acheteurs déclenchés), la bougie a clôturé au-dessus et le prix a ensuite repris "+dxNum((f.rd.c[f.ci][4]-f.swL.l.p)/f.atr, 1)+" ATR : piège vendeur.",
     an:f=>({lab:[], zones:[], lev:[{p:f.swL.l.p, t:"Liquidité", col:"gold"}], marks:[{k:f.swL.j, p:f.rd.c[f.swL.j][3], t:"Sweep", col:"up"}]})},
-  {th:"liquidite", k:"eqh", q:"Sur lequel des sommets égaux attendent-ils au-dessus du prix ?", sub:"Deux sommets au même niveau, pas encore dépassés : des stops dorment juste au-dessus.",
+  {th:"liquidite", k:"cluster", nm:"cluster liquidé puis fade", ov:{vol:true}, q:"Lequel a liquidé un cluster avant de fade ?", sub:"Plusieurs sommets (ou creux) empilés au même niveau : stops et liquidations s'y accumulent. Le prix les perce sur un pic de volume, puis repart dans l'autre sens.",
+    pos:f=>!!f.clu, neg:f=>!f.cluLoose && f.maxWick < 1.5, pref:f=>!!f.cluGo,
+    why:f=>{ const C = f.clu; return C.g.length+" "+(C.hi ? "sommets" : "creux")+" empilés autour de "+dxP(C.top)+" : les stops et liquidations des "+(C.hi ? "shorts" : "longs")+" s'y accumulaient. La mèche les perce avec un volume "+dxNum(C.vx, 1)+" fois la normale (liquidation du cluster), puis le prix repart "+(C.hi ? "à la baisse" : "à la hausse")+" de "+dxNum(Math.abs(C.fp-C.bot)/f.atr, 1)+" ATR : fade. Les autres ne percent aucun cluster, ou le percent et continuent."; },
+    an:f=>{ const C = f.clu, pad = 0.15*f.atr; return {lab:[], lev:[], zones:[], box:[{k1:C.k0, k2:C.j, top:Math.max(C.top, C.bot)+pad, bot:Math.min(C.top, C.bot)-pad, t:"Cluster", col:"gold"}], pts:[{k:C.j, p:C.hi ? f.rd.c[C.j][2] : f.rd.c[C.j][3], t:"Liquidé", col:C.hi ? "dn" : "up", above:C.hi}, {k:C.fk, p:C.fp, t:"Fade", col:C.hi ? "dn" : "up", above:!C.hi}]}; }},
+  {th:"liquidite", k:"eqh", nm:"sommets égaux", q:"Sur lequel des sommets égaux attendent-ils au-dessus du prix ?", sub:"Deux sommets au même niveau, pas encore dépassés : des stops dorment juste au-dessus.",
     pos:f=>!!f.eqHi, neg:f=>!f.nearH, why:f=>"Deux sommets à "+dxP(f.eqHi.lv)+", jamais dépassés depuis : la liquidité (stops des vendeurs) est juste au-dessus, le prix va souvent la chercher.",
     an:f=>({lab:[], zones:[], lev:[{p:f.eqHi.lv, t:"Sommets égaux", col:"gold"}], marks:[{k:f.eqHi.q.k, p:f.eqHi.q.p, t:"1", col:"gold"}, {k:f.eqHi.p.k, p:f.eqHi.p.p, t:"2", col:"gold"}]})},
-  {th:"liquidite", k:"eql", q:"Sur lequel des creux égaux attendent-ils sous le prix ?", sub:"Deux creux au même niveau, pas encore cassés : des stops dorment juste en dessous.",
+  {th:"liquidite", k:"eql", nm:"creux égaux", q:"Sur lequel des creux égaux attendent-ils sous le prix ?", sub:"Deux creux au même niveau, pas encore cassés : des stops dorment juste en dessous.",
     pos:f=>!!f.eqLo, neg:f=>!f.nearL, why:f=>"Deux creux à "+dxP(f.eqLo.lv)+", jamais cassés depuis : la liquidité (stops des acheteurs) est juste en dessous, le prix va souvent la chercher.",
     an:f=>({lab:[], zones:[], lev:[{p:f.eqLo.lv, t:"Creux égaux", col:"gold"}], marks:[{k:f.eqLo.q.k, p:f.eqLo.q.p, t:"1", col:"gold"}, {k:f.eqLo.p.k, p:f.eqLo.p.p, t:"2", col:"gold"}]})},
-  {th:"liquidite", k:"dtop", q:"Sur lequel vois-tu un double sommet ?", sub:"Deux sommets au même niveau, séparés par un creux (la ligne de cou).",
+  {th:"liquidite", k:"dtop", nm:"double sommet", q:"Sur lequel vois-tu un double sommet ?", sub:"Deux sommets au même niveau, séparés par un creux (la ligne de cou).",
     pos:f=>f.pat && /Double sommet/.test(f.pat.line), neg:f=>f.pat && !f.pat.bias && !f.nearH, why:f=>f.pat.line, an:f=>f.pat.annot},
-  {th:"liquidite", k:"dbot", q:"Sur lequel vois-tu un double creux ?", sub:"Deux creux au même niveau, séparés par un sommet (la ligne de cou).",
+  {th:"liquidite", k:"dbot", nm:"double creux", q:"Sur lequel vois-tu un double creux ?", sub:"Deux creux au même niveau, séparés par un sommet (la ligne de cou).",
     pos:f=>f.pat && /Double creux/.test(f.pat.line), neg:f=>f.pat && !f.pat.bias && !f.nearL, why:f=>f.pat.line, an:f=>f.pat.annot},
 ];
 async function gqFetch(n){
@@ -26264,14 +26445,28 @@ function gqBuild(theme, avoid){
   const free = GQ.charts.filter(f=>!GQ.used.has(f));
   const types = gqShuffle(GQ_QS.filter(Q=>theme==="mix" || Q.th===theme)).sort((x, y)=>(avoid.includes(x.k)?1:0)-(avoid.includes(y.k)?1:0));
   const t = (fn, f)=>{ try{ return !!fn(f); }catch(e){ return false; } };
+  const take = (Q, p, neg)=>{
+    // Leurres préférés d'abord (les plus trompeurs), puis même unité de temps.
+    const sc = f=>(Q.pref && t(Q.pref, f) ? 2 : 0) + (f.rd.iv===p.rd.iv ? 1 : 0);
+    neg = gqShuffle(neg).sort((x, y)=>sc(y)-sc(x));
+    const opts = gqShuffle([p, neg[0], neg[1], neg[2]]);
+    opts.forEach(f=>GQ.used.add(f));
+    return {Q, opts, ans:opts.indexOf(p), pick:null};
+  };
   for (const Q of types){
+    if (Q.rel){
+      const key = f=>{ try{ return Q.rel.key(f); }catch(e){ return 0; } };
+      for (const p of gqShuffle(free.slice())){ const v = key(p); if (!(v>0)) continue;
+        const k2 = f=>{ try{ return Q.rel.key2 ? Q.rel.key2(f) : 1; }catch(e){ return 0; } }, v2 = k2(p), R2 = Q.rel.r2||1;
+        const neg = free.filter(f=>f!==p && key(f)>0 && (Q.rel.hi ? key(f)*Q.rel.r <= v && k2(f)*R2 <= v2 : key(f) >= v*Q.rel.r && k2(f) >= v2*R2));
+        if (neg.length >= 3) return take(Q, p, neg); }
+      continue;
+    }
     const pos = gqShuffle(free.filter(f=>t(Q.pos, f)));
     if (!pos.length) continue;
-    const neg = gqShuffle(free.filter(f=>f!==pos[0] && t(Q.neg, f) && !t(Q.pos, f)));
+    const neg = free.filter(f=>f!==pos[0] && t(Q.neg, f) && !t(Q.pos, f));
     if (neg.length < 3) continue;
-    const opts = gqShuffle([pos[0], neg[0], neg[1], neg[2]]);
-    opts.forEach(f=>GQ.used.add(f));
-    return {Q, opts, ans:opts.indexOf(pos[0]), pick:null};
+    return take(Q, pos[0], neg);
   }
   return null;
 }
@@ -26287,7 +26482,9 @@ async function gqNextQuestion(){
   if (GQ.charts.filter(f=>!GQ.used.has(f)).length < 24) gqFetch(30).catch(()=>{}); // la suite se prépare en fond
 }
 async function gqStart(theme){
-  GQ.s = {theme:theme||"mix", i:0, score:0, done:[], cur:null};
+  if (GQ.s && GQ.view==="quiz") gqFlush(false);
+  GQ.s = {id:Date.now().toString(36)+Math.random().toString(36).slice(2,6), theme:theme||"mix", i:0, score:0, done:[], cur:null, streak:0, bestStreak:0, pend:{ok:0, n:0, th:{}, q:{}}};
+  gqLoadRemote();
   GQ.view = "quiz";
   if (GQ.charts.filter(f=>!GQ.used.has(f)).length < 24){ gqRender("loading"); await gqFetch(30); }
   gqNextQuestion();
@@ -26296,24 +26493,32 @@ function gqAnswer(i){
   const S = GQ.s; if (!S || !S.cur || S.cur.pick!=null) return;
   S.cur.pick = i;
   const ok = i===S.cur.ans; if (ok) S.score++;
+  S.streak = ok ? S.streak+1 : 0; S.bestStreak = Math.max(S.bestStreak, S.streak);
   S.done.push(S.cur);
-  const st = gqStats(), th = S.cur.Q.th; st.th[th] = st.th[th] || {ok:0, n:0}; st.th[th].n++; if (ok) st.th[th].ok++; gqSaveStats(st);
+  const P = S.pend, th = S.cur.Q.th, qk = S.cur.Q.k; P.n++; if (ok) P.ok++;
+  P.th[th] = P.th[th] || {ok:0, n:0}; P.th[th].n++; if (ok) P.th[th].ok++;
+  P.q[qk] = P.q[qk] || {ok:0, n:0}; P.q[qk].n++; if (ok) P.q[qk].ok++;
   gqRender();
 }
 function gqNext(){
   const S = GQ.s; if (!S) return;
   S.i++;
-  if (S.i >= GQ_N){ const st = gqStats(); st.plays++; if (S.score > st.best){ st.best = S.score; S.record = true; } gqSaveStats(st); GQ.view = "result"; gqRender(); return; }
+  if (S.i >= GQ_N){ GQ.view = "result"; gqFlush(true).finally(()=>{ if (GQ.view==="result" && GQ.s===S) gqRender(); }); gqRender(); return; }
   gqNextQuestion();
 }
 
 // ---------- Page ----------
 function renderGames(){
   const root = document.getElementById("games-root"); if (!root) return;
-  if (!state.isAdmin){ root.innerHTML = '<div class="dd-card dd-empty"><b>Bientôt disponible</b><p>Les jeux sont en test et arrivent très vite.</p></div>'; return; }
   if (!root.querySelector(".gq")){
     root.innerHTML = '<div class="gq" id="gq"></div>';
     root.querySelector(".gq").addEventListener("click", gqOnClick);
+  }
+  if (!GQ.bound){
+    GQ.bound = true;
+    document.addEventListener("keydown", gqKey);
+    document.addEventListener("visibilitychange", ()=>{ if (document.hidden && GQ.view==="quiz") gqFlush(false); });
+    let t = null; window.addEventListener("resize", ()=>{ clearTimeout(t); t = setTimeout(()=>{ if (document.body.dataset.view!=="games") return; if (GQ.view==="hub") gqMastDraw(); else if (GQ.redraw) GQ.redraw(); }, 120); });
   }
   gqRender();
 }
@@ -26323,70 +26528,125 @@ function gqOnClick(e){
   const a = b.dataset.gq;
   if (a==="start") gqStart(b.dataset.theme || "mix");
   else if (a==="next") gqNext();
-  else if (a==="hub"){ GQ.view = "hub"; GQ.s = null; gqRender(); window.scrollTo({top:0, behavior:"smooth"}); }
+  else if (a==="hub"){ if (GQ.view==="quiz") gqFlush(false); GQ.view = "hub"; GQ.s = null; gqRender(); window.scrollTo({top:0, behavior:"smooth"}); }
 }
-function gqIcon(p){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>'; }
+// Clavier : A B C D (ou 1 2 3 4) pour répondre, Entrée / Espace pour continuer.
+function gqKey(e){
+  if (document.body.dataset.view!=="games" || !document.getElementById("gq") || e.metaKey || e.ctrlKey || e.altKey) return;
+  const tg = e.target; if (tg && (/^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName) || tg.isContentEditable)) return;
+  const k = (e.key||"").toLowerCase(), onBtn = tg && tg.tagName==="BUTTON";
+  if (GQ.view==="quiz" && GQ.s && GQ.s.cur){
+    const i = k.length===1 ? Math.max("abcd".indexOf(k), "1234".indexOf(k)) : -1;
+    if (i>=0 && GQ.s.cur.pick==null){ e.preventDefault(); gqAnswer(i); return; }
+    if ((k==="enter" || k===" ") && GQ.s.cur.pick!=null && !onBtn){ e.preventDefault(); gqNext(); }
+  } else if (k==="enter" && !onBtn && (GQ.view==="hub" || GQ.view==="result")){ e.preventDefault(); gqStart(GQ.view==="result" && GQ.s ? GQ.s.theme : "mix"); }
+}
 function gqThemeName(k){ return k==="mix" ? "Partie mixte" : (GQ_THEMES.find(t=>t.k===k)||{}).t || ""; }
 function gqHubHtml(){
-  const st = gqStats();
-  const totOk = Object.values(st.th).reduce((s,x)=>s+x.ok, 0), totN = Object.values(st.th).reduce((s,x)=>s+x.n, 0);
-  const prev = gqIcon('<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/>');
-  return '<section class="gq-hero">'+
-      '<div class="gq-hero-l"><span class="dd-kicker">Jeux · Quiz graphique</span><h1>Une question.<br><span>Quatre vrais graphiques.</span></h1>'+
-        '<p>Trouve celui qui correspond : structure, moyennes mobiles, RSI, MACD, volume, value area, liquidité, figures. Tout se lit sur le graphique, rien ne dépend de la suite.</p>'+
-        '<div class="gq-hero-cta"><button type="button" class="pw-btn pw-btn-trial" data-gq="start" data-theme="mix">Partie mixte · '+GQ_N+' questions →</button></div>'+
-        '<div class="gq-kpis"><div><b>'+st.best+'<small> / '+GQ_N+'</small></b><span>record</span></div><div><b>'+st.plays+'</b><span>parties</span></div><div><b>'+(totN ? Math.round(totOk/totN*100)+" %" : "—")+'</b><span>de bonnes réponses</span></div></div></div>'+
-      '<div class="gq-hero-art" aria-hidden="true">'+gqHeroArt()+'</div>'+
-    '</section>'+
-    '<section><div class="gq-sec-h"><h2>S\'entraîner par thème</h2><span>'+GQ_QS.length+' types de questions</span></div>'+
-    '<div class="gq-themes">'+GQ_THEMES.map(t=>{ const s = st.th[t.k], n = GQ_QS.filter(Q=>Q.th===t.k).length;
-      return '<button type="button" class="gq-th" data-gq="start" data-theme="'+t.k+'"><span class="gq-th-ic">'+gqIcon(t.ic)+'</span><b>'+t.t+'</b><small>'+t.d+'</small>'+
-        '<em>'+n+' questions types'+(s && s.n ? ' · '+Math.round(s.ok/s.n*100)+' % réussi' : '')+'</em>'+(s && s.n ? '<u><i style="width:'+Math.round(s.ok/s.n*100)+'%"></i></u>' : '')+'</button>'; }).join("")+'</div></section>';
+  const st = gqStats(), ok = st.ok, n = st.n;
+  const rows = GQ_THEMES.map((t, i)=>{
+    const s = st.th[t.k], p = s && s.n ? Math.round(s.ok/s.n*100) : null, qs = GQ_QS.filter(Q=>Q.th===t.k);
+    return '<li><button type="button" class="gq-row" data-gq="start" data-theme="'+t.k+'">'+
+      '<span class="gq-row-n">'+String(i+1).padStart(2, "0")+'</span>'+
+      '<span class="gq-row-t"><b>'+escapeHtml(t.t)+'</b><small>'+qs.map(Q=>escapeHtml(Q.nm)).join('<i>·</i>')+'</small></span>'+
+      '<span class="gq-row-s">'+(p==null ? '<em>pas encore joué</em>' : '<b>'+p+' %</b><em>'+s.n+' réponse'+(s.n>1 ? "s" : "")+'</em><u><i style="width:'+p+'%"></i></u>')+'</span>'+
+      '<span class="gq-row-go" aria-hidden="true">→</span></button></li>';
+  }).join("");
+  return '<div class="gq-hub">'+
+    '<header class="gq-mast">'+
+      '<div class="gq-mast-art" aria-hidden="true"><canvas id="gq-mast-cv"></canvas><span id="gq-mast-src"></span></div>'+
+      '<div class="gq-mast-in">'+
+        '<span class="gq-eyebrow">Entraînement · lecture de graphique</span>'+
+        '<h1 class="gq-title">Coup d\'œil<span>.</span></h1>'+
+        '<p class="gq-lede">Quatre vrais graphiques, une question. Trouve le bon du premier regard : structure, moyennes, momentum, volume, liquidité.</p>'+
+        '<div class="gq-mast-act"><button type="button" class="gq-go" data-gq="start" data-theme="mix">Lancer une partie <kbd>↵</kbd></button>'+
+          '<span>10 questions, chapitres mélangés.<br>Réponds au clavier avec A B C D.</span></div>'+
+      '</div>'+
+      '<dl class="gq-ledger">'+
+        '<div><dt>Record</dt><dd>'+st.best+'<small> / '+GQ_N+'</small></dd></div>'+
+        '<div><dt>Parties</dt><dd>'+st.plays+'</dd></div>'+
+        '<div><dt>Justesse</dt><dd>'+(n ? Math.round(ok/n*100)+'<small> %</small>' : '—')+'</dd></div>'+
+        '<div><dt>Meilleure série</dt><dd>'+(st.streak||0)+'</dd></div>'+
+      '</dl>'+
+    '</header>'+
+    '<section class="gq-toc"><header><h2>Sommaire</h2><span>'+GQ_QS.length+' questions en '+GQ_THEMES.length+' chapitres. Choisis-en un pour t\'entraîner dessus.</span></header><ol>'+rows+'</ol></section>'+
+  '</div>';
 }
-// Illustration : quatre mini graphiques, l'un entouré.
-function gqHeroArt(){
-  const r = dailyRng("gq-art"), mini = (x0, y0, w, h, drift, on)=>{
-    let p = 0, pts = []; for (let i=0;i<22;i++){ p += (r()-0.5+drift)*1.6; pts.push(p); }
-    const lo = Math.min(...pts), hi = Math.max(...pts), y = v=>y0+h-8-(v-lo)/((hi-lo)||1)*(h-24);
-    let s = '<rect x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+h+'" rx="12" class="'+(on ? "gq-a-on" : "gq-a-box")+'"/>';
-    pts.forEach((v,i)=>{ if (!i) return; const cx = x0+10+i*(w-20)/22, up = v>=pts[i-1]; s += '<rect x="'+(cx-2.2).toFixed(1)+'" y="'+Math.min(y(v), y(pts[i-1])).toFixed(1)+'" width="4.4" height="'+Math.max(2, Math.abs(y(v)-y(pts[i-1]))).toFixed(1)+'" rx="1" class="'+(up ? "a-up" : "a-dn")+'"/>'; });
-    return s;
-  };
-  return '<svg viewBox="0 0 320 240" class="gq-art">'+mini(4,4,152,112,0.25,true)+mini(164,4,152,112,-0.2)+mini(4,124,152,112,0)+mini(164,124,152,112,-0.05)+
-    '<g class="gq-a-tag"><rect x="10" y="10" width="22" height="22" rx="7"/><text x="21" y="25.5" text-anchor="middle">A</text></g></svg>';
+// Fond du bandeau : un vrai graphique de la sélection (le plus « net »).
+function gqMastDraw(){
+  const cv = document.getElementById("gq-mast-cv"); if (!cv) return;
+  if (!GQ.mast){ let sc = -1; GQ.charts.forEach(f=>{ const v = f.r2*Math.abs(f.net); if (v>sc){ sc = v; GQ.mast = f; } }); }
+  const f = GQ.mast; if (!f) return;
+  const dpr = Math.min(2, window.devicePixelRatio||1), W = cv.clientWidth, H = cv.clientHeight; if (!W || !H) return;
+  cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr);
+  const x = cv.getContext("2d"); x.setTransform(dpr,0,0,dpr,0,0); x.clearRect(0,0,W,H);
+  const css = getComputedStyle(document.documentElement), v = (k,d)=>(css.getPropertyValue(k)||"").trim()||d;
+  const up = v("--long","#31c882"), dn = v("--short","#f0546a"), gold = v("--dd-a","#d7b563");
+  const c = f.rd.c, ci = f.ci, n = Math.max(40, Math.min(ci-60, Math.floor(W/7))), a = ci-n+1;
+  let lo = Infinity, hi = -Infinity; for (let k=a;k<=ci;k++){ lo = Math.min(lo, c[k][3], f.e50[k]==null ? Infinity : f.e50[k]); hi = Math.max(hi, c[k][2], f.e50[k]==null ? -Infinity : f.e50[k]); }
+  const top = H*0.12, bot = H*0.08, slot = (W-28)/n, X = k=>(k-a)*slot+slot/2, y = p=>top + (hi-p)/(hi-lo||1)*(H-top-bot);
+  for (let k=a;k<=ci;k++){ const [, o, h, l, cl] = c[k], col = cl>=o ? up : dn, bw = Math.max(1, slot*0.6), cx = X(k);
+    x.globalAlpha = .62; x.strokeStyle = col; x.fillStyle = col; x.beginPath(); x.moveTo(Math.round(cx)+.5, y(h)); x.lineTo(Math.round(cx)+.5, y(l)); x.stroke();
+    const t = y(Math.max(o,cl)), b = y(Math.min(o,cl)); x.fillRect(cx-bw/2, t, bw, Math.max(1, b-t)); }
+  x.globalAlpha = .9; x.strokeStyle = gold; x.lineWidth = 1.6; x.beginPath(); let on = false;
+  for (let k=a;k<=ci;k++){ const e = f.e50[k]; if (e==null) continue; on ? x.lineTo(X(k), y(e)) : x.moveTo(X(k), y(e)); on = true; } x.stroke();
+  const lx = X(ci), ly = y(c[ci][4]); x.globalAlpha = 1; x.setLineDash([3,4]); x.lineWidth = 1; x.beginPath(); x.moveTo(lx+6, ly); x.lineTo(W, ly); x.stroke(); x.setLineDash([]);
+  x.lineWidth = 1.6; x.beginPath(); x.arc(lx, ly, 9, 0, Math.PI*2); x.stroke(); x.lineWidth = 1;
+  const src = document.getElementById("gq-mast-src"); if (src) src.textContent = f.rd.name+" · "+f.rd.ivLabel+" · vrai graphique";
 }
 function gqRender(st){
   const el = document.getElementById("gq"); if (!el) return;
-  if (GQ.view==="hub"){ el.innerHTML = gqHubHtml(); return; }
+  GQ.redraw = null;
+  if (GQ.view==="hub"){
+    el.innerHTML = gqHubHtml(); gqMastDraw();
+    if (gqCanSync() && GQ.remoteTried!==clientId) gqLoadRemote().then(()=>{ if (GQ.view==="hub") gqRender(); });
+    if (!GQ.charts.length) gqFetch(30).then(()=>{ if (GQ.view==="hub") gqMastDraw(); }).catch(()=>{});
+    return;
+  }
   if (GQ.view==="result"){
-    const S = GQ.s, best = gqStats().best, msg = S.score>=9 ? "Œil de trader." : S.score>=7 ? "Très bonne lecture." : S.score>=5 ? "Pas mal, continue." : "Le graphique a encore des secrets pour toi.";
-    el.innerHTML = '<div class="gq-res"><span class="dd-kicker">'+escapeHtml(gqThemeName(S.theme))+' · partie terminée</span>'+
-      '<div class="gq-res-top"><h2>'+S.score+'<small> / '+GQ_N+'</small></h2><div><b>'+msg+'</b><span>'+(S.record ? "Nouveau record 🏆" : "Record : "+best+" / "+GQ_N)+'</span></div></div>'+
-      '<div class="gq-recap">'+S.done.map((d,i)=>'<div class="'+(d.pick===d.ans ? "ok" : "ko")+'"><i>'+(d.pick===d.ans ? "✓" : "✕")+'</i><span>'+escapeHtml(d.Q.q)+'</span></div>').join("")+'</div>'+
-      '<div class="ch-end-act"><button type="button" class="pw-btn pw-btn-trial" data-gq="start" data-theme="'+S.theme+'">Rejouer</button><button type="button" class="pw-btn pw-btn-ghost" data-gq="hub">Choisir un thème</button></div></div>';
+    const S = GQ.s, stt = gqStats(), msg = S.score>=9 ? "Œil de trader." : S.score>=7 ? "Très bonne lecture." : S.score>=5 ? "Pas mal, continue." : "Le graphique a encore des secrets pour toi.";
+    const by = {}; S.done.forEach(d=>{ const k = d.Q.th; by[k] = by[k] || {ok:0, n:0}; by[k].n++; if (d.pick===d.ans) by[k].ok++; });
+    el.innerHTML = '<div class="gq-end">'+
+      '<div class="gq-end-l"><span class="gq-eyebrow">'+escapeHtml(gqThemeName(S.theme))+' · partie terminée</span>'+
+        '<div class="gq-end-score">'+S.score+'<span>/'+GQ_N+'</span></div>'+
+        '<p class="gq-end-msg">'+msg+'</p>'+
+        '<p class="gq-end-sub">'+(S.record ? "Nouveau record." : "Record : "+stt.best+" / "+GQ_N+".")+' Meilleure série de la partie : '+S.bestStreak+(S.recStreak ? " (record)" : "")+'.</p>'+
+        '<dl class="gq-end-by">'+GQ_THEMES.filter(t=>by[t.k]).map(t=>'<div><dt>'+escapeHtml(t.t)+'</dt><dd>'+by[t.k].ok+' / '+by[t.k].n+'</dd></div>').join("")+'</dl>'+
+        '<div class="gq-end-act"><button type="button" class="gq-go" data-gq="start" data-theme="'+S.theme+'">Rejouer <kbd>↵</kbd></button><button type="button" class="gq-link" data-gq="hub">Sommaire</button></div></div>'+
+      '<ol class="gq-end-list">'+S.done.map(d=>{ const ok = d.pick===d.ans; return '<li class="'+(ok ? "ok" : "ko")+'"><i>'+(ok ? "✓" : "✕")+'</i><span>'+escapeHtml(d.Q.q)+'</span><em>'+escapeHtml(gqThemeName(d.Q.th))+'</em></li>'; }).join("")+'</ol>'+
+    '</div>';
     return;
   }
   const S = GQ.s;
   if (st==="loading" || !S || !S.cur){
-    el.innerHTML = st==="error" ? '<div class="dd-card dd-empty"><b>Graphiques indisponibles</b><p>Impossible de joindre l\'historique Binance, ou pas assez de graphiques nets pour ce thème. Réessaie dans un instant.</p><button class="btn-primary" data-gq="start" data-theme="'+(S ? S.theme : "mix")+'">Réessayer</button> <button class="btn-secondary" data-gq="hub">Retour</button></div>'
-      : '<div class="gq-load"><div class="rp-spin"></div><b>Recherche de graphiques nets…</b><span>On écarte ceux qui prêtent à confusion.</span></div>';
+    el.innerHTML = st==="error" ? '<div class="gq-wait"><b>Graphiques indisponibles</b><span>Impossible de joindre l\'historique Binance, ou pas assez de graphiques nets pour ce chapitre.</span><div class="gq-end-act"><button class="gq-go" data-gq="start" data-theme="'+(S ? S.theme : "mix")+'">Réessayer</button><button class="gq-link" data-gq="hub">Sommaire</button></div></div>'
+      : '<div class="gq-wait"><div class="rp-spin"></div><b>On sélectionne des graphiques nets…</b><span>Ceux qui prêtent à confusion sont écartés.</span></div>';
     return;
   }
-  const C = S.cur, Q = C.Q, done = C.pick!=null, L = ["A","B","C","D"], okF = C.opts[C.ans];
+  const C = S.cur, Q = C.Q, done = C.pick!=null, L = ["A","B","C","D"], okF = C.opts[C.ans], good = C.pick===C.ans;
   const dots = Array.from({length:GQ_N}, (_,i)=>{ const d = S.done[i]; return '<i class="'+(d ? (d.pick===d.ans ? "ok" : "ko") : i===S.i ? "cur" : "")+'"></i>'; }).join("");
+  let why = ""; try{ why = Q.why(okF, C.opts)||""; }catch(e){}
   el.innerHTML =
-    '<div class="gq-play">'+
-      '<div class="gq-top"><button type="button" class="kn-quiz-quit" data-gq="hub">← Quitter</button><span class="gq-chip">'+escapeHtml((GQ_THEMES.find(t=>t.k===Q.th)||{}).t||"")+'</span><div class="gq-dots">'+dots+'</div><span class="gq-score num">'+S.score+' / '+GQ_N+'</span></div>'+
-      '<div class="gq-q"><span class="gq-num">Question '+(S.i+1)+'</span><h2>'+escapeHtml(Q.q)+'</h2><p>'+escapeHtml(Q.sub)+'</p></div>'+
+    '<div class="gq-play'+(done ? " is-done" : "")+'">'+
+      '<div class="gq-side">'+
+        '<div class="gq-side-top"><button type="button" class="gq-link" data-gq="hub">← Sommaire</button><span>'+escapeHtml(gqThemeName(S.theme))+'</span></div>'+
+        '<div class="gq-prog">'+dots+'</div>'+
+        '<div class="gq-qhead"><span class="gq-chap">'+String(S.i+1).padStart(2, "0")+' · '+escapeHtml(gqThemeName(Q.th))+'</span>'+
+        '<h2 class="gq-qt">'+escapeHtml(Q.q)+'</h2><p class="gq-qs">'+escapeHtml(Q.sub)+'</p></div>'+
+        '<div class="gq-tally"><span>Score <b>'+S.score+'</b></span><span>Série <b>'+S.streak+'</b></span>'+(done ? '' : '<span class="gq-keys"><kbd>A</kbd><kbd>B</kbd><kbd>C</kbd><kbd>D</kbd></span>')+'</div>'+
+      '</div>'+
       '<div class="gq-grid">'+C.opts.map((f,i)=>{
         const cls = !done ? "" : i===C.ans ? " ok" : i===C.pick ? " ko" : " dim";
-        return '<button type="button" class="gq-opt'+cls+'" data-gq-opt="'+i+'"'+(done ? " disabled" : "")+'><span class="gq-l">'+L[i]+'</span><canvas id="gq-cv-'+i+'"></canvas>'+
+        return '<button type="button" class="gq-opt'+cls+'" data-gq-opt="'+i+'"'+(done ? " disabled" : "")+' aria-label="Graphique '+L[i]+'"><span class="gq-l">'+L[i]+'</span><canvas id="gq-cv-'+i+'"></canvas>'+
           (done ? '<span class="gq-meta">'+escapeHtml(f.rd.name)+' · '+f.rd.ivLabel+'</span>' : '')+'</button>';
       }).join("")+'</div>'+
-      (done ? '<div class="gq-why '+(C.pick===C.ans ? "ok" : "ko")+'"><div><b>'+(C.pick===C.ans ? "Bien vu !" : "Raté : c'était le graphique "+L[C.ans]+".")+'</b><span>'+escapeHtml(Q.why(okF)||"")+'</span></div>'+
-        '<button type="button" class="pw-btn pw-btn-trial" data-gq="next">'+(S.i+1>=GQ_N ? "Voir mon score" : "Question suivante →")+'</button></div>' : '')+
+      (done ? '<div class="gq-why '+(good ? "ok" : "ko")+'"><b>'+(good ? "Bien vu." : "Raté, c'était le graphique "+L[C.ans]+".")+'</b><p>'+escapeHtml(why)+'</p>'+
+        '<button type="button" class="gq-go" data-gq="next">'+(S.i+1>=GQ_N ? "Voir mon score" : "Question suivante")+' <kbd>↵</kbd></button></div>' : '')+
     '</div>';
-  C.opts.forEach((f,i)=>gqDraw(document.getElementById("gq-cv-"+i), f, Q.ov||{}, done && i===C.ans && Q.an ? Q.an(f) : null, Q.show));
+  const ov = Object.assign({}, Q.ov||{});
+  if (ov.same) ov.same = Math.max(...C.opts.map(f=>{ const a = Q.show ? Math.max(f.a, f.ci-Q.show+1) : f.a; let lo = Infinity, hi = -Infinity; for (let k=a;k<=f.ci;k++){ lo = Math.min(lo, f.rd.c[k][3]); hi = Math.max(hi, f.rd.c[k][2]); } return Math.log(hi/lo); }));
+  GQ.redraw = ()=>C.opts.forEach((f,i)=>{ let an = null; if (done && i===C.ans && Q.an){ try{ an = Q.an(f); }catch(e){} } gqDraw(document.getElementById("gq-cv-"+i), f, ov, an, Q.show); });
+  GQ.redraw();
 }
 // Mini graphique sans prix ni date ; indicateurs selon la question.
 function gqDraw(cv, f, ov, annot, show){
@@ -26396,15 +26656,25 @@ function gqDraw(cv, f, ov, annot, show){
   const x = cv.getContext("2d"); x.setTransform(dpr,0,0,dpr,0,0); x.clearRect(0,0,W,H);
   const css = getComputedStyle(document.documentElement), v = (k,d)=>(css.getPropertyValue(k)||"").trim()||d;
   const up = v("--long","#31c882"), dn = v("--short","#f0546a"), faint = v("--text-faint","#8a8072"), gold = v("--dd-a","#d7b563"), text = v("--text","#fff"), border = v("--border","#3a352b"), mono = v("--mono","monospace");
+  const colOf = k=>k==="up" ? up : k==="dn" ? dn : k==="gold" ? gold : faint;
   const c = f.rd.c, ci = f.ci, a = show ? Math.max(f.a, ci-show+1) : f.a, n = ci-a+1;
   const pane = ov.rsi || ov.macd ? Math.round(H*0.27) : 0, volH = ov.vol ? Math.round(H*0.22) : 0;
-  const padL = ov.vp ? Math.round(W*0.16) : 6, padR = 30, padT = 34, padB = 8 + pane + volH;
+  const padL = ov.vp ? Math.round(W*0.16) : 6, padR = 30, padT = 44, padB = 10 + pane + volH;
   let lo = Infinity, hi = -Infinity;
   const inc = p=>{ if (p!=null && isFinite(p)){ lo = Math.min(lo, p); hi = Math.max(hi, p); } };
   for (let k=a;k<=ci;k++){ inc(c[k][3]); inc(c[k][2]); if (ov.ema){ inc(f.e50[k]); inc(f.e200[k]); } if (ov.ema200) inc(f.e200[k]); if (ov.vwap) inc(f.vwap[k]); if (ov.bb){ inc(f.bb.up[k]); inc(f.bb.lo[k]); } }
   if (annot) (annot.lev||[]).forEach(l=>inc(l.p));
-  const pad = (hi-lo)*0.05; lo -= pad; hi += pad;
+  let step = 0;
+  if (ov.same){ // même échelle en % pour les 4 graphiques
+    const m = Math.sqrt(lo*hi), S = ov.same*1.06; lo = m*Math.exp(-S/2); hi = m*Math.exp(S/2);
+    const raw = S*100/5; step = [0.1,0.2,0.25,0.5,1,2,2.5,5,10,20,25,50].find(s=>s>=raw) || 50;
+  } else { const pad = (hi-lo)*0.05; lo -= pad; hi += pad; }
   const priceH = H-padT-padB, slot = (W-padL-padR)/n, X = k=>padL + (k-a)*slot + slot/2, y = p=>padT + (hi-p)/(hi-lo)*priceH;
+  if (step){
+    const m = Math.sqrt(lo*hi); x.strokeStyle = border; x.globalAlpha = .7;
+    for (let i=-20;i<=20;i++){ const p = m*(1+i*step/100); if (p<=lo || p>=hi) continue; const yy = Math.round(y(p))+.5; x.beginPath(); x.moveTo(padL, yy); x.lineTo(W-padR, yy); x.stroke(); }
+    x.globalAlpha = 1; x.fillStyle = faint; x.font = "600 9.5px "+mono; x.textAlign = "right"; x.fillText("lignes : "+String(step).replace(".", ",")+" %", W-8, H-6); x.textAlign = "left";
+  }
   const line = (arr, col, w, dash)=>{ x.strokeStyle = col; x.lineWidth = w||1.6; x.setLineDash(dash||[]); x.beginPath(); let on = false; for (let k=a;k<=ci;k++){ const e = arr[k]; if (e==null) continue; if (!on){ x.moveTo(X(k), y(e)); on = true; } else x.lineTo(X(k), y(e)); } x.stroke(); x.setLineDash([]); x.lineWidth = 1; };
   if (ov.bb){ x.fillStyle = TA_COLORS.bb; x.globalAlpha = .08; x.beginPath(); for (let k=a;k<=ci;k++){ const u = f.bb.up[k]; if (u!=null) (k===a ? x.moveTo(X(k), y(u)) : x.lineTo(X(k), y(u))); } for (let k=ci;k>=a;k--){ const l = f.bb.lo[k]; if (l!=null) x.lineTo(X(k), y(l)); } x.closePath(); x.fill(); x.globalAlpha = 1; }
   if (ov.vp){
@@ -26453,7 +26723,18 @@ function gqDraw(cv, f, ov, annot, show){
       x.fillStyle = faint; x.fillText("MACD", padL+2, top+8);
     }
   }
-  if (annot){ x.save(); x.beginPath(); x.rect(0, 0, W, H-pane-volH); x.clip(); dxDrawAnnot(x, annot, {X, y, start:a, end:ci+1, ci, padL, W, padR, padT, priceH, mono, up, dn, gold, faint, text, slot}); x.restore(); }
+  if (annot){
+    x.save(); x.beginPath(); x.rect(0, 0, W, H-pane-volH); x.clip();
+    (annot.box||[]).forEach(b=>{ const x1 = X(Math.max(a, b.k1))-slot/2, x2 = X(b.k2)+slot/2, y1 = y(b.top), y2 = y(b.bot), col = colOf(b.col);
+      x.fillStyle = col; x.globalAlpha = .13; x.fillRect(x1, y1, x2-x1, y2-y1); x.globalAlpha = .85; x.strokeStyle = col; x.setLineDash([4,3]); x.strokeRect(x1+.5, y1+.5, x2-x1-1, y2-y1-1); x.setLineDash([]);
+      x.globalAlpha = 1; x.font = "800 10.5px "+mono; x.fillStyle = col; x.textAlign = "left"; x.textBaseline = "bottom"; x.fillText(b.t, x1+2, y1-3); x.textBaseline = "alphabetic"; });
+    (annot.pts||[]).forEach(p=>{ if (p.k<a || p.k>ci) return; const px = X(p.k), py = y(p.p), col = colOf(p.col);
+      x.strokeStyle = col; x.lineWidth = 1.8; x.beginPath(); x.arc(px, py, 6.5, 0, Math.PI*2); x.stroke(); x.lineWidth = 1;
+      x.font = "800 10.5px "+mono; x.textAlign = "center"; x.textBaseline = "middle"; let ty = py + (p.above ? -16 : 16); if (ty-8 < 2) ty = py+16; if (ty+8 > H-pane-volH-2) ty = py-16; const tw = x.measureText(p.t).width+10;
+      x.fillStyle = col; x.fillRect(px-tw/2, ty-8, tw, 16); x.fillStyle = "#111"; x.fillText(p.t, px, ty+.5); x.textAlign = "left"; x.textBaseline = "alphabetic"; });
+    dxDrawAnnot(x, annot, {X, y, start:a, end:ci+1, ci, padL, W, padR, padT, priceH, mono, up, dn, gold, faint, text, slot});
+    x.restore();
+  }
 }
 
 /* ===================== DÉFI DU JOUR · MODES AVANCÉS =====================
@@ -28289,7 +28570,7 @@ async function certVerifyBoot(){
 // badges, admin visibility) keeps working unchanged on both.
 const VIEW_TITLES = {
   terminal:"Terminal", news:"News", chat:"Chat", leaderboard:"Classement", concoursedbplus:"Concours EDB+",
-  challenge:"Challenge Prop Firm", replay:"Replay", daily:"Défi du jour", games:"Jeux", quiz:"Connaissances", resources:"Ressources", edbplus:"EDB+",
+  challenge:"Challenge Prop Firm", replay:"Replay", daily:"Défi du jour", games:"Coup d'œil", quiz:"Connaissances", resources:"Ressources", edbplus:"EDB+",
   tradesedb:"Trades EDB+", profile:"Profil", admin:"Admin", invest:"Investissement",
 };
 const SIDEBAR_KEY = "paperTapeSidebar"; // "full" | "rail" — per-browser preference, like the theme
@@ -30847,10 +31128,9 @@ function initWidgets(){
 function updateAdminNavVisibility(){
   const btn = document.getElementById("nav-admin-btn");
   if (btn) btn.hidden = !state.isAdmin;
-  // Jeux : en test, réservé aux admins pour l'instant.
+  // Coup d'œil : ouvert à tous.
   const gb = document.getElementById("nav-games-btn");
-  if (gb) gb.hidden = !state.isAdmin;
-  if (document.body.dataset.view==="games"){ if (!state.isAdmin && typeof switchView==="function") switchView("terminal"); else if (typeof renderGames==="function") renderGames(); }
+  if (gb) gb.hidden = false;
 }
 // « App iPhone », « Navigateur Mac »… (app = installée sur l'écran d'accueil / le Dock).
 function ptClientKind(){
@@ -32037,6 +32317,76 @@ async function adminDeleteFeedback(id){
   }
 }
 
+
+/* ============================= ADMIN — COUP D'ŒIL ============================= */
+// Stats du quiz graphique : un document glance/{uid} par trader (voir le module
+// « Coup d'œil »). Lecture de tous + remise à zéro réservées aux admins.
+let adminGlanceDocs = [], adminGlanceLoaded = false;
+async function loadAdminGlance(){
+  const status = document.getElementById("admin-glance-status"), body = document.getElementById("admin-glance-body");
+  if (!dbReady || !db){ if (status) status.textContent = "Base de données indisponible."; return; }
+  if (status) status.textContent = "Chargement…";
+  try{
+    const snap = await db.collection("glance").get();
+    adminGlanceDocs = snap.docs.slice().sort((a, b)=>(b.data().last||0)-(a.data().last||0));
+    adminGlanceLoaded = true;
+    const games = adminGlanceDocs.reduce((s, d)=>s+(d.data().plays||0), 0);
+    if (status) status.textContent = adminGlanceDocs.length+" joueur"+(adminGlanceDocs.length>1 ? "s" : "")+" · "+games+" partie"+(games>1 ? "s" : "")+" — actualisé à "+new Date().toLocaleTimeString("fr-FR");
+    renderAdminGlance();
+  }catch(e){
+    console.warn("admin glance load failed", e);
+    if (status) status.textContent = "Erreur de chargement — déploie les règles Firestore (SERVER_SETUP.md, « Coup d'œil »).";
+    if (body) body.innerHTML = '<tr><td colspan="8" class="empty-note">Impossible de charger les scores.</td></tr>';
+  }
+}
+function renderAdminGlance(){
+  const body = document.getElementById("admin-glance-body"), hard = document.getElementById("admin-glance-hard");
+  if (!body) return;
+  const pc = (o)=>o && o.n ? Math.round(o.ok/o.n*100)+" %" : "—";
+  // Types de questions les plus ratés (tous joueurs confondus).
+  const agg = {}; adminGlanceDocs.forEach(doc=>{ const q = doc.data().q||{}; Object.keys(q).forEach(k=>{ agg[k] = agg[k] || {ok:0, n:0}; agg[k].ok += q[k].ok||0; agg[k].n += q[k].n||0; }); });
+  const nm = k=>{ const Q = (typeof GQ_QS!=="undefined" ? GQ_QS : []).find(x=>x.k===k); return Q ? Q.nm : k; };
+  const worst = Object.keys(agg).filter(k=>agg[k].n>=3 && agg[k].ok/agg[k].n < 0.7).sort((a, b)=>agg[a].ok/agg[a].n - agg[b].ok/agg[b].n).slice(0, 6);
+  if (hard) hard.innerHTML = worst.length ? '<b>Les plus ratées :</b> '+worst.map(k=>escapeHtml(nm(k))+' '+pc(agg[k])+' <span style="opacity:.6">('+agg[k].n+')</span>').join(" · ") : "";
+  if (!adminGlanceDocs.length){ body.innerHTML = '<tr><td colspan="8" class="empty-note">Personne n\'a encore joué.</td></tr>'; return; }
+  const short = {structure:"Str", tendance:"Moy", momentum:"Mom", volume:"Vol", liquidite:"Liq"};
+  body.innerHTML = adminGlanceDocs.map(doc=>{
+    const d = doc.data(), t = adminFindDoc(doc.id), name = (t && t.data().username) || d.username || doc.id;
+    const g = (d.games||[]).slice(-1)[0];
+    const chap = Object.keys(short).filter(k=>d.th && d.th[k] && d.th[k].n).map(k=>short[k]+" "+pc(d.th[k])).join(" · ") || "—";
+    return '<tr>'+
+      '<td>'+escapeHtml(name)+'</td>'+
+      '<td class="num">'+(d.plays||0)+'</td>'+
+      '<td class="num">'+(d.best||0)+' / 10</td>'+
+      '<td class="num">'+pc(d)+' <span class="chart-note" style="display:inline;">('+(d.n||0)+')</span></td>'+
+      '<td class="num">'+(d.streak||0)+'</td>'+
+      '<td style="white-space:nowrap;font-size:12px;">'+chap+'</td>'+
+      '<td style="white-space:nowrap;">'+(g ? g.s+' / '+g.a+(g.a<10 ? ' (arrêtée)' : '')+' · '+relTime(new Date(g.at)) : "—")+'</td>'+
+      '<td><button class="pos-close" data-admin-glance-reset="'+doc.id+'" style="color:var(--short);">Réinitialiser</button></td>'+
+    '</tr>';
+  }).join("");
+}
+function adminGlanceSelfClear(){ try{ localStorage.removeItem(GQ_KEY); }catch(e){} GQ.remote = null; GQ.remoteUid = null; GQ.remoteTried = null; }
+async function adminResetGlance(id){
+  const doc = adminGlanceDocs.find(d=>d.id===id); if (!doc) return;
+  const t = adminFindDoc(id), name = (t && t.data().username) || doc.data().username || id;
+  if (!confirm("Réinitialiser les stats Coup d'œil de "+name+" ? (record, parties, justesse, série) Irréversible.")) return;
+  try{ await db.collection("glance").doc(id).delete(); if (id===clientId) adminGlanceSelfClear(); await loadAdminGlance(); }
+  catch(e){ console.warn("admin glance reset failed", e); alert("Échec — déploie les règles Firestore (SERVER_SETUP.md, « Coup d'œil »)."); }
+}
+async function adminResetGlanceAll(){
+  if (!adminGlanceLoaded) await loadAdminGlance();
+  if (!adminGlanceDocs.length){ alert("Rien à réinitialiser."); return; }
+  if (!confirm("Réinitialiser Coup d'œil pour TOUT LE MONDE ("+adminGlanceDocs.length+" joueurs) ? Records, parties, justesse et séries repartent de zéro. Irréversible.")) return;
+  const status = document.getElementById("admin-glance-status"); if (status) status.textContent = "Réinitialisation…";
+  try{
+    const ids = adminGlanceDocs.map(d=>d.id);
+    for (let i=0;i<ids.length;i+=400){ const b = db.batch(); ids.slice(i, i+400).forEach(id=>b.delete(db.collection("glance").doc(id))); await b.commit(); }
+    adminGlanceSelfClear();
+    await loadAdminGlance();
+  }catch(e){ console.warn("admin glance reset all failed", e); if (status) status.textContent = "Échec — déploie les règles Firestore (SERVER_SETUP.md, « Coup d'œil »)."; }
+}
+
 /* ============================= ADMIN — TRADES EDB+ ============================= */
 let adminTradesDocs = [];
 let adminTradeSide = "long";
@@ -32435,6 +32785,12 @@ function initAdminUI(){
       else if (t && t.dataset && t.dataset.adminChatDelete) adminDeleteEdbPlusRequest(t.dataset.adminChatDelete);
     });
   }
+  const glRefresh = document.getElementById("admin-glance-refresh");
+  if (glRefresh) glRefresh.addEventListener("click", loadAdminGlance);
+  const glReset = document.getElementById("admin-glance-reset");
+  if (glReset) glReset.addEventListener("click", adminResetGlanceAll);
+  const glBody = document.getElementById("admin-glance-body");
+  if (glBody) glBody.addEventListener("click", (e)=>{ const b = e.target.closest("[data-admin-glance-reset]"); if (b) adminResetGlance(b.dataset.adminGlanceReset); });
   const fbRefreshBtn = document.getElementById("admin-feedback-refresh");
   if (fbRefreshBtn) fbRefreshBtn.addEventListener("click", loadAdminFeedback);
   const fbBody = document.getElementById("admin-feedback-body");
@@ -32544,6 +32900,7 @@ function initAdminUI(){
     const tab = b.dataset.admTab;
     document.querySelectorAll("#adm-tabs [data-adm-tab]").forEach(x=>x.classList.toggle("active", x===b));
     document.querySelectorAll("#view-admin [data-adm-pane]").forEach(p=>{ p.hidden = p.dataset.admPane!==tab; });
+    if (tab==="glance" && !adminGlanceLoaded) loadAdminGlance();
   }));
   const ff = document.getElementById("admin-formation-file");
   if (ff) ff.addEventListener("change", ()=>{ const f = ff.files && ff.files[0]; if (f) adminImportFormation(f); ff.value = ""; });
