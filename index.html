@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="2990">
+<meta name="pt-build" content="3000">
 <title>Paper Tape</title>
 <script>
 /* Un seul fichier pour deux sites :
@@ -3195,6 +3195,24 @@
   .ep2{gap:0;}
   .ep2 .ic{width:16px;height:16px;}
   .ep2-section{margin-top:56px;}
+  .ep2-shots{display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);gap:18px;align-items:start;}
+  .ep2-shot-tabs{display:flex;flex-direction:column;gap:8px;}
+  .ep2-shot-tabs button{text-align:left;padding:14px 16px;border-radius:14px;border:1px solid var(--border-soft);background:var(--panel);color:var(--text-dim);font:inherit;cursor:pointer;transition:border-color .15s, background .15s;}
+  .ep2-shot-tabs button b{display:block;color:var(--text);font-size:15px;margin-bottom:4px;}
+  .ep2-shot-tabs button span{display:block;font-size:13px;line-height:1.45;}
+  .ep2-shot-tabs button:hover{border-color:color-mix(in srgb, var(--pw-gold) 35%, var(--border-soft));}
+  .ep2-shot-tabs button.on{border-color:var(--pw-gold);background:color-mix(in srgb, var(--pw-gold) 8%, var(--panel));}
+  .ep2-shot-frame{position:relative;display:block;width:100%;padding:0;margin:0;border-radius:18px;overflow:hidden;border:1px solid color-mix(in srgb, var(--pw-gold) 25%, var(--border-soft));background:#0e0e0e;box-shadow:0 30px 80px rgba(0,0,0,.45);cursor:zoom-in;}
+  .ep2-shot-frame img{display:block;width:100%;height:auto;}
+  .ep2-shot-cap{display:none;margin:0;color:var(--text-dim);font-size:14px;line-height:1.5;}
+  .ep2-shot-tag{position:absolute;top:12px;right:12px;display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:rgba(0,0,0,.65);color:var(--pw-gold);font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.08em;}
+  @media (max-width:860px){
+    .ep2-shots{grid-template-columns:minmax(0,1fr);}
+    .ep2-shot-tabs{flex-direction:row;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px 2px;}
+    .ep2-shot-tabs button{flex:none;width:220px;}
+    .ep2-shot-tabs button span{display:none;}
+    .ep2-shot-cap{display:block;}
+  }
   .ep2-head{display:flex;flex-direction:column;gap:10px;margin-bottom:22px;}
   .ep2-head.center{align-items:center;text-align:center;}
   .ep2-head h2{font-size:36px;letter-spacing:-.03em;line-height:1.08;margin:0;}
@@ -6312,7 +6330,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2990 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3000 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -6952,7 +6970,7 @@ const EDB_PLUS_FEATURES = {
   // paywall/une seule clé pour les deux — l'ancienne clé "learn" séparée a
   // disparu.
   quiz:      {label:"Connaissances & Quiz",     detail:"réviser chaque sujet puis tester tes connaissances et grimper au classement des quiz", img:"https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=1600&q=80"},
-  orderflow: {label:"Footprint, TPO & order flow", detail:"lire le footprint (acheteurs × vendeurs par prix, déséquilibres, absorption), le TPO / Market Profile et la heatmap des liquidations sur le graphique"},
+  orderflow: {label:"Footprint, TPO & order flow", detail:"lire le footprint (acheteurs × vendeurs par prix, déséquilibres, absorption), le TPO / Market Profile, la heatmap de liquidité et celle des liquidations sur le graphique", img:"img/ep-footprint-heatmap.webp"},
   challenge: {label:"Le challenge prop firm",    detail:"trader un compte démo calqué sur une vraie évaluation prop firm en 2 étapes", img:"https://images.unsplash.com/photo-1767424412548-1a1ac7f4b9bc?w=1600&q=80&auto=format&fit=crop"},
   theme:     {label:"Le changement de thème",    detail:"personnaliser l'interface (Ember, Sage, Ink, Noir, Gold, Azure)", img:"https://images.pexels.com/photos/10275089/pexels-photo-10275089.jpeg?auto=compress&cs=tinysrgb&w=1600"},
   tradesedb: {label:"Trades EDB+",               detail:"suivre les trades partagés par le bureau et le trade swing hebdomadaire", img:"https://images.unsplash.com/photo-1745270917233-65e776a47547?auto=format&fit=crop&w=1600&q=80"},
@@ -6999,7 +7017,7 @@ const EDB_PLUS_COMPARE = [
   ["Classements, badges et chat de l'association", true],
   ["Ressources trading + layout MMT", true],
   ["Connaissances & Quiz : tous les cours et quiz", false],
-  ["Footprint, TPO / Market Profile, heatmap des liquidations", false],
+  ["Footprint, TPO / Market Profile, heatmaps de liquidité et des liquidations", false],
   ["Challenge prop firm en 2 étapes", false],
   ["Concours EDB+ : une vraie prop firm à gagner", false],
   ["Replay : rejouer des séances de marché passées", false],
@@ -7197,6 +7215,42 @@ function ep2CardHtml(mode){
     '<div class="ep2-card-bot"><div><small>Titulaire</small><b>@'+escapeHtml(ep2Name())+'</b></div><div class="r"><small>'+escapeHtml(lbl)+'</small><b>'+escapeHtml(val)+'</b></div></div>'+
   '</div></div>';
 }
+// Vitrine : vraies captures du graphique (footprint + heatmap de liquidité,
+// TPO, heatmap des liquidations, mobile). Images dans img/ (site-github).
+const EP2_SHOTS = [
+  {k:"fp", t:"Footprint + heatmap de liquidité", d:"Achats × ventes à chaque prix, delta par bougie, et les ordres en attente du carnet qui s'affichent dans le temps, façon Bookmap.", img:"img/ep-footprint-heatmap.webp", w:1400, h:877},
+  {k:"tpo", t:"TPO / Market Profile", d:"Un profil par séance : TPOC, value area (VAH / VAL), poor highs / lows et TPOC non revisités prolongés jusqu'à l'axe.", img:"img/ep-tpo.webp", w:1400, h:875},
+  {k:"liq", t:"Heatmap des liquidations", d:"Où sont les liquidations estimées des longs et des shorts (open interest Binance, leviers x10 à x100) : les aimants à prix.", img:"img/ep-liquidations.webp", w:1400, h:877},
+  {k:"mob", t:"Partout, même sur mobile", d:"Le même graphique dans un widget ou en plein écran, sur ordinateur comme sur téléphone, avec 8 palettes de couleurs.", img:"img/ep-mobile.webp", w:1000, h:837},
+];
+function ep2Showcase(){
+  const s0 = EP2_SHOTS[0];
+  return '<section class="ep2-section ep2-shots-sec reveal">'+
+    '<div class="ep2-head"><span class="ep2-kicker">Les outils pro, en vrai</span><h2>Ce que voient les traders d\'order flow.<br>Dans ton navigateur.</h2>'+
+      '<p>Pas de maquette : ce sont des captures du graphique Paper Tape, sur le BTC en direct.</p></div>'+
+    '<div class="ep2-shots">'+
+      '<div class="ep2-shot-tabs" role="tablist">'+EP2_SHOTS.map((x,i)=>'<button type="button" role="tab" data-ep-shot="'+x.k+'" class="'+(i===0 ? "on" : "")+'" aria-selected="'+(i===0)+'"><b>'+escapeHtml(x.t)+'</b><span>'+escapeHtml(x.d)+'</span></button>').join("")+'</div>'+
+      '<button type="button" class="ep2-shot-frame" data-ep-zoom aria-label="Agrandir la capture">'+
+        '<img id="ep2-shot-img" src="'+s0.img+'" width="'+s0.w+'" height="'+s0.h+'" alt="'+escapeHtml(s0.t)+'" loading="lazy" decoding="async">'+
+        '<span class="ep2-shot-tag">'+ep2Ic("i-gem")+'EDB+</span>'+
+      '</button>'+
+      '<p class="ep2-shot-cap" id="ep2-shot-cap">'+escapeHtml(s0.d)+'</p>'+
+    '</div>'+
+  '</section>';
+}
+function ep2ShotSel(k){
+  const x = EP2_SHOTS.find(z=>z.k===k); if (!x) return;
+  document.querySelectorAll("[data-ep-shot]").forEach(b=>{ const on = b.dataset.epShot===k; b.classList.toggle("on", on); b.setAttribute("aria-selected", String(on)); });
+  const img = document.getElementById("ep2-shot-img");
+  if (img){ img.src = x.img; img.width = x.w; img.height = x.h; img.alt = x.t; }
+  const cap = document.getElementById("ep2-shot-cap"); if (cap) cap.textContent = x.d;
+}
+document.addEventListener("click", (e)=>{
+  const t = e.target.closest && e.target.closest("[data-ep-shot]");
+  if (t){ ep2ShotSel(t.dataset.epShot); return; }
+  const z = e.target.closest && e.target.closest("[data-ep-zoom]");
+  if (z){ const img = document.getElementById("ep2-shot-img"); if (img && typeof openLightbox==="function") openLightbox(img.getAttribute("src")); }
+});
 function ep2Bento(nCourses, nQ){
   const meter = (label, v, w, color)=>'<div class="ep2-meter"><div><span>'+label+'</span><b>'+v+'</b></div><u><i style="width:'+w+'%;--m:'+color+';"></i></u></div>';
   const spark = '<svg class="ep2-spark" viewBox="0 0 260 112" aria-hidden="true">'+
@@ -7307,6 +7361,7 @@ function epPitchHtml(){
       '<div class="ep2-head reveal"><span class="ep2-kicker">Ce que tu débloques</span><h2>Tout ce qu\'il faut pour progresser.<br>Et une vraie récompense au bout.</h2></div>'+
       ep2Bento(nCourses, nQ)+
     '</section>'+
+    ep2Showcase()+
     '<section class="ep2-section ep2-compare reveal">'+
       '<div class="ep2-compare-l">'+
         '<span class="ep2-kicker">Gratuit ou EDB+</span>'+
