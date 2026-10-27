@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3150">
+<meta name="pt-build" content="3160">
 <title>Paper Tape</title>
 <script>
 /* Un seul fichier pour deux sites :
@@ -5499,7 +5499,6 @@
     <svg class="brand-logo tb-logo" aria-hidden="true"><use href="#pt-logo"/></svg>
     <div class="tb-title-wrap">
       <h1 class="tb-title" id="tb-title">Terminal</h1>
-      <div class="livewrap"><span class="livedot"></span><span class="live-label">Live · Binance + Hyperliquid</span></div>
     </div>
     <div class="acct-strip">
       <div class="uname-edit" hidden>
@@ -6490,7 +6489,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3150 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3160 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -12402,6 +12401,12 @@ function chartLevelHtml(g, o){
   if (o.pend) s += '<rect class="pend-hit" data-pend-drag="'+o.pend+'" x="'+g.padL+'" y="-7" width="'+(g.W-g.padL)+'" height="14" fill="transparent"><title>Glisser pour déplacer l\'ordre limite</title></rect>';
   if (o.pendLeg) s += '<rect class="pend-hit" data-pend-drag="'+o.pendLeg.id+'" data-pend-leg="'+o.pendLeg.leg+'" x="'+g.padL+'" y="-7" width="'+(g.W-g.padL)+'" height="14" fill="transparent"><title>Glisser pour ajuster</title></rect>';
   if (o.draft) s += '<rect class="pend-hit" data-draft-leg="'+o.draft+'" x="'+g.padL+'" y="-7" width="'+(g.W-g.padL)+'" height="14" fill="transparent"><title>Glisser pour ajuster</title></rect>';
+  if (o.close && o.label){ // ✕ à droite de l'étiquette d'une position : la fermer (tout ou partie)
+    const w = Math.round(chartTextW(o.label, 9.5)+12), cx = g.padL+4+w+12;
+    s += '<g class="pend-x" data-pos-close="'+o.close+'"><title>Fermer la position (tout ou partie)</title>'+
+      '<circle cx="'+cx+'" cy="0" r="8" fill="'+g.pal.bg+'" stroke="'+(o.labelColor||o.color)+'" stroke-width="1"/>'+
+      '<path d="M'+(cx-3)+' -3L'+(cx+3)+' 3M'+(cx+3)+' -3L'+(cx-3)+' 3" stroke="'+(o.labelColor||o.color)+'" stroke-width="1.6" stroke-linecap="round"/></g>';
+  }
   if (o.cancel && o.label){
     const w = Math.round(chartTextW(o.label, 9.5)+12);
     const cx = (o.align==="right" ? (g.W-g.padR-6-w) : (g.padL+4+w)) - 12;
@@ -12513,7 +12518,7 @@ function positionLinesHtml(g, positions, pending){
     const roe = p.initMargin ? pnl/p.initMargin*100 : 0;
     const pnlColor = pnl>=0 ? g.cc.up : g.cc.down;
     out += chartLevelHtml(g, {
-      price:p.entryPrice, color:g.pal.text, align:"left", labelColor:pnlColor, opacity:0.75,
+      price:p.entryPrice, color:g.pal.text, align:"left", labelColor:pnlColor, opacity:0.75, close:RPV ? null : p.id,
       label:(p.side==="short"?"SHORT":"LONG")+" x"+fmtLev(p.leverage)+" · "+fmtMoneySigned(pnl)+" ("+(roe>=0?"+":"")+roe.toFixed(1)+"%)",
     });
     const entryY = g.y(p.entryPrice);
@@ -13601,7 +13606,7 @@ function initTpoMenu(){
   const eligible = (e)=>{
     if (chartSource!=="internal" || !tpoOn() || drawTool || !chartView || !chartView.tpoVis) return false;
     const t = e.target;
-    if (t.closest && t.closest("#chart-levels, [data-draw-id], [data-draw-h], [data-chart-live], .draft-btn, .pend-x")) return false;
+    if (t.closest && t.closest("#chart-levels, [data-draw-id], [data-draw-h], [data-chart-live], .draft-btn, .pend-x, [data-pos-close]")) return false;
     const r = svg.getBoundingClientRect(), x = e.clientX-r.left, y = e.clientY-r.top, v = chartView;
     if (x < v.padL || x > v.W-v.padR || y < v.padT || y > v.H-v.padB) return false;
     return {x, y};
@@ -15232,6 +15237,13 @@ function initChartInteractions(){
     if (t.closest && t.closest("[data-tpsl-pos]")) return;
     if (t.closest && t.closest("[data-chart-live]")){ chartHover = null; backToLive(); e.preventDefault(); return; }
     if (t.closest && t.closest("[data-chart-yauto]")){ chartYReset(); e.preventDefault(); return; }
+    const pcx = t.closest && t.closest("[data-pos-close]");
+    if (pcx){
+      const p = (state.positions||[]).find(x=>x.id===pcx.dataset.posClose);
+      if (p) openPartialCloseModal(p, 100);
+      e.preventDefault(); e.stopPropagation();
+      return;
+    }
     const px = t.closest && t.closest("[data-pend-cancel]");
     if (px){
       const o = (state.pendingOrders||[]).find(x=>x.id===px.dataset.pendCancel);
@@ -20052,23 +20064,24 @@ function trimNum(n, decimals){
   if (!isFinite(n)) return "";
   return n.toFixed(decimals==null?6:decimals).replace(/\.?0+$/,"");
 }
-function openPartialCloseModal(p){
+function openPartialCloseModal(p, defPct){
   const a = ASSETS.find(x=>x.symbol===p.symbol);
   let unit = "pct"; // "pct" | "qty" — which unit the input box currently represents
+  const def = defPct || 50;
   openModal(
-    '<h3 style="margin-bottom:14px;">Clôture partielle</h3>'+
+    '<h3 style="margin-bottom:14px;">'+(defPct ? "Fermer la position" : "Clôture partielle")+'</h3>'+
     '<div class="chart-note" style="margin-bottom:12px;">'+p.symbol+' · '+(p.side==="long"?"Long":"Short")+' · Taille actuelle '+fmtQty(p.sizeUnits)+' '+p.symbol+' ('+fmtMoney(p.notional)+')</div>'+
     '<div class="field-row"><label>Fermer par</label>'+
       '<div class="seg"><button type="button" class="on-mode active" id="partial-unit-pct">%</button><button type="button" class="on-mode" id="partial-unit-qty">Quantité ('+p.symbol+')</button></div>'+
     '</div>'+
-    '<div class="field-row"><label id="partial-input-label">% de la position à fermer</label><input type="number" step="any" min="0" class="tpsl-input" id="partial-pct-input" value="50"></div>'+
+    '<div class="field-row"><label id="partial-input-label">% de la position à fermer</label><input type="number" step="any" min="0" class="tpsl-input" id="partial-pct-input" value="'+def+'"></div>'+
     '<div class="lev-presets" id="partial-pct-presets">'+
-      [25,50,75,100].map(v=>'<button type="button" data-pct="'+v+'">'+v+'%</button>').join("")+
+      [25,50,75,100].map(v=>'<button type="button" data-pct="'+v+'"'+(v===def ? ' class="active"' : '')+'>'+v+'%</button>').join("")+
     '</div>'+
     '<div class="chart-note" id="partial-msg" style="margin:10px 0;color:var(--warn);"></div>'+
     '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;">'+
       '<button class="btn-secondary" id="partial-cancel">Annuler</button>'+
-      '<button class="btn-primary" id="partial-confirm">Fermer cette part</button>'+
+      '<button class="btn-primary" id="partial-confirm">'+(def>=100 ? "Fermer toute la position" : "Fermer cette part")+'</button>'+
     '</div>'
   );
   const input = document.getElementById("partial-pct-input");
@@ -20091,6 +20104,9 @@ function openPartialCloseModal(p){
     label.textContent = unit==="pct" ? "% de la position à fermer" : "Quantité à fermer ("+p.symbol+")";
     if (frac!=null) input.value = unit==="pct" ? trimNum(frac*100, 2) : trimNum(frac*p.sizeUnits, 6);
   }
+  const confirmBtn = ()=>document.getElementById("partial-confirm");
+  const syncBtn = ()=>{ const f = currentFraction(), b = confirmBtn(); if (b) b.textContent = f!=null && f>=0.9999 ? "Fermer toute la position" : "Fermer cette part"; };
+  input.addEventListener("input", ()=>{ syncBtn(); document.querySelectorAll("#partial-pct-presets button").forEach(b=>b.classList.remove("active")); });
   btnPct.addEventListener("click", ()=>setUnit("pct"));
   btnQty.addEventListener("click", ()=>setUnit("qty"));
   document.querySelectorAll("#partial-pct-presets button").forEach(btn=>{
@@ -20098,6 +20114,7 @@ function openPartialCloseModal(p){
       const pctVal = parseFloat(btn.dataset.pct);
       input.value = unit==="pct" ? pctVal : trimNum(pctVal/100*p.sizeUnits, 6);
       document.querySelectorAll("#partial-pct-presets button").forEach(b=>b.classList.toggle("active", b===btn));
+      syncBtn();
     });
   });
   document.getElementById("partial-cancel").addEventListener("click", closeModal);
@@ -20107,7 +20124,8 @@ function openPartialCloseModal(p){
     if (frac==null || !(frac>0)){ msg.textContent = unit==="pct" ? "Entre un pourcentage entre 1 et 100." : "Entre une quantité valide."; return; }
     if (frac>1.0001){ msg.textContent = "Tu ne peux pas fermer plus que la taille actuelle de la position."; return; }
     if (!hasLive(p.symbol)){ msg.textContent = "Prix indisponible pour le moment — réessaie dans quelques secondes."; return; }
-    closePositionPartial(p.id, frac, "closed_partial");
+    if (frac>=0.9999) closePosition(p.id, "closed"); // 100 % = clôture normale (même historique que le bouton Fermer)
+    else closePositionPartial(p.id, frac, "closed_partial");
     closeModal();
   });
 }
