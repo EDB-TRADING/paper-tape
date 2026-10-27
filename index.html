@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3160">
+<meta name="pt-build" content="3170">
 <title>Paper Tape</title>
 <script>
 /* Un seul fichier pour deux sites :
@@ -3488,6 +3488,18 @@
   .dd-actions[hidden], .dd-verdict[hidden], .dd-q[hidden]{display:none !important;}
   .dd-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;padding:30px 32px;border-radius:22px;border:1px solid var(--border-soft);
     background:radial-gradient(700px 300px at 0% 0%, color-mix(in srgb, var(--dd-a) 13%, transparent), transparent 70%), linear-gradient(180deg, var(--panel), var(--bg));}
+  /* ---------- Admin › Temps par page ---------- */
+  .adm-pages{display:flex;flex-direction:column;border-top:1px solid var(--border-soft);}
+  .adm-pg{border-bottom:1px solid var(--border-soft);}
+  .adm-pg-row{width:100%;display:grid;grid-template-columns:170px minmax(0,1fr) 120px 190px;align-items:center;gap:14px;padding:11px 4px;background:none;border:0;color:var(--text);font:inherit;text-align:left;cursor:pointer;}
+  .adm-pg-row:hover, .adm-pg.is-open .adm-pg-row{background:var(--panel-2);}
+  .adm-pg-name{font-weight:600;font-size:13.5px;}
+  .adm-pg-bar{height:8px;border-radius:4px;background:var(--border-soft);overflow:hidden;} .adm-pg-bar i{display:block;height:100%;background:var(--accent, var(--dd-a));border-radius:4px;}
+  .adm-pg-num{display:flex;align-items:baseline;gap:8px;justify-content:flex-end;} .adm-pg-num b{font:600 13px var(--mono);} .adm-pg-num em{font-style:normal;font-size:11.5px;color:var(--text-faint);}
+  .adm-pg-users{font-size:12px;color:var(--text-dim);text-align:right;}
+  .adm-pg-top{display:grid;grid-template-columns:repeat(auto-fill, minmax(220px,1fr));gap:4px 20px;padding:6px 8px 14px 18px;}
+  .adm-pg-top div{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:3px 0;border-bottom:1px dashed var(--border-soft);} .adm-pg-top b{font:600 12px var(--mono);}
+  @media (max-width:720px){ .adm-pg-row{grid-template-columns:1fr auto;gap:6px 10px;} .adm-pg-bar{grid-column:1 / -1;grid-row:2;} .adm-pg-users{grid-column:1 / -1;text-align:left;} }
   /* ---------- Chart Check (quiz graphique) ---------- */
   .gq{--gq-serif:'Instrument Serif', Georgia, 'Times New Roman', serif;max-width:1240px;margin:0 auto;width:100%;}
   .gq kbd{font:600 10.5px var(--mono);padding:2px 6px;border-radius:5px;border:1px solid currentColor;opacity:.6;margin-left:6px;}
@@ -6183,6 +6195,7 @@
           <button type="button" class="on-mode active" data-adm-tab="traders">👥 Traders</button>
           <button type="button" class="on-mode" data-adm-tab="requests">💬 Demandes EDB+ <i id="adm-t-req"></i></button>
           <button type="button" class="on-mode" data-adm-tab="publish">📈 Publier</button>
+          <button type="button" class="on-mode" data-adm-tab="pages">⏱ Pages</button>
           <button type="button" class="on-mode" data-adm-tab="glance">👁 Chart Check</button>
           <button type="button" class="on-mode" data-adm-tab="feedback">🐞 Retours <i id="adm-t-fb"></i></button>
         </div>
@@ -6353,6 +6366,17 @@
       </div>
           </div>
         </div>
+        <div class="adm-pane" data-adm-pane="pages" hidden>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+          <h3 style="margin:0;">Temps passé par page</h3>
+          <div class="seg" id="adm-pages-period"><button type="button" class="on-mode" data-pages-period="1">Aujourd'hui</button><button type="button" class="on-mode active" data-pages-period="7">7 jours</button><button type="button" class="on-mode" data-pages-period="all">Depuis le début</button></div>
+        </div>
+        <div class="chart-note" style="margin-bottom:10px;">Temps compté onglet ouvert et visible, par tranches de 30 s, sur la page affichée. Suivi depuis la v3170. Clique sur une page pour voir qui y passe le plus de temps.</div>
+        <div id="adm-pages-status" class="chart-note"></div>
+        <div id="adm-pages-list" class="adm-pages"></div>
+      </div>
+        </div>
         <div class="adm-pane" data-adm-pane="glance" hidden>
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
@@ -6489,7 +6513,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3160 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3170 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -8138,6 +8162,8 @@ const state = {
   edbPlusUntil: null,       // fin de l'adhésion payée par Stripe (null = sans date de fin)
   edbPlusExpired: false,
   totalTimeSpent: 0, // cumulative seconds with the tab open & visible — see initSessionTimeTracking()
+  timeByView: {}, // secondes par page (terminal, daily, games…) depuis la v3170 — voir initSessionTimeTracking()
+  viewDays: {},   // même chose, jour par jour (14 derniers jours) : {"AAAA-MM-JJ": {page: secondes}}
   timeSpentConnaissances: 0, // subset of totalTimeSpent specifically on the Connaissances/Quiz tab — see initSessionTimeTracking()
   connaissancesOpened: {}, // {[deckId]: iso timestamp FIRST opened} — see recordConnaissanceOpened()/renderLearnDoc()
   photoURL: null,  // profile picture (Firebase Storage download URL) — see initProfilePhoto()
@@ -8529,6 +8555,8 @@ function hydrateStateFromDoc(snap){
   scheduleEdbPlusTrialExpiry();
   state.totalTimeSpent = typeof d.totalTimeSpent==="number" ? d.totalTimeSpent : 0;
   state.timeSpentConnaissances = typeof d.timeSpentConnaissances==="number" ? d.timeSpentConnaissances : 0;
+  state.timeByView = (d.timeByView && typeof d.timeByView==="object") ? d.timeByView : {};
+  state.viewDays = (d.viewDays && typeof d.viewDays==="object") ? d.viewDays : {};
   state.connaissancesOpened = (d.connaissancesOpened && typeof d.connaissancesOpened==="object") ? d.connaissancesOpened : {};
   state.photoURL = d.photoURL || null;
   state.feed = Array.isArray(d.feed) ? d.feed : [];
@@ -9040,6 +9068,8 @@ function persistAccount(){
           edbPlusRequestedAt: state.edbPlusRequestedAt || null,
           totalTimeSpent: state.totalTimeSpent||0,
           timeSpentConnaissances: state.timeSpentConnaissances||0,
+          timeByView: state.timeByView||{},
+          viewDays: state.viewDays||{},
           connaissancesOpened: state.connaissancesOpened||{},
           photoURL: state.photoURL || null,
           feed: (state.feed||[]).slice(0,30),
@@ -9138,6 +9168,12 @@ function initSessionTimeTracking(){
     const gate = document.getElementById("auth-gate");
     if (document.visibilityState==="visible" && gate && gate.hidden){
       state.totalTimeSpent = (state.totalTimeSpent||0) + 30;
+      // Temps par page (Admin › Pages) : cumul + détail des 14 derniers jours.
+      { const v = String(document.body.dataset.view||"terminal").replace(/[^a-z0-9]/gi, "").slice(0, 24) || "autre";
+        const tv = state.timeByView || (state.timeByView = {}); tv[v] = (tv[v]||0) + 30;
+        const n = new Date(), day = n.getFullYear()+"-"+String(n.getMonth()+1).padStart(2, "0")+"-"+String(n.getDate()).padStart(2, "0");
+        const vd = state.viewDays || (state.viewDays = {}); const dd = vd[day] || (vd[day] = {}); dd[v] = (dd[v]||0) + 30;
+        const ks = Object.keys(vd).sort(); while (ks.length > 14) delete vd[ks.shift()]; }
       // Subset specifically spent on the Connaissances/Quiz tab — reads the
       // DOM directly (whichever .view currently has "active") rather than
       // tracking a separate "current view" variable, since switchView()
@@ -31196,6 +31232,7 @@ async function loadAdminTraders(){
     adminDocs = snap.docs;
     if (status) status.textContent = adminDocs.length+(adminDocs.length>1?" traders":" trader")+" — dernière actualisation "+new Date().toLocaleTimeString("fr-FR");
     renderAdminTable();
+    if (typeof renderAdminPages==="function") renderAdminPages();
   }catch(e){
     console.warn("admin load failed", e);
     if (status) status.textContent = "Erreur de chargement (vérifie les règles Firestore — voir SERVER_SETUP.md).";
@@ -32136,6 +32173,7 @@ function adminDetailHtml(d){
 
   html += (typeof adminRiskProfileHtml==="function" ? adminRiskProfileHtml(d) : "");
   html += (typeof adminChallengeHtml==="function" ? adminChallengeHtml(d) : "");
+  html += (typeof adminPagesDetailHtml==="function" ? adminPagesDetailHtml(d) : "");
   html += (typeof adminConnaissancesHtml==="function" ? adminConnaissancesHtml(d) : "");
 
   html += adminDetailSection("Positions ouvertes ("+pos.length+")",
@@ -32336,7 +32374,51 @@ async function adminDeleteFeedback(id){
 }
 
 
-/* ============================= ADMIN — COUP D'ŒIL ============================= */
+/* ============================= ADMIN — TEMPS PAR PAGE ============================= */
+// Lit timeByView (cumul) et viewDays (14 derniers jours) des documents traders
+// déjà chargés par loadAdminTraders() : aucune lecture Firestore en plus.
+let adminPagesPeriod = "7", adminPagesOpen = null;
+function adminPageName(k){ return (typeof VIEW_TITLES!=="undefined" && VIEW_TITLES[k]) || k; }
+function adminViewTime(d, period){
+  if (period==="all") return (d.timeByView && typeof d.timeByView==="object") ? d.timeByView : {};
+  const vd = (d.viewDays && typeof d.viewDays==="object") ? d.viewDays : {}, out = {};
+  const n = new Date(), keys = [];
+  for (let i=0;i<(period==="1" ? 1 : 7);i++){ const t = new Date(n.getFullYear(), n.getMonth(), n.getDate()-i); keys.push(t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2, "0")+"-"+String(t.getDate()).padStart(2, "0")); }
+  keys.forEach(k=>{ const day = vd[k]; if (day) Object.keys(day).forEach(v=>{ out[v] = (out[v]||0) + (day[v]||0); }); });
+  return out;
+}
+function renderAdminPages(){
+  const list = document.getElementById("adm-pages-list"), status = document.getElementById("adm-pages-status");
+  if (!list) return;
+  const per = {}; let total = 0, people = 0;
+  adminDocs.forEach(doc=>{
+    const d = doc.data(), t = adminViewTime(d, adminPagesPeriod); let any = false;
+    Object.keys(t).forEach(v=>{ const sec = t[v]||0; if (sec<=0) return; any = true; total += sec;
+      const p = per[v] || (per[v] = {sec:0, users:[]}); p.sec += sec; p.users.push({name:d.username||doc.id, sec}); });
+    if (any) people++;
+  });
+  const pages = Object.keys(per).sort((a, b)=>per[b].sec-per[a].sec);
+  if (status) status.textContent = pages.length ? fmtDuration(total)+" au total · "+people+" trader"+(people>1 ? "s" : "")+" actif"+(people>1 ? "s" : "")+" sur la période" : "";
+  if (!pages.length){ list.innerHTML = '<div class="empty-note">Pas encore de données sur cette période (le suivi commence avec la v3170 : il faut que les traders rechargent la page).</div>'; return; }
+  const max = per[pages[0]].sec;
+  list.innerHTML = pages.map(v=>{
+    const p = per[v], pct = total ? p.sec/total*100 : 0, open = adminPagesOpen===v;
+    const top = open ? '<div class="adm-pg-top">'+p.users.sort((a, b)=>b.sec-a.sec).slice(0, 10).map(u=>'<div><span>'+escapeHtml(u.name)+'</span><b>'+fmtDuration(u.sec)+'</b></div>').join("")+'</div>' : '';
+    return '<div class="adm-pg'+(open ? ' is-open' : '')+'"><button type="button" class="adm-pg-row" data-page-row="'+escapeHtml(v)+'">'+
+      '<span class="adm-pg-name">'+escapeHtml(adminPageName(v))+'</span>'+
+      '<span class="adm-pg-bar"><i style="width:'+(p.sec/max*100).toFixed(1)+'%"></i></span>'+
+      '<span class="adm-pg-num"><b>'+fmtDuration(p.sec)+'</b><em>'+pct.toFixed(0)+' %</em></span>'+
+      '<span class="adm-pg-users">'+p.users.length+' trader'+(p.users.length>1 ? "s" : "")+' · moy. '+fmtDuration(p.sec/p.users.length)+'</span>'+
+    '</button>'+top+'</div>';
+  }).join("");
+}
+function adminPagesDetailHtml(d){
+  const row = (period, label)=>{ const t = adminViewTime(d, period), ks = Object.keys(t).filter(k=>t[k]>0).sort((a, b)=>t[b]-t[a]);
+    return adminDetailRow(label, ks.length ? ks.slice(0, 8).map(k=>escapeHtml(adminPageName(k))+" "+fmtDuration(t[k])).join(" · ") : "—"); };
+  return adminDetailSection("Temps par page", row("7", "7 derniers jours")+row("all", "Depuis le début"));
+}
+
+/* ============================= ADMIN — CHART CHECK ============================= */
 // Stats du quiz graphique : un document glance/{uid} par trader (voir le module
 // « Chart Check »). Lecture de tous + remise à zéro réservées aux admins.
 let adminGlanceDocs = [], adminGlanceLoaded = false;
@@ -32803,6 +32885,13 @@ function initAdminUI(){
       else if (t && t.dataset && t.dataset.adminChatDelete) adminDeleteEdbPlusRequest(t.dataset.adminChatDelete);
     });
   }
+  document.querySelectorAll("#adm-pages-period [data-pages-period]").forEach(b=>b.addEventListener("click", ()=>{
+    adminPagesPeriod = b.dataset.pagesPeriod;
+    document.querySelectorAll("#adm-pages-period [data-pages-period]").forEach(x=>x.classList.toggle("active", x===b));
+    renderAdminPages();
+  }));
+  const pgList = document.getElementById("adm-pages-list");
+  if (pgList) pgList.addEventListener("click", (e)=>{ const r = e.target.closest("[data-page-row]"); if (!r) return; adminPagesOpen = adminPagesOpen===r.dataset.pageRow ? null : r.dataset.pageRow; renderAdminPages(); });
   const glRefresh = document.getElementById("admin-glance-refresh");
   if (glRefresh) glRefresh.addEventListener("click", loadAdminGlance);
   const glReset = document.getElementById("admin-glance-reset");
@@ -32919,6 +33008,7 @@ function initAdminUI(){
     document.querySelectorAll("#adm-tabs [data-adm-tab]").forEach(x=>x.classList.toggle("active", x===b));
     document.querySelectorAll("#view-admin [data-adm-pane]").forEach(p=>{ p.hidden = p.dataset.admPane!==tab; });
     if (tab==="glance" && !adminGlanceLoaded) loadAdminGlance();
+    if (tab==="pages"){ if (!adminDocs.length) loadAdminTraders().then(renderAdminPages); else renderAdminPages(); }
   }));
   const ff = document.getElementById("admin-formation-file");
   if (ff) ff.addEventListener("change", ()=>{ const f = ff.files && ff.files[0]; if (f) adminImportFormation(f); ff.value = ""; });
