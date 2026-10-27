@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="2870">
+<meta name="pt-build" content="2880">
 <title>Paper Tape</title>
 <script>
 /* Un seul fichier pour deux sites :
@@ -1029,6 +1029,11 @@
     .dx-modes button, .dx-modes .dx-mc{min-width:0 !important;width:auto !important;flex:initial;}
     .dd-toggles{flex-wrap:wrap !important;overflow:visible !important;}
   }
+  .dd-draw{display:inline-flex;gap:4px;align-items:center;}
+  .dd-draw button{display:inline-flex;align-items:center;justify-content:center;width:32px;height:30px;border-radius:8px;border:1px solid var(--border-soft);background:transparent;color:var(--text-faint);cursor:pointer;padding:0;}
+  .dd-draw button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+  .dd-draw button:hover{color:var(--text);}
+  .dd-draw button.on{color:var(--dd-a);border-color:var(--dd-a);background:color-mix(in srgb, var(--dd-a) 12%, transparent);}
   .dd-bias ul{list-style:none;padding-left:0;}
   .dd-bias li{display:block;padding-left:22px;text-indent:-22px;}
   .dd-bz{display:inline-block;width:18px;margin-right:4px;text-indent:0;font-style:normal;font-weight:700;text-align:center;}
@@ -6300,7 +6305,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2870 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v2880 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -24126,7 +24131,7 @@ function dailyQualifies(rd){
 // affichée et dessinée. Les jours d'avant gardent leurs graphiques (archives
 // identiques pour tout le monde).
 const DAILY_SETUP_FROM = "2026-10-28";
-const DAILY_LENSES = [["trend","Tendance (moyennes 50 / 200)"],["dow","Structure (Dow)"],["mom","Momentum (RSI / MACD)"],["sr","Supports / résistances"],["vwap","VWAP et profil de volume"],["smc","Cassures et liquidité"],["of","Flux acheteurs / vendeurs"]];
+const DAILY_LENSES = [["trend","Tendance (moyennes 50 / 200)"],["candle","Chandeliers (price action)"],["tl","Ligne de tendance"],["fib","Retracement de Fibonacci"],["pattern","Figure chartiste"],["dow","Structure (Dow)"],["mom","Momentum (RSI / MACD)"],["sr","Supports / résistances"],["vwap","VWAP et profil de volume"],["smc","Cassures et liquidité"],["of","Flux acheteurs / vendeurs"]];
 function dailyBiasRead(c, ci, a){
   const out = [];
   DAILY_LENSES.forEach(([k, name])=>{
@@ -24142,6 +24147,7 @@ function dailyBiasRead(c, ci, a){
             : "Moyennes mélangées (prix, EMA 50 et EMA 200 pas alignés) : pas de tendance de fond nette."});
         return;
       }
+      if (k==="candle" || k==="tl" || k==="fib" || k==="pattern"){ const r = dailyPA(k, c, ci, a); if (r) out.push(Object.assign({k, name, pa:true}, r)); return; }
       const T = dxThemeRead(k, c, ci, a);
       if (k==="of" && T.lines[0] && /indisponibles/.test(T.lines[0])) return;
       const line = T.bias ? (T.lines.find(l=>/ivergence|BOS|CHoCH|Spring|Upthrust|collé|Structure|confirme|VWAP|value area/.test(l)) || T.lines[0]) : T.lines[0];
@@ -24150,6 +24156,81 @@ function dailyBiasRead(c, ci, a){
   });
   const up = out.filter(x=>x.bias==="up").length, dn = out.filter(x=>x.bias==="down").length;
   return {lenses:out, up, dn, bias: up-dn>=2 ? "up" : dn-up>=2 ? "down" : null};
+}
+// ---- Price action / lecture technique (défi Classique) ----
+// Chaque lecture renvoie {bias, line, annot} ; annot est dessiné à la
+// révélation (repère sur la bougie, ligne de tendance, niveaux de Fibonacci,
+// sommets / creux et ligne de cou).
+function dailyPA(k, c, ci, a){
+  const atr = dailyAtr(c, ci+1, 14) || c[ci][4]*0.01, close = c[ci][4];
+  const an = {lab:[], lev:[], marks:[], zones:[], segs:[]};
+  if (k==="candle"){
+    let lo20 = Infinity, hi20 = -Infinity;
+    for (let j=Math.max(a, ci-20); j<=ci; j++){ lo20 = Math.min(lo20, c[j][3]); hi20 = Math.max(hi20, c[j][2]); }
+    for (let j=ci; j>=ci-2; j--){
+      const [, o, h, l, cl] = c[j], [, po, ph, pl, pc] = c[j-1], body = Math.abs(cl-o), rg = (h-l)||1e-9, uw = h-Math.max(o, cl), lw = Math.min(o, cl)-l;
+      const nearLo = (Math.min(o, cl)-lo20) < 0.35*(hi20-lo20), nearHi = (hi20-Math.max(o, cl)) < 0.35*(hi20-lo20), ago = ci-j, when = ago ? " il y a "+ago+" bougie"+(ago>1 ? "s" : "") : " sur la dernière bougie";
+      if (cl>o && pc<po && o<=pc && cl>=po && body >= 0.5*atr){ an.marks.push({k:j, p:l, t:"Englobante", col:"up"}); return {bias:"up", annot:an, line:"Avalement haussier"+when+" : le corps vert englobe entièrement la bougie rouge précédente → les acheteurs reprennent la main."}; }
+      if (cl<o && pc>po && o>=pc && cl<=po && body >= 0.5*atr){ an.marks.push({k:j, p:h, t:"Englobante", col:"dn"}); return {bias:"down", annot:an, line:"Avalement baissier"+when+" : le corps rouge englobe entièrement la bougie verte précédente → les vendeurs reprennent la main."}; }
+      if (lw >= 2*body && lw >= 0.55*rg && uw <= 0.25*rg && nearLo){ an.marks.push({k:j, p:l, t:"Marteau", col:"up"}); return {bias:"up", annot:an, line:"Marteau (pin bar haussière)"+when+", près des plus bas : longue mèche basse = le prix a été rejeté vers le haut."}; }
+      if (uw >= 2*body && uw >= 0.55*rg && lw <= 0.25*rg && nearHi){ an.marks.push({k:j, p:h, t:"Étoile filante", col:"dn"}); return {bias:"down", annot:an, line:"Étoile filante (pin bar baissière)"+when+", près des plus hauts : longue mèche haute = le prix a été rejeté vers le bas."}; }
+    }
+    const [, o, h, l, cl] = c[ci], [, , ph, pl] = c[ci-1];
+    if (Math.abs(cl-o) <= 0.1*((h-l)||1e-9)){ an.marks.push({k:ci, p:h, t:"Doji", col:"faint"}); return {bias:null, annot:an, line:"Doji sur la dernière bougie : ouverture ≈ clôture, indécision entre acheteurs et vendeurs."}; }
+    if (h < ph && l > pl){ an.marks.push({k:ci, p:h, t:"Inside bar", col:"faint"}); return {bias:null, annot:an, line:"Inside bar : la dernière bougie tient dans la précédente → compression, on attend la sortie."}; }
+    return {bias:null, annot:an, line:"Pas de figure de chandelier marquante sur les 3 dernières bougies."};
+  }
+  const pv = dxPivots(c, Math.max(a, ci-120), ci, 3), H = pv.filter(x=>x.hi), L = pv.filter(x=>!x.hi);
+  if (k==="tl"){
+    const at = (P1, P2, kk)=>P1.p + (P2.p-P1.p)*(kk-P1.k)/((P2.k-P1.k)||1);
+    const up = L.length>=2 && L[L.length-1].p > L[L.length-2].p ? [L[L.length-2], L[L.length-1]] : null;
+    const dn = H.length>=2 && H[H.length-1].p < H[H.length-2].p ? [H[H.length-2], H[H.length-1]] : null;
+    const pick = up && dn ? (up[1].k >= dn[1].k ? "up" : "dn") : up ? "up" : dn ? "dn" : null;
+    if (!pick) return {bias:null, annot:an, line:"Pas de ligne de tendance propre : il faut deux creux montants ou deux sommets descendants."};
+    const [P1, P2] = pick==="up" ? up : dn, lv = at(P1, P2, ci);
+    an.segs.push({k1:P1.k, p1:P1.p, k2:ci, p2:lv, col:pick==="up" ? "up" : "dn", dash:true, t:pick==="up" ? "Trendline haussière" : "Trendline baissière"});
+    an.marks.push({k:P1.k, p:P1.p, t:"1", col:pick==="up" ? "up" : "dn"}, {k:P2.k, p:P2.p, t:"2", col:pick==="up" ? "up" : "dn"});
+    if (pick==="up") return close >= lv ? {bias:"up", annot:an, line:"Ligne de tendance haussière tracée par deux creux montants : le prix reste au-dessus → la tendance tient."}
+      : {bias:"down", annot:an, line:"La ligne de tendance haussière (deux creux montants) vient d'être cassée par le bas → signal de retournement."};
+    return close <= lv ? {bias:"down", annot:an, line:"Ligne de tendance baissière tracée par deux sommets descendants : le prix reste dessous → la tendance tient."}
+      : {bias:"up", annot:an, line:"La ligne de tendance baissière (deux sommets descendants) vient d'être cassée par le haut → signal de retournement."};
+  }
+  if (k==="fib"){
+    const a2 = Math.max(a, ci-80);
+    let hk = a2, lk = a2;
+    for (let j=a2; j<=ci; j++){ if (c[j][2] > c[hk][2]) hk = j; if (c[j][3] < c[lk][3]) lk = j; }
+    const hi = c[hk][2], lo = c[lk][3], rg = hi-lo;
+    if (!(rg > 3*atr) || Math.max(hk, lk) > ci-3) return {bias:null, annot:an, line:"Pas de swing assez net (ou il se termine à peine) pour tracer un Fibonacci."};
+    const upSw = lk < hk, ret = upSw ? (hi-close)/rg : (close-lo)/rg;
+    const lvl = (f)=>upSw ? hi - f*rg : lo + f*rg;
+    [[0,"0"],[0.382,"0,382"],[0.5,"0,5"],[0.618,"0,618"],[0.786,"0,786"],[1,"1"]].forEach(([f, t])=>an.lev.push({p:lvl(f), t:"Fib "+t, col:f>=0.618 && f<=0.786 ? "gold" : "faint"}));
+    an.zones.push({a:Math.min(hk, lk), top:Math.max(lvl(0.618), lvl(0.786)), bot:Math.min(lvl(0.618), lvl(0.786)), col:"gold", t:"Golden zone"});
+    const pct = dxNum(ret*100, 0)+" %", sw = upSw ? "haussier" : "baissier";
+    if (ret < 0.236) return {bias:upSw ? "up" : "down", annot:an, line:"Le prix reste près de l'extrême du dernier swing "+sw+" (retracement de "+pct+") : la tendance est forte, pas de vraie correction."};
+    if (ret <= 0.786) return {bias:upSw ? "up" : "down", annot:an, line:"Retracement de "+pct+" du dernier swing "+sw+(ret>=0.618 ? ", dans la golden zone (0,618–0,786)" : ret>=0.382 ? ", entre 0,382 et 0,618" : "")+" : zone où l'on attend la reprise du mouvement."};
+    return {bias:upSw ? "down" : "up", annot:an, line:"Retracement de "+pct+" : au-delà de 0,786, le swing "+sw+" est presque effacé → le mouvement s'inverse."};
+  }
+  if (k==="pattern"){
+    const tol = 0.35*atr;
+    for (let i=H.length-1; i>=1; i--){
+      const h1 = H[i-1], h2 = H[i];
+      if (h2.k - h1.k < 6 || Math.abs(h2.p-h1.p) > tol || h2.k < ci-40) continue;
+      let neck = Infinity; for (let j=h1.k; j<=h2.k; j++) neck = Math.min(neck, c[j][3]);
+      an.marks.push({k:h1.k, p:h1.p, t:"Sommet 1", col:"dn"}, {k:h2.k, p:h2.p, t:"Sommet 2", col:"dn"}); an.lev.push({p:neck, t:"Ligne de cou", col:"dn"});
+      return close < neck ? {bias:"down", annot:an, line:"Double sommet confirmé : deux sommets au même niveau puis cassure de la ligne de cou ("+dxP(neck)+")."}
+        : {bias:"down", annot:an, line:"Double sommet en formation : deux sommets au même niveau ("+dxP(h2.p)+"), la ligne de cou ("+dxP(neck)+") n'est pas encore cassée."};
+    }
+    for (let i=L.length-1; i>=1; i--){
+      const l1 = L[i-1], l2 = L[i];
+      if (l2.k - l1.k < 6 || Math.abs(l2.p-l1.p) > tol || l2.k < ci-40) continue;
+      let neck = -Infinity; for (let j=l1.k; j<=l2.k; j++) neck = Math.max(neck, c[j][2]);
+      an.marks.push({k:l1.k, p:l1.p, t:"Creux 1", col:"up"}, {k:l2.k, p:l2.p, t:"Creux 2", col:"up"}); an.lev.push({p:neck, t:"Ligne de cou", col:"up"});
+      return close > neck ? {bias:"up", annot:an, line:"Double creux confirmé : deux creux au même niveau puis cassure de la ligne de cou ("+dxP(neck)+")."}
+        : {bias:"up", annot:an, line:"Double creux en formation : deux creux au même niveau ("+dxP(l2.p)+"), la ligne de cou ("+dxP(neck)+") n'est pas encore cassée."};
+    }
+    return {bias:null, annot:an, line:"Pas de double sommet ni de double creux récent."};
+  }
+  return null;
 }
 function dailyClearSetup(rd){
   if (rd._bias===undefined){ const ci = DAILY_WARM+DAILY_SHOW-1; try{ rd._bias = dailyBiasRead(rd.c, ci, ci-DAILY_SHOW+1); }catch(e){ rd._bias = null; } }
@@ -24441,6 +24522,7 @@ function dailyRenderMain(){
             '<div class="dd-seg"><button type="button" data-dd-view="detail">Graphique</button><button type="button" data-dd-view="ctx">Vue d\'ensemble · <em></em></button></div>'+
             '<div class="dd-toggles">'+[["ema20","EMA 20",TA_COLORS.ema20],["ema50","EMA 50",TA_COLORS.ema50],["ema200","EMA 200",TA_COLORS.ema200],["bb","Bollinger",TA_COLORS.bb],["vwap","VWAP",TA_COLORS.vwap],["vol","Volume","var(--text-faint)"],["rsi","RSI",TA_COLORS.rsi],["macd","MACD",TA_COLORS.macd]]
               .map(t=>'<button type="button" data-dd-ind="'+t[0]+'"><i style="background:'+t[2]+'"></i>'+t[1]+'</button>').join("")+'</div>'+
+            dailyDrawBarHtml()+
           '</div>'+
           '<div class="dd-chart"><canvas id="dd-canvas"></canvas><div class="dd-chart-load">Chargement de la vue d\'ensemble…</div></div>'+
           '<p class="dd-ask" id="dd-ask"></p>'+
@@ -24547,6 +24629,8 @@ function dailyResultHtml(){
   '</div>';
 }
 function dailyOnClick(e){
+  const tb = e.target.closest && e.target.closest("[data-dd-tool]");
+  if (tb){ dailySetTool(tb.dataset.ddTool); return; }
   const vb = e.target.closest("[data-dd-view]");
   if (vb){ dailySetView(vb.dataset.ddView); return; }
   const ib = e.target.closest("[data-dd-ind]");
@@ -24695,17 +24779,87 @@ function dailyVerdict(rec, rd, t){
     // Les raisons du bias : chaque lecture et son sens, puis le bilan. Sur le
     // graphique : les repères des lectures qui vont dans le sens du setup.
     const B = dailyBiasRead(rd.c, ci, ci-DAILY_SHOW+1);
-    const an = {lab:[], lev:[], marks:[], zones:[]};
-    const add = (src)=>{ if (!src) return; ["lab","lev","marks","zones"].forEach(f=>{ (src[f]||[]).forEach(x=>an[f].push(x)); }); if (src.avwap && !an.avwap) an.avwap = src.avwap; };
-    B.lenses.filter(l=>B.bias && l.bias===B.bias).forEach(l=>add(l.annot));
-    add(T.annot);
-    an.lev = an.lev.slice(0, 5); an.marks = an.marks.slice(0, 6); an.zones = an.zones.slice(0, 2);
+    const an = {lab:[], lev:[], marks:[], zones:[], segs:[]};
+    const add = (src)=>{ if (!src) return; ["lab","lev","marks","zones","segs"].forEach(f=>{ (src[f]||[]).forEach(x=>an[f].push(x)); }); if (src.avwap && !an.avwap) an.avwap = src.avwap; };
+    // Price action : toujours dessiné (chandelier, trendline, Fibonacci, figure) ;
+    // les autres lectures : seulement celles qui vont dans le sens du setup.
+    B.lenses.filter(l=>l.pa).forEach(l=>add(l.annot));
+    B.lenses.filter(l=>!l.pa && B.bias && l.bias===B.bias).forEach(l=>add(l.annot));
+    an.lev = an.lev.slice(0, 9); an.marks = an.marks.slice(0, 8); an.zones = an.zones.slice(0, 2);
     rd.annot = an;
     const ex = document.getElementById("dd-explain");
     if (ex){ ex.innerHTML = dailyBiasHtml(B, t)+dxExplainHtml({blocks:[{h:"Lecture "+th.tag+" · thème du jour", lines:T.lines}]}); ex.hidden = false; }
     dailyRedraw();
   }catch(e){ console.warn("daily lecture", e); }
   const nb = v.querySelector('[data-dd="next"]'); if (nb) nb.focus({preventScroll:true});
+}
+// ---------- Outils de dessin du défi (Classique) ----------
+// Coordonnées enregistrées en (indice de bougie, prix) : les dessins restent
+// en place à la révélation, quand l'échelle change. Effacés à chaque graphique.
+const DD_TOOLS = [["tl","Ligne de tendance (tirets) — glisser d'un point à l'autre",'<path d="M3 17 17 3" stroke-dasharray="3 2.5"/>'],["hl","Ligne horizontale — un clic",'<path d="M2 10h16" stroke-dasharray="3 2.5"/>'],["fib","Fibonacci — glisser du début à la fin du swing",'<path d="M3 4h14M3 8h14M3 11h14M3 16h14"/><rect x="3" y="11" width="14" height="5" fill="currentColor" fill-opacity=".3" stroke="none"/>'],["brush","Pinceau — dessin libre",'<path d="M14 3l3 3-8 8-4 1 1-4z"/>'],["clear","Tout effacer",'<path d="M4 6h12M8 6V4h4v2M6 6l1 10h6l1-10"/>']];
+function dailyDrawBarHtml(){
+  return '<div class="dd-draw" id="dd-draw" role="toolbar" aria-label="Outils de dessin">'+DD_TOOLS.map(([k, t, svg])=>'<button type="button" data-dd-tool="'+k+'" title="'+t+'" aria-label="'+t+'" class="'+(D.tool===k ? "on" : "")+'"><svg viewBox="0 0 20 20" aria-hidden="true">'+svg+'</svg></button>').join("")+'</div>';
+}
+function dailySetTool(k){
+  const rd = dailyCurRound();
+  if (k==="clear"){ if (rd) rd.draw = []; D.tool = null; }
+  else D.tool = D.tool===k ? null : k;
+  document.querySelectorAll("[data-dd-tool]").forEach(b=>b.classList.toggle("on", b.dataset.ddTool===D.tool));
+  const cv = document.getElementById("dd-canvas");
+  if (cv){ cv.style.touchAction = D.tool ? "none" : ""; cv.style.cursor = D.tool ? "crosshair" : ""; }
+  dailyRedraw();
+}
+function dailyDrawUser(x, items, g){
+  const FIB = [[0,"0"],[0.236,"0,236"],[0.382,"0,382"],[0.5,"0,5"],[0.618,"0,618"],[0.786,"0,786"],[1,"1"]];
+  x.save(); x.lineCap = "round"; x.lineJoin = "round";
+  items.forEach(it=>{
+    x.strokeStyle = g.gold; x.fillStyle = g.gold; x.globalAlpha = .95;
+    if (it.t==="tl"){ x.lineWidth = 2; x.setLineDash([7,5]); x.beginPath(); x.moveTo(g.X(it.a.k), g.y(it.a.p)); x.lineTo(g.X(it.b.k), g.y(it.b.p)); x.stroke(); }
+    else if (it.t==="hl"){ x.lineWidth = 1.6; x.setLineDash([7,5]); const yy = g.y(it.a.p); x.beginPath(); x.moveTo(g.padL, yy); x.lineTo(g.W-g.padR, yy); x.stroke(); }
+    else if (it.t==="fib"){
+      const x1 = Math.min(g.X(it.a.k), g.X(it.b.k)), x2 = g.W-g.padR, d = it.b.p-it.a.p;
+      x.setLineDash([]); x.lineWidth = 1; x.font = "600 10px "+g.mono; x.textBaseline = "bottom"; x.textAlign = "left";
+      const lv = f=>g.y(it.b.p - f*d);
+      x.globalAlpha = .12; x.fillRect(x1, Math.min(lv(0.618), lv(0.786)), x2-x1, Math.abs(lv(0.786)-lv(0.618)));
+      FIB.forEach(([f, t])=>{ const yy = Math.round(lv(f))+.5; x.globalAlpha = (f===0.618 || f===0.786) ? .95 : .6; x.beginPath(); x.moveTo(x1, yy); x.lineTo(x2, yy); x.stroke(); x.fillText(t, x1+3, yy-1); });
+      x.globalAlpha = .5; x.setLineDash([3,3]); x.beginPath(); x.moveTo(g.X(it.a.k), g.y(it.a.p)); x.lineTo(g.X(it.b.k), g.y(it.b.p)); x.stroke();
+    }
+    else if (it.t==="brush" && it.pts.length){ x.lineWidth = 2.2; x.setLineDash([]); x.beginPath(); it.pts.forEach((q, i)=>{ const px = g.X(q.k), py = g.y(q.p); if (i) x.lineTo(px, py); else x.moveTo(px, py); }); x.stroke(); }
+    x.setLineDash([]); x.globalAlpha = 1;
+  });
+  x.restore();
+}
+function dailyDrawBind(cv){
+  if (!cv || cv.__ddBound) return;
+  cv.__ddBound = true;
+  const at = (e)=>{ const m = cv.__dmap, r = cv.getBoundingClientRect(); if (!m || m.ctx) return null; const px = e.clientX-r.left, py = e.clientY-r.top;
+    return {k: m.start + (px-m.padL)/m.slot - 0.5, p: m.rng[1] - (py-m.padT)/m.priceH*(m.rng[1]-m.rng[0])}; };
+  let cur = null, raf = 0;
+  const redraw = ()=>{ if (!raf) raf = requestAnimationFrame(()=>{ raf = 0; dailyRedraw(); }); };
+  cv.addEventListener("pointerdown", (e)=>{
+    if (!D.tool || D.tool==="clear" || (e.pointerType==="mouse" && e.button!==0)) return;
+    const rd = dailyCurRound(), q = at(e); if (!rd || !q) return;
+    e.preventDefault();
+    if (!rd.draw) rd.draw = [];
+    if (D.tool==="hl"){ rd.draw.push({t:"hl", a:q}); redraw(); return; }
+    cur = D.tool==="brush" ? {t:"brush", pts:[q]} : {t:D.tool, a:q, b:q};
+    rd.draw.push(cur);
+    try{ cv.setPointerCapture(e.pointerId); }catch(err){}
+  });
+  cv.addEventListener("pointermove", (e)=>{
+    if (!cur) return;
+    const q = at(e); if (!q) return;
+    if (cur.t==="brush") cur.pts.push(q); else cur.b = q;
+    redraw();
+  });
+  const end = ()=>{
+    if (!cur) return;
+    const rd = dailyCurRound(), m = cv.__dmap;
+    // Simple clic sans glisser : on n'ajoute pas une ligne de longueur nulle.
+    if (rd && rd.draw && cur.t!=="brush" && m && Math.abs((cur.b.k-cur.a.k)*m.slot) < 4 && Math.abs((cur.b.p-cur.a.p)/(m.rng[1]-m.rng[0])*m.priceH) < 4) rd.draw.splice(rd.draw.indexOf(cur), 1);
+    cur = null; redraw();
+  };
+  cv.addEventListener("pointerup", end); cv.addEventListener("pointercancel", end);
 }
 function dailyBiasHtml(B, t){
   if (!B || !B.lenses.length) return "";
@@ -25031,6 +25185,11 @@ function dailyDraw(cv, rd, opt){
     x.stroke(); x.globalAlpha = 1; x.lineWidth = 1; x.setLineDash([]);
   });
   if (opt.annot && !ctx) dxDrawAnnot(x, opt.annot, {X, y, start, end, ci:DAILY_WARM+DAILY_SHOW-1, padL, W, padR, padT, priceH, mono, up, dn, gold, faint, text, slot});
+  // Dessins de l'élève (trendline en tirets, horizontale, Fibonacci, pinceau).
+  cv.__dmap = {ctx:!!ctx, start, slot, padL, padT, priceH, rng:rng.slice(), W, padR};
+  if (!ctx) dailyDrawUser(x, rd.draw || [], {X, y, padL, W, padR, mono, gold, text, faint});
+  dailyDrawBind(cv);
+  cv.style.touchAction = D.tool && !ctx ? "none" : ""; cv.style.cursor = D.tool && !ctx ? "crosshair" : "";
   x.restore();
   // Panneaux RSI / MACD sous le graphique.
   paneKeys.forEach((pk, j)=>{
@@ -26427,6 +26586,10 @@ function dxDraw(cv, R, opt){
 function dxDrawAnnot(x, an, g){
   const col = c=>c==="up" ? g.up : c==="dn" ? g.dn : c==="gold" ? g.gold : g.faint;
   x.font = "700 10px "+g.mono; x.textBaseline = "middle"; x.textAlign = "center";
+  // Segments (lignes de tendance) : en tirets, étiquette au bout.
+  (an.segs||[]).forEach(s=>{ x.strokeStyle = col(s.col); x.lineWidth = 1.7; x.globalAlpha = .95; x.setLineDash(s.dash ? [7,5] : []);
+    x.beginPath(); x.moveTo(g.X(s.k1), g.y(s.p1)); x.lineTo(g.X(s.k2), g.y(s.p2)); x.stroke(); x.setLineDash([]); x.lineWidth = 1;
+    if (s.t){ x.fillStyle = col(s.col); x.textAlign = "right"; x.fillText(s.t, g.X(s.k2)-4, g.y(s.p2) + (s.col==="up" ? 12 : -12)); x.textAlign = "center"; } x.globalAlpha = 1; });
   (an.zones||[]).forEach(z=>{ const xa = Math.max(g.padL, g.X(z.a)), ya = g.y(z.top), yb = g.y(z.bot); x.fillStyle = col(z.col); x.globalAlpha = .12; x.fillRect(xa, ya, g.W-g.padR-xa, yb-ya); x.globalAlpha = .8; x.fillText(z.t, xa+16, ya-7); x.globalAlpha = 1; });
   if (an.avwap){ x.strokeStyle = TA_COLORS.vwap; x.lineWidth = 1.6; x.setLineDash([5,3]); x.beginPath(); let on = false; for (let k=Math.max(g.start, an.avwap.a);k<=g.ci;k++){ const v = an.avwap.arr[k]; if (v==null) continue; if (!on){ x.moveTo(g.X(k), g.y(v)); on = true; } else x.lineTo(g.X(k), g.y(v)); } x.stroke(); x.setLineDash([]); x.lineWidth = 1; }
   (an.lev||[]).forEach(l=>{ const yy = Math.round(g.y(l.p))+.5; x.strokeStyle = col(l.col); x.globalAlpha = .85; x.setLineDash([3,3]); x.beginPath(); x.moveTo(g.padL, yy); x.lineTo(g.W-g.padR, yy); x.stroke(); x.setLineDash([]);
