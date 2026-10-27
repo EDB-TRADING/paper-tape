@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="2920">
+<meta name="pt-build" content="2950">
 <title>Paper Tape</title>
 <script>
 /* Un seul fichier pour deux sites :
@@ -6310,7 +6310,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2920 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v2950 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -15245,7 +15245,7 @@ function chartDrawingsHtml(g){
         const bins = Math.max(10, Math.min(70, Math.round((g.y(lo)-g.y(hi))/5)));
         const pr = chartVolProfile(cands, g.tfMs, lo, hi, bins);
         const yP = g.y(pr.lo+(pr.poc+0.5)*pr.stp), yH = g.y(pr.lo+(pr.b+1)*pr.stp), yL = g.y(pr.lo+pr.a*pr.stp), yT = g.y(hi), yB = g.y(lo);
-        let s2 = '<g'+attr+'><rect x="'+f(x1)+'" y="'+f(yT)+'" width="'+f(Math.max(2, x2-x1))+'" height="'+f(Math.max(2, yB-yT))+'" fill="'+C+'" fill-opacity="0.05" stroke="'+C+'" stroke-opacity="'+(sel ? 0.8 : 0.35)+'" stroke-dasharray="4 3" pointer-events="all"/>';
+        let s2 = '<g'+attr+'><rect x="'+f(x1)+'" y="'+f(yT)+'" width="'+f(Math.max(2, x2-x1))+'" height="'+f(Math.max(2, yB-yT))+'" fill="'+C+'" fill-opacity="0" stroke="'+C+'" stroke-opacity="'+(sel ? 0.8 : 0)+'" stroke-dasharray="4 3" pointer-events="all"/>'; // pas de fond ni de cadre (cadre en tirets seulement quand il est sélectionné)
         s2 += chartProfileBars(g, pr, x1, Math.max(30, (x2-x1)*0.6), 0.4, 0.17);
         s2 += '<line x1="'+f(x1)+'" x2="'+f(x2)+'" y1="'+f(yP)+'" y2="'+f(yP)+'" stroke="'+C+'" stroke-width="1.4"/>';
         [yH, yL].forEach(yy=>{ s2 += '<line x1="'+f(x1)+'" x2="'+f(x2)+'" y1="'+f(yy)+'" y2="'+f(yy)+'" stroke="'+C+'" stroke-width="1" stroke-dasharray="3 3" opacity="0.8"/>'; });
@@ -24137,7 +24137,7 @@ function dailyQualifies(rd){
 // affichée et dessinée. Les jours d'avant gardent leurs graphiques (archives
 // identiques pour tout le monde).
 const DAILY_SETUP_FROM = "2026-10-28";
-const DAILY_LENSES = [["trend","Tendance (moyennes 50 / 200)"],["candle","Chandeliers (price action)"],["tl","Ligne de tendance"],["fib","Retracement de Fibonacci"],["pattern","Figure chartiste"],["dow","Structure (Dow)"],["mom","Momentum (RSI / MACD)"],["sr","Supports / résistances"],["vwap","VWAP et profil de volume"],["smc","Cassures et liquidité"],["of","Flux acheteurs / vendeurs"]];
+const DAILY_LENSES = [["trend","Tendance (moyennes 50 / 200)"],["candle","Chandeliers (price action)"],["fib","Retracement de Fibonacci"],["pattern","Figure chartiste"],["dow","Structure (Dow)"],["mom","Momentum (RSI / MACD)"],["sr","Supports / résistances"],["vwap","VWAP et profil de volume"],["smc","Cassures et liquidité"],["of","Flux acheteurs / vendeurs"]];
 function dailyBiasRead(c, ci, a){
   const out = [];
   DAILY_LENSES.forEach(([k, name])=>{
@@ -24156,7 +24156,7 @@ function dailyBiasRead(c, ci, a){
       if (k==="candle" || k==="tl" || k==="fib" || k==="pattern"){ const r = dailyPA(k, c, ci, a); if (r) out.push(Object.assign({k, name, pa:true}, r)); return; }
       const T = dxThemeRead(k, c, ci, a);
       if (k==="of" && T.lines[0] && /indisponibles/.test(T.lines[0])) return;
-      const line = T.bias ? (T.lines.find(l=>/ivergence|BOS|CHoCH|Spring|Upthrust|collé|Structure|confirme|VWAP|value area/.test(l)) || T.lines[0]) : T.lines[0];
+      const line = T.bias ? (T.lines.find(l=>/ivergence|surachat|survente|MACD|BOS|CHoCH|Spring|Upthrust|collé|Structure|confirme|VWAP|value area/.test(l)) || T.lines[0]) : T.lines[0];
       out.push({k, name, bias:T.bias, line:line||"", annot:T.annot});
     }catch(e){}
   });
@@ -24793,7 +24793,7 @@ function dailyVerdict(rec, rd, t){
     rd.lensAn = {theme:T.annot};
     B.lenses.forEach(l=>{ rd.lensAn[l.k] = l.annot; });
     const hasDraw = (an)=>an && ["lab","lev","marks","zones","segs"].some(f=>(an[f]||[]).length) || (an && an.avwap);
-    const order = ["tl","pattern","candle","fib","dow","sr","smc","vwap","mom","of","trend"];
+    const order = ["pattern","candle","fib","dow","sr","smc","vwap","mom","of","trend"];
     const first = order.find(k=>{ const l = B.lenses.find(z=>z.k===k); return l && B.bias && l.bias===B.bias && hasDraw(l.annot); });
     rd.lensSel = first || "theme";
     rd.annot = rd.lensAn[rd.lensSel];
@@ -24817,6 +24817,7 @@ function dailySetTool(k){
   if (k==="undo"){ dailyDrawUndo(false); return; }
   if (k==="clear"){ if (rd && rd.draw && rd.draw.length){ rd.redo = []; rd.undoClear = rd.draw; rd.draw = []; } D.tool = null; D.drawSel = null; }
   else D.tool = D.tool===k ? null : k;
+  { const cv0 = document.getElementById("dd-canvas"), m0 = cv0 && cv0.__dmap; D.avwapPrev = D.tool==="avwap" && m0 ? m0.lastK : null; }
   document.querySelectorAll("[data-dd-tool]").forEach(b=>b.classList.toggle("on", b.dataset.ddTool===D.tool));
   const cv = document.getElementById("dd-canvas");
   if (cv){ cv.style.touchAction = D.tool ? "none" : ""; cv.style.cursor = D.tool ? "crosshair" : ""; }
@@ -24864,6 +24865,12 @@ function dailyDrawHit(cv, px, py){
   });
   return best;
 }
+// Étiquette sur l'axe des prix (à droite du graphique), comme sur le terminal.
+function dailyAxisTag(x, g, yy, t, col){
+  x.save(); x.font = "700 9.5px "+g.mono; x.textBaseline = "middle"; x.textAlign = "left";
+  const w = Math.min(g.padR-4, x.measureText(t).width+8), xl = g.W-g.padR+2;
+  x.globalAlpha = 1; x.fillStyle = col; x.fillRect(xl, yy-7, w, 14); x.fillStyle = "#0b0b0b"; x.fillText(t, xl+4, yy+.5); x.restore();
+}
 function dailyDrawUser(x, items, g){
   const FIB = [[0,"0"],[0.236,"0,236"],[0.382,"0,382"],[0.5,"0,5"],[0.618,"0,618"],[0.786,"0,786"],[1,"1"]];
   x.save(); x.lineCap = "round"; x.lineJoin = "round";
@@ -24882,25 +24889,43 @@ function dailyDrawUser(x, items, g){
       x.globalAlpha = .5; x.setLineDash([3,3]); x.beginPath(); x.moveTo(g.X(it.a.k), g.y(it.a.p)); x.lineTo(g.X(it.b.k), g.y(it.b.p)); x.stroke();
     }
     else if (it.t==="avwap"){
-      // VWAP depuis la bougie choisie jusqu'à la dernière bougie affichée.
-      const a0 = Math.max(0, Math.round(it.a.k)); let pv = 0, vv = 0, on = false;
-      x.lineWidth = 1.8; x.setLineDash([]); x.strokeStyle = sel ? g.text : TA_COLORS.vwap; x.beginPath();
-      for (let k=a0; k<g.end && k<g.series.length; k++){ const r = g.series[k], tp = (r[2]+r[3]+r[4])/3, vol = r[5]||0; pv += tp*vol; vv += vol; const v = vv ? pv/vv : tp; if (!on){ x.moveTo(g.X(k), g.y(v)); on = true; } else x.lineTo(g.X(k), g.y(v)); }
-      x.stroke(); x.fillStyle = sel ? g.text : TA_COLORS.vwap; x.beginPath(); x.arc(g.X(a0), g.y((g.series[a0][2]+g.series[a0][3]+g.series[a0][4])/3), 3.5, 0, Math.PI*2); x.fill();
-      x.font = "600 10px "+g.mono; x.textAlign = "left"; x.textBaseline = "bottom"; x.fillText("VWAP ancré", g.X(a0)+6, g.y(g.series[a0][2])-3);
+      // Comme le terminal : prix typique (H+B+C)/3 pondéré par le volume depuis la
+      // bougie d'ancrage, triangle sous l'ancre, valeur sur l'axe des prix.
+      const a0 = Math.max(0, Math.min(g.end-1, Math.round(it.a.k))), C = sel ? g.text : "#22d3ee";
+      const useV = g.series.slice(a0, g.end).some(r=>(r[5]||0) > 0);
+      let pv = 0, vv = 0, on = false, last = null;
+      x.lineWidth = 1.6; x.setLineDash([]); x.strokeStyle = C; x.globalAlpha = it.prev ? .75 : .95; x.beginPath();
+      for (let k=a0; k<g.end && k<g.series.length; k++){ const r = g.series[k], w = useV ? (r[5]||0) : 1; pv += (r[2]+r[3]+r[4])/3*w; vv += w; if (!(vv>0)) continue; last = pv/vv; if (!on){ x.moveTo(g.X(k), g.y(last)); on = true; } else x.lineTo(g.X(k), g.y(last)); }
+      x.stroke();
+      const xa = g.X(a0), ya = g.y(g.series[a0][3])+9;
+      x.fillStyle = C; x.beginPath(); x.moveTo(xa, ya-5); x.lineTo(xa+5, ya+3); x.lineTo(xa-5, ya+3); x.closePath(); x.fill();
+      if (last!=null) dailyAxisTag(x, g, g.y(last), "AVWAP", C);
+      x.globalAlpha = 1;
     }
     else if (it.t==="avp"){
-      // Profil de volume des bougies entre les deux ancres (jamais après la dernière bougie affichée).
+      // Comme le terminal, sans fond ni cadre : barres achats / ventes (value area
+      // plus marquée), POC en trait plein, VAH / VAL en tirets, POC sur l'axe.
       const k1 = Math.max(0, Math.round(Math.min(it.a.k, it.b.k))), k2 = Math.min(g.end-1, Math.round(Math.max(it.a.k, it.b.k)));
-      if (k2 - k1 >= 2){
-        const P = dxProfile(g.series, k1, k2, 24), mx = Math.max(...P.v) || 1, x1 = g.X(k1)-g.slot/2, x2 = g.X(k2)+g.slot/2, wMax = Math.max(24, (x2-x1)*0.7);
+      if (k2 - k1 >= 1){
+        let lo = Infinity, hi = -Infinity; for (let k=k1;k<=k2;k++){ lo = Math.min(lo, g.series[k][3]); hi = Math.max(hi, g.series[k][2]); }
+        const bins = Math.max(10, Math.min(70, Math.round((g.y(lo)-g.y(hi))/5)));
+        const P = dxProfile(g.series, k1, k2, bins), mx = Math.max(...P.v) || 1, x1 = g.X(k1)-g.slot/2, x2 = g.X(k2)+g.slot/2, wMax = Math.max(30, (x2-x1)*0.6), C = sel ? g.text : "#8fa3b8";
+        const split = P.bv.some(b=>b>0);
         x.setLineDash([]);
         for (let i=0;i<P.bins;i++){ const y0 = g.y(P.lo+(i+1)*P.step), y1 = g.y(P.lo+i*P.step), inVa = P.lo+i*P.step >= P.val-1e-12 && P.lo+(i+1)*P.step <= P.vah+1e-12;
-          x.globalAlpha = inVa ? .38 : .18; x.fillStyle = sel ? g.text : g.gold; x.fillRect(x1, y0, P.v[i]/mx*wMax, Math.max(1, y1-y0-1)); }
-        x.globalAlpha = .9; x.strokeStyle = sel ? g.text : g.gold; x.lineWidth = 1;
-        x.strokeRect(x1+.5, g.y(P.hi)+.5, x2-x1-1, g.y(P.lo)-g.y(P.hi)-1);
-        x.font = "600 10px "+g.mono; x.textAlign = "left"; x.textBaseline = "middle";
-        [[P.poc,"POC",[]],[P.vah,"VAH",[4,3]],[P.val,"VAL",[4,3]]].forEach(([pv, t, d])=>{ const yy = Math.round(g.y(pv))+.5; x.setLineDash(d); x.beginPath(); x.moveTo(x1, yy); x.lineTo(x2, yy); x.stroke(); x.setLineDash([]); x.fillText(t, x2+4, yy); });
+          const w = P.v[i]/mx*wMax, wb = split && P.v[i] ? w*P.bv[i]/P.v[i] : 0, h = Math.max(1, y1-y0-1);
+          x.globalAlpha = inVa ? .4 : .17;
+          if (split){ x.fillStyle = g.up; x.fillRect(x1, y0, wb, h); x.fillStyle = g.dn; x.fillRect(x1+wb, y0, w-wb, h); }
+          else { x.fillStyle = C; x.fillRect(x1, y0, w, h); } }
+        x.globalAlpha = 1; x.strokeStyle = C;
+        const yP = Math.round(g.y(P.poc))+.5; x.lineWidth = 1.4; x.beginPath(); x.moveTo(x1, yP); x.lineTo(x2, yP); x.stroke();
+        x.lineWidth = 1; x.globalAlpha = .8; x.setLineDash([3,3]);
+        [P.vah, P.val].forEach(pv=>{ const yy = Math.round(g.y(pv))+.5; x.beginPath(); x.moveTo(x1, yy); x.lineTo(x2, yy); x.stroke(); });
+        x.setLineDash([]); x.globalAlpha = 1;
+        x.font = "600 9.5px "+g.mono; x.textAlign = "left"; x.textBaseline = "middle"; x.fillStyle = C;
+        x.fillText("VAH", x2+3, g.y(P.vah)); x.fillText("VAL", x2+3, g.y(P.val));
+        if (sel){ x.setLineDash([4,3]); x.globalAlpha = .8; x.strokeRect(x1+.5, g.y(hi)+.5, x2-x1-1, g.y(lo)-g.y(hi)-1); x.setLineDash([]); x.globalAlpha = 1; }
+        dailyAxisTag(x, g, g.y(P.poc), "POC", C);
       }
     }
     else if (it.t==="brush" && it.pts.length){ x.lineWidth = 2.2; x.setLineDash([]); x.beginPath(); it.pts.forEach((q, i)=>{ const px = g.X(q.k), py = g.y(q.p); if (i) x.lineTo(px, py); else x.moveTo(px, py); }); x.stroke(); }
@@ -24957,7 +24982,7 @@ function dailyDrawBind(cv){
     if (!rd.draw) rd.draw = [];
     rd.redo = []; rd.undoClear = null; D.drawSel = null; D.drawCancelled = false;
     if (D.tool==="hl"){ rd.draw.push({t:"hl", a:q}); redraw(); return; }
-    if (D.tool==="avwap"){ rd.draw.push({t:"avwap", a:{k:Math.round(q.k), p:q.p}}); redraw(); return; }
+    if (D.tool==="avwap"){ const m = cv.__dmap, kk = Math.max(m ? m.start : 0, Math.min(m ? m.lastK : q.k, Math.round(q.k))); rd.draw.push({t:"avwap", a:{k:kk, p:q.p}}); D.avwapPrev = null; D.tool = null; document.querySelectorAll("[data-dd-tool]").forEach(b=>b.classList.remove("on")); cv.style.cursor = ""; cv.style.touchAction = ""; redraw(); return; }
     cur = D.tool==="brush" ? {t:"brush", pts:[q]} : {t:D.tool, a:q, b:q};
     D.drawCur = cur;
     rd.draw.push(cur);
@@ -24967,6 +24992,7 @@ function dailyDrawBind(cv){
   cv.addEventListener("pointermove", (e)=>{
     if (mv){ const q = at(e); if (q){ moveTo(q); redraw(); } return; }
     if (!cur && !D.tool){ const r = cv.getBoundingClientRect(); cv.style.cursor = dailyDrawHit(cv, e.clientX-r.left, e.clientY-r.top) ? "grab" : ""; }
+    if (!cur && D.tool==="avwap"){ const q = at(e), m = cv.__dmap; if (q && m){ const kk = Math.max(m.start, Math.min(m.lastK, Math.round(q.k))); if (kk!==D.avwapPrev){ D.avwapPrev = kk; redraw(); } } }
     if (cur && D.drawCancelled){ cur = null; D.drawCancelled = false; return; }
     if (!cur) return;
     const q = at(e); if (!q) return;
@@ -25354,8 +25380,13 @@ function dailyDraw(cv, rd, opt){
   });
   if (opt.annot && !ctx) dxDrawAnnot(x, opt.annot, {X, y, start, end, ci:DAILY_WARM+DAILY_SHOW-1, padL, W, padR, padT, priceH, mono, up, dn, gold, faint, text, slot});
   // Dessins de l'élève (trendline en tirets, horizontale, Fibonacci, pinceau).
-  cv.__dmap = {ctx:!!ctx, start, slot, padL, padT, priceH, rng:rng.slice(), W, padR};
-  if (!ctx) dailyDrawUser(x, rd.draw || [], {X, y, padL, W, padR, mono, gold, text, faint, up, dn, series, end, slot});
+  cv.__dmap = {ctx:!!ctx, start, slot, padL, padT, priceH, rng:rng.slice(), W, padR, lastK:end-1};
+  if (!ctx){
+    const items = (rd.draw || []).slice();
+    // VWAP ancré : aperçu qui suit la souris bougie par bougie avant le clic (comme le terminal).
+    if (D.tool==="avwap" && D.avwapPrev!=null) items.push({t:"avwap", a:{k:Math.min(end-1, D.avwapPrev)}, prev:true});
+    dailyDrawUser(x, items, {X, y, padL, W, padR, mono, gold, text, faint, up, dn, series, end, slot});
+  }
   dailyDrawBind(cv);
   cv.style.touchAction = D.tool && !ctx ? "none" : ""; cv.style.cursor = D.tool && !ctx ? "crosshair" : "";
   x.restore();
@@ -25458,7 +25489,7 @@ const DX_THEMES = [
     "Absorption : énorme volume, petite bougie. Quelqu'un encaisse l'agression sans laisser bouger le prix : souvent un point de retournement."],
     look:"le CVD confirme-t-il le prix ? Y a-t-il des bougies d'absorption sur les extrêmes ?"},
   {k:"mom", tag:"Momentum", t:"Momentum · RSI, MACD et divergences", card:[
-    "Le RSI compare la force des hausses à celle des baisses (0 à 100). Au-dessus de 70 : momentum fort, pas forcément « à vendre ». Sous 30 : momentum faible.",
+    "Le RSI compare la force des hausses à celle des baisses (0 à 100). Au-dessus de 70 : surachat → biais baissier (repli attendu). Sous 30 : survente → biais haussier (rebond attendu). En forte tendance, il peut rester longtemps en zone extrême.",
     "Divergence baissière : nouveau plus haut du prix, sommet plus bas du RSI → la hausse s'essouffle. Divergence haussière : l'inverse sur les creux.",
     "Une divergence n'est qu'un avertissement : elle se confirme par une cassure de structure.",
     "MACD au-dessus de son signal = momentum haussier ; au-dessus de zéro, il est plus solide."],
@@ -25877,11 +25908,12 @@ function dxThemeRead(k, c, ci, a){
     let div = null;
     if (H.length>=2){ const h1 = H[H.length-2], h2 = H[H.length-1]; if (h2.p>h1.p && rsi[h1.k]!=null && rsi[h2.k]!=null && rsi[h2.k] < rsi[h1.k]-2){ div = "bear"; an.marks.push({k:h1.k, p:h1.p, t:"RSI "+Math.round(rsi[h1.k]), col:"dn"}, {k:h2.k, p:h2.p, t:"RSI "+Math.round(rsi[h2.k]), col:"dn"}); } }
     if (!div && Lw.length>=2){ const l1 = Lw[Lw.length-2], l2 = Lw[Lw.length-1]; if (l2.p<l1.p && rsi[l1.k]!=null && rsi[l2.k]!=null && rsi[l2.k] > rsi[l1.k]+2){ div = "bull"; an.marks.push({k:l1.k, p:l1.p, t:"RSI "+Math.round(rsi[l1.k]), col:"up"}, {k:l2.k, p:l2.p, t:"RSI "+Math.round(rsi[l2.k]), col:"up"}); } }
-    L.push("RSI 14 : "+(r==null ? "—" : dxNum(r,0))+(r>70 ? " (momentum fort)" : r<30 ? " (momentum faible)" : "")+".");
+    const ob = r!=null && r>=70, os = r!=null && r<=30;
+    L.push("RSI 14 : "+(r==null ? "—" : dxNum(r,0))+(ob ? " → surachat : la hausse est tendue, la théorie attend un repli." : os ? " → survente : la baisse est tendue, la théorie attend un rebond." : " (zone neutre, entre 30 et 70)."));
     if (div) L.push(div==="bear" ? "Divergence baissière : nouveau plus haut du prix mais sommet plus bas du RSI → essoufflement." : "Divergence haussière : nouveau plus bas du prix mais creux plus haut du RSI → vendeurs à bout de souffle.");
     const m = mac.line[ci], sg = mac.signal[ci];
     if (m!=null && sg!=null) L.push("MACD "+(m>sg ? "au-dessus" : "en dessous")+" de son signal, "+(m>0 ? "au-dessus" : "en dessous")+" de zéro.");
-    bias = div ? (div==="bear" ? "down" : "up") : (m!=null && sg!=null ? (m>sg && m>0 ? "up" : m<sg && m<0 ? "down" : null) : null);
+    bias = div ? (div==="bear" ? "down" : "up") : ob ? "down" : os ? "up" : (m!=null && sg!=null ? (m>sg && m>0 ? "up" : m<sg && m<0 ? "down" : null) : null);
   } else if (k==="sr"){
     const lv = dxLevels(c, a, ci, atr);
     const ab = lv.filter(l=>l.p>close).sort((x,y)=>x.p-y.p)[0], be = lv.filter(l=>l.p<=close).sort((x,y)=>y.p-x.p)[0];
