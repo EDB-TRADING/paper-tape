@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3170">
+<meta name="pt-build" content="3180">
 <title>Paper Tape</title>
 <script>
 /* Un seul fichier pour deux sites :
@@ -6513,7 +6513,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3170 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3180 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -7157,7 +7157,7 @@ const EDB_PLUS_FEATURES = {
   challenge: {label:"Le challenge prop firm",    detail:"trader un compte démo calqué sur une vraie évaluation prop firm en 2 étapes", img:"https://images.unsplash.com/photo-1767424412548-1a1ac7f4b9bc?w=1600&q=80&auto=format&fit=crop"},
   theme:     {label:"Le changement de thème",    detail:"personnaliser l'interface (Ember, Sage, Ink, Noir, Gold, Azure)", img:"https://images.pexels.com/photos/10275089/pexels-photo-10275089.jpeg?auto=compress&cs=tinysrgb&w=1600"},
   tradesedb: {label:"Trades EDB+",               detail:"suivre les trades partagés par le bureau et le trade swing hebdomadaire", img:"https://images.unsplash.com/photo-1745270917233-65e776a47547?auto=format&fit=crop&w=1600&q=80"},
-  replay:    {label:"Le Replay",                 detail:"rejouer des séances de marché passées en accéléré, grands moments ou séance sur mesure, et battre ton record"},
+  replay:    {label:"Le Replay",                 detail:"rejouer des séances de marché passées en accéléré, grands moments ou séance sur mesure, et battre ton record", img:"ep-replay.webp"},
   // Réutilise la même photo hero que la page débloquée (.cedb-hero, voir
   // #concoursedbplus-unlocked) — même image pour l'état verrouillé et
   // déverrouillé de cette page, plutôt qu'une image différente à chaque fois.
@@ -7428,6 +7428,7 @@ const EP2_SHOTS = [
   {k:"fp", t:"Footprint + heatmap de liquidité", d:"Achats × ventes à chaque prix, delta par bougie, et les ordres en attente du carnet qui s'affichent dans le temps, façon Bookmap.", img:"ep-footprint-heatmap.webp", w:1400, h:877},
   {k:"tpo", t:"TPO / Market Profile", d:"Un profil par séance : TPOC, value area (VAH / VAL), poor highs / lows et TPOC non revisités prolongés jusqu'à l'axe.", img:"ep-tpo.webp", w:1400, h:875},
   {k:"liq", t:"Heatmap des liquidations", d:"Où sont les liquidations estimées des longs et des shorts (open interest Binance, leviers x10 à x100) : les aimants à prix.", img:"ep-liquidations.webp", w:1400, h:877},
+  {k:"rp", t:"Replay des grandes séances", d:"Rejoue un krach ou une séance sur mesure bougie par bougie, avec le vrai graphique du terminal : prends position, place ton TP / SL et bats ton record.", img:"ep-replay.webp", w:1400, h:906},
   {k:"mob", t:"Partout, même sur mobile", d:"Le même graphique dans un widget ou en plein écran, sur ordinateur comme sur téléphone, avec 8 palettes de couleurs.", img:"ep-mobile.webp", w:1000, h:837},
 ];
 function ep2Showcase(){
