@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="2880">
+<meta name="pt-build" content="2900">
 <title>Paper Tape</title>
 <script>
 /* Un seul fichier pour deux sites :
@@ -1038,6 +1038,11 @@
   .dd-bias li{display:block;padding-left:22px;text-indent:-22px;}
   .dd-bz{display:inline-block;width:18px;margin-right:4px;text-indent:0;font-style:normal;font-weight:700;text-align:center;}
   .dd-bz.up{color:var(--long);} .dd-bz.dn{color:var(--short);} .dd-bz.nt{color:var(--text-faint);}
+  .dd-bias li[data-dd-lens], .dd-theme-read{cursor:pointer;border-radius:8px;padding-top:4px;padding-bottom:4px;transition:background .12s;}
+  .dd-bias li[data-dd-lens]:hover, .dd-theme-read:hover{background:color-mix(in srgb, var(--dd-a) 7%, transparent);}
+  .dd-bias li[data-dd-lens].on, .dd-theme-read.on{background:color-mix(in srgb, var(--dd-a) 13%, transparent);box-shadow:inset 3px 0 0 var(--dd-a);}
+  .dd-bias-hint{padding-left:0 !important;text-indent:0 !important;font-size:11.5px;color:var(--text-faint);margin-top:4px;}
+  .dd-theme-read{padding:6px 8px;}
   .dd-bias-sum{padding-left:0 !important;text-indent:0 !important;margin-top:6px;padding-top:6px !important;border-top:1px solid var(--border-soft);font-weight:600;color:var(--text);}
   .ci-themes button{display:inline-flex;align-items:center;justify-content:center;gap:5px;flex:1 1 30%;}
   .ci-sw-grad{display:inline-block;width:18px !important;height:8px !important;border-radius:2px !important;flex:none;}
@@ -6305,7 +6310,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2880 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v2900 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -15605,6 +15610,7 @@ function initChartDrawing(){
     }
     if (e.key==="Enter" && drawPending && drawPending.type==="poly"){ e.preventDefault(); drawFinishPoly(); return; }
     if (e.key==="Escape" && (drawTool || drawPending || drawSel)){ drawSel = null; drawSetTool(null); return; }
+    if ((e.key==="Delete" || e.key==="Backspace") && drawPending){ e.preventDefault(); drawPending = null; drawSetTool(null); return; } // tracé commencé, pas encore posé : annulé
     if ((e.key==="Delete" || e.key==="Backspace") && drawSel){ e.preventDefault(); drawDelete(drawSel); }
   });
   drawSyncDel();
@@ -24350,7 +24356,7 @@ function dailyEma(c, len, from){
 }
 function dailyInd(){
   let v = null; try{ v = JSON.parse(localStorage.getItem(DAILY_IND_KEY)||"null"); }catch(e){}
-  return Object.assign({ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vol:true, rsi:false, macd:false}, v||{});
+  return Object.assign({ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vol:true, rsi:false, macd:false, prof:true}, v||{});
 }
 function dailySetInd(k){
   const v = dailyInd(); v[k] = !v[k];
@@ -24520,7 +24526,7 @@ function dailyRenderMain(){
           '<div class="dd-asset"><b id="dd-asset"></b><span class="dd-chip" id="dd-tf"></span><span class="dd-chip" id="dd-hz"></span></div>'+
           '<div class="dd-tools">'+
             '<div class="dd-seg"><button type="button" data-dd-view="detail">Graphique</button><button type="button" data-dd-view="ctx">Vue d\'ensemble · <em></em></button></div>'+
-            '<div class="dd-toggles">'+[["ema20","EMA 20",TA_COLORS.ema20],["ema50","EMA 50",TA_COLORS.ema50],["ema200","EMA 200",TA_COLORS.ema200],["bb","Bollinger",TA_COLORS.bb],["vwap","VWAP",TA_COLORS.vwap],["vol","Volume","var(--text-faint)"],["rsi","RSI",TA_COLORS.rsi],["macd","MACD",TA_COLORS.macd]]
+            '<div class="dd-toggles">'+[["ema20","EMA 20",TA_COLORS.ema20],["ema50","EMA 50",TA_COLORS.ema50],["ema200","EMA 200",TA_COLORS.ema200],["bb","Bollinger",TA_COLORS.bb],["vwap","VWAP",TA_COLORS.vwap],["prof","Profil de volume","var(--dd-a)"],["vol","Volume","var(--text-faint)"],["rsi","RSI",TA_COLORS.rsi],["macd","MACD",TA_COLORS.macd]]
               .map(t=>'<button type="button" data-dd-ind="'+t[0]+'"><i style="background:'+t[2]+'"></i>'+t[1]+'</button>').join("")+'</div>'+
             dailyDrawBarHtml()+
           '</div>'+
@@ -24631,6 +24637,8 @@ function dailyResultHtml(){
 function dailyOnClick(e){
   const tb = e.target.closest && e.target.closest("[data-dd-tool]");
   if (tb){ dailySetTool(tb.dataset.ddTool); return; }
+  const lb = e.target.closest && e.target.closest("[data-dd-lens]");
+  if (lb){ dailySelectLens(lb.dataset.ddLens); return; }
   const vb = e.target.closest("[data-dd-view]");
   if (vb){ dailySetView(vb.dataset.ddView); return; }
   const ib = e.target.closest("[data-dd-ind]");
@@ -24779,16 +24787,20 @@ function dailyVerdict(rec, rd, t){
     // Les raisons du bias : chaque lecture et son sens, puis le bilan. Sur le
     // graphique : les repères des lectures qui vont dans le sens du setup.
     const B = dailyBiasRead(rd.c, ci, ci-DAILY_SHOW+1);
-    const an = {lab:[], lev:[], marks:[], zones:[], segs:[]};
-    const add = (src)=>{ if (!src) return; ["lab","lev","marks","zones","segs"].forEach(f=>{ (src[f]||[]).forEach(x=>an[f].push(x)); }); if (src.avwap && !an.avwap) an.avwap = src.avwap; };
-    // Price action : toujours dessiné (chandelier, trendline, Fibonacci, figure) ;
-    // les autres lectures : seulement celles qui vont dans le sens du setup.
-    B.lenses.filter(l=>l.pa).forEach(l=>add(l.annot));
-    B.lenses.filter(l=>!l.pa && B.bias && l.bias===B.bias).forEach(l=>add(l.annot));
-    an.lev = an.lev.slice(0, 9); an.marks = an.marks.slice(0, 8); an.zones = an.zones.slice(0, 2);
-    rd.annot = an;
+    // Graphique lisible : une seule lecture dessinée à la fois. Par défaut, la
+    // première qui va dans le sens du setup (price action d'abord) ; un clic
+    // sur une raison (ou sur le thème du jour) dessine la sienne.
+    rd.lensAn = {theme:T.annot};
+    B.lenses.forEach(l=>{ rd.lensAn[l.k] = l.annot; });
+    const hasDraw = (an)=>an && ["lab","lev","marks","zones","segs"].some(f=>(an[f]||[]).length) || (an && an.avwap);
+    const order = ["tl","pattern","candle","fib","dow","sr","smc","vwap","mom","of","trend"];
+    const first = order.find(k=>{ const l = B.lenses.find(z=>z.k===k); return l && B.bias && l.bias===B.bias && hasDraw(l.annot); });
+    rd.lensSel = first || "theme";
+    rd.annot = rd.lensAn[rd.lensSel];
+    rd.bias = B; rd.truthT = t;
     const ex = document.getElementById("dd-explain");
-    if (ex){ ex.innerHTML = dailyBiasHtml(B, t)+dxExplainHtml({blocks:[{h:"Lecture "+th.tag+" · thème du jour", lines:T.lines}]}); ex.hidden = false; }
+    rd.themeH = "Lecture "+th.tag+" · thème du jour"; rd.themeLines = T.lines;
+    if (ex){ ex.innerHTML = dailyRevealHtml(rd); ex.hidden = false; }
     dailyRedraw();
   }catch(e){ console.warn("daily lecture", e); }
   const nb = v.querySelector('[data-dd="next"]'); if (nb) nb.focus({preventScroll:true});
@@ -24796,24 +24808,69 @@ function dailyVerdict(rec, rd, t){
 // ---------- Outils de dessin du défi (Classique) ----------
 // Coordonnées enregistrées en (indice de bougie, prix) : les dessins restent
 // en place à la révélation, quand l'échelle change. Effacés à chaque graphique.
-const DD_TOOLS = [["tl","Ligne de tendance (tirets) — glisser d'un point à l'autre",'<path d="M3 17 17 3" stroke-dasharray="3 2.5"/>'],["hl","Ligne horizontale — un clic",'<path d="M2 10h16" stroke-dasharray="3 2.5"/>'],["fib","Fibonacci — glisser du début à la fin du swing",'<path d="M3 4h14M3 8h14M3 11h14M3 16h14"/><rect x="3" y="11" width="14" height="5" fill="currentColor" fill-opacity=".3" stroke="none"/>'],["brush","Pinceau — dessin libre",'<path d="M14 3l3 3-8 8-4 1 1-4z"/>'],["clear","Tout effacer",'<path d="M4 6h12M8 6V4h4v2M6 6l1 10h6l1-10"/>']];
+const DD_TOOLS = [["tl","Ligne de tendance (tirets) — glisser d'un point à l'autre",'<path d="M3 17 17 3" stroke-dasharray="3 2.5"/>'],["hl","Ligne horizontale — un clic",'<path d="M2 10h16" stroke-dasharray="3 2.5"/>'],["fib","Fibonacci — glisser du début à la fin du swing",'<path d="M3 4h14M3 8h14M3 11h14M3 16h14"/><rect x="3" y="11" width="14" height="5" fill="currentColor" fill-opacity=".3" stroke="none"/>'],["avwap","VWAP ancré — clic sur la bougie de départ",'<path d="M4 15c3-1 4-7 8-7 3 0 4 3 5 2"/><circle cx="4" cy="15" r="1.8" fill="currentColor"/>'],["avp","Profil de volume ancré — glisser de la première à la dernière bougie",'<path d="M4 3v14M4 6h5M4 9h10M4 12h7M4 15h4"/>'],["brush","Pinceau — dessin libre",'<path d="M14 3l3 3-8 8-4 1 1-4z"/>'],["undo","Annuler le dernier tracé (Cmd / Ctrl + Z)",'<path d="M7 5 3 9l4 4"/><path d="M3 9h9a5 5 0 0 1 0 10h-2"/>'],["clear","Tout effacer",'<path d="M4 6h12M8 6V4h4v2M6 6l1 10h6l1-10"/>']];
 function dailyDrawBarHtml(){
   return '<div class="dd-draw" id="dd-draw" role="toolbar" aria-label="Outils de dessin">'+DD_TOOLS.map(([k, t, svg])=>'<button type="button" data-dd-tool="'+k+'" title="'+t+'" aria-label="'+t+'" class="'+(D.tool===k ? "on" : "")+'"><svg viewBox="0 0 20 20" aria-hidden="true">'+svg+'</svg></button>').join("")+'</div>';
 }
 function dailySetTool(k){
   const rd = dailyCurRound();
-  if (k==="clear"){ if (rd) rd.draw = []; D.tool = null; }
+  if (k==="undo"){ dailyDrawUndo(false); return; }
+  if (k==="clear"){ if (rd && rd.draw && rd.draw.length){ rd.redo = []; rd.undoClear = rd.draw; rd.draw = []; } D.tool = null; D.drawSel = null; }
   else D.tool = D.tool===k ? null : k;
   document.querySelectorAll("[data-dd-tool]").forEach(b=>b.classList.toggle("on", b.dataset.ddTool===D.tool));
   const cv = document.getElementById("dd-canvas");
   if (cv){ cv.style.touchAction = D.tool ? "none" : ""; cv.style.cursor = D.tool ? "crosshair" : ""; }
   dailyRedraw();
 }
+// Annuler / rétablir (Cmd / Ctrl + Z, Cmd / Ctrl + Maj + Z ou Y) ; « Tout
+// effacer » s'annule aussi d'un coup.
+function dailyDrawUndo(redo){
+  const rd = dailyCurRound(); if (!rd) return false;
+  if (!rd.redo) rd.redo = [];
+  if (D.drawCur){ dailyDrawCancel(); return true; }
+  if (redo){ const it = rd.redo.pop(); if (!it) return false; if (!rd.draw) rd.draw = []; rd.draw.push(it); }
+  else if (rd.draw && rd.draw.length){ rd.redo.push(rd.draw.pop()); }
+  else if (rd.undoClear){ rd.draw = rd.undoClear; rd.undoClear = null; }
+  else return false;
+  D.drawSel = null; dailyRedraw(); return true;
+}
+// Tracé commencé mais pas encore posé (bouton encore appuyé) : retiré.
+function dailyDrawCancel(){
+  const rd = dailyCurRound(), cur = D.drawCur;
+  if (rd && rd.draw && cur){ const i = rd.draw.indexOf(cur); if (i>=0) rd.draw.splice(i, 1); }
+  D.drawCur = null; D.drawCancelled = true; dailyRedraw();
+}
+function dailyDrawDelete(){
+  const rd = dailyCurRound();
+  if (D.drawCur){ dailyDrawCancel(); return true; }
+  if (rd && rd.draw && D.drawSel){ const i = rd.draw.indexOf(D.drawSel); if (i>=0){ rd.draw.splice(i, 1); if (!rd.redo) rd.redo = []; } D.drawSel = null; dailyRedraw(); return true; }
+  return false;
+}
+// Tracé le plus proche du point cliqué (à moins de 7 px), ou null.
+function dailyDrawHit(cv, px, py){
+  const rd = dailyCurRound(), m = cv.__dmap; if (!rd || !rd.draw || !m || m.ctx) return null;
+  const X = k=>m.padL + (k-m.start)*m.slot + m.slot/2, Y = p=>m.padT + (m.rng[1]-p)/(m.rng[1]-m.rng[0])*m.priceH;
+  const dSeg = (x1, y1, x2, y2)=>{ const dx = x2-x1, dy = y2-y1, L = dx*dx+dy*dy, t = L ? Math.max(0, Math.min(1, ((px-x1)*dx+(py-y1)*dy)/L)) : 0; return Math.hypot(px-(x1+t*dx), py-(y1+t*dy)); };
+  let best = null, bd = 7;
+  rd.draw.forEach(it=>{
+    let d = Infinity;
+    if (it.t==="tl") d = dSeg(X(it.a.k), Y(it.a.p), X(it.b.k), Y(it.b.p));
+    else if (it.t==="hl") d = Math.abs(py - Y(it.a.p));
+    else if (it.t==="fib"){ const x1 = Math.min(X(it.a.k), X(it.b.k)); if (px >= x1-4) [0,0.236,0.382,0.5,0.618,0.786,1].forEach(f=>{ d = Math.min(d, Math.abs(py - Y(it.b.p - f*(it.b.p-it.a.p)))); }); }
+    else if (it.t==="brush") for (let i=1;i<it.pts.length;i++) d = Math.min(d, dSeg(X(it.pts[i-1].k), Y(it.pts[i-1].p), X(it.pts[i].k), Y(it.pts[i].p)));
+    else if (it.t==="avwap"){ const ser = rd.c, a0 = Math.max(0, Math.round(it.a.k)); let pv = 0, vv = 0, prev = null; for (let k=a0; k<ser.length && k<=DAILY_WARM+DAILY_SHOW+DAILY_AFTER-1; k++){ const r = ser[k], tp = (r[2]+r[3]+r[4])/3; pv += tp*(r[5]||0); vv += r[5]||0; const pt = [X(k), Y(vv ? pv/vv : tp)]; if (prev) d = Math.min(d, dSeg(prev[0], prev[1], pt[0], pt[1])); prev = pt; } }
+    else if (it.t==="avp"){ const x1 = X(Math.min(it.a.k, it.b.k)), x2 = X(Math.max(it.a.k, it.b.k)); if (px >= x1-4 && px <= x2+4){ const kMax = D.phase==="playing" ? DAILY_WARM+DAILY_SHOW-1 : rd.c.length-1, P = dxProfile(rd.c, Math.max(0, Math.round(Math.min(it.a.k, it.b.k))), Math.min(kMax, Math.round(Math.max(it.a.k, it.b.k))), 24); if (py >= Y(P.hi)-4 && py <= Y(P.lo)+4) d = 0; } }
+    if (d < bd){ bd = d; best = it; }
+  });
+  return best;
+}
 function dailyDrawUser(x, items, g){
   const FIB = [[0,"0"],[0.236,"0,236"],[0.382,"0,382"],[0.5,"0,5"],[0.618,"0,618"],[0.786,"0,786"],[1,"1"]];
   x.save(); x.lineCap = "round"; x.lineJoin = "round";
   items.forEach(it=>{
-    x.strokeStyle = g.gold; x.fillStyle = g.gold; x.globalAlpha = .95;
+    const sel = it===D.drawSel;
+    x.strokeStyle = sel ? g.text : g.gold; x.fillStyle = sel ? g.text : g.gold; x.globalAlpha = .95;
+    if (sel){ x.shadowColor = g.gold; x.shadowBlur = 6; } else x.shadowBlur = 0;
     if (it.t==="tl"){ x.lineWidth = 2; x.setLineDash([7,5]); x.beginPath(); x.moveTo(g.X(it.a.k), g.y(it.a.p)); x.lineTo(g.X(it.b.k), g.y(it.b.p)); x.stroke(); }
     else if (it.t==="hl"){ x.lineWidth = 1.6; x.setLineDash([7,5]); const yy = g.y(it.a.p); x.beginPath(); x.moveTo(g.padL, yy); x.lineTo(g.W-g.padR, yy); x.stroke(); }
     else if (it.t==="fib"){
@@ -24823,6 +24880,28 @@ function dailyDrawUser(x, items, g){
       x.globalAlpha = .12; x.fillRect(x1, Math.min(lv(0.618), lv(0.786)), x2-x1, Math.abs(lv(0.786)-lv(0.618)));
       FIB.forEach(([f, t])=>{ const yy = Math.round(lv(f))+.5; x.globalAlpha = (f===0.618 || f===0.786) ? .95 : .6; x.beginPath(); x.moveTo(x1, yy); x.lineTo(x2, yy); x.stroke(); x.fillText(t, x1+3, yy-1); });
       x.globalAlpha = .5; x.setLineDash([3,3]); x.beginPath(); x.moveTo(g.X(it.a.k), g.y(it.a.p)); x.lineTo(g.X(it.b.k), g.y(it.b.p)); x.stroke();
+    }
+    else if (it.t==="avwap"){
+      // VWAP depuis la bougie choisie jusqu'à la dernière bougie affichée.
+      const a0 = Math.max(0, Math.round(it.a.k)); let pv = 0, vv = 0, on = false;
+      x.lineWidth = 1.8; x.setLineDash([]); x.strokeStyle = sel ? g.text : TA_COLORS.vwap; x.beginPath();
+      for (let k=a0; k<g.end && k<g.series.length; k++){ const r = g.series[k], tp = (r[2]+r[3]+r[4])/3, vol = r[5]||0; pv += tp*vol; vv += vol; const v = vv ? pv/vv : tp; if (!on){ x.moveTo(g.X(k), g.y(v)); on = true; } else x.lineTo(g.X(k), g.y(v)); }
+      x.stroke(); x.fillStyle = sel ? g.text : TA_COLORS.vwap; x.beginPath(); x.arc(g.X(a0), g.y((g.series[a0][2]+g.series[a0][3]+g.series[a0][4])/3), 3.5, 0, Math.PI*2); x.fill();
+      x.font = "600 10px "+g.mono; x.textAlign = "left"; x.textBaseline = "bottom"; x.fillText("VWAP ancré", g.X(a0)+6, g.y(g.series[a0][2])-3);
+    }
+    else if (it.t==="avp"){
+      // Profil de volume des bougies entre les deux ancres (jamais après la dernière bougie affichée).
+      const k1 = Math.max(0, Math.round(Math.min(it.a.k, it.b.k))), k2 = Math.min(g.end-1, Math.round(Math.max(it.a.k, it.b.k)));
+      if (k2 - k1 >= 2){
+        const P = dxProfile(g.series, k1, k2, 24), mx = Math.max(...P.v) || 1, x1 = g.X(k1)-g.slot/2, x2 = g.X(k2)+g.slot/2, wMax = Math.max(24, (x2-x1)*0.7);
+        x.setLineDash([]);
+        for (let i=0;i<P.bins;i++){ const y0 = g.y(P.lo+(i+1)*P.step), y1 = g.y(P.lo+i*P.step), inVa = P.lo+i*P.step >= P.val-1e-12 && P.lo+(i+1)*P.step <= P.vah+1e-12;
+          x.globalAlpha = inVa ? .38 : .18; x.fillStyle = sel ? g.text : g.gold; x.fillRect(x1, y0, P.v[i]/mx*wMax, Math.max(1, y1-y0-1)); }
+        x.globalAlpha = .9; x.strokeStyle = sel ? g.text : g.gold; x.lineWidth = 1;
+        x.strokeRect(x1+.5, g.y(P.hi)+.5, x2-x1-1, g.y(P.lo)-g.y(P.hi)-1);
+        x.font = "600 10px "+g.mono; x.textAlign = "left"; x.textBaseline = "middle";
+        [[P.poc,"POC",[]],[P.vah,"VAH",[4,3]],[P.val,"VAL",[4,3]]].forEach(([pv, t, d])=>{ const yy = Math.round(g.y(pv))+.5; x.setLineDash(d); x.beginPath(); x.moveTo(x1, yy); x.lineTo(x2, yy); x.stroke(); x.setLineDash([]); x.fillText(t, x2+4, yy); });
+      }
     }
     else if (it.t==="brush" && it.pts.length){ x.lineWidth = 2.2; x.setLineDash([]); x.beginPath(); it.pts.forEach((q, i)=>{ const px = g.X(q.k), py = g.y(q.p); if (i) x.lineTo(px, py); else x.moveTo(px, py); }); x.stroke(); }
     x.setLineDash([]); x.globalAlpha = 1;
@@ -24837,22 +24916,34 @@ function dailyDrawBind(cv){
   let cur = null, raf = 0;
   const redraw = ()=>{ if (!raf) raf = requestAnimationFrame(()=>{ raf = 0; dailyRedraw(); }); };
   cv.addEventListener("pointerdown", (e)=>{
-    if (!D.tool || D.tool==="clear" || (e.pointerType==="mouse" && e.button!==0)) return;
+    if (e.pointerType==="mouse" && e.button!==0) return;
+    if (!D.tool || D.tool==="clear"){
+      // Sans outil : un clic sur un tracé le sélectionne (Suppr pour l'effacer).
+      const r = cv.getBoundingClientRect(), hit = dailyDrawHit(cv, e.clientX-r.left, e.clientY-r.top);
+      if (hit!==D.drawSel){ D.drawSel = hit; redraw(); }
+      return;
+    }
     const rd = dailyCurRound(), q = at(e); if (!rd || !q) return;
     e.preventDefault();
     if (!rd.draw) rd.draw = [];
+    rd.redo = []; rd.undoClear = null; D.drawSel = null; D.drawCancelled = false;
     if (D.tool==="hl"){ rd.draw.push({t:"hl", a:q}); redraw(); return; }
+    if (D.tool==="avwap"){ rd.draw.push({t:"avwap", a:{k:Math.round(q.k), p:q.p}}); redraw(); return; }
     cur = D.tool==="brush" ? {t:"brush", pts:[q]} : {t:D.tool, a:q, b:q};
+    D.drawCur = cur;
     rd.draw.push(cur);
     try{ cv.setPointerCapture(e.pointerId); }catch(err){}
   });
   cv.addEventListener("pointermove", (e)=>{
+    if (cur && D.drawCancelled){ cur = null; return; }
     if (!cur) return;
     const q = at(e); if (!q) return;
     if (cur.t==="brush") cur.pts.push(q); else cur.b = q;
     redraw();
   });
   const end = ()=>{
+    D.drawCur = null;
+    if (cur && D.drawCancelled){ cur = null; D.drawCancelled = false; return; }
     if (!cur) return;
     const rd = dailyCurRound(), m = cv.__dmap;
     // Simple clic sans glisser : on n'ajoute pas une ligne de longueur nulle.
@@ -24861,7 +24952,27 @@ function dailyDrawBind(cv){
   };
   cv.addEventListener("pointerup", end); cv.addEventListener("pointercancel", end);
 }
-function dailyBiasHtml(B, t){
+document.addEventListener("keydown", (e)=>{
+  if (document.body.dataset.view!=="daily" || (D.phase!=="playing" && D.phase!=="reveal")) return;
+  const tag = (document.activeElement && document.activeElement.tagName) || "";
+  if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+  const k = (e.key||"").toLowerCase();
+  if ((e.metaKey || e.ctrlKey) && !e.altKey && (k==="z" || k==="y")){ if (dailyDrawUndo(k==="y" || e.shiftKey)) e.preventDefault(); return; }
+  if (e.key==="Delete" || e.key==="Backspace"){ if (dailyDrawDelete()) e.preventDefault(); return; }
+  if (e.key==="Escape" && (D.drawCur || D.drawSel || D.tool)){ if (D.drawCur) dailyDrawCancel(); D.drawSel = null; if (D.tool) dailySetTool(D.tool); else dailyRedraw(); }
+});
+function dailyRevealHtml(rd){
+  return dailyBiasHtml(rd.bias, rd.truthT, rd.lensSel)+
+    '<div class="dx-exp-b dd-theme-read'+(rd.lensSel==="theme" ? " on" : "")+'" data-dd-lens="theme" role="button" tabindex="0"><span class="dd-kicker">'+dailyEsc(rd.themeH)+(rd.lensSel==="theme" ? " · dessiné" : " · cliquer pour dessiner")+'</span><ul>'+rd.themeLines.map(l=>'<li>'+dailyEsc(l)+'</li>').join("")+'</ul></div>';
+}
+function dailySelectLens(k){
+  const rd = dailyCurRound(); if (!rd || !rd.lensAn || D.phase!=="reveal") return;
+  rd.lensSel = rd.lensSel===k && k!=="theme" ? "theme" : k;
+  rd.annot = rd.lensAn[rd.lensSel] || null;
+  const ex = document.getElementById("dd-explain"); if (ex) ex.innerHTML = dailyRevealHtml(rd);
+  dailyRedraw();
+}
+function dailyBiasHtml(B, t, sel){
   if (!B || !B.lenses.length) return "";
   const ic = (b)=>b==="up" ? '<i class="dd-bz up">▲</i>' : b==="down" ? '<i class="dd-bz dn">▼</i>' : '<i class="dd-bz nt">–</i>';
   const sens = B.bias==="up" ? "haussier" : B.bias==="down" ? "baissier" : null;
@@ -24869,7 +24980,8 @@ function dailyBiasHtml(B, t){
     : B.bias===t.dir ? "Le marché a "+(t.dir==="up" ? "monté" : "baissé")+" de "+(t.move>=0?"+":"")+t.move.toLocaleString("fr-FR",{maximumFractionDigits:2})+" % : setup validé."
     : "Le marché est parti dans l'autre sens ("+(t.move>=0?"+":"")+t.move.toLocaleString("fr-FR",{maximumFractionDigits:2})+" %) : le setup a échoué. Un bias se construit sur des probabilités, pas des certitudes.";
   return '<div class="dx-exp-b dd-bias"><span class="dd-kicker">Les raisons du bias'+(sens ? ' · '+sens : '')+' ('+B.up+' ▲ · '+B.dn+' ▼)</span><ul>'+
-    B.lenses.map(l=>'<li>'+ic(l.bias)+'<b>'+dailyEsc(l.name)+'</b> — '+dailyEsc(l.line)+'</li>').join("")+
+    B.lenses.map(l=>'<li data-dd-lens="'+l.k+'" role="button" tabindex="0" class="'+(sel===l.k ? "on" : "")+'">'+ic(l.bias)+'<b>'+dailyEsc(l.name)+'</b> — '+dailyEsc(l.line)+'</li>').join("")+
+    '<li class="dd-bias-hint">Clique une raison pour la voir dessinée sur le graphique (une à la fois).</li>'+
     '<li class="dd-bias-sum">'+dailyEsc(res)+'</li></ul></div>';
 }
 async function dailyNext(){
@@ -25144,6 +25256,27 @@ function dailyDraw(cv, rd, opt){
     }
     x.globalAlpha = 1;
   }
+  // Profil de volume des bougies visibles jusqu'à la coupure (même calcul que
+  // la lecture « VWAP et profil » de la révélation : POC, VAH, VAL identiques).
+  if (ind.prof && end-start > 10){
+    const ciV = ctx ? end-1 : DAILY_WARM+DAILY_SHOW-1, aV = ctx ? start : DAILY_WARM;
+    const P = dxProfile(series, aV, ciV, 36), mx = Math.max(...P.v) || 1, wMax = (W-padL-padR)*0.2, xl = padL;
+    x.save(); x.beginPath(); x.rect(padL, padT, W-padR-padL, priceH); x.clip();
+    for (let i=0;i<P.bins;i++){
+      const y0 = y(P.lo+(i+1)*P.step), y1 = y(P.lo+i*P.step), hgt = Math.max(1, y1-y0-1), w = P.v[i]/mx*wMax, wb = P.v[i] ? w*(P.bv[i]||0)/P.v[i] : 0;
+      const inVa = P.lo+i*P.step >= P.val-1e-12 && P.lo+(i+1)*P.step <= P.vah+1e-12;
+      x.globalAlpha = inVa ? .3 : .14;
+      if (P.bv.some(b=>b>0)){ x.fillStyle = up; x.fillRect(xl, y0, wb, hgt); x.fillStyle = dn; x.fillRect(xl+wb, y0, w-wb, hgt); }
+      else { x.fillStyle = gold; x.fillRect(xl, y0, w, hgt); }
+    }
+    x.font = "600 10px "+mono; x.textBaseline = "middle"; x.textAlign = "left";
+    [[P.poc, "POC", gold, [2,3], .9], [P.vah, "VAH", faint, [4,4], .7], [P.val, "VAL", faint, [4,4], .7]].forEach(([pv, t, col, dash, al])=>{
+      const py = Math.round(y(pv))+.5; x.globalAlpha = al; x.strokeStyle = col; x.setLineDash(dash);
+      x.beginPath(); x.moveTo(xl, py); x.lineTo(xl+wMax, py); x.stroke(); x.setLineDash([]);
+      x.globalAlpha = .95; x.fillStyle = col; x.fillText(t, xl+wMax+4, py);
+    });
+    x.globalAlpha = 1; x.restore();
+  }
   // Bougies.
   const bw = Math.max(1, slot*0.62);
   x.save(); x.beginPath(); x.rect(0, padT-2, W-padR+4, priceH+4); x.clip();
@@ -25187,7 +25320,7 @@ function dailyDraw(cv, rd, opt){
   if (opt.annot && !ctx) dxDrawAnnot(x, opt.annot, {X, y, start, end, ci:DAILY_WARM+DAILY_SHOW-1, padL, W, padR, padT, priceH, mono, up, dn, gold, faint, text, slot});
   // Dessins de l'élève (trendline en tirets, horizontale, Fibonacci, pinceau).
   cv.__dmap = {ctx:!!ctx, start, slot, padL, padT, priceH, rng:rng.slice(), W, padR};
-  if (!ctx) dailyDrawUser(x, rd.draw || [], {X, y, padL, W, padR, mono, gold, text, faint});
+  if (!ctx) dailyDrawUser(x, rd.draw || [], {X, y, padL, W, padR, mono, gold, text, faint, up, dn, series, end, slot});
   dailyDrawBind(cv);
   cv.style.touchAction = D.tool && !ctx ? "none" : ""; cv.style.cursor = D.tool && !ctx ? "crosshair" : "";
   x.restore();
