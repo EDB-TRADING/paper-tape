@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3002">
+<meta name="pt-build" content="3003">
 <title>Paper Tape</title>
 <script>
 /* Un seul fichier pour deux sites :
@@ -2883,6 +2883,8 @@
   .adm-tag{font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:6px;background:var(--panel-2);color:var(--text-dim);white-space:nowrap;}
   .adm-tag.plus{color:var(--gold);background:color-mix(in srgb, var(--gold) 13%, transparent);}
   .adm-tag.req{color:var(--warn);background:color-mix(in srgb, var(--warn) 13%, transparent);}
+  .adm-tag.trial{color:#5aa9e6;background:color-mix(in srgb, #5aa9e6 14%, transparent);}
+  .adm-tag.trial-used{color:var(--text-faint);background:var(--panel-2);}
   .adm-tag.admin{color:var(--long);background:color-mix(in srgb, var(--long) 13%, transparent);}
   .adm-cell-btn{text-align:right;}
   .adm-manage{font:600 12.5px var(--sans);color:var(--text);background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;cursor:pointer;}
@@ -6065,7 +6067,7 @@
           <div class="adm-filters" id="adm-filters">
             <button type="button" class="nw-chip is-active" data-adm-filter="all">Tous</button>
             <button type="button" class="nw-chip" data-adm-filter="plus">EDB+</button>
-            <button type="button" class="nw-chip" data-adm-filter="req">Demandes</button><button type="button" class="nw-chip" data-adm-filter="old" title="Dernière connexion sur une ancienne version du site">Pas à jour</button>
+            <button type="button" class="nw-chip" data-adm-filter="req">Demandes</button><button type="button" class="nw-chip" data-adm-filter="old" title="Dernière connexion sur une ancienne version du site">Pas à jour</button><button type="button" class="nw-chip" data-adm-filter="trial" title="Essai gratuit EDB+ de 24 h en cours">Essai en cours</button><button type="button" class="nw-chip" data-adm-filter="trialused" title="Essai gratuit EDB+ déjà utilisé (terminé ou en cours)">Essai utilisé</button>
             <button type="button" class="nw-chip" data-adm-filter="admin">Admins</button>
           </div>
           <button class="pos-close" id="admin-refresh">🔄 Actualiser</button>
@@ -6341,7 +6343,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3002 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3003 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -30274,6 +30276,8 @@ function adminFilteredDocs(){
     if (adminFilter==="plus" && !d.edbPlus) return false;
     if (adminFilter==="req" && !(d.edbPlusRequested && !d.edbPlus)) return false;
     if (adminFilter==="admin" && !d.isAdmin) return false;
+    if (adminFilter==="trial" && adminTrialInfo(d).st!=="active") return false;
+    if (adminFilter==="trialused" && adminTrialInfo(d).st==="none") return false;
     if (adminFilter==="old"){ const cur = (document.querySelector('meta[name="pt-build"]')||{}).content || ""; if (d.ptBuild && +d.ptBuild >= +cur) return false; }
     if (q && !((d.username||"")+" "+(d.email||"")).toLowerCase().includes(q)) return false;
     return true;
@@ -30294,6 +30298,9 @@ function renderAdminTable(){
     if (d.isAdmin) tags.push('<span class="adm-tag admin">Admin</span>');
     if (d.edbPlus) tags.push('<span class="adm-tag plus">EDB+</span>');
     else if (d.edbPlusRequested) tags.push('<span class="adm-tag req">Demande EDB+</span>');
+    { const T = adminTrialInfo(d);
+      if (T.st==="active") tags.push('<span class="adm-tag trial" title="Essai démarré le '+escapeHtml(new Date(T.ms).toLocaleString("fr-FR"))+'">Essai · '+escapeHtml(T.left)+'</span>');
+      else if (T.st==="used" && !d.edbPlus) tags.push('<span class="adm-tag trial-used" title="Essai utilisé le '+escapeHtml(new Date(T.ms).toLocaleString("fr-FR"))+'">Essai utilisé</span>'); }
     if (d.challenge && d.challenge.phase && d.challenge.phase!=="failed") tags.push('<span class="adm-tag">Challenge</span>');
     const name = String(d.username||"—");
     return ''+
@@ -30318,6 +30325,7 @@ function adminActionsHtml(id, d){
   return '<div class="adm-actions">'+
     '<div class="adm-act-group"><span>Accès</span>'+
       btn("data-admin-edbplus", d.edbPlus?"Retirer EDB+":"Activer EDB+", "gold")+
+      btn("data-admin-trial", "Essai 24 h…")+
       btn("data-admin-isadmin", d.isAdmin?"Retirer admin":"Passer admin")+
     '</div>'+
     '<div class="adm-act-group"><span>Compte</span>'+
@@ -30944,6 +30952,60 @@ async function adminToggleEdbPlus(id){
     : 'Retirer EDB+ à "'+label+'" ? Le trader perd l\'accès au challenge prop, au quiz, aux connaissances, au footprint / TPO et au changement de thème (retour au thème par défaut).';
   if (!confirm(question)) return;
   adminSetEdbPlus(id, next);
+}
+// ---- Essai gratuit EDB+ de 24 h (champ edbPlusTrialStartedAt du trader) ----
+function adminTrialInfo(d){
+  const ms = trialTimestampToMs(d && d.edbPlusTrialStartedAt);
+  if (ms==null) return {st:"none"};
+  const left = ms + EDB_PLUS_TRIAL_MS - Date.now();
+  if (left > 0){ const h = Math.floor(left/3600000), m = Math.floor(left%3600000/60000); return {st:"active", ms, left:h ? h+" h "+String(m).padStart(2,"0") : m+" min"}; }
+  return {st:"used", ms};
+}
+// Offrir 24 h maintenant / rendre l'essai disponible / arrêter l'essai.
+// Les règles Firestore laissent l'admin écrire ce champ sur n'importe quel compte.
+function adminOpenTrialMenu(id){
+  const doc = adminFindDoc(id); if (!doc) return;
+  const d = doc.data(), T = adminTrialInfo(d), name = d.username || id;
+  const when = ms=>new Date(ms).toLocaleString("fr-FR", {day:"numeric", month:"long", hour:"2-digit", minute:"2-digit"});
+  const status = T.st==="active" ? "Essai en cours : démarré le "+when(T.ms)+", encore "+T.left+"."
+    : T.st==="used" ? "Essai déjà utilisé : démarré le "+when(T.ms)+", terminé le "+when(T.ms+EDB_PLUS_TRIAL_MS)+"."
+    : "Essai jamais utilisé : le trader peut le lancer lui-même depuis la page EDB+.";
+  const act = (k, label, cls, sub, bl)=>'<div class="adm-q-row"><div class="adm-q-main"><b>'+label+'</b><span>'+sub+'</span></div><button type="button" class="adm-act'+(cls ? " "+cls : "")+'" data-trial-act="'+k+'">'+bl+'</button></div>';
+  openModal(
+    '<h3 style="margin-bottom:6px;">Essai EDB+ — '+escapeHtml(name)+'</h3>'+
+    '<div class="chart-note" style="margin-bottom:12px;">'+escapeHtml(status)+(d.edbPlus ? " Ce trader est déjà membre EDB+ : l'essai ne change rien pour lui." : "")+'</div>'+
+    '<div class="adm-q-list">'+
+      act("give", "Offrir 24 h maintenant", "gold", "L'essai démarre tout de suite, pour 24 h (même s'il a déjà été utilisé).", "Offrir")+
+      (T.st!=="none" ? act("reset", "Rendre l'essai disponible", "", "Le trader pourra relancer lui-même ses 24 h quand il le voudra, depuis la page EDB+.", "Réactiver") : '')+
+      (T.st==="active" ? act("stop", "Arrêter l'essai", "warn", "L'accès EDB+ s'arrête maintenant ; l'essai compte comme utilisé.", "Arrêter") : '')+
+    '</div>'+
+    '<label class="chart-note" style="display:flex;gap:8px;align-items:center;margin:12px 0 4px;"><input type="checkbox" id="adm-trial-notify" checked> Prévenir le trader dans sa conversation EDB+</label>'+
+    '<div class="chart-note" style="font-size:12px;">Le trader voit le changement au prochain chargement de la page.</div>'+
+    '<div class="chart-note" id="adm-trial-msg" style="margin-top:8px;min-height:14px;"></div>');
+  document.querySelectorAll("[data-trial-act]").forEach(b=>b.addEventListener("click", ()=>adminSetTrial(id, b.dataset.trialAct)));
+}
+async function adminSetTrial(id, what){
+  const FV = firebase.firestore.FieldValue, TS = firebase.firestore.Timestamp;
+  const msg = document.getElementById("adm-trial-msg"), notify = document.getElementById("adm-trial-notify");
+  const val = what==="give" ? FV.serverTimestamp() : what==="reset" ? FV.delete() : TS.fromMillis(Date.now() - EDB_PLUS_TRIAL_MS - 60000);
+  const patch = {edbPlusTrialStartedAt: val};
+  if (msg){ msg.style.color = ""; msg.textContent = "Enregistrement…"; }
+  try{
+    await db.collection("traders").doc(id).update(id===clientId ? adminOverridePatch(patch) : Object.assign(patch, {updatedAt:new Date().toISOString()}));
+    if (notify && notify.checked && id!==clientId){
+      const txt = what==="give" ? "🎁 Le bureau t'offre 24 h d'essai EDB+, à partir de maintenant : recharge la page pour en profiter."
+        : what==="reset" ? "🎁 Ton essai gratuit EDB+ de 24 h est de nouveau disponible : lance-le quand tu veux depuis la page EDB+."
+        : "Ton essai EDB+ a été arrêté par le bureau.";
+      try{ await sendEdbPlusChatMessage(id, "admin", txt); }catch(e2){}
+    }
+    if (id===clientId) await adminRefreshSelf(id);
+    closeModal();
+    appToast(what==="give" ? "Essai de 24 h offert." : what==="reset" ? "Essai de nouveau disponible." : "Essai arrêté.");
+    loadAdminTraders();
+  }catch(e){
+    console.warn("admin trial", e);
+    if (msg){ msg.style.color = "var(--short)"; msg.textContent = "Échec de la mise à jour (règles Firestore ?)."; }
+  }
 }
 async function adminSetEdbPlus(id, value){
   try{
@@ -31715,6 +31777,7 @@ function initAdminUI(){
       else if (t.dataset.adminRename) adminRenameTrader(t.dataset.adminRename);
       else if (t.dataset.adminBadges) adminManageBadges(t.dataset.adminBadges);
       else if (t.dataset.adminEdbplus) adminToggleEdbPlus(t.dataset.adminEdbplus);
+      else if (t.dataset.adminTrial) adminOpenTrialMenu(t.dataset.adminTrial);
       else if (t.dataset.adminIsadmin) adminToggleIsAdmin(t.dataset.adminIsadmin);
       else if (t.dataset.adminResetQuiz) adminResetTraderQuiz(t.dataset.adminResetQuiz);
       else if (t.dataset.adminQuizMenu) adminOpenQuizReset(t.dataset.adminQuizMenu);
