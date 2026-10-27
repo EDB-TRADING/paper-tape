@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="2960">
+<meta name="pt-build" content="2990">
 <title>Paper Tape</title>
 <script>
 /* Un seul fichier pour deux sites :
@@ -5474,7 +5474,7 @@
                   <section class="ci-grp" data-grp="base"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Les bases</b><small>Tendance et activité : de quoi lire un graphique</small></span><span class="ci-lvl ci-lvl-b">Débutant</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><div class="ci-starter" id="ci-starter"><span>Tu débutes ? Volume + MME 20 et 50 suffisent pour lire la tendance.</span><button type="button" id="ci-starter-go">Activer</button></div><label class="ci-it"><i style="background:linear-gradient(90deg,#31c882 50%,#f0546a 50%)"></i><span class="ci-tx"><b>Volume</b><small>Quantité échangée à chaque bougie : confirme la force d'un mouvement</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vol"></label><label class="ci-it"><i style="background:#f2b33d"></i><span class="ci-tx"><b>Moyenne mobile 20</b><small>Tendance courte : prix au-dessus = plutôt haussier</small></span><input type="checkbox" class="ci-tg" data-chart-ind="ema20"></label><label class="ci-it"><i style="background:#5aa9e6"></i><span class="ci-tx"><b>Moyenne mobile 50</b><small>Tendance de fond sur la période</small></span><input type="checkbox" class="ci-tg" data-chart-ind="ema50"></label><label class="ci-it"><i style="background:#c77dff"></i><span class="ci-tx"><b>Moyenne mobile 200</b><small>La grande tendance, très suivie par les traders</small></span><input type="checkbox" class="ci-tg" data-chart-ind="ema200"></label></div></section>
                   <section class="ci-grp" data-grp="lvl"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Niveaux clés</b><small>Prix où le marché réagit souvent</small></span><span class="ci-lvl ci-lvl-i">Intermédiaire</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><label class="ci-it"><i style="background:#ff8a3d"></i><span class="ci-tx"><b>VWAP de la séance</b><small>Prix moyen payé depuis l'ouverture, pondéré par le volume</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vwap"></label><label class="ci-it"><i style="background:#e879f9"></i><span class="ci-tx"><b>VWAP de la semaine</b><small>Même calcul, depuis lundi</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vwapw"></label><div class="chart-ind-sub ci-opt" id="chart-vwap-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages du VWAP</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><label><input type="checkbox" data-chart-ind="vwapGap">Masquer la jonction entre deux séances</label><label><input type="checkbox" data-chart-ind="vwapBands">Bandes d'écart-type (±1σ, ±2σ)</label></div></div><label class="ci-it"><i style="background:#c9b37e"></i><span class="ci-tx"><b>Hier : plus haut / plus bas</b><small>+ ouverture du jour : niveaux souvent testés</small></span><input type="checkbox" class="ci-tg" data-chart-ind="pdl"></label><label class="ci-it"><i style="background:#8fa3b8"></i><span class="ci-tx"><b>Bandes de Bollinger</b><small>Enveloppe de volatilité autour d'une moyenne (20, 2)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="bb"></label><label class="ci-it"><i style="background:linear-gradient(90deg,#31c882 50%,#f0546a 50%)"></i><span class="ci-tx"><b>Supertrend</b><small>Vert = tendance haussière, rouge = baissière (10, 3)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="st"></label></div></section>
                   <section class="ci-grp" data-grp="vp"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Volume par prix</b><small>Où se sont faits les échanges</small></span><span class="ci-lvl ci-lvl-i">Intermédiaire</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><label class="ci-it"><i style="background:#8fa3b8"></i><span class="ci-tx"><b>Profil de volume (écran)</b><small>Volume échangé à chaque prix, sur la zone affichée</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vp"></label><label class="ci-it"><i style="background:#8fa3b8"></i><span class="ci-tx"><b>Profil de volume par jour</b><small>Un profil par séance, avec son POC</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vpd"></label><div class="chart-ind-sub ci-opt" id="chart-vp-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages des profils</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><div class="ci-h">Lignes</div><div class="chart-fp-tick"><span>Ticks par ligne <em id="chart-vp-tick-eq" class="ci-eq"></em></span><button type="button" class="tk-step" data-vp-step="-1" title="Lignes plus fines" aria-label="Moins de ticks par ligne">−</button><input type="number" id="chart-vp-tick" min="1" step="1" inputmode="numeric" placeholder="Auto" aria-label="Nombre de ticks par ligne du profil de volume"><button type="button" class="tk-step" data-vp-step="1" title="Lignes plus grosses" aria-label="Plus de ticks par ligne">+</button><button type="button" id="chart-vp-tick-auto" title="Revenir au réglage automatique">Auto</button></div><div class="ci-h">Apparence</div><label><input type="checkbox" data-chart-ind="vpFill">Histogramme plein (sinon contour seul)</label><label><input type="checkbox" data-chart-ind="vpBox">Encadré (box) autour de chaque profil</label><div class="ci-row"><span>Disposition</span><div class="tpo-seg ci-seg" data-ci-key="vpSide"><button type="button" data-v="left">Gauche</button><button type="button" data-v="right">Droite</button></div></div><div class="ci-row"><span>Couleur des barres</span><div class="tpo-seg ci-seg" data-ci-key="vpStyle"><button type="button" data-v="split">Achat / vente</button><button type="button" data-v="solid">Couleur unie</button></div></div><label><input type="checkbox" data-chart-ind="vpGrade">Dégradé : barres plus vives là où il y a plus de volume</label><label><input type="checkbox" data-chart-ind="vpVa">Lignes VAH / VAL (value area 70 %)</label><div class="ci-row"><span>Trait du POC</span><div class="tpo-seg ci-seg" data-ci-key="vpPocStyle"><button type="button" data-v="dash">Pointillés</button><button type="button" data-v="dot">Points</button><button type="button" data-v="solid">Plein</button></div></div><div class="ci-colors"><label data-vp-show="split"><input type="color" data-ci-color="vpBuyCol">Achats</label><label data-vp-show="split"><input type="color" data-ci-color="vpSellCol">Ventes</label><label data-vp-show="solid"><input type="color" data-ci-color="vpCol">Profil</label><label><input type="color" data-ci-color="vpPocCol">POC</label><label><input type="color" data-ci-color="vpVaCol">VAH / VAL</label><button type="button" id="chart-vp-col-reset" title="Couleurs par défaut">Défaut</button></div></div></div></div></section>
-                  <section class="ci-grp" data-grp="of"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Order flow</b><small>Acheteurs contre vendeurs, prix par prix</small></span><span class="ci-lvl ci-lvl-a">Avancé</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><label class="ci-it"><i style="background:linear-gradient(90deg,#f0546a 50%,#31c882 50%)"></i><span class="ci-tx"><b>Footprint <span class="chart-ind-plus">EDB+</span></b><small>Achats et ventes agressifs à chaque prix, dans chaque bougie</small></span><input type="checkbox" class="ci-tg" data-chart-ind="fp"></label><div class="chart-ind-lock" id="chart-fp-lock" hidden>Réservé aux membres EDB+. <button type="button" id="chart-fp-lock-go">Découvrir EDB+</button></div><div class="chart-ind-sub ci-opt" id="chart-fp-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages du footprint</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><div class="chart-fp-tick"><span>Taille de ligne (prix)</span><button type="button" class="tk-step" data-tick-step="fp:-1" title="Plus fin" aria-label="Taille de ligne plus fine">−</button><input type="number" id="chart-fp-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne du footprint (en prix)"><button type="button" class="tk-step" data-tick-step="fp:1" title="Plus gros" aria-label="Taille de ligne plus grosse">+</button><button type="button" id="chart-fp-tick-auto" title="Revenir au réglage automatique">Auto</button></div><div class="ci-h">Affichage</div><div class="ci-row"><span>Forme</span><div class="tpo-seg ci-seg" data-ci-key="fpDisplay"><button type="button" data-v="cluster" title="Une case par niveau de prix">Cases</button><button type="button" data-v="profile" title="Une barre par niveau de prix, plus longue là où il y a plus de quantité">Profil</button></div></div><div class="ci-row"><span>Couleurs selon</span><div class="tpo-seg ci-seg" data-ci-key="fpMode"><button type="button" data-v="standard" title="Ventes en rouge, achats en vert">Achats / ventes</button><button type="button" data-v="delta" title="Vert si plus d'achats, rouge si plus de ventes">Delta</button><button type="button" data-v="volume" title="Une seule couleur, plus vive là où il y a plus de volume">Volume</button></div></div><div class="ci-row"><span>Chiffres</span><div class="tpo-seg ci-seg" data-ci-key="fpText"><button type="button" data-v="auto" title="Selon les couleurs choisies">Auto</button><button type="button" data-v="delta">Delta</button><button type="button" data-v="volume">Volume</button><button type="button" data-v="split">Ventes | achats</button></div></div><label><input type="checkbox" data-chart-ind="fpHideText">Masquer les chiffres</label><div class="ci-row"><span>Arrondir les valeurs</span><div class="tpo-seg ci-seg" data-ci-key="fpDigits"><button type="button" data-v="auto" title="0.02, 3.65, 12.9, 1.2k">Auto</button><button type="button" data-v="int" title="Entiers : 0, 4, 13, 1234">Entiers</button><button type="button" data-v="2" title="Toujours 2 décimales : 0.02, 3.65, 12.90">2 décimales</button></div></div><label><input type="checkbox" data-chart-ind="fpGrad">Dégradé : plus vif là où il y a plus de quantité</label><div class="ci-h">Signaux</div><label><input type="checkbox" data-chart-ind="fpImb">Déséquilibres à 300 % (+ zones de 3 empilés)</label><label><input type="checkbox" data-chart-ind="fpSig">Absorption (A) et épuisement (É)</label><label><input type="checkbox" data-chart-ind="fpSum">Récap delta / volume de chaque bougie</label><div class="chart-ind-tip">Binance : historique rechargé à l'ouverture (précis sur ~2 h, approximé au-delà), puis en direct. Hyperliquid : en direct depuis l'ouverture du graphique.</div></div></div><label class="ci-it"><i style="background:linear-gradient(90deg,#14378c,#00a5c8,#f5cd2d)"></i><span class="ci-tx"><b>Heatmap de liquidité <span class="chart-ind-plus">EDB+</span></b><small>Ordres en attente dans le carnet, prix par prix et dans le temps (enregistrés depuis l'ouverture du graphique)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="lhm"></label><div class="chart-ind-lock" id="chart-lhm-lock" hidden>Réservé aux membres EDB+. <button type="button" class="ci-lock-go">Découvrir EDB+</button></div><div class="chart-ind-sub ci-opt" id="chart-lhm-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages de la heatmap</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><div class="ci-row"><span>Rendu</span><div class="tpo-seg ci-seg" data-ci-key="lhmStyle"><button type="button" data-v="heat" title="Dégradé de couleurs, sans chiffres">Heatmap</button><button type="button" data-v="grid" title="Une case par bougie et par prix, avec la quantité écrite dedans">Cases + valeurs</button></div></div><div class="ci-row"><span>Résolution</span><div class="tpo-seg ci-seg" data-ci-key="lhmRes"><button type="button" data-v="sd" title="Lignes plus grosses (auto ~0,01 % du prix)">SD</button><button type="button" data-v="hd" title="Lignes plus fines (auto ~0,004 % du prix)">HD</button></div></div><div class="chart-fp-tick"><span>Taille de ligne (prix) <em id="chart-lhm-tick-eq" class="ci-eq"></em></span><button type="button" class="tk-step" data-lhm-step="-1" title="Lignes plus fines" aria-label="Lignes plus fines">−</button><input type="number" id="chart-lhm-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne de la heatmap (en prix)"><button type="button" class="tk-step" data-lhm-step="1" title="Lignes plus grosses" aria-label="Lignes plus grosses">+</button><button type="button" id="chart-lhm-tick-auto" title="Revenir au réglage automatique">Auto</button></div><div class="ci-row"><span>Valeur de chaque bougie</span><div class="tpo-seg ci-seg" data-ci-key="lhmCalc"><button type="button" data-v="close" title="Carnet tel qu'il était à la clôture de la bougie">À la clôture</button><button type="button" data-v="avg" title="Moyenne des relevés pendant la bougie">Moyenne</button></div></div><div class="ci-h">Couleurs</div><div class="ci-row"><span>Palette</span><div class="tpo-seg ci-seg ci-themes" data-ci-key="lhmTheme"><button type="button" data-v="classic"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#14378c,#00a5c8,#f5cd2d,#fffaeb)"></i>Classique</button><button type="button" data-v="fire"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#6e0a0a,#dc3214,#ffa01e,#fff5c8)"></i>Feu</button><button type="button" data-v="ice"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#0f2878,#2878e6,#78dcff,#f5fcff)"></i>Glace</button><button type="button" data-v="green"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#0a5028,#1eaa50,#96eb5a,#f0ffdc)"></i>Vert</button><button type="button" data-v="purple"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#461482,#aa32c8,#ff6ebe,#ffe6f5)"></i>Violet</button><button type="button" data-v="mono"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#464646,#8c8c8c,#d2d2d2,#ffffff)"></i>Gris</button></div></div><div class="ci-sl ci-dual-row"><span>Plage d'intensité</span><div class="ci-dual"><i class="ci-dual-fill"></i><input type="range" data-ci-range="lhmLo" min="0" max="1" step="0.01" aria-label="Début de la plage"><input type="range" data-ci-range="lhmHi" min="0" max="1" step="0.01" aria-label="Fin de la plage"></div><em data-ci-range-v="lhmLo"></em></div><div class="ci-sl"><span>Opacité</span><input type="range" data-ci-range="lhmOpacity" min="0.05" max="1" step="0.05" data-fmt="2"><em data-ci-range-v="lhmOpacity"></em></div><div class="ci-sl"><span>Gamma</span><input type="range" data-ci-range="lhmGamma" min="0.1" max="10" step="0.1" data-fmt="2"><em data-ci-range-v="lhmGamma"></em></div><div class="ci-num"><span>Minimum</span><div><button type="button" class="tk-step" data-ci-num-step="lhmMin:-1" aria-label="Moins">−</button><input type="number" data-ci-num="lhmMin" min="0" step="any" inputmode="decimal" placeholder="Auto"><button type="button" class="tk-step" data-ci-num-step="lhmMin:1" aria-label="Plus">+</button></div></div><div class="ci-num"><span>Maximum</span><div><button type="button" class="tk-step" data-ci-num-step="lhmMax:-1" aria-label="Moins">−</button><input type="number" data-ci-num="lhmMax" min="0" step="any" inputmode="decimal" placeholder="Auto"><button type="button" class="tk-step" data-ci-num-step="lhmMax:1" aria-label="Plus">+</button></div></div><div class="ci-h">Profil du carnet</div><label><input type="checkbox" data-chart-ind="lhmProfile">Afficher le profil (carnet actuel, contre l'axe des prix)</label><label><input type="checkbox" data-chart-ind="lhmProfOutline">Contour du profil</label><div class="ci-sl"><span>Largeur</span><input type="range" data-ci-range="lhmProfW" min="0.05" max="0.5" step="0.01" data-fmt="2"><em data-ci-range-v="lhmProfW"></em></div><div class="ci-sl"><span>Échelle</span><input type="range" data-ci-range="lhmProfScale" min="0.25" max="4" step="0.05" data-fmt="x"><em data-ci-range-v="lhmProfScale"></em></div><div class="ci-h">Chiffres</div><label><input type="checkbox" data-chart-ind="lhmCursor">Infobulle 3 × 3 au curseur (3 bougies × 3 lignes de prix)</label><label><input type="checkbox" data-chart-ind="lhmVals">Heatmap : écrire les plus grosses quantités</label><div class="chart-ind-tip">Couleur sombre = peu d'ordres, couleur claire = gros murs. Plage d'intensité / gamma : quelles quantités ressortent ; Minimum : en dessous, rien n'est dessiné ; Maximum : à partir de là, couleur la plus claire (vide = auto). Quantités dans l'unité de l'actif (ex. BTC). Binance : le carnet s'étoffe au fil des premières minutes. Les carnets passés ne sont publiés nulle part : la heatmap repart à zéro au rechargement de la page.</div></div></div></div></section>
+                  <section class="ci-grp" data-grp="of"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Order flow</b><small>Acheteurs contre vendeurs, prix par prix</small></span><span class="ci-lvl ci-lvl-a">Avancé</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><label class="ci-it"><i style="background:linear-gradient(90deg,#f0546a 50%,#31c882 50%)"></i><span class="ci-tx"><b>Footprint <span class="chart-ind-plus">EDB+</span></b><small>Achats et ventes agressifs à chaque prix, dans chaque bougie</small></span><input type="checkbox" class="ci-tg" data-chart-ind="fp"></label><div class="chart-ind-lock" id="chart-fp-lock" hidden>Réservé aux membres EDB+. <button type="button" id="chart-fp-lock-go">Découvrir EDB+</button></div><div class="chart-ind-sub ci-opt" id="chart-fp-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages du footprint</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><div class="chart-fp-tick"><span>Taille de ligne (prix)</span><button type="button" class="tk-step" data-tick-step="fp:-1" title="Plus fin" aria-label="Taille de ligne plus fine">−</button><input type="number" id="chart-fp-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne du footprint (en prix)"><button type="button" class="tk-step" data-tick-step="fp:1" title="Plus gros" aria-label="Taille de ligne plus grosse">+</button><button type="button" id="chart-fp-tick-auto" title="Revenir au réglage automatique">Auto</button></div><div class="ci-h">Affichage</div><div class="ci-row"><span>Forme</span><div class="tpo-seg ci-seg" data-ci-key="fpDisplay"><button type="button" data-v="cluster" title="Une case par niveau de prix">Cases</button><button type="button" data-v="profile" title="Une barre par niveau de prix, plus longue là où il y a plus de quantité">Profil</button></div></div><div class="ci-row"><span>Couleurs selon</span><div class="tpo-seg ci-seg" data-ci-key="fpMode"><button type="button" data-v="standard" title="Ventes en rouge, achats en vert">Achats / ventes</button><button type="button" data-v="delta" title="Vert si plus d'achats, rouge si plus de ventes">Delta</button><button type="button" data-v="volume" title="Une seule couleur, plus vive là où il y a plus de volume">Volume</button></div></div><div class="ci-row"><span>Chiffres</span><div class="tpo-seg ci-seg" data-ci-key="fpText"><button type="button" data-v="auto" title="Selon les couleurs choisies">Auto</button><button type="button" data-v="delta">Delta</button><button type="button" data-v="volume">Volume</button><button type="button" data-v="split">Ventes | achats</button></div></div><label><input type="checkbox" data-chart-ind="fpHideText">Masquer les chiffres</label><div class="ci-row"><span>Arrondir les valeurs</span><div class="tpo-seg ci-seg" data-ci-key="fpDigits"><button type="button" data-v="auto" title="0.02, 3.65, 12.9, 1.2k">Auto</button><button type="button" data-v="int" title="Entiers : 0, 4, 13, 1234">Entiers</button><button type="button" data-v="2" title="Toujours 2 décimales : 0.02, 3.65, 12.90">2 décimales</button></div></div><label><input type="checkbox" data-chart-ind="fpGrad">Dégradé : plus vif là où il y a plus de quantité</label><div class="ci-h">Signaux</div><label><input type="checkbox" data-chart-ind="fpImb">Déséquilibres à 300 % (+ zones de 3 empilés)</label><label><input type="checkbox" data-chart-ind="fpSig">Absorption (A) et épuisement (É)</label><label><input type="checkbox" data-chart-ind="fpSum">Récap delta / volume de chaque bougie</label><div class="chart-ind-tip">Binance : historique rechargé à l'ouverture (précis sur ~2 h, approximé au-delà), puis en direct. Hyperliquid : en direct depuis l'ouverture du graphique.</div></div></div><label class="ci-it"><i style="background:linear-gradient(90deg,#14378c,#00a5c8,#f5cd2d)"></i><span class="ci-tx"><b>Heatmap de liquidité <span class="chart-ind-plus">EDB+</span></b><small>Ordres en attente dans le carnet, prix par prix et dans le temps (enregistrés depuis l'ouverture du graphique)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="lhm"></label><div class="chart-ind-lock" id="chart-lhm-lock" hidden>Réservé aux membres EDB+. <button type="button" class="ci-lock-go">Découvrir EDB+</button></div><div class="chart-ind-sub ci-opt" id="chart-lhm-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages de la heatmap</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><div class="ci-row"><span>Rendu</span><div class="tpo-seg ci-seg" data-ci-key="lhmStyle"><button type="button" data-v="heat" title="Dégradé de couleurs, sans chiffres">Heatmap</button><button type="button" data-v="grid" title="Une case par bougie et par prix, avec la quantité écrite dedans">Cases + valeurs</button></div></div><div class="ci-row"><span>Résolution</span><div class="tpo-seg ci-seg" data-ci-key="lhmRes"><button type="button" data-v="sd" title="Lignes plus grosses (auto ~0,01 % du prix)">SD</button><button type="button" data-v="hd" title="Lignes plus fines (auto ~0,004 % du prix)">HD</button></div></div><div class="ci-row"><span>Portée du carnet</span><div class="tpo-seg ci-seg" data-ci-key="lhmSpan" title="Jusqu'où, de part et d'autre du prix, les ordres sont enregistrés. Changer la portée redémarre la heatmap."><button type="button" data-v="1">±1 %</button><button type="button" data-v="2">±2 %</button><button type="button" data-v="5">±5 %</button><button type="button" data-v="10">±10 %</button></div></div><div class="chart-fp-tick"><span>Taille de ligne (prix) <em id="chart-lhm-tick-eq" class="ci-eq"></em></span><button type="button" class="tk-step" data-lhm-step="-1" title="Lignes plus fines" aria-label="Lignes plus fines">−</button><input type="number" id="chart-lhm-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne de la heatmap (en prix)"><button type="button" class="tk-step" data-lhm-step="1" title="Lignes plus grosses" aria-label="Lignes plus grosses">+</button><button type="button" id="chart-lhm-tick-auto" title="Revenir au réglage automatique">Auto</button></div><div class="ci-row"><span>Valeur de chaque bougie</span><div class="tpo-seg ci-seg" data-ci-key="lhmCalc"><button type="button" data-v="close" title="Carnet tel qu'il était à la clôture de la bougie">À la clôture</button><button type="button" data-v="avg" title="Moyenne des relevés pendant la bougie">Moyenne</button></div></div><div class="ci-h">Couleurs</div><div class="ci-row"><span>Palette</span><div class="tpo-seg ci-seg ci-themes" data-ci-key="lhmTheme"><button type="button" data-v="classic"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#14378c,#00a5c8,#f5cd2d,#fffaeb)"></i>Classique</button><button type="button" data-v="fire"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#6e0a0a,#dc3214,#ffa01e,#fff5c8)"></i>Feu</button><button type="button" data-v="ice"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#0f2878,#2878e6,#78dcff,#f5fcff)"></i>Glace</button><button type="button" data-v="green"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#0a5028,#1eaa50,#96eb5a,#f0ffdc)"></i>Vert</button><button type="button" data-v="purple"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#461482,#aa32c8,#ff6ebe,#ffe6f5)"></i>Violet</button><button type="button" data-v="mono"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#464646,#8c8c8c,#d2d2d2,#ffffff)"></i>Gris</button></div></div><div class="ci-sl ci-dual-row"><span>Plage d'intensité</span><div class="ci-dual"><i class="ci-dual-fill"></i><input type="range" data-ci-range="lhmLo" min="0" max="1" step="0.01" aria-label="Début de la plage"><input type="range" data-ci-range="lhmHi" min="0" max="1" step="0.01" aria-label="Fin de la plage"></div><em data-ci-range-v="lhmLo"></em></div><div class="ci-sl"><span>Opacité</span><input type="range" data-ci-range="lhmOpacity" min="0.05" max="1" step="0.05" data-fmt="2"><em data-ci-range-v="lhmOpacity"></em></div><div class="ci-sl"><span>Gamma</span><input type="range" data-ci-range="lhmGamma" min="0.1" max="10" step="0.1" data-fmt="2"><em data-ci-range-v="lhmGamma"></em></div><div class="ci-num"><span>Minimum</span><div><button type="button" class="tk-step" data-ci-num-step="lhmMin:-1" aria-label="Moins">−</button><input type="number" data-ci-num="lhmMin" min="0" step="any" inputmode="decimal" placeholder="Auto"><button type="button" class="tk-step" data-ci-num-step="lhmMin:1" aria-label="Plus">+</button></div></div><div class="ci-num"><span>Maximum</span><div><button type="button" class="tk-step" data-ci-num-step="lhmMax:-1" aria-label="Moins">−</button><input type="number" data-ci-num="lhmMax" min="0" step="any" inputmode="decimal" placeholder="Auto"><button type="button" class="tk-step" data-ci-num-step="lhmMax:1" aria-label="Plus">+</button></div></div><div class="ci-h">Profil du carnet</div><label><input type="checkbox" data-chart-ind="lhmProfile">Afficher le profil (carnet actuel, contre l'axe des prix)</label><label><input type="checkbox" data-chart-ind="lhmProfOutline">Contour du profil</label><div class="ci-sl"><span>Largeur</span><input type="range" data-ci-range="lhmProfW" min="0.05" max="0.5" step="0.01" data-fmt="2"><em data-ci-range-v="lhmProfW"></em></div><div class="ci-sl"><span>Échelle</span><input type="range" data-ci-range="lhmProfScale" min="0.25" max="4" step="0.05" data-fmt="x"><em data-ci-range-v="lhmProfScale"></em></div><div class="ci-h">Chiffres</div><label><input type="checkbox" data-chart-ind="lhmCursor">Infobulle 3 × 3 au curseur (3 bougies × 3 lignes de prix)</label><label><input type="checkbox" data-chart-ind="lhmVals">Heatmap : écrire les plus grosses quantités</label><div class="chart-ind-tip">Couleur sombre = peu d'ordres, couleur claire = gros murs. Plage d'intensité / gamma : quelles quantités ressortent ; Minimum : en dessous, rien n'est dessiné ; Maximum : à partir de là, couleur la plus claire (vide = auto). Quantités dans l'unité de l'actif (ex. BTC). Binance : le carnet s'étoffe au fil des premières minutes. Les carnets passés ne sont publiés nulle part : la heatmap repart à zéro au rechargement de la page.</div></div></div></div></section>
                   <section class="ci-grp" data-grp="osc"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Sous le graphique</b><small>Oscillateurs dans un panneau à part</small></span><span class="ci-lvl ci-lvl-i">Intermédiaire</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><label class="ci-it"><i style="background:#b388ff"></i><span class="ci-tx"><b>RSI 14</b><small>Force du mouvement de 0 à 100 : &gt; 70 suracheté, &lt; 30 survendu</small></span><input type="checkbox" class="ci-tg" data-chart-ind="rsi"></label><label class="ci-it"><i style="background:linear-gradient(90deg,#5aa9e6 50%,#f2b33d 50%)"></i><span class="ci-tx"><b>MACD</b><small>Croisements de moyennes : la dynamique change (12, 26, 9)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="macd"></label><label class="ci-it"><i style="background:linear-gradient(90deg,#5aa9e6 50%,#f2b33d 50%)"></i><span class="ci-tx"><b>Stochastique</b><small>Où est le prix dans sa fourchette récente (14, 3, 3)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="stoch"></label><label class="ci-it"><i style="background:#4fd1c5"></i><span class="ci-tx"><b>ATR 14</b><small>Taille moyenne d'une bougie : utile pour placer son stop</small></span><input type="checkbox" class="ci-tg" data-chart-ind="atr"></label><label class="ci-it"><i style="background:#f78fb3"></i><span class="ci-tx"><b>OBV</b><small>Volume cumulé, ajouté si la bougie monte, retiré si elle baisse</small></span><input type="checkbox" class="ci-tg" data-chart-ind="obv"></label><label class="ci-it"><i style="background:#5aa9e6"></i><span class="ci-tx"><b>CVD</b><small>Acheteurs agressifs − vendeurs agressifs, cumulé</small></span><input type="checkbox" class="ci-tg" data-chart-ind="cvd"></label></div></section>
                   <div class="ci-foot"><button type="button" id="ci-clear">Tout retirer</button><span>Tes choix sont gardés sur cet appareil.</span></div>
                   </div>
@@ -6312,7 +6312,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2960 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v2990 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -10053,9 +10053,9 @@ function ladSource(a){
 }
 function ladStop(){
   LAD.gen++;
-  [LAD.ws, LAD.wsT].forEach(w=>{ if (w){ try{ w.onclose = null; w.close(); }catch(e){} } });
-  Object.assign(LAD, {sym:null, src:null, ws:null, wsT:null, bids:new Map(), asks:new Map(), lastU:0, prevU:null, ready:false, buf:[], fine:0,
-    vol:new Map(), recent:[], snaps:[], vwapN:0, vwapD:0, hist:"idle", histFrom:0, lastId:0, tbuf:[], center:null, hlSig:null, tradesOn:false});
+  [LAD.ws, LAD.wsT, LAD.wsFar].forEach(w=>{ if (w){ try{ w.onclose = null; w.close(); }catch(e){} } });
+  Object.assign(LAD, {sym:null, src:null, ws:null, wsT:null, wsFar:null, farBids:null, farAsks:null, bids:new Map(), asks:new Map(), lastU:0, prevU:null, ready:false, buf:[], fine:0,
+    vol:new Map(), recent:[], snaps:[], vwapN:0, vwapD:0, hist:"idle", histFrom:0, lastId:0, tbuf:[], center:null, hlSig:null, tradesOn:false, lastPx:0, lastPxT:0, estTo:0});
 }
 // Appelée au changement de marché, à l'affichage du widget, et toutes les 2 s.
 function refreshDom(){
@@ -10084,7 +10084,7 @@ function ladStart(a){
   LAD.src = src;
   if (!src){ ladRender(); return; }
   const gen = LAD.gen;
-  if (src.kind==="hl") ladOpenHl(src.ref, gen);
+  if (src.kind==="hl"){ ladOpenHl(src.ref, gen); ladOpenHlFar(src.ref, gen); }
   else {
     ladOpenDepthBinance(src, gen);
     // Transactions (Vol, Δ, exécuté) : seulement si le widget est affiché ;
@@ -10127,7 +10127,11 @@ function ladOpenDepthBinance(src, gen){
 async function ladSnapshot(src, gen){
   const base = src.kind==="bf" ? BINANCE_FAPI_BASE : BINANCE_API_BASE;
   try{
-    const r = await fetch(base+"/depth?symbol="+encodeURIComponent(src.ref)+"&limit=1000", {signal:AbortSignal.timeout(10000)});
+    // Spot : 5 000 niveaux quand la heatmap est affichée avec une portée > 1 %
+    // (poids 250 sur la limite Binance, une seule fois) ; perps : 1 000 au plus.
+    const deep = src.kind!=="bf" && typeof hmWanted==="function" && hmWanted() && hmSpan() > 0.01;
+    LAD.depthLim = deep ? 5000 : 1000;
+    const r = await fetch(base+"/depth?symbol="+encodeURIComponent(src.ref)+"&limit="+LAD.depthLim, {signal:AbortSignal.timeout(10000)});
     if (!r.ok) throw new Error("http_"+r.status);
     const j = await r.json();
     if (gen!==LAD.gen) return;
@@ -10153,6 +10157,7 @@ function ladResync(){ if (!LAD.src) return; LAD.ready = false; LAD.buf = []; LAD
 // ---- Transactions ----
 function ladAddTrade(t, px, q, buy){
   if (!(px>0) || !(q>0)) return;
+  if (t >= (LAD.lastPxT||0)){ LAD.lastPx = px; LAD.lastPxT = t; }
   if (!LAD.fine) LAD.fine = Math.max(ladTick(), chartNiceStep(px*0.000005));
   if (t >= LAD.sess){
     const k = Math.round(px/LAD.fine);
@@ -10209,8 +10214,41 @@ async function ladLoadHistory(src, gen){
   LAD.lastId = maxId;
   LAD.tbuf.forEach(tr=>{ if (tr.id > LAD.lastId){ ladAddTrade(tr.t, tr.p, tr.q, tr.buy); LAD.lastId = tr.id; } }); LAD.tbuf = [];
   LAD.histFrom = isFinite(minT) ? Math.max(LAD.sess, minT) : Date.now();
-  LAD.hist = "done";
+  LAD.hist = "done"; // les transactions en direct s'ajoutent dès maintenant
   ladTouched(true);
+  // Les transactions ne couvrent souvent que la dernière heure (BTC : des
+  // centaines de milliers par jour). Le début de la séance est complété avec
+  // les bougies 1 min de la même source : volume réparti sur le haut-bas de
+  // chaque minute, achats / ventes d'après le volume acheteur (taker buy).
+  // Avant, le profil (Vol, Δ, POC, VAH, VAL) s'arrêtait aux prix touchés
+  // depuis « Vol depuis HH:MM ».
+  if (LAD.histFrom - LAD.sess > 120000){
+    try{
+      const to = Math.floor(LAD.histFrom/60000)*60000, rows = [];
+      for (let from = LAD.sess; from < to; ){
+        const r = await fetch(base+"/klines?symbol="+encodeURIComponent(src.ref)+"&interval=1m&startTime="+from+"&endTime="+(to-1)+"&limit=1000", {signal:AbortSignal.timeout(10000)});
+        if (!r.ok) break;
+        const j = await r.json(); if (gen!==LAD.gen) return;
+        if (!Array.isArray(j) || !j.length) break;
+        j.forEach(k=>{ if (+k[0] < to) rows.push(k); });
+        from = +j[j.length-1][0] + 60000;
+        if (j.length < 1000) break;
+      }
+      if (rows.length){
+        if (!LAD.fine) LAD.fine = Math.max(ladTick(), chartNiceStep(+rows[rows.length-1][4]*0.000005));
+        const f = LAD.fine;
+        rows.forEach(k=>{
+          const h = +k[2], l = +k[3], v = +k[5], tb = +k[9]; if (!(v>0)) return;
+          const k0 = Math.round(l/f), k1 = Math.round(h/f), nb = k1-k0+1, sh = v/nb, bShare = Math.max(0, Math.min(1, tb/v));
+          for (let i=k0; i<=k1; i++){ let c = LAD.vol.get(i); if (!c){ c = [0, 0]; LAD.vol.set(i, c); } c[0] += sh*bShare; c[1] += sh*(1-bShare); }
+          LAD.vwapN += (h+l+(+k[4]))/3*v; LAD.vwapD += v;
+        });
+        LAD.estTo = to; LAD.histFrom = LAD.sess;
+      }
+    }catch(e){}
+    if (gen!==LAD.gen) return;
+    ladTouched(true);
+  }
 }
 // ---- Hyperliquid : carnet regroupé (l2Book) + transactions, sur une seule connexion ----
 function ladOpenHl(hl, gen){
@@ -10244,6 +10282,32 @@ function ladOpenHl(hl, gen){
     }
   };
   ws.onclose = ()=>{ if (LAD.ws===ws){ LAD.ws = null; setTimeout(()=>{ if (gen===LAD.gen && ladWanted()) ladOpenHl(hl, gen); }, 3000); } };
+  ws.onerror = ()=>{ try{ ws.close(); }catch(e){} };
+}
+// Hyperliquid ne donne que 20 niveaux par côté. Pour la heatmap avec une
+// portée > 1 %, 2e abonnement regroupé plus grossièrement (moins de chiffres
+// significatifs) pour que ses 20 niveaux couvrent la portée choisie.
+function ladOpenHlFar(hl, gen){
+  if (LAD.wsFar){ try{ LAD.wsFar.onclose = null; LAD.wsFar.close(); }catch(e){} LAD.wsFar = null; }
+  LAD.farBids = null; LAD.farAsks = null;
+  if (typeof WebSocket==="undefined" || hl.invertBelow || !(typeof hmWanted==="function" && hmWanted()) || hmSpan() <= 0.01) return;
+  const m = market[LAD.sym], px = m && m.last ? m.last : 0;
+  if (!(px > 0)) return;
+  const digits = Math.floor(Math.log10(px))+1, need = px*hmSpan()*1.1;
+  let sig = null; for (let n=5; n>=2; n--){ if (20*Math.pow(10, digits-n) >= need){ sig = n; break; } }
+  if (!sig || sig===LAD.hlSig) return;
+  let ws; try{ ws = new WebSocket("wss://api.hyperliquid.xyz/ws"); }catch(e){ return; }
+  LAD.wsFar = ws;
+  const coin = hlCoinName(hl);
+  ws.onopen = ()=>{ try{ ws.send(JSON.stringify({method:"subscribe", subscription:{type:"l2Book", coin, nSigFigs:sig}})); }catch(e){} };
+  ws.onmessage = (ev)=>{
+    if (gen!==LAD.gen || LAD.wsFar!==ws) return;
+    let d; try{ d = JSON.parse(ev.data); }catch(e){ return; }
+    if (!d || d.channel!=="l2Book" || !d.data || !Array.isArray(d.data.levels)) return;
+    const [b, a] = d.data.levels;
+    LAD.farBids = new Map((b||[]).map(l=>[+l.px, +l.sz])); LAD.farAsks = new Map((a||[]).map(l=>[+l.px, +l.sz]));
+  };
+  ws.onclose = ()=>{ if (LAD.wsFar===ws){ LAD.wsFar = null; setTimeout(()=>{ if (gen===LAD.gen && LAD.src && LAD.src.kind==="hl" && !LAD.wsFar) ladOpenHlFar(hl, gen); }, 5000); } };
   ws.onerror = ()=>{ try{ ws.close(); }catch(e){} };
 }
 function ladTouched(force){
@@ -10290,7 +10354,9 @@ function ladOpenMenu(price, x, y){
     document.addEventListener("pointerdown", (e)=>{ if (!mn.hidden && !e.target.closest("#lad-menu") && !e.target.closest("[data-lad-px]")) mn.hidden = true; }, true);
     document.addEventListener("keydown", (e)=>{ if (e.key==="Escape") mn.hidden = true; }); }
   ptPopHost(mn);
-  const bid = m.bid||m.last, ask = m.ask||m.last, px = fmtPrice(price, a.decimals);
+  let bb = -Infinity, ba = Infinity;
+  LAD.bids.forEach((q, p)=>{ if (p>bb) bb = p; }); LAD.asks.forEach((q, p)=>{ if (p<ba) ba = p; });
+  const bid = isFinite(bb) ? bb : (m.bid||m.last), ask = isFinite(ba) ? ba : (m.ask||m.last), px = fmtPrice(price, a.decimals);
   mn.innerHTML = '<button type="button" data-lad-o="long"'+(price < ask ? '' : ' disabled')+'>Long limite @ '+px+'</button>'+
     '<button type="button" data-lad-o="short"'+(price > bid ? '' : ' disabled')+'>Short limite @ '+px+'</button>';
   mn.hidden = false;
@@ -10317,7 +10383,10 @@ function ladRender(force){
   if (!LAD.ready || !LAD.bids.size || !LAD.asks.size){ rowsEl.innerHTML = '<div class="empty-note">Chargement du carnet…</div>'; return; }
   let bb = -Infinity, ba = Infinity;
   LAD.bids.forEach((q, p)=>{ if (p>bb) bb = p; }); LAD.asks.forEach((q, p)=>{ if (p<ba) ba = p; });
-  const m = market[LAD.sym], last = (m && m.last) || (bb+ba)/2;
+  // Prix actuel : dernière transaction de la source du carnet (Binance spot,
+  // perps ou Hyperliquid), pas le prix du site (spot). Sinon le milieu du carnet.
+  let last = LAD.lastPx && Date.now()-LAD.lastPxT < 30000 ? LAD.lastPx : (bb+ba)/2;
+  if (bb < ba) last = Math.min(ba, Math.max(bb, last));
   const step = LAD.step = ladStep(last), dec = Math.max(0, a.decimals - Math.max(0, Math.round(Math.log10(step/ladTick()))));
   document.getElementById("lad-step").textContent = chartNum(step, Math.max(0, Math.min(a.decimals, -Math.floor(Math.log10(step)+1e-9))));
   const rows = Math.max(12, Math.min(80, Math.floor((rowsEl.clientHeight || 440)/17)));
@@ -10376,7 +10445,8 @@ function ladRender(force){
   const info = document.getElementById("lad-info");
   if (info){
     const hh = new Date(LAD.histFrom || LAD.sess).toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"});
-    info.textContent = LAD.hist==="loading" ? "Vol : chargement…" : "Vol depuis "+hh+(LAD.auto ? "" : " · centrage manuel");
+    const est = LAD.estTo > LAD.sess ? " (estimé jusqu'à "+new Date(LAD.estTo).toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"})+")" : "";
+    info.textContent = LAD.hist==="loading" ? "Vol : chargement…" : "Vol depuis "+hh+est+(LAD.auto ? "" : " · centrage manuel");
     document.getElementById("lad-center").classList.toggle("on", LAD.auto);
   }
 }
@@ -11936,7 +12006,7 @@ const TA_COLORS = {ema20:"#f2b33d", ema50:"#5aa9e6", ema200:"#c77dff", bb:"#8fa3
 const CHART_IND_KEY = "paperTapeChartInd";
 const CHART_EMA = {ema20:{p:20, color:"#f2b33d", label:"MME 20"}, ema50:{p:50, color:"#5aa9e6", label:"MME 50"}, ema200:{p:200, color:"#c77dff", label:"MME 200"}};
 let chartInd = (function(){
-  const d = {tpo:false, tpoPrevTf:"", tpoPrevZoom:0, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpSum:true, fpTicks:{}, fpDisplay:"cluster", fpDigits:"auto", fpMode:"standard", fpText:"auto", fpHideText:false, fpRound:true, fpGrad:true, lhm:false, lhmSens:"2", lhmTicks:{}, lhmVals:false, lhmTheme:"classic", lhmStyle:"heat", lhmCalc:"close", lhmRes:"sd", lhmProfile:true, lhmProfOutline:true, lhmProfW:"0.15", lhmProfScale:"1", lhmLo:"0", lhmHi:"1", lhmGamma:"1.6", lhmOpacity:"0.9", lhmMin:"0", lhmMax:"0", lhmCursor:true, liqTheme:"classic", cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true, zoomSpeed:"1", dataSrc:"auto", vpTicks:{}, vpFill:true, vpBox:false, vpSide:"left", vpStyle:"split", vpCol:"#8fa3b8", vpBuyCol:"", vpSellCol:"", vpPocCol:"#8fa3b8", vpPocStyle:"dash", vpVa:true, vpVaCol:"#8fa3b8", vpGrade:false, liq:false, liqSens:"2"};
+  const d = {tpo:false, tpoPrevTf:"", tpoPrevZoom:0, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpSum:true, fpTicks:{}, fpDisplay:"cluster", fpDigits:"auto", fpMode:"standard", fpText:"auto", fpHideText:false, fpRound:true, fpGrad:true, lhm:false, lhmSens:"2", lhmTicks:{}, lhmVals:false, lhmTheme:"classic", lhmStyle:"heat", lhmCalc:"close", lhmRes:"sd", lhmSpan:"2", lhmProfile:true, lhmProfOutline:true, lhmProfW:"0.15", lhmProfScale:"1", lhmLo:"0", lhmHi:"1", lhmGamma:"1.6", lhmOpacity:"0.9", lhmMin:"0", lhmMax:"0", lhmCursor:true, liqTheme:"classic", cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true, zoomSpeed:"1", dataSrc:"auto", vpTicks:{}, vpFill:true, vpBox:false, vpSide:"left", vpStyle:"split", vpCol:"#8fa3b8", vpBuyCol:"", vpSellCol:"", vpPocCol:"#8fa3b8", vpPocStyle:"dash", vpVa:true, vpVaCol:"#8fa3b8", vpGrade:false, liq:false, liqSens:"2"};
   try{
     const s = JSON.parse(localStorage.getItem(CHART_IND_KEY)||"null");
     // Chaque réglage est repris s'il a le même type que sa valeur par défaut :
@@ -13525,6 +13595,13 @@ const HM_THEMES = {
 };
 const HM_RAMP = HM_THEMES.classic;
 let hmCanvas = null;
+function hmSpan(){ const v = +chartInd.lhmSpan; return ([1,2,5,10].includes(v) ? v : 2)/100; }
+// Portée changée : la heatmap repart de zéro ; carnet plus profond si besoin.
+function hmSpanApply(){
+  hmReset(); LAD.deepFor = null; // hmSample va chercher la profondeur nécessaire
+  if (LAD.src && LAD.src.kind==="hl") ladOpenHlFar(LAD.src.ref, LAD.gen);
+  if (typeof scheduleChartFrame==="function") scheduleChartFrame();
+}
 function hmOn(){ return !!chartInd.lhm && typeof isEdbPlus==="function" && isEdbPlus(); }
 function hmWanted(){ return hmOn() && chartSource==="internal" && !(typeof tpoOn==="function" && tpoOn()); }
 function hmReset(){
@@ -13534,8 +13611,14 @@ function hmReset(){
 function hmSample(){
   if (!hmWanted() || document.visibilityState==="hidden") return;
   if (!LAD.ready || LAD.sym!==selectedSymbol || !LAD.src || !LAD.bids.size || !LAD.asks.size) return;
-  const key = LAD.sym+"|"+LAD.src.kind+":"+LAD.src.ref;
+  const key = LAD.sym+"|"+LAD.src.kind+":"+(LAD.src.kind==="hl" ? LAD.sym : LAD.src.ref);
   if (HM.key!==key){ hmReset(); HM.key = key; HM.sym = LAD.sym; }
+  // Heatmap activée après l'ouverture du carnet : on va chercher la profondeur qui manque (une fois).
+  if (hmSpan() > 0.01 && LAD.deepFor!==key+"|"+hmSpan()){
+    LAD.deepFor = key+"|"+hmSpan();
+    if (LAD.src.kind==="hl"){ if (!LAD.wsFar) ladOpenHlFar(LAD.src.ref, LAD.gen); }
+    else if (LAD.src.kind!=="bf" && (LAD.depthLim||0) < 5000) ladResync();
+  }
   let bb = -Infinity, ba = Infinity;
   LAD.bids.forEach((q, p)=>{ if (p>bb) bb = p; }); LAD.asks.forEach((q, p)=>{ if (p<ba) ba = p; });
   const mid = (bb+ba)/2; if (!(mid>0) || !isFinite(mid)) return;
@@ -13543,12 +13626,20 @@ function hmSample(){
   // ligne « rondes » (1, 2, 2,5, 5 × 10ⁿ) en sont des multiples exacts (avant,
   // 2 $ : une ligne de 5 $ devenait 6 $). Tableaux fixes autour du prix de
   // départ (±1,5 % : ~10 Mo pour 4 h sur BTC) au lieu de Map.
+  // Portée (Réglages › Portée du carnet) : ±1 à ±10 % autour du prix. Le
+  // tableau couvre 1,5 × la portée autour du prix de départ ; au-delà de
+  // 12 000 lignes de stockage, le pas fin passe à la puissance de 10 suivante
+  // (mémoire : ~25 Mo au plus pour 4 h).
+  const span = hmSpan();
+  if (HM.span!==span){ const k0 = HM.key, s0 = HM.sym; hmReset(); HM.key = k0; HM.sym = s0; HM.span = span; }
   if (!HM.bin){
-    HM.bin = 0.5*Math.pow(10, Math.floor(Math.log10(mid*0.00003/0.5)));
-    HM.base = Math.floor(mid*0.985/HM.bin); HM.L = Math.ceil(mid*0.03/HM.bin)+1;
+    let bin = 0.5*Math.pow(10, Math.floor(Math.log10(mid*0.00003/0.5)));
+    while (mid*span*3/bin > 12000) bin *= 10;
+    HM.bin = bin;
+    HM.base = Math.floor(mid*(1-1.5*span)/HM.bin); HM.L = Math.ceil(mid*3*span/HM.bin)+1;
   }
   HM.mid = mid;
-  const bin = HM.bin, lo = mid*0.99, hi = mid*1.01, now = Date.now(), mk = Math.floor(now/60000)*60000, L = HM.L, base = HM.base;
+  const bin = HM.bin, lo = mid*(1-span), hi = mid*(1+span), now = Date.now(), mk = Math.floor(now/60000)*60000, L = HM.L, base = HM.base;
   let e = HM.min.get(mk);
   if (!e){
     e = {n:0, v:new Float32Array(L)}; HM.min.set(mk, e);
@@ -13559,6 +13650,13 @@ function hmSample(){
   const snap = new Float32Array(L);
   const add = (q, p)=>{ if (p<lo || p>hi || !(q>0)) return; const k = Math.floor(p/bin + 1e-9), i = k-base; if (i<0 || i>=L) return; e.v[i] += q; snap[i] += q; if (k<HM.kLo) HM.kLo = k; if (k>HM.kHi) HM.kHi = k; };
   LAD.bids.forEach(add); LAD.asks.forEach(add);
+  // Hyperliquid : au-delà du carnet fin (20 niveaux par côté), carnet regroupé plus large.
+  if (LAD.farBids && LAD.farAsks && (LAD.farBids.size || LAD.farAsks.size)){
+    let bMin = Infinity, aMax = -Infinity;
+    LAD.bids.forEach((q, p)=>{ if (p<bMin) bMin = p; }); LAD.asks.forEach((q, p)=>{ if (p>aMax) aMax = p; });
+    LAD.farBids.forEach((q, p)=>{ if (p < bMin) add(q, p); });
+    LAD.farAsks.forEach((q, p)=>{ if (p > aMax) add(q, p); });
+  }
   e.last = snap;
   e.n++; HM.n++;
   if (!HM.from0) HM.from0 = now;
@@ -15790,6 +15888,7 @@ function initChartExtraOpts(){
     const key = seg.dataset.ciKey;
     if (String(chartInd[key])===b.dataset.v) return;
     chartInd[key] = b.dataset.v; saveChartInd();
+    if (key==="lhmSpan" && typeof hmSpanApply==="function") hmSpanApply();
     if (key==="dataSrc"){
       // Nouvelle source : on recharge les bougies et on relance le footprint.
       if (typeof fpStop==="function" && FP.sym) fpStop();
@@ -24152,10 +24251,10 @@ function dailyQualifies(rd){
 // identiques pour tout le monde).
 const DAILY_SETUP_FROM = "2026-10-28";
 // Onglet « Bias » (lecture complète) : toutes les lectures + le thème du jour.
-const DAILY_LENSES = [["htf","Structure HTF (vue d'ensemble)"],["dow","Structure LTF (graphique)"],["trend","Tendance (moyennes 50 / 200)"],["candle","Chandeliers (price action)"],["fib","Retracement de Fibonacci"],["pattern","Figure chartiste"],["mom","Momentum (RSI / MACD)"],["sr","Supports / résistances"],["vwap","VWAP et profil de volume"],["smc","Cassures et liquidité (SMC)"],["of","CVD · flux acheteurs / vendeurs"]];
+const DAILY_LENSES = [["htf","Structure HTF (vue d'ensemble)"],["ltf","Structure LTF (graphique)"],["trend","Tendance (moyennes 50 / 200)"],["candle","Chandeliers (price action)"],["fib","Retracement de Fibonacci"],["pattern","Figure chartiste"],["mom","Momentum (RSI / MACD)"],["sr","Supports / résistances"],["vwap","VWAP et profil de volume"],["smc","Cassures et liquidité (SMC)"],["of","CVD · flux acheteurs / vendeurs"]];
 // Défi Classique (niveau débutant) : 5 lectures seulement. La structure de
 // l'unité de temps supérieure compte double (w:2) : c'est elle qui prime.
-const DAILY_LENSES_CL = [["htf","Structure HTF · vue d'ensemble", 2],["dow","Structure LTF · graphique"],["trend","EMA 50 / 200"],["rsi","RSI 14"],["liq","Liquidité"]];
+const DAILY_LENSES_CL = [["htf","Structure HTF · vue d'ensemble", 2],["ltf","Structure LTF · graphique"],["trend","EMA 50 / 200"],["rsi","RSI 14"],["liq","Liquidité"]];
 const DAILY_BIAS_FROM = "2026-10-27"; // premier jour de l'onglet Bias
 // Bougies de l'unité de temps supérieure reconstruites à partir des bougies
 // chargées (même instant de coupure, aucune requête de plus). kh / kl =
@@ -24173,13 +24272,11 @@ function dailyHtfRead(c, ci, upMs, upLabel){
   const H = dailyHtfSeries(c, ci, upMs), n = H.length;
   const an = {ctx:true, lab:[], lev:[], marks:[], zones:[]};
   if (n < 20) return {bias:null, annot:an, line:"Pas assez d'historique pour lire la structure en "+upLabel+"."};
-  const S = dxStructure(H, Math.max(0, n-80), n-1, 2);
-  an.lab = S.lab.map(l=>({tm:H[l.k][0], k:l.hi ? H[l.k].kh : H[l.k].kl, p:l.p, hi:l.hi, t:l.t}));
-  if (S.dir==="up" && S.lastL) an.lev.push({p:S.lastL.p, t:"Invalidation HTF", col:"dn"});
-  if (S.dir==="down" && S.lastH) an.lev.push({p:S.lastH.p, t:"Invalidation HTF", col:"up"});
-  const bias = S.dir==="range" ? null : S.dir;
-  const line = bias ? "Vue d'ensemble en "+upLabel+" : structure "+(bias==="up" ? "haussière" : "baissière")+" ("+S.why+"). On joue dans le sens de l'unité de temps supérieure."
-    : "Vue d'ensemble en "+upLabel+" : pas de structure nette ("+S.why+").";
+  const T = dxSwingTrend(H, Math.max(1, n-120), n-1, 2.5);
+  an.lab = T.lab.map(l=>({tm:H[l.k][0], k:l.hi ? H[l.k].kh : H[l.k].kl, p:l.p, hi:l.hi, t:l.t}));
+  if (T.inv) an.lev.push({p:T.inv.p, t:"Invalidation HTF", col:T.trend==="up" ? "dn" : "up"});
+  const bias = T.trend;
+  const line = dxSwingLine(T, "Vue d'ensemble en "+upLabel)+(bias ? " On joue dans le sens de l'unité de temps supérieure." : "");
   return {bias, annot:an, line};
 }
 function dailyLiqRead(c, ci, a){
@@ -24247,6 +24344,14 @@ function dailyBiasRead(c, ci, a, v, rd){
         return;
       }
       if (k==="liq"){ const r = dailyLiqRead(c, ci, a); out.push({k, name, w:1, bias:r.bias, line:r.line, annot:r.annot}); return; }
+      if (k==="ltf"){
+        const T = dxSwingTrend(c, Math.max(c.pad||0, a-60), ci, 3);
+        const an = {lab:T.lab.filter(l=>l.k>=a), lev:[], marks:[], zones:[]};
+        if (T.inv) an.lev.push({p:T.inv.p, t:"Invalidation", col:T.trend==="up" ? "dn" : "up"});
+        if (T.bos && T.bos.k>=a) an.marks.push({k:T.bos.k, p:T.bos.p, t:"BOS", col:T.trend==="up" ? "up" : "dn"});
+        out.push({k, name, w:1, bias:T.trend, line:dxSwingLine(T, "Sur le graphique"), annot:an});
+        return;
+      }
       if (k==="trend"){
         const from = c.pad||0, e50 = dailyEma(c, 50, from), e200 = dailyEma(c, 200, from), cl = c[ci][4];
         const a50 = e50[ci], b50 = e50[ci-10], m200 = e200[ci];
@@ -24950,7 +25055,7 @@ function dailyVerdict(rec, rd, t){
     // première qui va dans le sens du setup ; un clic sur une raison dessine la sienne.
     B.lenses.forEach(l=>{ rd.lensAn[l.k] = l.annot; });
     const hasDraw = (an)=>an && ["lab","lev","marks","zones","segs"].some(f=>(an[f]||[]).length) || (an && an.avwap);
-    const order = full ? ["pattern","candle","fib","dow","sr","smc","vwap","mom","of","trend"] : ["dow","liq","trend","rsi"];
+    const order = full ? ["pattern","candle","fib","ltf","sr","smc","vwap","mom","of","trend"] : ["ltf","liq","trend","rsi"];
     const first = order.find(k=>{ const l = B.lenses.find(z=>z.k===k); return l && B.bias && l.bias===B.bias && hasDraw(l.annot); });
     rd.lensSel = first || (full ? "theme" : null);
     rd.annot = rd.lensSel ? rd.lensAn[rd.lensSel] : null;
@@ -25962,6 +26067,63 @@ function dxStructure(c, a, b, k){
     dir = !trend ? bos : (bos===trend ? trend : "range");
   }
   return {dir, trend, why, lab, H, L, lastH, lastL, bos};
+}
+// Structure par les grands swings (zigzag filtré à mult × ATR) et par les
+// cassures : la tendance devient haussière quand une clôture casse le dernier
+// sommet de swing confirmé, baissière quand elle casse le dernier creux, et
+// reste telle quelle tant que le swing opposé tient. Les petites corrections
+// (un sommet un peu plus bas dans une hausse) ne changent donc pas la lecture.
+function dxSwingTrend(c, a, b, mult){
+  a = Math.max(1, a);
+  let atr = 0, n = 0;
+  for (let k=a; k<=b; k++){ atr += Math.max(c[k][2]-c[k][3], Math.abs(c[k][2]-c[k-1][4]), Math.abs(c[k][3]-c[k-1][4])); n++; }
+  const th = (n ? atr/n : 0)*(mult||3);
+  const piv = [];
+  let dir = 0, cH = {k:a, p:c[a][2]}, cL = {k:a, p:c[a][3]};
+  for (let k=a+1; k<=b; k++){
+    const h = c[k][2], l = c[k][3];
+    if (dir===0){
+      if (h > cH.p) cH = {k, p:h}; if (l < cL.p) cL = {k, p:l};
+      if (cH.p - cL.p >= th){
+        if (cL.k < cH.k){ piv.push({k:cL.k, p:cL.p, hi:false, conf:k}); dir = 1; }
+        else { piv.push({k:cH.k, p:cH.p, hi:true, conf:k}); dir = -1; }
+      }
+    } else if (dir===1){
+      if (h > cH.p) cH = {k, p:h};
+      if (cH.p - l >= th){ piv.push({k:cH.k, p:cH.p, hi:true, conf:k}); dir = -1; cL = {k, p:l}; }
+    } else {
+      if (l < cL.p) cL = {k, p:l};
+      if (h - cL.p >= th){ piv.push({k:cL.k, p:cL.p, hi:false, conf:k}); dir = 1; cH = {k, p:h}; }
+    }
+  }
+  // Cassures, bougie par bougie, avec les seuls swings déjà confirmés.
+  let trend = null, lastH = null, lastL = null, bos = null, j = 0, brokeH = null, brokeL = null;
+  const hist = [];
+  for (let k=a; k<=b; k++){
+    while (j < piv.length && piv[j].conf <= k){ if (piv[j].hi) lastH = piv[j]; else lastL = piv[j]; j++; }
+    const cl = c[k][4];
+    if (lastH && lastH!==brokeH && cl > lastH.p){ trend = "up"; brokeH = lastH; bos = {k, p:lastH.p, dir:"up", piv:lastH}; hist.push("up"); }
+    if (lastL && lastL!==brokeL && cl < lastL.p){ trend = "down"; brokeL = lastL; bos = {k, p:lastL.p, dir:"down", piv:lastL}; hist.push("down"); }
+  }
+  // Une seule cassure contre la précédente (CHoCH) et le prix déjà revenu de
+  // l'autre côté du niveau cassé : pas de tendance, c'est un range.
+  let streak = 0; for (let i=hist.length-1; i>=0 && hist[i]===trend; i--) streak++;
+  const back = bos && (bos.dir==="up" ? c[b][4] < bos.p : c[b][4] > bos.p);
+  const range = !!(trend && streak===1 && hist.length>1 && back);
+  if (range) trend = null;
+  const lab = [];
+  let pH = null, pL = null;
+  piv.forEach(p=>{ if (p.hi){ if (pH) lab.push({k:p.k, p:p.p, hi:true, t:p.p>pH.p ? "HH" : "LH"}); pH = p; } else { if (pL) lab.push({k:p.k, p:p.p, hi:false, t:p.p>pL.p ? "HL" : "LL"}); pL = p; } });
+  // Swing qui invalide la tendance : en hausse, le dernier creux confirmé ; en baisse, le dernier sommet.
+  const inv = trend==="up" ? lastL : trend==="down" ? lastH : null;
+  return {trend, piv, lab, bos, inv, lastH, lastL, th, streak, range};
+}
+function dxSwingLine(T, tfTxt){
+  const P = v=>dxP(v);
+  if (!T.trend) return (tfTxt ? tfTxt+" : " : "")+(T.range ? "le dernier swing a été cassé puis le prix est revenu de l'autre côté : pas de tendance, le marché est en range." : "pas de cassure de swing nette, le marché est en range.");
+  const up = T.trend==="up";
+  return (tfTxt ? tfTxt+" : " : "")+"structure "+(up ? "haussière" : "baissière")+" — le dernier "+(up ? "sommet" : "creux")+" de swing ("+P(T.bos.p)+") a été cassé"+
+    (T.inv ? " et le "+(up ? "creux" : "sommet")+" qui protège le mouvement ("+P(T.inv.p)+") tient toujours" : "")+". Tant qu'il n'est pas cassé, la tendance reste "+(up ? "haussière" : "baissière")+".";
 }
 function dxFlowOn(c, ci){
   const n = 20, a = ci-n;
