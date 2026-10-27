@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="2840">
+<meta name="pt-build" content="2870">
 <title>Paper Tape</title>
 <script>
 /* Un seul fichier pour deux sites :
@@ -1021,6 +1021,19 @@
   .liq-pop-h{font:600 12.5px var(--sans);color:var(--text);padding:0 6px 4px;}
   .liq-pop-l{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);padding:8px 7px 4px;}
   .liq-pop .tpo-themes button{flex:1 1 30%;justify-content:center;}
+  /* Défi du jour sur téléphone : modes sur 2 colonnes (le rail défilant
+     coupait la 1re tuile à gauche) et indicateurs à la ligne (la rangée
+     défilante ne défilait pas au doigt : VWAP, RSI… inaccessibles). */
+  @media (max-width:720px){
+    .dx-modes{display:grid !important;grid-template-columns:repeat(2, minmax(0,1fr)) !important;overflow:visible !important;margin:0 !important;padding:0 !important;gap:10px !important;}
+    .dx-modes button, .dx-modes .dx-mc{min-width:0 !important;width:auto !important;flex:initial;}
+    .dd-toggles{flex-wrap:wrap !important;overflow:visible !important;}
+  }
+  .dd-bias ul{list-style:none;padding-left:0;}
+  .dd-bias li{display:block;padding-left:22px;text-indent:-22px;}
+  .dd-bz{display:inline-block;width:18px;margin-right:4px;text-indent:0;font-style:normal;font-weight:700;text-align:center;}
+  .dd-bz.up{color:var(--long);} .dd-bz.dn{color:var(--short);} .dd-bz.nt{color:var(--text-faint);}
+  .dd-bias-sum{padding-left:0 !important;text-indent:0 !important;margin-top:6px;padding-top:6px !important;border-top:1px solid var(--border-soft);font-weight:600;color:var(--text);}
   .ci-themes button{display:inline-flex;align-items:center;justify-content:center;gap:5px;flex:1 1 30%;}
   .ci-sw-grad{display:inline-block;width:18px !important;height:8px !important;border-radius:2px !important;flex:none;}
   .chart-ind-tip{font-family:var(--sans);font-size:10.5px;color:var(--text-faint);border-top:1px solid var(--border-soft);margin-top:4px;padding:7px 7px 3px;line-height:1.45;}
@@ -6287,7 +6300,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2840 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v2870 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -24053,11 +24066,11 @@ function dailyRng(seed){
   return ()=>{ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a>>>15, 1 | a); t = t + Math.imul(t ^ t>>>7, 61 | t) ^ t; return ((t ^ t>>>14)>>>0)/4294967296; };
 }
 // Candidats du jour, dans un ordre fixe : on en garde ensuite 5 « qui ont bougé ».
-function dailyPlan(day, seed){
+function dailyPlan(day, seed, nCand){
   const r = dailyRng(seed || ("paper-tape-daily-v3|"+day));
   const end = Date.parse(day+"T00:00:00Z") - 30*86400e3;
   const used = new Set(), out = [];
-  for (let i=0;i<DAILY_CANDIDATES;i++){
+  for (let i=0;i<(nCand||DAILY_CANDIDATES);i++){
     let a, guard = 0;
     do { a = DAILY_POOL[Math.floor(r()*DAILY_POOL.length)]; } while (used.has(a.s) && used.size<DAILY_POOL.length && ++guard<60);
     used.add(a.s);
@@ -24105,22 +24118,63 @@ function dailyQualifies(rd){
   const last = rd.c[DAILY_WARM+DAILY_SHOW-1][4], fin = rd.c[DAILY_WARM+DAILY_SHOW+DAILY_AFTER-1][4];
   return Math.abs(fin-last) >= 1.5*dailyAtr(rd.c, DAILY_WARM+DAILY_SHOW, 20);
 }
+// ---- Lectures croisées (défi Classique) ----
+// Plusieurs « lectures » du graphique visible, chacune avec son biais. À
+// partir du DAILY_SETUP_FROM, le défi ne retient que des graphiques avec un
+// setup net (au moins 2 lectures de plus dans un sens que dans l'autre) :
+// plus de graphiques « pile ou face ». À la révélation, chaque raison est
+// affichée et dessinée. Les jours d'avant gardent leurs graphiques (archives
+// identiques pour tout le monde).
+const DAILY_SETUP_FROM = "2026-10-28";
+const DAILY_LENSES = [["trend","Tendance (moyennes 50 / 200)"],["dow","Structure (Dow)"],["mom","Momentum (RSI / MACD)"],["sr","Supports / résistances"],["vwap","VWAP et profil de volume"],["smc","Cassures et liquidité"],["of","Flux acheteurs / vendeurs"]];
+function dailyBiasRead(c, ci, a){
+  const out = [];
+  DAILY_LENSES.forEach(([k, name])=>{
+    try{
+      if (k==="trend"){
+        const from = c.pad||0, e50 = dailyEma(c, 50, from), e200 = dailyEma(c, 200, from), cl = c[ci][4];
+        const a50 = e50[ci], b50 = e50[ci-10], m200 = e200[ci];
+        if (a50==null || m200==null || b50==null) return;
+        const up = cl>m200 && a50>m200 && a50>b50, dn = cl<m200 && a50<m200 && a50<b50;
+        out.push({k, name, bias: up ? "up" : dn ? "down" : null, annot:{lab:[], lev:[{p:m200, t:"EMA 200", col:"faint"}], marks:[], zones:[]},
+          line: up ? "Prix au-dessus de l'EMA 200, EMA 50 au-dessus de l'EMA 200 et qui monte : tendance de fond haussière."
+            : dn ? "Prix sous l'EMA 200, EMA 50 sous l'EMA 200 et qui baisse : tendance de fond baissière."
+            : "Moyennes mélangées (prix, EMA 50 et EMA 200 pas alignés) : pas de tendance de fond nette."});
+        return;
+      }
+      const T = dxThemeRead(k, c, ci, a);
+      if (k==="of" && T.lines[0] && /indisponibles/.test(T.lines[0])) return;
+      const line = T.bias ? (T.lines.find(l=>/ivergence|BOS|CHoCH|Spring|Upthrust|collé|Structure|confirme|VWAP|value area/.test(l)) || T.lines[0]) : T.lines[0];
+      out.push({k, name, bias:T.bias, line:line||"", annot:T.annot});
+    }catch(e){}
+  });
+  const up = out.filter(x=>x.bias==="up").length, dn = out.filter(x=>x.bias==="down").length;
+  return {lenses:out, up, dn, bias: up-dn>=2 ? "up" : dn-up>=2 ? "down" : null};
+}
+function dailyClearSetup(rd){
+  if (rd._bias===undefined){ const ci = DAILY_WARM+DAILY_SHOW-1; try{ rd._bias = dailyBiasRead(rd.c, ci, ci-DAILY_SHOW+1); }catch(e){ rd._bias = null; } }
+  return !!(rd._bias && rd._bias.bias);
+}
 const dailyDataCache = {};
 function dailyLoad(day, seed){
   const key = seed ? "seed|"+seed : day;
   if (!dailyDataCache[key]){
     const p = (async ()=>{
-      const cands = dailyPlan(day, seed), got = [];
+      // Nouvelle règle (setups nets) : plus de candidats, car moins passent.
+      const setups = !!seed || day >= DAILY_SETUP_FROM;
+      const good = setups ? (rd=>dailyQualifies(rd) && dailyClearSetup(rd)) : dailyQualifies;
+      const cands = dailyPlan(day, seed, setups ? 45 : DAILY_CANDIDATES), got = [];
       for (let i=0; i<cands.length; i+=5){
         const batch = cands.slice(i, i+5);
         const res = await Promise.allSettled(batch.map(rd=>dailyFetchRound(rd).then(c=>Object.assign({}, rd, {c}))));
         res.forEach(x=>{ if (x.status==="fulfilled") got.push(x.value); });
-        if (got.filter(dailyQualifies).length >= DAILY_ROUNDS) break;
+        if (got.filter(good).length >= DAILY_ROUNDS) break;
       }
-      // Les 5 premiers qui ont bougé, en évitant si possible deux fois le même actif.
+      // Les 5 premiers qui ont bougé (et, depuis DAILY_SETUP_FROM, avec un setup
+      // net), en évitant si possible deux fois le même actif.
       const pick = [];
       const take = (ok, uniq)=>got.forEach(rd=>{ if (pick.length<DAILY_ROUNDS && !pick.includes(rd) && ok(rd) && (!uniq || !pick.some(x=>x.sym===rd.sym))) pick.push(rd); });
-      take(dailyQualifies, true); take(dailyQualifies, false); take(()=>true, false);
+      take(good, true); take(good, false); if (setups){ take(dailyClearSetup, true); take(dailyQualifies, true); } take(dailyQualifies, false); take(()=>true, false);
       if (pick.length < DAILY_ROUNDS) throw new Error("klines indisponibles");
       pick.sort((a,b)=>got.indexOf(a)-got.indexOf(b));
       return pick;
@@ -24637,13 +24691,32 @@ function dailyVerdict(rec, rd, t){
     const th = dxTheme(D.day), ci = DAILY_WARM+DAILY_SHOW-1, cv = document.getElementById("dd-canvas");
     const showN = cv && cv.clientWidth < 560 ? 90 : DAILY_SHOW;
     const T = dxThemeRead(th.k, rd.c, ci, ci-showN+1);
-    T.lines.push(dxBiasLine(T.bias, t.dir));
-    rd.annot = T.annot;
+    T.lines.push(dxBiasLine(T.bias, t.dir).replace(", d'où le stop", ""));
+    // Les raisons du bias : chaque lecture et son sens, puis le bilan. Sur le
+    // graphique : les repères des lectures qui vont dans le sens du setup.
+    const B = dailyBiasRead(rd.c, ci, ci-DAILY_SHOW+1);
+    const an = {lab:[], lev:[], marks:[], zones:[]};
+    const add = (src)=>{ if (!src) return; ["lab","lev","marks","zones"].forEach(f=>{ (src[f]||[]).forEach(x=>an[f].push(x)); }); if (src.avwap && !an.avwap) an.avwap = src.avwap; };
+    B.lenses.filter(l=>B.bias && l.bias===B.bias).forEach(l=>add(l.annot));
+    add(T.annot);
+    an.lev = an.lev.slice(0, 5); an.marks = an.marks.slice(0, 6); an.zones = an.zones.slice(0, 2);
+    rd.annot = an;
     const ex = document.getElementById("dd-explain");
-    if (ex){ ex.innerHTML = dxExplainHtml({blocks:[{h:"Lecture "+th.tag+" · thème du jour", lines:T.lines}]}); ex.hidden = false; }
+    if (ex){ ex.innerHTML = dailyBiasHtml(B, t)+dxExplainHtml({blocks:[{h:"Lecture "+th.tag+" · thème du jour", lines:T.lines}]}); ex.hidden = false; }
     dailyRedraw();
   }catch(e){ console.warn("daily lecture", e); }
   const nb = v.querySelector('[data-dd="next"]'); if (nb) nb.focus({preventScroll:true});
+}
+function dailyBiasHtml(B, t){
+  if (!B || !B.lenses.length) return "";
+  const ic = (b)=>b==="up" ? '<i class="dd-bz up">▲</i>' : b==="down" ? '<i class="dd-bz dn">▼</i>' : '<i class="dd-bz nt">–</i>';
+  const sens = B.bias==="up" ? "haussier" : B.bias==="down" ? "baissier" : null;
+  const res = !B.bias ? "Les lectures se contredisent : pas de bias net sur ce graphique."
+    : B.bias===t.dir ? "Le marché a "+(t.dir==="up" ? "monté" : "baissé")+" de "+(t.move>=0?"+":"")+t.move.toLocaleString("fr-FR",{maximumFractionDigits:2})+" % : setup validé."
+    : "Le marché est parti dans l'autre sens ("+(t.move>=0?"+":"")+t.move.toLocaleString("fr-FR",{maximumFractionDigits:2})+" %) : le setup a échoué. Un bias se construit sur des probabilités, pas des certitudes.";
+  return '<div class="dx-exp-b dd-bias"><span class="dd-kicker">Les raisons du bias'+(sens ? ' · '+sens : '')+' ('+B.up+' ▲ · '+B.dn+' ▼)</span><ul>'+
+    B.lenses.map(l=>'<li>'+ic(l.bias)+'<b>'+dailyEsc(l.name)+'</b> — '+dailyEsc(l.line)+'</li>').join("")+
+    '<li class="dd-bias-sum">'+dailyEsc(res)+'</li></ul></div>';
 }
 async function dailyNext(){
   D.i++;
