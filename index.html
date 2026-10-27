@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3003">
+<meta name="pt-build" content="3010">
 <title>Paper Tape</title>
 <script>
 /* Un seul fichier pour deux sites :
@@ -4833,6 +4833,10 @@
   .rp-chart-head{flex-wrap:wrap;}
   .rp-flash{font-size:12.5px;color:var(--warn);background:color-mix(in srgb, var(--warn) 12%, transparent);border-radius:8px;padding:5px 10px;}
   #rp-canvas{display:block;width:100%;height:min(460px, 55vh);}
+  .rp-chart-slot{margin:0 -4px;}
+  .rp-chart-slot > .card.widget.rp-host{margin:0 !important;border:0;background:transparent;box-shadow:none;padding:0;}
+  .rp-chart-slot > .card.widget.rp-host #chart-svg{height:min(560px, 62vh) !important;}
+  .rp-host .widget-head, .rp-host .chart-head, .rp-host .wz-grip, .rp-host .wz-size-badge, .rp-host #chart-qt, .rp-host #chart-src-tv, .rp-host #chart-src-chip{display:none !important;}
   .rp-transport{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
   .rp-play{display:inline-flex;align-items:center;gap:6px;font:600 13px var(--sans);color:#fff;background:var(--accent);border:none;border-radius:10px;padding:8px 14px;cursor:pointer;}
   .rp-play svg{width:16px;height:16px;fill:currentColor;}
@@ -6343,7 +6347,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3003 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3010 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -7678,6 +7682,13 @@ const PT_PLUS_NAME = "Paper Tape+";
 
 /* ============================= MARKET (live via Crypto.com MCP) ============================= */
 const market = {};
+// Replay : le graphique du terminal est prêté à la séance avec un marché
+// « virtuel » (RPV.asset), introuvable dans les boucles sur ASSETS (flux de
+// prix, listes) mais trouvé par ASSETS.find() pour que tout le graphique
+// (indicateurs, TPO, liquidations, dessins…) fonctionne tel quel.
+let RPV = null;
+{ const _find = Array.prototype.find;
+  ASSETS.find = function(fn, t){ const r = _find.call(this, fn, t); if (r!==undefined || !RPV) return r; return fn.call(t, RPV.asset, -1, this) ? RPV.asset : undefined; }; }
 ASSETS.forEach(a=>{
   market[a.symbol] = {
     cfg:a, last:null, prevLast:null, bid:null, ask:null,
@@ -7818,6 +7829,7 @@ async function fetchCandlesChart(a, tf, opt){
   try{ return await fetchCandlesRest(b, tf, opt); }catch(e){ return fetchCandlesRest(a, tf, opt); }
 }
 async function fetchCandles(symbol, tf, mode){
+  if (RPV && symbol===RPV.sym){ rpChartTfChanged(); if (selectedSymbol===symbol) updateChart(); return; } // Replay : bougies de la séance
   const a = ASSETS.find(x=>x.symbol===symbol);
   const m = market[symbol];
   mode = mode || "full";
@@ -7852,6 +7864,7 @@ async function fetchCandles(symbol, tf, mode){
   if (selectedSymbol===symbol) updateChart();
 }
 async function fetchOlderCandles(symbol, tf){
+  if (RPV && symbol===RPV.sym) return;
   const key = symbol+"|"+tf;
   const st = candleOlderState[key] || (candleOlderState[key] = {busy:false, done:false});
   const m = market[symbol];
@@ -11885,7 +11898,7 @@ function initChartLineDrag(){
   svg.addEventListener("pointerdown", (e)=>{
     const el = e.target.closest && e.target.closest("[data-tpsl-pos]");
     if (!el) return;
-    const p = (state.positions||[]).find(x=>x.id===el.dataset.tpslPos);
+    const p = chartPosById(el.dataset.tpslPos);
     if (!p) return;
     const leg = el.dataset.tpslLeg; // "tp" | "sl"
     const mode = el.dataset.tpslMode; // "move" | "create"
@@ -11898,7 +11911,7 @@ function initChartLineDrag(){
   svg.addEventListener("pointermove", (e)=>{
     if (!chartLineDrag || e.pointerId!==chartLineDrag.pointerId) return;
     e.preventDefault();
-    const p = (state.positions||[]).find(x=>x.id===chartLineDrag.positionId);
+    const p = chartPosById(chartLineDrag.positionId);
     if (!p){ chartLineDrag = null; return; }
     const raw = chartPriceFromClientY(e.clientY, svg);
     if (raw==null) return;
@@ -11928,14 +11941,13 @@ function initChartLineDrag(){
     const drag = chartLineDrag;
     chartLineDrag = null;
     svg.classList.remove("tpsl-dragging");
-    const p = (state.positions||[]).find(x=>x.id===drag.positionId);
+    const p = chartPosById(drag.positionId);
     if (p){
       const movedPx = Math.abs(e.clientY - drag.startClientY);
       if (drag.mode==="move" || movedPx>=chartLineDragMinDistancePx()){
         if (drag.leg==="tp") p.takeProfit = drag.price; else p.stopLoss = drag.price;
-        tpSlStamp(p, drag.leg);
-        persistAccount();
-        renderPositions();
+        if (p.rp){ rpPaint(); }
+        else { tpSlStamp(p, drag.leg); persistAccount(); renderPositions(); }
       }
     }
     updateChart(); // resume normal rendering (also redraws from the committed value if nothing changed)
@@ -11964,8 +11976,18 @@ function chartLineDragPatchDom(svg, p){
 // state.*, same as the order ticket and the rest of the trading UI on this
 // page, so no book-switching indirection is needed here.
 function openPositionsForChart(sym){
+  if (RPV && sym===RPV.sym) return rp && rp.pos ? [rpChartPos()] : [];
   return (state.positions||[]).filter(p=>p.symbol===sym);
 }
+// Position du Replay vue par le graphique : mêmes champs qu'une position du
+// terminal, TP / SL reliés à la séance (glisser une ligne modifie rp.pos).
+function rpChartPos(){
+  const P = rp.pos;
+  return {id:"rp-pos", rp:true, symbol:RPV.sym, side:P.side, mode:"isolated", entryPrice:P.entry, sizeUnits:P.units, leverage:P.lev, initMargin:P.margin, liqPrice:P.liq,
+    get takeProfit(){ return rp && rp.pos && rp.pos.tp!=null ? rp.pos.tp : undefined; }, set takeProfit(v){ if (rp && rp.pos) rp.pos.tp = v; },
+    get stopLoss(){ return rp && rp.pos && rp.pos.sl!=null ? rp.pos.sl : undefined; }, set stopLoss(v){ if (rp && rp.pos) rp.pos.sl = v; }};
+}
+function chartPosById(id){ return (state.positions||[]).find(x=>x.id===id) || (RPV && rp && rp.pos && id==="rp-pos" ? rpChartPos() : null); }
 
 /* ---------------- Graphique interne v2 ----------------
    Axe des prix gradué, axe du temps, réticule + valeurs OHLC, volume,
@@ -12198,6 +12220,7 @@ function chartEma(candles, p){
 // rechargement des bougies toutes les 45 s). Renvoie true si une bougie a
 // été ajoutée.
 function patchLiveCandle(m, px){
+  if (m && m.cfg && m.cfg.replay) return false; // Replay : les bougies viennent de la séance, pas de l'horloge
   if (!m || !m.candles || !Array.isArray(m.candles.data) || !m.candles.data.length || !isFinite(px)) return false;
   const data = m.candles.data;
   let last = data[data.length-1];
@@ -12390,7 +12413,7 @@ function fpSource(a){
 }
 // Footprint réservé aux membres EDB+ (et à l'essai de 24 h).
 function fpOn(){ return !!chartInd.fp && typeof isEdbPlus==="function" && isEdbPlus(); }
-function fpWanted(){ return fpOn() && !tpoOn() && chartSource==="internal"; }
+function fpWanted(){ return fpOn() && !tpoOn() && chartSource==="internal" && !RPV; } // pas de transactions historiques en Replay
 function fpStop(){
   FP.gen++;
   if (FP.ws){ const w = FP.ws; FP.ws = null; try{ w.onclose = null; w.close(); }catch(e){} }
@@ -13489,6 +13512,7 @@ function initTpoMenu(){
   });
 }
 function chartTradeMarks(sym){
+  if (RPV && sym===RPV.sym) return rpChartMarks();
   const out = [], seen = new Set();
   const addIn = (t, px, side)=>{ const k = t+"|"+side; if (seen.has(k)) return; seen.add(k); out.push({t:Date.parse(t), px, buy:side==="long", kind:"in"}); };
   (state.history||[]).forEach(h=>{
@@ -13499,12 +13523,14 @@ function chartTradeMarks(sym){
   (state.positions||[]).forEach(p=>{ if (p.symbol===sym && p.openedAt && typeof p.entryPrice==="number") addIn(p.openedAt, p.entryPrice, p.side); });
   return out.filter(x=>isFinite(x.t) && isFinite(x.px));
 }
+// Heure « actuelle » du graphique : en Replay, l'instant de la séance.
+function chartNow(){ return (RPV && rp && rp.candles && rp.candles[rp.i]) ? rpT(rp.candles[rp.i].t) + 60000 : Date.now(); }
 function chartCountdownText(){
   const v = chartView;
   if (!v || !v.live || !v.all || !v.all.length) return "";
   const last = v.all[v.all.length-1];
   if (!last || !last.ms) return "";
-  const s = Math.max(0, Math.round((last.ms + v.tfMs - Date.now())/1000));
+  const s = Math.max(0, Math.round((last.ms + v.tfMs - chartNow())/1000));
   if (s > v.tfMs/1000) return "";
   const hh = Math.floor(s/3600), mm = Math.floor((s%3600)/60), ss = s%60;
   if (hh >= 24) return Math.floor(hh/24)+"j "+String(hh%24).padStart(2,"0")+"h"+String(mm).padStart(2,"0");
@@ -13545,17 +13571,19 @@ const LIQ_PERIODS = [["5m",3e5],["15m",9e5],["30m",18e5],["1h",36e5],["2h",72e5]
 const LIQ_LEV = [[10,0.30],[25,0.30],[50,0.25],[100,0.15]];
 const LIQ_MMR = 0.005, LIQ_ROWS = 280;
 function liqOn(){ return !!chartInd.liq && typeof isEdbPlus==="function" && isEdbPlus(); }
-function liqFutSym(a){ return a ? (a.binanceFutures || a.binanceSymbol || null) : null; }
+function liqFutSym(a){ return a ? (a.replay ? a.rpLiq || null : (a.binanceFutures || a.binanceSymbol || null)) : null; }
 function liqPeriod(tfMs){ let p = LIQ_PERIODS[0]; LIQ_PERIODS.forEach(x=>{ if (x[1] <= tfMs) p = x; }); return p; }
 async function liqEnsure(a, tfMs){
   const fs = liqFutSym(a);
-  if (!fs){ LIQ.err = "Heatmap indisponible pour "+a.symbol+" : pas de contrat perpétuel Binance."; LIQ.key = ""; LIQ.oi = []; return; }
-  const [per, perMs] = liqPeriod(tfMs), key = fs+"|"+per;
-  if (LIQ.busy || (LIQ.key===key && Date.now()-LIQ.at < Math.max(60e3, Math.min(perMs, 300e3)))) return;
+  if (!fs){ LIQ.err = a.replay ? (a.rpLiqWhy || "Heatmap des liquidations indisponible pour cette séance.") : "Heatmap indisponible pour "+a.symbol+" : pas de contrat perpétuel Binance."; LIQ.key = ""; LIQ.oi = []; return; }
+  // Replay : open interest de la période de la séance (Binance le garde 30 jours), chargé une fois.
+  const rpWin = a.replay ? "&endTime="+a.rpTo : ""; // les 500 relevés qui finissent avec la séance
+  const [per, perMs] = liqPeriod(tfMs), key = fs+"|"+per+(a.replay ? "|rp"+a.rpTo : "");
+  if (LIQ.busy || (LIQ.key===key && (a.replay ? LIQ.oi.length || Date.now()-LIQ.at < 60e3 : Date.now()-LIQ.at < Math.max(60e3, Math.min(perMs, 300e3))))) return;
   LIQ.busy = true;
   const sym0 = a.symbol;
   try{
-    const r = await fetch(BINANCE_FAPI_BASE.replace(/\/fapi\/v1\/?$/, "")+"/futures/data/openInterestHist?symbol="+encodeURIComponent(fs)+"&period="+per+"&limit=500", {signal:AbortSignal.timeout(10000)});
+    const r = await fetch(BINANCE_FAPI_BASE.replace(/\/fapi\/v1\/?$/, "")+"/futures/data/openInterestHist?symbol="+encodeURIComponent(fs)+"&period="+per+"&limit=500"+rpWin, {signal:AbortSignal.timeout(10000)});
     if (!r.ok) throw new Error("http_"+r.status);
     const j = await r.json();
     const oi = (Array.isArray(j) ? j : []).map(x=>({t:+x.timestamp, oi:+x.sumOpenInterest})).filter(x=>isFinite(x.t) && x.oi>0).sort((p, q)=>p.t-q.t);
@@ -13597,7 +13625,7 @@ function liqModel(all, tfMs){
     for (let b=bl; b<R; b++) L[b] = 0;
     for (let b=0; b<=bh; b++) S[b] = 0;
     // 2. Variation de l'open interest pendant la bougie.
-    const o1 = oiAt(c.ms), o2 = oiAt(c.ms+tfMs), tp = (c.h+c.l+c.c)/3;
+    const o1 = oiAt(c.ms), o2 = oiAt(Math.min(c.ms+tfMs, chartNow())), tp = (c.h+c.l+c.c)/3; // Replay : rien après l'instant joué
     if (o2 > o1){
       const usd = (o2-o1)*tp;
       const buy = (typeof c.bv==="number" && c.v>0) ? Math.max(0.15, Math.min(0.85, c.bv/c.v)) : (c.c>=c.o ? 0.55 : 0.45);
@@ -13694,7 +13722,7 @@ function hmSpanApply(){
   if (typeof scheduleChartFrame==="function") scheduleChartFrame();
 }
 function hmOn(){ return !!chartInd.lhm && typeof isEdbPlus==="function" && isEdbPlus(); }
-function hmWanted(){ return hmOn() && chartSource==="internal" && !(typeof tpoOn==="function" && tpoOn()); }
+function hmWanted(){ return hmOn() && chartSource==="internal" && !(typeof tpoOn==="function" && tpoOn()) && !RPV; } // carnet en direct : pas en Replay
 function hmReset(){
   if (HM.imgUrl){ try{ URL.revokeObjectURL(HM.imgUrl); }catch(e){} }
   Object.assign(HM, {key:"", sym:null, bin:0, base:0, L:0, min:new Map(), n:0, from0:0, kLo:Infinity, kHi:-Infinity, img:"", imgUrl:"", imgKey:"", md:null, mdKey:""});
@@ -14772,6 +14800,7 @@ function chartQtyOverride(dir, price, feeRate){
   return {ov:{units:qty, lev:plan.lev}, plan};
 }
 function chartQuickTrade(dir){
+  if (RPV){ rpOpen(dir==="long" ? "long" : "short"); return; } // Replay : ordre de la séance
   const a = ASSETS.find(x=>x.symbol===selectedSymbol);
   const m = market[selectedSymbol];
   const px = m ? (dir==="long" ? (m.ask||m.last) : (m.bid||m.last)) : null;
@@ -14802,6 +14831,7 @@ function chartDraftUnits(d){
   return (n>0 && d.entry>0) ? n/d.entry : 0;
 }
 function chartStartDraft(dir, price){
+  if (RPV) return; // pas d'ordre limite dans le Replay
   const v = chartView;
   const tick = tpSlTick(selectedSymbol, price);
   const span = v ? (v.max-v.min) : price*0.01;
@@ -15325,7 +15355,7 @@ function drawRestore(from, to){
   saveDrawings(); drawSyncDel(); chartDrawPatch();
   return true;
 }
-function saveDrawings(){ try{ localStorage.setItem(CHART_DRAW_KEY, JSON.stringify(chartDrawings)); }catch(e){} }
+function saveDrawings(){ try{ localStorage.setItem(CHART_DRAW_KEY, JSON.stringify(chartDrawings, (k, v)=>(RPV && (k===RPV.sym || k===RPV.sym+"|tpo")) ? undefined : v)); }catch(e){} }
 function drawList(){ const k = drawKey(); return chartDrawings[k] || (chartDrawings[k] = []); }
 function drawFind(id){ return drawList().find(d=>d.id===id); }
 // Heure <-> position (en rangs de bougie, décimaux) sur l'historique chargé.
@@ -18054,6 +18084,7 @@ function mirrorOrderToOtherBook(kind, params){
 }
 function submitOrder(){
   const msg = document.getElementById("ticket-msg");
+  if (RPV && selectedSymbol===RPV.sym){ msg.textContent = "Replay en cours : reviens au terminal pour trader."; return; }
   // Backend-side belt-and-suspenders for BOTH the market and limit paths
   // below (updateOrderReadout() already disables the submit button for this
   // case, but that's just the UI — this is what actually matters). Doesn't
@@ -18125,6 +18156,7 @@ function submitOrder(){
 // crosses the limit price (checkPendingOrders(), polled alongside TP/SL and
 // liquidation on every price tick).
 function submitLimitOrder(msg){
+  if (RPV && selectedSymbol===RPV.sym){ msg.textContent = "Replay en cours : reviens au terminal pour trader."; return; }
   try{
     const limitPrice = parseFloat(document.getElementById("limit-price-input").value);
     if (!(limitPrice>0)){ msg.textContent = "Entrez un prix limite valide."; return; }
@@ -23353,7 +23385,7 @@ async function rpFetchCandles(sym, startMs, hours){
         if (ld && hours>16) ld.textContent = "Chargement de la séance… "+Math.min(99, Math.round((from-startMs)/(endMs-startMs)*100))+" %";
       }
       if (raw.length < REPLAY_CONTEXT+30){ const e = new Error("not_enough"); e.code = "not_enough"; throw e; }
-      const out = raw.map(r=>({t:Number(r[0]), o:+r[1], h:+r[2], l:+r[3], c:+r[4]})).filter(c=>isFinite(c.o)&&isFinite(c.c));
+      const out = raw.map(r=>({t:Number(r[0]), o:+r[1], h:+r[2], l:+r[3], c:+r[4], v:+r[5]||0, bv:+r[9]||0})).filter(c=>isFinite(c.o)&&isFinite(c.c));
       out.base = base;
       rpCandleCache[key] = out;
       return out;
@@ -23414,13 +23446,14 @@ function rpLocalDateStr(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).pa
 function renderReplay(){
   // Réservé aux membres EDB+ (et à l'essai 24 h) : sinon, page d'adhésion.
   if (!isEdbPlus()){
-    replayPause(); rp = null;
+    replayPause(); rp = null; if (RPV) rpChartDetach();
     const root = document.getElementById("replay-root");
     if (root){ root.innerHTML = edbPlusPaywallHtml("replay"); wireEdbPlusCta("replay"); }
     return;
   }
   if (rp && !rp.done){ renderReplaySession(); return; }
   replayPause();
+  if (RPV) rpChartDetach();
   const root = document.getElementById("replay-root");
   if (!root) return;
   const st = replayState(), best = st.best, prefs = rpPrefs(), assets = rpAssets();
@@ -23604,6 +23637,7 @@ async function startReplay(id, opts){
   const sc = id==="custom" ? {id:"custom", title:"Séance personnalisée", hours:opts.hours||4, diff:"Perso"} : rpScenario(id);
   if (!sc) return;
   replayPause();
+  if (RPV) rpChartDetach();
   const root = document.getElementById("replay-root");
   const mystery = id==="mystery";
   let sym = sc.sym, label = sc.label, startMs = sc.start ? Date.parse(sc.start) : 0, hours = sc.hours;
@@ -23636,7 +23670,7 @@ async function startReplay(id, opts){
     // Séance mystère : prix ramenés à un indice (dernière bougie de contexte = 100)
     // pour ne pas trahir l'actif ni l'époque. Les % restent identiques.
     const k = mystery ? 100/candles[REPLAY_CONTEXT-1].c : 1;
-    const cs = k===1 ? candles : candles.map(c=>({t:c.t, o:c.o*k, h:c.h*k, l:c.l*k, c:c.c*k}));
+    const cs = k===1 ? candles : candles.map(c=>({t:c.t, o:c.o*k, h:c.h*k, l:c.l*k, c:c.c*k, v:c.v, bv:c.bv}));
     const ref = candles[REPLAY_CONTEXT-1].c*k;
     rp = {
       id, sc, sym, label, mystery, custom:id==="custom", startMs, hours, candles:cs, i:REPLAY_CONTEXT-1,
@@ -23656,6 +23690,122 @@ async function startReplay(id, opts){
     document.getElementById("rp-retry").addEventListener("click", ()=>startReplay(id, opts));
     document.getElementById("rp-back0").addEventListener("click", ()=>{ rp = null; renderReplay(); });
   }
+}
+
+/* ---------- Graphique du terminal dans la séance ----------
+   La carte « Graphique » du terminal est déplacée dans la séance (comme pour
+   le plein écran) et affiche un marché virtuel nourri par les bougies 1 min
+   révélées : mêmes indicateurs, unités de temps, dessins, TPO et heatmap des
+   liquidations (séances des 30 derniers jours : Binance ne garde pas l'open
+   interest plus longtemps). Footprint et heatmap de liquidité ont besoin des
+   transactions / du carnet en direct : pas disponibles en Replay. Elle
+   retourne au terminal dès qu'on quitte la séance ou la page Replay. */
+const RP_TF_MIN = {"1m":1, "5m":5, "15m":15, "30m":30, "1h":60, "4h":240, "1d":1440, "1w":10080};
+function rpChartCard(){ return document.querySelector('.card.widget[data-widget="chart"]'); }
+function rpTfMin(){ return RPV ? Math.min(1440, RP_TF_MIN[currentTimeframe]||1) : (rp && rp.tf) || 1; }
+// Séance mystère : dates décalées d'un nombre entier de semaines (vers l'an
+// 2000) pour que l'axe du temps ne trahisse pas l'époque ; heures et jours
+// de la semaine restent justes, les bougies restent alignées.
+function rpT(t){ return rp && rp.mystery ? t - (rp.tShift || (rp.tShift = Math.floor((rp.candles[0].t - Date.UTC(2000, 0, 3))/604800000)*604800000)) : t; }
+function rpBucket(t, ms){ return ms>=604800000 ? Math.floor((t-345600000)/ms)*ms+345600000 : Math.floor(t/ms)*ms; } // semaines : lundi
+function rpChartAttach(){
+  const slot = document.getElementById("rp-chart-slot"), card = rpChartCard();
+  if (!slot || !card || !rp) return false;
+  if (typeof chartFs!=="undefined" && chartFs) chartFsSet(false);
+  const sym = (rp.mystery ? "INDICE" : rp.label)+" · Replay";
+  const endT = rp.candles[rp.candles.length-1].t;
+  const recent = Date.now()-endT < 29*86400e3 && Date.now()-rp.candles[0].t < 29.5*86400e3;
+  RPV = {sym, preBusy:{}, pre:{}, lastTf:null,
+    home:{parent:card.parentNode, next:card.nextSibling, hidden:card.hidden, drag:card.getAttribute("draggable")},
+    prevSym:selectedSymbol, prevTf:currentTimeframe, prevSrc:chartSource,
+    asset:{symbol:sym, name: rp.mystery ? "Séance mystère" : (rp.custom ? "Séance personnalisée" : rp.sc.title), decimals:rp.dec, color:"var(--accent)", icon:"⏪", replay:true, delisted:true,
+      rpLiq: !rp.mystery && recent ? rp.sym : null, rpFrom:rp.candles[0].t - 3*86400e3, rpTo:endT,
+      rpLiqWhy: rp.mystery ? "Heatmap des liquidations indisponible en séance mystère (elle trahirait l'actif)." : "Heatmap des liquidations indisponible pour cette séance : Binance ne garde l'open interest que 30 jours."}};
+  market[sym] = {cfg:RPV.asset, last:null, prevLast:null, bid:null, ask:null, changePct:0, high:null, low:null, history:[], updatedAt:null, error:null,
+    candles:{tf:null, data:[], loading:true, error:null}};
+  const dr = rp.chartDraw || [[], []];
+  chartDrawings[sym] = dr[0] || []; chartDrawings[sym+"|tpo"] = dr[1] || [];
+  card.hidden = false; card.setAttribute("draggable", "false"); card.classList.add("rp-host");
+  slot.appendChild(card);
+  document.documentElement.classList.add("rp-chart-on");
+  if (typeof drawSetTool==="function") try{ drawSetTool(null); }catch(e){}
+  selectedSymbol = sym;
+  currentTimeframe = rp.chartTf || (rp.hours>=96 ? "1h" : rp.hours>=24 ? "15m" : "1m");
+  if (chartSource!=="internal"){ chartSource = "internal"; }
+  clearInterval(candleTimer);
+  chartPan = 0; chartHover = null;
+  rpChartData();
+  updateChart();
+  if ((chartInd.fp || chartInd.lhm) && typeof chartToast==="function" && !rpChartAttach.told){
+    rpChartAttach.told = true;
+    chartToast("Footprint et heatmap de liquidité : pas disponibles en Replay (il faut les transactions et le carnet en direct). Le reste du graphique est identique.", "info");
+  }
+  return true;
+}
+function rpChartDetach(){
+  if (!RPV) return;
+  const V = RPV, card = rpChartCard();
+  if (typeof chartFs!=="undefined" && chartFs) chartFsSet(false);
+  if (rp){ rp.chartTf = currentTimeframe; rp.chartDraw = [chartDrawings[V.sym]||[], chartDrawings[V.sym+"|tpo"]||[]]; }
+  RPV = null;
+  delete chartDrawings[V.sym]; delete chartDrawings[V.sym+"|tpo"]; delete market[V.sym];
+  if (card){
+    card.classList.remove("rp-host");
+    if (V.home.drag!=null) card.setAttribute("draggable", V.home.drag); else card.removeAttribute("draggable");
+    card.hidden = V.home.hidden;
+    const {parent, next} = V.home;
+    if (parent){ if (next && next.parentNode===parent) parent.insertBefore(card, next); else parent.appendChild(card); }
+  }
+  document.documentElement.classList.remove("rp-chart-on");
+  currentTimeframe = V.prevTf;
+  try{ localStorage.setItem(CHART_TF_KEY, currentTimeframe); }catch(e){}
+  if (V.prevSrc && V.prevSrc!==chartSource){ chartSource = V.prevSrc; }
+  chartPan = 0; chartHover = null;
+  selectSymbol(V.prevSym); // recharge les bougies du terminal
+}
+// Bougies révélées regroupées dans l'unité affichée (+ contexte d'avant la séance).
+function rpChartData(){
+  if (!RPV || !rp) return;
+  const m = market[RPV.sym]; if (!m) return;
+  const tf = currentTimeframe, ms = (RP_TF_MIN[tf]||1)*60000, out = [];
+  for (let i=0; i<=rp.i; i++){
+    const c = rp.candles[i], t = rpBucket(rpT(c.t), ms), L = out[out.length-1];
+    if (L && L.ms===t){ if (c.h>L.h) L.h = c.h; if (c.l<L.l) L.l = c.l; L.c = c.c; L.v += c.v||0; L.bv += c.bv||0; }
+    else out.push({ms:t, t:new Date(t).toISOString(), o:c.o, h:c.h, l:c.l, c:c.c, v:c.v||0, bv:c.bv||0});
+  }
+  const pre = RPV.pre[tf] || [];
+  const data = (out.length ? pre.filter(b=>b.ms<out[0].ms) : pre).concat(out);
+  m.candles = {tf, data, loading:!RPV.pre[tf] && data.length<2, error:null};
+  const px = rpPrice();
+  m.prevLast = m.last; m.last = px; m.bid = px; m.ask = px; m.updatedAt = rp.candles[rp.i].t;
+  m.changePct = (px/rp.candles[REPLAY_CONTEXT-1].c - 1)*100;
+  if (!RPV.pre[tf] && !RPV.preBusy[tf]) rpChartPre(tf);
+}
+async function rpChartPre(tf){
+  const V = RPV; if (!V || !rp) return;
+  V.preBusy[tf] = true;
+  const ms = (RP_TF_MIN[tf]||1)*60000, firstT = rp.candles[0].t, k = rp.k || 1;
+  try{
+    const r = await fetch((rp.base||BINANCE_API_BASE)+"/klines?symbol="+encodeURIComponent(rp.sym)+"&interval="+tf+"&endTime="+(firstT-1)+"&limit=500", {signal:AbortSignal.timeout(10000)});
+    const j = r.ok ? await r.json() : [];
+    V.pre[tf] = (Array.isArray(j) ? j : []).map(x=>({ms:rpT(+x[0]), t:new Date(rpT(+x[0])).toISOString(), o:+x[1]*k, h:+x[2]*k, l:+x[3]*k, c:+x[4]*k, v:+x[5]||0, bv:+x[9]||0}))
+      .filter(b=>isFinite(b.c) && b.ms+ms<=rpT(firstT));
+  }catch(e){ V.pre[tf] = []; }
+  if (RPV===V && currentTimeframe===tf){ rpChartData(); updateChart(); }
+}
+// Unité changée depuis le graphique (boutons, TPO qui passe en 30m…).
+function rpChartTfChanged(){
+  if (!RPV || !rp) return;
+  rpChartData();
+  if (RPV.lastTf!==currentTimeframe){ RPV.lastTf = currentTimeframe; if (rp.playing){ rp.playing = false; rpTogglePlay(); } }
+}
+// Mes entrées ▲ / sorties ▼ de la séance (indicateur « Mes trades »).
+function rpChartMarks(){
+  if (!rp) return [];
+  const t = i=>rpT(rp.candles[Math.min(i, rp.candles.length-1)].t), out = [];
+  rp.trades.forEach(x=>{ out.push({t:t(x.openI), px:x.entry, buy:x.side==="long", kind:"in"}); out.push({t:t(x.closeI), px:x.exit, buy:x.side!=="long", kind:"out"}); });
+  if (rp.pos) out.push({t:t(rp.pos.openI), px:rp.pos.entry, buy:rp.pos.side==="long", kind:"in"});
+  return out;
 }
 
 /* ---------- Moteur ---------- */
@@ -23747,7 +23897,7 @@ function rpStep(noPaint){
 }
 // « +1 » / flèche droite : avance d'une bougie de l'unité affichée (15 min en 15m).
 function rpStepBar(){
-  const n = rp ? (rp.tf||1) : 1;
+  const n = rp ? rpTfMin() : 1;
   for (let k=0; k<n && rp && !rp.done; k++) rpStep(k<n-1);
 }
 function rpTogglePlay(){
@@ -23758,7 +23908,7 @@ function rpTogglePlay(){
   // Vitesse = bougies AFFICHÉES par seconde, dans l'unité de temps choisie
   // (« 3/s » en 15m = 3 bougies de 15 min par seconde). La séance avançant
   // minute par minute, on fait plusieurs pas d'une minute par tic si besoin.
-  const perSec = REPLAY_SPEEDS[rp.speedIdx] * (rp.tf||1);
+  const perSec = REPLAY_SPEEDS[rp.speedIdx] * rpTfMin();
   const interval = Math.max(20, 1000/perSec);
   const stepsPerTick = Math.max(1, Math.round(perSec*interval/1000));
   rpTimer = setInterval(()=>{
@@ -23766,6 +23916,7 @@ function rpTogglePlay(){
     if (!v || !v.classList.contains("active")){ replayPause(); return; }
     for (let k=0; k<stepsPerTick && rp && !rp.done; k++) rpStep(k<stepsPerTick-1);
   }, interval);
+  if (RPV) RPV.lastTf = currentTimeframe;
   const b = document.getElementById("rp-play");
   if (b) b.innerHTML = rpPlayIcon(true);
 }
@@ -23786,6 +23937,8 @@ function renderReplaySession(){
   if (!isEdbPlus()){ replayPause(); rp = null; renderReplay(); return; } // essai EDB+ terminé en cours de séance
   const root = document.getElementById("replay-root");
   if (!root || !rp) return;
+  if (RPV) rpChartDetach(); // la carte est dans la séance : on la sort avant de redessiner
+  const full = !!rpChartCard();
   const sc = rp.sc;
   root.innerHTML =
     '<div class="rp rp-session">'+
@@ -23798,10 +23951,10 @@ function renderReplaySession(){
         '<div class="rp-chart-card">'+
           '<div class="rp-chart-head">'+
             '<div class="rp-px"><span id="rp-sym">'+escapeHtml(rp.mystery ? (rp.opts && rp.opts.sym ? rp.label+" · INDICE" : "INDICE") : rp.label)+'</span><b class="num" id="rp-price">—</b><em class="num" id="rp-clock">—</em></div>'+
-            '<div class="rp-tfs" role="group" aria-label="Unité de temps">'+REPLAY_TFS.map(([m,l])=>'<button type="button" data-rp-tf="'+m+'" class="'+(m===(rp.tf||1)?'is-on':'')+'">'+l+'</button>').join("")+'</div>'+
+            (full ? '' : '<div class="rp-tfs" role="group" aria-label="Unité de temps">'+REPLAY_TFS.map(([m,l])=>'<button type="button" data-rp-tf="'+m+'" class="'+(m===(rp.tf||1)?'is-on':'')+'">'+l+'</button>').join("")+'</div>')+
             '<div class="rp-flash" id="rp-flash" hidden></div>'+
           '</div>'+
-          '<canvas id="rp-canvas"></canvas>'+
+          (full ? '<div class="rp-chart-slot" id="rp-chart-slot"></div>' : '<canvas id="rp-canvas"></canvas>')+
           '<div class="rp-transport">'+
             '<button type="button" class="rp-play" id="rp-play">'+rpPlayIcon(false)+'</button>'+
             '<button type="button" class="rp-tbtn" id="rp-next" title="Bougie suivante, dans l\'unité affichée (→)">+1</button>'+
@@ -23850,7 +24003,7 @@ function renderReplaySession(){
     const b = e.target.closest("[data-rp-clear]");
     if (b && rp && rp.pos){ rp.pos[b.dataset.rpClear] = null; rpPaint(); }
   });
-  rpInitLineDrag(document.getElementById("rp-canvas"));
+  if (full) rpChartAttach(); else rpInitLineDrag(document.getElementById("rp-canvas"));
   rpPaint();
 }
 function rpPaint(){
@@ -23894,7 +24047,7 @@ function rpPaint(){
     if (rp.pos){ const u = rpUpnl(price); qp.textContent = (rp.pos.side==="long"?"L ":"S ")+fmtMoneySigned(u); qp.className = "rp-quick-pnl num "+(u>=0?"up":"down"); }
     else { qp.textContent = rpFmtPct(ret); qp.className = "rp-quick-pnl num "+(ret>=0?"up":"down"); }
   }
-  rpDraw();
+  if (RPV){ rpChartData(); scheduleChartFrame(); } else rpDraw();
 }
 // Unités de temps du graphique : la séance avance toujours minute par minute,
 // on regroupe simplement les bougies 1 min déjà révélées en 5 min / 15 min /
@@ -24134,6 +24287,7 @@ async function rpFinish(){
   replayPause();
   if (rp.pos) rpClose("end");
   rp.done = true;
+  if (RPV) rpChartDetach();
   const eq = rp.cash, ret = (eq/REPLAY_START_CASH-1)*100;
   const first = rp.candles[REPLAY_CONTEXT-1].c, lastC = rp.candles[rp.i].c;
   const bh = (lastC/first-1)*100;
@@ -24223,7 +24377,7 @@ async function rpLoadLeaderboard(id){
     box.innerHTML = '<p class="rp-cap">Classement indisponible pour le moment.</p>';
   }
 }
-window.addEventListener("resize", ()=>{ if (rp && !rp.done) rpDraw(); });
+window.addEventListener("resize", ()=>{ if (rp && !rp.done && !RPV) rpDraw(); });
 document.addEventListener("keydown", (e)=>{
   if (!rp || rp.done || e.ctrlKey || e.metaKey || e.altKey) return;
   const v = document.getElementById("view-replay");
@@ -27787,7 +27941,7 @@ function switchView(name){
   }
   if (name==="daily") renderDaily();
   if (name==="replay") renderReplay();
-  else if (typeof replayPause==="function") replayPause();
+  else { if (typeof replayPause==="function") replayPause(); if (RPV) rpChartDetach(); } // le graphique retourne au terminal
   if (name==="profile"){
     renderEquityCurve();
     renderBadgesGrid();
