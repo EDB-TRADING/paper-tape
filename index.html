@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="2900">
+<meta name="pt-build" content="2920">
 <title>Paper Tape</title>
 <script>
 /* Un seul fichier pour deux sites :
@@ -6310,7 +6310,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v2900 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v2920 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -24913,14 +24913,43 @@ function dailyDrawBind(cv){
   cv.__ddBound = true;
   const at = (e)=>{ const m = cv.__dmap, r = cv.getBoundingClientRect(); if (!m || m.ctx) return null; const px = e.clientX-r.left, py = e.clientY-r.top;
     return {k: m.start + (px-m.padL)/m.slot - 0.5, p: m.rng[1] - (py-m.padT)/m.priceH*(m.rng[1]-m.rng[0])}; };
-  let cur = null, raf = 0;
+  // Comme le graphique du terminal : pas besoin de garder le bouton appuyé.
+  // 1er clic = début, la souris déplace l'aperçu, 2e clic = fin (au doigt :
+  // deux touchers). Glisser bouton appuyé marche aussi. Pinceau : clic pour
+  // commencer, on dessine en bougeant, clic pour finir.
+  let cur = null, raf = 0, down = null, mv = null;
+  // Déplacement d'un tracé : même décalage (bougies, prix) appliqué à tous ses points.
+  const moveTo = (q)=>{
+    const o = mv.orig, dk = q.k-mv.q0.k, dp = q.p-mv.q0.p, sh = (pt)=>({k:pt.k+dk, p:pt.p+dp});
+    if (o.a) mv.it.a = mv.it.t==="avwap" ? {k:Math.round(o.a.k+dk), p:o.a.p+dp} : sh(o.a);
+    if (o.b) mv.it.b = sh(o.b);
+    if (o.pts) mv.it.pts = o.pts.map(sh);
+  };
+  D.drawMoveCancel = ()=>{ if (!mv) return false; Object.assign(mv.it, JSON.parse(JSON.stringify(mv.orig))); mv = null; cv.style.cursor = ""; redraw(); return true; };
   const redraw = ()=>{ if (!raf) raf = requestAnimationFrame(()=>{ raf = 0; dailyRedraw(); }); };
+  const tiny = (it)=>{ const m = cv.__dmap; return it.t!=="brush" && m && Math.abs((it.b.k-it.a.k)*m.slot) < 4 && Math.abs((it.b.p-it.a.p)/(m.rng[1]-m.rng[0])*m.priceH) < 4; };
+  const finish = ()=>{
+    const rd = dailyCurRound();
+    if (cur && rd && rd.draw && (tiny(cur) || (cur.t==="brush" && cur.pts.length < 2))){ const i = rd.draw.indexOf(cur); if (i>=0) rd.draw.splice(i, 1); }
+    cur = null; D.drawCur = null; redraw();
+  };
   cv.addEventListener("pointerdown", (e)=>{
     if (e.pointerType==="mouse" && e.button!==0) return;
+    if (cur && D.drawCancelled){ cur = null; D.drawCancelled = false; }
+    // 2e clic d'un tracé en cours : on le pose.
+    if (cur){ const q = at(e); if (q){ if (cur.t==="brush") cur.pts.push(q); else cur.b = q; } e.preventDefault(); finish(); down = null; return; }
     if (!D.tool || D.tool==="clear"){
-      // Sans outil : un clic sur un tracé le sélectionne (Suppr pour l'effacer).
+      // Sans outil : un clic sur un tracé le sélectionne (Suppr pour l'effacer)
+      // et on peut le déplacer en le faisant glisser.
       const r = cv.getBoundingClientRect(), hit = dailyDrawHit(cv, e.clientX-r.left, e.clientY-r.top);
       if (hit!==D.drawSel){ D.drawSel = hit; redraw(); }
+      if (hit){
+        const q = at(e); if (!q) return;
+        e.preventDefault();
+        mv = {it:hit, q0:q, orig:JSON.parse(JSON.stringify(hit)), id:e.pointerId};
+        cv.style.cursor = "grabbing";
+        try{ cv.setPointerCapture(e.pointerId); }catch(err){}
+      }
       return;
     }
     const rd = dailyCurRound(), q = at(e); if (!rd || !q) return;
@@ -24932,25 +24961,30 @@ function dailyDrawBind(cv){
     cur = D.tool==="brush" ? {t:"brush", pts:[q]} : {t:D.tool, a:q, b:q};
     D.drawCur = cur;
     rd.draw.push(cur);
+    down = {x:e.clientX, y:e.clientY, id:e.pointerId};
     try{ cv.setPointerCapture(e.pointerId); }catch(err){}
   });
   cv.addEventListener("pointermove", (e)=>{
-    if (cur && D.drawCancelled){ cur = null; return; }
+    if (mv){ const q = at(e); if (q){ moveTo(q); redraw(); } return; }
+    if (!cur && !D.tool){ const r = cv.getBoundingClientRect(); cv.style.cursor = dailyDrawHit(cv, e.clientX-r.left, e.clientY-r.top) ? "grab" : ""; }
+    if (cur && D.drawCancelled){ cur = null; D.drawCancelled = false; return; }
     if (!cur) return;
     const q = at(e); if (!q) return;
     if (cur.t==="brush") cur.pts.push(q); else cur.b = q;
     redraw();
   });
-  const end = ()=>{
-    D.drawCur = null;
-    if (cur && D.drawCancelled){ cur = null; D.drawCancelled = false; return; }
-    if (!cur) return;
-    const rd = dailyCurRound(), m = cv.__dmap;
-    // Simple clic sans glisser : on n'ajoute pas une ligne de longueur nulle.
-    if (rd && rd.draw && cur.t!=="brush" && m && Math.abs((cur.b.k-cur.a.k)*m.slot) < 4 && Math.abs((cur.b.p-cur.a.p)/(m.rng[1]-m.rng[0])*m.priceH) < 4) rd.draw.splice(rd.draw.indexOf(cur), 1);
-    cur = null; redraw();
+  const up = (e)=>{
+    if (mv){ try{ cv.releasePointerCapture(mv.id); }catch(err){} mv = null; cv.style.cursor = "grab"; redraw(); return; }
+    if (!down) return;
+    const moved = Math.hypot(e.clientX-down.x, e.clientY-down.y) > 5;
+    try{ cv.releasePointerCapture(down.id); }catch(err){}
+    down = null;
+    if (cur && D.drawCancelled){ cur = null; D.drawCancelled = false; D.drawCur = null; return; }
+    // Glissé bouton appuyé : posé au relâchement ; simple clic : on attend le 2e clic.
+    if (cur && moved) finish();
   };
-  cv.addEventListener("pointerup", end); cv.addEventListener("pointercancel", end);
+  cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", (e)=>{ down = null; mv = null; });
+  cv.addEventListener("pointerleave", ()=>{ if (cur && !down) redraw(); });
 }
 document.addEventListener("keydown", (e)=>{
   if (document.body.dataset.view!=="daily" || (D.phase!=="playing" && D.phase!=="reveal")) return;
@@ -24959,6 +24993,7 @@ document.addEventListener("keydown", (e)=>{
   const k = (e.key||"").toLowerCase();
   if ((e.metaKey || e.ctrlKey) && !e.altKey && (k==="z" || k==="y")){ if (dailyDrawUndo(k==="y" || e.shiftKey)) e.preventDefault(); return; }
   if (e.key==="Delete" || e.key==="Backspace"){ if (dailyDrawDelete()) e.preventDefault(); return; }
+  if (e.key==="Escape" && D.drawMoveCancel && D.drawMoveCancel()) return; // déplacement en cours : remis en place
   if (e.key==="Escape" && (D.drawCur || D.drawSel || D.tool)){ if (D.drawCur) dailyDrawCancel(); D.drawSel = null; if (D.tool) dailySetTool(D.tool); else dailyRedraw(); }
 });
 function dailyRevealHtml(rd){
