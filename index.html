@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3110">
+<meta name="pt-build" content="3120">
 <title>Paper Tape</title>
 <script>
 /* Un seul fichier pour deux sites :
@@ -3489,43 +3489,87 @@
   .dd-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;padding:30px 32px;border-radius:22px;border:1px solid var(--border-soft);
     background:radial-gradient(700px 300px at 0% 0%, color-mix(in srgb, var(--dd-a) 13%, transparent), transparent 70%), linear-gradient(180deg, var(--panel), var(--bg));}
   /* ---------- Jeux · Quiz graphique ---------- */
-  .gq{--pw-gold:var(--dd-a);display:flex;flex-direction:column;gap:18px;}
-  .gq-hero{display:flex;justify-content:space-between;align-items:center;gap:22px;flex-wrap:wrap;padding:30px;border-radius:22px;border:1px solid var(--border-soft);
-    background:radial-gradient(700px 300px at 85% 0%, color-mix(in srgb, var(--dd-a) 14%, transparent), transparent 65%), var(--panel);}
-  .gq-hero h1{margin:6px 0 8px;font-size:32px;letter-spacing:-.02em;}
-  .gq-hero p{margin:0 0 18px;color:var(--text-dim);max-width:600px;line-height:1.55;}
-  .gq-best{padding:16px 20px;border-radius:16px;border:1px solid var(--border-soft);background:var(--bg);display:flex;flex-direction:column;gap:4px;text-align:center;}
-  .gq-best b{font-size:26px;font-family:var(--mono);} .gq-best span{font-size:12px;color:var(--text-faint);}
-  .gq-play{display:flex;flex-direction:column;gap:16px;}
-  .gm-game-top{display:flex;align-items:center;gap:12px;}
-  .gm-game-top b{flex:1;font-size:16px;}
-  .gm-game-top .num{font-family:var(--mono);font-size:12px;color:var(--text-faint);}
-  .gq-q h2{margin:0 0 4px;font-size:21px;letter-spacing:-.01em;}
-  .gq-q p{margin:0;color:var(--text-dim);font-size:14px;}
-  .gq-grid{display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:12px;}
-  .gq-opt{position:relative;display:flex;flex-direction:column;padding:0;border-radius:16px;border:2px solid var(--border-soft);background:var(--bg);overflow:hidden;cursor:pointer;font:inherit;color:var(--text);transition:border-color .15s, transform .12s;}
-  .gq-opt:hover:not([disabled]){border-color:color-mix(in srgb, var(--dd-a) 55%, var(--border-soft));transform:translateY(-1px);}
-  .gq-opt canvas{display:block;width:100%;height:210px;}
-  .gq-l{position:absolute;top:8px;left:8px;z-index:1;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-weight:800;font-size:14px;background:var(--panel-2);border:1px solid var(--border-soft);}
-  .gq-opt.ok{border-color:var(--long);} .gq-opt.ok .gq-l{background:var(--long);color:#0b1a12;border-color:var(--long);}
+  .gq{--pw-gold:var(--dd-a);display:flex;flex-direction:column;gap:26px;max-width:1180px;margin:0 auto;width:100%;}
+  .gq-hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);align-items:center;gap:32px;padding:38px 40px;border-radius:24px;border:1px solid var(--border-soft);
+    background:radial-gradient(800px 340px at 100% 0%, color-mix(in srgb, var(--dd-a) 16%, transparent), transparent 65%), radial-gradient(500px 260px at 0% 100%, color-mix(in srgb, var(--long) 7%, transparent), transparent 70%), var(--panel);}
+  .gq-hero h1{margin:10px 0 12px;font-size:38px;line-height:1.08;letter-spacing:-.025em;}
+  .gq-hero h1 span{color:var(--dd-a);}
+  .gq-hero p{margin:0 0 22px;color:var(--text-dim);max-width:560px;line-height:1.6;font-size:15px;}
+  .gq-hero-cta .pw-btn{font-size:15px;padding:13px 22px;}
+  .gq-kpis{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;}
+  .gq-kpis div{flex:1;min-width:110px;padding:12px 14px;border-radius:14px;border:1px solid var(--border-soft);background:color-mix(in srgb, var(--bg) 70%, transparent);display:flex;flex-direction:column;gap:3px;}
+  .gq-kpis b{font-family:var(--mono);font-size:22px;} .gq-kpis b small{font-size:13px;color:var(--text-faint);font-weight:500;}
+  .gq-kpis span{font-size:12px;color:var(--text-faint);}
+  .gq-hero-art{display:flex;justify-content:center;}
+  .gq-art{width:100%;max-width:360px;height:auto;filter:drop-shadow(0 18px 40px rgba(0,0,0,.25));}
+  .gq-art .gq-a-box{fill:var(--bg);stroke:var(--border-soft);stroke-width:1.5;}
+  .gq-art .gq-a-on{fill:var(--bg);stroke:var(--long);stroke-width:2.5;}
+  .gq-art .a-up{fill:var(--long);} .gq-art .a-dn{fill:var(--short);}
+  .gq-art .gq-a-tag rect{fill:var(--long);} .gq-art .gq-a-tag text{fill:#0b1a12;font:800 13px var(--sans, system-ui);}
+  .gq-sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px;}
+  .gq-sec-h h2{margin:0;font-size:19px;letter-spacing:-.01em;} .gq-sec-h span{font-size:12.5px;color:var(--text-faint);font-family:var(--mono);}
+  .gq-themes{display:grid;grid-template-columns:repeat(auto-fill, minmax(205px,1fr));gap:12px;}
+  .gq-th{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;padding:18px;border-radius:18px;border:1px solid var(--border-soft);background:var(--panel);color:var(--text);font:inherit;cursor:pointer;overflow:hidden;transition:border-color .15s, transform .12s, background .15s;}
+  .gq-th:hover{border-color:color-mix(in srgb, var(--dd-a) 55%, var(--border-soft));transform:translateY(-2px);background:color-mix(in srgb, var(--dd-a) 4%, var(--panel));}
+  .gq-th-ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;margin-bottom:6px;color:var(--dd-a);background:color-mix(in srgb, var(--dd-a) 13%, transparent);}
+  .gq-th-ic svg{width:20px;height:20px;}
+  .gq-th b{font-size:16px;} .gq-th small{color:var(--text-dim);font-size:13px;line-height:1.45;min-height:38px;}
+  .gq-th em{font-style:normal;font-family:var(--mono);font-size:11.5px;color:var(--text-faint);margin-top:4px;}
+  .gq-th u{position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--border-soft);text-decoration:none;}
+  .gq-th u i{display:block;height:100%;background:var(--long);}
+  .gq-load{display:flex;flex-direction:column;align-items:center;gap:10px;padding:80px 20px;text-align:center;border-radius:20px;border:1px dashed var(--border-soft);}
+  .gq-load b{font-size:16px;} .gq-load span{color:var(--text-faint);font-size:13px;}
+  .gq-play{display:flex;flex-direction:column;gap:18px;}
+  .gq-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 12px;border-radius:14px;border:1px solid var(--border-soft);background:var(--panel);}
+  .gq-chip{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dd-a);padding:5px 10px;border-radius:999px;background:color-mix(in srgb, var(--dd-a) 12%, transparent);}
+  .gq-dots{flex:1;display:flex;gap:5px;justify-content:center;min-width:140px;}
+  .gq-dots i{flex:1;max-width:34px;height:6px;border-radius:99px;background:var(--border-soft);}
+  .gq-dots i.ok{background:var(--long);} .gq-dots i.ko{background:var(--short);} .gq-dots i.cur{background:var(--dd-a);box-shadow:0 0 0 3px color-mix(in srgb, var(--dd-a) 22%, transparent);}
+  .gq-score{font-family:var(--mono);font-size:13px;font-weight:700;padding:5px 10px;border-radius:9px;background:var(--bg);border:1px solid var(--border-soft);}
+  .gq-q{display:flex;flex-direction:column;gap:6px;}
+  .gq-num{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);}
+  .gq-q h2{margin:0;font-size:24px;letter-spacing:-.015em;line-height:1.25;}
+  .gq-q p{margin:0;color:var(--text-dim);font-size:14.5px;line-height:1.5;max-width:820px;}
+  .gq-grid{display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:14px;}
+  .gq-opt{position:relative;display:flex;flex-direction:column;padding:0;border-radius:18px;border:2px solid var(--border-soft);background:var(--bg);overflow:hidden;cursor:pointer;font:inherit;color:var(--text);transition:border-color .15s, transform .12s, box-shadow .15s, opacity .2s;}
+  .gq-opt:hover:not([disabled]){border-color:color-mix(in srgb, var(--dd-a) 60%, var(--border-soft));transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.18);}
+  .gq-opt canvas{display:block;width:100%;height:250px;}
+  .gq-l{position:absolute;top:9px;left:9px;z-index:1;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:14px;background:var(--panel-2);border:1px solid var(--border-soft);}
+  .gq-opt.ok{border-color:var(--long);box-shadow:0 0 0 4px color-mix(in srgb, var(--long) 16%, transparent);} .gq-opt.ok .gq-l{background:var(--long);color:#0b1a12;border-color:var(--long);}
   .gq-opt.ko{border-color:var(--short);} .gq-opt.ko .gq-l{background:var(--short);color:#fff;border-color:var(--short);}
-  .gq-opt.dim{opacity:.55;}
+  .gq-opt.dim{opacity:.5;}
   .gq-opt[disabled]{cursor:default;}
-  .gq-meta{position:absolute;right:8px;top:9px;font-family:var(--mono);font-size:11px;color:var(--text-faint);background:color-mix(in srgb, var(--bg) 80%, transparent);padding:2px 6px;border-radius:6px;}
-  .gq-why{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:16px 18px;border-radius:14px;border:1px solid var(--border-soft);background:var(--panel-2);}
-  .gq-why.ok{border-color:color-mix(in srgb, var(--long) 45%, var(--border-soft));} .gq-why.ko{border-color:color-mix(in srgb, var(--short) 40%, var(--border-soft));}
-  .gq-why b{font-size:17px;} .gq-why span{color:var(--text-dim);font-size:14px;line-height:1.5;}
-  .gq-res{display:flex;flex-direction:column;gap:10px;align-items:flex-start;}
-  .gq-res h2{margin:0;font-size:40px;font-family:var(--mono);}
-  .gq-res p{margin:0;color:var(--text-dim);}
-  .gq-recap{display:flex;gap:6px;flex-wrap:wrap;}
-  .gq-recap span{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:700;font-size:13px;}
-  .gq-recap .ok{background:color-mix(in srgb, var(--long) 25%, transparent);color:var(--long);} .gq-recap .ko{background:color-mix(in srgb, var(--short) 22%, transparent);color:var(--short);}
-  .ch-end-act{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+  .gq-meta{position:absolute;left:46px;top:15px;font-family:var(--mono);font-size:11px;color:var(--text-faint);}
+  .gq-why{display:flex;align-items:center;gap:18px;padding:18px 20px;border-radius:16px;border:1px solid var(--border-soft);background:var(--panel);}
+  .gq-why > div{flex:1;display:flex;flex-direction:column;gap:5px;}
+  .gq-why.ok{border-color:color-mix(in srgb, var(--long) 50%, var(--border-soft));background:color-mix(in srgb, var(--long) 6%, var(--panel));}
+  .gq-why.ko{border-color:color-mix(in srgb, var(--short) 45%, var(--border-soft));background:color-mix(in srgb, var(--short) 5%, var(--panel));}
+  .gq-why b{font-size:17px;} .gq-why span{color:var(--text-dim);font-size:14px;line-height:1.55;}
+  .gq-why .pw-btn{flex:none;}
+  .gq-res{display:flex;flex-direction:column;gap:18px;max-width:760px;margin:0 auto;width:100%;}
+  .gq-res-top{display:flex;align-items:center;gap:22px;padding:26px 28px;border-radius:22px;border:1px solid var(--border-soft);background:radial-gradient(600px 240px at 0% 0%, color-mix(in srgb, var(--dd-a) 14%, transparent), transparent 70%), var(--panel);}
+  .gq-res-top h2{margin:0;font-size:56px;font-family:var(--mono);line-height:1;} .gq-res-top h2 small{font-size:22px;color:var(--text-faint);}
+  .gq-res-top div{display:flex;flex-direction:column;gap:4px;} .gq-res-top b{font-size:19px;} .gq-res-top span{color:var(--text-dim);font-size:14px;}
+  .gq-recap{display:flex;flex-direction:column;border-radius:16px;border:1px solid var(--border-soft);overflow:hidden;}
+  .gq-recap div{display:flex;align-items:center;gap:12px;padding:11px 16px;font-size:14px;background:var(--panel);}
+  .gq-recap div + div{border-top:1px solid var(--border-soft);}
+  .gq-recap i{flex:none;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:12px;}
+  .gq-recap .ok i{background:color-mix(in srgb, var(--long) 22%, transparent);color:var(--long);} .gq-recap .ko i{background:color-mix(in srgb, var(--short) 20%, transparent);color:var(--short);}
+  .gq-recap .ko span{color:var(--text-dim);}
+  .ch-end-act{display:flex;gap:10px;flex-wrap:wrap;}
+  @media (max-width:900px){ .gq-hero{grid-template-columns:1fr;} .gq-hero-art{display:none;} }
   @media (max-width:720px){
-    .gq-hero{padding:20px;} .gq-hero h1{font-size:25px;}
-    .gq-grid{gap:8px;} .gq-opt canvas{height:150px;}
-    .gq-q h2{font-size:18px;}
+    .gq{gap:18px;}
+    .gq-hero{padding:22px;} .gq-hero h1{font-size:27px;}
+    .gq-grid{gap:8px;} .gq-opt canvas{height:165px;} .gq-opt{border-radius:14px;}
+    .gq-q h2{font-size:19px;}
+    .gq-why{flex-direction:column;align-items:stretch;} 
+    .gq-dots{order:3;flex-basis:100%;}
+    .gq-meta{display:none;}
+    .gq-res-top{padding:20px;} .gq-res-top h2{font-size:42px;}
+    .gq-kpis{gap:6px;} .gq-kpis div{min-width:0;padding:10px;} .gq-kpis b{font-size:18px;} .gq-kpis span{font-size:11px;}
+    .gq-sec-h{flex-direction:column;gap:2px;}
+    .gq-themes{grid-template-columns:1fr 1fr;gap:8px;} .gq-th{padding:14px;} .gq-th small{display:none;} .gq-th b{font-size:14.5px;} .gq-th-ic{width:32px;height:32px;margin-bottom:2px;}
   }
   .dd-kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dd-a);}
   .dd-head h1{font-size:40px;letter-spacing:-.035em;line-height:1.05;margin:10px 0 10px;}
@@ -6391,7 +6435,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3110 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3120 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -26044,90 +26088,188 @@ function dailyDraw(cv, rd, opt){
 window.addEventListener("resize", ()=>dailyRedraw());
 /* ===================== JEUX · Quiz graphique (admins, en test) =====================
    Une question, quatre vrais graphiques (A, B, C, D) : choisis celui qui
-   correspond. La bonne réponse est calculée sur les données du graphique
-   lui-même (structure des swings, moyennes, RSI, figures, prises de
-   liquidité, chandeliers), jamais sur ce qui se passe ensuite. Les leurres
-   sont choisis nettement à l'opposé pour qu'il n'y ait pas d'ambiguïté.
+   correspond. La bonne réponse est calculée sur le graphique lui-même
+   (jamais sur la suite) et les leurres sont choisis NETTEMENT à l'opposé :
+   chaque type de question a un critère strict pour le bon graphique et un
+   critère strict, contraire, pour les trois autres (sinon la question
+   n'est pas posée). 5 thèmes, partie mixte ou par thème, 10 questions.
    Graphiques : mêmes sources que le Défi du jour (Binance, 15 min / 1 h /
-   4 h, 2021 → aujourd'hui), 120 bougies affichées. Séries de 10 questions,
-   record gardé sur l'appareil. Aucun appel Firebase. */
-const GQ_N = 10, GQ_SHOW = 120, GQ_BEST_KEY = "paperTapeChartQuizBest";
-const GQ = {view:"hub", charts:[], used:new Set(), loading:null, s:null};
-function gqBest(){ try{ return +(localStorage.getItem(GQ_BEST_KEY)||0) || 0; }catch(e){ return 0; } }
-// Caractéristiques d'un graphique (fenêtre visible uniquement).
+   4 h, 2021 → aujourd'hui), 120 bougies. Stats gardées sur l'appareil. */
+const GQ_N = 10, GQ_SHOW = 120, GQ_KEY = "paperTapeChartQuiz";
+const GQ = {view:"hub", theme:"mix", charts:[], used:new Set(), loading:null, s:null};
+const GQ_THEMES = [
+  {k:"structure", t:"Structure", d:"Tendance haussière, baissière ou range : lire les sommets et les creux.", ic:'<path d="M3 17l5-6 4 3 4-6 5 4"/><path d="M3 21h18"/>'},
+  {k:"tendance", t:"Tendance & moyennes", d:"EMA 50 / 200, croisements, prix face au VWAP.", ic:'<path d="M3 16c4-1 6-8 10-8s5 4 8 3"/><path d="M3 20c5 0 7-5 11-5s5 2 7 2"/>'},
+  {k:"momentum", t:"Momentum", d:"RSI en surachat / survente, divergences, MACD.", ic:'<path d="M3 12h3l3-7 4 14 3-7h5"/>'},
+  {k:"volume", t:"Volume & volatilité", d:"Explosion de volume, bandes de Bollinger qui se resserrent, value area.", ic:'<path d="M5 20V12M10 20V6M15 20v-9M20 20V9"/>'},
+  {k:"liquidite", t:"Liquidité & figures", d:"Prises de liquidité, sommets égaux, double sommet / creux.", ic:'<path d="M4 8h16M4 8l3 10h10l3-10"/><path d="M9 4l3 4 3-4"/>'},
+];
+function gqStats(){ let v = null; try{ v = JSON.parse(localStorage.getItem(GQ_KEY)||"null"); }catch(e){} return Object.assign({best:0, plays:0, th:{}}, v||{}); }
+function gqSaveStats(v){ try{ localStorage.setItem(GQ_KEY, JSON.stringify(v)); }catch(e){} }
+
+// ---------- Caractéristiques d'un graphique (fenêtre visible) ----------
 function gqFeatures(rd){
   const c = rd.c, ci = DAILY_WARM+DAILY_SHOW-1, a = ci-GQ_SHOW+1, atr = dailyAtr(c, ci+1, 14) || c[ci][4]*0.01;
-  const f = {rd, ci, a, atr};
-  f.T = dxSwingTrend(c, a, ci, 3);
-  const cl = c.map(k=>k[4]), from = c.pad||0;
-  f.e50 = dailyEma(c, 50, from); f.e200 = dailyEma(c, 200, from);
-  f.rsiArr = TA.rsi(cl, 14); f.rsi = f.rsiArr[ci];
-  const p = cl[ci], e50 = f.e50[ci], e200 = f.e200[ci], e50b = f.e50[ci-10];
-  f.emaUp = e50!=null && e200!=null && p>e200 && e50>e200 && e50>e50b;
-  f.emaDn = e50!=null && e200!=null && p<e200 && e50<e200 && e50<e50b;
-  try{ f.pat = dailyPA("pattern", c, ci, a); }catch(e){ f.pat = null; }
-  try{ f.liq = dailyLiqRead(c, ci, a); }catch(e){ f.liq = null; }
-  // Paires de sommets / creux proches (double sommet / creux « visuel », même non détecté).
-  const pv = dxPivots(c, a, ci, 3), near = (arr)=>{ for (let i=0;i<arr.length;i++) for (let j=i+1;j<arr.length;j++) if (arr[j].k-arr[i].k>=6 && Math.abs(arr[j].p-arr[i].p) < 0.6*atr) return true; return false; };
-  f.eqH = near(pv.filter(x=>x.hi)); f.eqL = near(pv.filter(x=>!x.hi));
-  // Avalement sur la dernière bougie / sur les 3 dernières.
-  const eng = (j, up)=>{ const [, o, , , cl1] = c[j], [, po, , , pc] = c[j-1]; return up ? (cl1>o && pc<po && o<=pc && cl1>=po && cl1-o >= 0.5*atr) : (cl1<o && pc>po && o>=pc && cl1<=po && o-cl1 >= 0.5*atr); };
-  f.engUp = eng(ci, true); f.engDn = eng(ci, false);
-  f.engAny = [ci, ci-1, ci-2].some(j=>eng(j, true) || eng(j, false));
+  const f = {rd, ci, a, atr}, cl = c.map(k=>k[4]), from = c.pad||0;
   let lo = Infinity, hi = -Infinity; for (let k=a;k<=ci;k++){ lo = Math.min(lo, c[k][3]); hi = Math.max(hi, c[k][2]); }
-  f.width = (hi-lo)/atr;
+  f.lo = lo; f.hi = hi; f.span = hi-lo; f.width = f.span/atr;
+  f.net = (cl[ci]-cl[a])/(f.span||1);
+  { // régression linéaire des clôtures : R² = « netteté » de la tendance
+    let n = 0, sx = 0, sy = 0, sxx = 0, sxy = 0, syy = 0;
+    for (let k=a;k<=ci;k++){ const xx = k-a, yy = cl[k]; n++; sx += xx; sy += yy; sxx += xx*xx; sxy += xx*yy; syy += yy*yy; }
+    const cov = sxy - sx*sy/n, vx = sxx - sx*sx/n, vy = syy - sy*sy/n;
+    f.r2 = vx>0 && vy>0 ? cov*cov/(vx*vy) : 0;
+  }
+  f.T = dxSwingTrend(c, a, ci, 3);
+  const pv = dxPivots(c, a, ci, 3); f.H = pv.filter(x=>x.hi); f.L = pv.filter(x=>!x.hi);
+  f.topTouch = f.H.filter(p=>p.p >= hi-0.2*f.span).length; f.botTouch = f.L.filter(p=>p.p <= lo+0.2*f.span).length;
+  f.e50 = dailyEma(c, 50, from); f.e200 = dailyEma(c, 200, from);
+  const all = (k0, fn)=>{ for (let k=k0;k<=ci;k++) if (!fn(k)) return false; return true; };
+  const okE = k=>f.e50[k]!=null && f.e200[k]!=null;
+  f.emaUp = okE(ci) && all(ci-29, k=>okE(k) && cl[k]>f.e200[k] && f.e50[k]>f.e200[k]) && f.e50[ci]>f.e50[ci-10] && f.e50[ci]-f.e200[ci] > 0.5*atr;
+  f.emaDn = okE(ci) && all(ci-29, k=>okE(k) && cl[k]<f.e200[k] && f.e50[k]<f.e200[k]) && f.e50[ci]<f.e50[ci-10] && f.e200[ci]-f.e50[ci] > 0.5*atr;
+  // Passage au-dessus de l'EMA 200 sur les 5 dernières bougies, dessous avant.
+  f.x200up = okE(ci) && all(ci-2, k=>cl[k]>f.e200[k]) && (()=>{ for (let k=ci-45;k<=ci-6;k++) if (!(f.e200[k]!=null && cl[k]<f.e200[k])) return false; return true; })();
+  f.x200dn = okE(ci) && all(ci-2, k=>cl[k]<f.e200[k]) && (()=>{ for (let k=ci-45;k<=ci-6;k++) if (!(f.e200[k]!=null && cl[k]>f.e200[k])) return false; return true; })();
+  f.no200x = okE(ci) && (all(ci-45, k=>f.e200[k]!=null && cl[k]>f.e200[k]) || all(ci-45, k=>f.e200[k]!=null && cl[k]<f.e200[k]));
+  f.vwap = dxAvwap(c, a, ci);
+  f.vwUp = cl[ci] > f.vwap[ci] + atr && all(ci-14, k=>cl[k]>f.vwap[k]);
+  f.vwDn = cl[ci] < f.vwap[ci] - atr && all(ci-14, k=>cl[k]<f.vwap[k]);
+  f.rsiArr = TA.rsi(cl, 14); f.rsi = f.rsiArr[ci];
+  // Divergences RSI : deux derniers sommets (creux) de la fenêtre, le 2e récent.
+  const div = (arr, hi)=>{
+    if (arr.length<2) return null; const p1 = arr[arr.length-2], p2 = arr[arr.length-1];
+    const r1 = f.rsiArr[p1.k], r2 = f.rsiArr[p2.k]; if (r1==null || r2==null || p2.k < ci-35 || p2.k-p1.k < 6) return null;
+    const pUp = p2.p > p1.p, rUp = r2 > r1;
+    if (hi && pUp && r2 < r1-4) return {kind:"div", p1, p2, r1, r2};
+    if (!hi && !pUp && r2 > r1+4) return {kind:"div", p1, p2, r1, r2};
+    if (pUp===rUp && Math.abs(r2-r1) > 4) return {kind:"conf", p1, p2, r1, r2};
+    return null;
+  };
+  f.dH = div(f.H, true); f.dL = div(f.L, false);
+  f.mac = TA.macd(cl, 12, 26, 9);
+  f.macUp = all(ci-9, k=>f.mac.line[k]!=null && f.mac.signal[k]!=null && f.mac.line[k]>f.mac.signal[k] && f.mac.line[k]>0);
+  f.macDn = all(ci-9, k=>f.mac.line[k]!=null && f.mac.signal[k]!=null && f.mac.line[k]<f.mac.signal[k] && f.mac.line[k]<0);
+  f.bb = TA.bb(cl, 20, 2);
+  { const bw = []; for (let k=a;k<=ci;k++){ const u = f.bb.up[k], l = f.bb.lo[k], m = f.bb.mid[k]; if (u!=null && m) bw.push((u-l)/m); }
+    const s = bw.slice().sort((x,y)=>x-y), med = s[Math.floor(s.length/2)] || 0, last = bw[bw.length-1] || 0;
+    f.squeeze = med>0 && last <= 0.45*med; f.noSqueeze = med>0 && last >= 1.0*med; }
+  { const v = []; for (let k=a;k<=ci-3;k++) v.push(c[k][5]); const s = v.sort((x,y)=>x-y), med = s[Math.floor(s.length/2)] || 0;
+    const l3 = (c[ci][5]+c[ci-1][5]+c[ci-2][5])/3; f.volX = med>0 ? l3/med : 0; }
+  f.P = dxProfile(c, a, ci, 36);
+  f.aboveVA = cl[ci] > f.P.vah + 0.3*atr;
+  f.belowVA = cl[ci] < f.P.val - 0.3*atr;
+  { const va = f.P.vah-f.P.val; f.insideVA = cl[ci] > f.P.val+0.2*va && cl[ci] < f.P.vah-0.2*va; }
+  // Prise de liquidité (sweep) dans les 8 dernières bougies, suivie d'un vrai mouvement inverse.
+  const maxH = (k0,k1)=>{ let m = -Infinity; for (let j=k0;j<=k1;j++) m = Math.max(m, c[j][2]); return m; };
+  const minL = (k0,k1)=>{ let m = Infinity; for (let j=k0;j<=k1;j++) m = Math.min(m, c[j][3]); return m; };
+  f.swH = null; f.swL = null;
+  for (let j=ci-1; j>=ci-8 && !f.swH; j--) for (let i=f.H.length-1;i>=0;i--){ const h = f.H[i]; if (h.k+3 > j-1) continue;
+    if (maxH(h.k+1, j-1) <= h.p && c[j][2] > h.p && c[j][4] < h.p && maxH(j+1, ci) <= c[j][2] && cl[ci] <= h.p - 0.8*atr){ f.swH = {j, h}; break; } }
+  for (let j=ci-1; j>=ci-8 && !f.swL; j--) for (let i=f.L.length-1;i>=0;i--){ const l = f.L[i]; if (l.k+3 > j-1) continue;
+    if (minL(l.k+1, j-1) >= l.p && c[j][3] < l.p && c[j][4] > l.p && minL(j+1, ci) >= c[j][3] && cl[ci] >= l.p + 0.8*atr){ f.swL = {j, l}; break; } }
+  f.noSweep = (()=>{ for (let j=ci-15;j<=ci;j++){ for (const h of f.H){ if (h.k+3<=j-1 && h.k<j && c[j][2]>h.p && c[j][4]<h.p) return false; } for (const l of f.L){ if (l.k+3<=j-1 && l.k<j && c[j][3]<l.p && c[j][4]>l.p) return false; } } return true; })();
+  // Sommets égaux intacts au-dessus du prix / creux égaux sous le prix.
+  const eqPair = (arr, isHi)=>{ for (let i=arr.length-1;i>0;i--) for (let j=i-1;j>=0;j--){ const p = arr[i], q = arr[j];
+    if (p.k-q.k < 6 || Math.abs(p.p-q.p) > 0.25*atr) continue; const lv = isHi ? Math.max(p.p,q.p) : Math.min(p.p,q.p);
+    const intact = isHi ? maxH(p.k+1, ci) <= lv : minL(p.k+1, ci) >= lv;
+    if (intact && (isHi ? lv > cl[ci] : lv < cl[ci]) && p.k >= ci-60) return {p, q, lv}; } return null; };
+  f.eqHi = eqPair(f.H, true); f.eqLo = eqPair(f.L, false);
+  const near = (arr)=>{ for (let i=0;i<arr.length;i++) for (let j=i+1;j<arr.length;j++) if (arr[j].k-arr[i].k>=6 && Math.abs(arr[j].p-arr[i].p) < 0.6*atr) return true; return false; };
+  f.nearH = near(f.H); f.nearL = near(f.L);
+  try{ f.pat = dailyPA("pattern", c, ci, a); }catch(e){ f.pat = null; }
   return f;
 }
 function gqAnnStruct(f){ const an = {lab:f.T.lab.filter(l=>l.k>=f.a), lev:[], marks:[], zones:[]}; if (f.T.inv) an.lev.push({p:f.T.inv.p, t:"Invalidation", col:f.T.trend==="up" ? "dn" : "up"}); if (f.T.bos && f.T.bos.k>=f.a) an.marks.push({k:f.T.bos.k, p:f.T.bos.p, t:"BOS", col:f.T.trend==="up" ? "up" : "dn"}); return an; }
+function gqAnnRange(f){ return {lab:[], lev:[{p:f.hi, t:"Haut du range", col:"faint"}, {p:f.lo, t:"Bas du range", col:"faint"}], marks:[], zones:[]}; }
+function gqAnnDiv(d, col){ return {lab:[], lev:[], zones:[], marks:[{k:d.p1.k, p:d.p1.p, t:"1", col}, {k:d.p2.k, p:d.p2.p, t:"2", col}], segs:[{k1:d.p1.k, p1:d.p1.p, k2:d.p2.k, p2:d.p2.p, col}], rsiSeg:{k1:d.p1.k, r1:d.r1, k2:d.p2.k, r2:d.r2, col}}; }
+const pct = v=>dxNum(v, 0);
 const GQ_QS = [
-  {k:"up", q:"Sur quel graphique la structure est-elle haussière ?", sub:"Sommets et creux de plus en plus hauts, le dernier sommet de swing cassé.",
-    pos:f=>f.T.trend==="up" && f.T.streak>=2, neg:f=>f.T.trend==="down", why:f=>dxSwingLine(f.T, "Ici"), an:gqAnnStruct},
-  {k:"down", q:"Sur quel graphique la structure est-elle baissière ?", sub:"Sommets et creux de plus en plus bas, le dernier creux de swing cassé.",
-    pos:f=>f.T.trend==="down" && f.T.streak>=2, neg:f=>f.T.trend==="up", why:f=>dxSwingLine(f.T, "Ici"), an:gqAnnStruct},
-  {k:"range", q:"Lequel est en range ?", sub:"Pas de tendance : le prix oscille entre deux bornes sans casser durablement.",
-    pos:f=>!f.T.trend && f.width < 14, neg:f=>!!f.T.trend && f.T.streak>=2 && f.width > 10, why:f=>"Ici, "+dxSwingLine(f.T, "").replace(/^ : /, ""), an:gqAnnStruct},
-  {k:"emaup", q:"Sur lequel la tendance de fond est-elle haussière d'après les moyennes mobiles ?", sub:"Prix au-dessus de l'EMA 200, EMA 50 au-dessus de l'EMA 200 et qui monte.", ov:{ema:true},
-    pos:f=>f.emaUp, neg:f=>f.emaDn, why:()=>"Prix au-dessus de l'EMA 200 (violet), EMA 50 (bleu) au-dessus de l'EMA 200 et orientée vers le haut : tendance de fond haussière."},
-  {k:"emadn", q:"Sur lequel la tendance de fond est-elle baissière d'après les moyennes mobiles ?", sub:"Prix sous l'EMA 200, EMA 50 sous l'EMA 200 et qui baisse.", ov:{ema:true},
-    pos:f=>f.emaDn, neg:f=>f.emaUp, why:()=>"Prix sous l'EMA 200 (violet), EMA 50 (bleu) sous l'EMA 200 et orientée vers le bas : tendance de fond baissière."},
-  {k:"rsiob", q:"Sur lequel le RSI 14 est-il en surachat à la dernière bougie ?", sub:"Surachat : RSI au-dessus de 70.", ov:{rsi:true},
-    pos:f=>f.rsi>=70, neg:f=>f.rsi!=null && f.rsi<58, why:f=>"RSI à "+dxNum(f.rsi, 0)+" sur la dernière bougie : au-dessus de 70, zone de surachat."},
-  {k:"rsios", q:"Sur lequel le RSI 14 est-il en survente à la dernière bougie ?", sub:"Survente : RSI sous 30.", ov:{rsi:true},
-    pos:f=>f.rsi!=null && f.rsi<=30, neg:f=>f.rsi!=null && f.rsi>42, why:f=>"RSI à "+dxNum(f.rsi, 0)+" sur la dernière bougie : sous 30, zone de survente."},
-  {k:"dtop", q:"Sur lequel vois-tu un double sommet ?", sub:"Deux sommets au même niveau, séparés par un creux (la ligne de cou).",
-    pos:f=>f.pat && /Double sommet/.test(f.pat.line), neg:f=>f.pat && !f.pat.bias && !f.eqH, why:f=>f.pat.line, an:f=>f.pat.annot},
-  {k:"dbot", q:"Sur lequel vois-tu un double creux ?", sub:"Deux creux au même niveau, séparés par un sommet (la ligne de cou).",
-    pos:f=>f.pat && /Double creux/.test(f.pat.line), neg:f=>f.pat && !f.pat.bias && !f.eqL, why:f=>f.pat.line, an:f=>f.pat.annot},
-  {k:"sweepl", show:70, q:"Sur lequel le prix vient-il de prendre la liquidité sous un creux, puis de remonter ?", sub:"Une mèche passe sous un creux encore intact, et la bougie clôture au-dessus (sweep).",
-    pos:f=>f.liq && /prise sous/.test(f.liq.line), neg:f=>f.liq && !/prise/.test(f.liq.line), why:f=>f.liq.line, an:f=>f.liq.annot},
-  {k:"sweeph", show:70, q:"Sur lequel le prix vient-il de prendre la liquidité au-dessus d'un sommet, puis de retomber ?", sub:"Une mèche passe au-dessus d'un sommet encore intact, et la bougie clôture dessous (sweep).",
-    pos:f=>f.liq && /prise au-dessus/.test(f.liq.line), neg:f=>f.liq && !/prise/.test(f.liq.line), why:f=>f.liq.line, an:f=>f.liq.annot},
-  {k:"engup", show:40, q:"Lequel se termine par un avalement haussier ?", sub:"Le corps vert de la dernière bougie englobe entièrement le corps rouge de la précédente.",
-    pos:f=>f.engUp, neg:f=>!f.engAny, why:()=>"La dernière bougie est verte et son corps englobe entièrement la bougie rouge précédente : avalement haussier.", an:f=>({lab:[], lev:[], marks:[{k:f.ci, p:f.rd.c[f.ci][3], t:"Englobante", col:"up"}], zones:[]})},
-  {k:"engdn", show:40, q:"Lequel se termine par un avalement baissier ?", sub:"Le corps rouge de la dernière bougie englobe entièrement le corps vert de la précédente.",
-    pos:f=>f.engDn, neg:f=>!f.engAny, why:()=>"La dernière bougie est rouge et son corps englobe entièrement la bougie verte précédente : avalement baissier.", an:f=>({lab:[], lev:[], marks:[{k:f.ci, p:f.rd.c[f.ci][2], t:"Englobante", col:"dn"}], zones:[]})},
+  // Structure
+  {th:"structure", k:"up", q:"Sur quel graphique la structure est-elle haussière ?", sub:"Sommets et creux de plus en plus hauts.",
+    pos:f=>f.T.trend==="up" && f.T.streak>=2 && f.r2>=0.45 && f.net>0.3, neg:f=>f.T.trend==="down" && f.net<-0.3 && f.r2>=0.35, why:f=>dxSwingLine(f.T, "Ici"), an:gqAnnStruct},
+  {th:"structure", k:"down", q:"Sur quel graphique la structure est-elle baissière ?", sub:"Sommets et creux de plus en plus bas.",
+    pos:f=>f.T.trend==="down" && f.T.streak>=2 && f.r2>=0.45 && f.net<-0.3, neg:f=>f.T.trend==="up" && f.net>0.3 && f.r2>=0.35, why:f=>dxSwingLine(f.T, "Ici"), an:gqAnnStruct},
+  {th:"structure", k:"range", q:"Lequel est en range ?", sub:"Le prix fait des allers-retours entre deux bornes, sans tendance.",
+    pos:f=>!f.T.trend && f.r2<=0.2 && Math.abs(f.net)<0.25 && f.topTouch>=2 && f.botTouch>=2,
+    neg:f=>!!f.T.trend && f.T.streak>=2 && f.r2>=0.65 && Math.abs(f.net)>=0.6,
+    why:f=>"Le prix touche plusieurs fois le haut ("+dxP(f.hi)+") et le bas ("+dxP(f.lo)+") de la zone, et finit à peu près où il a commencé : pas de tendance. Les trois autres graphiques sont en tendance nette.", an:gqAnnRange},
+  // Tendance & moyennes
+  {th:"tendance", k:"emaup", ov:{ema:true}, q:"Sur lequel la tendance de fond est-elle haussière d'après les moyennes mobiles ?", sub:"Prix au-dessus de l'EMA 200 (violet) et EMA 50 (bleu) au-dessus de l'EMA 200, depuis au moins 30 bougies.",
+    pos:f=>f.emaUp, neg:f=>f.emaDn, why:()=>"Depuis plus de 30 bougies, le prix et l'EMA 50 sont au-dessus de l'EMA 200, et l'EMA 50 monte : tendance de fond haussière. Les autres sont tous sous l'EMA 200."},
+  {th:"tendance", k:"emadn", ov:{ema:true}, q:"Sur lequel la tendance de fond est-elle baissière d'après les moyennes mobiles ?", sub:"Prix sous l'EMA 200 (violet) et EMA 50 (bleu) sous l'EMA 200, depuis au moins 30 bougies.",
+    pos:f=>f.emaDn, neg:f=>f.emaUp, why:()=>"Depuis plus de 30 bougies, le prix et l'EMA 50 sont sous l'EMA 200, et l'EMA 50 baisse : tendance de fond baissière. Les autres sont tous au-dessus de l'EMA 200."},
+  {th:"tendance", k:"x200up", ov:{ema200:true}, q:"Sur lequel le prix vient-il de repasser au-dessus de l'EMA 200 ?", sub:"Sous l'EMA 200 pendant longtemps, au-dessus sur les dernières bougies.",
+    pos:f=>f.x200up, neg:f=>f.no200x, why:()=>"Le prix était sous l'EMA 200 depuis plus de 40 bougies et clôture maintenant au-dessus : premier signe de changement de tendance de fond. Sur les autres, le prix reste du même côté de l'EMA 200.", an:f=>({lab:[], lev:[], zones:[], marks:[{k:f.ci, p:f.e200[f.ci], t:"Cassure", col:"up"}]})},
+  {th:"tendance", k:"x200dn", ov:{ema200:true}, q:"Sur lequel le prix vient-il de repasser sous l'EMA 200 ?", sub:"Au-dessus de l'EMA 200 pendant longtemps, dessous sur les dernières bougies.",
+    pos:f=>f.x200dn, neg:f=>f.no200x, why:()=>"Le prix était au-dessus de l'EMA 200 depuis plus de 40 bougies et clôture maintenant dessous. Sur les autres, le prix reste du même côté de l'EMA 200.", an:f=>({lab:[], lev:[], zones:[], marks:[{k:f.ci, p:f.e200[f.ci], t:"Cassure", col:"dn"}]})},
+  {th:"tendance", k:"vwup", ov:{vwap:true}, q:"Sur lequel le prix est-il au-dessus du VWAP ?", sub:"VWAP ancré au début du graphique (prix moyen pondéré par le volume, en orange).",
+    pos:f=>f.vwUp, neg:f=>f.vwDn, why:f=>"Le prix clôture "+dxNum((f.rd.c[f.ci][4]-f.vwap[f.ci])/f.atr, 1)+" ATR au-dessus du VWAP et y est depuis au moins 15 bougies : les acheteurs de la période sont en gain."},
+  {th:"tendance", k:"vwdn", ov:{vwap:true}, q:"Sur lequel le prix est-il sous le VWAP ?", sub:"VWAP ancré au début du graphique (prix moyen pondéré par le volume, en orange).",
+    pos:f=>f.vwDn, neg:f=>f.vwUp, why:f=>"Le prix clôture "+dxNum((f.vwap[f.ci]-f.rd.c[f.ci][4])/f.atr, 1)+" ATR sous le VWAP et y est depuis au moins 15 bougies : les acheteurs de la période sont en perte."},
+  // Momentum
+  {th:"momentum", k:"rsiob", ov:{rsi:true}, q:"Sur lequel le RSI est-il en surachat ?", sub:"RSI 14 au-dessus de 70 sur la dernière bougie.",
+    pos:f=>f.rsi>=72, neg:f=>f.rsi!=null && f.rsi<55, why:f=>"RSI à "+pct(f.rsi)+" sur la dernière bougie : au-dessus de 70, zone de surachat. Les autres sont sous 55."},
+  {th:"momentum", k:"rsios", ov:{rsi:true}, q:"Sur lequel le RSI est-il en survente ?", sub:"RSI 14 sous 30 sur la dernière bougie.",
+    pos:f=>f.rsi!=null && f.rsi<=28, neg:f=>f.rsi!=null && f.rsi>45, why:f=>"RSI à "+pct(f.rsi)+" sur la dernière bougie : sous 30, zone de survente. Les autres sont au-dessus de 45."},
+  {th:"momentum", k:"divbear", ov:{rsi:true}, q:"Sur lequel vois-tu une divergence baissière sur le RSI ?", sub:"Le prix fait un sommet plus haut, mais le RSI fait un sommet plus bas.",
+    pos:f=>f.dH && f.dH.kind==="div", neg:f=>f.dH && f.dH.kind==="conf" && !(f.dL && f.dL.kind==="div"),
+    why:f=>"Sommet 2 plus haut que le sommet 1 sur le prix, mais RSI plus bas ("+pct(f.dH.r1)+" → "+pct(f.dH.r2)+") : la hausse s'essouffle. Sur les autres, le RSI confirme le prix.", an:f=>gqAnnDiv(f.dH, "dn")},
+  {th:"momentum", k:"divbull", ov:{rsi:true}, q:"Sur lequel vois-tu une divergence haussière sur le RSI ?", sub:"Le prix fait un creux plus bas, mais le RSI fait un creux plus haut.",
+    pos:f=>f.dL && f.dL.kind==="div", neg:f=>f.dL && f.dL.kind==="conf" && !(f.dH && f.dH.kind==="div"),
+    why:f=>"Creux 2 plus bas que le creux 1 sur le prix, mais RSI plus haut ("+pct(f.dL.r1)+" → "+pct(f.dL.r2)+") : les vendeurs s'essoufflent. Sur les autres, le RSI confirme le prix.", an:f=>gqAnnDiv(f.dL, "up")},
+  {th:"momentum", k:"macdup", ov:{macd:true}, q:"Sur lequel le MACD est-il haussier ?", sub:"Ligne MACD au-dessus de sa ligne de signal ET au-dessus de zéro, sur les 10 dernières bougies.",
+    pos:f=>f.macUp, neg:f=>f.macDn, why:()=>"Sur les 10 dernières bougies, la ligne MACD reste au-dessus de son signal et de zéro : momentum haussier. Les autres sont sous leur signal et sous zéro."},
+  {th:"momentum", k:"macddn", ov:{macd:true}, q:"Sur lequel le MACD est-il baissier ?", sub:"Ligne MACD sous sa ligne de signal ET sous zéro, sur les 10 dernières bougies.",
+    pos:f=>f.macDn, neg:f=>f.macUp, why:()=>"Sur les 10 dernières bougies, la ligne MACD reste sous son signal et sous zéro : momentum baissier. Les autres sont au-dessus de leur signal et de zéro."},
+  // Volume & volatilité
+  {th:"volume", k:"volx", ov:{vol:true}, q:"Sur lequel le volume explose-t-il sur les dernières bougies ?", sub:"Volume des 3 dernières bougies bien au-dessus de la normale du graphique.",
+    pos:f=>f.volX>=3, neg:f=>f.volX>0 && f.volX<=1.1, why:f=>"Les 3 dernières bougies ont un volume moyen "+dxNum(f.volX, 1)+" fois supérieur à la normale du graphique : un gros intervenant ou une nouvelle. Ailleurs, le volume est normal."},
+  {th:"volume", k:"squeeze", ov:{bb:true}, q:"Sur lequel les bandes de Bollinger se resserrent-elles fortement ?", sub:"Volatilité qui se contracte : souvent avant un gros mouvement.",
+    pos:f=>f.squeeze, neg:f=>f.noSqueeze, why:()=>"L'écart entre les bandes est aujourd'hui moins de la moitié de son écart habituel sur le graphique : la volatilité se contracte (squeeze). Ailleurs, les bandes sont au moins aussi larges que d'habitude."},
+  {th:"volume", k:"vaup", ov:{vp:true}, q:"Sur lequel le prix clôture-t-il au-dessus de la value area ?", sub:"Value area : la zone où 70 % du volume du graphique s'est échangé (entre VAL et VAH).",
+    pos:f=>f.aboveVA, neg:f=>f.insideVA, why:f=>"Clôture à "+dxP(f.rd.c[f.ci][4])+", au-dessus de la VAH ("+dxP(f.P.vah)+") : le marché sort de sa zone de valeur, vers le haut. Les autres clôturent à l'intérieur."},
+  {th:"volume", k:"vadn", ov:{vp:true}, q:"Sur lequel le prix clôture-t-il sous la value area ?", sub:"Value area : la zone où 70 % du volume du graphique s'est échangé (entre VAL et VAH).",
+    pos:f=>f.belowVA, neg:f=>f.insideVA, why:f=>"Clôture à "+dxP(f.rd.c[f.ci][4])+", sous la VAL ("+dxP(f.P.val)+") : le marché sort de sa zone de valeur, vers le bas. Les autres clôturent à l'intérieur."},
+  // Liquidité & figures
+  {th:"liquidite", k:"sweeph", show:80, q:"Sur lequel le prix a-t-il pris la liquidité au-dessus d'un sommet, puis chuté ?", sub:"Une mèche dépasse un sommet encore intact, clôture dessous, et le prix redescend nettement.",
+    pos:f=>!!f.swH, neg:f=>f.noSweep, why:f=>"La mèche est passée au-dessus du sommet à "+dxP(f.swH.h.p)+" (stops des vendeurs déclenchés), la bougie a clôturé dessous et le prix a ensuite perdu "+dxNum((f.swH.h.p-f.rd.c[f.ci][4])/f.atr, 1)+" ATR : piège acheteur.",
+    an:f=>({lab:[], zones:[], lev:[{p:f.swH.h.p, t:"Liquidité", col:"gold"}], marks:[{k:f.swH.j, p:f.rd.c[f.swH.j][2], t:"Sweep", col:"dn"}]})},
+  {th:"liquidite", k:"sweepl", show:80, q:"Sur lequel le prix a-t-il pris la liquidité sous un creux, puis rebondi ?", sub:"Une mèche passe sous un creux encore intact, clôture au-dessus, et le prix remonte nettement.",
+    pos:f=>!!f.swL, neg:f=>f.noSweep, why:f=>"La mèche est passée sous le creux à "+dxP(f.swL.l.p)+" (stops des acheteurs déclenchés), la bougie a clôturé au-dessus et le prix a ensuite repris "+dxNum((f.rd.c[f.ci][4]-f.swL.l.p)/f.atr, 1)+" ATR : piège vendeur.",
+    an:f=>({lab:[], zones:[], lev:[{p:f.swL.l.p, t:"Liquidité", col:"gold"}], marks:[{k:f.swL.j, p:f.rd.c[f.swL.j][3], t:"Sweep", col:"up"}]})},
+  {th:"liquidite", k:"eqh", q:"Sur lequel des sommets égaux attendent-ils au-dessus du prix ?", sub:"Deux sommets au même niveau, pas encore dépassés : des stops dorment juste au-dessus.",
+    pos:f=>!!f.eqHi, neg:f=>!f.nearH, why:f=>"Deux sommets à "+dxP(f.eqHi.lv)+", jamais dépassés depuis : la liquidité (stops des vendeurs) est juste au-dessus, le prix va souvent la chercher.",
+    an:f=>({lab:[], zones:[], lev:[{p:f.eqHi.lv, t:"Sommets égaux", col:"gold"}], marks:[{k:f.eqHi.q.k, p:f.eqHi.q.p, t:"1", col:"gold"}, {k:f.eqHi.p.k, p:f.eqHi.p.p, t:"2", col:"gold"}]})},
+  {th:"liquidite", k:"eql", q:"Sur lequel des creux égaux attendent-ils sous le prix ?", sub:"Deux creux au même niveau, pas encore cassés : des stops dorment juste en dessous.",
+    pos:f=>!!f.eqLo, neg:f=>!f.nearL, why:f=>"Deux creux à "+dxP(f.eqLo.lv)+", jamais cassés depuis : la liquidité (stops des acheteurs) est juste en dessous, le prix va souvent la chercher.",
+    an:f=>({lab:[], zones:[], lev:[{p:f.eqLo.lv, t:"Creux égaux", col:"gold"}], marks:[{k:f.eqLo.q.k, p:f.eqLo.q.p, t:"1", col:"gold"}, {k:f.eqLo.p.k, p:f.eqLo.p.p, t:"2", col:"gold"}]})},
+  {th:"liquidite", k:"dtop", q:"Sur lequel vois-tu un double sommet ?", sub:"Deux sommets au même niveau, séparés par un creux (la ligne de cou).",
+    pos:f=>f.pat && /Double sommet/.test(f.pat.line), neg:f=>f.pat && !f.pat.bias && !f.nearH, why:f=>f.pat.line, an:f=>f.pat.annot},
+  {th:"liquidite", k:"dbot", q:"Sur lequel vois-tu un double creux ?", sub:"Deux creux au même niveau, séparés par un sommet (la ligne de cou).",
+    pos:f=>f.pat && /Double creux/.test(f.pat.line), neg:f=>f.pat && !f.pat.bias && !f.nearL, why:f=>f.pat.line, an:f=>f.pat.annot},
 ];
 async function gqFetch(n){
   if (GQ.loading) return GQ.loading;
   GQ.loading = (async ()=>{
-    const cands = dailyPlan(dailyDayKey(), "gq|"+Date.now()+"|"+Math.random().toString(36).slice(2,7), n||24);
+    const cands = dailyPlan(dailyDayKey(), "gq|"+Date.now()+"|"+Math.random().toString(36).slice(2,7), n||30);
     const res = await Promise.allSettled(cands.map(rd=>dailyFetchRound(rd).then(c=>Object.assign({}, rd, {c}))));
-    res.forEach(x=>{ if (x.status==="fulfilled"){ try{ GQ.charts.push(gqFeatures(x.value)); }catch(e){} } });
+    res.forEach(x=>{ if (x.status==="fulfilled"){ try{ GQ.charts.push(gqFeatures(x.value)); }catch(e){ console.warn("gq", e); } } });
     GQ.loading = null;
   })();
   return GQ.loading;
 }
-// Une question possible avec les graphiques pas encore utilisés (types variés).
-function gqBuild(avoid){
+function gqShuffle(arr){ for (let i=arr.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+function gqBuild(theme, avoid){
   const free = GQ.charts.filter(f=>!GQ.used.has(f));
-  const shuffle = arr=>{ for (let i=arr.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; };
-  const types = shuffle(GQ_QS.slice()).sort((x, y)=>(avoid.includes(x.k)?1:0)-(avoid.includes(y.k)?1:0));
+  const types = gqShuffle(GQ_QS.filter(Q=>theme==="mix" || Q.th===theme)).sort((x, y)=>(avoid.includes(x.k)?1:0)-(avoid.includes(y.k)?1:0));
+  const t = (fn, f)=>{ try{ return !!fn(f); }catch(e){ return false; } };
   for (const Q of types){
-    const pos = shuffle(free.filter(f=>{ try{ return Q.pos(f); }catch(e){ return false; } }));
+    const pos = gqShuffle(free.filter(f=>t(Q.pos, f)));
     if (!pos.length) continue;
-    const neg = shuffle(free.filter(f=>f!==pos[0] && (()=>{ try{ return Q.neg(f) && !Q.pos(f); }catch(e){ return false; } })()));
+    const neg = gqShuffle(free.filter(f=>f!==pos[0] && t(Q.neg, f) && !t(Q.pos, f)));
     if (neg.length < 3) continue;
-    const opts = shuffle([pos[0], neg[0], neg[1], neg[2]]);
+    const opts = gqShuffle([pos[0], neg[0], neg[1], neg[2]]);
     opts.forEach(f=>GQ.used.add(f));
     return {Q, opts, ans:opts.indexOf(pos[0]), pick:null};
   }
@@ -26136,18 +26278,18 @@ function gqBuild(avoid){
 async function gqNextQuestion(){
   const S = GQ.s; if (!S) return;
   S.cur = null;
-  for (let tries=0; tries<4 && !S.cur; tries++){
-    S.cur = gqBuild(S.done.map(d=>d.Q.k).slice(-4));
-    if (!S.cur){ gqRender("loading"); await gqFetch(24); }
+  for (let tries=0; tries<5 && !S.cur; tries++){
+    S.cur = gqBuild(S.theme, S.done.map(d=>d.Q.k).slice(-3));
+    if (!S.cur){ gqRender("loading"); await gqFetch(30); }
   }
   if (!S.cur){ gqRender("error"); return; }
   gqRender();
-  if (GQ.charts.filter(f=>!GQ.used.has(f)).length < 16) gqFetch(24).catch(()=>{}); // la suite se prépare en fond
+  if (GQ.charts.filter(f=>!GQ.used.has(f)).length < 24) gqFetch(30).catch(()=>{}); // la suite se prépare en fond
 }
-async function gqStart(){
-  GQ.s = {i:0, score:0, done:[], cur:null};
+async function gqStart(theme){
+  GQ.s = {theme:theme||"mix", i:0, score:0, done:[], cur:null};
   GQ.view = "quiz";
-  if (GQ.charts.filter(f=>!GQ.used.has(f)).length < 16){ gqRender("loading"); await gqFetch(24); }
+  if (GQ.charts.filter(f=>!GQ.used.has(f)).length < 24){ gqRender("loading"); await gqFetch(30); }
   gqNextQuestion();
 }
 function gqAnswer(i){
@@ -26155,12 +26297,13 @@ function gqAnswer(i){
   S.cur.pick = i;
   const ok = i===S.cur.ans; if (ok) S.score++;
   S.done.push(S.cur);
+  const st = gqStats(), th = S.cur.Q.th; st.th[th] = st.th[th] || {ok:0, n:0}; st.th[th].n++; if (ok) st.th[th].ok++; gqSaveStats(st);
   gqRender();
 }
 function gqNext(){
   const S = GQ.s; if (!S) return;
   S.i++;
-  if (S.i >= GQ_N){ if (S.score > gqBest()){ try{ localStorage.setItem(GQ_BEST_KEY, String(S.score)); }catch(e){} S.record = true; } GQ.view = "result"; gqRender(); return; }
+  if (S.i >= GQ_N){ const st = gqStats(); st.plays++; if (S.score > st.best){ st.best = S.score; S.record = true; } gqSaveStats(st); GQ.view = "result"; gqRender(); return; }
   gqNextQuestion();
 }
 
@@ -26178,51 +26321,74 @@ function gqOnClick(e){
   const o = e.target.closest("[data-gq-opt]"); if (o){ gqAnswer(+o.dataset.gqOpt); return; }
   const b = e.target.closest("[data-gq]"); if (!b) return;
   const a = b.dataset.gq;
-  if (a==="start") gqStart();
+  if (a==="start") gqStart(b.dataset.theme || "mix");
   else if (a==="next") gqNext();
-  else if (a==="hub"){ GQ.view = "hub"; GQ.s = null; gqRender(); }
+  else if (a==="hub"){ GQ.view = "hub"; GQ.s = null; gqRender(); window.scrollTo({top:0, behavior:"smooth"}); }
+}
+function gqIcon(p){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>'; }
+function gqThemeName(k){ return k==="mix" ? "Partie mixte" : (GQ_THEMES.find(t=>t.k===k)||{}).t || ""; }
+function gqHubHtml(){
+  const st = gqStats();
+  const totOk = Object.values(st.th).reduce((s,x)=>s+x.ok, 0), totN = Object.values(st.th).reduce((s,x)=>s+x.n, 0);
+  const prev = gqIcon('<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/>');
+  return '<section class="gq-hero">'+
+      '<div class="gq-hero-l"><span class="dd-kicker">Jeux · Quiz graphique</span><h1>Une question.<br><span>Quatre vrais graphiques.</span></h1>'+
+        '<p>Trouve celui qui correspond : structure, moyennes mobiles, RSI, MACD, volume, value area, liquidité, figures. Tout se lit sur le graphique, rien ne dépend de la suite.</p>'+
+        '<div class="gq-hero-cta"><button type="button" class="pw-btn pw-btn-trial" data-gq="start" data-theme="mix">Partie mixte · '+GQ_N+' questions →</button></div>'+
+        '<div class="gq-kpis"><div><b>'+st.best+'<small> / '+GQ_N+'</small></b><span>record</span></div><div><b>'+st.plays+'</b><span>parties</span></div><div><b>'+(totN ? Math.round(totOk/totN*100)+" %" : "—")+'</b><span>de bonnes réponses</span></div></div></div>'+
+      '<div class="gq-hero-art" aria-hidden="true">'+gqHeroArt()+'</div>'+
+    '</section>'+
+    '<section><div class="gq-sec-h"><h2>S\'entraîner par thème</h2><span>'+GQ_QS.length+' types de questions</span></div>'+
+    '<div class="gq-themes">'+GQ_THEMES.map(t=>{ const s = st.th[t.k], n = GQ_QS.filter(Q=>Q.th===t.k).length;
+      return '<button type="button" class="gq-th" data-gq="start" data-theme="'+t.k+'"><span class="gq-th-ic">'+gqIcon(t.ic)+'</span><b>'+t.t+'</b><small>'+t.d+'</small>'+
+        '<em>'+n+' questions types'+(s && s.n ? ' · '+Math.round(s.ok/s.n*100)+' % réussi' : '')+'</em>'+(s && s.n ? '<u><i style="width:'+Math.round(s.ok/s.n*100)+'%"></i></u>' : '')+'</button>'; }).join("")+'</div></section>';
+}
+// Illustration : quatre mini graphiques, l'un entouré.
+function gqHeroArt(){
+  const r = dailyRng("gq-art"), mini = (x0, y0, w, h, drift, on)=>{
+    let p = 0, pts = []; for (let i=0;i<22;i++){ p += (r()-0.5+drift)*1.6; pts.push(p); }
+    const lo = Math.min(...pts), hi = Math.max(...pts), y = v=>y0+h-8-(v-lo)/((hi-lo)||1)*(h-24);
+    let s = '<rect x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+h+'" rx="12" class="'+(on ? "gq-a-on" : "gq-a-box")+'"/>';
+    pts.forEach((v,i)=>{ if (!i) return; const cx = x0+10+i*(w-20)/22, up = v>=pts[i-1]; s += '<rect x="'+(cx-2.2).toFixed(1)+'" y="'+Math.min(y(v), y(pts[i-1])).toFixed(1)+'" width="4.4" height="'+Math.max(2, Math.abs(y(v)-y(pts[i-1]))).toFixed(1)+'" rx="1" class="'+(up ? "a-up" : "a-dn")+'"/>'; });
+    return s;
+  };
+  return '<svg viewBox="0 0 320 240" class="gq-art">'+mini(4,4,152,112,0.25,true)+mini(164,4,152,112,-0.2)+mini(4,124,152,112,0)+mini(164,124,152,112,-0.05)+
+    '<g class="gq-a-tag"><rect x="10" y="10" width="22" height="22" rx="7"/><text x="21" y="25.5" text-anchor="middle">A</text></g></svg>';
 }
 function gqRender(st){
   const el = document.getElementById("gq"); if (!el) return;
-  if (GQ.view==="hub"){
-    const best = gqBest();
-    el.innerHTML =
-      '<section class="gq-hero"><div><span class="dd-kicker">Jeux · en test (admins)</span><h1>Quiz graphique</h1>'+
-        '<p>Une question, quatre vrais graphiques. Choisis celui qui correspond : structure, moyennes mobiles, RSI, figures, prises de liquidité, chandeliers. '+GQ_N+' questions par partie.</p>'+
-        '<button type="button" class="pw-btn pw-btn-trial" data-gq="start">Lancer une partie →</button></div>'+
-        '<div class="gq-best"><b>'+best+' / '+GQ_N+'</b><span>ton record</span></div></section>';
-    return;
-  }
+  if (GQ.view==="hub"){ el.innerHTML = gqHubHtml(); return; }
   if (GQ.view==="result"){
-    const S = GQ.s;
-    el.innerHTML = '<div class="dd-card gq-res"><span class="dd-kicker">Partie terminée</span><h2>'+S.score+' / '+GQ_N+'</h2><p>'+(S.record ? "Nouveau record 🏆" : "Record : "+gqBest()+" / "+GQ_N)+'</p>'+
-      '<div class="gq-recap">'+S.done.map((d,i)=>'<span class="'+(d.pick===d.ans ? "ok" : "ko")+'" title="'+escapeHtml(d.Q.q)+'">'+(i+1)+'</span>').join("")+'</div>'+
-      '<div class="ch-end-act"><button type="button" class="pw-btn pw-btn-trial" data-gq="start">Rejouer</button><button type="button" class="pw-btn pw-btn-ghost" data-gq="hub">Retour</button></div></div>';
+    const S = GQ.s, best = gqStats().best, msg = S.score>=9 ? "Œil de trader." : S.score>=7 ? "Très bonne lecture." : S.score>=5 ? "Pas mal, continue." : "Le graphique a encore des secrets pour toi.";
+    el.innerHTML = '<div class="gq-res"><span class="dd-kicker">'+escapeHtml(gqThemeName(S.theme))+' · partie terminée</span>'+
+      '<div class="gq-res-top"><h2>'+S.score+'<small> / '+GQ_N+'</small></h2><div><b>'+msg+'</b><span>'+(S.record ? "Nouveau record 🏆" : "Record : "+best+" / "+GQ_N)+'</span></div></div>'+
+      '<div class="gq-recap">'+S.done.map((d,i)=>'<div class="'+(d.pick===d.ans ? "ok" : "ko")+'"><i>'+(d.pick===d.ans ? "✓" : "✕")+'</i><span>'+escapeHtml(d.Q.q)+'</span></div>').join("")+'</div>'+
+      '<div class="ch-end-act"><button type="button" class="pw-btn pw-btn-trial" data-gq="start" data-theme="'+S.theme+'">Rejouer</button><button type="button" class="pw-btn pw-btn-ghost" data-gq="hub">Choisir un thème</button></div></div>';
     return;
   }
   const S = GQ.s;
   if (st==="loading" || !S || !S.cur){
-    el.innerHTML = st==="error" ? '<div class="dd-card dd-empty"><b>Graphiques indisponibles</b><p>Impossible de joindre l\'historique Binance. Réessaie dans un instant.</p><button class="btn-primary" data-gq="start">Réessayer</button></div>'
-      : '<div class="dd-card dd-empty">Préparation des graphiques…</div>';
+    el.innerHTML = st==="error" ? '<div class="dd-card dd-empty"><b>Graphiques indisponibles</b><p>Impossible de joindre l\'historique Binance, ou pas assez de graphiques nets pour ce thème. Réessaie dans un instant.</p><button class="btn-primary" data-gq="start" data-theme="'+(S ? S.theme : "mix")+'">Réessayer</button> <button class="btn-secondary" data-gq="hub">Retour</button></div>'
+      : '<div class="gq-load"><div class="rp-spin"></div><b>Recherche de graphiques nets…</b><span>On écarte ceux qui prêtent à confusion.</span></div>';
     return;
   }
-  const C = S.cur, Q = C.Q, done = C.pick!=null, L = ["A","B","C","D"];
-  const okF = C.opts[C.ans];
+  const C = S.cur, Q = C.Q, done = C.pick!=null, L = ["A","B","C","D"], okF = C.opts[C.ans];
+  const dots = Array.from({length:GQ_N}, (_,i)=>{ const d = S.done[i]; return '<i class="'+(d ? (d.pick===d.ans ? "ok" : "ko") : i===S.i ? "cur" : "")+'"></i>'; }).join("");
   el.innerHTML =
-    '<div class="dd-card gq-play">'+
-      '<div class="gm-game-top"><button type="button" class="kn-quiz-quit" data-gq="hub">← Quitter</button><b>Question '+(S.i+1)+' / '+GQ_N+'</b><span class="num">'+S.score+' pt'+(S.score>1?"s":"")+'</span></div>'+
-      '<div class="gq-q"><h2>'+escapeHtml(Q.q)+'</h2><p>'+escapeHtml(Q.sub)+'</p></div>'+
+    '<div class="gq-play">'+
+      '<div class="gq-top"><button type="button" class="kn-quiz-quit" data-gq="hub">← Quitter</button><span class="gq-chip">'+escapeHtml((GQ_THEMES.find(t=>t.k===Q.th)||{}).t||"")+'</span><div class="gq-dots">'+dots+'</div><span class="gq-score num">'+S.score+' / '+GQ_N+'</span></div>'+
+      '<div class="gq-q"><span class="gq-num">Question '+(S.i+1)+'</span><h2>'+escapeHtml(Q.q)+'</h2><p>'+escapeHtml(Q.sub)+'</p></div>'+
       '<div class="gq-grid">'+C.opts.map((f,i)=>{
         const cls = !done ? "" : i===C.ans ? " ok" : i===C.pick ? " ko" : " dim";
         return '<button type="button" class="gq-opt'+cls+'" data-gq-opt="'+i+'"'+(done ? " disabled" : "")+'><span class="gq-l">'+L[i]+'</span><canvas id="gq-cv-'+i+'"></canvas>'+
           (done ? '<span class="gq-meta">'+escapeHtml(f.rd.name)+' · '+f.rd.ivLabel+'</span>' : '')+'</button>';
       }).join("")+'</div>'+
-      (done ? '<div class="gq-why '+(C.pick===C.ans ? "ok" : "ko")+'"><b>'+(C.pick===C.ans ? "Bien vu !" : "Raté : c'était le graphique "+L[C.ans]+".")+'</b><span>'+escapeHtml((Q.why(okF)||"").replace(/^ici : /i, "Ici : "))+'</span>'+
+      (done ? '<div class="gq-why '+(C.pick===C.ans ? "ok" : "ko")+'"><div><b>'+(C.pick===C.ans ? "Bien vu !" : "Raté : c'était le graphique "+L[C.ans]+".")+'</b><span>'+escapeHtml(Q.why(okF)||"")+'</span></div>'+
         '<button type="button" class="pw-btn pw-btn-trial" data-gq="next">'+(S.i+1>=GQ_N ? "Voir mon score" : "Question suivante →")+'</button></div>' : '')+
     '</div>';
   C.opts.forEach((f,i)=>gqDraw(document.getElementById("gq-cv-"+i), f, Q.ov||{}, done && i===C.ans && Q.an ? Q.an(f) : null, Q.show));
 }
-// Mini graphique : 120 bougies, sans prix ni date ; EMA / RSI selon la question.
+// Mini graphique sans prix ni date ; indicateurs selon la question.
 function gqDraw(cv, f, ov, annot, show){
   if (!cv) return;
   const dpr = Math.min(2, window.devicePixelRatio||1), W = cv.clientWidth || 300, H = cv.clientHeight || 180;
@@ -26230,32 +26396,64 @@ function gqDraw(cv, f, ov, annot, show){
   const x = cv.getContext("2d"); x.setTransform(dpr,0,0,dpr,0,0); x.clearRect(0,0,W,H);
   const css = getComputedStyle(document.documentElement), v = (k,d)=>(css.getPropertyValue(k)||"").trim()||d;
   const up = v("--long","#31c882"), dn = v("--short","#f0546a"), faint = v("--text-faint","#8a8072"), gold = v("--dd-a","#d7b563"), text = v("--text","#fff"), border = v("--border","#3a352b"), mono = v("--mono","monospace");
-  const c = f.rd.c, ci = f.ci, a = show ? Math.max(f.a, ci-show+1) : f.a, n = ci-a+1; // moins de bougies quand le détail se joue à la fin
-  const paneH = ov.rsi ? Math.round(H*0.26) : 0, padL = 4, padR = 4, padT = 8, padB = 6 + paneH;
+  const c = f.rd.c, ci = f.ci, a = show ? Math.max(f.a, ci-show+1) : f.a, n = ci-a+1;
+  const pane = ov.rsi || ov.macd ? Math.round(H*0.27) : 0, volH = ov.vol ? Math.round(H*0.22) : 0;
+  const padL = ov.vp ? Math.round(W*0.16) : 6, padR = 30, padT = 34, padB = 8 + pane + volH;
   let lo = Infinity, hi = -Infinity;
-  for (let k=a;k<=ci;k++){ lo = Math.min(lo, c[k][3]); hi = Math.max(hi, c[k][2]); if (ov.ema){ [f.e50[k], f.e200[k]].forEach(e=>{ if (e!=null){ lo = Math.min(lo, e); hi = Math.max(hi, e); } }); } }
-  if (annot) (annot.lev||[]).forEach(l=>{ lo = Math.min(lo, l.p); hi = Math.max(hi, l.p); });
-  const pad = (hi-lo)*0.06; lo -= pad; hi += pad;
+  const inc = p=>{ if (p!=null && isFinite(p)){ lo = Math.min(lo, p); hi = Math.max(hi, p); } };
+  for (let k=a;k<=ci;k++){ inc(c[k][3]); inc(c[k][2]); if (ov.ema){ inc(f.e50[k]); inc(f.e200[k]); } if (ov.ema200) inc(f.e200[k]); if (ov.vwap) inc(f.vwap[k]); if (ov.bb){ inc(f.bb.up[k]); inc(f.bb.lo[k]); } }
+  if (annot) (annot.lev||[]).forEach(l=>inc(l.p));
+  const pad = (hi-lo)*0.05; lo -= pad; hi += pad;
   const priceH = H-padT-padB, slot = (W-padL-padR)/n, X = k=>padL + (k-a)*slot + slot/2, y = p=>padT + (hi-p)/(hi-lo)*priceH;
+  const line = (arr, col, w, dash)=>{ x.strokeStyle = col; x.lineWidth = w||1.6; x.setLineDash(dash||[]); x.beginPath(); let on = false; for (let k=a;k<=ci;k++){ const e = arr[k]; if (e==null) continue; if (!on){ x.moveTo(X(k), y(e)); on = true; } else x.lineTo(X(k), y(e)); } x.stroke(); x.setLineDash([]); x.lineWidth = 1; };
+  if (ov.bb){ x.fillStyle = TA_COLORS.bb; x.globalAlpha = .08; x.beginPath(); for (let k=a;k<=ci;k++){ const u = f.bb.up[k]; if (u!=null) (k===a ? x.moveTo(X(k), y(u)) : x.lineTo(X(k), y(u))); } for (let k=ci;k>=a;k--){ const l = f.bb.lo[k]; if (l!=null) x.lineTo(X(k), y(l)); } x.closePath(); x.fill(); x.globalAlpha = 1; }
+  if (ov.vp){
+    const P = f.P, mx = Math.max(...P.v) || 1, wMax = padL-8;
+    for (let i=0;i<P.bins;i++){ const y0 = y(P.lo+(i+1)*P.step), y1 = y(P.lo+i*P.step), inVa = P.lo+i*P.step >= P.val-1e-12 && P.lo+(i+1)*P.step <= P.vah+1e-12;
+      x.fillStyle = inVa ? gold : faint; x.globalAlpha = inVa ? .55 : .25; x.fillRect(2, y0, P.v[i]/mx*wMax, Math.max(1, y1-y0-1)); }
+    x.globalAlpha = 1;
+    [[P.vah, "VAH"], [P.poc, "POC"], [P.val, "VAL"]].forEach(([p, t])=>{ const yy = Math.round(y(p))+.5; x.strokeStyle = t==="POC" ? gold : faint; x.setLineDash([4,4]); x.beginPath(); x.moveTo(2, yy); x.lineTo(W-padR, yy); x.stroke(); x.setLineDash([]);
+      x.fillStyle = t==="POC" ? gold : faint; x.font = "700 9px "+mono; x.textAlign = "right"; x.fillText(t, W-3, yy+3); x.textAlign = "left"; });
+  }
   for (let k=a;k<=ci;k++){
     const [, o, h, l, cl] = c[k], col = cl>=o ? up : dn, bw = Math.max(1, slot*0.62), cx = X(k);
     x.strokeStyle = col; x.fillStyle = col;
     x.beginPath(); x.moveTo(Math.round(cx)+.5, y(h)); x.lineTo(Math.round(cx)+.5, y(l)); x.stroke();
     const t = y(Math.max(o,cl)), b = y(Math.min(o,cl)); x.fillRect(cx-bw/2, t, bw, Math.max(1, b-t));
   }
-  if (ov.ema){
-    [[f.e50, "#4f8dff"], [f.e200, "#c77dff"]].forEach(([arr, col])=>{ x.strokeStyle = col; x.lineWidth = 1.6; x.beginPath(); let on = false; for (let k=a;k<=ci;k++){ const e = arr[k]; if (e==null) continue; if (!on){ x.moveTo(X(k), y(e)); on = true; } else x.lineTo(X(k), y(e)); } x.stroke(); x.lineWidth = 1; });
+  if (ov.ema){ line(f.e50, "#4f8dff"); line(f.e200, "#c77dff"); }
+  if (ov.ema200) line(f.e200, "#c77dff", 1.8);
+  if (ov.vwap) line(f.vwap, TA_COLORS.vwap, 1.8);
+  if (ov.bb){ line(f.bb.up, TA_COLORS.bb, 1.1); line(f.bb.lo, TA_COLORS.bb, 1.1); line(f.bb.mid, TA_COLORS.bb, 1, [3,3]); }
+  if (ov.vol){
+    let mv = 0; for (let k=a;k<=ci;k++) mv = Math.max(mv, c[k][5]);
+    const vb = H-8-pane;
+    for (let k=a;k<=ci;k++){ const hh = mv ? c[k][5]/mv*(volH-6) : 0; x.fillStyle = c[k][4]>=c[k][1] ? up : dn; x.globalAlpha = .5; x.fillRect(X(k)-Math.max(1, slot*0.62)/2, vb-hh, Math.max(1, slot*0.62), hh); }
+    x.globalAlpha = 1;
   }
-  if (ov.rsi){
-    const top = H-paneH+4, bot = H-4, yr = r=>top + (1-r/100)*(bot-top);
-    x.strokeStyle = border; x.beginPath(); x.moveTo(padL, top-2+.5); x.lineTo(W-padR, top-2+.5); x.stroke();
-    [70,30].forEach(lv=>{ x.strokeStyle = faint; x.globalAlpha = .5; x.setLineDash([2,3]); x.beginPath(); x.moveTo(padL, yr(lv)); x.lineTo(W-padR, yr(lv)); x.stroke(); x.setLineDash([]); x.globalAlpha = 1; });
-    x.strokeStyle = TA_COLORS.rsi; x.lineWidth = 1.4; x.beginPath(); let on = false;
-    for (let k=a;k<=ci;k++){ const r = f.rsiArr[k]; if (r==null) continue; if (!on){ x.moveTo(X(k), yr(r)); on = true; } else x.lineTo(X(k), yr(r)); }
-    x.stroke(); x.lineWidth = 1;
-    x.font = "600 9px "+mono; x.fillStyle = faint; x.fillText("RSI", padL+2, top+8);
+  if (pane){
+    const top = H-pane+6, bot = H-6;
+    x.strokeStyle = border; x.beginPath(); x.moveTo(padL, top-4+.5); x.lineTo(W-padR, top-4+.5); x.stroke();
+    x.font = "700 9px "+mono; x.fillStyle = faint;
+    if (ov.rsi){
+      const yr = r=>top + (1-r/100)*(bot-top);
+      [70,30].forEach(lv=>{ x.strokeStyle = faint; x.globalAlpha = .5; x.setLineDash([2,3]); x.beginPath(); x.moveTo(padL, yr(lv)); x.lineTo(W-padR, yr(lv)); x.stroke(); x.setLineDash([]); x.globalAlpha = 1; x.fillText(String(lv), W-padR+4, yr(lv)+3); });
+      x.strokeStyle = TA_COLORS.rsi; x.lineWidth = 1.4; x.beginPath(); let on = false;
+      for (let k=a;k<=ci;k++){ const r = f.rsiArr[k]; if (r==null) continue; if (!on){ x.moveTo(X(k), yr(r)); on = true; } else x.lineTo(X(k), yr(r)); }
+      x.stroke(); x.lineWidth = 1; x.fillText("RSI", padL+2, top+8);
+      if (annot && annot.rsiSeg){ const s = annot.rsiSeg; x.strokeStyle = s.col==="up" ? up : dn; x.lineWidth = 2; x.beginPath(); x.moveTo(X(s.k1), yr(s.r1)); x.lineTo(X(s.k2), yr(s.r2)); x.stroke(); x.lineWidth = 1; }
+    } else {
+      const M = f.mac; let mx = 0; for (let k=a;k<=ci;k++) [M.line[k], M.signal[k], M.hist[k]].forEach(q=>{ if (q!=null) mx = Math.max(mx, Math.abs(q)); });
+      mx = mx || 1; const ym = q=>(top+bot)/2 - q/mx*(bot-top)/2;
+      x.strokeStyle = faint; x.globalAlpha = .5; x.setLineDash([2,3]); x.beginPath(); x.moveTo(padL, ym(0)); x.lineTo(W-padR, ym(0)); x.stroke(); x.setLineDash([]); x.globalAlpha = 1;
+      for (let k=a;k<=ci;k++){ const hh = M.hist[k]; if (hh==null) continue; x.fillStyle = hh>=0 ? up : dn; x.globalAlpha = .45; const y0 = ym(0), y1 = ym(hh); x.fillRect(X(k)-Math.max(1, slot*0.62)/2, Math.min(y0,y1), Math.max(1, slot*0.62), Math.max(.6, Math.abs(y1-y0))); }
+      x.globalAlpha = 1;
+      const seg = (arr, col)=>{ x.strokeStyle = col; x.lineWidth = 1.3; x.beginPath(); let on = false; for (let k=a;k<=ci;k++){ const q = arr[k]; if (q==null) continue; if (!on){ x.moveTo(X(k), ym(q)); on = true; } else x.lineTo(X(k), ym(q)); } x.stroke(); x.lineWidth = 1; };
+      seg(M.line, TA_COLORS.macd); seg(M.signal, TA_COLORS.signal);
+      x.fillStyle = faint; x.fillText("MACD", padL+2, top+8);
+    }
   }
-  if (annot) dxDrawAnnot(x, annot, {X, y, start:a, end:ci+1, ci, padL, W, padR, padT, priceH, mono, up, dn, gold, faint, text, slot});
+  if (annot){ x.save(); x.beginPath(); x.rect(0, 0, W, H-pane-volH); x.clip(); dxDrawAnnot(x, annot, {X, y, start:a, end:ci+1, ci, padL, W, padR, padT, priceH, mono, up, dn, gold, faint, text, slot}); x.restore(); }
 }
 
 /* ===================== DÉFI DU JOUR · MODES AVANCÉS =====================
