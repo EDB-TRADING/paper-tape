@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3010">
+<meta name="pt-build" content="3102">
 <title>Paper Tape</title>
 <script>
 /* Un seul fichier pour deux sites :
@@ -3488,6 +3488,85 @@
   .dd-actions[hidden], .dd-verdict[hidden], .dd-q[hidden]{display:none !important;}
   .dd-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;padding:30px 32px;border-radius:22px;border:1px solid var(--border-soft);
     background:radial-gradient(700px 300px at 0% 0%, color-mix(in srgb, var(--dd-a) 13%, transparent), transparent 70%), linear-gradient(180deg, var(--panel), var(--bg));}
+  /* ---------- Jeux ---------- */
+  .gm{--pw-gold:var(--dd-a);display:flex;flex-direction:column;gap:18px;}
+  .gm-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;padding:26px 28px;border-radius:22px;border:1px solid var(--border-soft);
+    background:radial-gradient(700px 300px at 85% 0%, color-mix(in srgb, var(--dd-a) 14%, transparent), transparent 65%), var(--panel);}
+  .gm-head h1{margin:6px 0 6px;font-size:30px;letter-spacing:-.02em;}
+  .gm-head p{margin:0;color:var(--text-dim);max-width:560px;line-height:1.55;}
+  .gm-stats{display:flex;gap:10px;flex-wrap:wrap;}
+  .gm-stats > div{min-width:118px;padding:12px 14px;border-radius:14px;border:1px solid var(--border-soft);background:var(--bg);display:flex;flex-direction:column;gap:3px;}
+  .gm-stats b{font-size:18px;}
+  .gm-stats span{font-size:12px;color:var(--text-faint);}
+  .gm-lvl u{display:block;height:5px;border-radius:5px;background:var(--panel-2);overflow:hidden;margin-top:4px;}
+  .gm-lvl u i{display:block;height:100%;background:var(--dd-a);border-radius:5px;}
+  .gm-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;align-items:start;}
+  .gm-main{display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .gm-cards{display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:12px;}
+  .gm-card{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;padding:20px;border-radius:18px;border:1px solid var(--border-soft);background:var(--panel);color:var(--text);font:inherit;cursor:pointer;transition:transform .15s, border-color .15s;}
+  .gm-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb, var(--dd-a) 45%, var(--border-soft));}
+  .gm-card b{font-size:18px;}
+  .gm-card small{color:var(--text-dim);font-size:13px;line-height:1.5;flex:1;}
+  .gm-card em{font-style:normal;font-family:var(--mono);font-size:11.5px;color:var(--text-faint);}
+  .gm-card em.ok{color:var(--long);} .gm-card em.ko{color:var(--short);}
+  .gm-ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:var(--dd-a);background:color-mix(in srgb, var(--dd-a) 12%, transparent);}
+  .gm-ic svg{width:22px;height:22px;}
+  .gm-how{display:flex;flex-direction:column;gap:4px;padding:14px 16px;border-radius:14px;background:var(--panel-2);font-size:13px;color:var(--text-dim);line-height:1.55;}
+  .gm-how b{color:var(--text);}
+  .gm-recap{padding:12px 16px;border-radius:14px;border:1px solid var(--border-soft);background:var(--panel);font-size:14px;}
+  .gm-recap.up{border-color:color-mix(in srgb, var(--long) 45%, var(--border-soft));} .gm-recap.down{border-color:color-mix(in srgb, var(--short) 40%, var(--border-soft));}
+  .gm-game{display:flex;flex-direction:column;gap:14px;}
+  .gm-game-top{display:flex;align-items:center;gap:12px;}
+  .gm-game-top b{flex:1;font-size:16px;}
+  .gm-game-top .num{font-family:var(--mono);font-size:12px;color:var(--text-faint);}
+  .gm-cv{display:block;width:100%;height:320px;border-radius:14px;background:var(--bg);border:1px solid var(--border-soft);}
+  .gm-cap{margin:0;color:var(--text-dim);font-size:13.5px;} .gm-cap.faint{color:var(--text-faint);}
+  .ch-hints{display:flex;flex-wrap:wrap;gap:8px;}
+  .ch-hints div{padding:8px 12px;border-radius:12px;background:var(--panel-2);display:flex;flex-direction:column;gap:2px;}
+  .ch-hints span{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;}
+  .ch-rows{display:flex;flex-direction:column;gap:6px;}
+  .ch-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,.8fr);gap:6px;align-items:center;}
+  .ch-row > b{padding:9px 12px;border-radius:10px;background:var(--panel-2);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .ch-row.ok > b{background:color-mix(in srgb, var(--long) 22%, var(--panel-2));}
+  .ch-row.ch-hd > b, .ch-row.ch-hd span{background:none;padding:0 12px;font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;font-weight:600;}
+  .ch-t{padding:9px 10px;border-radius:10px;text-align:center;font-size:13px;font-family:var(--mono);}
+  .ch-t.ok{background:color-mix(in srgb, var(--long) 28%, transparent);color:var(--text);}
+  .ch-t.ko{background:var(--panel-2);color:var(--text-dim);}
+  .ch-pick{display:flex;flex-direction:column;gap:8px;}
+  .ch-pick input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);font:inherit;font-size:15px;}
+  .ch-opts{display:flex;flex-wrap:wrap;gap:6px;max-height:190px;overflow-y:auto;}
+  .ch-opts button{padding:8px 12px;border-radius:999px;border:1px solid var(--border-soft);background:var(--panel-2);color:var(--text);font:inherit;font-size:13.5px;cursor:pointer;}
+  .ch-opts button:hover{border-color:var(--dd-a);}
+  .ch-opts em{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--text-faint);margin-left:4px;}
+  .ch-end{display:flex;flex-direction:column;gap:6px;padding:16px 18px;border-radius:14px;border:1px solid var(--border-soft);background:var(--panel-2);}
+  .ch-end.ok{border-color:color-mix(in srgb, var(--long) 45%, var(--border-soft));} .ch-end.ko{border-color:color-mix(in srgb, var(--short) 35%, var(--border-soft));}
+  .ch-end b{font-size:18px;} .ch-end span{color:var(--text-dim);font-size:13.5px;}
+  .ch-end-act{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+  .gm-pz-chart{height:400px;}
+  .gm-xp{font-family:var(--mono);font-size:12px;color:var(--dd-a);}
+  .hl-duel{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:12px;align-items:center;}
+  .hl-card{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;padding:26px 16px;border-radius:18px;border:1px solid var(--border-soft);background:var(--panel-2);}
+  .hl-card.ko{border-color:color-mix(in srgb, var(--short) 45%, var(--border-soft));}
+  .hl-y{font-family:var(--mono);font-size:12px;color:var(--dd-a);letter-spacing:.1em;}
+  .hl-card b{font-size:22px;} .hl-card em{font-style:normal;font-family:var(--mono);font-size:12px;color:var(--text-faint);}
+  .hl-card strong{font-size:34px;font-family:var(--mono);margin-top:6px;}
+  .hl-card strong.up{color:var(--long);} .hl-card strong.down{color:var(--short);}
+  .hl-q{color:var(--text-faint);}
+  .hl-card small{font-size:11.5px;color:var(--text-faint);}
+  .hl-vs{font-family:var(--mono);font-weight:800;color:var(--text-faint);}
+  .gm-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:1px;}
+  .gm-lg li.gm-up{box-shadow:inset 3px 0 0 var(--long);} .gm-lg li.gm-down{box-shadow:inset 3px 0 0 var(--short);}
+  .gm-tiers{display:flex;gap:4px;flex-wrap:wrap;margin-top:12px;}
+  .gm-tiers span{font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid var(--border-soft);color:var(--text-faint);}
+  .gm-tiers span.on{color:var(--c);border-color:var(--c);font-weight:700;}
+  @media (max-width:1100px){ .gm-grid{grid-template-columns:minmax(0,1fr);} }
+  @media (max-width:720px){
+    .gm-head{padding:18px;} .gm-head h1{font-size:23px;}
+    .gm-cards{grid-template-columns:minmax(0,1fr);}
+    .gm-cv{height:240px;} .gm-pz-chart{height:320px;}
+    .hl-duel{grid-template-columns:minmax(0,1fr);} .hl-vs{text-align:center;}
+    .hl-card{padding:18px 12px;} .hl-card strong{font-size:28px;}
+  }
   .dd-kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dd-a);}
   .dd-head h1{font-size:40px;letter-spacing:-.035em;line-height:1.05;margin:10px 0 10px;}
   .dd-head p{margin:0;max-width:620px;color:var(--text-dim);font-size:15px;line-height:1.6;}
@@ -5258,6 +5337,7 @@
     <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></symbol>
     <symbol id="i-pie" viewBox="0 0 24 24"><path d="M21 12c.55 0 1-.45.95-1A10 10 0 0 0 13 2.05c-.55-.05-1 .4-1 .95v8a1 1 0 0 0 1 1z"/><path d="M21.2 15.9A10 10 0 1 1 8 2.8"/></symbol>
     <symbol id="i-replay" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 4v5h5"/><path d="m10.5 9 4.5 3-4.5 3z"/></symbol>
+    <symbol id="i-game" viewBox="0 0 24 24"><path d="M7 8h10a4 4 0 0 1 4 4v1.5a3.5 3.5 0 0 1-6.3 2.1L13.5 14h-3l-1.2 1.6A3.5 3.5 0 0 1 3 13.5V12a4 4 0 0 1 4-4z"/><path d="M7.5 10.5v3M6 12h3"/><circle cx="16" cy="11.2" r=".6" fill="currentColor"/><circle cx="17.6" cy="12.8" r=".6" fill="currentColor"/></symbol>
     <symbol id="i-daily" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M3 9.5h18"/><path d="M8 2.5v4M16 2.5v4"/><path d="m7.5 17 3-3 2 2 4-4"/></symbol>
     <symbol id="i-trend" viewBox="0 0 24 24"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
     <symbol id="i-user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
@@ -5350,6 +5430,7 @@
       <button data-view="challenge"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg><span class="sb-label">Challenge</span><span class="sb-short">Challenge</span></button>
       <button data-view="replay"><svg class="ic" aria-hidden="true"><use href="#i-replay"/></svg><span class="sb-label">Replay</span><span class="sb-short">Replay</span></button>
       <button data-view="daily"><svg class="ic" aria-hidden="true"><use href="#i-daily"/></svg><span class="sb-label">Défi du jour</span><span class="sb-short">Défi</span></button>
+      <button data-view="games" id="nav-games-btn" hidden><svg class="ic" aria-hidden="true"><use href="#i-game"/></svg><span class="sb-label">Jeux</span><span class="sb-short">Jeux</span></button>
       <button data-view="concoursedbplus"><svg class="ic" aria-hidden="true"><use href="#i-gem"/></svg><span class="sb-label">Concours EDB+</span><span class="sb-short">Concours</span></button>
       <div class="sb-section">Communauté</div>
       <button data-view="leaderboard"><svg class="ic" aria-hidden="true"><use href="#i-trophy"/></svg><span class="sb-label">Classement</span><span class="sb-short">Classement</span></button>
@@ -6278,6 +6359,9 @@
 
     <!-- ================= CHALLENGE PROP FIRM (dedicated page) ================= -->
     <!-- ================= DÉFI DU JOUR ================= -->
+    <section class="view" id="view-games">
+      <div class="daily-wrap" id="games-root"></div>
+    </section>
     <section class="view" id="view-daily">
       <div class="daily-wrap" id="daily-root"></div>
     </section>
@@ -6347,7 +6431,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3010 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3102 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -7864,7 +7948,7 @@ async function fetchCandles(symbol, tf, mode){
   if (selectedSymbol===symbol) updateChart();
 }
 async function fetchOlderCandles(symbol, tf){
-  if (RPV && symbol===RPV.sym) return;
+  if (RPV && symbol===RPV.sym){ rpChartOlder(tf); return; } // Replay : historique d'avant la séance, comme le terminal
   const key = symbol+"|"+tf;
   const st = candleOlderState[key] || (candleOlderState[key] = {busy:false, done:false});
   const m = market[symbol];
@@ -7982,6 +8066,7 @@ const state = {
   journal: [],     // [{id, text, symbol?, side?, pnl?, createdAt}]
   superflash: {bestScore:0, bestCorrect:0, attempts:0},
   replay: {best:{}, plays:0}, // Replay : meilleur % par séance + nombre de séances jouées
+  games: {}, // Jeux : XP, série, ligue, Elo, Chartle du jour (voir gmState)
   tradesOpenedTotal: 0, // compteur à vie des positions ouvertes, tous comptes confondus (badges)
   stats: {
     tradesOpened:0, tradesClosed:0, wins:0, losses:0,
@@ -8420,6 +8505,7 @@ function hydrateStateFromDoc(snap){
   state.hardcore200kPasses = typeof d.hardcore200kPasses==="number" ? d.hardcore200kPasses : 0;
   state.tradesOpenedTotal = typeof d.tradesOpenedTotal==="number" ? d.tradesOpenedTotal : 0;
   state.replay = {best: (d.replayBest && typeof d.replayBest==="object") ? d.replayBest : {}, plays: typeof d.replayPlays==="number" ? d.replayPlays : 0};
+  state.games = (d.games && typeof d.games==="object") ? d.games : {};
   state.challenge200kOpens = typeof d.challenge200kOpens==="number" ? d.challenge200kOpens : 0;
   state.recovery = (d.recovery && typeof d.recovery==="object") ? d.recovery : null;
   // Now that we actually know this trader's EDB+ status, re-check anything
@@ -23720,7 +23806,7 @@ function rpChartAttach(){
     prevSym:selectedSymbol, prevTf:currentTimeframe, prevSrc:chartSource,
     asset:{symbol:sym, name: rp.mystery ? "Séance mystère" : (rp.custom ? "Séance personnalisée" : rp.sc.title), decimals:rp.dec, color:"var(--accent)", icon:"⏪", replay:true, delisted:true,
       rpLiq: !rp.mystery && recent ? rp.sym : null, rpFrom:rp.candles[0].t - 3*86400e3, rpTo:endT,
-      rpLiqWhy: rp.mystery ? "Heatmap des liquidations indisponible en séance mystère (elle trahirait l'actif)." : "Heatmap des liquidations indisponible pour cette séance : Binance ne garde l'open interest que 30 jours."}};
+      rpLiqWhy: (rp.mystery ? "Heatmap des liquidations indisponible : la séance mystère est tirée il y a plus de 40 jours" : "Heatmap des liquidations indisponible pour cette séance")+" et Binance ne garde l'open interest que 30 jours."}};
   market[sym] = {cfg:RPV.asset, last:null, prevLast:null, bid:null, ask:null, changePct:0, high:null, low:null, history:[], updatedAt:null, error:null,
     candles:{tf:null, data:[], loading:true, error:null}};
   const dr = rp.chartDraw || [[], []];
@@ -23786,11 +23872,30 @@ async function rpChartPre(tf){
   V.preBusy[tf] = true;
   const ms = (RP_TF_MIN[tf]||1)*60000, firstT = rp.candles[0].t, k = rp.k || 1;
   try{
-    const r = await fetch((rp.base||BINANCE_API_BASE)+"/klines?symbol="+encodeURIComponent(rp.sym)+"&interval="+tf+"&endTime="+(firstT-1)+"&limit=500", {signal:AbortSignal.timeout(10000)});
+    const r = await fetch((rp.base||BINANCE_API_BASE)+"/klines?symbol="+encodeURIComponent(rp.sym)+"&interval="+tf+"&endTime="+(firstT-1)+"&limit="+CANDLE_FETCH_FULL, {signal:AbortSignal.timeout(10000)});
     const j = r.ok ? await r.json() : [];
-    V.pre[tf] = (Array.isArray(j) ? j : []).map(x=>({ms:rpT(+x[0]), t:new Date(rpT(+x[0])).toISOString(), o:+x[1]*k, h:+x[2]*k, l:+x[3]*k, c:+x[4]*k, v:+x[5]||0, bv:+x[9]||0}))
+    V.pre[tf] = (Array.isArray(j) ? j : []).map(x=>({rms:+x[0], ms:rpT(+x[0]), t:new Date(rpT(+x[0])).toISOString(), o:+x[1]*k, h:+x[2]*k, l:+x[3]*k, c:+x[4]*k, v:+x[5]||0, bv:+x[9]||0}))
       .filter(b=>isFinite(b.c) && b.ms+ms<=rpT(firstT));
   }catch(e){ V.pre[tf] = []; }
+  if (RPV===V && currentTimeframe===tf){ rpChartData(); updateChart(); }
+}
+// Dézoom / défilement vers la gauche : 1 000 bougies de plus, comme le terminal.
+async function rpChartOlder(tf){
+  const V = RPV; if (!V || !rp) return;
+  const pre = V.pre[tf]; V.older = V.older || {};
+  if (!pre || !pre.length || V.older[tf]==="busy" || V.older[tf]==="done" || pre.length >= CANDLE_KEEP_MAX) return;
+  V.older[tf] = "busy";
+  const k = rp.k || 1;
+  try{
+    const r = await fetch((rp.base||BINANCE_API_BASE)+"/klines?symbol="+encodeURIComponent(rp.sym)+"&interval="+tf+"&endTime="+(pre[0].rms-1)+"&limit="+CANDLE_FETCH_OLDER, {signal:AbortSignal.timeout(10000)});
+    const j = r.ok ? await r.json() : [];
+    const add = (Array.isArray(j) ? j : []).map(x=>({rms:+x[0], ms:rpT(+x[0]), t:new Date(rpT(+x[0])).toISOString(), o:+x[1]*k, h:+x[2]*k, l:+x[3]*k, c:+x[4]*k, v:+x[5]||0, bv:+x[9]||0}))
+      .filter(b=>isFinite(b.c) && b.rms < pre[0].rms);
+    if (!add.length){ V.older[tf] = "done"; return; }
+    if (RPV!==V || V.pre[tf]!==pre) return;
+    V.pre[tf] = add.concat(pre);
+    V.older[tf] = null;
+  }catch(e){ V.older[tf] = "done"; return; }
   if (RPV===V && currentTimeframe===tf){ rpChartData(); updateChart(); }
 }
 // Unité changée depuis le graphique (boutons, TPO qui passe en 30m…).
@@ -25979,6 +26084,507 @@ function dailyDraw(cv, rd, opt){
   if (ctx){ x.textAlign = "right"; x.fillStyle = faint; x.fillText("maintenant ●", W-padR-2, 13); x.textAlign = "left"; }
 }
 window.addEventListener("resize", ()=>dailyRedraw());
+/* ===================== JEUX : Chartle, Puzzles Elo, Plus ou moins =====================
+   Trois jeux courts pour revenir chaque jour, avec une couche commune :
+   XP (niveau), série de jours, ligue de la semaine (Bronze → Diamant).
+   Tout est rangé sur le document du trader (champ games + un champ de
+   classement par semaine et par ligue « gxl_AAAA_Wss_ligue », trié par
+   Firestore sans index à créer). Aucune règle Firestore à modifier : ce
+   sont des champs du trader qui ne touchent pas au trading.
+   - Chartle : un graphique journalier sans nom ni prix, devine l'actif en 6 essais.
+   - Puzzles : une situation réelle, long ou short ; objectif 2 ATR, stop 1 ATR.
+     Classement Elo (1200 au départ), difficulté du puzzle d'après les lectures.
+   - Plus ou moins : la performance annuelle d'un actif, plus ou moins que la précédente ? */
+const GM_TIERS = [["bronze","Bronze","#c8834d"],["argent","Argent","#aab4c0"],["or","Or","#e3b341"],["platine","Platine","#5fd0c5"],["diamant","Diamant","#7aa7ff"]];
+const GM_CAP = {hl:100, pz:150};   // XP max par jour (Plus ou moins, Puzzles)
+const GM_LAUNCH_DAY = "2026-10-27";  // Chartle n°1
+// Actifs du Chartle et de Plus ou moins (Binance spot). cat = catégorie, y = année de lancement.
+const GM_POOL = [
+  {s:"BTCUSDT", n:"Bitcoin", t:"BTC", cat:"Layer 1", y:2009}, {s:"ETHUSDT", n:"Ethereum", t:"ETH", cat:"Layer 1", y:2015},
+  {s:"BNBUSDT", n:"BNB", t:"BNB", cat:"Exchange", y:2017}, {s:"SOLUSDT", n:"Solana", t:"SOL", cat:"Layer 1", y:2020},
+  {s:"XRPUSDT", n:"XRP", t:"XRP", cat:"Paiement", y:2012}, {s:"DOGEUSDT", n:"Dogecoin", t:"DOGE", cat:"Memecoin", y:2013},
+  {s:"ADAUSDT", n:"Cardano", t:"ADA", cat:"Layer 1", y:2017}, {s:"AVAXUSDT", n:"Avalanche", t:"AVAX", cat:"Layer 1", y:2020},
+  {s:"LINKUSDT", n:"Chainlink", t:"LINK", cat:"Infrastructure", y:2017}, {s:"DOTUSDT", n:"Polkadot", t:"DOT", cat:"Infrastructure", y:2020},
+  {s:"LTCUSDT", n:"Litecoin", t:"LTC", cat:"Paiement", y:2011}, {s:"TRXUSDT", n:"Tron", t:"TRX", cat:"Layer 1", y:2017},
+  {s:"SHIBUSDT", n:"Shiba Inu", t:"SHIB", cat:"Memecoin", y:2020}, {s:"PEPEUSDT", n:"Pepe", t:"PEPE", cat:"Memecoin", y:2023},
+  {s:"SUIUSDT", n:"Sui", t:"SUI", cat:"Layer 1", y:2023}, {s:"NEARUSDT", n:"NEAR", t:"NEAR", cat:"Layer 1", y:2020},
+  {s:"UNIUSDT", n:"Uniswap", t:"UNI", cat:"DeFi", y:2020}, {s:"AAVEUSDT", n:"Aave", t:"AAVE", cat:"DeFi", y:2020},
+  {s:"ATOMUSDT", n:"Cosmos", t:"ATOM", cat:"Infrastructure", y:2019}, {s:"ARBUSDT", n:"Arbitrum", t:"ARB", cat:"Layer 2", y:2023},
+  {s:"OPUSDT", n:"Optimism", t:"OP", cat:"Layer 2", y:2022}, {s:"APTUSDT", n:"Aptos", t:"APT", cat:"Layer 1", y:2022},
+  {s:"INJUSDT", n:"Injective", t:"INJ", cat:"DeFi", y:2020}, {s:"PAXGUSDT", n:"Or (PAX Gold)", t:"OR", cat:"Or", y:2019},
+];
+const GM = {view:"hub", league:null, leagueAt:0, ch:null, pz:null, hl:null};
+
+// ---------- État, XP, série, ligue ----------
+function gmState(){
+  const g = state.games && typeof state.games==="object" ? state.games : (state.games = {});
+  if (typeof g.xp!=="number") g.xp = 0;
+  if (!g.tier) g.tier = "bronze";
+  if (typeof g.elo!=="number") g.elo = 1200;
+  return g;
+}
+function gmDay(){ return dailyDayKey(); }
+function gmWeek(){ return dxWeekKey(gmDay()); }
+function gmField(week, tier){ return "gxl_"+String(week).replace(/-/g, "_")+"_"+tier; }
+function gmTier(k){ return GM_TIERS.find(t=>t[0]===k) || GM_TIERS[0]; }
+function gmLevel(xp){ const l = Math.floor(Math.sqrt((xp||0)/60))+1, a = (l-1)*(l-1)*60, b = l*l*60; return {l, cur:(xp||0)-a, need:b-a}; }
+// Nouvelle semaine : bilan de la précédente (montée / descente), puis remise à zéro.
+async function gmRollWeek(){
+  const g = gmState(), wk = gmWeek();
+  if (g.week===wk) return;
+  const prevWk = dxWeekKey(dailyShift(gmDay(), -7));
+  let tierIdx = GM_TIERS.findIndex(t=>t[0]===g.tier); if (tierIdx<0) tierIdx = 0;
+  let res = null;
+  if (g.week===prevWk && (g.wxp||0) > 0 && db){
+    try{
+      const f = gmField(prevWk, g.tier);
+      const snap = await db.collection("traders").orderBy(f, "desc").limit(100).get();
+      const rows = []; snap.forEach(d=>{ const v = (d.data()||{})[f]; if (typeof v==="number" && v>0) rows.push({id:d.id, v}); });
+      const n = rows.length, rank = rows.findIndex(r=>r.id===clientId)+1;
+      const up = Math.max(1, Math.round(n*0.2)), down = n>=6 ? Math.round(n*0.2) : 0;
+      let move = 0;
+      if (rank>0 && rank<=up && (g.wxp||0)>=100 && tierIdx<GM_TIERS.length-1) move = 1;
+      else if (rank>0 && down && rank>n-down && tierIdx>0) move = -1;
+      res = {week:prevWk, rank, n, tier:g.tier, move};
+      tierIdx += move;
+    }catch(e){ console.warn("league roll", e); }
+  } else if (g.week && g.week!==prevWk && tierIdx>0){
+    tierIdx -= 1; res = {week:g.week, rank:0, n:0, tier:g.tier, move:-1, idle:true}; // semaine sans jouer : on redescend d'un cran
+  }
+  const patch = {};
+  if (g.pwf) patch[g.pwf] = firebase.firestore.FieldValue.delete(); // il y a 2 semaines : plus utile
+  g.pwf = g.wf || null;
+  g.tier = GM_TIERS[tierIdx][0];
+  g.week = wk; g.wxp = 0; g.wf = gmField(wk, g.tier);
+  if (res) g.lastLeague = res;
+  await gmSave(patch, true);
+}
+function gmTouchDay(){
+  const g = gmState(), d = gmDay();
+  if (g.day===d) return;
+  g.streak = g.day===dailyShift(d, -1) ? (g.streak||0)+1 : 1;
+  g.best = Math.max(g.best||0, g.streak);
+  g.day = d; g.dayXp = {};
+}
+// XP gagnée (plafonnée par jour pour Plus ou moins et les Puzzles).
+function gmAddXp(game, amount){
+  const g = gmState(); gmTouchDay();
+  g.dayXp = g.dayXp || {};
+  let a = Math.max(0, Math.round(amount));
+  if (GM_CAP[game]){ a = Math.min(a, Math.max(0, GM_CAP[game]-(g.dayXp[game]||0))); }
+  g.dayXp[game] = (g.dayXp[game]||0) + a;
+  if (g.week && g.week!==gmWeek()) gmRollWeek(); // semaine changée pendant la partie
+  g.xp += a; g.wxp = (g.wxp||0) + a;
+  if (!g.wf) g.wf = gmField(g.week || gmWeek(), g.tier);
+  gmSave();
+  gmRenderHead();
+  return a;
+}
+let gmSaveTimer = null, gmSavePatch = {};
+function gmSave(extra, now){
+  Object.assign(gmSavePatch, extra||{});
+  clearTimeout(gmSaveTimer);
+  const run = async ()=>{
+    if (!db || !clientId || !dbReady) return;
+    const g = gmState(), patch = Object.assign({games:JSON.parse(JSON.stringify(g)), gTier:g.tier}, gmSavePatch);
+    gmSavePatch = {};
+    if (g.wf) patch[g.wf] = g.wxp||0;
+    try{ await db.collection("traders").doc(clientId).update(patch); }catch(e){ console.warn("games save", e); }
+  };
+  if (now) return run();
+  gmSaveTimer = setTimeout(run, 1500);
+}
+
+// ---------- Page ----------
+function renderGames(){
+  const root = document.getElementById("games-root"); if (!root) return;
+  if (dbReady && clientId && !state.isAdmin){ /* en test : admins seulement */ root.innerHTML = '<div class="dd-card dd-empty"><b>Bientôt disponible</b><p>Les jeux sont en test et arrivent très vite.</p></div>'; return; }
+  if (!dbReady || !db || !clientId){ root.innerHTML = '<div class="dd-empty">Connexion à ton compte…</div>'; setTimeout(()=>{ if (document.body.dataset.view==="games") renderGames(); }, 1200); return; }
+  gmState();
+  if (D && D.tool) D.tool = null;
+  if (!root.querySelector(".gm")){
+    root.innerHTML =
+      '<div class="gm">'+
+        '<section class="gm-head" id="gm-head"></section>'+
+        '<div class="gm-grid">'+
+          '<section class="gm-main" id="gm-main"></section>'+
+          '<aside class="gm-side"><div class="dd-panel" id="gm-league"></div></aside>'+
+        '</div>'+
+      '</div>';
+    root.querySelector(".gm").addEventListener("click", gmOnClick);
+  }
+  gmRollWeek().then(()=>{ gmRenderHead(); gmLoadLeague(true); });
+  gmRenderHead();
+  gmRenderMain();
+  gmLoadLeague(false);
+}
+function gmRenderHead(){
+  const el = document.getElementById("gm-head"); if (!el) return;
+  const g = gmState(), L = gmLevel(g.xp), T = gmTier(g.tier);
+  const today = gmDay(), streak = (g.day===today || g.day===dailyShift(today, -1)) ? (g.streak||0) : 0;
+  el.innerHTML =
+    '<div class="gm-head-l"><span class="dd-kicker">Jeux · '+dailyEsc(dailyDayLabel(today))+'</span><h1>Joue. Progresse. Reviens demain.</h1>'+
+      '<p>Trois jeux de quelques minutes pour t\'entraîner l\'œil chaque jour. Chaque partie rapporte de l\'XP pour ta ligue de la semaine.</p></div>'+
+    '<div class="gm-stats">'+
+      '<div class="gm-lvl"><b>Niv. '+L.l+'</b><span>'+L.cur+' / '+L.need+' XP</span><u><i style="width:'+Math.min(100, L.cur/L.need*100).toFixed(1)+'%"></i></u></div>'+
+      '<div><b>'+(streak>0 ? "🔥 " : "")+streak+'</b><span>jour'+(streak>1?"s":"")+' de suite</span></div>'+
+      '<div><b style="color:'+T[2]+'">'+T[1]+'</b><span>'+(g.wxp||0)+' XP cette semaine</span></div>'+
+    '</div>';
+  gmRenderLeague();
+}
+function gmCardsHtml(){
+  const g = gmState(), today = gmDay(), ch = g.ch && g.ch.day===today ? g.ch : null;
+  const chSt = ch && ch.done ? (ch.won ? "✓ Trouvé en "+ch.g.length+" / 6" : "✗ Raté aujourd'hui") : ch && ch.g.length ? "En cours · "+ch.g.length+" / 6" : "À jouer";
+  const dx = g.dayXp && g.day===today ? g.dayXp : {};
+  return '<div class="gm-cards">'+
+    '<button type="button" class="gm-card" data-gm="chartle"><span class="gm-ic">'+gmIcon("chartle")+'</span><b>Chartle</b><small>Devine l\'actif derrière le graphique, en 6 essais. Un par jour, le même pour tout le monde.</small><em class="'+(ch && ch.done ? (ch.won ? "ok" : "ko") : "")+'">'+chSt+'</em></button>'+
+    '<button type="button" class="gm-card" data-gm="puzzles"><span class="gm-ic">'+gmIcon("puzzles")+'</span><b>Puzzles</b><small>Une vraie situation de marché : long ou short ? Ton classement Elo monte ou descend.</small><em>Elo '+Math.round(g.elo)+' · '+(dx.pz||0)+' / '+GM_CAP.pz+' XP aujourd\'hui</em></button>'+
+    '<button type="button" class="gm-card" data-gm="hl"><span class="gm-ic">'+gmIcon("hl")+'</span><b>Plus ou moins</b><small>Cette année-là, cet actif a-t-il fait plus ou moins que le précédent ? Enchaîne sans te tromper.</small><em>Record '+(g.hlBest||0)+' · '+(dx.hl||0)+' / '+GM_CAP.hl+' XP aujourd\'hui</em></button>'+
+  '</div>';
+}
+function gmIcon(k){
+  const p = k==="chartle" ? '<path d="M4 17l4-5 3 3 5-7 4 5"/><rect x="3" y="3" width="18" height="18" rx="3"/>'
+    : k==="puzzles" ? '<path d="M9 4h4v3a2 2 0 1 0 4 0V4h3v6h-3a2 2 0 1 0 0 4h3v6H4v-6h3a2 2 0 1 0 0-4H4V4h5"/>'
+    : '<path d="M8 5v14M4 9l4-4 4 4M16 19V5M12 15l4 4 4-4"/>';
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>';
+}
+function gmRenderMain(){
+  const m = document.getElementById("gm-main"); if (!m) return;
+  if (GM.view==="chartle") return chRender();
+  if (GM.view==="puzzles") return pzRender();
+  if (GM.view==="hl") return hlRender();
+  const g = gmState(), LL = g.lastLeague;
+  const recap = LL && LL.week===dxWeekKey(dailyShift(gmDay(), -7)) ? '<div class="gm-recap '+(LL.move>0 ? "up" : LL.move<0 ? "down" : "")+'">'+
+    (LL.idle ? "Pas de partie la semaine dernière : retour en ligue "+gmTier(g.tier)[1]+"." : "Semaine dernière : "+LL.rank+"<sup>e</sup> sur "+LL.n+" en "+gmTier(LL.tier)[1]+(LL.move>0 ? " → promu en "+gmTier(g.tier)[1]+" 🎉" : LL.move<0 ? " → retour en "+gmTier(g.tier)[1] : " → maintenu."))+'</div>' : '';
+  m.innerHTML = recap + gmCardsHtml() +
+    '<div class="gm-how"><b>Comment marche l\'XP</b><span>Chartle : 30 à 80 XP selon le nombre d\'essais. Puzzles : 15 XP par bonne réponse, 5 sinon (150 max par jour). Plus ou moins : 5 XP par bonne réponse (100 max par jour). Joue un jeu chaque jour pour garder ta série. Le dimanche soir, les meilleurs de chaque ligue montent, les derniers descendent.</span></div>';
+}
+function gmOnClick(e){
+  const lb = e.target.closest("[data-dd-lens]");
+  if (lb && GM.view==="puzzles"){ pzLens(lb.dataset.ddLens); return; }
+  const b = e.target.closest("[data-gm]"); if (!b) return;
+  const a = b.dataset.gm;
+  if (a==="chartle" || a==="puzzles" || a==="hl"){ GM.view = a; gmRenderMain(); window.scrollTo({top:0, behavior:"smooth"}); return; }
+  if (a==="back"){ GM.view = "hub"; if (GM.pz) GM.pz.cur = null; gmRenderMain(); return; }
+  if (a==="ch-guess") chGuess(b.dataset.s);
+  else if (a==="ch-share") chShare();
+  else if (a==="pz-long" || a==="pz-short") pzAnswer(a==="pz-long" ? "up" : "down");
+  else if (a==="pz-next") pzNext();
+  else if (a==="hl-up" || a==="hl-down") hlAnswer(a==="hl-up" ? 1 : -1);
+  else if (a==="hl-start") hlStart();
+  else if (a==="league-reload") gmLoadLeague(true);
+}
+
+// ---------- Ligue de la semaine ----------
+async function gmLoadLeague(force){
+  const el = document.getElementById("gm-league"); if (!el) return;
+  const g = gmState(), wk = gmWeek(), f = gmField(wk, g.tier), T = gmTier(g.tier);
+  if (!force && GM.league && GM.league.f===f && Date.now()-GM.leagueAt < 120e3){ gmRenderLeague(); return; }
+  if (!GM.league) el.innerHTML = '<div class="dd-panel-h"><h3>Ligue '+T[1]+'</h3></div><p class="dd-arch-sub">Chargement…</p>';
+  try{
+    const snap = await db.collection("traders").orderBy(f, "desc").limit(30).get();
+    const rows = []; snap.forEach(d=>{ const x = d.data()||{}, v = x[f]; if (typeof v==="number") rows.push({id:d.id, name:x.username||"Trader", v}); });
+    GM.league = {f, rows}; GM.leagueAt = Date.now();
+  }catch(e){ console.warn("league", e); GM.league = {f, rows:[]}; }
+  gmRenderLeague();
+}
+function gmRenderLeague(){
+  const el = document.getElementById("gm-league"); if (!el || !GM.league) return;
+  const g = gmState(), T = gmTier(g.tier), rows = GM.league.rows.slice();
+  const me = rows.find(r=>r.id===clientId);
+  if (me) me.v = Math.max(me.v, g.wxp||0); else if ((g.wxp||0)>0) rows.push({id:clientId, name:state.username||"Toi", v:g.wxp||0});
+  rows.sort((a,b)=>b.v-a.v);
+  const n = rows.length, up = Math.max(1, Math.round(n*0.2)), down = n>=6 ? Math.round(n*0.2) : 0;
+  const ti = GM_TIERS.findIndex(t=>t[0]===g.tier);
+  const end = new Date(Date.parse(gmDay()+"T12:00:00Z")); const dow = (end.getUTCDay()+6)%7, left = 6-dow;
+  el.innerHTML = '<div class="dd-panel-h"><h3><span class="gm-dot" style="background:'+T[2]+'"></span>Ligue '+T[1]+'</h3><span>'+(left ? "fin dans "+left+" j" : "fin ce soir")+'</span></div>'+
+    '<p class="dd-arch-sub">'+(up>1 ? 'Les '+up+' premiers ' : 'Le premier ')+(ti<GM_TIERS.length-1 ? (up>1 ? 'montent' : 'monte')+' en '+GM_TIERS[ti+1][1] : (up>1 ? 'restent' : 'reste')+' en tête')+(down && ti>0 ? ', '+(down>1 ? 'les '+down+' derniers redescendent' : 'le dernier redescend') : '')+'.'+(ti<GM_TIERS.length-1 ? ' Il faut au moins 100 XP dans la semaine pour monter.' : '')+'</p>'+
+    (rows.length ? '<ol class="dd-list gm-lg">'+rows.slice(0, 30).map((r,i)=>'<li class="'+(r.id===clientId ? "me" : "")+(i<up ? " gm-up" : "")+(down && i>=n-down ? " gm-down" : "")+'"><span class="dd-rk">'+(i+1)+'</span><span class="dd-nm">'+dailyEsc(r.name)+'</span><b class="num">'+r.v+' XP</b></li>').join("")+'</ol>'
+      : '<p class="dd-arch-sub">Personne n\'a encore joué cette semaine dans cette ligue. Lance une partie !</p>')+
+    '<div class="gm-tiers">'+GM_TIERS.map((t,i)=>'<span class="'+(i===ti ? "on" : "")+'" style="--c:'+t[2]+'">'+t[1]+'</span>').join("")+'</div>';
+}
+
+// ---------- Chartle ----------
+function chNum(day){ return Math.round((Date.parse(day+"T12:00:00Z")-Date.parse(GM_LAUNCH_DAY+"T12:00:00Z"))/86400e3)+1; }
+function chPick(day){
+  const n = Math.floor(Date.parse(day+"T12:00:00Z")/86400e3), L = GM_POOL.length, cyc = Math.floor(n/L);
+  const r = dailyRng("chartle-cycle|"+cyc), idx = GM_POOL.map((_,i)=>i);
+  for (let i=L-1;i>0;i--){ const j = Math.floor(r()*(i+1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+  const a = GM_POOL[idx[n%L]];
+  const r2 = dailyRng("chartle-win|"+day);
+  return {a, back:30 + Math.floor(r2()*900)}; // fin du graphique : il y a 30 à 930 jours
+}
+async function chLoad(){
+  const day = gmDay();
+  if (GM.ch && GM.ch.day===day && GM.ch.c) return GM.ch;
+  const P = chPick(day), end = Date.parse(day+"T00:00:00Z") - P.back*86400e3;
+  let c = null;
+  try{ c = await dailyKlines(P.a.s, "1d", "endTime="+end+"&limit=180", 60); }catch(e){}
+  if (!c || c.length < 120){ try{ c = await dailyKlines(P.a.s, "1d", "endTime="+(Date.parse(day+"T00:00:00Z")-30*86400e3)+"&limit=180", 60); }catch(e){ c = null; } }
+  if (!c) throw new Error("klines");
+  GM.ch = {day, a:P.a, c};
+  return GM.ch;
+}
+function chSave(){ return gmState().ch && gmState().ch.day===gmDay() ? gmState().ch : (gmState().ch = {day:gmDay(), g:[], done:false, won:false}); }
+async function chRender(){
+  const m = document.getElementById("gm-main"); if (!m) return;
+  const st = chSave();
+  if (!GM.ch || GM.ch.day!==gmDay() || !GM.ch.c){
+    m.innerHTML = '<div class="dd-card dd-empty">Préparation du Chartle…</div>';
+    try{ await chLoad(); }catch(e){ m.innerHTML = '<div class="dd-card dd-empty"><b>Chartle indisponible</b><p>Impossible de joindre l\'historique Binance. Réessaie dans un instant.</p><button class="btn-primary" data-gm="chartle">Réessayer</button> <button class="btn-secondary" data-gm="back">← Jeux</button></div>'; return; }
+    if (GM.view!=="chartle") return;
+  }
+  const C = GM.ch, a = C.a, done = st.done;
+  const first = C.c[0][1], last = C.c[C.c.length-1][4], perf = (last/first-1)*100;
+  const wrong = st.g.filter(s=>s!==a.s).length;
+  const hints = [];
+  if (wrong>=2 || done) hints.push(["Période", new Date(C.c[0][0]).getUTCFullYear()===new Date(C.c[C.c.length-1][0]).getUTCFullYear() ? String(new Date(C.c[0][0]).getUTCFullYear()) : new Date(C.c[0][0]).getUTCFullYear()+" → "+new Date(C.c[C.c.length-1][0]).getUTCFullYear()]);
+  if (wrong>=3 || done) hints.push(["Variation sur le graphique", (perf>=0?"+":"")+dxNum(perf, 1)+" %"]);
+  if (wrong>=4 || done){ const e = Math.floor(Math.log10(last)); hints.push(["Prix à la fin", last>=1 ? "entre "+dxNum(Math.pow(10,e),0)+" $ et "+dxNum(Math.pow(10,e+1),0)+" $" : "moins de 1 $"]); }
+  if (wrong>=5 || done) hints.push(["Première lettre", a.n.charAt(0)]);
+  const row = s=>{ const x = GM_POOL.find(p=>p.s===s), ok = s===a.s;
+    return '<div class="ch-row '+(ok ? "ok" : "")+'"><b>'+dailyEsc(x.n)+'</b>'+
+      '<span class="ch-t '+(x.cat===a.cat ? "ok" : "ko")+'">'+dailyEsc(x.cat)+'</span>'+
+      '<span class="ch-t '+(x.y===a.y ? "ok" : "ko")+'">'+x.y+(x.y===a.y ? "" : x.y<a.y ? " ↑" : " ↓")+'</span></div>'; };
+  const left = GM_POOL.filter(p=>!st.g.includes(p.s));
+  m.innerHTML =
+    '<div class="dd-card gm-game">'+
+      '<div class="gm-game-top"><button type="button" class="kn-quiz-quit" data-gm="back">← Jeux</button><b>Chartle n°'+chNum(C.day)+'</b><span class="num">'+st.g.length+' / 6</span></div>'+
+      '<canvas class="gm-cv" id="ch-cv"></canvas>'+
+      '<p class="gm-cap">'+(done ? dailyEsc(a.n)+" ("+a.t+") · bougies journalières · "+dailyEsc(new Date(C.c[0][0]).toLocaleDateString("fr-FR",{month:"long", year:"numeric", timeZone:"UTC"}))+" → "+dailyEsc(new Date(C.c[C.c.length-1][0]).toLocaleDateString("fr-FR",{month:"long", year:"numeric", timeZone:"UTC"}))
+        : "Bougies journalières, sur environ 6 mois. Quel actif est-ce ?")+'</p>'+
+      (hints.length ? '<div class="ch-hints">'+hints.map(h=>'<div><span>'+h[0]+'</span><b>'+dailyEsc(h[1])+'</b></div>').join("")+'</div>' : '<p class="gm-cap faint">Un indice apparaît à partir de la 2<sup>e</sup> erreur.</p>')+
+      (st.g.length ? '<div class="ch-rows"><div class="ch-row ch-hd"><b>Essai</b><span>Catégorie</span><span>Lancement</span></div>'+st.g.map(row).join("")+'</div>' : '')+
+      (done ? chEndHtml(st, a)
+        : '<div class="ch-pick"><input type="search" id="ch-q" placeholder="Tape un nom ou un ticker (BTC, Solana, or…)" autocomplete="off"><div class="ch-opts" id="ch-opts">'+chOpts(left, "")+'</div></div>')+
+    '</div>';
+  chDraw(done);
+  const q = document.getElementById("ch-q");
+  if (q) q.addEventListener("input", ()=>{ const o = document.getElementById("ch-opts"); if (o) o.innerHTML = chOpts(left, q.value); });
+}
+function chOpts(list, q){
+  q = (q||"").trim().toLowerCase();
+  const f = list.filter(p=>!q || p.n.toLowerCase().includes(q) || p.t.toLowerCase().includes(q) || p.s.toLowerCase().startsWith(q));
+  return f.map(p=>'<button type="button" data-gm="ch-guess" data-s="'+p.s+'">'+dailyEsc(p.n)+' <em>'+p.t+'</em></button>').join("") || '<span class="faint">Aucun actif ne correspond.</span>';
+}
+function chEndHtml(st, a){
+  const xp = st.xp||0;
+  return '<div class="ch-end '+(st.won ? "ok" : "ko")+'"><b>'+(st.won ? "Trouvé en "+st.g.length+" essai"+(st.g.length>1?"s":"")+" !" : "C'était "+dailyEsc(a.n)+".")+'</b>'+
+    '<span>'+(xp ? "+"+xp+" XP · " : "")+'Nouveau Chartle demain à minuit.</span>'+
+    '<div class="ch-end-act"><button type="button" class="pw-btn pw-btn-trial" data-gm="ch-share">Partager</button><button type="button" class="pw-btn pw-btn-ghost" data-gm="back">Autres jeux</button></div></div>';
+}
+function chGuess(s){
+  const st = chSave(), C = GM.ch; if (!C || st.done || st.g.includes(s)) return;
+  st.g.push(s);
+  if (s===C.a.s){ st.done = true; st.won = true; st.xp = gmAddXp("chartle", [80, 70, 60, 50, 40, 30][st.g.length-1]||30); }
+  else if (st.g.length>=6){ st.done = true; st.won = false; st.xp = gmAddXp("chartle", 10); }
+  else { gmTouchDay(); gmSave(); }
+  chRender();
+}
+function chShare(){
+  const st = chSave(), C = GM.ch; if (!C) return;
+  const sq = st.g.map(s=>s===C.a.s ? "🟩" : (GM_POOL.find(p=>p.s===s)||{}).cat===C.a.cat ? "🟨" : "⬛").join("");
+  const txt = "Paper Tape · Chartle n°"+chNum(C.day)+" "+(st.won ? st.g.length : "X")+"/6\n"+sq+"\n"+location.origin+location.pathname+"?jeux";
+  (navigator.share && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? navigator.share({text:txt}).catch(()=>{}) : navigator.clipboard.writeText(txt).then(()=>appToast("Résultat copié : colle-le où tu veux."), ()=>openModal('<h3>Partager</h3><textarea style="width:100%;min-height:100px;margin-top:10px;">'+escapeHtml(txt)+'</textarea>')));
+}
+// Graphique sans prix ni date (révélés à la fin).
+function chDraw(reveal){
+  const cv = document.getElementById("ch-cv"), C = GM.ch; if (!cv || !C) return;
+  const dpr = Math.min(2, window.devicePixelRatio||1), W = cv.clientWidth || 600, H = cv.clientHeight || 300;
+  cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr);
+  const x = cv.getContext("2d"); x.setTransform(dpr,0,0,dpr,0,0); x.clearRect(0,0,W,H);
+  const css = getComputedStyle(document.documentElement), v = (k,f)=>(css.getPropertyValue(k)||"").trim()||f;
+  const up = v("--long","#31c882"), dn = v("--short","#f0546a"), faint = v("--text-faint","#8a8072"), border = v("--border","#3a352b"), mono = v("--mono","monospace");
+  const c = C.c, n = c.length, padL = 6, padR = reveal ? 64 : 8, padT = 10, padB = reveal ? 22 : 10, volH = Math.round(H*0.14);
+  let lo = Infinity, hi = -Infinity; c.forEach(k=>{ if (k[3]<lo) lo = k[3]; if (k[2]>hi) hi = k[2]; });
+  const pad = (hi-lo)*0.06; lo -= pad; hi += pad;
+  const ph = H-padT-padB-volH-6, slot = (W-padL-padR)/n, y = p=>padT + (hi-p)/(hi-lo)*ph;
+  let mv = 0; c.forEach(k=>{ mv = Math.max(mv, k[5]); });
+  x.strokeStyle = border; x.globalAlpha = .35;
+  for (let i=1;i<5;i++){ const yy = Math.round(padT+ph*i/5)+.5; x.beginPath(); x.moveTo(padL, yy); x.lineTo(W-padR, yy); x.stroke(); }
+  x.globalAlpha = 1;
+  c.forEach((k,i)=>{
+    const cx = padL + i*slot + slot/2, col = k[4]>=k[1] ? up : dn, bw = Math.max(1, slot*0.62);
+    x.strokeStyle = col; x.fillStyle = col;
+    x.beginPath(); x.moveTo(Math.round(cx)+.5, y(k[2])); x.lineTo(Math.round(cx)+.5, y(k[3])); x.stroke();
+    const t = y(Math.max(k[1],k[4])), b = y(Math.min(k[1],k[4])); x.fillRect(cx-bw/2, t, bw, Math.max(1, b-t));
+    if (mv>0){ const h = k[5]/mv*volH; x.globalAlpha = .3; x.fillRect(cx-bw/2, H-padB-h, bw, h); x.globalAlpha = 1; }
+  });
+  if (reveal){
+    x.font = "11px "+mono; x.fillStyle = faint; x.textBaseline = "middle";
+    for (let i=0;i<=4;i++){ const p = hi-(hi-lo)*i/4; x.fillText(dxP(p), W-padR+6, padT+ph*i/4); }
+    x.textBaseline = "alphabetic"; x.textAlign = "center";
+    [0, Math.floor(n/2), n-1].forEach(i=>{ x.fillText(new Date(c[i][0]).toLocaleDateString("fr-FR",{day:"numeric", month:"short", year:"2-digit", timeZone:"UTC"}), Math.min(W-padR-30, Math.max(30, padL+i*slot+slot/2)), H-6); });
+    x.textAlign = "left";
+  }
+}
+
+// ---------- Puzzles (Elo) ----------
+// Une situation réelle (bougies 15 min, 1 h ou 4 h), coupée : objectif à
+// 2 ATR, stop à 1 ATR. Bonne réponse = le côté qui touche son objectif en
+// premier (situations où l'autre côté se fait stopper). Difficulté : facile
+// quand les lectures du bias vont dans le sens du résultat, difficile sinon.
+function pzOutcome(c, ci){
+  const atr = dailyAtr(c, ci+1, 14), e = c[ci][4];
+  if (!(atr>0)) return null;
+  const race = (dir)=>{ for (let k=ci+1; k<c.length; k++){ const h = c[k][2], l = c[k][3];
+    if (dir==="up"){ if (l <= e-atr) return {win:false, k}; if (h >= e+2*atr) return {win:true, k}; }
+    else { if (h >= e+atr) return {win:false, k}; if (l <= e-2*atr) return {win:true, k}; } } return null; };
+  const L = race("up"), S = race("down");
+  if (L && L.win && (!S || !S.win)) return {dir:"up", k:L.k, atr, e};
+  if (S && S.win && (!L || !L.win)) return {dir:"down", k:S.k, atr, e};
+  return null;
+}
+async function pzFill(){
+  const P = GM.pz; if (P.loading) return P.loading;
+  P.loading = (async ()=>{
+    const seed = "pz|"+clientId+"|"+Date.now()+"|"+Math.random().toString(36).slice(2,7);
+    const cands = dailyPlan(gmDay(), seed, 8);
+    const res = await Promise.allSettled(cands.map(rd=>dailyFetchRound(rd).then(c=>Object.assign({}, rd, {c, v:"classic"}))));
+    const ci = DAILY_WARM+DAILY_SHOW-1;
+    res.forEach(x=>{
+      if (x.status!=="fulfilled") return;
+      const rd = x.value, o = pzOutcome(rd.c, ci); if (!o) return;
+      let B = null; try{ B = dailyBiasRead(rd.c, ci, ci-DAILY_SHOW+1, "classic", rd); }catch(e){}
+      const clar = B ? Math.abs(B.up-B.dn) : 0, agree = B && B.bias ? (B.bias===o.dir ? 1 : -1) : 0;
+      rd.pz = {o, B, rating: Math.max(700, Math.min(2100, Math.round(1250 - agree*clar*110 + (agree===0 ? 100 : 0))))};
+      P.pool.push(rd);
+    });
+    P.loading = null;
+  })();
+  return P.loading;
+}
+async function pzRender(){
+  const m = document.getElementById("gm-main"); if (!m) return;
+  const P = GM.pz || (GM.pz = {pool:[], cur:null, phase:"idle", loading:null});
+  if (!P.cur){
+    if (P.pool.length < 1){
+      m.innerHTML = '<div class="dd-card dd-empty">Préparation des puzzles…</div>';
+      try{ await pzFill(); if (P.pool.length < 1) await pzFill(); }catch(e){}
+      if (GM.view!=="puzzles") return;
+      if (!P.pool.length){ m.innerHTML = '<div class="dd-card dd-empty"><b>Puzzles indisponibles</b><p>Impossible de joindre l\'historique Binance. Réessaie dans un instant.</p><button class="btn-primary" data-gm="puzzles">Réessayer</button> <button class="btn-secondary" data-gm="back">← Jeux</button></div>'; return; }
+    }
+    const g = gmState();
+    P.pool.sort((a,b)=>Math.abs(a.pz.rating-g.elo)-Math.abs(b.pz.rating-g.elo));
+    P.cur = P.pool.shift(); P.phase = "play";
+    if (P.pool.length < 3) pzFill().catch(()=>{});
+  }
+  const rd = P.cur, g = gmState();
+  m.innerHTML =
+    '<div class="dd-card gm-game">'+
+      '<div class="gm-game-top"><button type="button" class="kn-quiz-quit" data-gm="back">← Jeux</button><b>Puzzle · '+rd.pz.rating+'</b><span class="num">Elo '+Math.round(g.elo)+'</span></div>'+
+      '<div class="dd-asset"><b>'+dailyEsc(rd.name)+(rd.name!==rd.tick ? " ("+dailyEsc(rd.tick)+")" : "")+'</b><span class="dd-chip">Bougies '+rd.ivLabel+'</span></div>'+
+      '<div class="dd-chart gm-pz-chart"><canvas id="pz-cv"></canvas></div>'+
+      '<p class="dd-ask">Objectif 2 ATR, stop 1 ATR ('+dxP(rd.pz.o.atr)+'). Quel côté touche son objectif en premier ?</p>'+
+      '<div class="dd-actions" id="pz-act"><button class="dd-btn up" data-gm="pz-long"><span>▲</span>Long</button><button class="dd-btn down" data-gm="pz-short"><span>▼</span>Short</button></div>'+
+      '<div class="dd-verdict" id="pz-verdict" hidden></div>'+
+      '<div class="dx-explain" id="pz-explain" hidden></div>'+
+    '</div>';
+  pzDraw({mode:"play"});
+}
+function pzDraw(opt){
+  const cv = document.getElementById("pz-cv"), P = GM.pz; if (!cv || !P || !P.cur) return;
+  dailyDraw(cv, P.cur, Object.assign({p:1}, opt));
+}
+function pzAnswer(dir){
+  const P = GM.pz; if (!P || !P.cur || P.phase!=="play") return;
+  P.phase = "reveal";
+  const rd = P.cur, o = rd.pz.o, g = gmState(), ok = dir===o.dir;
+  const E = 1/(1+Math.pow(10, (rd.pz.rating-g.elo)/400)), K = (g.pzN||0) < 20 ? 32 : 20;
+  const d = Math.round(K*((ok?1:0)-E));
+  g.elo = Math.max(100, g.elo + d); g.pzN = (g.pzN||0)+1; if (ok) g.pzW = (g.pzW||0)+1; g.eloBest = Math.max(g.eloBest||0, g.elo);
+  const xp = gmAddXp("pz", ok ? 15 : 5);
+  document.querySelectorAll("#pz-act .dd-btn").forEach(b=>{ b.disabled = true; if ((dir==="up") === b.classList.contains("up")) b.classList.add("picked"); });
+  const cv = document.getElementById("pz-cv"), T = 1400, ts = performance.now();
+  const anim = now=>{ const p = Math.min(1, (now-ts)/T); dailyDraw(cv, rd, {mode:"reveal", p}); if (p<1) requestAnimationFrame(anim); else pzVerdict(ok, d, xp); };
+  requestAnimationFrame(anim);
+}
+function pzVerdict(ok, d, xp){
+  const P = GM.pz, rd = P.cur, o = rd.pz.o, ci = DAILY_WARM+DAILY_SHOW-1;
+  const v = document.getElementById("pz-verdict"); if (!v) return;
+  const n = o.k-ci, mv = (rd.c[o.k][4]/o.e-1)*100;
+  v.className = "dd-verdict "+(ok ? "ok" : "ko");
+  v.innerHTML = '<div class="dd-v-l"><b>'+(ok ? "Bien vu !" : "Raté")+'</b><span class="'+(o.dir==="up" ? "up" : "down")+'">'+(o.dir==="up" ? "▲ Le long" : "▼ Le short")+' touchait son objectif en '+n+' bougie'+(n>1?"s":"")+'</span>'+
+    '<em>'+dailyEsc(rd.name)+' · bougies '+rd.ivLabel+' · '+dailyEsc(dailyPeriodLabel(rd))+'</em></div>'+
+    '<div class="dd-v-r"><strong class="num">'+(d>=0?"+":"")+d+' Elo</strong><span class="gm-xp">+'+xp+' XP</span><button class="pw-btn pw-btn-trial" data-gm="pz-next">Puzzle suivant →</button></div>';
+  v.hidden = false;
+  document.getElementById("pz-act").hidden = true;
+  const ex = document.getElementById("pz-explain");
+  rd.pzT = {dir:o.dir, move:mv}; rd.pzSel = null;
+  if (ex && rd.pz.B){ ex.innerHTML = dailyBiasHtml(rd.pz.B, rd.pzT, null); ex.hidden = false; }
+  gmRenderHead();
+}
+// Clic sur une raison du bias : elle est dessinée sur le graphique.
+function pzLens(k){
+  const P = GM.pz, rd = P && P.cur; if (!rd || P.phase!=="reveal" || !rd.pz.B) return;
+  rd.pzSel = rd.pzSel===k ? null : k;
+  const L = rd.pz.B.lenses.find(l=>l.k===rd.pzSel);
+  dailyDraw(document.getElementById("pz-cv"), rd, {mode:"reveal", p:1, annot: L ? L.annot : null});
+  const ex = document.getElementById("pz-explain"); if (ex) ex.innerHTML = dailyBiasHtml(rd.pz.B, rd.pzT, rd.pzSel);
+}
+function pzNext(){ const P = GM.pz; if (P){ P.cur = null; } pzRender(); }
+
+// ---------- Plus ou moins ----------
+// Performances annuelles (1er janvier → 31 décembre) d'après les bougies
+// mensuelles Binance, gardées une semaine sur l'appareil.
+const HL_KEY = "paperTapeHlData";
+async function hlData(){
+  try{ const c = JSON.parse(localStorage.getItem(HL_KEY)||"null"); if (c && Date.now()-c.at < 7*86400e3 && c.items && c.items.length > 40) return c.items; }catch(e){}
+  const items = [], lastYear = new Date().getUTCFullYear()-1;
+  const res = await Promise.allSettled(GM_POOL.map(a=>dailyKlines(a.s, "1M", "limit=120", 2).then(k=>({a, k}))));
+  res.forEach(x=>{
+    if (x.status!=="fulfilled") return;
+    const {a, k} = x.value, byY = {};
+    k.forEach(r=>{ const d = new Date(r[0]), y = d.getUTCFullYear(); (byY[y] = byY[y] || {}); if (d.getUTCMonth()===0) byY[y].o = r[1]; if (d.getUTCMonth()===11) byY[y].c = r[4]; });
+    Object.keys(byY).forEach(y=>{ const b = byY[y]; if (+y<=lastYear && b.o>0 && b.c>0) items.push({s:a.s, n:a.n, t:a.t, y:+y, p:(b.c/b.o-1)*100}); });
+  });
+  if (items.length > 40){ try{ localStorage.setItem(HL_KEY, JSON.stringify({at:Date.now(), items})); }catch(e){} }
+  return items;
+}
+function hlPickNext(items, prev){
+  for (let i=0;i<60;i++){ const it = items[Math.floor(Math.random()*items.length)]; if (!prev || (it!==prev && Math.abs(it.p-prev.p) > 1 && !(it.s===prev.s && it.y===prev.y))) return it; }
+  return items[0];
+}
+async function hlStart(){
+  const H = GM.hl || (GM.hl = {});
+  const m = document.getElementById("gm-main");
+  if (!H.items){ if (m) m.innerHTML = '<div class="dd-card dd-empty">Chargement des performances…</div>'; try{ H.items = await hlData(); }catch(e){ H.items = null; } }
+  if (!H.items || H.items.length < 10){ if (m) m.innerHTML = '<div class="dd-card dd-empty"><b>Plus ou moins indisponible</b><p>Impossible de joindre l\'historique Binance. Réessaie dans un instant.</p><button class="btn-primary" data-gm="hl-start">Réessayer</button> <button class="btn-secondary" data-gm="back">← Jeux</button></div>'; return; }
+  H.a = hlPickNext(H.items, null); H.b = hlPickNext(H.items, H.a); H.score = 0; H.over = false; H.last = null; H.xp = 0;
+  hlRender();
+}
+function hlCardHtml(it, show, cls){
+  return '<div class="hl-card '+(cls||"")+'"><span class="hl-y">'+it.y+'</span><b>'+dailyEsc(it.n)+'</b><em>'+it.t+'</em>'+
+    (show ? '<strong class="num '+(it.p>=0 ? "up" : "down")+'">'+(it.p>=0?"+":"")+dxNum(it.p, 1)+' %</strong>' : '<strong class="hl-q">?</strong>')+
+    '<small>du 1<sup>er</sup> janvier au 31 décembre</small></div>';
+}
+function hlRender(){
+  const m = document.getElementById("gm-main"), H = GM.hl; if (!m) return;
+  if (!H || !H.a){ hlStart(); return; }
+  const g = gmState();
+  m.innerHTML =
+    '<div class="dd-card gm-game">'+
+      '<div class="gm-game-top"><button type="button" class="kn-quiz-quit" data-gm="back">← Jeux</button><b>Plus ou moins</b><span class="num">Série '+H.score+' · record '+(g.hlBest||0)+'</span></div>'+
+      '<div class="hl-duel">'+hlCardHtml(H.a, true)+'<div class="hl-vs">VS</div>'+hlCardHtml(H.b, H.over, H.over ? (H.last ? "" : "ko") : "")+'</div>'+
+      (H.over
+        ? '<div class="ch-end ko"><b>Perdu ! Série de '+H.score+'.</b><span>'+(H.xp ? "+"+H.xp+" XP · " : "")+(H.score>=(g.hlBest||0) && H.score>0 ? "Nouveau record 🏆" : "Record : "+(g.hlBest||0))+'</span><div class="ch-end-act"><button type="button" class="pw-btn pw-btn-trial" data-gm="hl-start">Rejouer</button><button type="button" class="pw-btn pw-btn-ghost" data-gm="back">Autres jeux</button></div></div>'
+        : '<p class="dd-ask">'+dailyEsc(H.b.n)+' en '+H.b.y+' a fait…</p><div class="dd-actions"><button class="dd-btn up" data-gm="hl-up"><span>▲</span>Plus</button><button class="dd-btn down" data-gm="hl-down"><span>▼</span>Moins</button></div>'+
+          (H.last ? '<p class="gm-cap">✓ '+dailyEsc(H.last)+'</p>' : ''))+
+    '</div>';
+}
+function hlAnswer(sign){
+  const H = GM.hl; if (!H || H.over) return;
+  const ok = sign>0 ? H.b.p >= H.a.p : H.b.p <= H.a.p;
+  const g = gmState();
+  if (ok){
+    H.score++; H.xp += gmAddXp("hl", 5);
+    H.last = H.b.n+" "+H.b.y+" : "+(H.b.p>=0?"+":"")+dxNum(H.b.p, 1)+" %";
+    H.a = H.b; H.b = hlPickNext(H.items, H.a);
+    if (H.score > (g.hlBest||0)){ g.hlBest = H.score; gmSave(); }
+  } else { H.over = true; gmTouchDay(); gmSave(); }
+  hlRender();
+}
+
 /* ===================== DÉFI DU JOUR · MODES AVANCÉS =====================
    À côté du défi classique (5 × 1 min) :
    - Order flow : delta, CVD, profil de volume, absorption ;
@@ -27812,7 +28418,7 @@ async function certVerifyBoot(){
 // badges, admin visibility) keeps working unchanged on both.
 const VIEW_TITLES = {
   terminal:"Terminal", news:"News", chat:"Chat", leaderboard:"Classement", concoursedbplus:"Concours EDB+",
-  challenge:"Challenge Prop Firm", replay:"Replay", daily:"Défi du jour", quiz:"Connaissances", resources:"Ressources", edbplus:"EDB+",
+  challenge:"Challenge Prop Firm", replay:"Replay", daily:"Défi du jour", games:"Jeux", quiz:"Connaissances", resources:"Ressources", edbplus:"EDB+",
   tradesedb:"Trades EDB+", profile:"Profil", admin:"Admin", invest:"Investissement",
 };
 const SIDEBAR_KEY = "paperTapeSidebar"; // "full" | "rail" — per-browser preference, like the theme
@@ -27940,6 +28546,7 @@ function switchView(name){
     renderResources();
   }
   if (name==="daily") renderDaily();
+  if (name==="games") renderGames();
   if (name==="replay") renderReplay();
   else { if (typeof replayPause==="function") replayPause(); if (RPV) rpChartDetach(); } // le graphique retourne au terminal
   if (name==="profile"){
@@ -30369,6 +30976,10 @@ function initWidgets(){
 function updateAdminNavVisibility(){
   const btn = document.getElementById("nav-admin-btn");
   if (btn) btn.hidden = !state.isAdmin;
+  // Jeux : en test, réservé aux admins pour l'instant.
+  const gb = document.getElementById("nav-games-btn");
+  if (gb) gb.hidden = !state.isAdmin;
+  if (document.body.dataset.view==="games"){ if (!state.isAdmin && typeof switchView==="function") switchView("terminal"); else if (typeof renderGames==="function") renderGames(); }
 }
 // « App iPhone », « Navigateur Mac »… (app = installée sur l'écran d'accueil / le Dock).
 function ptClientKind(){
@@ -32135,6 +32746,7 @@ async function init(){
   await Promise.all([initDb(), initPriceFeed()]);
   renderAll();
   try{ if (new URLSearchParams(location.search).has("defi")) switchView("daily"); }catch(e){}
+  try{ if (new URLSearchParams(location.search).has("jeux")) switchView("games"); }catch(e){}
   setInterval(()=>{ if (state.positions.length>0 || state.pendingOrders.length>0) persistAccount(); }, 10000);
 }
 init();
