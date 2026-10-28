@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3240">
+<meta name="pt-build" content="3250">
 <script>
 /* Multi-graphiques : cette page est-elle un graphique seul dans une iframe ?
    Si oui, ses réglages de graphique (indicateurs, bougies, unité de temps,
@@ -2475,6 +2475,249 @@
     .inv-chip{white-space:nowrap;}
     .inv-h-row{grid-template-columns:62px minmax(0,1fr) auto;}
     .inv-h-env{display:none;}
+  }
+
+  /* ---------- Investissement v2 (v3250) : Vue d'ensemble · PEA · CTO ---------- */
+  #invest-root{--iv-pea:#4f8dff;--iv-cto:var(--gold);gap:18px;}
+  .iv-eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);}
+  .iv-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:1px;flex:none;}
+  .iv-dot.pea{background:var(--iv-pea);} .iv-dot.cto{background:var(--iv-cto);}
+  .iv-fa .up, .inv-order .up{color:var(--long);} .iv-fa .down, .inv-order .down{color:var(--short);}
+  .inv-mono.cat-eu{color:#a99bf7;border-color:color-mix(in srgb, #8b7cf6 35%, var(--border-soft));}
+  .inv-mono.cat-stock{color:#41d1b9;border-color:color-mix(in srgb, #2fbfa8 30%, var(--border-soft));}
+
+  /* intro */
+  .iv-intro{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:40px;align-items:center;padding:44px 8px 24px;}
+  .iv-intro h1{font-size:44px;line-height:1.04;letter-spacing:-.03em;margin:14px 0 18px;font-weight:600;}
+  .iv-intro p{color:var(--text-dim);font-size:15.5px;line-height:1.6;margin:0 0 20px;max-width:540px;}
+  .iv-intro p b{color:var(--text);}
+  .iv-intro-list{list-style:none;padding:0;margin:0 0 28px;display:flex;flex-direction:column;gap:10px;}
+  .iv-intro-list li{font-size:13.5px;color:var(--text-dim);padding-left:18px;position:relative;line-height:1.5;}
+  .iv-intro-list li::before{content:"";position:absolute;left:0;top:8px;width:8px;height:2px;background:var(--long);}
+  .iv-intro-list b{color:var(--text);font-weight:600;}
+  .iv-cta{font:inherit;font-weight:600;font-size:14.5px;padding:13px 22px;border-radius:999px;border:none;cursor:pointer;background:var(--text);color:var(--bg);transition:transform .15s;}
+  .iv-cta:hover{transform:translateY(-1px);}
+  .iv-intro-art svg{width:100%;height:auto;display:block;}
+
+  /* barre d'onglets */
+  .iv-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--border-soft);}
+  .iv-tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;}
+  .iv-tabs::-webkit-scrollbar{display:none;}
+  .iv-tabs button{font:inherit;font-size:14px;font-weight:500;color:var(--text-faint);background:none;border:none;padding:12px 14px;cursor:pointer;
+    display:inline-flex;align-items:center;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s;}
+  .iv-tabs button:hover{color:var(--text-dim);}
+  .iv-tabs button.on{color:var(--text);border-bottom-color:var(--text);}
+  .iv-reserve{font:inherit;font-size:12.5px;display:inline-flex;align-items:center;gap:8px;padding:6px 6px 6px 12px;margin:6px 0;border-radius:999px;cursor:pointer;
+    background:color-mix(in srgb, var(--warn) 10%, transparent);border:1px solid color-mix(in srgb, var(--warn) 40%, transparent);color:var(--text-dim);}
+  .iv-reserve b{color:var(--text);font-family:var(--mono);font-weight:600;}
+  .iv-reserve span{background:var(--warn);color:#1c1a17;font-weight:600;border-radius:999px;padding:3px 10px;}
+
+  /* héro */
+  .iv-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:end;padding:10px 2px 6px;}
+  .iv-total{font-family:var(--mono);font-size:46px;font-weight:600;letter-spacing:-.035em;line-height:1.05;margin:8px 0 8px;}
+  .iv-perfs{display:flex;gap:18px;flex-wrap:wrap;font-size:13.5px;}
+  .iv-perfs span{font-family:var(--mono);}
+  .iv-hero-kpis{display:flex;align-items:stretch;}
+  .iv-kpi{font:inherit;text-align:left;background:none;border:none;color:inherit;display:flex;flex-direction:column;gap:4px;padding:2px 22px;min-width:150px;border-left:1px solid var(--border-soft);}
+  button.iv-kpi{cursor:pointer;border-radius:0;transition:background .15s;}
+  button.iv-kpi:hover{background:color-mix(in srgb, var(--text) 4%, transparent);}
+  .iv-kpi span{font-size:11.5px;color:var(--text-faint);display:flex;align-items:center;}
+  .iv-kpi b{font-family:var(--mono);font-size:19px;font-weight:600;color:var(--text);}
+  .iv-kpi em{font-style:normal;font-size:11.5px;color:var(--text-faint);font-family:var(--mono);}
+  .iv-kpi em.up{color:var(--long);} .iv-kpi em.down{color:var(--short);}
+  .iv-hero-env .iv-eyebrow{display:flex;align-items:center;}
+  .iv-hero-env.pea .iv-eyebrow::before, .iv-hero-env.cto .iv-eyebrow::before{content:"";width:8px;height:8px;border-radius:50%;margin-right:8px;background:var(--iv-pea);}
+  .iv-hero-env.cto .iv-eyebrow::before{background:var(--iv-cto);}
+  .iv-clock{margin-top:14px;max-width:420px;}
+  .iv-clock div{display:flex;justify-content:space-between;gap:10px;font-size:11.5px;color:var(--text-faint);margin-bottom:6px;flex-wrap:wrap;}
+  .iv-clock u{display:block;height:3px;border-radius:3px;background:var(--panel-2);overflow:hidden;text-decoration:none;}
+  .iv-clock u i{display:block;height:100%;min-width:3px;background:var(--iv-pea);border-radius:3px;}
+
+  /* cartes */
+  .iv-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;align-items:stretch;}
+  .iv-card{background:var(--panel);border:1px solid var(--border-soft);border-radius:14px;padding:18px 20px;min-width:0;}
+  .iv-card > header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+  .iv-card > header h3{margin:0;font-size:14.5px;font-weight:600;letter-spacing:-.005em;}
+  .iv-sub{font-size:12px;color:var(--text-faint);}
+  .iv-chips{display:flex;gap:4px;flex-wrap:wrap;}
+  .iv-chips button{font:inherit;font-size:12.5px;padding:6px 12px;border-radius:999px;border:1px solid var(--border-soft);background:transparent;color:var(--text-dim);cursor:pointer;white-space:nowrap;}
+  .iv-chips button:hover{color:var(--text);}
+  .iv-chips button.on{background:var(--text);border-color:var(--text);color:var(--bg);}
+  .iv-chips.sm button{font-size:11.5px;padding:4px 10px;}
+  .iv-btn{font:inherit;font-size:12.5px;font-weight:600;padding:7px 14px;border-radius:999px;cursor:pointer;border:1px solid var(--text);background:var(--text);color:var(--bg);white-space:nowrap;}
+  .iv-btn.sm{font-size:12px;padding:5px 12px;}
+  .iv-btn.xs{font-size:11.5px;padding:4px 10px;font-weight:500;}
+  .iv-btn.ghost{background:transparent;color:var(--text-dim);border-color:var(--border);}
+  .iv-btn.ghost:hover{color:var(--text);border-color:var(--text-faint);}
+  .iv-note{font-size:11.5px;color:var(--text-faint);line-height:1.5;margin:12px 0 0;}
+  .iv-note.warn{color:var(--warn);}
+  .iv-note .down{color:var(--short);}
+  .iv-empty{display:flex;flex-direction:column;gap:4px;padding:18px 4px;font-size:13px;color:var(--text-faint);line-height:1.5;}
+  .iv-empty b{color:var(--text-dim);font-weight:600;}
+  .iv-link{background:none;border:none;color:var(--text-dim);font:inherit;font-size:12.5px;cursor:pointer;padding:12px 0 0;text-decoration:underline;text-underline-offset:3px;}
+
+  /* tableaux */
+  .iv-table{display:flex;flex-direction:column;}
+  .iv-th, .iv-tr{display:grid;gap:12px;align-items:center;padding:10px 6px;}
+  .iv-th{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);padding-top:0;border-bottom:1px solid var(--border-soft);}
+  .iv-tr{border-bottom:1px solid var(--border-soft);cursor:pointer;border-radius:8px;transition:background .12s;font-size:13px;}
+  .iv-tr:last-child{border-bottom:none;}
+  .iv-tr:hover{background:color-mix(in srgb, var(--text) 4%, transparent);}
+  .iv-tr .num{font-family:var(--mono);}
+  .iv-hold .iv-th, .iv-hold .iv-tr{grid-template-columns:minmax(0,2.3fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr) minmax(0,.6fr) auto;}
+  .iv-mkt .iv-th, .iv-mkt .iv-tr{grid-template-columns:minmax(0,2.6fr) minmax(0,.9fr) minmax(0,1fr) minmax(0,.8fr) minmax(0,.9fr);}
+  .iv-asset{display:flex;align-items:center;gap:10px;min-width:0;}
+  .iv-asset > span:last-child{display:flex;flex-direction:column;min-width:0;}
+  .iv-asset b{font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .iv-asset em{font-style:normal;font-size:11.5px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .iv-pea-tag{font-style:normal;font-size:9.5px;font-weight:600;color:var(--iv-pea);border:1px solid color-mix(in srgb, var(--iv-pea) 45%, transparent);border-radius:4px;padding:0 4px;margin-left:5px;vertical-align:1px;}
+  .iv-row-acts{display:flex;gap:4px;justify-content:flex-end;}
+  .iv-st{font-size:11.5px;color:var(--text-faint);display:flex;align-items:center;gap:6px;}
+  .iv-st::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--text-faint);opacity:.5;flex:none;}
+  .iv-st.open{color:var(--text-dim);} .iv-st.open::before{background:var(--long);opacity:1;}
+  .iv-yield{font-size:12px;color:var(--text-dim);}
+  .iv-yield em{font-style:normal;font-family:var(--sans);font-size:11px;color:var(--text-faint);}
+  .iv-search{font:inherit;font-size:13px;padding:7px 12px;border-radius:999px;border:1px solid var(--border-soft);background:var(--panel-2);color:var(--text);min-width:220px;}
+  .iv-search:focus{outline:none;border-color:var(--text-faint);}
+  .inv-market > .iv-chips{margin-bottom:12px;}
+
+  /* courbe */
+  .iv-curve{position:relative;}
+  .iv-curve-svg{width:100%;height:auto;display:block;overflow:visible;}
+  .iv-grid-l{stroke:var(--border-soft);stroke-width:1;}
+  .iv-ax{fill:var(--text-faint);font-family:var(--mono);font-size:11px;}
+  .iv-bench{fill:none;stroke:var(--text-faint);stroke-width:1.6;stroke-dasharray:4 4;}
+  .iv-hover-l{stroke:var(--text-faint);stroke-width:1;}
+  .iv-curve-leg{display:flex;gap:18px;font-size:12px;color:var(--text-dim);margin-bottom:8px;flex-wrap:wrap;}
+  .iv-curve-leg span{display:inline-flex;align-items:center;gap:7px;}
+  .iv-curve-leg i{width:14px;height:3px;border-radius:2px;display:inline-block;}
+  .iv-curve-leg i.b{background:repeating-linear-gradient(90deg, var(--text-faint) 0 4px, transparent 4px 7px);}
+  .iv-curve-leg b{font-family:var(--mono);font-weight:600;}
+  .iv-curve-leg b.up{color:var(--long);} .iv-curve-leg b.down{color:var(--short);}
+  .iv-tip{position:absolute;top:28px;background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:12px;font-family:var(--mono);pointer-events:none;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.25);}
+  .iv-tip span{color:var(--text-faint);}
+  .iv-curve-empty{display:flex;flex-direction:column;justify-content:center;gap:8px;min-height:200px;padding:0 4px;border-radius:10px;
+    background:repeating-linear-gradient(0deg, transparent 0 49px, var(--border-soft) 49px 50px);}
+  .iv-curve-empty b{font-family:var(--mono);font-size:24px;}
+  .iv-curve-empty span{font-size:13px;color:var(--text-faint);max-width:380px;line-height:1.5;}
+
+  /* répartition */
+  .iv-alloc{display:flex;gap:20px;align-items:center;}
+  .iv-donut{width:140px;height:140px;flex:none;}
+  .iv-donut-n{fill:var(--text);font-family:var(--mono);font-size:22px;font-weight:600;}
+  .iv-donut-l{fill:var(--text-faint);font-size:10.5px;}
+  .iv-alloc-leg{display:flex;flex-direction:column;gap:7px;min-width:0;flex:1;}
+  .iv-alloc-leg div{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:9px;align-items:center;font-size:12.5px;color:var(--text-dim);}
+  .iv-alloc-leg i{width:10px;height:10px;border-radius:3px;}
+  .iv-alloc-leg span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .iv-alloc-leg b{font-family:var(--mono);font-weight:600;color:var(--text);}
+
+  /* programmés, dividendes, fiscalité, opérations */
+  .iv-plans{display:flex;flex-direction:column;}
+  .iv-plan{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border-soft);}
+  .iv-plan:last-child{border-bottom:none;}
+  .iv-plan.off{opacity:.55;}
+  .iv-plan b{display:block;font-size:13.5px;font-family:var(--mono);}
+  .iv-plan span{font-size:11.5px;color:var(--text-faint);line-height:1.45;}
+  .iv-plan-acts{display:flex;gap:4px;}
+  .iv-div-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;}
+  .iv-div-kpis div{display:flex;flex-direction:column;gap:4px;padding:0 14px;border-left:1px solid var(--border-soft);}
+  .iv-div-kpis div:first-child{padding-left:0;border-left:none;}
+  .iv-div-kpis span{font-size:11px;color:var(--text-faint);}
+  .iv-div-kpis b{font-size:16px;font-weight:600;}
+  .iv-div-kpis b.num{font-family:var(--mono);}
+  .iv-div-list{margin-top:14px;display:flex;flex-direction:column;}
+  .iv-div-list div{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--text-dim);padding:6px 0;border-top:1px solid var(--border-soft);}
+  .iv-div-list b{font-family:var(--mono);font-weight:600;}
+  .iv-div-list b.up{color:var(--long);}
+  .iv-fx-row{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--text-dim);padding:7px 0;border-bottom:1px solid var(--border-soft);}
+  .iv-fx-row b{font-family:var(--mono);font-weight:600;color:var(--text);}
+  .iv-fx-row b.up{color:var(--long);} .iv-fx-row b.down{color:var(--short);}
+  .iv-h-row{display:grid;grid-template-columns:22px 92px 40px minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--border-soft);font-size:13px;}
+  .iv-h-row i{font-style:normal;font-family:var(--mono);color:var(--text-faint);text-align:center;}
+  .iv-h-row.div i{color:var(--long);}
+  .iv-h-row.move .iv-h-what{color:var(--text-dim);}
+  .iv-h-when{font-family:var(--mono);font-size:11px;color:var(--text-faint);}
+  .iv-h-env{font-family:var(--mono);font-size:10.5px;color:var(--text-faint);}
+  .iv-h-fee{font-size:11px;color:var(--text-faint);}
+  .iv-h-row .num{font-family:var(--mono);}
+  .iv-h-row .up{color:var(--long);} .iv-h-row .down{color:var(--short);}
+
+  /* fiche actif */
+  .iv-fa{display:flex;flex-direction:column;gap:14px;}
+  .iv-fa-head{display:flex;gap:12px;align-items:center;padding-right:30px;}
+  .iv-fa-head .inv-mono{width:40px;height:40px;border-radius:12px;font-size:12px;}
+  .iv-fa-head h3{margin:0;font-size:19px;letter-spacing:-.01em;}
+  .iv-fa-head span{font-size:12px;color:var(--text-faint);}
+  .iv-fa-head em{font-style:normal;}
+  .iv-fa-px{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
+  .iv-fa-px b{font-family:var(--mono);font-size:28px;font-weight:600;letter-spacing:-.02em;}
+  .iv-fa-px small{font-size:13px;color:var(--text-faint);font-weight:400;}
+  .iv-fa-px span{font-family:var(--mono);font-size:13px;}
+  .iv-fa-ranges{align-items:center;}
+  .iv-fa-perf{margin-left:auto;font-size:12px;font-family:var(--mono);}
+  .iv-fa-chart{position:relative;height:200px;}
+  .iv-fa-chart svg{width:100%;height:100%;display:block;}
+  .iv-fa-load{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12.5px;color:var(--text-faint);border:1px dashed var(--border-soft);border-radius:10px;padding:0 20px;}
+  .iv-fa-hilo{display:flex;justify-content:space-between;gap:10px;margin-top:-6px;font-size:11px;color:var(--text-faint);}
+  .iv-fa-hilo b{font-family:var(--mono);color:var(--text-dim);font-weight:600;}
+  .iv-fa-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft);}
+  .iv-fa-facts div{padding:10px 12px;display:flex;flex-direction:column;gap:3px;border-left:1px solid var(--border-soft);}
+  .iv-fa-facts div:first-child{border-left:none;padding-left:0;}
+  .iv-fa-facts span{font-size:11px;color:var(--text-faint);}
+  .iv-fa-facts b{font-size:12.5px;font-weight:600;line-height:1.35;}
+  .iv-fa-desc{font-size:13px;color:var(--text-dim);line-height:1.55;margin:0;}
+  .iv-fa-poss{display:flex;flex-direction:column;gap:6px;}
+  .iv-fa-pos{display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:10px;align-items:center;font-size:13px;padding:8px 12px;background:var(--panel-2);border-radius:10px;}
+  .iv-fa-pos span{display:flex;align-items:center;color:var(--text-dim);}
+  .iv-fa-pos b{font-family:var(--mono);font-weight:600;}
+  .iv-fa-pos em{font-style:normal;font-family:var(--mono);font-size:12px;}
+  .iv-fa-acts{display:flex;gap:8px;}
+  .iv-fa-acts button{flex:1;}
+  .iv-select{width:100%;font:inherit;font-size:14px;padding:10px 12px;background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:8px;}
+  .iv-check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-dim);margin-top:14px;cursor:pointer;}
+
+  @media (max-width:1080px){
+    .iv-grid{grid-template-columns:minmax(0,1fr);}
+    .iv-hero{grid-template-columns:minmax(0,1fr);gap:18px;}
+    .iv-hero-kpis{border-top:1px solid var(--border-soft);padding-top:14px;}
+    .iv-kpi:first-child{border-left:none;padding-left:0;}
+  }
+  @media (max-width:720px){
+    .iv-intro{grid-template-columns:minmax(0,1fr);gap:20px;padding:24px 0 8px;}
+    .iv-intro h1{font-size:34px;}
+    .iv-intro-art{order:-1;max-height:150px;overflow:hidden;}
+    .iv-cta{width:100%;}
+    .iv-top{margin:0 -16px;padding:0 16px;}
+    .iv-reserve{width:100%;justify-content:space-between;}
+    .iv-total{font-size:36px;}
+    .iv-hero-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));}
+    .iv-kpi{min-width:0;padding:2px 10px;}
+    .iv-kpi b{font-size:15px;}
+    .iv-kpi em{font-size:10.5px;}
+    .iv-card{padding:14px 14px;border-radius:12px;}
+    .iv-col-opt{display:none !important;}
+    .iv-hold .iv-th, .iv-hold .iv-tr{grid-template-columns:minmax(0,1.8fr) minmax(0,1fr) minmax(0,1.2fr);}
+    .iv-hold .iv-th span:nth-child(2), .iv-hold .iv-tr > span:nth-child(2){display:none;}
+    .iv-hold .iv-th span:last-child{display:none;}
+    .iv-hold .iv-row-acts{grid-column:1 / -1;justify-content:stretch;}
+    .iv-hold .iv-row-acts .iv-btn{flex:1;}
+    .iv-mkt .iv-th, .iv-mkt .iv-tr{grid-template-columns:minmax(0,1.8fr) minmax(0,1fr) minmax(0,.8fr);}
+    .iv-search{min-width:0;width:100%;}
+    .inv-market > header h3{width:100%;}
+    .iv-chips:not(.sm){flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;}
+    .iv-chips::-webkit-scrollbar{display:none;}
+    .iv-alloc{flex-direction:column;align-items:stretch;}
+    .iv-donut{margin:0 auto;}
+    .iv-div-kpis div{padding:0 8px;}
+    .iv-div-kpis b{font-size:14px;}
+    .iv-h-row{grid-template-columns:18px 70px minmax(0,1fr) auto;}
+    .iv-h-env{display:none;}
+    .iv-fa-facts{grid-template-columns:minmax(0,1fr);}
+    .iv-fa-facts div{border-left:none;padding-left:0;border-top:1px solid var(--border-soft);}
+    .iv-fa-facts div:first-child{border-top:none;}
+    .iv-fa-pos{grid-template-columns:minmax(0,1fr) auto;}
+    .iv-fa-pos em{grid-column:1 / -1;}
   }
 
   /* ---------- Connaissances : images illustratives par section ---------- */
@@ -6610,7 +6853,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3240 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3250 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -29516,11 +29759,15 @@ function investVenueStatus(a, now){
 
 /* ---- account ---- */
 function investFresh(){
+  // v2 (v3250) : chaque nouveau compte démarre avec 50 000 $ déjà versés sur
+  // le PEA et 50 000 $ sur le CTO. Les comptes plus anciens gardent leurs
+  // versements et leurs liquidités à placer (reserve) telles quelles.
   const now = new Date().toISOString();
-  return {v:1, openedAt:now, reserve:INVEST_START, feesPaid:0,
-    pea:{openedAt:now, cash:0, deposits:0, holdings:{}},
-    cto:{cash:0, deposits:0, holdings:{}, realized:{}},
-    history:[]};
+  return {v:2, openedAt:now, reserve:0, feesPaid:0,
+    pea:{openedAt:now, cash:50000, deposits:50000, holdings:{}, divs:0},
+    cto:{cash:50000, deposits:50000, holdings:{}, realized:{}, divs:0},
+    plans:[], curve:[], divAt:now,
+    history:[{t:now, type:"open", env:"pea", amount:50000},{t:now, type:"open", env:"cto", amount:50000}]};
 }
 function investSanitize(d){
   if (!d || typeof d!=="object") return null;
@@ -29535,10 +29782,16 @@ function investSanitize(d){
     return out;
   };
   const pea = d.pea || {}, cto = d.cto || {};
-  return {v:1, openedAt:d.openedAt||now, reserve:num(d.reserve,0), feesPaid:num(d.feesPaid,0),
-    pea:{openedAt:pea.openedAt||d.openedAt||now, cash:num(pea.cash,0), deposits:num(pea.deposits,0), holdings:holds(pea.holdings)},
+  const plans = Array.isArray(d.plans) ? d.plans.filter(p=>p && typeof p==="object" && p.id && p.aid && (p.env==="pea" || p.env==="cto") && num(p.amt,0)>0)
+    .map(p=>({id:String(p.id), aid:String(p.aid), env:p.env, amt:num(p.amt,0), freq:p.freq==="w" ? "w" : "m", next:p.next||now, on:p.on!==false,
+      created:p.created||now, runs:num(p.runs,0), spent:num(p.spent,0)})).slice(0,20) : [];
+  const curve = Array.isArray(d.curve) ? d.curve.filter(r=>r && typeof r==="object" && typeof r.d==="string" && isFinite(r.t))
+    .map(r=>({d:r.d, t:+r.t, p:isFinite(r.p) ? +r.p : 0, c:isFinite(r.c) ? +r.c : 0, s:isFinite(r.s) && r.s>0 ? +r.s : null})).slice(-400) : [];
+  return {v:typeof d.v==="number" ? d.v : 1, openedAt:d.openedAt||now, reserve:num(d.reserve,0), feesPaid:num(d.feesPaid,0),
+    pea:{openedAt:pea.openedAt||d.openedAt||now, cash:num(pea.cash,0), deposits:num(pea.deposits,0), holdings:holds(pea.holdings), divs:num(pea.divs,0)},
     cto:{cash:num(cto.cash,0), deposits:num(cto.deposits,0), holdings:holds(cto.holdings),
-      realized:(cto.realized && typeof cto.realized==="object") ? cto.realized : {}},
+      realized:(cto.realized && typeof cto.realized==="object") ? cto.realized : {}, divs:num(cto.divs,0)},
+    plans, curve, divAt:typeof d.divAt==="string" ? d.divAt : null,
     history:Array.isArray(d.history) ? d.history.slice(0,INVEST_HISTORY_MAX) : []};
 }
 function investHoldingPx(id, h){
@@ -29631,7 +29884,7 @@ function investCheckOrder(id, env, side, qty){
   const gross = qty*q.px, fee = gross*INVEST_FEE_RATE;
   if (side==="buy"){
     const total = gross+fee;
-    if (total > inv[env].cash+1e-9) return {err:"Espèces insuffisantes dans le "+investEnvName(env)+" ("+fmtMoney(inv[env].cash)+"). Fais d'abord un versement.", px:q.px, gross, fee, total};
+    if (total > inv[env].cash+1e-9) return {err:"Espèces insuffisantes dans le "+investEnvName(env)+" ("+fmtMoney(inv[env].cash)+")"+(inv.reserve>0.5 ? ". Verse d'abord tes liquidités à placer." : ". Vends des titres pour libérer des espèces.")+"", px:q.px, gross, fee, total};
     return {ok:true, px:q.px, gross, fee, total};
   }
   const h = inv[env].holdings[id];
@@ -29709,234 +29962,378 @@ function investClosePea(){
   return {ok:true};
 }
 
-/* ---- rendering ---- */
+/* ---- rendering (v2 : Vue d'ensemble · PEA · CTO) ----
+   Trois pages : la vue d'ensemble (patrimoine, courbe face au S&P 500,
+   répartition, dividendes, investissements programmés, opérations) puis une
+   page par enveloppe (PEA, CTO) avec ses lignes, son marché (titres éligibles
+   seulement pour le PEA), sa courbe et sa fiscalité. Un clic sur un actif
+   ouvre sa fiche (graphique du cours, perf, dividende, ta position, acheter /
+   vendre / programmer). Plus de « Retirer » ; « Verser » ne reste que pour
+   les comptes ouverts avant la v3250 qui ont encore des liquidités à placer. */
+let investTab = "home";
 let investFilter = "all";
+let investSearch = "";
 let investHistoryAll = false;
+let investMarketAll = false;
+let investRange = "all";
+let investAllocMode = "cat";
+let investDrawSig = "";
+const INVEST_CAT_LABEL = {etf:"ETF", eu:"Actions Europe", stock:"Actions US", commodity:"Matières premières", crypto:"Crypto", cash:"Liquidités"};
+const INVEST_CAT_COLOR = {etf:"#4f8dff", eu:"#8b7cf6", stock:"#2fbfa8", commodity:"#e3ac4b", crypto:"#f0832e", cash:"#6b6458"};
+// Rendement du dividende (estimé, % par an) et secteur. ETF « capitalisants » :
+// les dividendes sont réinvestis dans le cours (rien n'est versé).
+const INVEST_META = {
+  PEA500:{y:0, cap:true, sec:"ETF actions US"}, PEANDX:{y:0, cap:true, sec:"ETF tech US"}, SP500:{y:1.2, sec:"ETF actions US"}, NDX100:{y:0.6, sec:"ETF tech US"},
+  CACETF:{y:2.8, sec:"ETF actions France"}, CW8:{y:0, cap:true, sec:"ETF monde"}, STOXX600:{y:0, cap:true, sec:"ETF actions Europe"}, EMERG:{y:0, cap:true, sec:"ETF émergents"},
+  MC:{y:1.9, sec:"Luxe"}, RMS:{y:0.8, sec:"Luxe"}, ORL:{y:1.7, sec:"Cosmétiques"}, TTE:{y:5.3, sec:"Énergie"}, AIR:{y:1.4, sec:"Aéronautique"}, SAF:{y:1.0, sec:"Aéronautique"},
+  ORA:{y:6.5, sec:"Télécoms"}, BNP:{y:6.5, sec:"Banque"}, GLE:{y:4.0, sec:"Banque"}, SANF:{y:4.2, sec:"Santé"}, SU:{y:1.6, sec:"Équipements électriques"}, AIL:{y:1.9, sec:"Gaz industriels"},
+  BN:{y:3.4, sec:"Agroalimentaire"}, KER:{y:3.0, sec:"Luxe"}, CAPG:{y:2.6, sec:"Services informatiques"}, DSY:{y:0.9, sec:"Logiciels"}, EL:{y:1.4, sec:"Optique"},
+  ASML:{y:0.9, sec:"Semi-conducteurs"}, STM:{y:1.2, sec:"Semi-conducteurs"}, SOI:{y:0, sec:"Semi-conducteurs"}, IFX:{y:1.1, sec:"Semi-conducteurs"}, ASMI:{y:0.8, sec:"Semi-conducteurs"}, BESI:{y:1.8, sec:"Semi-conducteurs"},
+  SAP:{y:1.0, sec:"Logiciels"}, SIE:{y:2.4, sec:"Industrie"},
+  AAPL:{y:0.4, sec:"Tech"}, MSFT:{y:0.7, sec:"Logiciels / cloud"}, NVDA:{y:0, sec:"Semi-conducteurs (IA)"}, GOOGL:{y:0.4, sec:"Internet"}, AMZN:{y:0, sec:"E-commerce / cloud"}, META:{y:0.3, sec:"Réseaux sociaux"},
+  TSLA:{y:0, sec:"Automobile électrique"}, NFLX:{y:0, sec:"Streaming"}, AMD:{y:0, sec:"Semi-conducteurs"}, TSM:{y:1.2, sec:"Semi-conducteurs"}, AVGO:{y:1.0, sec:"Semi-conducteurs"},
+  MU:{y:0.3, sec:"Semi-conducteurs"}, INTC:{y:0, sec:"Semi-conducteurs"}, QCOM:{y:2.0, sec:"Semi-conducteurs"}, LLY:{y:0.7, sec:"Santé"},
+  GOLDETC:{y:0, sec:"Métal précieux"}, SILVERETC:{y:0, sec:"Métal précieux"}, OILETC:{y:0, sec:"Énergie"}, BTC:{y:0, sec:"Crypto"}, ETH:{y:0, sec:"Crypto"}, SOL:{y:0, sec:"Crypto"},
+};
+function investMeta(id){ return INVEST_META[id] || {y:0, sec:""}; }
 function investMonogram(a){
   const letters = a.cat==="crypto" ? a.short.slice(0,3) : a.short.replace(/[^A-Z]/g,"").slice(0,2) || a.short.slice(0,2);
   return '<span class="inv-mono cat-'+a.cat+'" aria-hidden="true">'+escapeHtml(letters)+'</span>';
 }
 function investIntroHtml(){
-  return '<div class="card inv-intro">'+
-    '<div class="inv-eyebrow">Nouveau · sans levier</div>'+
-    '<h2>Investir sur le long terme</h2>'+
-    '<p class="inv-intro-lead">Un portefeuille fictif de <b>100 000 $</b>, séparé de ton compte de trading. Tu le répartis entre un <b>PEA</b> et un <b>compte-titres (CTO)</b>, comme un vrai investisseur français, et tu achètes des ETF, des actions américaines, des matières premières ou des cryptos.</p>'+
-    '<div class="inv-intro-grid">'+
-      '<div class="inv-intro-tile"><h4>PEA</h4><p>Enveloppe fiscale : actions européennes (LVMH, Orange, TotalEnergies…) et ETF éligibles (MSCI World, CAC 40…). Après 5 ans, les gains ne supportent que 18,6 % de prélèvements sociaux. Avant 5 ans, un retrait le clôture.</p></div>'+
-      '<div class="inv-intro-tile"><h4>Compte-titres</h4><p>Tout est permis (actions US, or, crypto…), sans plafond. En contrepartie, les plus-values sont taxées à la flat tax de 31,4 %.</p></div>'+
-      '<div class="inv-intro-tile"><h4>Comme en vrai</h4><p>Frais de 0,5 % par ordre, parts entières, ordres seulement quand la Bourse est ouverte, et une estimation de l\'impôt si tu retirais tout aujourd\'hui.</p></div>'+
+  return '<div class="iv-intro">'+
+    '<div class="iv-intro-l">'+
+      '<span class="iv-eyebrow">Sans levier · long terme</span>'+
+      '<h1>Investis comme<br>un vrai épargnant.</h1>'+
+      '<p>Un patrimoine fictif de <b>100&nbsp;000&nbsp;$</b>, séparé de ton compte de trading : <b>50&nbsp;000&nbsp;$ sur un PEA</b> et <b>50&nbsp;000&nbsp;$ sur un compte-titres</b>, prêts à investir. ETF, actions européennes et américaines, or, crypto.</p>'+
+      '<ul class="iv-intro-list">'+
+        '<li><b>PEA</b> · actions européennes et ETF éligibles, fiscalité allégée après 5 ans.</li>'+
+        '<li><b>Compte-titres</b> · tout le reste, sans plafond, flat tax de 31,4 %.</li>'+
+        '<li><b>Comme en vrai</b> · frais de 0,5 %, Bourse ouverte, dividendes, investissement programmé.</li>'+
+      '</ul>'+
+      '<button class="iv-cta" data-inv-act="start">Ouvrir mon espace · 100 000 $</button>'+
     '</div>'+
-    '<button class="btn-primary" data-inv-act="start">Ouvrir mon espace avec 100 000 $</button>'+
-    '<p class="chart-note" style="margin-top:12px;">Rien à voir avec ton compte de trading : ses gains et pertes ne changent rien ici, et inversement.</p>'+
+    '<div class="iv-intro-art" aria-hidden="true">'+investIntroArt()+'</div>'+
   '</div>';
+}
+function investIntroArt(){
+  const pts = [], r = dailyRng ? dailyRng("inv-art") : Math.random; let v = 50;
+  for (let i=0;i<60;i++){ v += (r()-0.42)*3; pts.push(v); }
+  const lo = Math.min(...pts), hi = Math.max(...pts), X = i=>10+i*(380/59), Y = p=>200-(p-lo)/(hi-lo)*160;
+  const d = pts.map((p,i)=>(i?"L":"M")+X(i).toFixed(1)+" "+Y(p).toFixed(1)).join(" ");
+  return '<svg viewBox="0 0 400 230"><defs><linearGradient id="iv-ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--long)" stop-opacity=".35"/><stop offset="1" stop-color="var(--long)" stop-opacity="0"/></linearGradient></defs>'+
+    '<path d="'+d+' L390 225 L10 225 Z" fill="url(#iv-ag)"/><path d="'+d+'" fill="none" stroke="var(--long)" stroke-width="3" stroke-linejoin="round"/>'+
+    '<circle cx="'+X(59)+'" cy="'+Y(pts[59])+'" r="6" fill="var(--long)"/></svg>';
+}
+// ---------- Données dérivées ----------
+function investToday(){ // variation du jour des titres détenus
+  let ch = 0;
+  ["pea","cto"].forEach(env=>Object.keys(state.invest[env].holdings).forEach(id=>{ const a = investAssetById(id), h = state.invest[env].holdings[id]; if (!a) return;
+    const q = investQuote(a); if (q.px==null || q.chg==null) return; const v = h.qty*q.px; ch += v - v/(1+q.chg/100); }));
+  return ch;
+}
+function investAlloc(env){ // répartition par catégorie / par actif
+  const cats = {}, assets = [];
+  const envs = env ? [env] : ["pea","cto"];
+  let cash = env ? state.invest[env].cash : state.invest.reserve + state.invest.pea.cash + state.invest.cto.cash;
+  envs.forEach(e=>Object.keys(state.invest[e].holdings).forEach(id=>{ const a = investAssetById(id) || {cat:"etf", name:id, short:id}, h = state.invest[e].holdings[id];
+    const v = h.qty*investHoldingPx(id, h); cats[a.cat] = (cats[a.cat]||0)+v; const x = assets.find(z=>z.id===id); if (x) x.v += v; else assets.push({id, a, v}); }));
+  if (cash>0.5) cats.cash = cash;
+  return {cats, assets:assets.sort((x,y)=>y.v-x.v), cash};
+}
+function investDayKey(d){ d = d || new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function investRecordCurve(){
+  const inv = state.invest; if (!inv) return;
+  const t = investTotals(), m = market.SPY, spx = m && m.last ? m.last : null;
+  // Objets (pas de tableaux imbriqués : Firestore ne les accepte pas).
+  const row = {d:investDayKey(), t:Math.round(t.total*100)/100, p:Math.round(t.pea.value*100)/100, c:Math.round(t.cto.value*100)/100, s:spx};
+  const c = inv.curve || (inv.curve = []);
+  if (c.length && c[c.length-1].d===row.d){ if (row.s==null) row.s = c[c.length-1].s; c[c.length-1] = row; } else c.push(row);
+  if (c.length>400) inv.curve = c.slice(-400);
+}
+// ---------- Pages ----------
+function investShellHtml(inner){
+  const inv = state.invest, tabs = [["home","Vue d'ensemble"],["pea","PEA"],["cto","Compte-titres"]];
+  return '<div class="iv-top">'+
+      '<div class="iv-tabs" role="tablist">'+tabs.map(([k,l])=>'<button type="button" role="tab" class="'+(investTab===k ? "on" : "")+'" data-inv-act="tab" data-tab="'+k+'">'+(k==="pea" || k==="cto" ? '<i class="iv-dot '+k+'"></i>' : '')+l+'</button>').join("")+'</div>'+
+      (inv.reserve>0.5 ? '<button type="button" class="iv-reserve" data-inv-act="transfer" data-kind="deposit" title="Liquidités pas encore versées sur une enveloppe">Liquidités à placer <b class="num">'+fmtMoney(inv.reserve)+'</b><span>Verser →</span></button>' : '')+
+    '</div>'+inner;
+}
+function investHomeHtml(){
+  const plans = state.invest.plans || [];
+  return investShellHtml(
+    '<section class="iv-hero">'+
+      '<div class="iv-hero-main">'+
+        '<span class="iv-eyebrow">Patrimoine · ouvert le '+investFmtDate(state.invest.openedAt)+'</span>'+
+        '<div class="iv-total num" data-live="total">—</div>'+
+        '<div class="iv-perfs"><span class="num" data-live="perf">—</span><span class="num" data-live="today">—</span></div>'+
+      '</div>'+
+      '<div class="iv-hero-kpis">'+
+        '<button type="button" class="iv-kpi" data-inv-act="tab" data-tab="pea"><span><i class="iv-dot pea"></i>PEA</span><b class="num" data-live="pea.value">—</b><em class="num" data-live="pea.gain">—</em></button>'+
+        '<button type="button" class="iv-kpi" data-inv-act="tab" data-tab="cto"><span><i class="iv-dot cto"></i>Compte-titres</span><b class="num" data-live="cto.value">—</b><em class="num" data-live="cto.gain">—</em></button>'+
+        '<div class="iv-kpi"><span>Dividendes reçus</span><b class="num" data-live="div.total">—</b><em data-live="div.next">—</em></div>'+
+      '</div>'+
+    '</section>'+
+    '<div class="iv-grid">'+
+      '<section class="iv-card iv-curve-card"><header><h3>Évolution</h3>'+investRangeChips()+'</header><div class="iv-curve" id="iv-curve" data-env=""></div></section>'+
+      '<section class="iv-card"><header><h3>Répartition</h3><div class="iv-chips sm"><button type="button" class="'+(investAllocMode==="cat" ? "on" : "")+'" data-inv-act="alloc" data-mode="cat">Catégories</button><button type="button" class="'+(investAllocMode==="asset" ? "on" : "")+'" data-inv-act="alloc" data-mode="asset">Actifs</button></div></header><div id="iv-alloc" data-env=""></div></section>'+
+    '</div>'+
+    '<div class="iv-grid">'+
+      '<section class="iv-card"><header><h3>Investissements programmés</h3><button type="button" class="iv-btn sm" data-inv-act="plan">+ Programmer</button></header>'+investPlansHtml(null)+'</section>'+
+      '<section class="iv-card"><header><h3>Dividendes</h3></header><div id="iv-divs">'+investDivsHtml(null)+'</div></section>'+
+    '</div>'+
+    '<section class="iv-card"><header><h3>Opérations</h3></header><div id="inv-history-body">'+investHistoryHtml()+'</div></section>'
+  );
+}
+function investEnvPageHtml(env){
+  const isPea = env==="pea", inv = state.invest;
+  let clock = "";
+  if (isPea){ const age = investPeaAge();
+    clock = '<div class="iv-clock"><div><span>Ouvert le '+investFmtDate(inv.pea.openedAt)+'</span><span>'+(age.mature ? "Plus de 5 ans : fiscalité allégée ✓" : "Fiscalité allégée le "+investFmtDate(age.matures.toISOString()))+'</span></div><u><i style="width:'+(age.progress*100).toFixed(1)+'%"></i></u></div>'; }
+  return investShellHtml(
+    '<section class="iv-hero iv-hero-env '+env+'">'+
+      '<div class="iv-hero-main">'+
+        '<span class="iv-eyebrow">'+(isPea ? "Plan d'épargne en actions" : "Compte-titres ordinaire")+'</span>'+
+        '<div class="iv-total num" data-live="'+env+'.value">—</div>'+
+        '<div class="iv-perfs"><span class="num" data-live="'+env+'.gain">—</span></div>'+
+        clock+
+      '</div>'+
+      '<div class="iv-hero-kpis">'+
+        '<div class="iv-kpi"><span>Espèces disponibles</span><b class="num" data-live="'+env+'.cash">—</b><em>pour acheter</em></div>'+
+        '<div class="iv-kpi"><span>Titres</span><b class="num" data-live="'+env+'.holdings">—</b><em data-live="'+env+'.lines">—</em></div>'+
+        '<div class="iv-kpi"><span>'+(isPea ? "Versements" : "Versements nets")+'</span><b class="num" data-live="'+env+'.deposits">—</b><em>'+(isPea ? "plafond 150 000 €" : "sans plafond")+'</em></div>'+
+      '</div>'+
+    '</section>'+
+    '<section class="iv-card"><header><h3>Mes lignes</h3><span class="iv-sub">'+(isPea ? "Actions européennes et ETF éligibles" : "Tous les actifs")+'</span></header>'+investHoldingsHtml(env)+'</section>'+
+    '<div class="iv-grid">'+
+      '<section class="iv-card iv-curve-card"><header><h3>Évolution du '+(isPea ? "PEA" : "compte-titres")+'</h3>'+investRangeChips()+'</header><div class="iv-curve" id="iv-curve" data-env="'+env+'"></div></section>'+
+      '<section class="iv-card"><header><h3>Répartition</h3><div class="iv-chips sm"><button type="button" class="'+(investAllocMode==="cat" ? "on" : "")+'" data-inv-act="alloc" data-mode="cat">Catégories</button><button type="button" class="'+(investAllocMode==="asset" ? "on" : "")+'" data-inv-act="alloc" data-mode="asset">Actifs</button></div></header><div id="iv-alloc" data-env="'+env+'"></div></section>'+
+    '</div>'+
+    investMarketHtml(env)+
+    '<div class="iv-grid">'+
+      '<section class="iv-card"><header><h3>Investissements programmés</h3><button type="button" class="iv-btn sm" data-inv-act="plan" data-env="'+env+'">+ Programmer</button></header>'+investPlansHtml(env)+'</section>'+
+      '<section class="iv-card"><header><h3>Fiscalité · si tu vendais tout aujourd\'hui</h3></header><div id="inv-fiscal-body" data-env="'+env+'"></div></section>'+
+    '</div>'
+  );
+}
+function investRangeChips(){
+  return '<div class="iv-chips sm">'+[["1m","1M"],["3m","3M"],["1y","1A"],["all","Tout"]].map(([k,l])=>'<button type="button" class="'+(investRange===k ? "on" : "")+'" data-inv-act="range" data-range="'+k+'">'+l+'</button>').join("")+'</div>';
 }
 function investHoldingsHtml(env){
-  const e = state.invest[env];
-  const ids = Object.keys(e.holdings);
-  if (!ids.length){
-    return '<div class="inv-empty">Aucune ligne pour l\'instant.'+
-      (e.cash>0 ? ' Choisis un actif dans le marché ci-dessous.' : ' Commence par un versement.')+'</div>';
-  }
-  return '<div class="inv-hold">'+
+  const e = state.invest[env], ids = Object.keys(e.holdings);
+  if (!ids.length) return '<div class="iv-empty"><b>Aucune ligne pour l\'instant.</b><span>Choisis un actif dans le marché ci-dessous : tu as '+fmtMoney(e.cash)+' d\'espèces pour commencer.</span></div>';
+  return '<div class="iv-table iv-hold">'+
+    '<div class="iv-th"><span>Actif</span><span class="r">Cours</span><span class="r">Valeur</span><span class="r">+/- value</span><span class="r iv-col-opt">Poids</span><span></span></div>'+
     ids.map(id=>{
-      const a = investAssetById(id) || {id, name:id, short:id, cat:"etf"};
-      const h = e.holdings[id];
-      const k = env+"."+id;
-      return '<div class="inv-hold-row">'+
-        '<div class="inv-asset">'+investMonogram(a)+'<div><b>'+escapeHtml(a.name)+'</b>'+
-          '<span>'+investFmtQty(a,h.qty)+' '+(a.fractional ? escapeHtml(a.short) : "part"+(h.qty>1?"s":""))+' · PRU '+investFmtPx(h.cost/h.qty)+' · cours <em data-live="h.'+k+'.px">—</em></span></div></div>'+
-        '<div class="inv-hold-val"><b class="num" data-live="h.'+k+'.value">—</b><span class="num" data-live="h.'+k+'.gain">—</span><span class="inv-hold-w" data-live="h.'+k+'.w">—</span></div>'+
-        '<span class="inv-row-acts">'+
-          '<button type="button" class="inv-mini" data-inv-act="order" data-id="'+id+'" data-env="'+env+'" data-side="buy">Acheter</button>'+
-          '<button type="button" class="inv-mini" data-inv-act="order" data-id="'+id+'" data-env="'+env+'" data-side="sell">Vendre</button>'+
-        '</span>'+
+      const a = investAssetById(id) || {id, name:id, short:id, cat:"etf"}, h = e.holdings[id], k = env+"."+id;
+      return '<div class="iv-tr" data-inv-act="asset" data-id="'+id+'">'+
+        '<span class="iv-asset">'+investMonogram(a)+'<span><b>'+escapeHtml(a.name)+'</b><em>'+investFmtQty(a,h.qty)+' '+(a.fractional ? escapeHtml(a.short) : "part"+(h.qty>1?"s":""))+' · PRU '+investFmtPx(h.cost/h.qty)+'</em></span></span>'+
+        '<span class="r num" data-live="h.'+k+'.px">—</span>'+
+        '<span class="r num" data-live="h.'+k+'.value">—</span>'+
+        '<span class="r num" data-live="h.'+k+'.gain">—</span>'+
+        '<span class="r num iv-col-opt" data-live="h.'+k+'.w">—</span>'+
+        '<span class="iv-row-acts"><button type="button" class="iv-btn xs" data-inv-act="order" data-id="'+id+'" data-env="'+env+'" data-side="buy">Acheter</button><button type="button" class="iv-btn xs ghost" data-inv-act="order" data-id="'+id+'" data-env="'+env+'" data-side="sell">Vendre</button></span>'+
       '</div>';
-    }).join("")+
-  '</div>';
+    }).join("")+'</div>';
 }
-function investEnvCardHtml(env){
-  const isPea = env==="pea";
-  let clock = "";
-  if (isPea){
-    const age = investPeaAge();
-    clock = '<div class="inv-pea-clock" title="La fiscalité avantageuse du PEA démarre 5 ans après son ouverture">'+
-      '<div class="inv-pea-clock-top"><span>Ouvert le '+investFmtDate(state.invest.pea.openedAt)+'</span><span>'+
-        (age.mature ? 'Plus de 5 ans : fiscalité allégée ✓' : 'Fiscalité allégée le '+investFmtDate(age.matures.toISOString()))+'</span></div>'+
-      '<div class="inv-pea-bar"><i style="width:'+(age.progress*100).toFixed(1)+'%"></i></div>'+
-    '</div>';
+function investMarketHtml(env){
+  const held = id=>!!(state.invest && ["pea","cto"].some(x=>state.invest[x].holdings[id]));
+  const s = investSearch.trim().toLowerCase();
+  const cats = INVEST_CATS.filter(([k])=>env!=="pea" || ["all","etf","eu","semi"].includes(k));
+  const list = INVEST_ASSETS.filter(a=>(env!=="pea" || a.pea) && (investFilter==="all" || (investFilter==="semi" ? a.semi : a.cat===investFilter)) &&
+    (!s || a.name.toLowerCase().includes(s) || a.short.toLowerCase().includes(s) || (investMeta(a.id).sec||"").toLowerCase().includes(s)) &&
+    !(a.src.xyz && investXyzMissing.has(a.src.xyz) && !held(a.id)));
+  return '<section class="iv-card inv-market" data-env="'+env+'">'+
+    '<header><h3>Marché'+(env==="pea" ? " · éligible PEA" : "")+'</h3><input type="search" class="iv-search" id="iv-search" placeholder="Rechercher (nom, secteur…)" value="'+escapeHtml(investSearch)+'"></header>'+
+    '<div class="iv-chips">'+cats.map(([k,l])=>'<button type="button" class="'+(investFilter===k ? "on" : "")+'" data-inv-act="filter" data-cat="'+k+'">'+l+'</button>').join("")+'</div>'+
+    '<div class="iv-table iv-mkt">'+
+      '<div class="iv-th"><span>Actif</span><span class="iv-col-opt">Bourse</span><span class="r">Cours</span><span class="r">Jour</span><span class="r iv-col-opt">Dividende</span></div>'+
+      (list.length ? (investMarketAll || s || list.length<=14 ? list : list.slice(0, 12)).map(a=>{ const m = investMeta(a.id);
+        return '<div class="iv-tr" data-inv-act="asset" data-id="'+a.id+'">'+
+          '<span class="iv-asset">'+investMonogram(a)+'<span><b>'+escapeHtml(a.name)+(a.pea ? ' <i class="iv-pea-tag">PEA</i>' : '')+'</b><em>'+escapeHtml(a.short)+(m.sec ? ' · '+escapeHtml(m.sec) : '')+'</em></span></span>'+
+          '<span class="iv-col-opt iv-st" data-live="st.'+a.id+'">—</span>'+
+          '<span class="r num" data-live="px.'+a.id+'">—</span>'+
+          '<span class="r num" data-live="chg.'+a.id+'">—</span>'+
+          '<span class="r num iv-col-opt iv-yield">'+(m.cap ? '<em>capitalisant</em>' : m.y>0 ? m.y.toLocaleString("fr-FR")+' %' : '—')+'</span>'+
+        '</div>'; }).join("") : '<div class="iv-empty"><span>Aucun actif ne correspond.</span></div>')+
+    '</div>'+
+    (!s && list.length>14 ? '<button type="button" class="iv-link" data-inv-act="market-all">'+(investMarketAll ? "Réduire la liste" : "Voir les "+list.length+" actifs")+'</button>' : '')+
+    '<p class="iv-note">Ordres au marché au dernier cours, pendant les heures de Bourse · frais 0,5 % · actions européennes cotées en €, converties au taux EUR/USD en direct'+
+      (investXyzError ? ' · <span class="down">cours actions US indisponibles</span>' : '')+(investEu.error ? ' · <span class="down">cours européens : '+escapeHtml(investEu.error)+'</span>' : '')+'</p>'+
+  '</section>';
+}
+function investPlanNext(p){ return new Date(p.next); }
+function investPlansHtml(env){
+  const plans = (state.invest.plans||[]).filter(p=>!env || p.env===env);
+  if (!plans.length) return '<div class="iv-empty"><b>Aucun investissement programmé.</b><span>Investis automatiquement un montant fixe chaque semaine ou chaque mois : c\'est la méthode « DCA », qui lisse ton prix d\'achat dans le temps.</span></div>';
+  return '<div class="iv-plans">'+plans.map(p=>{ const a = investAssetById(p.aid) || {name:p.aid, short:p.aid, cat:"etf"};
+    return '<div class="iv-plan'+(p.on ? "" : " off")+'">'+investMonogram(a)+
+      '<div><b>'+fmtMoney(p.amt)+' '+(p.freq==="w" ? "chaque semaine" : "chaque mois")+'</b><span>'+escapeHtml(a.name)+' · '+investEnvName(p.env)+' · '+(p.on ? "prochain le "+investFmtDate(p.next) : "en pause")+(p.runs ? ' · '+p.runs+' achat'+(p.runs>1?"s":"")+' ('+fmtMoney(p.spent||0)+')' : '')+'</span></div>'+
+      '<span class="iv-plan-acts"><button type="button" class="iv-btn xs ghost" data-inv-act="plan-toggle" data-plan="'+p.id+'">'+(p.on ? "Pause" : "Reprendre")+'</button><button type="button" class="iv-btn xs ghost" data-inv-act="plan-del" data-plan="'+p.id+'" title="Supprimer">✕</button></span></div>'; }).join("")+'</div>';
+}
+function investDivNextDate(from){ // 15 mars, juin, septembre, décembre
+  const d = new Date(from||Date.now());
+  for (let i=0;i<5;i++){ const y = d.getFullYear(); for (const m of [2,5,8,11]){ const x = new Date(y, m, 15, 10); if (x > d) return x; } d.setFullYear(y+1, 0, 1); }
+  return null;
+}
+function investDivEstimate(env){ // revenu annuel estimé
+  let tot = 0; (env ? [env] : ["pea","cto"]).forEach(e=>Object.keys(state.invest[e].holdings).forEach(id=>{ const h = state.invest[e].holdings[id], m = investMeta(id); if (m.y>0) tot += h.qty*investHoldingPx(id, h)*m.y/100; }));
+  return tot;
+}
+function investDivsHtml(env){
+  const inv = state.invest, est = investDivEstimate(env), nx = investDivNextDate();
+  const recv = env ? (inv[env].divs||0) : (inv.pea.divs||0)+(inv.cto.divs||0);
+  const list = (inv.history||[]).filter(x=>x.type==="div" && (!env || x.env===env)).slice(0, 5);
+  return '<div class="iv-div-kpis"><div><span>Reçus depuis l\'ouverture</span><b class="num">'+fmtMoney(recv)+'</b></div><div><span>Revenu annuel estimé</span><b class="num">'+fmtMoney(est)+'</b></div><div><span>Prochain versement</span><b>'+(nx ? investFmtDate(nx.toISOString()) : "—")+'</b></div></div>'+
+    (list.length ? '<div class="iv-div-list">'+list.map(x=>{ const a = investAssetById(x.id) || {short:x.id}; return '<div><span>'+investFmtDate(x.t)+' · '+escapeHtml(a.short)+' · '+investEnvName(x.env)+'</span><b class="num up">+'+fmtMoney(x.amount)+'</b></div>'; }).join("")+'</div>' : '')+
+    '<p class="iv-note">Dividendes simulés d\'après un rendement estimé, versés chaque trimestre pour simplifier. Sur le PEA, ils restent dans l\'enveloppe sans impôt ; sur le compte-titres, la flat tax de 31,4 % est prélevée. Les ETF « capitalisants » ne versent rien : ils réinvestissent les dividendes dans leur cours.</p>';
+}
+function investFiscalHtml(env){
+  const t = investTotals(), y = String(new Date().getFullYear());
+  const row = (l,v,cls)=>'<div class="iv-fx-row"><span>'+l+'</span><b class="num '+(cls||"")+'">'+v+'</b></div>';
+  if (env==="cto"){
+    const realized = state.invest.cto.realized[y] || 0, base = realized + t.cto.gain, tax = Math.max(0, base)*INVEST_PFU_RATE;
+    return row("Plus-values réalisées en "+y, fmtMoneySigned(realized), realized>=0?"up":"down")+row("Plus-values latentes", fmtMoneySigned(t.cto.gain), t.cto.gain>=0?"up":"down")+row("Impôt estimé (flat tax 31,4 %)", fmtMoney(tax))+
+      '<p class="iv-note">'+(base<0 ? "Moins-value nette : pas d'impôt, et elle serait reportable sur tes plus-values des 10 années suivantes." : "12,8 % d'impôt sur le revenu + 18,6 % de prélèvements sociaux, sur les gains nets de l'année.")+'</p>';
   }
-  return '<div class="card inv-env inv-env-'+env+'">'+
-    '<div class="inv-env-head">'+
-      '<div><h3><i class="inv-dot '+env+'"></i>'+(isPea ? "PEA" : "Compte-titres (CTO)")+'</h3>'+
-        '<div class="inv-env-sub">'+(isPea ? "Plan d'épargne en actions · actions européennes et ETF éligibles" : "Ordinaire · tous les actifs, sans plafond")+'</div></div>'+
-      '<div class="inv-env-value"><b class="num" data-live="'+env+'.value">—</b><span class="num" data-live="'+env+'.gain">—</span></div>'+
-    '</div>'+
-    '<div class="inv-env-metrics">'+
-      '<div><span>Espèces</span><b class="num" data-live="'+env+'.cash">—</b></div>'+
-      '<div><span>Titres</span><b class="num" data-live="'+env+'.holdings">—</b></div>'+
-      '<div'+(isPea ? ' title="Plafond réel du PEA : 150 000 € de versements"' : '')+'><span>'+(isPea ? "Versements" : "Versements nets")+'</span><b class="num" data-live="'+env+'.deposits">—</b></div>'+
-    '</div>'+
-    clock+
-    investHoldingsHtml(env)+
-  '</div>';
-}
-function investMarketHtml(){
-  const held = id=>!!(state.invest && ["pea","cto"].some(env=>state.invest[env].holdings[id]));
-  const list = INVEST_ASSETS.filter(a=>(investFilter==="all" || (investFilter==="semi" ? a.semi : a.cat===investFilter)) && !(a.src.xyz && investXyzMissing.has(a.src.xyz) && !held(a.id)));
-  return '<div class="card inv-market">'+
-    '<div class="inv-sec-head"><h3>Marché</h3>'+
-      '<div class="inv-chips" role="tablist">'+INVEST_CATS.map(([k,l])=>'<button type="button" class="inv-chip'+(investFilter===k?" active":"")+'" data-inv-act="filter" data-cat="'+k+'">'+l+'</button>').join("")+'</div>'+
-    '</div>'+
-    '<p class="chart-note inv-mkt-note">Ordres au marché, exécutés au dernier cours, uniquement pendant les heures de Bourse · frais 0,5 % · '+
-      'actions US via des marchés qui suivent leur cours en continu · actions et ETF européens cotés en €, convertis en $ au taux EUR/USD en direct, cours mis à jour toutes les 5 min'+
-      (investXyzError ? ' · <span class="down">cours actions US indisponibles ('+escapeHtml(investXyzError)+')</span>' : '')+
-      (investEu.error ? ' · <span class="down">cours européens : '+escapeHtml(investEu.error)+'</span>' : '')+'</p>'+
-    '<div class="inv-mkt">'+list.map(a=>
-      '<button type="button" class="inv-mkt-row" data-inv-act="order" data-id="'+a.id+'" data-side="buy">'+
-        '<span class="inv-asset">'+investMonogram(a)+'<span><b>'+escapeHtml(a.name)+'</b><span>'+escapeHtml(a.short)+(a.pea ? ' <em class="inv-tag-pea">PEA</em>' : '')+'</span></span></span>'+
-        '<span class="inv-mkt-status" data-live="st.'+a.id+'">—</span>'+
-        '<span class="r num inv-mkt-px" data-live="px.'+a.id+'">—</span>'+
-        '<span class="r num inv-mkt-chg" data-live="chg.'+a.id+'">—</span>'+
-      '</button>').join("")+
-    '</div>'+
-  '</div>';
-}
-function investFiscalHtml(){
-  const t = investTotals();
-  const y = String(new Date().getFullYear());
-  const realized = state.invest.cto.realized[y] || 0;
-  const ctoBase = realized + t.cto.gain;
-  const ctoTax = Math.max(0, ctoBase)*INVEST_PFU_RATE;
-  const age = investPeaAge();
-  const peaGain = t.pea.value - t.pea.deposits;
-  const peaRate = age.mature ? INVEST_PS_RATE : INVEST_PFU_RATE;
-  const peaTax = Math.max(0, peaGain)*peaRate;
-  const peaTaxLater = Math.max(0, peaGain)*INVEST_PS_RATE;
-  const net = t.total - ctoTax - peaTax;
-  const row = (l,v,cls)=>'<div class="inv-fx-row"><span>'+l+'</span><b class="num '+(cls||"")+'">'+v+'</b></div>';
-  return '<div class="inv-fx-grid">'+
-    '<div class="inv-fx-col"><h4><i class="inv-dot cto"></i>CTO · flat tax 31,4 %</h4>'+
-      row("Plus-values réalisées en "+y, fmtMoneySigned(realized), realized>=0?"up":"down")+
-      row("Plus-values latentes", fmtMoneySigned(t.cto.gain), t.cto.gain>=0?"up":"down")+
-      row("Impôt estimé", fmtMoney(ctoTax))+
-      '<p class="inv-fx-note">'+(ctoBase<0 ? "Moins-value nette : pas d'impôt, et elle serait reportable sur tes plus-values des 10 années suivantes." : "12,8 % d'impôt sur le revenu + 18,6 % de prélèvements sociaux, sur les gains nets de l'année.")+'</p>'+
-    '</div>'+
-    '<div class="inv-fx-col"><h4><i class="inv-dot pea"></i>PEA · '+(age.mature ? "18,6 %" : "31,4 % (moins de 5 ans)")+'</h4>'+
-      row("Gain (valeur − versements)", fmtMoneySigned(peaGain), peaGain>=0?"up":"down")+
-      row("Impôt estimé", fmtMoney(peaTax))+
-      (age.mature ? '' : row("Après le "+investFmtDate(age.matures.toISOString()), fmtMoney(peaTaxLater)))+
-      '<p class="inv-fx-note">'+(age.mature ? "Plus de 5 ans : seulement les prélèvements sociaux, et les retraits partiels ne clôturent plus le plan." : "Avant 5 ans, retirer clôture le PEA et les gains sont taxés comme en CTO."+(peaTax>0 ? " Patienter jusqu'à 5 ans économiserait "+fmtMoney(peaTax-peaTaxLater)+"." : ""))+'</p>'+
-    '</div>'+
-  '</div>'+
-  '<div class="inv-fx-total"><span>Net après impôt si tu retirais tout</span><b class="num">'+fmtMoney(net)+'</b></div>'+
-  '<p class="chart-note">Simulation pédagogique avec la fiscalité française 2026 (PFU à 31,4 %). Dividendes non simulés. Frais payés depuis l\'ouverture : '+fmtMoney(state.invest.feesPaid)+'.</p>';
+  const age = investPeaAge(), gain = t.pea.value - t.pea.deposits, rate = age.mature ? INVEST_PS_RATE : INVEST_PFU_RATE, tax = Math.max(0, gain)*rate, later = Math.max(0, gain)*INVEST_PS_RATE;
+  return row("Gain (valeur − versements)", fmtMoneySigned(gain), gain>=0?"up":"down")+row("Impôt si tu retirais aujourd'hui ("+(age.mature ? "18,6 %" : "31,4 %")+")", fmtMoney(tax))+(age.mature ? "" : row("Après le "+investFmtDate(age.matures.toISOString())+" (18,6 %)", fmtMoney(later)))+
+    '<p class="iv-note">'+(age.mature ? "Plus de 5 ans : seulement les prélèvements sociaux." : "Dans un PEA, vendre et racheter ne coûte aucun impôt : tant que l'argent reste dans l'enveloppe, rien n'est taxé. L'impôt ne tombe qu'au retrait, allégé après 5 ans."+(tax>later ? " Attendre 5 ans économiserait "+fmtMoney(tax-later)+"." : ""))+'</p>';
 }
 function investHistoryHtml(){
   const h = state.invest.history;
-  if (!h.length) return '<div class="inv-empty">Aucune opération pour l\'instant.</div>';
+  if (!h.length) return '<div class="iv-empty"><span>Aucune opération pour l\'instant.</span></div>';
   const rows = (investHistoryAll ? h : h.slice(0,8)).map(x=>{
     const a = x.id ? (investAssetById(x.id) || {name:x.id, short:x.id}) : null;
     const when = new Date(x.t).toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
-    let what = "", amount = "", cls = "";
-    if (x.type==="buy"){ what = "Achat "+investFmtQty(a,x.qty)+" "+escapeHtml(a.short)+" à "+investFmtPx(x.px); amount = "−"+fmtMoney(x.amount); }
-    else if (x.type==="sell"){ what = "Vente "+investFmtQty(a,x.qty)+" "+escapeHtml(a.short)+" à "+investFmtPx(x.px)+' <span class="'+(x.pnl>=0?"up":"down")+'">('+fmtMoneySigned(x.pnl)+')</span>'; amount = "+"+fmtMoney(x.amount); }
-    else if (x.type==="deposit"){ what = "Versement sur le "+investEnvName(x.env); amount = fmtMoney(x.amount); cls = "inv-h-move"; }
-    else if (x.type==="withdraw"){ what = "Retrait du "+investEnvName(x.env); amount = fmtMoney(x.amount); cls = "inv-h-move"; }
-    else if (x.type==="close"){ what = "Clôture du PEA (impôt qui aurait été dû : "+fmtMoney(x.taxInfo||0)+")"; amount = fmtMoney(x.amount); cls = "inv-h-move"; }
-    return '<div class="inv-h-row '+cls+'"><span class="inv-h-when">'+when+'</span><span class="inv-h-env">'+(x.env ? investEnvName(x.env) : "")+'</span><span class="inv-h-what">'+what+(x.fee ? ' <span class="inv-h-fee">frais '+fmtMoney(x.fee)+'</span>' : '')+'</span><span class="r num">'+amount+'</span></div>';
+    let what = "", amount = "", cls = "", ic = "";
+    if (x.type==="buy"){ ic = "↗"; what = (x.plan ? "Achat programmé " : "Achat ")+investFmtQty(a,x.qty)+" "+escapeHtml(a.short)+" à "+investFmtPx(x.px); amount = "−"+fmtMoney(x.amount); }
+    else if (x.type==="sell"){ ic = "↘"; what = "Vente "+investFmtQty(a,x.qty)+" "+escapeHtml(a.short)+" à "+investFmtPx(x.px)+' <span class="'+(x.pnl>=0?"up":"down")+'">('+fmtMoneySigned(x.pnl)+')</span>'; amount = "+"+fmtMoney(x.amount); }
+    else if (x.type==="div"){ ic = "◆"; what = "Dividende "+escapeHtml(a ? a.short : "")+(x.gross && x.gross!==x.amount ? ' <span class="iv-h-fee">brut '+fmtMoney(x.gross)+', flat tax prélevée</span>' : ''); amount = "+"+fmtMoney(x.amount); cls = "div"; }
+    else if (x.type==="deposit"){ ic = "→"; what = "Versement sur le "+investEnvName(x.env); amount = fmtMoney(x.amount); cls = "move"; }
+    else if (x.type==="open"){ ic = "★"; what = "Ouverture du "+investEnvName(x.env); amount = fmtMoney(x.amount); cls = "move"; }
+    else if (x.type==="withdraw"){ ic = "←"; what = "Retrait du "+investEnvName(x.env); amount = fmtMoney(x.amount); cls = "move"; }
+    else if (x.type==="close"){ ic = "×"; what = "Clôture du PEA"; amount = fmtMoney(x.amount); cls = "move"; }
+    else if (x.type==="plan-skip"){ ic = "!"; what = "Achat programmé non passé ("+escapeHtml(x.why||"")+") · "+escapeHtml(a ? a.short : ""); cls = "move"; }
+    return '<div class="iv-h-row '+cls+'"><i>'+ic+'</i><span class="iv-h-when">'+when+'</span><span class="iv-h-env">'+(x.env ? investEnvName(x.env) : "")+'</span><span class="iv-h-what">'+what+(x.fee ? ' <span class="iv-h-fee">frais '+fmtMoney(x.fee)+'</span>' : '')+'</span><span class="r num">'+amount+'</span></div>';
   }).join("");
-  return rows + (h.length>8 ? '<button type="button" class="inv-link" data-inv-act="history">'+(investHistoryAll ? "Réduire" : "Tout afficher ("+h.length+")")+'</button>' : "");
+  return rows + (h.length>8 ? '<button type="button" class="iv-link" data-inv-act="history">'+(investHistoryAll ? "Réduire" : "Tout afficher ("+h.length+")")+'</button>' : "");
 }
 function renderInvest(){
   const root = document.getElementById("invest-root");
   if (!root) return;
   if (!state.invest){ root.innerHTML = investIntroHtml(); return; }
-  root.innerHTML =
-    '<div class="card inv-hero">'+
-      '<div class="inv-hero-top">'+
-        '<div><div class="inv-eyebrow">Patrimoine total · ouvert le '+investFmtDate(state.invest.openedAt)+'</div>'+
-          '<div class="inv-total num" data-live="total">—</div>'+
-          '<div class="inv-perf num" data-live="perf">—</div></div>'+
-        '<div class="inv-hero-actions">'+
-          '<button type="button" class="btn-primary" data-inv-act="transfer" data-kind="deposit">Verser</button>'+
-          '<button type="button" class="btn-secondary" data-inv-act="transfer" data-kind="withdraw">Retirer</button>'+
-        '</div>'+
-      '</div>'+
-      '<div class="inv-alloc" id="inv-alloc"><i class="pea"></i><i class="cto"></i><i class="cash"></i></div>'+
-      '<div class="inv-alloc-legend">'+
-        '<span><i class="inv-dot pea"></i>PEA <b class="num" data-live="alloc.pea">—</b></span>'+
-        '<span><i class="inv-dot cto"></i>CTO <b class="num" data-live="alloc.cto">—</b></span>'+
-        '<span><i class="inv-dot cash"></i>Liquidités à placer <b class="num" data-live="alloc.reserve">—</b></span>'+
-      '</div>'+
-    '</div>'+
-    '<div class="inv-envs">'+investEnvCardHtml("pea")+investEnvCardHtml("cto")+'</div>'+
-    investMarketHtml()+
-    '<div class="inv-bottom">'+
-      '<div class="card inv-fiscal"><h3>Si tu retirais tout aujourd\'hui</h3><div id="inv-fiscal-body"></div></div>'+
-      '<div class="card inv-history"><h3>Opérations</h3><div id="inv-history-body">'+investHistoryHtml()+'</div></div>'+
-    '</div>';
+  investRunEngines();
+  root.innerHTML = investTab==="pea" || investTab==="cto" ? investEnvPageHtml(investTab) : investHomeHtml();
+  investDrawSig = "";
   renderInvestLive();
 }
 function investSignedCls(v){ return v>0.004 ? "up" : v<-0.004 ? "down" : "flat"; }
 function renderInvestLive(){
   const root = document.getElementById("invest-root");
-  if (!root || !state.invest || !root.querySelector(".inv-hero")) return;
-  const t = investTotals();
-  const vals = {};
+  if (!root || !state.invest || !root.querySelector(".iv-hero")) return;
+  const t = investTotals(), vals = {}, today = investToday();
   vals.total = [fmtMoney(t.total)];
   vals.perf = [fmtMoneySigned(t.gain)+" ("+fmtPct(t.perf)+") depuis l'ouverture", investSignedCls(t.gain)];
+  vals.today = [(today>=0 ? "+" : "−")+fmtMoney(Math.abs(today))+" aujourd'hui", investSignedCls(today)];
   ["pea","cto"].forEach(env=>{
     const e = t[env];
     vals[env+".value"] = [fmtMoney(e.value)];
-    const pct = e.cost>0 ? e.gain/e.cost*100 : 0;
-    vals[env+".gain"] = [e.lines ? fmtMoneySigned(e.gain)+" ("+fmtPct(pct)+")" : "Aucune ligne", e.lines ? investSignedCls(e.gain) : "flat"];
+    const gEnv = e.value - e.deposits;
+    vals[env+".gain"] = [fmtMoneySigned(gEnv)+" ("+fmtPct(e.deposits>0 ? gEnv/e.deposits*100 : 0)+") sur tes versements", investSignedCls(gEnv)];
     vals[env+".cash"] = [fmtMoney(e.cash)];
     vals[env+".holdings"] = [fmtMoney(e.holdings)];
+    vals[env+".lines"] = [e.lines+" ligne"+(e.lines>1 ? "s" : "")];
     vals[env+".deposits"] = [fmtMoney(e.deposits)];
-    vals["alloc."+env] = [fmtMoney(e.value)];
     Object.keys(state.invest[env].holdings).forEach(id=>{
-      const h = state.invest[env].holdings[id];
-      const px = investHoldingPx(id, h), value = h.qty*px, gain = value-h.cost;
+      const h = state.invest[env].holdings[id], px = investHoldingPx(id, h), value = h.qty*px, gain = value-h.cost;
       vals["h."+env+"."+id+".px"] = [investFmtPx(px)];
       vals["h."+env+"."+id+".value"] = [fmtMoney(value)];
       vals["h."+env+"."+id+".gain"] = [fmtMoneySigned(gain)+" · "+fmtPct(h.cost ? gain/h.cost*100 : 0), investSignedCls(gain)];
-      vals["h."+env+"."+id+".w"] = [(value/Math.max(1,t.total)*100).toLocaleString("fr-FR",{maximumFractionDigits:1})+" % du patrimoine"];
+      vals["h."+env+"."+id+".w"] = [(value/Math.max(1,e.value)*100).toLocaleString("fr-FR",{maximumFractionDigits:1})+" %"];
     });
   });
-  vals["alloc.reserve"] = [fmtMoney(t.reserve)];
+  const nx = investDivNextDate();
+  vals["div.total"] = [fmtMoney((state.invest.pea.divs||0)+(state.invest.cto.divs||0))];
+  vals["div.next"] = [nx ? "prochain le "+investFmtDate(nx.toISOString()) : "—"];
   const now = new Date();
   INVEST_ASSETS.forEach(a=>{
     const q = investQuote(a);
     vals["px."+a.id] = [q.native!=null ? investFmtEur(q.native) : investFmtPx(q.px)];
     vals["chg."+a.id] = [q.chg==null ? "—" : fmtPct(q.chg), q.chg==null ? "flat" : investSignedCls(q.chg)];
     const st = investVenueStatus(a, now);
-    vals["st."+a.id] = [st.label, st.open ? "open" : "closed"];
+    vals["st."+a.id] = [st.always ? "24/7" : st.open ? "Ouverte" : "Fermée", st.open ? "open" : "closed"];
   });
   root.querySelectorAll("[data-live]").forEach(el=>{
-    const v = vals[el.dataset.live];
-    if (!v) return;
+    const v = vals[el.dataset.live]; if (!v) return;
     if (el.textContent!==v[0]) el.textContent = v[0];
-    if (v[1]!==undefined){
-      ["up","down","flat","open","closed"].forEach(c=>{ if (c!==v[1]) el.classList.remove(c); });
-      el.classList.add(v[1]);
-    }
+    if (v[1]!==undefined){ ["up","down","flat","open","closed"].forEach(c=>{ if (c!==v[1]) el.classList.remove(c); }); el.classList.add(v[1]); }
   });
-  const alloc = document.getElementById("inv-alloc");
-  if (alloc){
-    const tot = Math.max(1, t.total);
-    const segs = alloc.children;
-    segs[0].style.width = (t.pea.value/tot*100)+"%";
-    segs[1].style.width = (t.cto.value/tot*100)+"%";
-    segs[2].style.width = (t.reserve/tot*100)+"%";
-  }
   const fx = document.getElementById("inv-fiscal-body");
-  if (fx){ const html = investFiscalHtml(); if (fx.innerHTML!==html) fx.innerHTML = html; }
+  if (fx){ const html = investFiscalHtml(fx.dataset.env||"cto"); if (fx.innerHTML!==html) fx.innerHTML = html; }
+  // Courbe et répartition : redessinées seulement si quelque chose a bougé.
+  const sig = investTab+"|"+investRange+"|"+investAllocMode+"|"+Math.round(t.total)+"|"+(state.invest.curve||[]).length;
+  if (sig!==investDrawSig){ investDrawSig = sig; investDrawCurve(); investDrawAlloc(); }
   investMaybePersist();
+}
+// ---------- Courbe (portefeuille vs S&P 500) ----------
+function investDrawCurve(){
+  const box = document.getElementById("iv-curve"); if (!box) return;
+  investRecordCurve();
+  const env = box.dataset.env, col = env==="pea" ? 2 : env==="cto" ? 3 : 1;
+  let c = (state.invest.curve||[]).map(r=>[r.d, r.t, r.p, r.c, r.s==null ? null : r.s]);
+  const days = {"1m":31, "3m":92, "1y":366}[investRange];
+  if (days){ const lim = investDayKey(new Date(Date.now()-days*864e5)); c = c.filter(r=>r[0]>=lim); }
+  if (c.length < 2){
+    box.innerHTML = '<div class="iv-curve-empty"><b>'+fmtMoney(c.length ? c[0][col] : 0)+'</b><span>La courbe se construit jour après jour : reviens demain pour voir ta progression, comparée au S&P 500.</span></div>';
+    return;
+  }
+  const W = 760, H = 230, pl = 8, pr = 64, pt = 14, pb = 24;
+  const v = c.map(r=>r[col]), b0 = c.find(r=>r[4]) , base = b0 ? b0[4] : null;
+  const bench = base ? c.map(r=>r[4] ? v[0]*r[4]/base : null) : [];
+  const all = v.concat(bench.filter(x=>x!=null));
+  let lo = Math.min(...all), hi = Math.max(...all); const pad = (hi-lo)*0.12 || hi*0.01; lo -= pad; hi += pad;
+  const X = i=>pl+i*(W-pl-pr)/(c.length-1), Y = p=>pt+(hi-p)/(hi-lo)*(H-pt-pb);
+  const line = arr=>arr.map((p,i)=>p==null ? "" : (i && arr[i-1]!=null ? "L" : "M")+X(i).toFixed(1)+" "+Y(p).toFixed(1)).join(" ");
+  const up = v[v.length-1] >= v[0], colr = up ? "var(--long)" : "var(--short)";
+  let grid = ""; for (let i=0;i<=3;i++){ const p = lo+(hi-lo)*i/3, y = Y(p); grid += '<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'" class="iv-grid-l"/><text x="'+(W-pr+8)+'" y="'+(y+4).toFixed(1)+'" class="iv-ax">'+(p>=1000 ? Math.round(p/100)/10+"k" : Math.round(p))+'</text>'; }
+  const fmtD = k=>{ const [y,m,d] = k.split("-"); return d+"/"+m; };
+  const lbl = [0, Math.floor((c.length-1)/2), c.length-1].map(i=>'<text x="'+X(i).toFixed(1)+'" y="'+(H-6)+'" class="iv-ax" text-anchor="'+(i===0 ? "start" : i===c.length-1 ? "end" : "middle")+'">'+fmtD(c[i][0])+'</text>').join("");
+  const perf = (v[v.length-1]/v[0]-1)*100, bperf = bench.length && bench[bench.length-1]!=null ? (bench[bench.length-1]/bench[0]-1)*100 : null;
+  box.innerHTML = '<div class="iv-curve-leg"><span><i style="background:'+colr+'"></i>'+(env ? investEnvName(env) : "Patrimoine")+' <b class="num '+(perf>=0 ? "up" : "down")+'">'+fmtPct(perf)+'</b></span>'+(bperf!=null ? '<span><i class="b"></i>S&P 500 <b class="num">'+fmtPct(bperf)+'</b></span>' : '')+'</div>'+
+    '<svg viewBox="0 0 '+W+' '+H+'" class="iv-curve-svg"><defs><linearGradient id="iv-cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+colr+'" stop-opacity=".28"/><stop offset="1" stop-color="'+colr+'" stop-opacity="0"/></linearGradient></defs>'+grid+
+      '<path d="'+line(v)+' L'+X(c.length-1)+' '+(H-pb)+' L'+X(0)+' '+(H-pb)+' Z" fill="url(#iv-cg)"/>'+
+      (bench.length ? '<path d="'+line(bench)+'" class="iv-bench"/>' : '')+
+      '<path d="'+line(v)+'" fill="none" stroke="'+colr+'" stroke-width="2.6" stroke-linejoin="round"/>'+
+      '<circle cx="'+X(c.length-1)+'" cy="'+Y(v[v.length-1])+'" r="4.5" fill="'+colr+'"/>'+lbl+
+      '<line class="iv-hover-l" x1="0" x2="0" y1="'+pt+'" y2="'+(H-pb)+'" style="display:none"/></svg><div class="iv-tip" hidden></div>';
+  const svg = box.querySelector("svg"), tip = box.querySelector(".iv-tip"), hl = box.querySelector(".iv-hover-l");
+  svg.addEventListener("mousemove", e=>{ const r = svg.getBoundingClientRect(), x = (e.clientX-r.left)/r.width*W, i = Math.max(0, Math.min(c.length-1, Math.round((x-pl)/((W-pl-pr)/(c.length-1)))));
+    hl.style.display = ""; hl.setAttribute("x1", X(i)); hl.setAttribute("x2", X(i));
+    tip.hidden = false; tip.innerHTML = '<b>'+fmtD(c[i][0])+'</b> '+fmtMoney(v[i])+(bench[i]!=null ? '<br><span>S&P 500 : '+fmtMoney(bench[i])+'</span>' : '');
+    tip.style.left = Math.min(r.width-150, Math.max(0, (X(i)/W)*r.width-60))+"px"; });
+  svg.addEventListener("mouseleave", ()=>{ hl.style.display = "none"; tip.hidden = true; });
+}
+// ---------- Répartition ----------
+function investDrawAlloc(){
+  const box = document.getElementById("iv-alloc"); if (!box) return;
+  const env = box.dataset.env || null, A = investAlloc(env);
+  const items = investAllocMode==="asset"
+    ? A.assets.slice(0, 7).map((x, i)=>({l:x.a.name, v:x.v, c:["#4f8dff","#2fbfa8","#8b7cf6","#e3ac4b","#f0832e","#e85d8a","#9aa4b2"][i]})).concat(A.assets.length>7 ? [{l:"Autres", v:A.assets.slice(7).reduce((s,x)=>s+x.v, 0), c:"#5b564d"}] : []).concat(A.cash>0.5 ? [{l:"Liquidités", v:A.cash, c:INVEST_CAT_COLOR.cash}] : [])
+    : Object.keys(A.cats).sort((a,b)=>A.cats[b]-A.cats[a]).map(k=>({l:INVEST_CAT_LABEL[k]||k, v:A.cats[k], c:INVEST_CAT_COLOR[k]||"#888"}));
+  const tot = items.reduce((s,x)=>s+x.v, 0) || 1;
+  const R = 54, C = 2*Math.PI*R; let off = 0;
+  const arcs = items.map(x=>{ const len = x.v/tot*C, s = '<circle r="'+R+'" cx="70" cy="70" fill="none" stroke="'+x.c+'" stroke-width="18" stroke-dasharray="'+Math.max(0, len-2).toFixed(2)+' '+(C-Math.max(0, len-2)).toFixed(2)+'" stroke-dashoffset="'+(-off).toFixed(2)+'" transform="rotate(-90 70 70)"/>'; off += len; return s; }).join("");
+  const top = items[0];
+  box.innerHTML = '<div class="iv-alloc"><svg viewBox="0 0 140 140" class="iv-donut">'+arcs+'<text x="70" y="66" text-anchor="middle" class="iv-donut-n">'+items.length+'</text><text x="70" y="84" text-anchor="middle" class="iv-donut-l">'+(investAllocMode==="asset" ? "lignes" : "catégories")+'</text></svg>'+
+    '<div class="iv-alloc-leg">'+items.map(x=>'<div><i style="background:'+x.c+'"></i><span>'+escapeHtml(x.l)+'</span><b class="num">'+(x.v/tot*100).toLocaleString("fr-FR",{maximumFractionDigits:1})+' %</b></div>').join("")+'</div></div>'+
+    (top && top.l!=="Liquidités" && top.v/tot>0.4 && investAllocMode==="asset" ? '<p class="iv-note warn">'+escapeHtml(top.l)+' pèse plus de 40 % : ton portefeuille dépend beaucoup d\'une seule ligne.</p>' : '');
 }
 function investOnPrices(){
   if (document.body.dataset.view==="invest") renderInvestLive();
   if (investOrder && document.getElementById("inv-order")) updateInvestOrderPreview();
   if (!document.body.dataset.view || document.body.dataset.view!=="invest") investMaybePersist();
+  investRunEngines();
 }
 
 /* ---- order modal ---- */
@@ -30090,62 +30487,202 @@ function updateInvestOrderPreview(forcedErr){
   go.textContent = chk.closed ? "Marché fermé" : (o.side==="buy" ? "Acheter" : "Vendre")+(qty>0 ? " · "+fmtMoney(o.side==="buy" ? gross+fee : gross-fee) : "");
 }
 
-/* ---- transfer modal ---- */
-function openInvestTransfer(kind, env){
-  const inv = state.invest;
-  env = env || (kind==="deposit" ? (inv.pea.deposits<INVEST_PEA_CAP ? "pea" : "cto") : "cto");
-  const isDep = kind==="deposit";
-  const age = investPeaAge();
-  const peaLocked = !isDep && env==="pea" && !age.mature;
-  const avail = isDep ? inv.reserve : inv[env].cash;
+/* ---- moteurs : investissements programmés + dividendes ---- */
+let investEngineAt = 0;
+function investRunEngines(){
+  if (!state.invest || window.PT_EMBED || document.visibilityState==="hidden") return;
+  if (Date.now()-investEngineAt < 20000) return; // au plus toutes les 20 s
+  investEngineAt = Date.now();
+  let changed = investRunDividends();
+  changed = investRunPlans() || changed;
+  investRecordCurve();
+  if (changed){ investPersistNow(); if (document.body.dataset.view==="invest") renderInvest(); }
+}
+function investAddPeriod(d, freq){ const x = new Date(d); if (freq==="w") x.setDate(x.getDate()+7); else x.setMonth(x.getMonth()+1); return x; }
+function investRunPlans(){
+  const inv = state.invest, now = new Date(); let changed = false;
+  (inv.plans||[]).forEach(p=>{
+    if (!p.on || new Date(p.next) > now) return;
+    const a = investAssetById(p.aid); if (!a){ p.on = false; changed = true; return; }
+    const st = investVenueStatus(a, now), q = investQuote(a);
+    if (!st.open || q.px==null) return; // Bourse fermée / pas de cours : on attend l'ouverture
+    if (a.src.eu && Date.now()-investEu.updatedAt > INVEST_EU_STALE_MS) return;
+    let n = 0, next = new Date(p.next); while (next <= now && n < 60){ n++; next = investAddPeriod(next, p.freq); }
+    const env = (p.env==="pea" && !a.pea) ? "cto" : p.env;
+    const budget = Math.min(p.amt*n, inv[env].cash);
+    const qty = investMaxBuyQty(a, budget, q.px);
+    p.next = next.toISOString(); changed = true;
+    if (qty>0){
+      const r = investExecute(a.id, env, "buy", qty);
+      if (r.ok){ const h = inv.history[0]; if (h && h.type==="buy") h.plan = true; p.runs = (p.runs||0)+n; p.spent = (p.spent||0)+r.total; return; }
+    }
+    investLog({type:"plan-skip", env, id:a.id, why: inv[env].cash < q.px*(1+INVEST_FEE_RATE) ? "espèces insuffisantes" : "montant trop petit pour une part"});
+  });
+  return changed;
+}
+function investRunDividends(){
+  const inv = state.invest, now = new Date();
+  if (!inv.divAt){ inv.divAt = now.toISOString(); return true; }
+  let changed = false, d = investDivNextDate(inv.divAt);
+  while (d && d <= now){
+    ["pea","cto"].forEach(env=>Object.keys(inv[env].holdings).forEach(id=>{
+      const m = investMeta(id); if (!(m.y>0)) return;
+      const h = inv[env].holdings[id], gross = Math.round(h.qty*investHoldingPx(id, h)*m.y/100/4*100)/100; if (!(gross>0.009)) return;
+      const net = env==="cto" ? Math.round(gross*(1-INVEST_PFU_RATE)*100)/100 : gross;
+      inv[env].cash += net; inv[env].divs = (inv[env].divs||0)+net;
+      inv.history.unshift({t:d.toISOString(), type:"div", env, id, amount:net, gross});
+    }));
+    inv.history.sort((x, y)=>String(y.t).localeCompare(String(x.t))); // dividendes rattrapés : à leur date
+    inv.history = inv.history.slice(0, INVEST_HISTORY_MAX);
+    changed = true;
+    d = investDivNextDate(d);
+  }
+  inv.divAt = now.toISOString();
+  return changed;
+}
+/* ---- fiche actif ---- */
+let investAssetView = null;
+const investCandleCache = new Map();
+let investEuHist = {at:0, series:null};
+async function investAssetCandles(a, range){
+  const key = a.id+"|"+range; const c0 = investCandleCache.get(key); if (c0 && Date.now()-c0.at < 120000) return c0.data;
+  const now = Date.now(), R = {"1d":["15m", 864e5], "1w":["1h", 7*864e5], "1m":["4h", 31*864e5], "1y":["1d", 366*864e5]}[range];
+  let data = null;
+  if (a.src.eu){
+    if (!investEuHist.series || now-investEuHist.at > 600000){
+      try{ const s = await db.collection("marketData").doc("euHistory").get(); investEuHist = {at:now, series:(s.exists && s.data().series) || {}}; }catch(e){ investEuHist = {at:now, series:{}}; }
+    }
+    const arr = (investEuHist.series[a.src.eu]||[]), lim = new Date(now-R[1]);
+    data = arr.filter(x=>new Date(x.d) >= lim).map(x=>({t:Date.parse(x.d), c:x.p})); // en €, comme le cours affiché
+  } else {
+    const src = a.src.xyz ? {hyperliquid:{dex:"xyz", coin:a.src.xyz}} : ASSETS.find(x=>x.symbol===a.src.symbol);
+    if (src){ const c = await fetchCandlesRange(src, R[0], now-R[1], now).catch(()=>null);
+      const ratio = a.src.ratio || 1; if (Array.isArray(c)) data = c.map(k=>({t:k.t, c:k.c*ratio})); }
+  }
+  investCandleCache.set(key, {at:now, data});
+  return data;
+}
+function openInvestAsset(id, range){
+  const a = investAssetById(id); if (!a || !state.invest) return;
+  investAssetView = {id, range: range || investAssetView && investAssetView.id===id && investAssetView.range || (a.src.eu ? "1y" : "1m")};
+  const m = investMeta(id), venue = INVEST_VENUES[a.venue], q = investQuote(a), st = investVenueStatus(a);
+  const pos = ["pea","cto"].map(env=>{ const h = state.invest[env].holdings[id]; if (!h) return "";
+    const px = investHoldingPx(id, h), val = h.qty*px, g = val-h.cost;
+    return '<div class="iv-fa-pos"><span><i class="iv-dot '+env+'"></i>'+investEnvName(env)+'</span><b>'+investFmtQty(a,h.qty)+' · '+fmtMoney(val)+'</b><em class="'+investSignedCls(g)+'">'+fmtMoneySigned(g)+' ('+fmtPct(h.cost ? g/h.cost*100 : 0)+')</em></div>'; }).join("");
+  const ranges = a.src.eu ? [["1m","1M"],["1y","1A"]] : [["1d","1J"],["1w","1S"],["1m","1M"],["1y","1A"]];
   openModal(
-    '<div id="inv-transfer" class="inv-order">'+
-      '<h3>'+(isDep ? "Verser sur une enveloppe" : "Retirer vers tes liquidités")+'</h3>'+
-      '<p class="inv-om-desc">'+(isDep ? "Déplace de l'argent de tes liquidités à placer ("+fmtMoney(inv.reserve)+") vers ton PEA ou ton CTO. Il faut verser avant de pouvoir acheter." : "Ramène des espèces d'une enveloppe vers tes liquidités à placer. Seules les espèces se retirent : vends d'abord des titres si besoin.")+'</p>'+
-      '<div class="inv-om-label">'+(isDep ? "Vers" : "Depuis")+'</div>'+
-      '<div class="seg inv-om-seg">'+
-        '<button type="button" class="on-mode'+(env==="pea"?" active":"")+'" data-tr-env="pea">PEA</button>'+
-        '<button type="button" class="on-mode'+(env==="cto"?" active":"")+'" data-tr-env="cto">CTO</button>'+
+    '<div class="iv-fa" id="iv-fa">'+
+      '<div class="iv-fa-head">'+investMonogram(a)+'<div><h3>'+escapeHtml(a.name)+'</h3><span>'+escapeHtml(a.short)+' · '+escapeHtml(venue.label)+' · <em class="'+(st.open ? "up" : "down")+'">'+escapeHtml(st.label)+'</em></span></div></div>'+
+      '<div class="iv-fa-px"><b class="num">'+(q.native!=null ? investFmtEur(q.native)+' <small>≈ '+investFmtPx(q.px)+'</small>' : investFmtPx(q.px))+'</b><span class="num '+(q.chg==null ? "" : investSignedCls(q.chg))+'">'+(q.chg==null ? "" : fmtPct(q.chg)+(a.src.eu ? " aujourd'hui" : " sur 24 h"))+'</span></div>'+
+      '<div class="iv-chips sm iv-fa-ranges">'+ranges.map(([k,l])=>'<button type="button" class="'+(investAssetView.range===k ? "on" : "")+'" data-fa-range="'+k+'">'+l+'</button>').join("")+'<span class="iv-fa-perf num" id="iv-fa-perf"></span></div>'+
+      '<div class="iv-fa-chart" id="iv-fa-chart"><div class="iv-fa-load">Chargement du graphique…</div></div>'+
+      '<div class="iv-fa-facts">'+
+        '<div><span>Catégorie</span><b>'+escapeHtml(INVEST_CAT_LABEL[a.cat]||a.cat)+(m.sec ? ' · '+escapeHtml(m.sec) : '')+'</b></div>'+
+        '<div><span>Dividende</span><b>'+(m.cap ? "Capitalisant (réinvesti dans le cours)" : m.y>0 ? "≈ "+m.y.toLocaleString("fr-FR")+" % par an" : "Aucun")+'</b></div>'+
+        '<div><span>Éligible PEA</span><b>'+(a.pea ? "Oui" : "Non, compte-titres")+'</b></div>'+
       '</div>'+
-      (peaLocked
-        ? '<div class="inv-om-hint warn">Ton PEA a moins de 5 ans : dans la vraie vie, tout retrait le <b>clôture</b> et les gains sont taxés à 31,4 %. Ici aussi, la seule option est de le clôturer (après avoir vendu toutes ses lignes).</div>'+
-          '<div class="inv-om-sum">'+
-            '<div><span>Espèces du PEA</span><b class="num">'+fmtMoney(inv.pea.cash)+'</b></div>'+
-            '<div><span>Lignes encore ouvertes</span><b class="num">'+Object.keys(inv.pea.holdings).length+'</b></div>'+
-          '</div>'+
-          '<div class="inv-om-err" id="inv-tr-err" hidden></div>'+
-          '<button type="button" class="btn-secondary inv-om-go inv-danger" id="inv-tr-close">Clôturer le PEA</button>'
-        : '<div class="inv-om-label">Montant <span class="inv-om-avail">disponible : '+fmtMoney(avail)+'</span></div>'+
-          '<div class="inv-om-qty"><input type="number" id="inv-tr-amt" inputmode="decimal" min="0" step="0.01" placeholder="0">'+
-            '<button type="button" class="btn-secondary" id="inv-tr-max">Max</button></div>'+
-          (isDep && env==="pea" ? '<div class="inv-om-hint">Plafond réel du PEA : 150 000 € de versements (ici '+fmtMoney(INVEST_PEA_CAP-inv.pea.deposits)+' restants).</div>' : '')+
-          '<div class="inv-om-err" id="inv-tr-err" hidden></div>'+
-          '<button type="button" class="btn-primary inv-om-go" id="inv-tr-go">'+(isDep ? "Verser" : "Retirer")+'</button>')+
+      (a.desc ? '<p class="iv-fa-desc">'+escapeHtml(a.desc)+'</p>' : '')+
+      (pos ? '<div class="iv-fa-poss"><span class="iv-eyebrow">Ta position</span>'+pos+'</div>' : '')+
+      '<div class="iv-fa-acts">'+
+        '<button type="button" class="btn-primary" data-fa="buy">Acheter</button>'+
+        (pos ? '<button type="button" class="btn-secondary" data-fa="sell">Vendre</button>' : '')+
+        '<button type="button" class="btn-secondary" data-fa="plan">Programmer</button>'+
+      '</div>'+
     '</div>'
   );
-  const box = document.getElementById("inv-transfer");
-  box.querySelectorAll("[data-tr-env]").forEach(b=>b.addEventListener("click", ()=>openInvestTransfer(kind, b.dataset.trEnv)));
-  const errEl = document.getElementById("inv-tr-err");
-  const showErr = (m)=>{ errEl.hidden = !m; errEl.textContent = m||""; };
-  const closeBtn = document.getElementById("inv-tr-close");
-  if (closeBtn) closeBtn.addEventListener("click", ()=>{
-    const r = investClosePea();
-    if (!r.ok){ showErr(r.err); return; }
-    closeModal(); renderInvest(); investToast("PEA clôturé · espèces ramenées dans tes liquidités");
+  const box = document.getElementById("iv-fa");
+  box.addEventListener("click", e=>{
+    const r = e.target.closest("[data-fa-range]"); if (r){ openInvestAsset(id, r.dataset.faRange); return; }
+    const b = e.target.closest("[data-fa]"); if (!b) return;
+    if (b.dataset.fa==="plan"){ openInvestPlan(id); return; }
+    const env = b.dataset.fa==="sell" ? (state.invest.pea.holdings[id] ? "pea" : "cto") : (investTab==="pea" || investTab==="cto" ? investTab : null);
+    openInvestOrder(id, env, b.dataset.fa);
   });
-  const amtEl = document.getElementById("inv-tr-amt");
-  if (amtEl){
-    const maxAmt = isDep && env==="pea" ? Math.min(avail, INVEST_PEA_CAP-inv.pea.deposits) : avail;
-    document.getElementById("inv-tr-max").addEventListener("click", ()=>{ amtEl.value = (Math.floor(maxAmt*100)/100).toFixed(2); showErr(""); });
-    const go = ()=>{
-      const r = investTransfer(kind, env, parseFloat(String(amtEl.value).replace(",", ".")));
-      if (!r.ok){ showErr(r.err); return; }
-      closeModal(); renderInvest(); investToast(isDep ? "Versement effectué sur le "+investEnvName(env) : "Retrait effectué");
-    };
-    document.getElementById("inv-tr-go").addEventListener("click", go);
-    amtEl.addEventListener("keydown", (e)=>{ if (e.key==="Enter") go(); });
-    setTimeout(()=>amtEl.focus(), 30);
-  }
+  const want = investAssetView.range;
+  investAssetCandles(a, want).then(data=>{
+    const el = document.getElementById("iv-fa-chart"); if (!el || !investAssetView || investAssetView.id!==id || investAssetView.range!==want) return;
+    if (!data || data.length<2){ el.innerHTML = '<div class="iv-fa-load">'+(a.src.eu ? "Historique en construction : un point est enregistré chaque jour de Bourse." : "Historique indisponible pour le moment.")+'</div>'; return; }
+    const W = 640, H = 200, v = data.map(x=>x.c), lo = Math.min(...v), hi = Math.max(...v), pad = (hi-lo)*0.08 || hi*0.01;
+    const X = i=>i*(W/(v.length-1)), Y = p=>8+(hi+pad-p)/((hi-lo)+2*pad)*(H-16);
+    const d = v.map((p,i)=>(i ? "L" : "M")+X(i).toFixed(1)+" "+Y(p).toFixed(1)).join(" ");
+    const perf = (v[v.length-1]/v[0]-1)*100, col = perf>=0 ? "var(--long)" : "var(--short)";
+    el.innerHTML = '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><defs><linearGradient id="iv-fg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+col+'" stop-opacity=".3"/><stop offset="1" stop-color="'+col+'" stop-opacity="0"/></linearGradient></defs>'+
+      '<path d="'+d+' L'+W+' '+H+' L0 '+H+' Z" fill="url(#iv-fg)"/><path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="2.4" vector-effect="non-scaling-stroke"/></svg>'+
+      '';
+    const fmtP = a.src.eu ? investFmtEur : investFmtPx;
+    el.insertAdjacentHTML("afterend", '<div class="iv-fa-hilo"><span>Plus bas <b>'+fmtP(lo)+'</b></span><span>Plus haut <b>'+fmtP(hi)+'</b></span></div>');
+    const pe = document.getElementById("iv-fa-perf"); if (pe){ pe.textContent = fmtPct(perf)+" sur la période"; pe.className = "iv-fa-perf num "+investSignedCls(perf); }
+  });
+}
+/* ---- investissement programmé (DCA) ---- */
+function openInvestPlan(aid, env){
+  const inv = state.invest; if (!inv) return;
+  const a0 = aid ? investAssetById(aid) : null;
+  const o = {aid: a0 ? a0.id : "CW8", env: env || (a0 ? (a0.pea ? "pea" : "cto") : (investTab==="cto" ? "cto" : "pea")), amt: 200, freq: "m", now: true};
+  const draw = ()=>{
+    const a = investAssetById(o.aid);
+    if (o.env==="pea" && !a.pea) o.env = "cto";
+    const opts = INVEST_ASSETS.filter(x=>o.env!=="pea" || x.pea).map(x=>'<option value="'+x.id+'"'+(x.id===o.aid ? " selected" : "")+'>'+escapeHtml(x.name)+'</option>').join("");
+    const perYear = o.amt*(o.freq==="w" ? 52 : 12);
+    openModal(
+      '<div class="inv-order" id="iv-plan">'+
+        '<h3>Investissement programmé</h3>'+
+        '<p class="inv-om-desc">Un achat automatique à date fixe, quel que soit le cours : quand ça baisse tu achètes plus de parts, quand ça monte moins. Il passe à la date prévue si la Bourse est ouverte (sinon à l\'ouverture), et se rattrape à ta prochaine visite si tu n\'étais pas connecté.</p>'+
+        '<div class="inv-om-label">Enveloppe</div>'+
+        '<div class="seg inv-om-seg"><button type="button" class="on-mode'+(o.env==="pea" ? " active" : "")+'" data-pl-env="pea"'+(a.pea ? "" : " disabled")+'>PEA</button><button type="button" class="on-mode'+(o.env==="cto" ? " active" : "")+'" data-pl-env="cto">Compte-titres</button></div>'+
+        '<div class="inv-om-label">Actif</div><select class="iv-select" id="pl-aid">'+opts+'</select>'+
+        '<div class="inv-om-label">Montant par achat</div><div class="inv-om-qty"><input type="number" id="pl-amt" min="10" step="10" value="'+o.amt+'"></div>'+
+        '<div class="inv-om-label">Fréquence</div>'+
+        '<div class="seg inv-om-seg"><button type="button" class="on-mode'+(o.freq==="w" ? " active" : "")+'" data-pl-freq="w">Chaque semaine</button><button type="button" class="on-mode'+(o.freq==="m" ? " active" : "")+'" data-pl-freq="m">Chaque mois</button></div>'+
+        '<label class="iv-check"><input type="checkbox" id="pl-now"'+(o.now ? " checked" : "")+'> Faire le premier achat maintenant</label>'+
+        '<div class="inv-om-sum"><div><span>Investi sur un an</span><b class="num">'+fmtMoney(perYear)+'</b></div><div><span>Espèces du '+investEnvName(o.env)+'</span><b class="num">'+fmtMoney(inv[o.env].cash)+'</b></div></div>'+
+        '<div class="inv-om-err" id="pl-err" hidden></div>'+
+        '<button type="button" class="btn-primary inv-om-go" id="pl-go">Programmer</button>'+
+      '</div>');
+    const box = document.getElementById("iv-plan");
+    box.querySelectorAll("[data-pl-env]").forEach(b=>b.addEventListener("click", ()=>{ if (b.disabled) return; o.env = b.dataset.plEnv; draw(); }));
+    box.querySelectorAll("[data-pl-freq]").forEach(b=>b.addEventListener("click", ()=>{ o.freq = b.dataset.plFreq; draw(); }));
+    document.getElementById("pl-aid").addEventListener("change", e=>{ o.aid = e.target.value; draw(); });
+    document.getElementById("pl-amt").addEventListener("change", e=>{ o.amt = Math.max(10, parseFloat(e.target.value)||0); draw(); });
+    document.getElementById("pl-now").addEventListener("change", e=>{ o.now = e.target.checked; });
+    document.getElementById("pl-go").addEventListener("click", ()=>{
+      o.amt = Math.max(10, parseFloat(document.getElementById("pl-amt").value)||0);
+      const p = {id:uid(), aid:o.aid, env:o.env, amt:Math.round(o.amt*100)/100, freq:o.freq, on:true, created:new Date().toISOString(), runs:0, spent:0,
+        next:(o.now ? new Date() : investAddPeriod(new Date(), o.freq)).toISOString()};
+      (inv.plans || (inv.plans = [])).push(p);
+      investEngineAt = 0; investPersistNow(); closeModal();
+      investToast("Investissement programmé : "+fmtMoney(p.amt)+" "+(p.freq==="w" ? "par semaine" : "par mois"));
+      investRunEngines(); renderInvest();
+    });
+  };
+  draw();
+}
+/* ---- versement (comptes ouverts avant la v3250 qui ont encore des liquidités à placer) ---- */
+function openInvestTransfer(kind, env){
+  const inv = state.invest;
+  env = env || (inv.pea.deposits<INVEST_PEA_CAP ? "pea" : "cto");
+  const avail = inv.reserve;
+  openModal(
+    '<div id="inv-transfer" class="inv-order">'+
+      '<h3>Verser tes liquidités</h3>'+
+      '<p class="inv-om-desc">Il te reste '+fmtMoney(avail)+' de liquidités pas encore placées. Verse-les sur ton PEA ou ton compte-titres pour pouvoir investir.</p>'+
+      '<div class="inv-om-label">Vers</div>'+
+      '<div class="seg inv-om-seg"><button type="button" class="on-mode'+(env==="pea"?" active":"")+'" data-tr-env="pea">PEA</button><button type="button" class="on-mode'+(env==="cto"?" active":"")+'" data-tr-env="cto">Compte-titres</button></div>'+
+      '<div class="inv-om-label">Montant <span class="inv-om-avail">disponible : '+fmtMoney(avail)+'</span></div>'+
+      '<div class="inv-om-qty"><input type="number" id="inv-tr-amt" inputmode="decimal" min="0" step="0.01" placeholder="0"><button type="button" class="btn-secondary" id="inv-tr-max">Tout</button></div>'+
+      (env==="pea" ? '<div class="inv-om-hint">Plafond réel du PEA : 150 000 € de versements (ici '+fmtMoney(INVEST_PEA_CAP-inv.pea.deposits)+' restants).</div>' : '')+
+      '<div class="inv-om-err" id="inv-tr-err" hidden></div>'+
+      '<button type="button" class="btn-primary inv-om-go" id="inv-tr-go">Verser</button>'+
+    '</div>'
+  );
+  const box = document.getElementById("inv-transfer"), errEl = document.getElementById("inv-tr-err"), amtEl = document.getElementById("inv-tr-amt");
+  box.querySelectorAll("[data-tr-env]").forEach(b=>b.addEventListener("click", ()=>openInvestTransfer("deposit", b.dataset.trEnv)));
+  const maxAmt = env==="pea" ? Math.min(avail, INVEST_PEA_CAP-inv.pea.deposits) : avail;
+  document.getElementById("inv-tr-max").addEventListener("click", ()=>{ amtEl.value = (Math.floor(maxAmt*100)/100).toFixed(2); });
+  const go = ()=>{ const r = investTransfer("deposit", env, parseFloat(String(amtEl.value).replace(",", "."))); if (!r.ok){ errEl.hidden = false; errEl.textContent = r.err; return; } closeModal(); renderInvest(); investToast("Versement effectué sur le "+investEnvName(env)); };
+  document.getElementById("inv-tr-go").addEventListener("click", go);
+  amtEl.addEventListener("keydown", e=>{ if (e.key==="Enter") go(); });
+  setTimeout(()=>amtEl.focus(), 30);
 }
 let investToastTimer = null;
 function investToast(msg){
@@ -30163,26 +30700,38 @@ function initInvest(){
     const btn = e.target.closest("[data-inv-act]");
     if (!btn || !root.contains(btn)) return;
     const act = btn.dataset.invAct;
+    if (act==="asset" && e.target.closest("button")) return; // bouton dans la ligne
     if (act==="start"){
       if (state.invest) return;
       state.invest = investFresh();
       investPersistNow();
-      renderInvest();
-      openInvestTransfer("deposit", "pea");
-    } else if (act==="transfer"){
-      openInvestTransfer(btn.dataset.kind);
-    } else if (act==="order"){
-      openInvestOrder(btn.dataset.id, btn.dataset.env || null, btn.dataset.side);
-    } else if (act==="filter"){
-      investFilter = btn.dataset.cat;
-      const mk = root.querySelector(".inv-market");
-      if (mk){ mk.outerHTML = investMarketHtml(); renderInvestLive(); }
-    } else if (act==="history"){
-      investHistoryAll = !investHistoryAll;
-      const hb = document.getElementById("inv-history-body");
-      if (hb) hb.innerHTML = investHistoryHtml();
+      investTab = "home"; renderInvest();
+      investToast("Espace ouvert : 50 000 $ sur ton PEA et 50 000 $ sur ton compte-titres");
+    } else if (act==="tab"){ investTab = btn.dataset.tab; investFilter = "all"; investSearch = ""; investMarketAll = false; renderInvest(); window.scrollTo({top:0, behavior:"smooth"}); }
+    else if (act==="transfer"){ openInvestTransfer("deposit"); }
+    else if (act==="order"){ openInvestOrder(btn.dataset.id, btn.dataset.env || null, btn.dataset.side); }
+    else if (act==="asset"){ openInvestAsset(btn.dataset.id); }
+    else if (act==="plan"){ openInvestPlan(null, btn.dataset.env || null); }
+    else if (act==="plan-toggle" || act==="plan-del"){
+      const plans = state.invest.plans || [], p = plans.find(x=>x.id===btn.dataset.plan); if (!p) return;
+      if (act==="plan-del"){ if (!confirm("Supprimer cet investissement programmé ?")) return; state.invest.plans = plans.filter(x=>x!==p); }
+      else { p.on = !p.on; if (p.on && new Date(p.next) < new Date()) p.next = new Date().toISOString(); }
+      investPersistNow(); renderInvest();
     }
+    else if (act==="filter"){ investFilter = btn.dataset.cat; investMarketAll = false; investRefreshMarket(); }
+    else if (act==="market-all"){ investMarketAll = !investMarketAll; investRefreshMarket(); }
+    else if (act==="range"){ investRange = btn.dataset.range; root.querySelectorAll('[data-inv-act="range"]').forEach(x=>x.classList.toggle("on", x.dataset.range===investRange)); investDrawSig = ""; renderInvestLive(); }
+    else if (act==="alloc"){ investAllocMode = btn.dataset.mode; root.querySelectorAll('[data-inv-act="alloc"]').forEach(x=>x.classList.toggle("on", x.dataset.mode===investAllocMode)); investDrawSig = ""; renderInvestLive(); }
+    else if (act==="history"){ investHistoryAll = !investHistoryAll; const hb = document.getElementById("inv-history-body"); if (hb) hb.innerHTML = investHistoryHtml(); }
   });
+  root.addEventListener("input", (e)=>{ if (e.target.id==="iv-search"){ investSearch = e.target.value; clearTimeout(initInvest.__t); initInvest.__t = setTimeout(investRefreshMarket, 120); } });
+  setInterval(()=>{ investRunEngines(); }, 60000);
+}
+function investRefreshMarket(){
+  const mk = document.querySelector("#invest-root .inv-market"); if (!mk) return;
+  const env = mk.dataset.env, foc = document.activeElement && document.activeElement.id==="iv-search", pos = foc ? document.activeElement.selectionStart : 0;
+  mk.outerHTML = investMarketHtml(env); renderInvestLive();
+  if (foc){ const s = document.getElementById("iv-search"); if (s){ s.focus(); try{ s.setSelectionRange(pos, pos); }catch(e){} } }
 }
 
 /* ---- leaderboard ---- */
