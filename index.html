@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3201">
+<meta name="pt-build" content="3210">
 <title>Paper Tape</title>
 <script>
 /* Un seul fichier pour deux sites :
@@ -3494,15 +3494,6 @@
   .dd-actions[hidden], .dd-verdict[hidden], .dd-q[hidden]{display:none !important;}
   .dd-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;padding:30px 32px;border-radius:22px;border:1px solid var(--border-soft);
     background:radial-gradient(700px 300px at 0% 0%, color-mix(in srgb, var(--dd-a) 13%, transparent), transparent 70%), linear-gradient(180deg, var(--panel), var(--bg));}
-  /* ---------- Admin › Ajouter un trade ---------- */
-  .adm-at-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;}
-  .adm-at-grid .field-row{display:flex;flex-direction:column;gap:5px;margin:0 0 8px;}
-  .adm-at-grid .field-row > span{font-size:11.5px;color:var(--text-faint);}
-  .adm-at-grid .seg{display:flex;} .adm-at-grid .seg button{flex:1;}
-  .adm-at-res{margin-top:8px;padding:12px 14px;border-radius:12px;border:1px solid var(--border-soft);background:var(--bg-raised);font-size:13px;line-height:1.5;display:flex;flex-direction:column;gap:6px;}
-  .adm-at-line{display:grid;grid-template-columns:130px auto 1fr;gap:10px;align-items:baseline;} .adm-at-line span{color:var(--text-faint);font-size:12px;} .adm-at-line b{font-family:var(--mono);} .adm-at-line em{font-style:normal;color:var(--text-dim);font-size:12px;text-align:right;}
-  .adm-at-pnl{font:700 22px var(--mono);margin-top:4px;} .adm-at-pnl.up{color:var(--long);} .adm-at-pnl.down{color:var(--short);} .adm-at-pnl small{font:500 12px var(--sans);color:var(--text-dim);}
-  @media (max-width:560px){ .adm-at-grid{grid-template-columns:1fr;} .adm-at-line{grid-template-columns:1fr auto;} .adm-at-line em{grid-column:1 / -1;text-align:left;} }
   /* ---------- Admin › Temps par page ---------- */
   .adm-pages{display:flex;flex-direction:column;border-top:1px solid var(--border-soft);}
   .adm-pg{border-bottom:1px solid var(--border-soft);}
@@ -6528,7 +6519,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3201 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3210 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -31353,7 +31344,6 @@ function adminActionsHtml(id, d){
     '<div class="adm-act-group"><span>Compte</span>'+
       btn("data-admin-rename","Renommer")+
       btn("data-admin-adjust","Ajuster le solde")+
-      btn("data-admin-addtrade","Ajouter un trade…")+
       btn("data-admin-badges","Badges")+
     '</div>'+
     '<div class="adm-act-group"><span>Réinitialiser</span>'+
@@ -31853,152 +31843,6 @@ function adminRenameTrader(id){
   btnOk.addEventListener("click", submit);
   input.addEventListener("keydown", (e)=>{ if (e.key==="Enter") submit(); });
   input.focus(); input.select();
-}
-// ---------- Admin : ajouter un trade passé, rejoué sur les vrais cours ----------
-// L'admin choisit l'actif, le sens, le levier, la marge, la date d'entrée, le
-// TP et le SL (en % depuis le prix d'entrée). On charge les VRAIES bougies à
-// partir de cette date : le prix d'entrée est l'ouverture de la bougie 1 min,
-// puis on cherche ce qui est touché en premier (liquidation, SL, TP ; SL
-// prioritaire si TP et SL tombent dans la même bougie, comme le rattrapage
-// hors ligne). Le trade clôturé est ajouté à l'historique du compte normal,
-// avec ses frais (taker à l'entrée et à la sortie), le cash, l'équité, le PnL
-// de la semaine et les stats. Il porte adminAdded: true (visible seulement
-// dans l'admin). Le compte prop firm n'est jamais touché.
-function adminLocalInput(ms){ const d = new Date(ms); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2, "0")+"-"+String(d.getDate()).padStart(2, "0")+"T"+String(d.getHours()).padStart(2, "0")+":"+String(d.getMinutes()).padStart(2, "0"); }
-async function adminSimTrade(o){
-  const a = ASSETS.find(x=>x.symbol===o.symbol); if (!a) throw new Error("Actif inconnu.");
-  const t0 = Math.floor(o.at/6e4)*6e4, now = Date.now();
-  if (!(t0 < now-6e4)) throw new Error("La date d'entrée doit être dans le passé.");
-  const plan = [["1m", 6e4, 3], ["15m", 9e5, 3], ["1h", 36e5, 3]]; // ≈ 2 j en 1 min, puis ≈ 31 j en 15 min, puis ≈ 125 j en 1 h
-  let entry = null, from = t0, tp = null, sl = null, liq = null;
-  for (const [tf, ms, pages] of plan){
-    for (let pg=0; pg<pages && from < now; pg++){
-      const c = await fetchCandlesRange(a, tf, from, Math.min(now, from+ms*999));
-      if (!c || !c.length){ if (entry==null) throw new Error("Pas d'historique de prix pour "+a.symbol+" à cette date."); from += ms*1000; continue; }
-      for (const k of c){
-        if (k.t < from) continue;
-        if (entry==null){
-          entry = k.o;
-          const pct = v=>entry*(1+v/100*(o.side==="long" ? 1 : -1));
-          tp = pct(o.tpPct); sl = pct(-o.slPct); liq = liqPriceFor(entry, o.side, o.lev);
-        }
-        const hiHit = v=>k.h >= v, loHit = v=>k.l <= v;
-        const hitLiq = o.side==="long" ? loHit(liq) : hiHit(liq), hitSl = o.side==="long" ? loHit(sl) : hiHit(sl), hitTp = o.side==="long" ? hiHit(tp) : loHit(tp);
-        const at = Math.min(now, k.t + ms - 1);
-        const slBeforeLiq = o.side==="long" ? sl > liq : sl < liq;
-        if (hitSl && slBeforeLiq) return {entry, exit:sl, reason:"sl", openedAt:t0, closedAt:at, tp, sl, liq, tf};
-        if (hitLiq) return {entry, exit:liq, reason:"liquidated", openedAt:t0, closedAt:at, tp, sl, liq, tf};
-        if (hitSl) return {entry, exit:sl, reason:"sl", openedAt:t0, closedAt:at, tp, sl, liq, tf};
-        if (hitTp) return {entry, exit:tp, reason:"tp", openedAt:t0, closedAt:at, tp, sl, liq, tf};
-      }
-      from = c[c.length-1].t + ms;
-    }
-  }
-  return {entry, none:true, tp, sl, liq};
-}
-function adminTradeNumbers(o, r){
-  const notional = o.margin*o.lev, units = notional/r.entry, entryFee = notional*TAKER_FEE_RATE;
-  // Mêmes règles que closePosition() : commission taker sur le notionnel, ou frais de liquidation à la place.
-  const gross = o.side==="long" ? (r.exit-r.entry)*units : (r.entry-r.exit)*units;
-  const exitFee = notional*(r.reason==="liquidated" ? LIQUIDATION_FEE_RATE : TAKER_FEE_RATE), pnl = gross - exitFee;
-  return {notional, units, entryFee, exitFee, pnl, delta:pnl-entryFee};
-}
-function adminPerfStatsAdd(s, pnl){
-  s = Object.assign({}, s||{});
-  s.tradesOpened = (s.tradesOpened||0)+1; s.tradesClosed = (s.tradesClosed||0)+1;
-  if (pnl>=0){ s.wins = (s.wins||0)+1; s.grossProfit = (s.grossProfit||0)+pnl; s.bestTrade = Math.max(s.bestTrade||0, pnl);
-    if (s.streakType==="win") s.currentStreak = (s.currentStreak||0)+1; else { s.streakType = "win"; s.currentStreak = 1; } s.bestWinStreak = Math.max(s.bestWinStreak||0, s.currentStreak); }
-  else { s.losses = (s.losses||0)+1; s.grossLoss = (s.grossLoss||0)+pnl; s.worstTrade = Math.min(s.worstTrade||0, pnl);
-    if (s.streakType==="loss") s.currentStreak = (s.currentStreak||0)+1; else { s.streakType = "loss"; s.currentStreak = 1; } s.bestLossStreak = Math.max(s.bestLossStreak||0, s.currentStreak); }
-  return s;
-}
-function adminWeekStartMs(){ const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate()-((d.getDay()+6)%7)); return d.getTime(); }
-function adminOpenAddTrade(id){
-  const doc = adminFindDoc(id); if (!doc) return;
-  const d0 = doc.data(), name = d0.username || id;
-  const assets = ASSETS.filter(a=>{ try{ return priceSources(a).some(([k])=>k==="hl" || k==="bf" || k==="bn"); }catch(e){ return false; } });
-  openModal(
-    '<h3 style="margin-bottom:6px;">Ajouter un trade — '+escapeHtml(name)+'</h3>'+
-    '<div class="chart-note" style="margin-bottom:12px;">Le trade est rejoué sur les vrais cours à partir de la date choisie : entrée à l\'ouverture de la bougie 1 min, puis sortie au premier niveau touché (SL, TP ou liquidation). Il s\'ajoute à l\'historique du compte normal (pas au prop firm), avec frais, cash, équité et stats. Tu peux en ajouter plusieurs.</div>'+
-    '<div class="adm-at-grid">'+
-      '<label class="field-row"><span>Actif</span><select id="at-sym" class="tpsl-input">'+assets.map(a=>'<option value="'+a.symbol+'"'+(a.symbol==="BTC" ? " selected" : "")+'>'+escapeHtml(a.symbol+" · "+(a.name||"").split(" (")[0])+'</option>').join("")+'</select></label>'+
-      '<div class="field-row"><span>Sens</span><div class="seg" id="at-side"><button type="button" class="on-long active" data-v="long">Long</button><button type="button" class="on-short" data-v="short">Short</button></div></div>'+
-      '<label class="field-row"><span>Date et heure d\'entrée</span><input type="datetime-local" id="at-at" class="tpsl-input" value="'+adminLocalInput(Date.now()-864e5)+'" max="'+adminLocalInput(Date.now())+'"></label>'+
-      '<label class="field-row"><span>Levier</span><input type="number" id="at-lev" class="tpsl-input" min="1" max="125" step="1" value="10"></label>'+
-      '<label class="field-row"><span>Marge ($)</span><input type="number" id="at-margin" class="tpsl-input" min="1" step="any" value="1000"></label>'+
-      '<div class="field-row"><span>Taille</span><b id="at-notional" class="num" style="padding:9px 0;">—</b></div>'+
-      '<label class="field-row"><span>Take profit (% de mouvement)</span><input type="number" id="at-tp" class="tpsl-input" min="0.01" step="any" value="2"></label>'+
-      '<label class="field-row"><span>Stop loss (% de mouvement)</span><input type="number" id="at-sl" class="tpsl-input" min="0.01" step="any" value="1"></label>'+
-    '</div>'+
-    '<div class="adm-at-res" id="at-res"><span class="chart-note">Règle le trade puis clique sur « Simuler ».</span></div>'+
-    '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">'+
-      '<button type="button" class="btn-secondary" id="at-sim" style="flex:1;">Simuler sur les vrais cours</button>'+
-      '<button type="button" class="btn-primary" id="at-add" style="flex:1;" disabled>Ajouter au compte</button>'+
-    '</div>'+
-    '<div class="chart-note" id="at-msg" style="margin-top:10px;min-height:14px;"></div>'
-  );
-  let side = "long", res = null, busy = false;
-  const $ = s=>document.getElementById(s), msg = $("at-msg"), addBtn = $("at-add");
-  const read = ()=>({symbol:$("at-sym").value, side, at:new Date($("at-at").value).getTime(), lev:Math.max(1, Math.min(125, parseFloat($("at-lev").value)||1)),
-    margin:parseFloat($("at-margin").value), tpPct:parseFloat($("at-tp").value), slPct:parseFloat($("at-sl").value)});
-  const syncSize = ()=>{ const o = read(); $("at-notional").textContent = isFinite(o.margin) && o.margin>0 ? fmtMoney(o.margin*o.lev)+" (x"+o.lev+")" : "—"; };
-  const invalidate = ()=>{ res = null; addBtn.disabled = true; syncSize(); };
-  ["at-sym","at-at","at-lev","at-margin","at-tp","at-sl"].forEach(k=>$(k).addEventListener("input", invalidate));
-  $("at-side").addEventListener("click", e=>{ const b = e.target.closest("[data-v]"); if (!b) return; side = b.dataset.v; $("at-side").querySelectorAll("button").forEach(x=>x.classList.toggle("active", x===b)); invalidate(); });
-  syncSize();
-  $("at-sim").addEventListener("click", async ()=>{
-    if (busy) return;
-    const o = read(); msg.style.color = ""; msg.textContent = "";
-    if (!isFinite(o.at)){ msg.textContent = "Choisis une date d'entrée."; return; }
-    if (!(o.margin>0) || !(o.tpPct>0) || !(o.slPct>0)){ msg.textContent = "Marge, TP et SL doivent être positifs."; return; }
-    busy = true; $("at-res").innerHTML = '<span class="chart-note">Chargement des cours…</span>';
-    try{
-      const r = await adminSimTrade(o), a = ASSETS.find(x=>x.symbol===o.symbol) || {decimals:2}, dec = a.decimals;
-      if (r.none){ res = null; addBtn.disabled = true;
-        $("at-res").innerHTML = '<div><b>Entrée '+fmtPrice(r.entry, dec)+'</b> — ni le TP ('+fmtPrice(r.tp, dec)+') ni le SL ('+fmtPrice(r.sl, dec)+') n\'ont été touchés jusqu\'à aujourd\'hui. Rapproche-les ou choisis une autre date.</div>'; }
-      else {
-        const n = adminTradeNumbers(o, r); res = {o, r, n};
-        const lbl = {tp:"Take profit touché", sl:"Stop loss touché", liquidated:"Liquidé"}[r.reason];
-        $("at-res").innerHTML =
-          '<div class="adm-at-line"><span>Entrée</span><b>'+fmtPrice(r.entry, dec)+'</b><em>'+new Date(r.openedAt).toLocaleString("fr-FR", {dateStyle:"short", timeStyle:"short"})+'</em></div>'+
-          '<div class="adm-at-line"><span>'+lbl+'</span><b>'+fmtPrice(r.exit, dec)+'</b><em>'+new Date(r.closedAt).toLocaleString("fr-FR", {dateStyle:"short", timeStyle:"short"})+(r.tf!=="1m" ? " (bougie "+r.tf+")" : "")+'</em></div>'+
-          '<div class="adm-at-line"><span>TP / SL / liq.</span><b>'+fmtPrice(r.tp, dec)+' / '+fmtPrice(r.sl, dec)+' / '+fmtPrice(r.liq, dec)+'</b></div>'+
-          '<div class="adm-at-pnl '+(n.pnl>=0 ? "up" : "down")+'">'+fmtMoneySigned(n.pnl)+' <small>('+fmtPct(n.pnl/o.margin*100)+' sur marge · frais '+fmtMoney(n.entryFee+n.exitFee)+')</small></div>';
-        addBtn.disabled = false;
-      }
-    }catch(e){ res = null; addBtn.disabled = true; $("at-res").innerHTML = '<span class="chart-note" style="color:var(--warn);">'+escapeHtml(e.message||"Cours indisponibles.")+'</span>'; }
-    busy = false;
-  });
-  addBtn.addEventListener("click", async ()=>{
-    if (!res || busy) return;
-    busy = true; addBtn.disabled = true; msg.style.color = ""; msg.textContent = "Ajout…";
-    const {o, r, n} = res;
-    try{
-      const snap = await db.collection("traders").doc(id).get(); if (!snap.exists) throw new Error("Compte introuvable.");
-      const d = snap.data();
-      const entry = {id:uid(), symbol:o.symbol, side:o.side, pnl:n.pnl, reason:r.reason, exitFee:n.exitFee, feesPaid:n.entryFee+n.exitFee,
-        closedAt:new Date(r.closedAt).toISOString(), sizeUnits:n.units, leverage:o.lev, mode:"isolated", entryPrice:r.entry, exitPrice:r.exit,
-        notional:n.notional, openedAt:new Date(r.openedAt).toISOString(), adminAdded:true, addedBy:clientId||null};
-      const hist = (Array.isArray(d.history) ? d.history : []).concat([entry]).sort((x, y)=>Date.parse(y.closedAt||0)-Date.parse(x.closedAt||0)).slice(0, TRADE_HISTORY_RETAIN);
-      const cash = (typeof d.cash==="number" ? d.cash : START_CASH) + n.delta;
-      const eq = (typeof d.equity==="number" ? d.equity : cash - n.delta) + n.delta;
-      const patch = {history:hist, cash, equity:eq, stats:adminPerfStatsAdd(d.stats, n.pnl), tradesOpenedTotal:(d.tradesOpenedTotal||0)+1};
-      // PnL de la semaine : un trade clôturé cette semaine compte dedans ; plus ancien, il décale aussi le point de départ.
-      if (r.closedAt >= adminWeekStartMs()) patch.weeklyPnl = (typeof d.weeklyPnl==="number" ? d.weeklyPnl : 0) + n.delta;
-      else if (typeof d.weekStartEquity==="number") patch.weekStartEquity = d.weekStartEquity + n.delta;
-      await db.collection("traders").doc(id).update(adminOverridePatch(patch));
-      await adminRefreshSelf(id);
-      msg.style.color = "var(--long)";
-      msg.textContent = "Trade ajouté ("+fmtMoneySigned(n.pnl)+"). Tu peux en ajouter un autre.";
-      res = null;
-      loadAdminTraders();
-    }catch(e){
-      console.warn("admin add trade failed", e);
-      msg.style.color = "var(--warn)"; msg.textContent = "Échec — "+(e.message||"vérifie les règles Firestore admin (SERVER_SETUP.md).");
-      addBtn.disabled = false;
-    }
-    busy = false;
-  });
 }
 function adminAdjustCash(id){
   const doc = adminFindDoc(id);
@@ -33058,7 +32902,6 @@ function initAdminUI(){
       if (!t || !t.dataset) return;
       if (t.dataset.adminView) adminToggleDetail(t.dataset.adminView);
       else if (t.dataset.adminAdjust) adminAdjustCash(t.dataset.adminAdjust);
-      else if (t.dataset.adminAddtrade) adminOpenAddTrade(t.dataset.adminAddtrade);
       else if (t.dataset.adminRename) adminRenameTrader(t.dataset.adminRename);
       else if (t.dataset.adminBadges) adminManageBadges(t.dataset.adminBadges);
       else if (t.dataset.adminEdbplus) adminToggleEdbPlus(t.dataset.adminEdbplus);
