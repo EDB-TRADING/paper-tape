@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3303">
+<meta name="pt-build" content="3330">
 <script>
 /* Multi-graphiques : cette page est-elle un graphique seul dans une iframe ?
    Si oui, ses réglages de graphique (indicateurs, bougies, unité de temps,
@@ -660,7 +660,12 @@
   .csp-list button:hover, .csp-list button.on{background:var(--bg-raised);} .csp-list i{font-style:normal;text-align:center;} .csp-list b{font:600 12.5px var(--mono);} .csp-list span{font-size:12px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .csp-empty{padding:12px;color:var(--text-faint);font-size:13px;}
   /* Barre du graphique masquée (double-clic) */
-  .card.widget.chart-fs.chart-compact .chart-head, .card.widget.chart-fs.chart-compact .chart-controls{display:none !important;}
+  .card.widget.chart-compact .chart-head, .card.widget.chart-compact .chart-controls{display:none !important;}
+  .chart-bar-tg{position:absolute;top:6px;right:62px;z-index:4;width:24px;height:24px;display:grid;place-items:center;padding:0;border-radius:6px;border:1px solid var(--border-soft);background:color-mix(in srgb, var(--panel) 85%, transparent);color:var(--text-faint);cursor:pointer;opacity:.75;transition:opacity .15s, color .15s, border-color .15s;}
+  .chart-bar-tg:hover{opacity:1;color:var(--text);border-color:var(--accent);}
+  .chart-bar-tg .cbt-on{display:none;} .chart-bar-tg.is-on .cbt-on{display:block;} .chart-bar-tg.is-on .cbt-off{display:none;}
+  .chart-bar-tg.is-on{color:var(--accent);border-color:color-mix(in srgb, var(--accent) 55%, var(--border-soft));opacity:1;}
+  .chart-stage[hidden] .chart-bar-tg{display:none;}
   /* Modales au-dessus du graphique plein écran */
   html.chart-fs-on .modal-overlay{z-index:2147483300;}
   /* Mode « graphique seul » (iframe du multi-graphiques) */
@@ -913,6 +918,20 @@
   }
   .tf-seg button:hover:not(.active){color:var(--text-dim);border-color:var(--text-faint);}
   .tf-seg button.active{background:var(--panel-2);border-color:var(--accent);color:var(--accent);}
+  .tf-seg .tf-custom{position:relative;padding-right:18px !important;}
+  .tf-seg .tf-x{position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:12px;line-height:1;opacity:.45;padding:1px 2px;border-radius:3px;}
+  .tf-seg .tf-x:hover{opacity:1;background:var(--border-soft);}
+  .tf-seg .tf-add{min-width:28px;font-weight:600;}
+  .tf-pop{position:fixed;z-index:2147483400;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--panel);box-shadow:0 18px 40px rgba(0,0,0,.45);display:flex;flex-direction:column;gap:10px;}
+  .tf-pop[hidden]{display:none;}
+  .tf-pop-h{font:600 13px var(--sans);color:var(--text);}
+  .tf-pop-row{display:flex;gap:8px;align-items:center;}
+  .tf-pop-row input{width:64px;flex:none;font:600 14px var(--mono);padding:7px 8px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);color:var(--text);}
+  .tf-pop-u{flex:1;display:flex;}
+  .tf-pop-u button{flex:1;}
+  .tf-pop-err{font-size:12px;color:var(--short);}
+  .tf-pop-err[hidden]{display:none;}
+  .tf-pop-note{font-size:11px;color:var(--text-faint);line-height:1.4;}
   .chart-zoom-seg{display:flex;align-items:center;gap:6px;}
   .chart-zoom-seg[hidden]{display:none;}
   .chart-zoom-seg .pos-close{padding:3px 9px;font-size:12px;line-height:1;}
@@ -6104,7 +6123,7 @@
 
         <div class="widget-col" data-col="1">
           <div class="card widget" draggable="true" data-widget="chart">
-            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Graphique</h3><span class="mc-hint">Double-clic sur un graphique : masquer / afficher sa barre (marché, trading, unités de temps, outils, indicateurs)</span><button type="button" class="mc-add-btn" id="mc-add" title="Ajouter un graphique à côté (plein écran)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Graphique</span></button><button type="button" class="widget-fs-toggle" id="chart-fs-btn" title="Plein écran" aria-label="Plein écran" aria-pressed="false"><svg class="fs-in" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><svg class="fs-out" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg><span class="fs-lbl">Quitter</span></button><button type="button" class="widget-free-toggle" data-widget-free="chart" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="chart" title="Masquer ce widget">✕</button></div>
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Graphique</h3><span class="mc-hint">Double-clic : ce graphique seul / retour · carré en haut à droite : masquer / afficher sa barre</span><button type="button" class="mc-add-btn" id="mc-add" title="Ajouter un graphique à côté (plein écran)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Graphique</span></button><button type="button" class="widget-fs-toggle" id="chart-fs-btn" title="Plein écran" aria-label="Plein écran" aria-pressed="false"><svg class="fs-in" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><svg class="fs-out" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg><span class="fs-lbl">Quitter</span></button><button type="button" class="widget-free-toggle" data-widget-free="chart" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="chart" title="Masquer ce widget">✕</button></div>
             <div class="chart-head">
               <div class="chart-head-sym"><span class="sym-big" id="chart-sym">BTC</span><span class="name-big" id="chart-name">Bitcoin</span><span class="src-chip" id="chart-src-chip" hidden></span></div>
               <div class="chart-qt" id="chart-qt">
@@ -6168,12 +6187,13 @@
                   <section class="ci-grp" data-grp="base"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Les bases</b><small>Tendance et activité : de quoi lire un graphique</small></span><span class="ci-lvl ci-lvl-b">Débutant</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><div class="ci-starter" id="ci-starter"><span>Tu débutes ? Volume + MME 20 et 50 suffisent pour lire la tendance.</span><button type="button" id="ci-starter-go">Activer</button></div><label class="ci-it"><i style="background:linear-gradient(90deg,#31c882 50%,#f0546a 50%)"></i><span class="ci-tx"><b>Volume</b><small>Quantité échangée à chaque bougie : confirme la force d'un mouvement</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vol"></label><label class="ci-it"><i style="background:#f2b33d"></i><span class="ci-tx"><b>Moyenne mobile 20</b><small>Tendance courte : prix au-dessus = plutôt haussier</small></span><input type="checkbox" class="ci-tg" data-chart-ind="ema20"></label><label class="ci-it"><i style="background:#5aa9e6"></i><span class="ci-tx"><b>Moyenne mobile 50</b><small>Tendance de fond sur la période</small></span><input type="checkbox" class="ci-tg" data-chart-ind="ema50"></label><label class="ci-it"><i style="background:#c77dff"></i><span class="ci-tx"><b>Moyenne mobile 200</b><small>La grande tendance, très suivie par les traders</small></span><input type="checkbox" class="ci-tg" data-chart-ind="ema200"></label></div></section>
                   <section class="ci-grp" data-grp="lvl"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Niveaux clés</b><small>Prix où le marché réagit souvent</small></span><span class="ci-lvl ci-lvl-i">Intermédiaire</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><label class="ci-it"><i style="background:#ff8a3d"></i><span class="ci-tx"><b>VWAP de la séance</b><small>Prix moyen payé depuis l'ouverture, pondéré par le volume</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vwap"></label><label class="ci-it"><i style="background:#e879f9"></i><span class="ci-tx"><b>VWAP de la semaine</b><small>Même calcul, depuis lundi</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vwapw"></label><div class="chart-ind-sub ci-opt" id="chart-vwap-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages du VWAP</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><label><input type="checkbox" data-chart-ind="vwapGap">Masquer la jonction entre deux séances</label><label><input type="checkbox" data-chart-ind="vwapBands">Bandes d'écart-type (±1σ, ±2σ)</label></div></div><label class="ci-it"><i style="background:#c9b37e"></i><span class="ci-tx"><b>Hier : plus haut / plus bas</b><small>+ ouverture du jour : niveaux souvent testés</small></span><input type="checkbox" class="ci-tg" data-chart-ind="pdl"></label><label class="ci-it"><i style="background:#8fa3b8"></i><span class="ci-tx"><b>Bandes de Bollinger</b><small>Enveloppe de volatilité autour d'une moyenne (20, 2)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="bb"></label><label class="ci-it"><i style="background:linear-gradient(90deg,#31c882 50%,#f0546a 50%)"></i><span class="ci-tx"><b>Supertrend</b><small>Vert = tendance haussière, rouge = baissière (10, 3)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="st"></label></div></section>
                   <section class="ci-grp" data-grp="vp"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Volume par prix</b><small>Où se sont faits les échanges</small></span><span class="ci-lvl ci-lvl-i">Intermédiaire</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><label class="ci-it"><i style="background:#8fa3b8"></i><span class="ci-tx"><b>Profil de volume (écran)</b><small>Volume échangé à chaque prix, sur la zone affichée</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vp"></label><label class="ci-it"><i style="background:#8fa3b8"></i><span class="ci-tx"><b>Profil de volume par jour</b><small>Un profil par séance, avec son POC</small></span><input type="checkbox" class="ci-tg" data-chart-ind="vpd"></label><div class="chart-ind-sub ci-opt" id="chart-vp-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages des profils</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><div class="ci-h">Lignes</div><div class="chart-fp-tick"><span>Ticks par ligne <em id="chart-vp-tick-eq" class="ci-eq"></em></span><button type="button" class="tk-step" data-vp-step="-1" title="Lignes plus fines" aria-label="Moins de ticks par ligne">−</button><input type="number" id="chart-vp-tick" min="1" step="1" inputmode="numeric" placeholder="Auto" aria-label="Nombre de ticks par ligne du profil de volume"><button type="button" class="tk-step" data-vp-step="1" title="Lignes plus grosses" aria-label="Plus de ticks par ligne">+</button><button type="button" id="chart-vp-tick-auto" title="Revenir au réglage automatique">Auto</button></div><div class="ci-h">Apparence</div><label><input type="checkbox" data-chart-ind="vpFill">Histogramme plein (sinon contour seul)</label><label><input type="checkbox" data-chart-ind="vpBox">Encadré (box) autour de chaque profil</label><div class="ci-row"><span>Disposition</span><div class="tpo-seg ci-seg" data-ci-key="vpSide"><button type="button" data-v="left">Gauche</button><button type="button" data-v="right">Droite</button></div></div><div class="ci-row"><span>Couleur des barres</span><div class="tpo-seg ci-seg" data-ci-key="vpStyle"><button type="button" data-v="split">Achat / vente</button><button type="button" data-v="solid">Couleur unie</button></div></div><label><input type="checkbox" data-chart-ind="vpGrade">Dégradé : barres plus vives là où il y a plus de volume</label><label><input type="checkbox" data-chart-ind="vpVa">Lignes VAH / VAL (value area 70 %)</label><div class="ci-row"><span>Trait du POC</span><div class="tpo-seg ci-seg" data-ci-key="vpPocStyle"><button type="button" data-v="dash">Pointillés</button><button type="button" data-v="dot">Points</button><button type="button" data-v="solid">Plein</button></div></div><div class="ci-colors"><label data-vp-show="split"><input type="color" data-ci-color="vpBuyCol">Achats</label><label data-vp-show="split"><input type="color" data-ci-color="vpSellCol">Ventes</label><label data-vp-show="solid"><input type="color" data-ci-color="vpCol">Profil</label><label><input type="color" data-ci-color="vpPocCol">POC</label><label><input type="color" data-ci-color="vpVaCol">VAH / VAL</label><button type="button" id="chart-vp-col-reset" title="Couleurs par défaut">Défaut</button></div></div></div></div></section>
-                  <section class="ci-grp" data-grp="of"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Order flow</b><small>Acheteurs contre vendeurs, prix par prix</small></span><span class="ci-lvl ci-lvl-a">Avancé</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><label class="ci-it"><i style="background:linear-gradient(90deg,#f0546a 50%,#31c882 50%)"></i><span class="ci-tx"><b>Footprint <span class="chart-ind-plus">EDB+</span></b><small>Achats et ventes agressifs à chaque prix, dans chaque bougie</small></span><input type="checkbox" class="ci-tg" data-chart-ind="fp"></label><div class="chart-ind-lock" id="chart-fp-lock" hidden>Réservé aux membres EDB+. <button type="button" id="chart-fp-lock-go">Découvrir EDB+</button></div><div class="chart-ind-sub ci-opt" id="chart-fp-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages du footprint</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><div class="chart-fp-tick"><span>Taille de ligne (prix)</span><button type="button" class="tk-step" data-tick-step="fp:-1" title="Plus fin" aria-label="Taille de ligne plus fine">−</button><input type="number" id="chart-fp-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne du footprint (en prix)"><button type="button" class="tk-step" data-tick-step="fp:1" title="Plus gros" aria-label="Taille de ligne plus grosse">+</button><button type="button" id="chart-fp-tick-auto" title="Revenir au réglage automatique">Auto</button></div><div class="ci-h">Affichage</div><div class="ci-row"><span>Forme</span><div class="tpo-seg ci-seg" data-ci-key="fpDisplay"><button type="button" data-v="cluster" title="Une case par niveau de prix">Cases</button><button type="button" data-v="profile" title="Une barre par niveau de prix, plus longue là où il y a plus de quantité">Profil</button></div></div><div class="ci-row"><span>Couleurs selon</span><div class="tpo-seg ci-seg" data-ci-key="fpMode"><button type="button" data-v="standard" title="Ventes en rouge, achats en vert">Achats / ventes</button><button type="button" data-v="delta" title="Vert si plus d'achats, rouge si plus de ventes">Delta</button><button type="button" data-v="volume" title="Une seule couleur, plus vive là où il y a plus de volume">Volume</button></div></div><div class="ci-row"><span>Chiffres</span><div class="tpo-seg ci-seg" data-ci-key="fpText"><button type="button" data-v="auto" title="Selon les couleurs choisies">Auto</button><button type="button" data-v="delta">Delta</button><button type="button" data-v="volume">Volume</button><button type="button" data-v="split">Ventes | achats</button></div></div><label><input type="checkbox" data-chart-ind="fpHideText">Masquer les chiffres</label><div class="ci-row"><span>Arrondir les valeurs</span><div class="tpo-seg ci-seg" data-ci-key="fpDigits"><button type="button" data-v="auto" title="0.02, 3.65, 12.9, 1.2k">Auto</button><button type="button" data-v="int" title="Entiers : 0, 4, 13, 1234">Entiers</button><button type="button" data-v="2" title="Toujours 2 décimales : 0.02, 3.65, 12.90">2 décimales</button></div></div><label><input type="checkbox" data-chart-ind="fpGrad">Dégradé : plus vif là où il y a plus de quantité</label><div class="ci-h">Signaux</div><label><input type="checkbox" data-chart-ind="fpImb">Déséquilibres à 300 % (+ zones de 3 empilés)</label><label><input type="checkbox" data-chart-ind="fpSig">Absorption (A) et épuisement (É)</label><label><input type="checkbox" data-chart-ind="fpSum">Récap delta / volume de chaque bougie</label><div class="chart-ind-tip">Binance : historique rechargé à l'ouverture (précis sur ~2 h, approximé au-delà), puis en direct. Hyperliquid : en direct depuis l'ouverture du graphique.</div></div></div><label class="ci-it"><i style="background:linear-gradient(90deg,#14378c,#00a5c8,#f5cd2d)"></i><span class="ci-tx"><b>Heatmap de liquidité <span class="chart-ind-plus">EDB+</span></b><small>Ordres en attente dans le carnet, prix par prix et dans le temps (enregistrés depuis l'ouverture du graphique)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="lhm"></label><div class="chart-ind-lock" id="chart-lhm-lock" hidden>Réservé aux membres EDB+. <button type="button" class="ci-lock-go">Découvrir EDB+</button></div><div class="chart-ind-sub ci-opt" id="chart-lhm-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages de la heatmap</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><div class="ci-row"><span>Rendu</span><div class="tpo-seg ci-seg" data-ci-key="lhmStyle"><button type="button" data-v="heat" title="Dégradé de couleurs, sans chiffres">Heatmap</button><button type="button" data-v="grid" title="Une case par bougie et par prix, avec la quantité écrite dedans">Cases + valeurs</button></div></div><div class="ci-row"><span>Résolution</span><div class="tpo-seg ci-seg" data-ci-key="lhmRes"><button type="button" data-v="sd" title="Lignes plus grosses (auto ~0,01 % du prix)">SD</button><button type="button" data-v="hd" title="Lignes plus fines (auto ~0,004 % du prix)">HD</button></div></div><div class="ci-row"><span>Portée du carnet</span><div class="tpo-seg ci-seg" data-ci-key="lhmSpan" title="Jusqu'où, de part et d'autre du prix, les ordres sont enregistrés. Changer la portée redémarre la heatmap."><button type="button" data-v="1">±1 %</button><button type="button" data-v="2">±2 %</button><button type="button" data-v="5">±5 %</button><button type="button" data-v="10">±10 %</button></div></div><div class="chart-fp-tick"><span>Taille de ligne (prix) <em id="chart-lhm-tick-eq" class="ci-eq"></em></span><button type="button" class="tk-step" data-lhm-step="-1" title="Lignes plus fines" aria-label="Lignes plus fines">−</button><input type="number" id="chart-lhm-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne de la heatmap (en prix)"><button type="button" class="tk-step" data-lhm-step="1" title="Lignes plus grosses" aria-label="Lignes plus grosses">+</button><button type="button" id="chart-lhm-tick-auto" title="Revenir au réglage automatique">Auto</button></div><div class="ci-row"><span>Valeur de chaque bougie</span><div class="tpo-seg ci-seg" data-ci-key="lhmCalc"><button type="button" data-v="close" title="Carnet tel qu'il était à la clôture de la bougie">À la clôture</button><button type="button" data-v="avg" title="Moyenne des relevés pendant la bougie">Moyenne</button></div></div><div class="ci-h">Couleurs</div><div class="ci-row"><span>Palette</span><div class="tpo-seg ci-seg ci-themes" data-ci-key="lhmTheme"><button type="button" data-v="classic"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#14378c,#00a5c8,#f5cd2d,#fffaeb)"></i>Classique</button><button type="button" data-v="fire"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#6e0a0a,#dc3214,#ffa01e,#fff5c8)"></i>Feu</button><button type="button" data-v="ice"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#0f2878,#2878e6,#78dcff,#f5fcff)"></i>Glace</button><button type="button" data-v="green"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#0a5028,#1eaa50,#96eb5a,#f0ffdc)"></i>Vert</button><button type="button" data-v="purple"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#461482,#aa32c8,#ff6ebe,#ffe6f5)"></i>Violet</button><button type="button" data-v="mono"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#464646,#8c8c8c,#d2d2d2,#ffffff)"></i>Gris</button></div></div><div class="ci-sl ci-dual-row"><span>Plage d'intensité</span><div class="ci-dual"><i class="ci-dual-fill"></i><input type="range" data-ci-range="lhmLo" min="0" max="1" step="0.01" aria-label="Début de la plage"><input type="range" data-ci-range="lhmHi" min="0" max="1" step="0.01" aria-label="Fin de la plage"></div><em data-ci-range-v="lhmLo"></em></div><div class="ci-sl"><span>Opacité</span><input type="range" data-ci-range="lhmOpacity" min="0.05" max="1" step="0.05" data-fmt="2"><em data-ci-range-v="lhmOpacity"></em></div><div class="ci-sl"><span>Gamma</span><input type="range" data-ci-range="lhmGamma" min="0.1" max="10" step="0.1" data-fmt="2"><em data-ci-range-v="lhmGamma"></em></div><div class="ci-num"><span>Minimum</span><div><button type="button" class="tk-step" data-ci-num-step="lhmMin:-1" aria-label="Moins">−</button><input type="number" data-ci-num="lhmMin" min="0" step="any" inputmode="decimal" placeholder="Auto"><button type="button" class="tk-step" data-ci-num-step="lhmMin:1" aria-label="Plus">+</button></div></div><div class="ci-num"><span>Maximum</span><div><button type="button" class="tk-step" data-ci-num-step="lhmMax:-1" aria-label="Moins">−</button><input type="number" data-ci-num="lhmMax" min="0" step="any" inputmode="decimal" placeholder="Auto"><button type="button" class="tk-step" data-ci-num-step="lhmMax:1" aria-label="Plus">+</button></div></div><div class="ci-h">Profil du carnet</div><label><input type="checkbox" data-chart-ind="lhmProfile">Afficher le profil (carnet actuel, contre l'axe des prix)</label><label><input type="checkbox" data-chart-ind="lhmProfOutline">Contour du profil</label><div class="ci-sl"><span>Largeur</span><input type="range" data-ci-range="lhmProfW" min="0.05" max="0.5" step="0.01" data-fmt="2"><em data-ci-range-v="lhmProfW"></em></div><div class="ci-sl"><span>Échelle</span><input type="range" data-ci-range="lhmProfScale" min="0.25" max="4" step="0.05" data-fmt="x"><em data-ci-range-v="lhmProfScale"></em></div><div class="ci-h">Chiffres</div><label><input type="checkbox" data-chart-ind="lhmCursor">Infobulle 3 × 3 au curseur (3 bougies × 3 lignes de prix)</label><label><input type="checkbox" data-chart-ind="lhmVals">Heatmap : écrire les plus grosses quantités</label><div class="chart-ind-tip">Couleur sombre = peu d'ordres, couleur claire = gros murs. Plage d'intensité / gamma : quelles quantités ressortent ; Minimum : en dessous, rien n'est dessiné ; Maximum : à partir de là, couleur la plus claire (vide = auto). Quantités dans l'unité de l'actif (ex. BTC). Binance : le carnet s'étoffe au fil des premières minutes. Les carnets passés ne sont publiés nulle part : la heatmap repart à zéro au rechargement de la page.</div></div></div></div></section>
+                  <section class="ci-grp" data-grp="of"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Order flow</b><small>Acheteurs contre vendeurs, prix par prix</small></span><span class="ci-lvl ci-lvl-a">Avancé</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><label class="ci-it"><i style="background:linear-gradient(90deg,#f0546a 50%,#31c882 50%)"></i><span class="ci-tx"><b>Footprint <span class="chart-ind-plus">EDB+</span></b><small>Achats et ventes agressifs à chaque prix, dans chaque bougie</small></span><input type="checkbox" class="ci-tg" data-chart-ind="fp"></label><div class="chart-ind-lock" id="chart-fp-lock" hidden>Réservé aux membres EDB+. <button type="button" id="chart-fp-lock-go">Découvrir EDB+</button></div><div class="chart-ind-sub ci-opt" id="chart-fp-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages du footprint</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><div class="chart-fp-tick"><span>Taille de ligne (prix)</span><button type="button" class="tk-step" data-tick-step="fp:-1" title="Plus fin" aria-label="Taille de ligne plus fine">−</button><input type="number" id="chart-fp-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne du footprint (en prix)"><button type="button" class="tk-step" data-tick-step="fp:1" title="Plus gros" aria-label="Taille de ligne plus grosse">+</button><button type="button" id="chart-fp-tick-auto" title="Revenir au réglage automatique">Auto</button></div><div class="ci-h">Affichage</div><div class="ci-row"><span>Forme</span><div class="tpo-seg ci-seg" data-ci-key="fpDisplay"><button type="button" data-v="cluster" title="Une case par niveau de prix">Cases</button><button type="button" data-v="profile" title="Une barre par niveau de prix, plus longue là où il y a plus de quantité">Profil</button></div></div><div class="ci-row"><span>Couleurs selon</span><div class="tpo-seg ci-seg" data-ci-key="fpMode"><button type="button" data-v="standard" title="Ventes en rouge, achats en vert">Achats / ventes</button><button type="button" data-v="delta" title="Vert si plus d'achats, rouge si plus de ventes">Delta</button><button type="button" data-v="volume" title="Une seule couleur, plus vive là où il y a plus de volume">Volume</button></div></div><div class="ci-row"><span>Chiffres</span><div class="tpo-seg ci-seg" data-ci-key="fpText"><button type="button" data-v="auto" title="Selon les couleurs choisies">Auto</button><button type="button" data-v="delta">Delta</button><button type="button" data-v="volume">Volume</button><button type="button" data-v="split">Ventes | achats</button></div></div><label><input type="checkbox" data-chart-ind="fpHideText">Masquer les chiffres</label><div class="ci-row"><span>Arrondir les valeurs</span><div class="tpo-seg ci-seg" data-ci-key="fpDigits"><button type="button" data-v="auto" title="0.02, 3.65, 12.9, 1.2k">Auto</button><button type="button" data-v="int" title="Entiers : 0, 4, 13, 1234">Entiers</button><button type="button" data-v="2" title="Toujours 2 décimales : 0.02, 3.65, 12.90">2 décimales</button></div></div><label><input type="checkbox" data-chart-ind="fpGrad">Dégradé : plus vif là où il y a plus de quantité</label><div class="ci-h">Signaux</div><label><input type="checkbox" data-chart-ind="fpImb">Déséquilibres (+ zones empilées)</label><div class="ci-row"><span>Ratio d'un déséquilibre</span><div class="tpo-seg ci-seg" data-ci-key="fpImbR" title="Un côté doit être au moins ce multiple de l'autre (en diagonale)"><button type="button" data-v="2">×2</button><button type="button" data-v="3">×3</button><button type="button" data-v="5">×5</button><button type="button" data-v="10">×10</button></div></div><div class="ci-row"><span>Empilés pour une zone</span><div class="tpo-seg ci-seg" data-ci-key="fpStack" title="Nombre de déséquilibres consécutifs pour tracer une zone de support / résistance"><button type="button" data-v="2">2</button><button type="button" data-v="3">3</button><button type="button" data-v="4">4</button><button type="button" data-v="5">5</button></div></div><label><input type="checkbox" data-chart-ind="fpSig">Absorption (A) et épuisement (É)</label><label><input type="checkbox" data-chart-ind="fpSum">Récap delta / volume de chaque bougie</label><div class="chart-ind-tip">Binance : historique rechargé à l'ouverture (précis sur ~2 h, approximé au-delà), puis en direct. Hyperliquid : en direct depuis l'ouverture du graphique.</div></div></div><label class="ci-it"><i style="background:linear-gradient(90deg,#14378c,#00a5c8,#f5cd2d)"></i><span class="ci-tx"><b>Heatmap de liquidité <span class="chart-ind-plus">EDB+</span></b><small>Ordres en attente dans le carnet, prix par prix et dans le temps (enregistrés depuis l'ouverture du graphique)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="lhm"></label><div class="chart-ind-lock" id="chart-lhm-lock" hidden>Réservé aux membres EDB+. <button type="button" class="ci-lock-go">Découvrir EDB+</button></div><div class="chart-ind-sub ci-opt" id="chart-lhm-opts"><button type="button" class="ci-opt-h" aria-expanded="false"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg><span>Réglages de la heatmap</span><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-opt-b"><div class="ci-row"><span>Rendu</span><div class="tpo-seg ci-seg" data-ci-key="lhmStyle"><button type="button" data-v="heat" title="Dégradé de couleurs, sans chiffres">Heatmap</button><button type="button" data-v="grid" title="Une case par bougie et par prix, avec la quantité écrite dedans">Cases + valeurs</button></div></div><div class="ci-row"><span>Résolution</span><div class="tpo-seg ci-seg" data-ci-key="lhmRes"><button type="button" data-v="sd" title="Lignes plus grosses (auto ~0,01 % du prix)">SD</button><button type="button" data-v="hd" title="Lignes plus fines (auto ~0,004 % du prix)">HD</button></div></div><div class="ci-row"><span>Portée du carnet</span><div class="tpo-seg ci-seg" data-ci-key="lhmSpan" title="Jusqu'où, de part et d'autre du prix, les ordres sont enregistrés. Changer la portée redémarre la heatmap."><button type="button" data-v="1">±1 %</button><button type="button" data-v="2">±2 %</button><button type="button" data-v="5">±5 %</button><button type="button" data-v="10">±10 %</button></div></div><div class="chart-fp-tick"><span>Taille de ligne (prix) <em id="chart-lhm-tick-eq" class="ci-eq"></em></span><button type="button" class="tk-step" data-lhm-step="-1" title="Lignes plus fines" aria-label="Lignes plus fines">−</button><input type="number" id="chart-lhm-tick" min="0" step="any" inputmode="decimal" placeholder="Auto" aria-label="Taille de ligne de la heatmap (en prix)"><button type="button" class="tk-step" data-lhm-step="1" title="Lignes plus grosses" aria-label="Lignes plus grosses">+</button><button type="button" id="chart-lhm-tick-auto" title="Revenir au réglage automatique">Auto</button></div><div class="ci-row"><span>Valeur de chaque bougie</span><div class="tpo-seg ci-seg" data-ci-key="lhmCalc"><button type="button" data-v="close" title="Carnet tel qu'il était à la clôture de la bougie">À la clôture</button><button type="button" data-v="avg" title="Moyenne des relevés pendant la bougie">Moyenne</button></div></div><div class="ci-h">Couleurs</div><div class="ci-row"><span>Palette</span><div class="tpo-seg ci-seg ci-themes" data-ci-key="lhmTheme"><button type="button" data-v="classic"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#14378c,#00a5c8,#f5cd2d,#fffaeb)"></i>Classique</button><button type="button" data-v="fire"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#6e0a0a,#dc3214,#ffa01e,#fff5c8)"></i>Feu</button><button type="button" data-v="ice"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#0f2878,#2878e6,#78dcff,#f5fcff)"></i>Glace</button><button type="button" data-v="green"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#0a5028,#1eaa50,#96eb5a,#f0ffdc)"></i>Vert</button><button type="button" data-v="purple"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#461482,#aa32c8,#ff6ebe,#ffe6f5)"></i>Violet</button><button type="button" data-v="mono"><i class="ci-sw-grad" style="background:linear-gradient(90deg,#464646,#8c8c8c,#d2d2d2,#ffffff)"></i>Gris</button></div></div><div class="ci-sl ci-dual-row"><span>Plage d'intensité</span><div class="ci-dual"><i class="ci-dual-fill"></i><input type="range" data-ci-range="lhmLo" min="0" max="1" step="0.01" aria-label="Début de la plage"><input type="range" data-ci-range="lhmHi" min="0" max="1" step="0.01" aria-label="Fin de la plage"></div><em data-ci-range-v="lhmLo"></em></div><div class="ci-sl"><span>Opacité</span><input type="range" data-ci-range="lhmOpacity" min="0.05" max="1" step="0.05" data-fmt="2"><em data-ci-range-v="lhmOpacity"></em></div><div class="ci-sl"><span>Gamma</span><input type="range" data-ci-range="lhmGamma" min="0.1" max="10" step="0.1" data-fmt="2"><em data-ci-range-v="lhmGamma"></em></div><div class="ci-num"><span>Minimum</span><div><button type="button" class="tk-step" data-ci-num-step="lhmMin:-1" aria-label="Moins">−</button><input type="number" data-ci-num="lhmMin" min="0" step="any" inputmode="decimal" placeholder="Auto"><button type="button" class="tk-step" data-ci-num-step="lhmMin:1" aria-label="Plus">+</button></div></div><div class="ci-num"><span>Maximum</span><div><button type="button" class="tk-step" data-ci-num-step="lhmMax:-1" aria-label="Moins">−</button><input type="number" data-ci-num="lhmMax" min="0" step="any" inputmode="decimal" placeholder="Auto"><button type="button" class="tk-step" data-ci-num-step="lhmMax:1" aria-label="Plus">+</button></div></div><div class="ci-h">Profil du carnet</div><label><input type="checkbox" data-chart-ind="lhmProfile">Afficher le profil (carnet actuel, contre l'axe des prix)</label><label><input type="checkbox" data-chart-ind="lhmProfOutline">Contour du profil</label><div class="ci-sl"><span>Largeur</span><input type="range" data-ci-range="lhmProfW" min="0.05" max="0.5" step="0.01" data-fmt="2"><em data-ci-range-v="lhmProfW"></em></div><div class="ci-sl"><span>Échelle</span><input type="range" data-ci-range="lhmProfScale" min="0.25" max="4" step="0.05" data-fmt="x"><em data-ci-range-v="lhmProfScale"></em></div><div class="ci-h">Chiffres</div><label><input type="checkbox" data-chart-ind="lhmCursor">Infobulle 3 × 3 au curseur (3 bougies × 3 lignes de prix)</label><label><input type="checkbox" data-chart-ind="lhmVals">Heatmap : écrire les plus grosses quantités</label><div class="chart-ind-tip">Couleur sombre = peu d'ordres, couleur claire = gros murs. Plage d'intensité / gamma : quelles quantités ressortent ; Minimum : en dessous, rien n'est dessiné ; Maximum : à partir de là, couleur la plus claire (vide = auto). Quantités dans l'unité de l'actif (ex. BTC). Binance : le carnet s'étoffe au fil des premières minutes. Les carnets passés ne sont publiés nulle part : la heatmap repart à zéro au rechargement de la page.</div></div></div></div></section>
                   <section class="ci-grp" data-grp="osc"><button type="button" class="ci-grp-h" aria-expanded="false"><span class="ci-grp-t"><b>Sous le graphique</b><small>Oscillateurs dans un panneau à part</small></span><span class="ci-lvl ci-lvl-i">Intermédiaire</span><em class="ci-grp-n" hidden></em><span class="ci-chev" aria-hidden="true">›</span></button><div class="ci-grp-b"><label class="ci-it"><i style="background:#b388ff"></i><span class="ci-tx"><b>RSI 14</b><small>Force du mouvement de 0 à 100 : &gt; 70 suracheté, &lt; 30 survendu</small></span><input type="checkbox" class="ci-tg" data-chart-ind="rsi"></label><label class="ci-it"><i style="background:linear-gradient(90deg,#5aa9e6 50%,#f2b33d 50%)"></i><span class="ci-tx"><b>MACD</b><small>Croisements de moyennes : la dynamique change (12, 26, 9)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="macd"></label><label class="ci-it"><i style="background:linear-gradient(90deg,#5aa9e6 50%,#f2b33d 50%)"></i><span class="ci-tx"><b>Stochastique</b><small>Où est le prix dans sa fourchette récente (14, 3, 3)</small></span><input type="checkbox" class="ci-tg" data-chart-ind="stoch"></label><label class="ci-it"><i style="background:#4fd1c5"></i><span class="ci-tx"><b>ATR 14</b><small>Taille moyenne d'une bougie : utile pour placer son stop</small></span><input type="checkbox" class="ci-tg" data-chart-ind="atr"></label><label class="ci-it"><i style="background:#f78fb3"></i><span class="ci-tx"><b>OBV</b><small>Volume cumulé, ajouté si la bougie monte, retiré si elle baisse</small></span><input type="checkbox" class="ci-tg" data-chart-ind="obv"></label><label class="ci-it"><i style="background:#5aa9e6"></i><span class="ci-tx"><b>CVD</b><small>Acheteurs agressifs − vendeurs agressifs, cumulé</small></span><input type="checkbox" class="ci-tg" data-chart-ind="cvd"></label></div></section>
                   <div class="ci-foot"><button type="button" id="ci-clear">Tout retirer</button><span>Tes choix sont gardés sur cet appareil.</span></div>
                   </div>
                   <div class="ci-pane" data-pane="set" hidden>
                   <div class="ci-h">Sur le graphique</div>
+                  <label class="ci-it"><i style="background:linear-gradient(90deg,#8fa3b8,#e3ac4b)"></i><span class="ci-tx"><b>Valeurs en haut à gauche</b><small>O H L C, variation, valeurs des indicateurs et delta / volume du footprint</small></span><input type="checkbox" class="ci-tg" data-chart-ind="legend"></label>
                   <label class="ci-it"><i class="tri"></i><span class="ci-tx"><b>Mes trades</b><small>Tes entrées ▲ et sorties ▼ sur les bougies</small></span><input type="checkbox" class="ci-tg" data-chart-ind="trades"></label>
                   <label class="ci-it"><i style="background:linear-gradient(90deg,#f0546a 50%,#31c882 50%)"></i><span class="ci-tx"><b>Trader depuis le graphique</b><small>Boutons Short / Long et lignes d'ordre déplaçables</small></span><input type="checkbox" class="ci-tg" data-chart-ind="qt"></label>
                   <div class="ci-h">Zoom</div>
@@ -6182,7 +6202,7 @@
                   <div class="ci-row"><span>Source des bougies, du footprint et du carnet</span><div class="tpo-seg ci-seg" data-ci-key="dataSrc"><button type="button" data-v="auto">Auto</button><button type="button" data-v="spot">Binance spot</button><button type="button" data-v="perp">Binance perps</button></div></div>
                   <div class="chart-ind-tip ci-note" id="chart-datasrc-note"></div>
                   <div class="ci-h">Se déplacer</div>
-                  <dl class="ci-keys"><dt>Glisser</dt><dd>avancer / reculer dans le temps</dd><dt>Ctrl / ⌘ + molette</dt><dd>zoomer (aussi : pincement, clic droit maintenu)</dd><dt>Axe des prix</dt><dd>le glisser pour étirer / écraser l'échelle</dd><dt>Double-clic</dt><dd>tout remettre en automatique</dd></dl>
+                  <dl class="ci-keys"><dt>Glisser</dt><dd>avancer / reculer dans le temps</dd><dt>Ctrl / ⌘ + molette</dt><dd>zoomer (aussi : pincement, clic droit maintenu)</dd><dt>Axe des prix</dt><dd>le glisser pour étirer / écraser l'échelle</dd><dt>Double-clic</dt><dd>grand écran (et, en plein écran, ce graphique seul / retour)</dd><dt>Double-clic sur l'axe</dt><dd>échelle des prix automatique</dd><dt>Carré en haut à droite</dt><dd>masquer / afficher la barre du graphique</dd></dl>
                   </div>
                 </div>
               </div>
@@ -6190,7 +6210,8 @@
                 <button type="button" id="chart-src-internal" class="on-mode active">Graphique</button>
                 <button type="button" id="chart-src-tv" class="on-mode">TradingView</button>
                 <button type="button" id="chart-src-tpo" class="on-mode" title="TPO / Market Profile (EDB+) — cliquer à nouveau pour les réglages">TPO</button>
-                <button type="button" id="chart-src-liq" class="on-mode" title="Heatmap des liquidations estimées d'après l'open interest Binance (EDB+) — cliquer à nouveau pour les réglages (sensibilité, couleurs)">Liquidations</button>
+                <button type="button" id="chart-src-liq" class="on-mode" title="Heatmap des liquidations estimées d'après l'open interest Binance (EDB+)">Liquidations</button>
+                <button type="button" id="chart-liq-gear" class="on-mode chart-tpo-gear" title="Réglages de la heatmap des liquidations (sensibilité, couleurs)" aria-label="Réglages des liquidations" hidden><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button>
                 <button type="button" id="chart-tpo-gear" class="on-mode chart-tpo-gear" title="Réglages du TPO" aria-label="Réglages du TPO" hidden><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button>
               </div>
               <div class="chart-ind-pop chart-tpo-pop" id="chart-tpo-pop" hidden>
@@ -6217,6 +6238,7 @@
             <div class="chart-stage" id="chart-stage">
               <svg class="chart" id="chart-svg" viewBox="0 0 640 220"></svg>
               <div class="chart-yaxis-grab" id="chart-yaxis-grab" title="Glisser pour étirer / écraser l'échelle des prix — double-clic : auto"></div>
+              <button type="button" class="chart-bar-tg" id="chart-bar-tg" title="Masquer la barre du graphique (marché, trading, unités de temps, indicateurs)" aria-label="Masquer la barre du graphique"><svg class="cbt-off" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><svg class="cbt-on" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9h16"/></svg></button>
               <div class="chart-menu" id="chart-menu" hidden></div>
               <div class="draw-props" id="draw-props" hidden></div>
               <div class="chart-toast" id="chart-toast"></div>
@@ -7039,7 +7061,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3303 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3330 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -7225,7 +7247,7 @@ const HYPERLIQUID_API_BASE = "https://api.hyperliquid.xyz/info";
 const CANDLE_TIMEFRAMES = ["1m","5m","15m","30m","1h","4h","1d","1w"];
 // Unité de temps du graphique interne, retenue d'une visite à l'autre.
 const CHART_TF_KEY = "paperTapeChartTf";
-let currentTimeframe = (function(){ try{ const v = localStorage.getItem(CHART_TF_KEY); return ["1m","5m","15m","30m","1h","4h","1d","1w"].includes(v) ? v : "1m"; }catch(e){ return "1m"; } })();
+let currentTimeframe = (function(){ try{ const v = localStorage.getItem(CHART_TF_KEY); return (["1m","5m","15m","30m","1h","4h","1d","1w"].includes(v) || tfIsValid(v)) ? v : "1m"; }catch(e){ return "1m"; } })();
 let candleTimer = null;
 // Zoom du graphique interne : nombre de bougies affichées, en continu (plus
 // de paliers fixes). Molette / pincement du trackpad / pincement à deux
@@ -7517,7 +7539,7 @@ function chartEnforcePlus(){
   if (wasTpo){
     if (typeof tpoPanelClose==="function") tpoPanelClose();
     if (typeof tpoMenuClose==="function") tpoMenuClose();
-    if (chartInd.tpoPrevTf && chartInd.tpoPrevTf!==currentTimeframe && ["1m","5m","15m","30m","1h","4h","1d","1w"].includes(chartInd.tpoPrevTf)){
+    if (chartInd.tpoPrevTf && chartInd.tpoPrevTf!==currentTimeframe && tfIsValid(chartInd.tpoPrevTf)){
       currentTimeframe = chartInd.tpoPrevTf;
       try{ localStorage.setItem(CHART_TF_KEY, currentTimeframe); }catch(e){}
       if (typeof scheduleCandleRefresh==="function") scheduleCandleRefresh();
@@ -8588,6 +8610,72 @@ function tpoForceTf(){
   document.querySelectorAll("#tf-seg button").forEach(x=>x.classList.toggle("active", x.dataset.tf==="30m"));
   scheduleCandleRefresh();
   return true;
+}
+// ---- Unités de temps personnalisées (bouton « + » de la barre des unités) ----
+const TF_CUSTOM_KEY = "paperTapeCustomTfs";
+function tfCustomList(){ try{ const a = JSON.parse(localStorage.getItem(TF_CUSTOM_KEY)||"[]"); return Array.isArray(a) ? a.filter(t=>tfIsValid(t) && !CANDLE_TIMEFRAMES.includes(t)).slice(0, 8) : []; }catch(e){ return []; } }
+function tfCustomSave(a){ try{ localStorage.setItem(TF_CUSTOM_KEY, JSON.stringify(a)); }catch(e){} }
+function tfSelect(tf){
+  if (!tfIsValid(tf) || tf===currentTimeframe) return;
+  currentTimeframe = tf;
+  try{ localStorage.setItem(CHART_TF_KEY, currentTimeframe); }catch(e){}
+  document.querySelectorAll("#tf-seg button[data-tf]").forEach(x=>x.classList.toggle("active", x.dataset.tf===tf));
+  scheduleCandleRefresh();
+}
+function tfCustomRender(){
+  const seg = document.getElementById("tf-seg"); if (!seg) return;
+  seg.querySelectorAll(".tf-custom, #tf-add").forEach(x=>x.remove());
+  const list = tfCustomList();
+  // L'unité en cours (ex. venue d'un autre appareil) reste affichée même si elle n'est pas dans la liste.
+  if (!CANDLE_TIMEFRAMES.includes(currentTimeframe) && tfIsValid(currentTimeframe) && !list.includes(currentTimeframe)) list.push(currentTimeframe);
+  list.sort((x,y)=>tfMsOf(x)-tfMsOf(y)).forEach(t=>{
+    const b = document.createElement("button"); b.type = "button"; b.className = "tf-custom"+(t===currentTimeframe ? " active" : ""); b.dataset.tf = t;
+    b.title = "Unité personnalisée · ✕ pour la retirer";
+    b.innerHTML = escapeHtml(tfLabel(t))+'<span class="tf-x" data-tf-del="'+t+'" title="Retirer" aria-label="Retirer '+escapeHtml(tfLabel(t))+'">×</span>';
+    seg.appendChild(b);
+  });
+  const add = document.createElement("button"); add.type = "button"; add.id = "tf-add"; add.className = "tf-add"; add.title = "Créer une unité de temps (ex. 3 min, 2 h, 3 jours, 2 semaines)"; add.setAttribute("aria-label", "Créer une unité de temps"); add.textContent = "+";
+  seg.appendChild(add);
+}
+function tfCustomRemove(tf){
+  tfCustomSave(tfCustomList().filter(x=>x!==tf));
+  if (currentTimeframe===tf){ currentTimeframe = "1m"; try{ localStorage.setItem(CHART_TF_KEY, "1m"); }catch(e){} tfCustomRender(); scheduleCandleRefresh(); }
+  else tfCustomRender();
+  document.querySelectorAll("#tf-seg button[data-tf]").forEach(x=>x.classList.toggle("active", x.dataset.tf===currentTimeframe));
+}
+function tfCustomOpen(anchor){
+  let pop = document.getElementById("tf-pop");
+  if (pop && !pop.hidden){ pop.hidden = true; return; }
+  if (!pop){
+    pop = document.createElement("div"); pop.id = "tf-pop"; pop.className = "tf-pop"; document.body.appendChild(pop);
+    document.addEventListener("pointerdown", ev=>{ const p = document.getElementById("tf-pop"); if (p && !p.hidden && !p.contains(ev.target) && !ev.target.closest("#tf-add")) p.hidden = true; }, true);
+  }
+  ptPopHost(pop);
+  let unit = "m";
+  pop.innerHTML = '<div class="tf-pop-h">Nouvelle unité de temps</div>'+
+    '<div class="tf-pop-row"><input type="number" id="tf-pop-n" min="1" max="999" step="1" value="3" inputmode="numeric" aria-label="Nombre">'+
+    '<div class="tpo-seg tf-pop-u">'+[["m","min"],["h","heures"],["d","jours"],["w","semaines"]].map(([k,l])=>'<button type="button" data-u="'+k+'" class="'+(k===unit ? "on" : "")+'">'+l+'</button>').join("")+'</div></div>'+
+    '<div class="tf-pop-err" id="tf-pop-err" hidden></div>'+
+    '<button type="button" class="btn-primary tf-pop-go" id="tf-pop-go">Ajouter</button>'+
+    '<div class="tf-pop-note">Entre 1 minute et 52 semaines. Les unités non standard sont reconstruites à partir des bougies d\'une unité plus fine.</div>';
+  const nEl = pop.querySelector("#tf-pop-n"), err = pop.querySelector("#tf-pop-err");
+  pop.querySelectorAll("[data-u]").forEach(b=>b.addEventListener("click", ()=>{ unit = b.dataset.u; pop.querySelectorAll("[data-u]").forEach(x=>x.classList.toggle("on", x===b)); }));
+  const go = ()=>{
+    const n = Math.round(+nEl.value), tf = n+unit;
+    if (!(n>=1) || !tfIsValid(tf)){ err.hidden = false; err.textContent = "Choisis une durée entre 1 minute et 52 semaines."; return; }
+    // Même durée qu'une unité standard (ex. 60 min = 1h) : on prend la standard.
+    const same = CANDLE_TIMEFRAMES.find(t=>tfMsOf(t)===tfMsOf(tf)) || tfCustomList().find(t=>tfMsOf(t)===tfMsOf(tf));
+    const pick = same || tf;
+    if (!same){ const l = tfCustomList(); l.push(tf); while (l.length>8) l.shift(); tfCustomSave(l); }
+    pop.hidden = true; tfCustomRender(); tfSelect(pick);
+    document.querySelectorAll("#tf-seg button[data-tf]").forEach(x=>x.classList.toggle("active", x.dataset.tf===currentTimeframe));
+  };
+  pop.querySelector("#tf-pop-go").addEventListener("click", go);
+  nEl.addEventListener("keydown", ev=>{ if (ev.key==="Enter") go(); if (ev.key==="Escape") pop.hidden = true; });
+  pop.hidden = false;
+  const r = anchor.getBoundingClientRect(), w = Math.min(290, window.innerWidth-16);
+  pop.style.width = w+"px"; pop.style.left = Math.max(8, Math.min(window.innerWidth-w-8, r.left))+"px"; pop.style.top = (r.bottom+6)+"px";
+  setTimeout(()=>{ nEl.focus(); nEl.select(); }, 0);
 }
 function scheduleCandleRefresh(){
   clearInterval(candleTimer);
@@ -10682,13 +10770,22 @@ async function fetchTickerHyperliquid(hl){
   return {last:String(last), best_bid:String(bid), best_ask:String(ask), change, timestamp:new Date().toISOString()};
 }
 const HL_INTERVAL_MS = {"1m":60000, "5m":5*60000, "15m":15*60000, "30m":30*60000, "1h":3600000, "4h":4*3600000, "1d":86400000, "1w":7*86400000};
+// Unités de temps personnalisées (v3320) : « 3m », « 2h », « 3d », « 2w »…
+// (n + m / h / d / w). Les 8 unités standard sont demandées telles quelles
+// aux API ; les autres sont reconstruites à partir de l'unité standard la plus
+// grande qui les divise (ex. 3m ← 1m, 45m ← 15m, 3d ← 1d, 2w ← 1w).
+function tfMsOf(tf){ const m = /^(\d+)(m|h|d|w)$/.exec(String(tf||"")); return m ? (+m[1])*({m:60000, h:3600000, d:86400000, w:604800000})[m[2]] : 0; }
+function tfIsValid(tf){ const ms = tfMsOf(tf); return ms>=60000 && ms<=52*604800000; }
+function tfLabel(tf){ const m = /^(\d+)(m|h|d|w)$/.exec(String(tf||"")); return m ? m[1]+({m:"m", h:"h", d:"J", w:"S"})[m[2]] : String(tf||""); }
+const TF_WEEK_OFF = 4*86400000; // semaines : du lundi (comme Binance), pas du jeudi 1er janvier 1970
+function tfBucket(ms, tf){ const T = tfMsOf(tf), off = /w$/.test(tf) ? TF_WEEK_OFF : 0; return Math.floor((ms-off)/T)*T+off; }
 async function fetchCandlesHyperliquid(hl, tf, opt){
   // Our own timeframe strings ("1m"/"5m"/"15m"/"1h" — see CANDLE_TIMEFRAMES)
   // already match Hyperliquid's own interval strings verbatim, so `tf` is
   // passed straight through with no translation table needed.
   const limit = (opt && opt.limit) || CANDLE_FETCH_FULL;
   const endTime = (opt && opt.endTime) || Date.now();
-  const startTime = endTime - limit*(HL_INTERVAL_MS[tf]||60000);
+  const startTime = endTime - limit*(tfMsOf(tf)||60000);
   const raw = await hlInfoPost({type:"candleSnapshot", req:{coin: hlCoinName(hl), interval: tf, startTime, endTime}});
   if (!Array.isArray(raw)){ const e = new Error("bad_payload"); e.code = "bad_payload"; throw e; }
   const inv = raw.length && hlInverted(hl, parseFloat(raw[raw.length-1].c));
@@ -10782,6 +10879,33 @@ async function fetchCandlesBinance(binanceSymbol, tf, base, opt){
   }));
 }
 async function fetchCandlesRest(a, tf, opt){
+  if (CANDLE_TIMEFRAMES.includes(tf) || !tfIsValid(tf)) return fetchCandlesRestNative(a, tf, opt);
+  // Unité personnalisée : bougies de l'unité standard qui la divise, regroupées.
+  const T = tfMsOf(tf), isW = /w$/.test(tf);
+  const base = ["1w","1d","4h","1h","30m","15m","5m","1m"].find(b=>T % tfMsOf(b)===0 && (b!=="1w" || isW) && T>tfMsOf(b)) || "1m";
+  const k = Math.round(T/tfMsOf(base)), limit = (opt && opt.limit) || CANDLE_FETCH_FULL;
+  let need = Math.min(limit*k + k, 4000), end = opt && opt.endTime, rows = [];
+  while (need > 0){
+    const n = Math.min(1000, need);
+    const part = await fetchCandlesRestNative(a, base, {limit:n, endTime:end});
+    if (!Array.isArray(part) || !part.length) break;
+    rows = part.concat(rows); need -= part.length;
+    if (part.length < n) break;
+    const f0 = Date.parse(part[0].timestamp); if (!isFinite(f0)) break; end = f0-1;
+  }
+  const seen = new Set(), agg = new Map();
+  rows.map(r=>({r, ms:Date.parse(r.timestamp)})).filter(x=>isFinite(x.ms) && !seen.has(x.ms) && seen.add(x.ms)).sort((x,y)=>x.ms-y.ms).forEach(({r, ms})=>{
+    const b = tfBucket(ms, tf), o = +r.open, hi = +r.high, lo = +r.low, c = +r.close, v = +r.volume || 0, tb = r.takerBuy!=null ? +r.takerBuy : null;
+    const g = agg.get(b);
+    if (!g) agg.set(b, {open:o, high:hi, low:lo, close:c, volume:v, takerBuy:tb, first:ms, ms:b});
+    else { g.high = Math.max(g.high, hi); g.low = Math.min(g.low, lo); g.close = c; g.volume += v; if (tb!=null) g.takerBuy = (g.takerBuy||0)+tb; }
+  });
+  let out = Array.from(agg.values()).sort((x,y)=>x.ms-y.ms);
+  if (out.length && out[0].first!==out[0].ms) out.shift(); // 1re bougie incomplète (début de l'historique chargé) : retirée
+  if (opt && opt.limit && out.length>opt.limit) out = out.slice(-opt.limit);
+  return out.map(g=>({open:g.open, high:g.high, low:g.low, close:g.close, volume:g.volume, takerBuy:g.takerBuy==null ? undefined : g.takerBuy, timestamp:new Date(g.ms).toISOString()}));
+}
+async function fetchCandlesRestNative(a, tf, opt){
   let lastErr = null;
   for (const [kind, ref] of priceSources(a)){
     try{
@@ -12323,7 +12447,9 @@ function applyChartSourceVisibility(eff){
   });
   const liqAct = chartSource==="internal" && eff!=="tv" && !tpoAct && typeof liqOn==="function" && liqOn();
   document.getElementById("chart-src-internal").classList.toggle("active", chartSource==="internal" && !tpoAct && !liqAct);
-  { const lb = document.getElementById("chart-src-liq"); if (lb) lb.classList.toggle("active", liqAct); }
+  { const lb = document.getElementById("chart-src-liq"); if (lb) lb.classList.toggle("active", liqAct);
+    const lg = document.getElementById("chart-liq-gear"); if (lg) lg.hidden = !liqAct;
+    if (!liqAct){ const lp = document.getElementById("chart-liq-pop"); if (lp) lp.hidden = true; } }
   { const tb = document.getElementById("chart-src-tpo"); if (tb) tb.classList.toggle("active", tpoAct);
     const gb = document.getElementById("chart-tpo-gear"); if (gb) gb.hidden = !tpoAct; }
   // The TV button only lights up "active" when TradingView is actually the
@@ -12498,7 +12624,7 @@ function initChartSourceToggle(){
     if (chartInd.liq){ chartInd.liq = false; saveChartInd(); }
     tpoPanelClose();
     // Retour aux bougies : on reprend l'unité de temps d'avant le TPO.
-    if (wasTpo && chartInd.tpoPrevTf && chartInd.tpoPrevTf!==currentTimeframe && ["1m","5m","15m","30m","1h","4h","1d","1w"].includes(chartInd.tpoPrevTf)){
+    if (wasTpo && chartInd.tpoPrevTf && chartInd.tpoPrevTf!==currentTimeframe && tfIsValid(chartInd.tpoPrevTf)){
       currentTimeframe = chartInd.tpoPrevTf;
       try{ localStorage.setItem(CHART_TF_KEY, currentTimeframe); }catch(e){}
       scheduleCandleRefresh();
@@ -12509,18 +12635,20 @@ function initChartSourceToggle(){
   initTpoPanel();
   initTpoMenu();
   // « Liquidations » : graphique en bougies + heatmap des liquidations (EDB+).
-  // Déjà actif : un clic change la sensibilité (basse → normale → haute).
+  // Réglages (sensibilité, couleurs) : bouton ⚙ à côté, visible quand la heatmap est affichée.
   const liqBtn = document.getElementById("chart-src-liq");
+  const liqGear = document.getElementById("chart-liq-gear");
+  if (liqGear) liqGear.addEventListener("click", ()=>{ tpoPanelClose(); liqSettingsToggle(liqGear); });
   if (liqBtn) liqBtn.addEventListener("click", ()=>{
     tpoPanelClose();
     if (!(typeof isEdbPlus==="function" && isEdbPlus())){
       edbPlusTease("liq");
       return;
     }
-    if (chartSource==="internal" && liqOn()){ liqSettingsToggle(liqBtn); return; } // déjà affichée : réglages
+    if (chartSource==="internal" && liqOn() && !chartInd.tpo) return; // déjà affichée (réglages : bouton ⚙ à côté)
     const wasTpo = chartInd.tpo;
     chartInd.tpo = false; chartInd.liq = true; saveChartInd();
-    if (wasTpo && chartInd.tpoPrevTf && chartInd.tpoPrevTf!==currentTimeframe && ["1m","5m","15m","30m","1h","4h","1d","1w"].includes(chartInd.tpoPrevTf)){
+    if (wasTpo && chartInd.tpoPrevTf && chartInd.tpoPrevTf!==currentTimeframe && tfIsValid(chartInd.tpoPrevTf)){
       currentTimeframe = chartInd.tpoPrevTf;
       try{ localStorage.setItem(CHART_TF_KEY, currentTimeframe); }catch(e){}
       scheduleCandleRefresh();
@@ -12825,7 +12953,7 @@ const TA_COLORS = {ema20:"#f2b33d", ema50:"#5aa9e6", ema200:"#c77dff", bb:"#8fa3
 const CHART_IND_KEY = "paperTapeChartInd";
 const CHART_EMA = {ema20:{p:20, color:"#f2b33d", label:"MME 20"}, ema50:{p:50, color:"#5aa9e6", label:"MME 50"}, ema200:{p:200, color:"#c77dff", label:"MME 200"}};
 let chartInd = (function(){
-  const d = {tpo:false, tpoPrevTf:"", tpoPrevZoom:0, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpSum:true, fpTicks:{}, fpDisplay:"cluster", fpDigits:"auto", fpMode:"standard", fpText:"auto", fpHideText:false, fpRound:true, fpGrad:true, lhm:false, lhmSens:"2", lhmTicks:{}, lhmVals:false, lhmTheme:"classic", lhmStyle:"heat", lhmCalc:"close", lhmRes:"sd", lhmSpan:"2", lhmProfile:true, lhmProfOutline:true, lhmProfW:"0.15", lhmProfScale:"1", lhmLo:"0", lhmHi:"1", lhmGamma:"1.6", lhmOpacity:"0.9", lhmMin:"0", lhmMax:"0", lhmCursor:true, liqTheme:"classic", cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true, zoomSpeed:"1", dataSrc:"auto", vpTicks:{}, vpFill:true, vpBox:false, vpSide:"left", vpStyle:"split", vpCol:"#8fa3b8", vpBuyCol:"", vpSellCol:"", vpPocCol:"#8fa3b8", vpPocStyle:"dash", vpVa:true, vpVaCol:"#8fa3b8", vpGrade:false, liq:false, liqSens:"2"};
+  const d = {tpo:false, tpoPrevTf:"", tpoPrevZoom:0, tpoTicks:{}, tpoEdits:{}, tpoTags:true, tpoVp:false, tpoMode:"left", tpoDraw:"letters", tpoTheme:"pt", tpoCols:{}, tpoPoor:true, tpoLabels:true, tpoNaked:true, fp:false, fpImb:true, fpSig:true, fpSum:true, fpTicks:{}, fpDisplay:"cluster", fpDigits:"auto", fpMode:"standard", fpText:"auto", fpHideText:false, fpRound:true, fpGrad:true, lhm:false, lhmSens:"2", lhmTicks:{}, lhmVals:false, lhmTheme:"classic", lhmStyle:"heat", lhmCalc:"close", lhmRes:"sd", lhmSpan:"2", lhmProfile:true, lhmProfOutline:true, lhmProfW:"0.15", lhmProfScale:"1", lhmLo:"0", lhmHi:"1", lhmGamma:"1.6", lhmOpacity:"0.9", lhmMin:"0", lhmMax:"0", lhmCursor:true, liqTheme:"classic", legend:true, fpImbR:"3", fpStack:"3", cvd:false, vpd:false, vol:true, ema20:true, ema50:false, ema200:false, bb:false, vwap:false, vwapw:false, vwapGap:true, vwapBands:false, st:false, vp:false, pdl:false, rsi:false, macd:false, stoch:false, atr:false, obv:false, trades:true, qt:true, zoomSpeed:"1", dataSrc:"auto", vpTicks:{}, vpFill:true, vpBox:false, vpSide:"left", vpStyle:"split", vpCol:"#8fa3b8", vpBuyCol:"", vpSellCol:"", vpPocCol:"#8fa3b8", vpPocStyle:"dash", vpVa:true, vpVaCol:"#8fa3b8", vpGrade:false, liq:false, liqSens:"2"};
   try{
     const s = JSON.parse(localStorage.getItem(CHART_IND_KEY)||"null");
     // Chaque réglage est repris s'il a le même type que sa valeur par défaut :
@@ -12930,7 +13058,7 @@ function patchLiveCandle(m, px){
   if (!m || !m.candles || !Array.isArray(m.candles.data) || !m.candles.data.length || !isFinite(px)) return false;
   const data = m.candles.data;
   let last = data[data.length-1];
-  const tfMs = HL_INTERVAL_MS[m.candles.tf];
+  const tfMs = tfMsOf(m.candles.tf);
   const now = Date.now();
   let rolled = false;
   if (tfMs && last.ms && now >= last.ms + tfMs){
@@ -13260,7 +13388,7 @@ setInterval(()=>{
 document.addEventListener("visibilitychange", ()=>{ if (document.visibilityState==="visible" && FP.src && FP.hist==="done") fpCatchUp(); });
 // Heure de début de l'historique visé : les bougies affichées (au plus 40).
 function fpHistTarget(){
-  const tfMs = HL_INTERVAL_MS[currentTimeframe] || 60000;
+  const tfMs = tfMsOf(currentTimeframe) || 60000;
   return Date.now() - Math.min(40, Math.max(12, Math.round(chartZoomCount)))*tfMs;
 }
 async function fpLoadBinance(src, gen){
@@ -13608,6 +13736,7 @@ function chartFootprintLayer(g, vis){
   // (marchés Binance spot) avec les bougies d'une seconde, en remontant.
   if (vis.length && vis[0].ms < FP.covFrom && FP.src && (FP.src.kind==="bn" || FP.src.kind==="bf") && FP.hist==="done") setTimeout(()=>fpLoadBack(vis[0].ms), 0);
   const imbOn = chartInd.fpImb!==false, sigOn = chartInd.fpSig!==false, sumOn = chartInd.fpSum!==false;
+  const imbR = [2,3,5,10].includes(+chartInd.fpImbR) ? +chartInd.fpImbR : FP_IMB, imbStack = [2,3,4,5].includes(+chartInd.fpStack) ? +chartInd.fpStack : FP_STACK;
   // Récap par bougie : seulement si les chiffres tiennent dans la largeur d'une bougie.
   const sumFs = Math.max(8, Math.min(10.5, slotW*0.2)), sumOk = sumOn && slotW >= 22, sumTag = slotW >= 46;
   vis.forEach((c, i)=>{
@@ -13627,12 +13756,12 @@ function chartFootprintLayer(g, vis){
     const imbB = new Set(), imbS = new Set();
     if (imbOn) keys.forEach(r=>{
       const cl = get(r);
-      if (r-1 >= kLo && cl[0] >= minV && cl[0] >= FP_IMB*get(r-1)[1]) imbB.add(r);
-      if (r+1 <= kHi && cl[1] >= minV && cl[1] >= FP_IMB*get(r+1)[0]) imbS.add(r);
+      if (r-1 >= kLo && cl[0] >= minV && cl[0] >= imbR*get(r-1)[1]) imbB.add(r);
+      if (r+1 <= kHi && cl[1] >= minV && cl[1] >= imbR*get(r+1)[0]) imbS.add(r);
     });
     if (imbOn){
       const runs = (set, buy)=>{ let s0 = null, prev = null;
-        const flush = ()=>{ if (s0!==null && prev-s0+1 >= FP_STACK) zones.push({lo:s0*row, hi:(prev+1)*row, buy, i}); };
+        const flush = ()=>{ if (s0!==null && prev-s0+1 >= imbStack) zones.push({lo:s0*row, hi:(prev+1)*row, buy, i}); };
         keys.forEach(r=>{ if (set.has(r)){ if (s0===null || r!==prev+1){ flush(); s0 = r; } prev = r; } });
         flush(); };
       runs(imbB, true); runs(imbS, false);
@@ -14254,7 +14383,7 @@ function chartTickCountdown(){
   // Période écoulée sans nouveau prix : on ouvre quand même la bougie suivante.
   if (m && m.last!=null && m.candles && m.candles.data && m.candles.data.length){
     const last = m.candles.data[m.candles.data.length-1];
-    const tfMs = HL_INTERVAL_MS[m.candles.tf];
+    const tfMs = tfMsOf(m.candles.tf);
     if (tfMs && last.ms && Date.now() >= last.ms + tfMs && !chartLineDrag && !chartPanDrag){
       const lp = chartLivePx(selectedSymbol);
       patchLiveCandle(m, isFinite(lp) ? lp : last.c);
@@ -14359,14 +14488,14 @@ function liqModel(all, tfMs){
 // Dégradé : violet sombre → bleu → turquoise → vert → jaune (zones les plus chargées).
 const LIQ_RAMP = [[0, 40,16,70,0], [0.15, 52,22,98,55], [0.38, 40,86,170,125], [0.62, 26,168,160,175], [0.85, 120,214,90,215], [1, 252,232,80,242]];
 // Réglages de la heatmap des liquidations : petit panneau sous le bouton
-// « Liquidations » (2e clic) — sensibilité et palette de couleurs.
+// « Liquidations » (bouton ⚙ à côté) — sensibilité et palette de couleurs.
 function liqSettingsToggle(anchor){
   let pop = document.getElementById("chart-liq-pop");
   if (pop && !pop.hidden){ pop.hidden = true; return; }
   if (!pop){
     pop = document.createElement("div"); pop.id = "chart-liq-pop"; pop.className = "chart-tpo-menu liq-pop";
     document.body.appendChild(pop);
-    document.addEventListener("pointerdown", (e)=>{ if (!pop.hidden && !e.target.closest("#chart-liq-pop") && !e.target.closest("#chart-src-liq")) pop.hidden = true; }, true);
+    document.addEventListener("pointerdown", (e)=>{ if (!pop.hidden && !e.target.closest("#chart-liq-pop") && !e.target.closest("#chart-liq-gear")) pop.hidden = true; }, true);
     document.addEventListener("keydown", (e)=>{ if (e.key==="Escape") pop.hidden = true; });
   }
   ptPopHost(pop);
@@ -14838,7 +14967,7 @@ function chartRenderCandles(svg, a, m, W, H, all){
   const n = vis.length;
   const live = chartPan<=0;
   const tf = (m.candles && m.candles.tf) || currentTimeframe;
-  const tfMs = HL_INTERVAL_MS[tf] || 60000;
+  const tfMs = tfMsOf(tf) || 60000;
   const positions = openPositionsForChart(selectedSymbol);
   const pending = (state.pendingOrders||[]).filter(o=>o.symbol===selectedSymbol && typeof o.limitPrice==="number");
 
@@ -15354,7 +15483,7 @@ function chartDrawOverlay(){
   });
   if (cur) lines.push(cur);
   const lt = v.padT+11+(v.legendTop||0);
-  lg.innerHTML = lines.map((l,j)=>'<text x="'+(v.padL+6)+'" y="'+(lt+j*14)+'" font-size="10" '+CHART_FONT+halo+'>'+l+'</text>').join("");
+  lg.innerHTML = chartInd.legend===false ? "" : lines.map((l,j)=>'<text x="'+(v.padL+6)+'" y="'+(lt+j*14)+'" font-size="10" '+CHART_FONT+halo+'>'+l+'</text>').join("");
 }
 /* ---------- Trader depuis le graphique + échelle des prix étirable ----------
    - Boutons Short / Long en haut à gauche du graphique : ordre au marché
@@ -16023,11 +16152,11 @@ function initChartInteractions(){
   svg.addEventListener("dblclick", (e)=>{
     if (e.target.closest && e.target.closest("[data-tpsl-pos], [data-draw-id], [data-draw-h], [data-draft-leg], [data-draft-ok], [data-draft-cancel], [data-pend-drag]")) return;
     if (drawTool || drawPending) return;
-    let did = false;
-    if (chartPan){ backToLive(); did = true; }
-    if (chartYManual){ chartYReset(); did = true; } // double-clic : tout revient en automatique
-    // Plein écran / multi-graphiques : sinon, le double-clic masque ou réaffiche la barre du graphique.
-    if (!did && svg.closest(".chart-fs")) chartCompactToggle();
+    // Double-clic = grand écran : widget → plein écran ; en plein écran avec
+    // plusieurs graphiques → ce graphique seul à l'écran, puis retour ; un seul
+    // graphique → sortie du plein écran. (Retour au direct : bouton « Direct » ;
+    // échelle auto : double-clic sur l'axe des prix.)
+    chartDblFs();
   });
   svg.addEventListener("wheel", stopGlide, {passive:true});
   setInterval(chartTickCountdown, 1000);
@@ -16039,10 +16168,32 @@ const CHART_COMPACT_KEY = "paperTapeChartCompact";
 function chartCompactApply(){
   const el = document.querySelector('.card.widget[data-widget="chart"]'); if (!el) return;
   let on = false; try{ on = localStorage.getItem(CHART_COMPACT_KEY)==="1"; }catch(e){}
-  el.classList.toggle("chart-compact", on && el.classList.contains("chart-fs"));
+  el.classList.toggle("chart-compact", on);
+  chartBarBtnSync(el);
   chartBoxReset();
 }
 // Taille du graphique relue au prochain dessin (après un changement de mise en page).
+function chartBarBtnSync(el){
+  const b = document.getElementById("chart-bar-tg"); if (!b) return;
+  const on = !!(el && el.classList.contains("chart-compact"));
+  b.classList.toggle("is-on", on);
+  b.title = on ? "Réafficher la barre du graphique" : "Masquer la barre du graphique (marché, trading, unités de temps, indicateurs)";
+  b.setAttribute("aria-label", b.title);
+}
+// Double-clic sur le graphique : grand écran / un seul graphique / retour.
+function chartDblFs(){
+  const E = window.PT_EMBED;
+  if (E){ try{ window.parent.postMessage({pt:"pane", pane:E.pane, dbl:true}, location.protocol==="file:" ? "*" : location.origin); }catch(e){} return; }
+  if (!chartFs){ chartFsSet(true); return; }
+  mcDblPane("main");
+}
+function mcStackCount(){ let n = 0; if (typeof MC!=="undefined" && MC.root) mcWalk(MC.root, x=>{ if (x.t==="stack") n++; return null; }); return n; }
+function mcDblPane(id){
+  if (typeof MC==="undefined" || !MC.on){ chartFsSet(false); return; }
+  if (MC.maxed){ MC.maxed = null; mcRender(); return; }
+  if (mcStackCount()>1){ const f = mcStackOf(id); if (f){ f.n.act = id; MC.act = id; MC.maxed = f.n.id; mcRender(); return; } }
+  chartFsSet(false);
+}
 function chartBoxReset(){
   const s = document.getElementById("chart-svg"); if (s) s.__box = null;
   requestAnimationFrame(()=>requestAnimationFrame(()=>{ const s2 = document.getElementById("chart-svg"); if (s2) s2.__box = null; try{ updateChart(); }catch(e){} }));
@@ -16052,7 +16203,8 @@ function chartCompactToggle(){
   const on = !el.classList.contains("chart-compact");
   try{ localStorage.setItem(CHART_COMPACT_KEY, on ? "1" : "0"); }catch(e){}
   el.classList.toggle("chart-compact", on);
-  if (on && typeof chartToast==="function") chartToast("Barre masquée · double-clic sur le graphique pour la réafficher", "info");
+  chartBarBtnSync(el);
+  if (on && typeof chartToast==="function") chartToast("Barre masquée · clique sur le carré en haut à droite pour la réafficher", "info");
   chartBoxReset();
 }
 /* ============================= DESSINS SUR LE GRAPHIQUE INTERNE =============================
@@ -16543,6 +16695,11 @@ function chartDrawUp(e, svg){
   return false;
 }
 function initChartDrawing(){
+  { const bt = document.getElementById("chart-bar-tg");
+    if (bt && !bt.__bound){ bt.__bound = true;
+      ["pointerdown","mousedown","touchstart","dblclick"].forEach(t=>bt.addEventListener(t, e=>e.stopPropagation()));
+      bt.addEventListener("click", (e)=>{ e.stopPropagation(); chartCompactToggle(); }); }
+    chartCompactApply(); }
   const seg = document.getElementById("chart-draw-seg");
   if (!seg) return;
   seg.querySelectorAll("[data-draw-tool]").forEach(b=>b.addEventListener("click", ()=>drawSetTool(b.dataset.drawTool)));
@@ -16626,8 +16783,9 @@ function chartFsSet(on){
     const {parent, next, drag} = chartFs;
     if (drag!=null) el.setAttribute("draggable", drag); else el.removeAttribute("draggable");
     chartFs = null;
-    el.classList.remove("chart-fs", "chart-compact");
+    el.classList.remove("chart-fs");
     document.documentElement.classList.remove("chart-fs-on");
+    chartCompactApply();
     if (parent){ if (next && next.parentNode===parent) parent.insertBefore(el, next); else parent.appendChild(el); }
     if (typeof chartTouchLock==="function") chartTouchLock(false);
     try{ if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(()=>{}); }catch(e){}
@@ -16761,12 +16919,13 @@ function mcOnMessage(e){
   if (m.sym && ASSETS.some(a=>a.symbol===m.sym)) p.sym = m.sym;
   if (m.tf) p.tf = m.tf;
   if (m.ready){ const ld = MC.els[p.id] && MC.els[p.id].querySelector(".mc-load"); if (ld) ld.remove(); }
-  if (m.focus){ if (MC.act!==p.id){ MC.act = p.id; mcMarkAct(); } return; } // clic dans un graphique ajouté : il devient le graphique actif
+  if (m.focus){ if (MC.act!==p.id){ MC.act = p.id; mcMarkAct(); } return; }
+  if (m.dbl){ MC.act = p.id; mcMarkAct(); mcDblPane(p.id); return; } // clic dans un graphique ajouté : il devient le graphique actif
   if ("tool" in m){ MC.tools[p.id] = m.tool||""; mcRailSync(); return; }
   mcLabels(); mcSave();
 }
 // ---------- Rendu ----------
-function mcTfLbl(tf){ return tf==="1d" ? "1J" : tf==="1w" ? "1S" : tf; }
+function mcTfLbl(tf){ return tfLabel(tf); }
 function mcLabel(p){ return p.kind==="main" ? selectedSymbol+" · "+mcTfLbl(currentTimeframe) : p.sym+" · "+mcTfLbl(p.tf); }
 function mcLabels(){
   if (!MC.on) return;
@@ -16859,7 +17018,7 @@ function mcRailBuild(){
   rail.innerHTML = '<button type="button" class="mc-rb mc-rail-fold" data-rail="fold" title="Réduire / afficher la barre d\'outils">'+MC_RAIL_IC.fold+'</button>'+
     '<div class="mc-rail-tools">'+tools+'<i class="mc-rail-sep"></i>'+
       (del ? '<button type="button" class="mc-rb" data-rail="del" title="Effacer le dessin sélectionné (ou tous les dessins) du graphique actif">'+del.innerHTML+'</button>' : '')+
-      '<i class="mc-rail-sep"></i><button type="button" class="mc-rb" data-rail="compact" title="Masquer / afficher la barre du graphique actif (ou double-clic sur le graphique)">'+MC_RAIL_IC.bar+'</button>'+
+      '<i class="mc-rail-sep"></i><button type="button" class="mc-rb" data-rail="compact" title="Masquer / afficher la barre du graphique actif (comme le carré en haut à droite du graphique)">'+MC_RAIL_IC.bar+'</button>'+
     '</div>';
   rail.addEventListener("click", (e)=>{
     const b = e.target.closest("button"); if (!b) return;
@@ -17309,7 +17468,7 @@ function initChartIndicators(){
       // TPO : une lettre par bougie → unité de temps 5m à 1h (30m par défaut), vue d'environ une journée et demie.
       if (key==="tpo" && cb.checked){
         if (!TPO_TFS.includes(currentTimeframe)){ const b30 = document.querySelector('#tf-seg button[data-tf="30m"]'); if (b30) b30.click(); }
-        const per = 86400000/(HL_INTERVAL_MS[currentTimeframe] || 1800000);
+        const per = 86400000/(tfMsOf(currentTimeframe) || 1800000);
         chartZoomTo(Math.min(CHART_ZOOM_MAX, Math.round(per*1.5)+CHART_GAP), null);
       }
       syncVwapOpts();
@@ -19841,7 +20000,7 @@ async function runOfflineCatchup(fromIso){
   try{
     const span = nowMs-fromMs;
     const tf = span<=16*3600e3 ? "1m" : span<=3.4*86400e3 ? "5m" : span<=10*86400e3 ? "15m" : "1h";
-    const tfMs = HL_INTERVAL_MS[tf];
+    const tfMs = tfMsOf(tf);
     const start = Math.max(fromMs-tfMs, nowMs-990*tfMs);
     const data = {};
     await Promise.all(syms.map(async s=>{
@@ -21614,12 +21773,17 @@ async function checkNewBuild(){
   }catch(e){ /* hors ligne : on réessaiera */ }
 }
 function initNewBuildCheck(){
+  // Adresse nettoyée après un rechargement « ?v=… » (sauf graphique intégré).
+  try{ const u = new URL(location.href); if (u.searchParams.has("v") && !u.searchParams.has("ptEmbed")){ u.searchParams.delete("v"); history.replaceState(history.state, "", u.pathname+(u.search ? u.search : "")+u.hash); } }catch(e){}
   const box = document.getElementById("new-build");
   if (!box) return;
   document.getElementById("new-build-go").addEventListener("click", ()=>{
-    // Rechargement simple (la sauvegarde finale part toute seule au moment de
-    // quitter la page, comme pour Cmd + R).
-    location.reload();
+    // Rechargement sur une adresse neuve (?v=<version>) : l'app Mac (Safari
+    // « Ajouter au Dock ») et Safari rechargeaient sinon depuis leur cache,
+    // donc l'ANCIENNE version. La sauvegarde finale part toute seule au moment
+    // de quitter la page, comme pour Cmd + R.
+    const nb = box.dataset.build || String(Date.now());
+    location.replace(location.pathname+"?v="+encodeURIComponent(nb)+location.hash);
   });
   document.getElementById("new-build-x").addEventListener("click", ()=>{ ptBuildDismissed = box.dataset.build || ""; box.hidden = true; });
   setTimeout(checkNewBuild, 30000);
@@ -24918,7 +25082,7 @@ async function startReplay(id, opts){
    retourne au terminal dès qu'on quitte la séance ou la page Replay. */
 const RP_TF_MIN = {"1m":1, "5m":5, "15m":15, "30m":30, "1h":60, "4h":240, "1d":1440, "1w":10080};
 function rpChartCard(){ return document.querySelector('.card.widget[data-widget="chart"]'); }
-function rpTfMin(){ return RPV ? Math.min(1440, RP_TF_MIN[currentTimeframe]||1) : (rp && rp.tf) || 1; }
+function rpTfMin(){ return RPV ? Math.min(1440, Math.round(tfMsOf(currentTimeframe)/60000)||1) : (rp && rp.tf) || 1; }
 // Séance mystère : dates décalées d'un nombre entier de semaines (vers l'an
 // 2000) pour que l'axe du temps ne trahisse pas l'époque ; heures et jours
 // de la semaine restent justes, les bougies restent alignées.
@@ -24983,7 +25147,7 @@ function rpChartDetach(){
 function rpChartData(){
   if (!RPV || !rp) return;
   const m = market[RPV.sym]; if (!m) return;
-  const tf = currentTimeframe, ms = (RP_TF_MIN[tf]||1)*60000, out = [];
+  const tf = currentTimeframe, ms = tfMsOf(tf)||60000, out = [];
   for (let i=0; i<=rp.i; i++){
     const c = rp.candles[i], t = rpBucket(rpT(c.t), ms), L = out[out.length-1];
     if (L && L.ms===t){ if (c.h>L.h) L.h = c.h; if (c.l<L.l) L.l = c.l; L.c = c.c; L.v += c.v||0; L.bv += c.bv||0; }
@@ -25000,7 +25164,7 @@ function rpChartData(){
 async function rpChartPre(tf){
   const V = RPV; if (!V || !rp) return;
   V.preBusy[tf] = true;
-  const ms = (RP_TF_MIN[tf]||1)*60000, firstT = rp.candles[0].t, k = rp.k || 1;
+  const ms = tfMsOf(tf)||60000, firstT = rp.candles[0].t, k = rp.k || 1;
   try{
     const r = await fetch((rp.base||BINANCE_API_BASE)+"/klines?symbol="+encodeURIComponent(rp.sym)+"&interval="+tf+"&endTime="+(firstT-1)+"&limit="+CANDLE_FETCH_FULL, {signal:AbortSignal.timeout(10000)});
     const j = r.ok ? await r.json() : [];
@@ -31577,14 +31741,12 @@ function initEvents(){
 
   document.getElementById("submit-order").addEventListener("click", submitOrder);
 
-  document.querySelectorAll("#tf-seg button").forEach(b=>{
-    b.addEventListener("click", ()=>{
-      if (b.dataset.tf===currentTimeframe) return;
-      currentTimeframe = b.dataset.tf;
-      try{ localStorage.setItem(CHART_TF_KEY, currentTimeframe); }catch(e){}
-      document.querySelectorAll("#tf-seg button").forEach(x=>x.classList.toggle("active", x===b));
-      scheduleCandleRefresh();
-    });
+  tfCustomRender();
+  document.getElementById("tf-seg").addEventListener("click", (e)=>{
+    const del = e.target.closest("[data-tf-del]"); if (del){ e.preventDefault(); e.stopPropagation(); tfCustomRemove(del.dataset.tfDel); return; }
+    const add = e.target.closest("#tf-add"); if (add){ if (!add.disabled) tfCustomOpen(add); return; }
+    const b = e.target.closest("button[data-tf]"); if (!b || b.disabled) return;
+    tfSelect(b.dataset.tf);
   });
 
   const unameInput = document.getElementById("username-input");
