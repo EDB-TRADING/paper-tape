@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3230">
+<meta name="pt-build" content="3240">
 <script>
 /* Multi-graphiques : cette page est-elle un graphique seul dans une iframe ?
    Si oui, ses réglages de graphique (indicateurs, bougies, unité de temps,
@@ -25,7 +25,7 @@
     var pane = String(q.get("pane")||"x").replace(/[^A-Za-z0-9_-]/g, "");
     window.PT_EMBED = {pane:pane, sym:q.get("sym"), tf:q.get("tf")};
     document.documentElement.classList.add("pt-embed");
-    var NS = {paperTapeCandleTheme:1, paperTapeChartInd:1, paperTapeChartSrc:1, paperTapeChartTf:1, paperTapeChartZoomCount:1, paperTapeChartZoomIndex:1, paperTapeDrawDefaults:1, paperTapeDrawings:1, paperTapeIndPop:1, paperTapeLeverage:1};
+    var NS = {paperTapeCandleTheme:1, paperTapeChartInd:1, paperTapeChartSrc:1, paperTapeChartTf:1, paperTapeChartZoomCount:1, paperTapeChartZoomIndex:1, paperTapeDrawDefaults:1, paperTapeDrawings:1, paperTapeIndPop:1, paperTapeLeverage:1, paperTapeChartCompact:1};
     var P = Storage.prototype, g = P.getItem, s = P.setItem, r = P.removeItem;
     var k = function(st, key){ return (st===window.localStorage && NS[key]) ? key+"@"+pane : key; };
     P.getItem = function(key){ var kk = k(this, key), v = g.call(this, kk); return (v===null && kk!==key) ? g.call(this, key) : v; };
@@ -635,6 +635,8 @@
   .csp-list button{width:100%;display:grid;grid-template-columns:22px 70px 1fr;align-items:center;gap:6px;padding:7px 8px;border-radius:7px;border:0;background:none;color:var(--text);text-align:left;cursor:pointer;font:inherit;}
   .csp-list button:hover, .csp-list button.on{background:var(--bg-raised);} .csp-list i{font-style:normal;text-align:center;} .csp-list b{font:600 12.5px var(--mono);} .csp-list span{font-size:12px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .csp-empty{padding:12px;color:var(--text-faint);font-size:13px;}
+  /* Barre du graphique masquée (double-clic) */
+  .card.widget.chart-fs.chart-compact .chart-head, .card.widget.chart-fs.chart-compact .chart-controls{display:none !important;}
   /* Modales au-dessus du graphique plein écran */
   html.chart-fs-on .modal-overlay{z-index:2147483300;}
   /* Mode « graphique seul » (iframe du multi-graphiques) */
@@ -6608,7 +6610,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3230 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3240 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -15592,11 +15594,31 @@ function initChartInteractions(){
   svg.addEventListener("dblclick", (e)=>{
     if (e.target.closest && e.target.closest("[data-tpsl-pos], [data-draw-id], [data-draw-h], [data-draft-leg], [data-draft-ok], [data-draft-cancel], [data-pend-drag]")) return;
     if (drawTool || drawPending) return;
-    if (chartPan) backToLive();
-    if (chartYManual) chartYReset(); // double-clic : tout revient en automatique
+    let did = false;
+    if (chartPan){ backToLive(); did = true; }
+    if (chartYManual){ chartYReset(); did = true; } // double-clic : tout revient en automatique
+    // Plein écran / multi-graphiques : sinon, le double-clic masque ou réaffiche la barre du graphique.
+    if (!did && svg.closest(".chart-fs")) chartCompactToggle();
   });
   svg.addEventListener("wheel", stopGlide, {passive:true});
   setInterval(chartTickCountdown, 1000);
+}
+// Barre du graphique (actif, trade rapide, unités de temps, outils, sources)
+// masquable d'un double-clic sur le graphique en plein écran ; choix gardé
+// par graphique (clé propre à chaque panneau du multi-graphiques).
+const CHART_COMPACT_KEY = "paperTapeChartCompact";
+function chartCompactApply(){
+  const el = document.querySelector('.card.widget[data-widget="chart"]'); if (!el) return;
+  let on = false; try{ on = localStorage.getItem(CHART_COMPACT_KEY)==="1"; }catch(e){}
+  el.classList.toggle("chart-compact", on && el.classList.contains("chart-fs"));
+}
+function chartCompactToggle(){
+  const el = document.querySelector('.card.widget[data-widget="chart"]'); if (!el) return;
+  const on = !el.classList.contains("chart-compact");
+  try{ localStorage.setItem(CHART_COMPACT_KEY, on ? "1" : "0"); }catch(e){}
+  el.classList.toggle("chart-compact", on);
+  if (on && typeof chartToast==="function") chartToast("Barre masquée · double-clic sur le graphique pour la réafficher", "info");
+  requestAnimationFrame(()=>{ try{ updateChart(); }catch(e){} });
 }
 /* ============================= DESSINS SUR LE GRAPHIQUE INTERNE =============================
    Outils façon TradingView : ligne de tendance, ligne horizontale, ligne
@@ -16156,12 +16178,13 @@ function chartFsSet(on){
     if (document.documentElement.classList.contains("touch-ui") && typeof chartTouchLock==="function") chartTouchLock(true);
     try{ if (el.requestFullscreen && !document.fullscreenElement) el.requestFullscreen({navigationUI:"hide"}).catch(()=>{}); }catch(e){}
     if (typeof mcEnter==="function") mcEnter(el); // multi-graphiques
+    chartCompactApply();
   } else if (!on && chartFs){
     if (typeof mcExit==="function") mcExit();
     const {parent, next, drag} = chartFs;
     if (drag!=null) el.setAttribute("draggable", drag); else el.removeAttribute("draggable");
     chartFs = null;
-    el.classList.remove("chart-fs");
+    el.classList.remove("chart-fs", "chart-compact");
     document.documentElement.classList.remove("chart-fs-on");
     if (parent){ if (next && next.parentNode===parent) parent.insertBefore(el, next); else parent.appendChild(el); }
     if (typeof chartTouchLock==="function") chartTouchLock(false);
@@ -16188,7 +16211,7 @@ function chartFsSet(on){
    déplacée se rechargerait) : ils sont posés en absolu sur leur
    emplacement. Disposition gardée sur l'appareil. */
 const MC_KEY = "paperTapeMultiChart";
-const MC_EMBED_KEYS = ["paperTapeCandleTheme","paperTapeChartInd","paperTapeChartSrc","paperTapeChartTf","paperTapeChartZoomCount","paperTapeChartZoomIndex","paperTapeDrawDefaults","paperTapeDrawings","paperTapeIndPop","paperTapeLeverage"];
+const MC_EMBED_KEYS = ["paperTapeCandleTheme","paperTapeChartInd","paperTapeChartSrc","paperTapeChartTf","paperTapeChartZoomCount","paperTapeChartZoomIndex","paperTapeDrawDefaults","paperTapeDrawings","paperTapeIndPop","paperTapeLeverage","paperTapeChartCompact"];
 const MC = {on:false, el:null, ws:null, rootEl:null, layer:null, tray:null, root:null, panes:{}, mini:[], seq:2, els:{}, bits:null, maxed:null, drag:null, gut:null, act:"main", ro:null};
 function mcState(){ try{ const v = JSON.parse(localStorage.getItem(MC_KEY)||"null"); if (v && v.root && v.panes && v.panes.main) return v; }catch(e){} return null; }
 function mcSave(){
@@ -16358,7 +16381,7 @@ function mcFrameEl(p){
   try{ if (localStorage.getItem("paperTapeChartTf@"+p.id)==null) localStorage.setItem("paperTapeChartTf@"+p.id, p.tf); }catch(e){}
   const el = document.createElement("div"); el.className = "mc-pane mc-frame"; el.dataset.pane = p.id;
   const src = location.href.split(/[?#]/)[0]+"?ptEmbed=chart&pane="+encodeURIComponent(p.id)+"&sym="+encodeURIComponent(p.sym)+"&tf="+encodeURIComponent(p.tf);
-  el.innerHTML = '<iframe title="Graphique '+escapeHtml(p.sym)+'" src="'+src+'" allow="clipboard-write"></iframe><div class="mc-load"><div class="rp-spin"></div><span>Chargement du graphique '+escapeHtml(p.sym)+'…</span></div>';
+  el.innerHTML = '<iframe aria-label="Graphique '+escapeHtml(p.sym)+'" src="'+src+'" allow="clipboard-write"></iframe><div class="mc-load"><div class="rp-spin"></div><span>Chargement du graphique '+escapeHtml(p.sym)+'…</span></div>';
   el.querySelector("iframe").addEventListener("load", ()=>{ setTimeout(()=>{ const ld = el.querySelector(".mc-load"); if (ld) ld.remove(); }, 6000); }); // filet de sécurité
   el.addEventListener("pointerdown", ()=>{ MC.act = p.id; mcMarkAct(); }, true);
   MC.layer.appendChild(el);
@@ -16392,12 +16415,18 @@ function mcPointerDown(e){
   if (g){ const f = mcFindNode(g.dataset.split); if (!f) return; const box = g.parentElement.getBoundingClientRect();
     MC.gut = {n:f.n, i:+g.dataset.i, row:f.n.dir==="row", size:f.n.dir==="row" ? box.width : box.height, start:f.n.dir==="row" ? e.clientX : e.clientY, a:f.n.sz[+g.dataset.i-1], b:f.n.sz[+g.dataset.i], el:g.parentElement};
     MC.ws.classList.add("is-sizing");
-    document.addEventListener("pointermove", mcGutMove); document.addEventListener("pointerup", mcGutUp, {once:true}); e.preventDefault(); return; }
+    try{ g.setPointerCapture(e.pointerId); }catch(err){}
+    document.addEventListener("pointermove", mcGutMove); document.addEventListener("pointerup", mcGutUp, {once:true}); document.addEventListener("pointercancel", mcGutUp, {once:true}); e.preventDefault(); return; }
   const tab = e.target.closest(".mc-tab");
   if (!tab || e.target.closest(".mc-tx")){ const st = e.target.closest(".mc-stack"); if (st){ const f = mcFindNode(st.dataset.node); if (f && f.n.act && MC.act!==f.n.act){ MC.act = f.n.act; mcMarkAct(); } } return; }
   e.preventDefault();
-  MC.drag = {id:tab.dataset.mcTab, x:e.clientX, y:e.clientY, started:false, zone:null};
-  document.addEventListener("pointermove", mcDragMove); document.addEventListener("pointerup", mcDragUp, {once:true});
+  mcDragEnd(); // un ancien glisser resté ouvert est nettoyé
+  MC.drag = {id:tab.dataset.mcTab, x:e.clientX, y:e.clientY, started:false, zone:null, el:tab, pid:e.pointerId};
+  // Capture du pointeur + graphiques « transparents » dès l'appui : une iframe ne
+  // peut plus avaler le mouvement ni le relâchement (le cadre orange restait affiché).
+  try{ tab.setPointerCapture(e.pointerId); }catch(err){}
+  MC.ws.classList.add("is-dragging");
+  document.addEventListener("pointermove", mcDragMove); document.addEventListener("pointerup", mcDragUp); document.addEventListener("pointercancel", mcDragCancel);
 }
 function mcGutMove(e){
   const G = MC.gut; if (!G) return;
@@ -16406,7 +16435,7 @@ function mcGutMove(e){
   Array.from(G.el.children).filter(c=>!c.classList.contains("mc-gut")).forEach((c, i)=>{ c.style.flex = G.n.sz[i]+" 1 0px"; });
   mcPlace();
 }
-function mcGutUp(){ document.removeEventListener("pointermove", mcGutMove); MC.gut = null; if (MC.ws) MC.ws.classList.remove("is-sizing"); mcSave(); mcPlace(); }
+function mcGutUp(){ document.removeEventListener("pointermove", mcGutMove); document.removeEventListener("pointerup", mcGutUp); document.removeEventListener("pointercancel", mcGutUp); MC.gut = null; if (MC.ws) MC.ws.classList.remove("is-sizing"); mcSave(); mcPlace(); }
 function mcDragMove(e){
   const D = MC.drag; if (!D) return;
   if (!D.started){ if (Math.hypot(e.clientX-D.x, e.clientY-D.y) < 7) return; D.started = true;
@@ -16444,26 +16473,36 @@ function hitEdgeSkip(st, X, Y){ // sur la croix, on garde le choix du carré mê
   if (!st || !MC.drag || !MC.drag.cross) return false;
   const r = MC.drag.cross.getBoundingClientRect(); return X>=r.left && X<=r.right && Y>=r.top && Y<=r.bottom;
 }
+function mcDragCancel(){ mcDragEnd(); if (MC.on) mcRender(); }
 function mcDragUp(){
-  const D = MC.drag; document.removeEventListener("pointermove", mcDragMove);
-  if (!D) return;
-  if (!D.started){ const f = mcStackOf(D.id); if (f){ f.n.act = D.id; MC.act = D.id; mcSave(); mcRender(); } MC.drag = null; return; }
+  const D = MC.drag; document.removeEventListener("pointermove", mcDragMove); document.removeEventListener("pointerup", mcDragUp); document.removeEventListener("pointercancel", mcDragCancel);
+  if (!D){ mcDragEnd(); return; }
+  if (!D.started){ mcDragEnd(); const f = mcStackOf(D.id); if (f){ f.n.act = D.id; MC.act = D.id; mcSave(); mcRender(); } return; }
   if (D.zone && D.target){ const tgt = D.target; mcDetach(D.id); const still = tgt==="ws" || mcFindNode(tgt); mcInsert(D.id, still ? tgt : "ws", still ? D.zone : "right"); MC.act = D.id; MC.maxed = null; MC.root = mcNorm(MC.root); mcSave(); }
   mcDragEnd(); mcRender();
 }
 function mcDragEnd(){
   const D = MC.drag; MC.drag = null;
-  if (D){ ["ghost","prev","cross"].forEach(k=>{ if (D[k]) D[k].remove(); }); }
+  if (D){ ["ghost","prev","cross"].forEach(k=>{ if (D[k]) D[k].remove(); }); try{ if (D.el && D.pid!=null) D.el.releasePointerCapture(D.pid); }catch(e){} }
+  if (MC.el) MC.el.querySelectorAll(".mc-ghost, .mc-drop, .mc-cross").forEach(x=>x.remove()); // jamais de reste à l'écran
   if (MC.ws) MC.ws.classList.remove("is-dragging");
-  document.removeEventListener("pointermove", mcDragMove);
+  document.removeEventListener("pointermove", mcDragMove); document.removeEventListener("pointerup", mcDragUp); document.removeEventListener("pointercancel", mcDragCancel);
 }
+// Échap ou perte du focus pendant un glisser : on annule.
+document.addEventListener("keydown", (e)=>{ if (e.key==="Escape" && MC.drag){ e.stopPropagation(); mcDragCancel(); } }, true);
+window.addEventListener("blur", ()=>{ if (MC.drag) mcDragCancel(); });
 // ---------- Mode « graphique seul » (dans une iframe du multi-graphiques) ----------
 function ptEmbedLayout(){
   const E = window.PT_EMBED; if (!E) return;
   const el = document.querySelector('.card.widget[data-widget="chart"]'); if (!el) return;
-  // Le widget reste à sa place (le reste du site est masqué par le CSS) : rien ne le déplace ensuite.
+  // Le widget passe dans <body> : en « position:fixed » dans une colonne, il ne
+  // remplissait que la hauteur de la colonne. Si la mise en page des widgets le
+  // remet dans sa colonne, on le ressort (vérifié chaque seconde).
+  if (el.parentNode!==document.body) document.body.appendChild(el);
+  if (!E.watch){ E.watch = setInterval(()=>{ const w = document.querySelector('.card.widget[data-widget="chart"]'); if (w && w.parentNode!==document.body){ document.body.appendChild(w); try{ updateChart(); }catch(e){} } }, 1000); }
   el.hidden = false; el.style.display = "";
   el.classList.add("chart-fs"); document.documentElement.classList.add("chart-fs-on");
+  chartCompactApply();
   if (E.sym && ASSETS.some(a=>a.symbol===E.sym)) selectedSymbol = E.sym;
 }
 function ptEmbedReport(ready){
