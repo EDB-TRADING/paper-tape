@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3180">
+<meta name="pt-build" content="3201">
 <title>Paper Tape</title>
 <script>
 /* Un seul fichier pour deux sites :
@@ -1532,14 +1532,20 @@
   .modal-close-x:hover{color:var(--text);}
 
   /* share-card modal */
-  .share-style-picker{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
-  .share-style-picker button{
-    flex:1;min-width:80px;background:var(--bg-raised);border:1px solid var(--border);color:var(--text-dim);
-    font-family:var(--mono);font-size:10.5px;padding:8px 6px;border-radius:6px;cursor:pointer;
-  }
-  .share-style-picker button.active{border-color:var(--accent);color:var(--accent);background:var(--panel-2);}
-  .share-card-preview-wrap{display:flex;justify-content:center;background:var(--bg-raised);border-radius:8px;padding:12px;}
-  #share-card-canvas{width:100%;max-width:300px;height:auto;border-radius:10px;display:block;}
+  /* Cartes PnL (position + historique) */
+  .pnlc-styles{display:flex;gap:6px;margin-bottom:12px;padding:4px;border-radius:12px;background:var(--bg-raised);border:1px solid var(--border-soft);}
+  .pnlc-styles button{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:8px 6px;border-radius:9px;border:0;background:none;color:var(--text-dim);font:600 12px var(--sans);cursor:pointer;transition:background .15s, color .15s;}
+  .pnlc-styles button:hover{color:var(--text);}
+  .pnlc-styles button.on{background:var(--panel-2);color:var(--text);box-shadow:0 1px 0 rgba(255,255,255,.04), 0 4px 14px rgba(0,0,0,.25);}
+  .pnlc-styles i{width:12px;height:12px;border-radius:4px;flex:none;}
+  .pnlc-styles .sw-signature{background:linear-gradient(135deg, var(--panel), var(--accent));}
+  .pnlc-styles .sw-ticket{background:#f3eee2;box-shadow:inset 0 0 0 1px #c9bfa9;}
+  .pnlc-styles .sw-neon{background:linear-gradient(135deg, #22093a, #ff3dd4);}
+  .pnlc-styles .sw-clair{background:#f7f5f0;box-shadow:inset 3px 0 0 #12955a, inset 0 0 0 1px #d8d3c8;}
+  .pnlc-stage{display:flex;justify-content:center;padding:16px;border-radius:14px;background:radial-gradient(500px 260px at 50% 0%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 70%), var(--bg-raised);border:1px solid var(--border-soft);}
+  #share-card-canvas{width:100%;max-width:340px;height:auto;border-radius:12px;display:block;box-shadow:0 18px 40px rgba(0,0,0,.45);}
+  .pnlc-actions{display:grid;grid-template-columns:repeat(auto-fit, minmax(130px,1fr));gap:8px;margin-top:14px;}
+  .pnlc-actions button{width:100%;}
   .share-msg{font-family:var(--sans);font-size:11px;color:var(--text-faint);text-align:center;margin-top:8px;min-height:14px;}
 
   /* fullscreen photo viewer — reuses the already-loaded <img> src (no new
@@ -3488,6 +3494,15 @@
   .dd-actions[hidden], .dd-verdict[hidden], .dd-q[hidden]{display:none !important;}
   .dd-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;padding:30px 32px;border-radius:22px;border:1px solid var(--border-soft);
     background:radial-gradient(700px 300px at 0% 0%, color-mix(in srgb, var(--dd-a) 13%, transparent), transparent 70%), linear-gradient(180deg, var(--panel), var(--bg));}
+  /* ---------- Admin › Ajouter un trade ---------- */
+  .adm-at-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;}
+  .adm-at-grid .field-row{display:flex;flex-direction:column;gap:5px;margin:0 0 8px;}
+  .adm-at-grid .field-row > span{font-size:11.5px;color:var(--text-faint);}
+  .adm-at-grid .seg{display:flex;} .adm-at-grid .seg button{flex:1;}
+  .adm-at-res{margin-top:8px;padding:12px 14px;border-radius:12px;border:1px solid var(--border-soft);background:var(--bg-raised);font-size:13px;line-height:1.5;display:flex;flex-direction:column;gap:6px;}
+  .adm-at-line{display:grid;grid-template-columns:130px auto 1fr;gap:10px;align-items:baseline;} .adm-at-line span{color:var(--text-faint);font-size:12px;} .adm-at-line b{font-family:var(--mono);} .adm-at-line em{font-style:normal;color:var(--text-dim);font-size:12px;text-align:right;}
+  .adm-at-pnl{font:700 22px var(--mono);margin-top:4px;} .adm-at-pnl.up{color:var(--long);} .adm-at-pnl.down{color:var(--short);} .adm-at-pnl small{font:500 12px var(--sans);color:var(--text-dim);}
+  @media (max-width:560px){ .adm-at-grid{grid-template-columns:1fr;} .adm-at-line{grid-template-columns:1fr auto;} .adm-at-line em{grid-column:1 / -1;text-align:left;} }
   /* ---------- Admin › Temps par page ---------- */
   .adm-pages{display:flex;flex-direction:column;border-top:1px solid var(--border-soft);}
   .adm-pg{border-bottom:1px solid var(--border-soft);}
@@ -6513,7 +6528,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3180 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3201 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -16996,306 +17011,367 @@ function renderPositions(){
   });
 }
 
-/* ============================= SHARE CARD (position PnL flex card) ============================= */
-// Renders a shareable PnL image for an open position onto an offscreen
-// canvas, in one of 4 visual styles the trader can pick between. Pure
-// client-side (canvas 2D, no server round-trip): download always works via
-// canvas.toBlob()+<a download>, and on devices/browsers that support the
-// Web Share API (mostly mobile) a native share sheet is offered too so the
-// image can go straight to Discord/Instagram/etc. Purely cosmetic/social —
-// no wallet, no real money, no PII beyond the trader's own chosen username.
-const SHARE_CARD_STYLES = ["classic","neon","minimal","terminal"];
-const SHARE_CARD_LABELS = {classic:"Classique", neon:"Néon", minimal:"Minimal", terminal:"Terminal"};
-let shareCardPositionId = null;
-let shareCardStyle = "classic";
+/* ============================= CARTES PnL (position ouverte + historique) =============================
+   Une seule carte partageable (1080 × 1350, format Instagram 4:5) pour une
+   position en cours (PnL latent, prix mark) comme pour un trade clôturé (PnL
+   réalisé, prix de sortie, motif : TP, SL, liquidation…). 4 styles :
+   Signature (sombre, reprend le thème), Ticket (ticket de caisse « paper
+   tape »), Néon et Clair. Le mini graphique utilise les VRAIES bougies du
+   marché sur la durée du trade (une requête publique, en cache) ; sans
+   historique, une jauge entrée → sortie le remplace. Tout est dessiné dans
+   le navigateur (canvas) : téléchargement, copie, partage natif. */
+const PNLC_STYLES = [["signature","Signature"],["ticket","Ticket"],["neon","Néon"],["clair","Clair"]];
+const PNLC = {d:null, style:"signature", cache:new Map(), gen:0};
+let shareCardPositionId = null; // gardé pour compatibilité
 function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || null; }
+function pcA(col, a){ // couleur + transparence, quel que soit le format (#rgb, #rrggbb, rgb())
+  col = String(col||"").trim(); let m = col.match(/^#([0-9a-f]{3})$/i); if (m) col = "#"+m[1].split("").map(c=>c+c).join("");
+  m = col.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i); if (m) return "rgba("+parseInt(m[1],16)+","+parseInt(m[2],16)+","+parseInt(m[3],16)+","+a+")";
+  m = col.match(/^rgba?\(([^)]+)\)$/i); if (m){ const p = m[1].split(/[ ,/]+/).filter(Boolean).slice(0,3); return "rgba("+p.join(",")+","+a+")"; }
+  return "rgba(128,128,128,"+a+")";
+}
+function pnlcMargin(notional, lev){ return lev>0 ? notional/lev : notional; }
+function pnlcFromPosition(p){
+  const a = ASSETS.find(x=>x.symbol===p.symbol) || {};
+  const mark = markPrice(p.symbol), pnl = posUnrealized(p);
+  return {kind:"open", id:p.id, symbol:p.symbol, name:(a.name||p.symbol).split(" (")[0].split(" —")[0], icon:a.icon||"", color:a.color||null,
+    side:p.side, leverage:p.leverage, mode:p.mode, entry:p.entryPrice, exit:mark, pnl, roe:p.initMargin ? pnl/p.initMargin*100 : 0,
+    notional:p.notional, decimals:a.decimals!=null ? a.decimals : 2, openedAt:p.openedAt ? Date.parse(p.openedAt) : null, closedAt:null,
+    status:"En cours", tp:p.takeProfit, sl:p.stopLoss};
+}
+function pnlcFromHistory(h){
+  const a = ASSETS.find(x=>x.symbol===h.symbol) || {};
+  const m = pnlcMargin(h.notional||0, h.leverage||1);
+  const st = {liquidated:"Liquidé", tp:"Take profit touché", sl:"Stop loss touché", closed_partial:"Clôture partielle"+(h.closedPct ? " "+h.closedPct+" %" : "")}[h.reason] || "Clôturé";
+  return {kind:"closed", id:h.id, symbol:h.symbol, name:(a.name||h.symbol).split(" (")[0].split(" —")[0], icon:a.icon||"", color:a.color||null,
+    side:h.side, leverage:h.leverage, mode:h.mode, entry:h.entryPrice, exit:h.exitPrice, pnl:h.pnl, roe:m>0 ? h.pnl/m*100 : 0,
+    notional:h.notional, decimals:a.decimals!=null ? a.decimals : 2, openedAt:h.openedAt ? Date.parse(h.openedAt) : null, closedAt:h.closedAt ? Date.parse(h.closedAt) : null,
+    status:st, reason:h.reason};
+}
+// Fenêtre : position → modale de la carte.
 function openShareCardModal(posId){
-  const p = state.positions.find(x=>x.id===posId);
-  if (!p) return;
+  const p = state.positions.find(x=>x.id===posId); if (!p) return;
   shareCardPositionId = posId;
-  shareCardStyle = "classic";
+  openPnlCardModal(pnlcFromPosition(p), {title:"Partager ma position"});
+}
+function openTradeCardModal(h){
+  openPnlCardModal(pnlcFromHistory(h), {title:"Carte du trade", hist:h});
+}
+function openPnlCardModal(d, o){
+  PNLC.d = d; PNLC.gen++;
   openModal(
-    '<h3 style="margin:0 0 14px;">Partager cette position</h3>'+
-    '<div class="share-style-picker" id="share-style-picker">'+
-      SHARE_CARD_STYLES.map(s=>'<button type="button" data-style="'+s+'" class="'+(s==="classic"?"active":"")+'">'+SHARE_CARD_LABELS[s]+'</button>').join("")+
-    '</div>'+
-    '<div class="share-card-preview-wrap"><canvas id="share-card-canvas" width="1080" height="1350"></canvas></div>'+
-    '<div style="display:flex;gap:8px;margin-top:14px;">'+
-      '<button class="btn-secondary" id="share-download-btn" style="flex:1;">⬇️ Télécharger l\'image</button>'+
-      '<button class="btn-secondary" id="share-native-btn" style="flex:1;" hidden>📤 Partager</button>'+
+    '<h3 style="margin:0 0 12px;">'+escapeHtml(o.title||"Carte PnL")+'</h3>'+
+    '<div class="pnlc-styles" id="pnlc-styles" role="tablist">'+PNLC_STYLES.map(([k, t])=>'<button type="button" data-pnlc-style="'+k+'" class="'+(k===PNLC.style ? "on" : "")+'"><i class="sw-'+k+'"></i>'+t+'</button>').join("")+'</div>'+
+    '<div class="pnlc-stage"><canvas id="share-card-canvas" width="1080" height="1350"></canvas></div>'+
+    '<div class="pnlc-actions">'+
+      '<button type="button" class="btn-primary" id="pnlc-dl">Télécharger</button>'+
+      '<button type="button" class="btn-secondary" id="pnlc-copy">Copier l\'image</button>'+
+      (navigator.share ? '<button type="button" class="btn-secondary" id="pnlc-share">Partager…</button>' : '')+
+      (o.hist ? '<button type="button" class="btn-secondary" id="pnlc-chat">Envoyer dans le Chat</button>' : '')+
     '</div>'+
     '<div class="share-msg" id="share-msg"></div>'
   );
-  document.getElementById("share-style-picker").querySelectorAll("button").forEach(b=>{
-    b.addEventListener("click", ()=>{
-      shareCardStyle = b.dataset.style;
-      document.getElementById("share-style-picker").querySelectorAll("button").forEach(x=>x.classList.toggle("active", x===b));
-      renderShareCard();
-    });
+  document.getElementById("pnlc-styles").addEventListener("click", e=>{
+    const b = e.target.closest("[data-pnlc-style]"); if (!b) return;
+    PNLC.style = b.dataset.pnlcStyle;
+    document.querySelectorAll("#pnlc-styles [data-pnlc-style]").forEach(x=>x.classList.toggle("on", x===b));
+    renderPnlCard();
   });
-  document.getElementById("share-download-btn").addEventListener("click", downloadShareCard);
-  if (navigator.share){
-    const nativeBtn = document.getElementById("share-native-btn");
-    nativeBtn.hidden = false;
-    nativeBtn.addEventListener("click", nativeShareCard);
+  document.getElementById("pnlc-dl").addEventListener("click", downloadShareCard);
+  document.getElementById("pnlc-copy").addEventListener("click", copyShareCard);
+  const sh = document.getElementById("pnlc-share"); if (sh) sh.addEventListener("click", nativeShareCard);
+  const ch = document.getElementById("pnlc-chat"); if (ch) ch.addEventListener("click", ()=>{ closeModal(); openGlobalChatWithPnlCard(o.hist); });
+  renderPnlCard();
+  // Polices de la carte, puis vraies bougies du trade : on redessine quand elles arrivent.
+  const gen = PNLC.gen;
+  pnlcFonts().then(()=>{ if (PNLC.gen===gen) renderPnlCard(); });
+  pnlcCandles(d).then(c=>{ if (PNLC.gen===gen && c){ d.candles = c; renderPnlCard(); } }).catch(()=>{});
+}
+let pnlcFontsP = null;
+function pnlcFonts(){
+  if (!pnlcFontsP) pnlcFontsP = Promise.all(['700 40px "Geist"', '600 40px "Geist"', '600 40px "Geist Mono"', '400 40px "Geist Mono"', '400 40px "Instrument Serif"', 'italic 400 40px "Instrument Serif"']
+    .map(f=>document.fonts && document.fonts.load ? document.fonts.load(f).catch(()=>null) : null)).catch(()=>null);
+  return pnlcFontsP;
+}
+const PNLC_TF = [["1m",6e4],["5m",3e5],["15m",9e5],["1h",36e5],["4h",144e5],["1d",864e5]];
+async function pnlcCandles(d){
+  if (!d.openedAt || !isFinite(d.openedAt) || typeof fetchCandlesRange!=="function") return null;
+  const a = ASSETS.find(x=>x.symbol===d.symbol); if (!a) return null;
+  const end = d.closedAt || Date.now(), dur = Math.max(6e4, end-d.openedAt), span = Math.max(dur*1.7, 45*6e4);
+  const tf = PNLC_TF.find(([, ms])=>span/ms <= 110) || PNLC_TF[PNLC_TF.length-1];
+  let start = d.openedAt - (span-dur)*0.6, stop = Math.min(Date.now(), end + (span-dur)*0.4);
+  if (!d.closedAt){ stop = Date.now(); start = stop - span; }
+  const key = d.symbol+"|"+tf[0]+"|"+Math.floor(start/tf[1])+"|"+Math.floor(stop/tf[1]);
+  if (PNLC.cache.has(key)) return PNLC.cache.get(key);
+  const c = await fetchCandlesRange(a, tf[0], start, stop);
+  const out = Array.isArray(c) && c.length>=6 ? c : null;
+  PNLC.cache.set(key, out);
+  return out;
+}
+function renderPnlCard(){
+  const d = PNLC.d, cv = document.getElementById("share-card-canvas"); if (!d || !cv) return;
+  const x = cv.getContext("2d"), W = cv.width, H = cv.height;
+  x.setTransform(1,0,0,1,0,0); x.clearRect(0,0,W,H); x.textBaseline = "alphabetic"; x.setLineDash([]); x.globalAlpha = 1; x.shadowBlur = 0;
+  ({signature:pnlcSignature, ticket:pnlcTicket, neon:pnlcNeon, clair:pnlcClair}[PNLC.style] || pnlcSignature)(x, W, H, d);
+}
+// ---------- Outils de dessin ----------
+const PC_SANS = '"Geist", "IBM Plex Sans", system-ui, sans-serif', PC_MONO = '"Geist Mono", "IBM Plex Mono", ui-monospace, monospace', PC_SERIF = '"Instrument Serif", Georgia, serif';
+function pcRR(x, X, Y, w, h, r){ x.beginPath(); x.moveTo(X+r, Y); x.arcTo(X+w, Y, X+w, Y+h, r); x.arcTo(X+w, Y+h, X, Y+h, r); x.arcTo(X, Y+h, X, Y, r); x.arcTo(X, Y, X+w, Y, r); x.closePath(); }
+function roundRectPath(ctx,x,y,w,h,r){ pcRR(ctx, x, y, w, h, r); }
+function pcPct(v){ const s = Math.abs(v); return (v>=0 ? "+" : "−")+(s>=1000 ? Math.round(s).toLocaleString("fr-FR") : s.toFixed(s>=100 ? 1 : 2).replace(".", ","))+" %"; }
+function pcMoney(v){ return (v>=0 ? "+" : "−")+fmtMoney(Math.abs(v)); }
+function pcDur(d){
+  if (!d.openedAt) return "—";
+  const s = Math.max(0, ((d.closedAt||Date.now())-d.openedAt)/1000);
+  if (s<60) return Math.round(s)+" s";
+  const m = Math.floor(s/60), h = Math.floor(m/60), j = Math.floor(h/24);
+  return j ? j+" j "+(h%24)+" h" : h ? h+" h "+String(m%60).padStart(2, "0") : m+" min";
+}
+function pcWhen(d){ const t = d.closedAt || Date.now(), dt = new Date(t); return dt.toLocaleDateString("fr-FR", {day:"2-digit", month:"short", year:"numeric"})+" · "+dt.toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"}); }
+function pcMove(d){ return isFinite(d.entry) && d.entry ? ((d.exit-d.entry)/d.entry*100) : 0; }
+function pcUser(){ const u = String(state.username||"").replace(/^@+/, ""); return u ? "@"+u : ""; }
+function pcHash(s){ let h = 2166136261; for (const ch of String(s)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return h>>>0; }
+function pcFit(x, txt, font, size, maxW){ let s = size; x.font = font.replace("{s}", s); while (s>20 && x.measureText(txt).width > maxW){ s -= 4; x.font = font.replace("{s}", s); } return s; }
+// Logo : trois chandeliers.
+function pcLogo(x, X, Y, s, col){
+  const bars = [[0, .55, .2, .85], [.38, .2, 0, .7], [.76, .35, .1, .6]];
+  x.fillStyle = col; x.strokeStyle = col; x.lineWidth = Math.max(2, s*0.06);
+  bars.forEach(([dx, top, wt, bot])=>{ const cx = X+dx*s+s*0.1; x.beginPath(); x.moveTo(cx+s*0.06, Y+wt*s); x.lineTo(cx+s*0.06, Y+Math.min(1, bot+0.15)*s); x.stroke(); x.fillRect(cx, Y+top*s, s*0.12, (bot-top)*s); });
+}
+// Mini graphique du trade (vraies bougies) ou jauge entrée → sortie.
+function pcChart(x, R, d, P){
+  const c = d.candles;
+  const entryCol = P.entry || P.faint, up = P.up, dn = P.dn, res = d.pnl>=0 ? up : dn;
+  if (c && c.length>=6){
+    let lo = Infinity, hi = -Infinity; c.forEach(k=>{ lo = Math.min(lo, k.l); hi = Math.max(hi, k.h); });
+    const okRange = !isFinite(d.entry) || (d.entry >= lo*0.85 && d.entry <= hi*1.15); // bougies d'une autre échelle (paire inversée…) : jauge à la place
+    if (!okRange){ d.candles = null; return pcChart(x, R, d, P); }
+    [d.entry, d.exit].forEach(v=>{ if (isFinite(v)){ lo = Math.min(lo, v); hi = Math.max(hi, v); } });
+    const pad = (hi-lo)*0.08 || hi*0.001; lo -= pad; hi += pad;
+    const n = c.length, slot = R.w/n, X = i=>R.x+slot*(i+0.5), Y = p=>R.y+(hi-p)/(hi-lo)*R.h;
+    const iIn = Math.max(0, c.findIndex(k=>k.t+0 >= d.openedAt) - 1), iOut = d.closedAt ? Math.max(iIn, (()=>{ let j = n-1; while (j>0 && c[j].t > d.closedAt) j--; return j; })()) : n-1;
+    // zone du trade
+    x.fillStyle = res; x.globalAlpha = 0.09; x.fillRect(X(iIn)-slot/2, R.y, X(iOut)-X(iIn)+slot, R.h); x.globalAlpha = 1;
+    if (P.line){
+      const g = x.createLinearGradient(0, R.y, 0, R.y+R.h); g.addColorStop(0, P.lineFill||"rgba(255,255,255,.18)"); g.addColorStop(1, "rgba(0,0,0,0)");
+      x.beginPath(); c.forEach((k, i)=>{ i ? x.lineTo(X(i), Y(k.c)) : x.moveTo(X(i), Y(k.c)); }); x.lineTo(X(n-1), R.y+R.h); x.lineTo(X(0), R.y+R.h); x.closePath(); x.fillStyle = g; x.fill();
+      x.beginPath(); c.forEach((k, i)=>{ i ? x.lineTo(X(i), Y(k.c)) : x.moveTo(X(i), Y(k.c)); });
+      x.strokeStyle = P.line; x.lineWidth = P.lineW||4; x.lineJoin = "round"; if (P.glow){ x.shadowColor = P.line; x.shadowBlur = P.glow; } x.stroke(); x.shadowBlur = 0;
+    } else {
+      const bw = Math.max(2, slot*0.62);
+      c.forEach((k, i)=>{ const col = k.c>=k.o ? up : dn, cx = X(i); x.globalAlpha = (i<iIn || i>iOut) ? 0.45 : 1; x.strokeStyle = col; x.fillStyle = col; x.lineWidth = Math.max(1.5, slot*0.12);
+        x.beginPath(); x.moveTo(cx, Y(k.h)); x.lineTo(cx, Y(k.l)); x.stroke(); const t = Y(Math.max(k.o, k.c)), b = Y(Math.min(k.o, k.c)); x.fillRect(cx-bw/2, t, bw, Math.max(2, b-t)); });
+      x.globalAlpha = 1;
+    }
+    // ligne d'entrée + points
+    const ye = Y(d.entry); x.setLineDash([10, 8]); x.strokeStyle = entryCol; x.lineWidth = 2; x.beginPath(); x.moveTo(R.x, ye); x.lineTo(R.x+R.w, ye); x.stroke(); x.setLineDash([]);
+    const dot = (cx, cy, col, lab, above)=>{ x.fillStyle = P.dotBg||"#111"; x.beginPath(); x.arc(cx, cy, 11, 0, Math.PI*2); x.fill(); x.lineWidth = 5; x.strokeStyle = col; x.stroke();
+      if (!lab) return; x.font = "600 22px "+PC_MONO; const tw = x.measureText(lab).width+22, tx = Math.min(R.x+R.w-tw, Math.max(R.x, cx-tw/2)), ty = above ? cy-50 : cy+22;
+      x.fillStyle = col; pcRR(x, tx, ty, tw, 32, 8); x.fill(); x.fillStyle = P.dotInk||"#111"; x.textAlign = "left"; x.fillText(lab, tx+11, ty+23); };
+    const yx = Y(d.exit), exitAbove = yx < ye;
+    dot(X(iIn), ye, entryCol, "Entrée", !exitAbove);
+    if (isFinite(d.exit)) dot(X(iOut), yx, res, d.kind==="open" ? "Mark" : "Sortie", exitAbove);
+    return true;
   }
-  renderShareCard();
+  // Jauge entrée → sortie
+  if (!isFinite(d.entry) || !isFinite(d.exit)) return false;
+  const yM = R.y+R.h/2, x0 = R.x+40, x1 = R.x+R.w-40;
+  x.strokeStyle = P.faint; x.globalAlpha = 0.5; x.lineWidth = 3; x.beginPath(); x.moveTo(x0, yM); x.lineTo(x1, yM); x.stroke(); x.globalAlpha = 1;
+  const g = x.createLinearGradient(x0, 0, x1, 0); g.addColorStop(0, entryCol); g.addColorStop(1, res);
+  x.strokeStyle = g; x.lineWidth = 8; x.lineCap = "round"; x.beginPath(); x.moveTo(x0, yM); x.lineTo(x1, yM); x.stroke(); x.lineCap = "butt";
+  [[x0, entryCol, "Entrée", fmtPrice(d.entry, d.decimals)], [x1, res, d.kind==="open" ? "Mark" : "Sortie", fmtPrice(d.exit, d.decimals)]].forEach(([cx, col, l, v], i)=>{
+    x.fillStyle = P.dotBg||"#111"; x.beginPath(); x.arc(cx, yM, 14, 0, Math.PI*2); x.fill(); x.lineWidth = 6; x.strokeStyle = col; x.stroke();
+    x.textAlign = i ? "right" : "left"; x.fillStyle = P.faint; x.font = "500 22px "+PC_MONO; x.fillText(l.toUpperCase(), i ? cx+14 : cx-14, yM-36);
+    x.fillStyle = P.text; x.font = "600 30px "+PC_MONO; x.fillText(v, i ? cx+14 : cx-14, yM+56); });
+  x.textAlign = "center"; x.fillStyle = res; x.font = "600 26px "+PC_MONO; x.fillText((pcMove(d)>=0 ? "▲ " : "▼ ")+pcPct(pcMove(d)).replace(/^[+−]/, ""), (x0+x1)/2, yM-30);
+  return true;
 }
-function shareCardData(){
-  const p = state.positions.find(x=>x.id===shareCardPositionId);
-  if (!p) return null;
-  const a = ASSETS.find(x=>x.symbol===p.symbol) || {};
-  const mp = markPrice(p.symbol);
-  const pnl = posUnrealized(p);
-  const pnlPct = (pnl/p.initMargin)*100;
-  return {
-    symbol:p.symbol, name:(a.name||p.symbol).split(" (")[0].split(" —")[0], icon:a.icon||"", side:p.side,
-    leverage:p.leverage, mode:p.mode, entry:p.entryPrice, mark:mp, pnl, pnlPct,
-    notional:p.notional, decimals:a.decimals!=null?a.decimals:2,
-  };
+function pcGrain(x, W, H, a, seed){ let s = seed||7; const r = ()=>{ s = (s*16807)%2147483647; return s/2147483647; }; x.fillStyle = "#fff"; for (let i=0;i<2600;i++){ x.globalAlpha = r()*a; x.fillRect(r()*W, r()*H, 1.6, 1.6); } x.globalAlpha = 1; }
+function pcPill(x, X, Y, txt, bg, ink, size){ x.font = "700 "+(size||24)+"px "+PC_MONO; const w = x.measureText(txt).width+34, h = (size||24)+22; x.fillStyle = bg; pcRR(x, X, Y, w, h, h/2); x.fill(); x.fillStyle = ink; x.textAlign = "left"; x.fillText(txt, X+17, Y+h/2+(size||24)*0.36); return w; }
+function pcStats(x, X, Y, W, cols, P){
+  const cw = W/cols.length;
+  cols.forEach(([k, v, col], i)=>{ const cx = X+i*cw;
+    if (i){ x.strokeStyle = P.line2; x.lineWidth = 2; x.beginPath(); x.moveTo(cx, Y-6); x.lineTo(cx, Y+70); x.stroke(); }
+    x.textAlign = "left"; x.fillStyle = P.faint; x.font = "500 20px "+PC_MONO; x.fillText(k.toUpperCase(), cx+(i ? 28 : 0), Y+16);
+    x.fillStyle = col||P.text; pcFit(x, v, "600 {s}px "+PC_MONO, 36, cw-(i ? 40 : 14)); x.fillText(v, cx+(i ? 28 : 0), Y+62); });
 }
-function renderShareCard(){
-  const d = shareCardData();
-  const canvas = document.getElementById("share-card-canvas");
-  if (!d || !canvas) return;
-  const ctx = canvas.getContext("2d");
-  const W = canvas.width, H = canvas.height;
-  ctx.clearRect(0,0,W,H);
-  const drawFn = {classic:drawShareCardClassic, neon:drawShareCardNeon, minimal:drawShareCardMinimal, terminal:drawShareCardTerminal}[shareCardStyle];
-  (drawFn||drawShareCardClassic)(ctx, W, H, d);
+// ---------- Style 1 : Signature ----------
+function pnlcSignature(x, W, H, d){
+  const bg = cssVar("--bg")||"#121110", panel = cssVar("--panel")||"#1b1916", text = cssVar("--text")||"#fbf7f0", dim = cssVar("--text-dim")||"#c9bfa9", faint = cssVar("--text-faint")||"#8a8072";
+  const accent = cssVar("--accent")||"#e8552b", up = cssVar("--long")||"#31c882", dn = cssVar("--short")||"#f0546a", res = d.pnl>=0 ? up : dn;
+  x.fillStyle = bg; x.fillRect(0, 0, W, H);
+  let g = x.createRadialGradient(W*0.88, 120, 0, W*0.88, 120, 820); g.addColorStop(0, pcA(res, .33)); g.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  g = x.createRadialGradient(0, H, 0, 0, H, 900); g.addColorStop(0, pcA(accent, .18)); g.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  x.strokeStyle = "rgba(255,255,255,0.035)"; x.lineWidth = 1; for (let i=60;i<W;i+=60){ x.beginPath(); x.moveTo(i, 0); x.lineTo(i, H); x.stroke(); } for (let j=60;j<H;j+=60){ x.beginPath(); x.moveTo(0, j); x.lineTo(W, j); x.stroke(); }
+  pcGrain(x, W, H, 0.05, pcHash(d.id));
+  const M = 72;
+  // en-tête
+  pcLogo(x, M, 62, 40, accent);
+  x.textAlign = "left"; x.fillStyle = text; x.font = "700 28px "+PC_MONO; x.fillText("PAPER TAPE", M+58, 94);
+  x.textAlign = "right"; x.fillStyle = dim; x.font = "500 26px "+PC_MONO; x.fillText(pcUser() || PT_ORG(), W-M, 94);
+  // actif
+  const ay = 190;
+  x.fillStyle = d.color || accent; x.beginPath(); x.arc(M+40, ay+40, 40, 0, Math.PI*2); x.fill();
+  x.fillStyle = "#fff"; x.textAlign = "center"; x.font = "700 40px "+PC_SANS; x.fillText(d.icon || d.symbol.slice(0, 1), M+40, ay+54);
+  x.textAlign = "left"; x.fillStyle = text; x.font = "700 52px "+PC_SANS; x.fillText(d.symbol, M+104, ay+40);
+  const sw = x.measureText(d.symbol).width;
+  x.fillStyle = faint; x.font = "500 26px "+PC_SANS; x.fillText(d.name, M+104, ay+78);
+  const sideTxt = (d.side==="long" ? "▲ LONG" : "▼ SHORT")+"  x"+fmtLev(d.leverage);
+  x.font = "700 24px "+PC_MONO; const pw = x.measureText(sideTxt).width+34;
+  pcPill(x, W-M-pw, ay+12, sideTxt, pcA(d.side==="long" ? up : dn, .15), d.side==="long" ? up : dn, 24);
+  void sw;
+  // héros : ROE
+  const roe = pcPct(d.roe), hy = 520;
+  let s = pcFit(x, roe, "400 {s}px "+PC_SERIF, 230, W-2*M);
+  const hg = x.createLinearGradient(0, hy-s*0.8, 0, hy); hg.addColorStop(0, "#ffffff"); hg.addColorStop(0.55, res); hg.addColorStop(1, res);
+  x.textAlign = "left"; x.fillStyle = hg; x.shadowColor = pcA(res, .53); x.shadowBlur = 50; x.fillText(roe, M-6, hy); x.shadowBlur = 0;
+  x.fillStyle = res; x.font = "600 50px "+PC_MONO; x.fillText(pcMoney(d.pnl), M, hy+74);
+  const mw = x.measureText(pcMoney(d.pnl)).width;
+  x.fillStyle = faint; x.font = "500 24px "+PC_MONO; x.fillText(d.kind==="open" ? "latent · sur marge" : "réalisé · sur marge", M+mw+22, hy+70);
+  // graphique
+  const R = {x:M, y:660, w:W-2*M, h:300};
+  x.fillStyle = "rgba(255,255,255,0.025)"; pcRR(x, R.x-20, R.y-24, R.w+40, R.h+48, 26); x.fill(); x.strokeStyle = "rgba(255,255,255,0.07)"; x.lineWidth = 2; x.stroke();
+  pcChart(x, R, d, {up, dn, faint, text, entry:dim, dotBg:bg, dotInk:"#0b0a09"});
+  // stats
+  x.strokeStyle = "rgba(255,255,255,0.09)"; x.lineWidth = 2; x.beginPath(); x.moveTo(M, 1040); x.lineTo(W-M, 1040); x.stroke();
+  pcStats(x, M, 1076, W-2*M, [["Entrée", fmtPrice(d.entry, d.decimals)], [d.kind==="open" ? "Mark" : "Sortie", fmtPrice(d.exit, d.decimals)], ["Durée", pcDur(d)]], {faint, text, line2:"rgba(255,255,255,0.09)"});
+  // pied
+  const fy = 1236, chip = d.kind==="open" ? "● "+d.status : d.status;
+  pcPill(x, M, fy-34, chip, pcA(res, .13), res, 22);
+  x.textAlign = "right"; x.fillStyle = faint; x.font = "500 22px "+PC_MONO; x.fillText(pcWhen(d), W-M, fy-4);
+  x.fillStyle = faint; x.globalAlpha = 0.7; x.fillText("Trading simulé · "+PT_ORG(), W-M, fy+30); x.globalAlpha = 1;
 }
-function roundRectPath(ctx,x,y,w,h,r){
-  ctx.beginPath();
-  ctx.moveTo(x+r,y);
-  ctx.arcTo(x+w,y,x+w,y+h,r);
-  ctx.arcTo(x+w,y+h,x,y+h,r);
-  ctx.arcTo(x,y+h,x,y,r);
-  ctx.arcTo(x,y,x+w,y,r);
-  ctx.closePath();
+// ---------- Style 2 : Ticket (ticket de caisse « paper tape ») ----------
+function pnlcTicket(x, W, H, d){
+  const ink = "#1c1915", soft = "#6f685c", paper = "#f3eee2", up = "#13834f", dn = "#c22d45", res = d.pnl>=0 ? up : dn;
+  let g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, "#26221c"); g.addColorStop(1, "#0f0e0c"); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  g = x.createRadialGradient(W/2, 380, 0, W/2, 380, 900); g.addColorStop(0, "rgba(255,214,150,0.13)"); g.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  x.save(); x.translate(W/2, H/2); x.rotate(-0.018); x.translate(-W/2, -H/2);
+  const X0 = 175, X1 = W-175, Y0 = 64, Y1 = H-64, z = 16;
+  x.beginPath(); x.moveTo(X0, Y0+z); for (let xx=X0; xx<X1; xx+=z*2){ x.lineTo(xx+z, Y0); x.lineTo(Math.min(X1, xx+z*2), Y0+z); }
+  x.lineTo(X1, Y1-z); for (let xx=X1; xx>X0; xx-=z*2){ x.lineTo(xx-z, Y1); x.lineTo(Math.max(X0, xx-z*2), Y1-z); } x.closePath();
+  x.shadowColor = "rgba(0,0,0,0.55)"; x.shadowBlur = 60; x.shadowOffsetY = 24; x.fillStyle = paper; x.fill(); x.shadowBlur = 0; x.shadowOffsetY = 0;
+  x.save(); x.clip(); { let s = pcHash(d.id)||9; const r = ()=>{ s = (s*16807)%2147483647; return s/2147483647; }; x.fillStyle = "#8a7d62"; for (let i=0;i<2200;i++){ x.globalAlpha = r()*0.07; x.fillRect(X0+r()*(X1-X0), Y0+r()*(Y1-Y0), 1.6, 1.6); } x.globalAlpha = 1; } x.restore();
+  const cx = W/2, L = X0+52, Rr = X1-52; let y = Y0+96;
+  x.textAlign = "center"; x.fillStyle = ink; x.font = "700 46px "+PC_MONO; x.fillText("PAPER TAPE", cx, y);
+  y += 38; x.font = "500 22px "+PC_MONO; x.fillStyle = soft; x.fillText("· TICKET DE TRADE ·", cx, y);
+  const sep = (yy, ch)=>{ x.font = "500 24px "+PC_MONO; x.fillStyle = soft; x.textAlign = "left"; const cw = x.measureText(ch).width; let t = ""; while (x.measureText(t+ch).width < Rr-L) t += ch; x.fillText(t, L, yy); void cw; };
+  y += 46; sep(y, "-");
+  y += 46; x.textAlign = "left"; x.fillStyle = ink; x.font = "500 24px "+PC_MONO; x.fillText(pcWhen(d), L, y); x.textAlign = "right"; x.fillText("N° "+String(pcHash(d.id)%1000000).padStart(6, "0"), Rr, y);
+  y += 36; x.textAlign = "left"; x.fillStyle = soft; x.fillText(pcUser() || PT_ORG(), L, y);
+  y += 30; sep(y, "-");
+  y += 62; x.textAlign = "left"; x.fillStyle = ink; x.font = "700 50px "+PC_MONO; x.fillText(d.symbol, L, y);
+  x.textAlign = "right"; x.fillStyle = d.side==="long" ? up : dn; x.font = "700 30px "+PC_MONO; x.fillText((d.side==="long" ? "LONG" : "SHORT")+" x"+fmtLev(d.leverage), Rr, y);
+  y += 34; x.textAlign = "left"; x.fillStyle = soft; x.font = "500 24px "+PC_MONO; x.fillText(d.name+" · "+(d.mode==="cross" ? "Cross" : "Isolée"), L, y);
+  const row = (k, v, col)=>{ y += 42; x.font = "500 26px "+PC_MONO; x.textAlign = "left"; x.fillStyle = ink; x.fillText(k, L, y); const kw = x.measureText(k).width;
+    x.textAlign = "right"; x.fillStyle = col||ink; x.font = "600 26px "+PC_MONO; x.fillText(v, Rr, y); const vw = x.measureText(v).width;
+    x.fillStyle = soft; x.font = "500 26px "+PC_MONO; let dots = ""; while (x.measureText(dots+".").width < (Rr-L)-kw-vw-24) dots += "."; x.textAlign = "left"; x.fillText(dots, L+kw+12, y); };
+  y += 14;
+  row("ENTRÉE", fmtPrice(d.entry, d.decimals));
+  row(d.kind==="open" ? "MARK" : "SORTIE", fmtPrice(d.exit, d.decimals));
+  row("MOUVEMENT", pcPct(pcMove(d)));
+  row("NOTIONNEL", fmtMoney(d.notional));
+  row("DURÉE", pcDur(d));
+  row("STATUT", d.status.toUpperCase(), d.reason==="liquidated" ? dn : null);
+  y += 34; sep(y, "=");
+  y += 52; x.textAlign = "center"; x.fillStyle = soft; x.font = "600 24px "+PC_MONO; x.fillText(d.kind==="open" ? "RÉSULTAT LATENT" : "RÉSULTAT", cx, y);
+  y += 94; x.fillStyle = res; pcFit(x, pcMoney(d.pnl), "700 {s}px "+PC_MONO, 92, Rr-L); x.fillText(pcMoney(d.pnl), cx, y);
+  y += 52; x.font = "600 34px "+PC_MONO; x.fillText(pcPct(d.roe)+" sur marge", cx, y);
+  // mini graphique à l'encre
+  const R = {x:L, y:y+30, w:Rr-L, h:112};
+  if (!pcChart(x, R, d, {up:ink, dn:ink, faint:soft, text:ink, entry:soft, line:ink, lineFill:"rgba(28,25,21,0.12)", lineW:3, dotBg:paper, dotInk:paper})) {}
+  y = R.y+R.h+34; sep(y, "-");
+  // code-barres
+  y += 26; let h = pcHash(d.id+"bar"), bx = L+30;
+  x.fillStyle = ink; while (bx < Rr-30){ h = Math.imul(h ^ (h>>>13), 1274126177)>>>0; const w = 2+(h%4)*2; if ((h>>5)&1) x.fillRect(bx, y, w, 58); bx += w+2+((h>>8)%3); }
+  y += 86; x.textAlign = "center"; x.fillStyle = soft; x.font = "500 20px "+PC_MONO; x.fillText("Trading simulé — aucun argent réel", cx, y);
+  x.restore();
 }
-function drawStatRow(ctx, x, y, w, label, value, labelColor, valueColor, font){
-  ctx.textAlign = "left";
-  ctx.fillStyle = labelColor;
-  ctx.font = "500 22px "+(font||"IBM Plex Mono, monospace");
-  ctx.fillText(label, x, y);
-  ctx.textAlign = "right";
-  ctx.fillStyle = valueColor;
-  ctx.font = "700 26px "+(font||"IBM Plex Mono, monospace");
-  ctx.fillText(value, x+w, y);
+// ---------- Style 3 : Néon ----------
+function pnlcNeon(x, W, H, d){
+  const up = "#39ff9f", dn = "#ff3d6e", res = d.pnl>=0 ? up : dn;
+  let g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, "#140726"); g.addColorStop(0.55, "#22093a"); g.addColorStop(1, "#06142e"); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  // horizon synthwave
+  x.save(); x.beginPath(); x.rect(0, 880, W, H-880); x.clip();
+  x.strokeStyle = "rgba(255,61,212,0.28)"; x.lineWidth = 2;
+  for (let i=0;i<14;i++){ const yy = 880+Math.pow(i/14, 2)*(H-880); x.beginPath(); x.moveTo(0, yy); x.lineTo(W, yy); x.stroke(); }
+  for (let i=-12;i<=12;i++){ x.beginPath(); x.moveTo(W/2+i*40, 880); x.lineTo(W/2+i*260, H); x.stroke(); }
+  x.restore();
+  g = x.createRadialGradient(W/2, 470, 0, W/2, 470, 560); g.addColorStop(0, pcA(res, .25)); g.addColorStop(1, "rgba(0,0,0,0)"); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  const M = 72;
+  pcLogo(x, M, 62, 40, "#ff3dd4");
+  x.textAlign = "left"; x.fillStyle = "#fff"; x.font = "700 28px "+PC_MONO; x.fillText("PAPER TAPE", M+58, 94);
+  x.textAlign = "right"; x.fillStyle = "rgba(255,255,255,0.6)"; x.font = "500 26px "+PC_MONO; x.fillText(pcUser() || "simulation", W-M, 94);
+  x.textAlign = "center"; x.fillStyle = "#fff"; x.font = "800 64px "+PC_SANS; x.fillText(d.symbol+"  "+(d.side==="long" ? "▲" : "▼"), W/2, 250);
+  x.fillStyle = d.side==="long" ? up : dn; x.font = "700 28px "+PC_MONO; x.fillText((d.side==="long" ? "LONG" : "SHORT")+" · x"+fmtLev(d.leverage)+" · "+d.name.toUpperCase(), W/2, 300);
+  const roe = pcPct(d.roe);
+  pcFit(x, roe, "800 {s}px "+PC_SANS, 170, W-2*M);
+  x.fillStyle = res; x.shadowColor = res; x.shadowBlur = 60; x.fillText(roe, W/2, 490); x.shadowBlur = 24; x.fillText(roe, W/2, 490); x.shadowBlur = 0;
+  x.fillStyle = "#fff"; x.font = "700 52px "+PC_MONO; x.fillText(pcMoney(d.pnl), W/2, 570);
+  const R = {x:M+20, y:640, w:W-2*M-40, h:210};
+  pcChart(x, R, d, {up, dn, faint:"rgba(255,255,255,0.55)", text:"#fff", entry:"rgba(255,255,255,0.6)", line:res, lineFill:pcA(res, .33), lineW:5, glow:30, dotBg:"#1a0b2e", dotInk:"#120621"});
+  // stats sur verre
+  x.fillStyle = "rgba(255,255,255,0.06)"; pcRR(x, M, 920, W-2*M, 150, 26); x.fill(); x.strokeStyle = "rgba(255,255,255,0.18)"; x.lineWidth = 2; x.stroke();
+  pcStats(x, M+36, 958, W-2*M-72, [["Entrée", fmtPrice(d.entry, d.decimals)], [d.kind==="open" ? "Mark" : "Sortie", fmtPrice(d.exit, d.decimals)], ["Durée", pcDur(d)]], {faint:"rgba(255,255,255,0.55)", text:"#fff", line2:"rgba(255,255,255,0.15)"});
+  x.textAlign = "center"; x.fillStyle = "rgba(255,255,255,0.55)"; x.font = "500 22px "+PC_MONO; x.fillText(d.status+" · "+pcWhen(d), W/2, 1196);
+  x.fillText("Trading simulé — aucun argent réel", W/2, 1232);
 }
-// Style 1 — "Classique": mirrors the app's own dark palette (reads the
-// LIVE CSS theme variables, so it automatically matches whatever theme —
-// Ember/Sage/Ink/Mono — the trader currently has selected).
-function drawShareCardClassic(ctx, W, H, d){
-  const bg = cssVar("--panel")||"#211d18", bgRaised = cssVar("--bg-raised")||"#262219";
-  const text = cssVar("--text")||"#fbf7f0", dim = cssVar("--text-dim")||"#c9bfa9", faint = cssVar("--text-faint")||"#8a8072";
-  const accent = cssVar("--accent")||"#e8552b", border = cssVar("--border")||"#3a352b";
-  const up = cssVar("--long")||"#31c882", down = cssVar("--short")||"#f0546a";
-  const pnlColor = d.pnl>=0 ? up : down;
-  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
-  ctx.textAlign = "left";
-  ctx.fillStyle = accent; ctx.font = "700 30px IBM Plex Mono, monospace";
-  ctx.fillText("📟 PAPER TAPE", 64, 100);
-  ctx.fillStyle = faint; ctx.font = "500 22px IBM Plex Mono, monospace";
-  ctx.textAlign = "right";
-  ctx.fillText(PT_ORG(), W-64, 100);
-  ctx.textAlign = "center";
-  ctx.fillStyle = text; ctx.font = "700 56px IBM Plex Sans, sans-serif";
-  ctx.fillText(d.icon+"  "+d.symbol, W/2, 250);
-  ctx.font = "600 26px IBM Plex Mono, monospace";
-  ctx.fillStyle = d.side==="long" ? up : down;
-  ctx.fillText((d.side==="long"?"▲ LONG":"▼ SHORT")+"  ·  x"+fmtLev(d.leverage)+"  ·  "+(d.mode==="cross"?"CROSS":"ISOLATED"), W/2, 300);
-  ctx.font = "700 110px IBM Plex Mono, monospace";
-  ctx.fillStyle = pnlColor;
-  ctx.fillText((d.pnl>=0?"+":"")+fmtMoney(d.pnl), W/2, 460);
-  ctx.font = "600 40px IBM Plex Mono, monospace";
-  ctx.fillText("("+fmtPct(d.pnlPct)+" marge)", W/2, 520);
-  const cardX = 64, cardY = 610, cardW = W-128, cardH = 480;
-  ctx.fillStyle = bgRaised;
-  roundRectPath(ctx, cardX, cardY, cardW, cardH, 20); ctx.fill();
-  ctx.strokeStyle = border; ctx.lineWidth = 2; roundRectPath(ctx, cardX, cardY, cardW, cardH, 20); ctx.stroke();
-  const rows = [
-    ["Entrée", fmtPrice(d.entry, d.decimals)],
-    ["Mark", fmtPrice(d.mark, d.decimals)],
-    ["Notionnel", fmtMoney(d.notional)],
-    ["Levier", "x"+fmtLev(d.leverage)],
-  ];
-  rows.forEach((r,i)=>{ drawStatRow(ctx, cardX+40, cardY+90+i*95, cardW-80, r[0], r[1], faint, text); });
-  ctx.textAlign = "center";
-  ctx.fillStyle = faint; ctx.font = "500 22px IBM Plex Mono, monospace";
-  ctx.fillText("Trading simulé — aucun argent réel", W/2, H-70);
+// ---------- Style 4 : Clair ----------
+function pnlcClair(x, W, H, d){
+  const bg = "#f7f5f0", ink = "#141311", soft = "#6c675f", faint = "#a19b90", line = "#e3dfd6", up = "#12955a", dn = "#d2364d", res = d.pnl>=0 ? up : dn;
+  x.fillStyle = bg; x.fillRect(0, 0, W, H);
+  x.fillStyle = res; x.fillRect(0, 0, 14, H);
+  const M = 90;
+  pcLogo(x, M, 62, 38, ink);
+  x.textAlign = "left"; x.fillStyle = ink; x.font = "700 26px "+PC_MONO; x.fillText("PAPER TAPE", M+56, 92);
+  x.textAlign = "right"; x.fillStyle = soft; x.font = "500 24px "+PC_MONO; x.fillText(pcUser() || PT_ORG(), W-M, 92);
+  x.strokeStyle = line; x.lineWidth = 2; x.beginPath(); x.moveTo(M, 132); x.lineTo(W-M, 132); x.stroke();
+  x.textAlign = "left"; x.fillStyle = ink; x.font = "400 92px "+PC_SERIF; x.fillText(d.symbol, M, 262);
+  const tw = x.measureText(d.symbol).width;
+  x.font = "italic 400 46px "+PC_SERIF; x.fillStyle = soft; x.fillText(d.name, M+tw+22, 262);
+  x.fillStyle = d.side==="long" ? up : dn; x.font = "600 24px "+PC_MONO; x.fillText((d.side==="long" ? "LONG" : "SHORT")+"  ·  x"+fmtLev(d.leverage)+"  ·  "+(d.mode==="cross" ? "CROSS" : "ISOLÉE"), M, 312);
+  x.fillStyle = faint; x.font = "500 22px "+PC_MONO; x.fillText(d.kind==="open" ? "RÉSULTAT LATENT" : "RÉSULTAT", M, 410);
+  x.fillStyle = res; pcFit(x, pcMoney(d.pnl), "600 {s}px "+PC_MONO, 112, W-2*M); x.fillText(pcMoney(d.pnl), M-4, 520);
+  x.fillStyle = ink; x.font = "400 54px "+PC_SERIF; x.fillText(pcPct(d.roe), M, 590);
+  const pw = x.measureText(pcPct(d.roe)).width; x.fillStyle = soft; x.font = "italic 400 34px "+PC_SERIF; x.fillText("sur la marge engagée", M+pw+18, 590);
+  const R = {x:M, y:660, w:W-2*M, h:270};
+  pcChart(x, R, d, {up, dn, faint:soft, text:ink, entry:soft, dotBg:bg, dotInk:"#fff"});
+  x.strokeStyle = line; x.beginPath(); x.moveTo(M, 1000); x.lineTo(W-M, 1000); x.stroke();
+  pcStats(x, M, 1040, W-2*M, [["Entrée", fmtPrice(d.entry, d.decimals)], [d.kind==="open" ? "Mark" : "Sortie", fmtPrice(d.exit, d.decimals)], ["Durée", pcDur(d)]], {faint, text:ink, line2:line});
+  x.strokeStyle = line; x.beginPath(); x.moveTo(M, 1150); x.lineTo(W-M, 1150); x.stroke();
+  x.textAlign = "left"; x.fillStyle = res; x.font = "600 22px "+PC_MONO; x.fillText(d.status.toUpperCase(), M, 1210);
+  x.textAlign = "right"; x.fillStyle = soft; x.font = "500 22px "+PC_MONO; x.fillText(pcWhen(d), W-M, 1210);
+  x.textAlign = "left"; x.fillStyle = faint; x.font = "500 20px "+PC_MONO; x.fillText("Compte de trading simulé — à but pédagogique, aucun argent réel.", M, 1262);
 }
-// Style 2 — "Néon": bold gradient flex-card look, big glowing PnL hero.
-function drawShareCardNeon(ctx, W, H, d){
-  const up = "#39ff9f", down = "#ff3d6e";
-  const pnlColor = d.pnl>=0 ? up : down;
-  const grad = ctx.createLinearGradient(0,0,W,H);
-  grad.addColorStop(0,"#1a0b2e"); grad.addColorStop(0.5,"#2d0f45"); grad.addColorStop(1,"#0b1a3a");
-  ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
-  // subtle diagonal glow lines
-  ctx.globalAlpha = 0.08;
-  for(let i=-2;i<10;i++){
-    ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(i*160,0); ctx.lineTo(i*160-300,H); ctx.stroke();
-  }
-  ctx.globalAlpha = 1;
-  ctx.textAlign = "left";
-  ctx.fillStyle = "#ffffff"; ctx.font = "700 30px IBM Plex Mono, monospace";
-  ctx.fillText("⚡ PAPER TAPE", 64, 100);
-  ctx.textAlign = "right";
-  ctx.fillStyle = "rgba(255,255,255,0.6)"; ctx.font = "500 22px IBM Plex Mono, monospace";
-  ctx.fillText("EDB · simulation", W-64, 100);
-  ctx.textAlign = "center";
-  ctx.fillStyle = "#ffffff"; ctx.font = "800 60px IBM Plex Sans, sans-serif";
-  ctx.fillText(d.icon+"  "+d.symbol+" "+(d.side==="long"?"▲":"▼"), W/2, 250);
-  ctx.font = "700 26px IBM Plex Mono, monospace";
-  ctx.fillStyle = pnlColor;
-  ctx.fillText((d.side==="long"?"LONG":"SHORT")+"  x"+fmtLev(d.leverage), W/2, 300);
-  ctx.shadowColor = pnlColor; ctx.shadowBlur = 40;
-  ctx.font = "800 118px IBM Plex Mono, monospace";
-  ctx.fillStyle = pnlColor;
-  ctx.fillText((d.pnl>=0?"+":"")+fmtMoney(d.pnl), W/2, 470);
-  ctx.shadowBlur = 0;
-  ctx.font = "700 44px IBM Plex Mono, monospace";
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText(fmtPct(d.pnlPct), W/2, 530);
-  const cardX = 64, cardY = 620, cardW = W-128, cardH = 470;
-  ctx.fillStyle = "rgba(255,255,255,0.06)";
-  roundRectPath(ctx, cardX, cardY, cardW, cardH, 24); ctx.fill();
-  ctx.strokeStyle = "rgba(255,255,255,0.25)"; ctx.lineWidth = 2; roundRectPath(ctx, cardX, cardY, cardW, cardH, 24); ctx.stroke();
-  const rows = [
-    ["Entrée", fmtPrice(d.entry, d.decimals)],
-    ["Mark", fmtPrice(d.mark, d.decimals)],
-    ["Notionnel", fmtMoney(d.notional)],
-  ];
-  rows.forEach((r,i)=>{ drawStatRow(ctx, cardX+40, cardY+90+i*110, cardW-80, r[0], r[1], "rgba(255,255,255,0.55)", "#ffffff"); });
-  ctx.textAlign = "center";
-  ctx.fillStyle = "rgba(255,255,255,0.45)"; ctx.font = "500 22px IBM Plex Mono, monospace";
-  ctx.fillText("Trading simulé — aucun argent réel", W/2, H-60);
-}
-// Style 3 — "Minimal": clean light card, understated, fintech-export look.
-function drawShareCardMinimal(ctx, W, H, d){
-  const bg = "#fbfaf8", text = "#1a1a1a", dim = "#6b6b6b", faint = "#9c9c9c", line = "#e4e1da";
-  // Side (long/short) only decorates the top bar and the side label — the
-  // PnL figure itself is colored by WIN/LOSS, never by side, so a losing
-  // long doesn't render its loss in "gain" green.
-  const accentLine = d.side==="long" ? "#1f9d5c" : "#d3384f";
-  const pnlColor = d.pnl>=0 ? "#1f9d5c" : "#d3384f";
-  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
-  ctx.fillStyle = accentLine; ctx.fillRect(0,0,W,10);
-  ctx.textAlign = "left";
-  ctx.fillStyle = text; ctx.font = "700 26px IBM Plex Mono, monospace";
-  ctx.fillText("PAPER TAPE", 64, 100);
-  ctx.textAlign = "right";
-  ctx.fillStyle = faint; ctx.font = "500 20px IBM Plex Mono, monospace";
-  ctx.fillText(window.PT_PUBLIC ? "Paper Tape" : "École de la Bourse · ISG", W-64, 100);
-  ctx.strokeStyle = line; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(64,130); ctx.lineTo(W-64,130); ctx.stroke();
-  ctx.textAlign = "left";
-  ctx.fillStyle = text; ctx.font = "700 48px IBM Plex Sans, sans-serif";
-  ctx.fillText(d.icon+" "+d.symbol, 64, 230);
-  ctx.font = "600 22px IBM Plex Mono, monospace";
-  ctx.fillStyle = dim;
-  ctx.fillText((d.side==="long"?"Long":"Short")+" · x"+fmtLev(d.leverage)+" · "+d.name, 64, 268);
-  ctx.textAlign = "left";
-  ctx.fillStyle = faint; ctx.font = "600 24px IBM Plex Mono, monospace";
-  ctx.fillText("RÉSULTAT NON RÉALISÉ", 64, 380);
-  ctx.fillStyle = pnlColor; ctx.font = "800 100px IBM Plex Mono, monospace";
-  ctx.fillText((d.pnl>=0?"+":"")+fmtMoney(d.pnl), 64, 480);
-  ctx.fillStyle = dim; ctx.font = "600 34px IBM Plex Mono, monospace";
-  ctx.fillText(fmtPct(d.pnlPct)+" de la marge engagée", 64, 530);
-  const rows = [
-    ["Prix d'entrée", fmtPrice(d.entry, d.decimals)],
-    ["Prix mark", fmtPrice(d.mark, d.decimals)],
-    ["Valeur notionnelle", fmtMoney(d.notional)],
-    ["Levier", "x"+fmtLev(d.leverage)],
-  ];
-  let ry = 640;
-  rows.forEach(r=>{
-    ctx.strokeStyle = line; ctx.beginPath(); ctx.moveTo(64,ry); ctx.lineTo(W-64,ry); ctx.stroke();
-    ry += 70;
-    drawStatRow(ctx, 64, ry-25, W-128, r[0], r[1], faint, text);
-  });
-  ctx.textAlign = "left";
-  ctx.fillStyle = faint; ctx.font = "500 20px IBM Plex Mono, monospace";
-  ctx.fillText("Compte de trading simulé — à but pédagogique, aucun argent réel.", 64, H-60);
-}
-// Style 4 — "Terminal": monospace green-on-black CLI look.
-function drawShareCardTerminal(ctx, W, H, d){
-  const bg = "#05080a", green = "#39ff9f", dimGreen = "#1c8a5c", red = "#ff5566", white = "#d8ffe8";
-  const pnlColor = d.pnl>=0 ? green : red;
-  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
-  ctx.strokeStyle = green; ctx.lineWidth = 3;
-  ctx.strokeRect(40,40,W-80,H-80);
-  ctx.font = "700 24px IBM Plex Mono, monospace";
-  ctx.textAlign = "left";
-  ctx.fillStyle = green;
-  const lines = [
-    "$ papertape --position "+d.symbol,
-    "> instrument ......... "+d.name,
-    "> side ................ "+(d.side==="long"?"LONG":"SHORT"),
-    "> leverage ............ x"+fmtLev(d.leverage),
-    "> entry ............... "+fmtPrice(d.entry, d.decimals),
-    "> mark ................ "+fmtPrice(d.mark, d.decimals),
-    "> notional ............ "+fmtMoney(d.notional),
-  ];
-  let ly = 130;
-  lines.forEach(l=>{ ctx.fillStyle = l.startsWith("$")?white:dimGreen; ctx.fillText(l, 80, ly); ly += 48; });
-  ctx.fillStyle = green;
-  ctx.fillText("> unrealized_pnl ......", 80, ly); ly += 70;
-  ctx.font = "800 96px IBM Plex Mono, monospace";
-  ctx.fillStyle = pnlColor;
-  ctx.fillText((d.pnl>=0?"+":"")+fmtMoney(d.pnl), 80, ly+30);
-  ly += 130;
-  ctx.font = "700 34px IBM Plex Mono, monospace";
-  const pctLine = "("+fmtPct(d.pnlPct)+" margin) "+(pnlColor===green?"▲":"▼");
-  ctx.fillText(pctLine, 80, ly);
-  const pctLineWidth = ctx.measureText(pctLine).width; // measured in the SAME font it was just drawn with
-  ctx.font = "600 24px IBM Plex Mono, monospace";
-  ctx.fillStyle = dimGreen;
-  ctx.fillText("_", 80+pctLineWidth+20, ly);
-  ctx.textAlign = "center";
-  ctx.font = "500 22px IBM Plex Mono, monospace";
-  ctx.fillStyle = dimGreen;
-  ctx.fillText("paper-tape // "+PT_ORG()+" // simulation only", W/2, H-70);
-}
+function shareCardData(){ return PNLC.d; }
 function shareCardFilename(d){
-  return "papertape-"+(d?d.symbol:"position")+"-"+Date.now()+".png";
+  return "papertape-"+(d ? d.symbol : "trade")+"-"+(PNLC.style||"carte")+"-"+Date.now()+".png";
 }
-function downloadShareCard(){
-  const canvas = document.getElementById("share-card-canvas");
+function pnlcBlob(){ const cv = document.getElementById("share-card-canvas"); return new Promise(r=>{ if (!cv) return r(null); cv.toBlob(b=>r(b), "image/png"); }); }
+async function downloadShareCard(){
+  const msg = document.getElementById("share-msg"), blob = await pnlcBlob();
+  if (!blob){ if (msg) msg.textContent = "Impossible de générer l'image."; return; }
+  const url = URL.createObjectURL(blob), a = document.createElement("a");
+  a.href = url; a.download = shareCardFilename(PNLC.d); document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+  if (msg) msg.textContent = "Image téléchargée.";
+}
+async function copyShareCard(){
   const msg = document.getElementById("share-msg");
-  if (!canvas) return;
-  canvas.toBlob((blob)=>{
-    if (!blob){ if (msg) msg.textContent = "Impossible de générer l'image."; return; }
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = shareCardFilename(shareCardData());
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url), 4000);
-    if (msg) msg.textContent = "Image téléchargée.";
-  }, "image/png");
+  try{
+    if (!navigator.clipboard || typeof ClipboardItem==="undefined") throw new Error("no clipboard");
+    await navigator.clipboard.write([new ClipboardItem({"image/png":pnlcBlob()})]);
+    if (msg) msg.textContent = "Image copiée : colle-la dans Discord, WhatsApp, Instagram…";
+  }catch(e){ if (msg) msg.textContent = "Copie impossible dans ce navigateur : utilise Télécharger."; }
 }
 async function nativeShareCard(){
-  const canvas = document.getElementById("share-card-canvas");
-  const msg = document.getElementById("share-msg");
-  if (!canvas || !navigator.share) return;
-  canvas.toBlob(async (blob)=>{
-    if (!blob) return;
-    const file = new File([blob], shareCardFilename(shareCardData()), {type:"image/png"});
-    try{
-      if (navigator.canShare && !navigator.canShare({files:[file]})){
-        if (msg) msg.textContent = "Le partage direct n'est pas supporté ici — utilise le téléchargement.";
-        return;
-      }
-      await navigator.share({files:[file], title:"Ma position sur Paper Tape"});
-    }catch(e){
-      // AbortError = the user just cancelled the native share sheet, not a real error
-      if (e && e.name!=="AbortError" && msg) msg.textContent = "Partage annulé ou indisponible.";
-    }
-  }, "image/png");
+  const msg = document.getElementById("share-msg"); if (!navigator.share) return;
+  const blob = await pnlcBlob(); if (!blob) return;
+  const file = new File([blob], shareCardFilename(PNLC.d), {type:"image/png"});
+  try{
+    if (navigator.canShare && !navigator.canShare({files:[file]})){ if (msg) msg.textContent = "Le partage direct n'est pas pris en charge ici : utilise Télécharger."; return; }
+    await navigator.share({files:[file], title:"Mon trade sur Paper Tape"});
+  }catch(e){ if (e && e.name!=="AbortError" && msg) msg.textContent = "Partage annulé ou indisponible."; }
 }
 
 // Second line under each history row — units/levier/mode/heure. Older
@@ -19641,32 +19717,6 @@ function adminRiskProfileHtml(d){
   );
 }
 /* ============================= PNL CARDS ============================= */
-function renderTradeCardHtml(h){
-  const pnlClass = h.pnl>=0?"up":"down";
-  const dt = new Date(h.closedAt);
-  const detailBits = [];
-  if (typeof h.leverage==="number") detailBits.push("x"+fmtLev(h.leverage));
-  if (h.mode) detailBits.push(h.mode==="cross"?"Cross":"Isolated");
-  if (typeof h.sizeUnits==="number") detailBits.push(fmtQty(h.sizeUnits)+" unités");
-  const detailLine = detailBits.length ? '<div class="pnl-card-meta">'+detailBits.join(" · ")+'</div>' : "";
-  return '<div class="pnl-card">'+
-      '<div class="pnl-card-top"><span class="pnl-card-brand">PAPER TAPE</span><span class="pnl-card-tag">'+(h.reason==="liquidated"?"LIQUIDÉ":"CLÔTURÉ")+'</span></div>'+
-      '<div class="pnl-card-sym">'+escapeHtml(h.symbol)+' <span class="pnl-card-side '+h.side+'">'+(h.side==="long"?"LONG":"SHORT")+'</span></div>'+
-      '<div class="pnl-card-pnl '+pnlClass+'">'+fmtMoney(h.pnl)+'</div>'+
-      detailLine+
-      '<div class="pnl-card-meta">'+dt.toLocaleDateString('fr-FR')+' '+dt.toLocaleTimeString('fr-FR',{hour:"2-digit",minute:"2-digit"})+' · École de la Bourse</div>'+
-    '</div>'+
-    '<div class="chart-note" style="text-align:center;margin-top:10px;">📸 Fais une capture d\'écran pour la partager, ou envoie-la directement dans le Chat.</div>'+
-    '<div style="text-align:center;margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;"><button class="btn-primary" id="pnlcard-share-chat-btn" data-hist-id="'+escapeHtml(h.id||"")+'">💬 Partager dans le Chat</button><button class="btn-secondary" id="modal-close-btn">Fermer</button></div>';
-}
-function openTradeCardModal(h){
-  openModal(renderTradeCardHtml(h));
-  const closeBtn = document.getElementById("modal-close-btn");
-  if (closeBtn) closeBtn.addEventListener("click", closeModal);
-  const shareBtn = document.getElementById("pnlcard-share-chat-btn");
-  if (shareBtn) shareBtn.addEventListener("click", ()=>{ closeModal(); openGlobalChatWithPnlCard(h); });
-}
-
 /* ============================= PNL CALENDAR ============================= */
 // Replaces the old "Ma carte" single session-summary card in Profil — a
 // month grid of realized PnL by day, built straight from state.history (now
@@ -31303,6 +31353,7 @@ function adminActionsHtml(id, d){
     '<div class="adm-act-group"><span>Compte</span>'+
       btn("data-admin-rename","Renommer")+
       btn("data-admin-adjust","Ajuster le solde")+
+      btn("data-admin-addtrade","Ajouter un trade…")+
       btn("data-admin-badges","Badges")+
     '</div>'+
     '<div class="adm-act-group"><span>Réinitialiser</span>'+
@@ -31802,6 +31853,152 @@ function adminRenameTrader(id){
   btnOk.addEventListener("click", submit);
   input.addEventListener("keydown", (e)=>{ if (e.key==="Enter") submit(); });
   input.focus(); input.select();
+}
+// ---------- Admin : ajouter un trade passé, rejoué sur les vrais cours ----------
+// L'admin choisit l'actif, le sens, le levier, la marge, la date d'entrée, le
+// TP et le SL (en % depuis le prix d'entrée). On charge les VRAIES bougies à
+// partir de cette date : le prix d'entrée est l'ouverture de la bougie 1 min,
+// puis on cherche ce qui est touché en premier (liquidation, SL, TP ; SL
+// prioritaire si TP et SL tombent dans la même bougie, comme le rattrapage
+// hors ligne). Le trade clôturé est ajouté à l'historique du compte normal,
+// avec ses frais (taker à l'entrée et à la sortie), le cash, l'équité, le PnL
+// de la semaine et les stats. Il porte adminAdded: true (visible seulement
+// dans l'admin). Le compte prop firm n'est jamais touché.
+function adminLocalInput(ms){ const d = new Date(ms); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2, "0")+"-"+String(d.getDate()).padStart(2, "0")+"T"+String(d.getHours()).padStart(2, "0")+":"+String(d.getMinutes()).padStart(2, "0"); }
+async function adminSimTrade(o){
+  const a = ASSETS.find(x=>x.symbol===o.symbol); if (!a) throw new Error("Actif inconnu.");
+  const t0 = Math.floor(o.at/6e4)*6e4, now = Date.now();
+  if (!(t0 < now-6e4)) throw new Error("La date d'entrée doit être dans le passé.");
+  const plan = [["1m", 6e4, 3], ["15m", 9e5, 3], ["1h", 36e5, 3]]; // ≈ 2 j en 1 min, puis ≈ 31 j en 15 min, puis ≈ 125 j en 1 h
+  let entry = null, from = t0, tp = null, sl = null, liq = null;
+  for (const [tf, ms, pages] of plan){
+    for (let pg=0; pg<pages && from < now; pg++){
+      const c = await fetchCandlesRange(a, tf, from, Math.min(now, from+ms*999));
+      if (!c || !c.length){ if (entry==null) throw new Error("Pas d'historique de prix pour "+a.symbol+" à cette date."); from += ms*1000; continue; }
+      for (const k of c){
+        if (k.t < from) continue;
+        if (entry==null){
+          entry = k.o;
+          const pct = v=>entry*(1+v/100*(o.side==="long" ? 1 : -1));
+          tp = pct(o.tpPct); sl = pct(-o.slPct); liq = liqPriceFor(entry, o.side, o.lev);
+        }
+        const hiHit = v=>k.h >= v, loHit = v=>k.l <= v;
+        const hitLiq = o.side==="long" ? loHit(liq) : hiHit(liq), hitSl = o.side==="long" ? loHit(sl) : hiHit(sl), hitTp = o.side==="long" ? hiHit(tp) : loHit(tp);
+        const at = Math.min(now, k.t + ms - 1);
+        const slBeforeLiq = o.side==="long" ? sl > liq : sl < liq;
+        if (hitSl && slBeforeLiq) return {entry, exit:sl, reason:"sl", openedAt:t0, closedAt:at, tp, sl, liq, tf};
+        if (hitLiq) return {entry, exit:liq, reason:"liquidated", openedAt:t0, closedAt:at, tp, sl, liq, tf};
+        if (hitSl) return {entry, exit:sl, reason:"sl", openedAt:t0, closedAt:at, tp, sl, liq, tf};
+        if (hitTp) return {entry, exit:tp, reason:"tp", openedAt:t0, closedAt:at, tp, sl, liq, tf};
+      }
+      from = c[c.length-1].t + ms;
+    }
+  }
+  return {entry, none:true, tp, sl, liq};
+}
+function adminTradeNumbers(o, r){
+  const notional = o.margin*o.lev, units = notional/r.entry, entryFee = notional*TAKER_FEE_RATE;
+  // Mêmes règles que closePosition() : commission taker sur le notionnel, ou frais de liquidation à la place.
+  const gross = o.side==="long" ? (r.exit-r.entry)*units : (r.entry-r.exit)*units;
+  const exitFee = notional*(r.reason==="liquidated" ? LIQUIDATION_FEE_RATE : TAKER_FEE_RATE), pnl = gross - exitFee;
+  return {notional, units, entryFee, exitFee, pnl, delta:pnl-entryFee};
+}
+function adminPerfStatsAdd(s, pnl){
+  s = Object.assign({}, s||{});
+  s.tradesOpened = (s.tradesOpened||0)+1; s.tradesClosed = (s.tradesClosed||0)+1;
+  if (pnl>=0){ s.wins = (s.wins||0)+1; s.grossProfit = (s.grossProfit||0)+pnl; s.bestTrade = Math.max(s.bestTrade||0, pnl);
+    if (s.streakType==="win") s.currentStreak = (s.currentStreak||0)+1; else { s.streakType = "win"; s.currentStreak = 1; } s.bestWinStreak = Math.max(s.bestWinStreak||0, s.currentStreak); }
+  else { s.losses = (s.losses||0)+1; s.grossLoss = (s.grossLoss||0)+pnl; s.worstTrade = Math.min(s.worstTrade||0, pnl);
+    if (s.streakType==="loss") s.currentStreak = (s.currentStreak||0)+1; else { s.streakType = "loss"; s.currentStreak = 1; } s.bestLossStreak = Math.max(s.bestLossStreak||0, s.currentStreak); }
+  return s;
+}
+function adminWeekStartMs(){ const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate()-((d.getDay()+6)%7)); return d.getTime(); }
+function adminOpenAddTrade(id){
+  const doc = adminFindDoc(id); if (!doc) return;
+  const d0 = doc.data(), name = d0.username || id;
+  const assets = ASSETS.filter(a=>{ try{ return priceSources(a).some(([k])=>k==="hl" || k==="bf" || k==="bn"); }catch(e){ return false; } });
+  openModal(
+    '<h3 style="margin-bottom:6px;">Ajouter un trade — '+escapeHtml(name)+'</h3>'+
+    '<div class="chart-note" style="margin-bottom:12px;">Le trade est rejoué sur les vrais cours à partir de la date choisie : entrée à l\'ouverture de la bougie 1 min, puis sortie au premier niveau touché (SL, TP ou liquidation). Il s\'ajoute à l\'historique du compte normal (pas au prop firm), avec frais, cash, équité et stats. Tu peux en ajouter plusieurs.</div>'+
+    '<div class="adm-at-grid">'+
+      '<label class="field-row"><span>Actif</span><select id="at-sym" class="tpsl-input">'+assets.map(a=>'<option value="'+a.symbol+'"'+(a.symbol==="BTC" ? " selected" : "")+'>'+escapeHtml(a.symbol+" · "+(a.name||"").split(" (")[0])+'</option>').join("")+'</select></label>'+
+      '<div class="field-row"><span>Sens</span><div class="seg" id="at-side"><button type="button" class="on-long active" data-v="long">Long</button><button type="button" class="on-short" data-v="short">Short</button></div></div>'+
+      '<label class="field-row"><span>Date et heure d\'entrée</span><input type="datetime-local" id="at-at" class="tpsl-input" value="'+adminLocalInput(Date.now()-864e5)+'" max="'+adminLocalInput(Date.now())+'"></label>'+
+      '<label class="field-row"><span>Levier</span><input type="number" id="at-lev" class="tpsl-input" min="1" max="125" step="1" value="10"></label>'+
+      '<label class="field-row"><span>Marge ($)</span><input type="number" id="at-margin" class="tpsl-input" min="1" step="any" value="1000"></label>'+
+      '<div class="field-row"><span>Taille</span><b id="at-notional" class="num" style="padding:9px 0;">—</b></div>'+
+      '<label class="field-row"><span>Take profit (% de mouvement)</span><input type="number" id="at-tp" class="tpsl-input" min="0.01" step="any" value="2"></label>'+
+      '<label class="field-row"><span>Stop loss (% de mouvement)</span><input type="number" id="at-sl" class="tpsl-input" min="0.01" step="any" value="1"></label>'+
+    '</div>'+
+    '<div class="adm-at-res" id="at-res"><span class="chart-note">Règle le trade puis clique sur « Simuler ».</span></div>'+
+    '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">'+
+      '<button type="button" class="btn-secondary" id="at-sim" style="flex:1;">Simuler sur les vrais cours</button>'+
+      '<button type="button" class="btn-primary" id="at-add" style="flex:1;" disabled>Ajouter au compte</button>'+
+    '</div>'+
+    '<div class="chart-note" id="at-msg" style="margin-top:10px;min-height:14px;"></div>'
+  );
+  let side = "long", res = null, busy = false;
+  const $ = s=>document.getElementById(s), msg = $("at-msg"), addBtn = $("at-add");
+  const read = ()=>({symbol:$("at-sym").value, side, at:new Date($("at-at").value).getTime(), lev:Math.max(1, Math.min(125, parseFloat($("at-lev").value)||1)),
+    margin:parseFloat($("at-margin").value), tpPct:parseFloat($("at-tp").value), slPct:parseFloat($("at-sl").value)});
+  const syncSize = ()=>{ const o = read(); $("at-notional").textContent = isFinite(o.margin) && o.margin>0 ? fmtMoney(o.margin*o.lev)+" (x"+o.lev+")" : "—"; };
+  const invalidate = ()=>{ res = null; addBtn.disabled = true; syncSize(); };
+  ["at-sym","at-at","at-lev","at-margin","at-tp","at-sl"].forEach(k=>$(k).addEventListener("input", invalidate));
+  $("at-side").addEventListener("click", e=>{ const b = e.target.closest("[data-v]"); if (!b) return; side = b.dataset.v; $("at-side").querySelectorAll("button").forEach(x=>x.classList.toggle("active", x===b)); invalidate(); });
+  syncSize();
+  $("at-sim").addEventListener("click", async ()=>{
+    if (busy) return;
+    const o = read(); msg.style.color = ""; msg.textContent = "";
+    if (!isFinite(o.at)){ msg.textContent = "Choisis une date d'entrée."; return; }
+    if (!(o.margin>0) || !(o.tpPct>0) || !(o.slPct>0)){ msg.textContent = "Marge, TP et SL doivent être positifs."; return; }
+    busy = true; $("at-res").innerHTML = '<span class="chart-note">Chargement des cours…</span>';
+    try{
+      const r = await adminSimTrade(o), a = ASSETS.find(x=>x.symbol===o.symbol) || {decimals:2}, dec = a.decimals;
+      if (r.none){ res = null; addBtn.disabled = true;
+        $("at-res").innerHTML = '<div><b>Entrée '+fmtPrice(r.entry, dec)+'</b> — ni le TP ('+fmtPrice(r.tp, dec)+') ni le SL ('+fmtPrice(r.sl, dec)+') n\'ont été touchés jusqu\'à aujourd\'hui. Rapproche-les ou choisis une autre date.</div>'; }
+      else {
+        const n = adminTradeNumbers(o, r); res = {o, r, n};
+        const lbl = {tp:"Take profit touché", sl:"Stop loss touché", liquidated:"Liquidé"}[r.reason];
+        $("at-res").innerHTML =
+          '<div class="adm-at-line"><span>Entrée</span><b>'+fmtPrice(r.entry, dec)+'</b><em>'+new Date(r.openedAt).toLocaleString("fr-FR", {dateStyle:"short", timeStyle:"short"})+'</em></div>'+
+          '<div class="adm-at-line"><span>'+lbl+'</span><b>'+fmtPrice(r.exit, dec)+'</b><em>'+new Date(r.closedAt).toLocaleString("fr-FR", {dateStyle:"short", timeStyle:"short"})+(r.tf!=="1m" ? " (bougie "+r.tf+")" : "")+'</em></div>'+
+          '<div class="adm-at-line"><span>TP / SL / liq.</span><b>'+fmtPrice(r.tp, dec)+' / '+fmtPrice(r.sl, dec)+' / '+fmtPrice(r.liq, dec)+'</b></div>'+
+          '<div class="adm-at-pnl '+(n.pnl>=0 ? "up" : "down")+'">'+fmtMoneySigned(n.pnl)+' <small>('+fmtPct(n.pnl/o.margin*100)+' sur marge · frais '+fmtMoney(n.entryFee+n.exitFee)+')</small></div>';
+        addBtn.disabled = false;
+      }
+    }catch(e){ res = null; addBtn.disabled = true; $("at-res").innerHTML = '<span class="chart-note" style="color:var(--warn);">'+escapeHtml(e.message||"Cours indisponibles.")+'</span>'; }
+    busy = false;
+  });
+  addBtn.addEventListener("click", async ()=>{
+    if (!res || busy) return;
+    busy = true; addBtn.disabled = true; msg.style.color = ""; msg.textContent = "Ajout…";
+    const {o, r, n} = res;
+    try{
+      const snap = await db.collection("traders").doc(id).get(); if (!snap.exists) throw new Error("Compte introuvable.");
+      const d = snap.data();
+      const entry = {id:uid(), symbol:o.symbol, side:o.side, pnl:n.pnl, reason:r.reason, exitFee:n.exitFee, feesPaid:n.entryFee+n.exitFee,
+        closedAt:new Date(r.closedAt).toISOString(), sizeUnits:n.units, leverage:o.lev, mode:"isolated", entryPrice:r.entry, exitPrice:r.exit,
+        notional:n.notional, openedAt:new Date(r.openedAt).toISOString(), adminAdded:true, addedBy:clientId||null};
+      const hist = (Array.isArray(d.history) ? d.history : []).concat([entry]).sort((x, y)=>Date.parse(y.closedAt||0)-Date.parse(x.closedAt||0)).slice(0, TRADE_HISTORY_RETAIN);
+      const cash = (typeof d.cash==="number" ? d.cash : START_CASH) + n.delta;
+      const eq = (typeof d.equity==="number" ? d.equity : cash - n.delta) + n.delta;
+      const patch = {history:hist, cash, equity:eq, stats:adminPerfStatsAdd(d.stats, n.pnl), tradesOpenedTotal:(d.tradesOpenedTotal||0)+1};
+      // PnL de la semaine : un trade clôturé cette semaine compte dedans ; plus ancien, il décale aussi le point de départ.
+      if (r.closedAt >= adminWeekStartMs()) patch.weeklyPnl = (typeof d.weeklyPnl==="number" ? d.weeklyPnl : 0) + n.delta;
+      else if (typeof d.weekStartEquity==="number") patch.weekStartEquity = d.weekStartEquity + n.delta;
+      await db.collection("traders").doc(id).update(adminOverridePatch(patch));
+      await adminRefreshSelf(id);
+      msg.style.color = "var(--long)";
+      msg.textContent = "Trade ajouté ("+fmtMoneySigned(n.pnl)+"). Tu peux en ajouter un autre.";
+      res = null;
+      loadAdminTraders();
+    }catch(e){
+      console.warn("admin add trade failed", e);
+      msg.style.color = "var(--warn)"; msg.textContent = "Échec — "+(e.message||"vérifie les règles Firestore admin (SERVER_SETUP.md).");
+      addBtn.disabled = false;
+    }
+    busy = false;
+  });
 }
 function adminAdjustCash(id){
   const doc = adminFindDoc(id);
@@ -32861,6 +33058,7 @@ function initAdminUI(){
       if (!t || !t.dataset) return;
       if (t.dataset.adminView) adminToggleDetail(t.dataset.adminView);
       else if (t.dataset.adminAdjust) adminAdjustCash(t.dataset.adminAdjust);
+      else if (t.dataset.adminAddtrade) adminOpenAddTrade(t.dataset.adminAddtrade);
       else if (t.dataset.adminRename) adminRenameTrader(t.dataset.adminRename);
       else if (t.dataset.adminBadges) adminManageBadges(t.dataset.adminBadges);
       else if (t.dataset.adminEdbplus) adminToggleEdbPlus(t.dataset.adminEdbplus);
