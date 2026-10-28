@@ -16912,7 +16912,7 @@ const MC_EMBED_KEYS = ["paperTapeCandleTheme","paperTapeChartInd","paperTapeChar
 const MC = {on:false, el:null, ws:null, rootEl:null, layer:null, tray:null, root:null, panes:{}, mini:[], seq:2, els:{}, bits:null, maxed:null, drag:null, gut:null, act:"main", ro:null, shell:null, rail:null, tools:{}};
 function mcState(){ try{ const v = JSON.parse(localStorage.getItem(MC_KEY)||"null"); if (v && v.root && v.panes && v.panes.main) return v; }catch(e){} return null; }
 function mcSave(){
-  try{ const panes = {}; Object.values(MC.panes).forEach(p=>{ panes[p.id] = {id:p.id, kind:p.kind, sym:p.sym, tf:p.tf, name:p.name||""}; });
+  try{ const panes = {}; Object.values(MC.panes).forEach(p=>{ panes[p.id] = {id:p.id, kind:p.kind, sym:p.sym, tf:p.tf}; });
     localStorage.setItem(MC_KEY, JSON.stringify({root:MC.root, panes, mini:MC.mini, seq:MC.seq})); }catch(e){}
 }
 function mcNewId(p){ return p+(MC.seq++); }
@@ -16962,7 +16962,7 @@ function mcEnter(el){
   MC.on = true; MC.el = el;
   const st = mcState() || {root:{t:"stack", id:"s1", tabs:["main"], act:"main"}, panes:{main:{id:"main", kind:"main"}}, mini:[], seq:2};
   MC.root = st.root; MC.mini = st.mini||[]; MC.seq = st.seq||2; MC.panes = {};
-  Object.values(st.panes).forEach(p=>{ MC.panes[p.id] = p.kind==="main" ? {id:"main", kind:"main", name:p.name||""} : {id:p.id, kind:"frame", sym:p.sym||"BTC", tf:p.tf||currentTimeframe, name:p.name||""}; });
+  Object.values(st.panes).forEach(p=>{ MC.panes[p.id] = p.kind==="main" ? {id:"main", kind:"main"} : {id:p.id, kind:"frame", sym:p.sym||"BTC", tf:p.tf||currentTimeframe}; });
   if (!mcStackOf("main") && !MC.mini.includes("main")){ MC.root = mcNorm(MC.root); mcInsert("main", MC.root ? "ws" : null, "left"); }
   MC.mini = MC.mini.filter(id=>MC.panes[id] && !mcStackOf(id));
   Object.keys(MC.panes).forEach(id=>{ if (!mcStackOf(id) && !MC.mini.includes(id)) MC.mini.push(id); });
@@ -16982,7 +16982,6 @@ function mcEnter(el){
   el.classList.add("mc-on"); MC.tools = {main: drawTool||""};
   MC.ws.addEventListener("pointerdown", mcPointerDown);
   MC.ws.addEventListener("click", mcClick);
-  MC.ws.addEventListener("contextmenu", mcRenameContextMenu);
   if (typeof ResizeObserver==="function"){ MC.ro = new ResizeObserver(()=>mcPlace()); MC.ro.observe(MC.rootEl); }
   window.addEventListener("message", mcOnMessage);
   mcRender();
@@ -17024,7 +17023,7 @@ function mcOnMessage(e){
 }
 // ---------- Rendu ----------
 function mcTfLbl(tf){ return tfLabel(tf); }
-function mcLabel(p){ if (!p) return "Graphique"; if (p.name) return p.name; return p.kind==="main" ? selectedSymbol+" · "+mcTfLbl(currentTimeframe) : p.sym+" · "+mcTfLbl(p.tf); }
+function mcLabel(p){ return p.kind==="main" ? selectedSymbol+" · "+mcTfLbl(currentTimeframe) : p.sym+" · "+mcTfLbl(p.tf); }
 function mcLabels(){
   if (!MC.on) return;
   MC.ws.querySelectorAll("[data-mc-tab]").forEach(t=>{ const p = MC.panes[t.dataset.mcTab], sp = t.querySelector("span"); if (p && sp){ const l = mcLabel(p); if (sp.textContent!==l) sp.textContent = l; } });
@@ -17158,24 +17157,6 @@ function mcBarSet(id, on){
   try{ fr.contentWindow.postMessage({pt:"cmd", cmd:"bar", on}, location.protocol==="file:" ? "*" : location.origin); }catch(e){}
 }
 // ---------- Interactions ----------
-function mcRenameContextMenu(e){
-  // Le clic droit peut viser un nœud qui n'expose pas Element.closest().
-  // On ne gère que les onglets de graphiques, sans interférer avec le reste.
-  const target = e && e.target;
-  if (!target || typeof target.closest !== "function" || !MC.on || !MC.ws) return;
-  const tab = target.closest(".mc-tab");
-  if (!tab || !MC.ws.contains(tab) || target.closest(".mc-tx")) return;
-  const p = MC.panes && MC.panes[tab.dataset.mcTab];
-  if (!p) return;
-  e.preventDefault();
-  let name;
-  try { name = window.prompt("Renommer ce graphique :", mcLabel(p)); }
-  catch (err) { console.warn("Impossible d’ouvrir la boîte de renommage.", err); return; }
-  if (name===null) return;
-  p.name = String(name).trim();
-  mcSave();
-  mcLabels();
-}
 function mcClick(e){
   const t = e.target.closest("button"); if (!t) return;
   if (t.dataset.mcClose){ e.stopPropagation(); mcClose(t.dataset.mcClose); return; }
