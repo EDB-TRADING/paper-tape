@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3281">
+<meta name="pt-build" content="3290">
 <script>
 /* Multi-graphiques : cette page est-elle un graphique seul dans une iframe ?
    Si oui, ses réglages de graphique (indicateurs, bougies, unité de temps,
@@ -2766,6 +2766,120 @@
     .iv-fa-facts div:first-child{border-top:none;}
     .iv-fa-pos{grid-template-columns:minmax(0,1fr) auto;}
     .iv-fa-pos em{grid-column:1 / -1;}
+  }
+
+
+  /* ---------- Investissement · habillage couleur (v3290) : tout dérive du thème ---------- */
+  :root{
+    --iv-a: var(--accent-light);
+    --iv-a2: color-mix(in srgb, var(--accent-light) 55%, #9b8cff);
+    --iv-c1: var(--accent-light);
+    --iv-c2: #9b8cff;
+    --iv-c3: #2fbfa8;
+    --iv-c4: #5aa9e6;
+    --iv-c5: var(--gold);
+    --iv-c6: #e85d8a;
+    --iv-c7: color-mix(in srgb, var(--accent-light) 45%, var(--text-faint));
+    --iv-cash: color-mix(in srgb, var(--text-faint) 55%, var(--panel-2));
+  }
+  :root[data-theme="ink"]{ --iv-a: var(--accent); --iv-c1: #3b6fd8; --iv-c3:#1f9d88; --iv-c4:#2f86c9; }
+  #invest-root{--iv-pea: var(--iv-a); --iv-cto: var(--iv-c2);}
+  #invest-root .iv-tabs button.on{color:var(--text);border-bottom-color:var(--iv-a);}
+  #invest-root .iv-tabs button.on .iv-dot{box-shadow:0 0 0 3px color-mix(in srgb, currentColor 0%, transparent);}
+  #invest-root .iv-chips button.on{background:var(--iv-a);border-color:var(--iv-a);color:var(--on-accent);}
+  :root[data-theme="sage"] #invest-root .iv-chips button.on{color:#14201a;}
+  #invest-root .iv-btn:not(.ghost){background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+  #invest-root .iv-btn:not(.ghost):hover{filter:brightness(1.08);}
+  .iv-cta{background:var(--accent);color:var(--on-accent);box-shadow:0 10px 30px -10px color-mix(in srgb, var(--accent) 70%, transparent);}
+
+  /* héro en carte, halo à la couleur du thème */
+  #invest-root .iv-hero{position:relative;overflow:hidden;padding:26px 28px 22px;border-radius:20px;
+    background:
+      radial-gradient(90% 140% at 0% 0%, color-mix(in srgb, var(--iv-a) 22%, transparent), transparent 62%),
+      radial-gradient(60% 120% at 100% 100%, color-mix(in srgb, var(--iv-a2) 14%, transparent), transparent 60%),
+      var(--panel);
+    border:1px solid color-mix(in srgb, var(--iv-a) 28%, var(--border-soft));}
+  #invest-root .iv-hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+    background-image:linear-gradient(color-mix(in srgb, var(--text) 5%, transparent) 1px, transparent 1px),linear-gradient(90deg, color-mix(in srgb, var(--text) 5%, transparent) 1px, transparent 1px);
+    background-size:28px 28px;-webkit-mask-image:radial-gradient(70% 90% at 100% 0%, #000, transparent 70%);mask-image:radial-gradient(70% 90% at 100% 0%, #000, transparent 70%);}
+  #invest-root .iv-hero > *{position:relative;z-index:1;}
+  #invest-root .iv-total{background:linear-gradient(180deg, var(--text) 30%, color-mix(in srgb, var(--text) 55%, var(--iv-a)));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  #invest-root .iv-perfs span{display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;font-size:12.5px;background:color-mix(in srgb, var(--text) 6%, transparent);}
+  #invest-root .iv-perfs span.up{background:color-mix(in srgb, var(--long) 14%, transparent);}
+  #invest-root .iv-perfs span.down{background:color-mix(in srgb, var(--short) 14%, transparent);}
+  #invest-root .iv-perfs{gap:8px;flex-wrap:wrap;}
+  #invest-root .iv-perfs span{white-space:nowrap;}
+  #invest-root .iv-hero{grid-template-columns:minmax(330px,1fr) auto;}
+  .inv-om-open{font-size:12.5px;line-height:1.5;color:var(--text-dim);margin-top:12px;padding:10px 12px;border-radius:10px;
+    background:color-mix(in srgb, var(--accent-light) 9%, transparent);border:1px solid color-mix(in srgb, var(--accent-light) 30%, var(--border-soft));}
+  .inv-om-open b{color:var(--text);}
+  .inv-om-open[hidden]{display:none;}
+  #invest-root .iv-pending{border-color:color-mix(in srgb, var(--gold) 40%, var(--border-soft));}
+  #invest-root .iv-pending > header h3::before{background:var(--gold);}
+  .iv-pd-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--border-soft);}
+  .iv-pd-row b{display:block;font-size:13.5px;}
+  .iv-pd-row span{font-size:11.5px;color:var(--text-faint);}
+  #invest-root .iv-kpi{position:relative;border-left:none;padding:12px 16px;margin-left:10px;border-radius:14px;min-width:170px;
+    background:color-mix(in srgb, var(--panel-2) 70%, transparent);border:1px solid var(--border-soft);}
+  #invest-root .iv-kpi::before{content:"";position:absolute;left:14px;right:14px;top:-1px;height:2px;border-radius:2px;background:var(--iv-k, var(--text-faint));}
+  #invest-root .iv-kpi:nth-child(1){--iv-k:var(--iv-pea);} #invest-root .iv-kpi:nth-child(2){--iv-k:var(--iv-cto);} #invest-root .iv-kpi:nth-child(3){--iv-k:var(--gold);}
+  #invest-root .iv-hero-env .iv-kpi:nth-child(1){--iv-k:var(--long);} #invest-root .iv-hero-env .iv-kpi:nth-child(2){--iv-k:var(--iv-a);} #invest-root .iv-hero-env .iv-kpi:nth-child(3){--iv-k:var(--gold);}
+  #invest-root button.iv-kpi:hover{background:color-mix(in srgb, var(--iv-k) 10%, var(--panel-2));border-color:color-mix(in srgb, var(--iv-k) 40%, var(--border-soft));}
+  #invest-root .iv-hero-env.cto{background:
+      radial-gradient(90% 140% at 0% 0%, color-mix(in srgb, var(--iv-cto) 22%, transparent), transparent 62%), var(--panel);
+    border-color:color-mix(in srgb, var(--iv-cto) 30%, var(--border-soft));}
+  #invest-root .iv-clock u{height:5px;} #invest-root .iv-clock u i{background:linear-gradient(90deg, var(--iv-pea), var(--long));}
+
+  /* cartes */
+  #invest-root .iv-card{border-radius:18px;background:linear-gradient(180deg, color-mix(in srgb, var(--panel-2) 55%, var(--panel)), var(--panel) 120px);}
+  #invest-root .iv-card > header h3{display:flex;align-items:center;gap:9px;font-size:15px;}
+  #invest-root .iv-card > header h3::before{content:"";width:4px;height:16px;border-radius:2px;background:linear-gradient(180deg, var(--iv-a), var(--iv-a2));}
+  #invest-root .iv-tr:hover{background:color-mix(in srgb, var(--iv-a) 7%, transparent);}
+  #invest-root .inv-mono.cat-etf{color:var(--iv-c1);border-color:color-mix(in srgb, var(--iv-c1) 40%, var(--border-soft));background:color-mix(in srgb, var(--iv-c1) 10%, var(--panel-2));}
+  #invest-root .inv-mono.cat-eu, .iv-fa .inv-mono.cat-eu{color:var(--iv-c2);border-color:color-mix(in srgb, var(--iv-c2) 40%, var(--border-soft));background:color-mix(in srgb, var(--iv-c2) 10%, var(--panel-2));}
+  #invest-root .inv-mono.cat-stock{color:var(--iv-c3);border-color:color-mix(in srgb, var(--iv-c3) 40%, var(--border-soft));background:color-mix(in srgb, var(--iv-c3) 10%, var(--panel-2));}
+  #invest-root .inv-mono.cat-bond{color:var(--iv-c4);border-color:color-mix(in srgb, var(--iv-c4) 40%, var(--border-soft));background:color-mix(in srgb, var(--iv-c4) 10%, var(--panel-2));}
+  #invest-root .inv-mono.cat-commodity{color:var(--iv-c5);border-color:color-mix(in srgb, var(--iv-c5) 40%, var(--border-soft));background:color-mix(in srgb, var(--iv-c5) 10%, var(--panel-2));}
+  #invest-root .inv-mono.cat-crypto{color:var(--iv-c6);border-color:color-mix(in srgb, var(--iv-c6) 40%, var(--border-soft));background:color-mix(in srgb, var(--iv-c6) 10%, var(--panel-2));}
+
+  /* courbe vide */
+  #invest-root .iv-curve-empty{position:relative;background:none;min-height:210px;justify-content:flex-end;padding:0;}
+  .iv-ce-art{position:absolute;inset:10px 0 auto 0;width:100%;height:120px;}
+  .iv-ce-dot{fill:var(--iv-a);animation:ivPulse 1.8s ease-in-out infinite;transform-origin:596px 24px;}
+  @keyframes ivPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.45;transform:scale(1.6);}}
+  .iv-ce-txt{display:flex;flex-direction:column;gap:6px;padding:0 2px 6px;}
+  #invest-root .iv-curve-empty b{font-size:26px;}
+  #invest-root .iv-curve-svg path[stroke-width="2.6"]{filter:drop-shadow(0 4px 10px color-mix(in srgb, currentColor 0%, transparent));}
+
+  /* répartition */
+  #invest-root .iv-donut circle{transition:stroke-dasharray .5s ease;}
+  #invest-root .iv-alloc-leg div{padding:6px 8px;border-radius:8px;}
+  #invest-root .iv-alloc-leg div:hover{background:color-mix(in srgb, var(--text) 5%, transparent);}
+
+  /* états vides */
+  #invest-root .iv-empty-plan{align-items:flex-start;padding:22px 18px;border:1px dashed color-mix(in srgb, var(--iv-a) 35%, var(--border-soft));border-radius:14px;
+    background:color-mix(in srgb, var(--iv-a) 5%, transparent);}
+  .iv-empty-ic{font-style:normal;width:34px;height:34px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:6px;
+    color:var(--iv-a);background:color-mix(in srgb, var(--iv-a) 14%, transparent);}
+
+  /* dividendes & opérations */
+  #invest-root .iv-div-kpis b.num{color:var(--gold);}
+  #invest-root .iv-h-row i{width:24px;height:24px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;align-self:center;
+    background:color-mix(in srgb, var(--text) 6%, transparent);}
+  #invest-root .iv-h-row.buy i{color:var(--long);background:color-mix(in srgb, var(--long) 14%, transparent);}
+  #invest-root .iv-h-row.sell i{color:var(--short);background:color-mix(in srgb, var(--short) 14%, transparent);}
+  #invest-root .iv-h-row.div i{color:var(--gold);background:color-mix(in srgb, var(--gold) 16%, transparent);}
+  #invest-root .iv-h-row.move i{color:var(--iv-a);background:color-mix(in srgb, var(--iv-a) 14%, transparent);}
+  #invest-root .iv-h-row{grid-template-columns:28px 92px 40px minmax(0,1fr) auto;align-items:center;}
+  #invest-root .iv-reserve{background:color-mix(in srgb, var(--gold) 12%, transparent);border-color:color-mix(in srgb, var(--gold) 45%, transparent);}
+  #invest-root .iv-reserve span{background:var(--gold);}
+  #invest-root .ivc-row.on{border-color:color-mix(in srgb, var(--iv-a) 45%, var(--border));background:color-mix(in srgb, var(--iv-a) 8%, var(--panel));}
+  @media (max-width:1080px){ #invest-root .iv-kpi:first-child{margin-left:0;padding-left:16px;} }
+  @media (max-width:720px){
+    #invest-root .iv-hero{padding:20px 16px 16px;border-radius:16px;}
+    #invest-root .iv-hero-kpis{gap:6px;border-top:none;padding-top:0;}
+    #invest-root .iv-kpi{margin-left:0;padding:10px;min-width:0;border-radius:12px;}
+    #invest-root .iv-h-row{grid-template-columns:26px 70px minmax(0,1fr) auto;}
   }
 
   /* ---------- Connaissances : images illustratives par section ---------- */
@@ -6901,7 +7015,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3281 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3290 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -29961,6 +30075,8 @@ function investSanitize(d){
     cto:{cash:num(cto.cash,0), deposits:num(cto.deposits,0), holdings:holds(cto.holdings),
       realized:(cto.realized && typeof cto.realized==="object") ? cto.realized : {}, divs:num(cto.divs,0)},
     plans, curve, divAt:typeof d.divAt==="string" ? d.divAt : null,
+    pending: Array.isArray(d.pending) ? d.pending.filter(p=>p && p.id && p.aid && (p.env==="pea" || p.env==="cto") && (p.side==="buy" || p.side==="sell") && num(p.qty,0)>0 && num(p.estPx,0)>0)
+      .map(p=>({id:String(p.id), aid:String(p.aid), env:p.env, side:p.side, qty:p.qty, estPx:p.estPx, created:p.created||now})).slice(0,30) : [],
     history:Array.isArray(d.history) ? d.history.slice(0,INVEST_HISTORY_MAX) : []};
 }
 function investHoldingPx(id, h){
@@ -30038,7 +30154,16 @@ function investMaxBuyQty(a, cash, px){
   const raw = cash/(px*(1+INVEST_FEE_RATE));
   return a.fractional ? Math.floor(raw*1e6)/1e6 : Math.floor(raw);
 }
-function investCheckOrder(id, env, side, qty){
+// Ordres « à l'ouverture » (v3290) : passés marché fermé, exécutés au premier
+// cours disponible après l'ouverture. Leurs montants estimés sont réservés
+// (espèces pour un achat, titres pour une vente) tant qu'ils attendent.
+function investPendingReserve(env, exceptId){
+  return (state.invest.pending||[]).filter(p=>p.env===env && p.side==="buy" && p.id!==exceptId).reduce((s,p)=>s+p.qty*p.estPx*(1+INVEST_FEE_RATE), 0);
+}
+function investPendingSellQty(env, aid, exceptId){
+  return (state.invest.pending||[]).filter(p=>p.env===env && p.side==="sell" && p.aid===aid && p.id!==exceptId).reduce((s,p)=>s+p.qty, 0);
+}
+function investCheckOrder(id, env, side, qty, atOpen, exceptId){
   const a = investAssetById(id);
   const inv = state.invest;
   if (!a || !inv) return {err:"Actif inconnu."};
@@ -30046,25 +30171,25 @@ function investCheckOrder(id, env, side, qty){
   const q = investQuote(a);
   if (q.px==null) return {err: a.src.eu ? "Cours européens pas encore disponibles (mis à jour toutes les 5 min pendant la séance)." : "Prix indisponible pour le moment, réessaie dans quelques secondes."};
   const st = investVenueStatus(a);
-  if (!st.open) return {err:"Marché fermé ("+st.label.replace("Fermé · ","")+"). Les ordres ne passent que pendant les heures de cotation.", closed:true, px:q.px};
-  if (a.src.bond && Date.now()-investRates.updatedAt > INVEST_RATES_STALE_MS) return {err:"Les taux d'intérêt n'ont pas été mis à jour depuis plusieurs jours : ordre bloqué pour ne pas trader sur un prix périmé.", px:q.px};
-  if (a.src.eu && Date.now()-investEu.updatedAt > INVEST_EU_STALE_MS) return {err:"Le cours n'a pas été mis à jour depuis plus de 20 min : ordre bloqué pour ne pas trader sur un prix périmé. Réessaie dans quelques minutes.", px:q.px};
+  if (!st.open && !atOpen) return {err:"Marché fermé ("+st.label.replace("Fermé · ","")+").", closed:true, px:q.px};
+  if (!atOpen && a.src.bond && Date.now()-investRates.updatedAt > INVEST_RATES_STALE_MS) return {err:"Les taux d'intérêt n'ont pas été mis à jour depuis plusieurs jours : ordre bloqué pour ne pas trader sur un prix périmé.", px:q.px};
+  if (!atOpen && a.src.eu && Date.now()-investEu.updatedAt > INVEST_EU_STALE_MS) return {err:"Le cours n'a pas été mis à jour depuis plus de 20 min : ordre bloqué pour ne pas trader sur un prix périmé. Réessaie dans quelques minutes.", px:q.px};
   if (!(qty>0)) return {err:"Indique une quantité.", px:q.px};
   if (!a.fractional && Math.floor(qty)!==qty) return {err:"Cet actif s'achète par unités entières.", px:q.px};
   const gross = qty*q.px, fee = gross*INVEST_FEE_RATE;
   if (side==="buy"){
-    const total = gross+fee;
-    if (total > inv[env].cash+1e-9) return {err:"Espèces insuffisantes dans le "+investEnvName(env)+" ("+fmtMoney(inv[env].cash)+")"+(inv.reserve>0.5 ? ". Verse d'abord tes liquidités à placer." : ". Vends des titres pour libérer des espèces.")+"", px:q.px, gross, fee, total};
+    const total = gross+fee, reserved = investPendingReserve(env, exceptId), avail = inv[env].cash-reserved;
+    if (total > avail+1e-9) return {err:"Espèces insuffisantes dans le "+investEnvName(env)+" ("+fmtMoney(Math.max(0, avail))+(reserved>0.5 ? " après les ordres en attente" : "")+")"+(inv.reserve>0.5 ? ". Verse d'abord tes liquidités à placer." : ". Vends des titres pour libérer des espèces.")+"", px:q.px, gross, fee, total};
     return {ok:true, px:q.px, gross, fee, total};
   }
-  const h = inv[env].holdings[id];
-  if (!h || h.qty < qty-1e-9) return {err:"Tu n'as que "+investFmtQty(a, h?h.qty:0)+" "+a.short+" dans ce "+investEnvName(env)+".", px:q.px, gross, fee};
+  const h = inv[env].holdings[id], held = h ? h.qty-investPendingSellQty(env, id, exceptId) : 0;
+  if (!h || held < qty-1e-9) return {err:"Tu n'as que "+investFmtQty(a, Math.max(0, held))+" "+a.short+" disponible"+(held>1 ? "s" : "")+" dans ce "+investEnvName(env)+".", px:q.px, gross, fee};
   const costOut = h.cost*(qty/h.qty);
   const net = gross-fee;
   return {ok:true, px:q.px, gross, fee, total:net, pnl:net-costOut, costOut};
 }
-function investExecute(id, env, side, qty){
-  const chk = investCheckOrder(id, env, side, qty);
+function investExecute(id, env, side, qty, exceptId){
+  const chk = investCheckOrder(id, env, side, qty, false, exceptId);
   if (!chk.ok) return chk;
   const inv = state.invest, e = inv[env], a = investAssetById(id);
   if (side==="buy"){
@@ -30149,7 +30274,8 @@ let investRange = "all";
 let investAllocMode = "cat";
 let investDrawSig = "";
 const INVEST_CAT_LABEL = {etf:"ETF", eu:"Actions Europe", stock:"Actions US", bond:"Obligations", commodity:"Matières premières", crypto:"Crypto", cash:"Liquidités"};
-const INVEST_CAT_COLOR = {etf:"#4f8dff", eu:"#8b7cf6", stock:"#2fbfa8", bond:"#c9bfa9", commodity:"#e3ac4b", crypto:"#f0832e", cash:"#6b6458"};
+// Couleurs liées au thème du site (variables CSS --iv-c1… définies sur :root).
+const INVEST_CAT_COLOR = {etf:"var(--iv-c1)", eu:"var(--iv-c2)", stock:"var(--iv-c3)", bond:"var(--iv-c4)", commodity:"var(--iv-c5)", crypto:"var(--iv-c6)", cash:"var(--iv-cash)"};
 // Rendement du dividende (estimé, % par an) et secteur. ETF « capitalisants » :
 // les dividendes sont réinvestis dans le cours (rien n'est versé).
 const INVEST_META = {
@@ -30248,6 +30374,7 @@ function investHomeHtml(){
         '<div class="iv-kpi"><span>Dividendes reçus</span><b class="num" data-live="div.total">—</b><em data-live="div.next">—</em></div>'+
       '</div>'+
     '</section>'+
+    investPendingHtml(null)+
     '<div class="iv-grid">'+
       '<section class="iv-card iv-curve-card"><header><h3>Évolution</h3>'+investRangeChips()+'</header><div class="iv-curve" id="iv-curve" data-env=""></div></section>'+
       '<section class="iv-card"><header><h3>Répartition</h3><div class="iv-chips sm"><button type="button" class="'+(investAllocMode==="cat" ? "on" : "")+'" data-inv-act="alloc" data-mode="cat">Catégories</button><button type="button" class="'+(investAllocMode==="asset" ? "on" : "")+'" data-inv-act="alloc" data-mode="asset">Actifs</button></div></header><div id="iv-alloc" data-env=""></div></section>'+
@@ -30278,6 +30405,7 @@ function investEnvPageHtml(env){
         '<div class="iv-kpi"><span>'+(isPea ? "Versements" : "Versements nets")+'</span><b class="num" data-live="'+env+'.deposits">—</b><em>'+(isPea ? "plafond 150 000 €" : "sans plafond")+'</em></div>'+
       '</div>'+
     '</section>'+
+    investPendingHtml(env)+
     '<section class="iv-card"><header><h3>Mes lignes</h3><span class="iv-sub">'+(isPea ? "Actions européennes et ETF éligibles" : "Tous les actifs")+'</span></header>'+investHoldingsHtml(env)+'</section>'+
     '<div class="iv-grid">'+
       '<section class="iv-card iv-curve-card"><header><h3>Évolution du '+(isPea ? "PEA" : "compte-titres")+'</h3>'+investRangeChips()+'</header><div class="iv-curve" id="iv-curve" data-env="'+env+'"></div></section>'+
@@ -30339,7 +30467,7 @@ function investMarketHtml(env){
 function investPlanNext(p){ return new Date(p.next); }
 function investPlansHtml(env){
   const plans = (state.invest.plans||[]).filter(p=>!env || p.env===env);
-  if (!plans.length) return '<div class="iv-empty"><b>Aucun investissement programmé.</b><span>Investis automatiquement un montant fixe chaque semaine ou chaque mois : c\'est la méthode « DCA », qui lisse ton prix d\'achat dans le temps.</span></div>';
+  if (!plans.length) return '<div class="iv-empty iv-empty-plan"><i class="iv-empty-ic" aria-hidden="true">↻</i><b>Aucun investissement programmé.</b><span>Investis automatiquement un montant fixe chaque semaine ou chaque mois : c\'est la méthode « DCA », qui lisse ton prix d\'achat dans le temps.</span></div>';
   return '<div class="iv-plans">'+plans.map(p=>{ const a = investAssetById(p.aid) || {name:p.aid, short:p.aid, cat:"etf"};
     return '<div class="iv-plan'+(p.on ? "" : " off")+'">'+investMonogram(a)+
       '<div><b>'+fmtMoney(p.amt)+' '+(p.freq==="w" ? "chaque semaine" : "chaque mois")+'</b><span>'+escapeHtml(a.name)+' · '+investEnvName(p.env)+' · '+(p.on ? "prochain le "+investFmtDate(p.next) : "en pause")+(p.runs ? ' · '+p.runs+' achat'+(p.runs>1?"s":"")+' ('+fmtMoney(p.spent||0)+')' : '')+'</span></div>'+
@@ -30382,13 +30510,14 @@ function investHistoryHtml(){
     const a = x.id ? (investAssetById(x.id) || {name:x.id, short:x.id}) : null;
     const when = new Date(x.t).toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
     let what = "", amount = "", cls = "", ic = "";
-    if (x.type==="buy"){ ic = "↗"; what = (x.plan ? "Achat programmé " : "Achat ")+investFmtQty(a,x.qty)+" "+escapeHtml(a.short)+" à "+investFmtPx(x.px); amount = "−"+fmtMoney(x.amount); }
-    else if (x.type==="sell"){ ic = "↘"; what = "Vente "+investFmtQty(a,x.qty)+" "+escapeHtml(a.short)+" à "+investFmtPx(x.px)+' <span class="'+(x.pnl>=0?"up":"down")+'">('+fmtMoneySigned(x.pnl)+')</span>'; amount = "+"+fmtMoney(x.amount); }
+    if (x.type==="buy"){ ic = "↗"; cls = "buy"; what = (x.plan ? "Achat programmé " : x.atOpen ? "Achat à l'ouverture " : "Achat ")+investFmtQty(a,x.qty)+" "+escapeHtml(a.short)+" à "+investFmtPx(x.px); amount = "−"+fmtMoney(x.amount); }
+    else if (x.type==="sell"){ ic = "↘"; cls = "sell"; what = (x.atOpen ? "Vente à l'ouverture " : "Vente ")+investFmtQty(a,x.qty)+" "+escapeHtml(a.short)+" à "+investFmtPx(x.px)+' <span class="'+(x.pnl>=0?"up":"down")+'">('+fmtMoneySigned(x.pnl)+')</span>'; amount = "+"+fmtMoney(x.amount); }
     else if (x.type==="div"){ ic = "◆"; what = (x.coupon ? "Coupon " : "Dividende ")+escapeHtml(a ? a.short : "")+(x.gross && x.gross!==x.amount ? ' <span class="iv-h-fee">brut '+fmtMoney(x.gross)+', flat tax prélevée</span>' : ''); amount = "+"+fmtMoney(x.amount); cls = "div"; }
     else if (x.type==="deposit"){ ic = "→"; what = "Versement sur le "+investEnvName(x.env); amount = fmtMoney(x.amount); cls = "move"; }
     else if (x.type==="open"){ ic = "★"; what = "Ouverture du "+investEnvName(x.env); amount = fmtMoney(x.amount); cls = "move"; }
     else if (x.type==="withdraw"){ ic = "←"; what = "Retrait du "+investEnvName(x.env); amount = fmtMoney(x.amount); cls = "move"; }
     else if (x.type==="close"){ ic = "×"; what = "Clôture du PEA"; amount = fmtMoney(x.amount); cls = "move"; }
+    else if (x.type==="pending-fail"){ ic = "!"; what = "Ordre à l'ouverture non exécuté · "+escapeHtml(a ? a.short : "")+' <span class="iv-h-fee">'+escapeHtml(x.why||"")+'</span>'; cls = "move"; }
     else if (x.type==="plan-skip"){ ic = "!"; what = "Achat programmé non passé ("+escapeHtml(x.why||"")+") · "+escapeHtml(a ? a.short : ""); cls = "move"; }
     return '<div class="iv-h-row '+cls+'"><i>'+ic+'</i><span class="iv-h-when">'+when+'</span><span class="iv-h-env">'+(x.env ? investEnvName(x.env) : "")+'</span><span class="iv-h-what">'+what+(x.fee ? ' <span class="iv-h-fee">frais '+fmtMoney(x.fee)+'</span>' : '')+'</span><span class="r num">'+amount+'</span></div>';
   }).join("");
@@ -30565,7 +30694,8 @@ function investDrawCurve(){
   const days = {"1m":31, "3m":92, "1y":366}[investRange];
   if (days){ const lim = investDayKey(new Date(Date.now()-days*864e5)); c = c.filter(r=>r[0]>=lim); }
   if (c.length < 2){
-    box.innerHTML = '<div class="iv-curve-empty"><b>'+fmtMoney(c.length ? c[0][col] : 0)+'</b><span>La courbe se construit jour après jour : reviens demain pour voir ta progression, comparée au S&P 500.</span></div>';
+    box.innerHTML = '<div class="iv-curve-empty"><svg class="iv-ce-art" viewBox="0 0 600 120" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="iv-ceg" x1="0" x2="1"><stop offset="0" stop-color="var(--iv-a)" stop-opacity="0"/><stop offset="1" stop-color="var(--iv-a)" stop-opacity=".9"/></linearGradient></defs><path d="M0 92 C90 88 140 70 210 76 S330 50 400 56 S520 30 600 24" fill="none" stroke="url(#iv-ceg)" stroke-width="2.5" stroke-dasharray="6 7"/><circle cx="596" cy="24" r="5" class="iv-ce-dot"/></svg>'+
+      '<div class="iv-ce-txt"><span class="iv-eyebrow">Aujourd\'hui</span><b>'+fmtMoney(c.length ? c[0][col] : 0)+'</b><span>Ta courbe démarre : un point est ajouté chaque jour, comparé au S&P 500.</span></div></div>';
     return;
   }
   const W = 760, H = 230, pl = 8, pr = 64, pt = 14, pb = 24;
@@ -30599,7 +30729,7 @@ function investDrawAlloc(){
   const box = document.getElementById("iv-alloc"); if (!box) return;
   const env = box.dataset.env || null, A = investAlloc(env);
   const items = investAllocMode==="asset"
-    ? A.assets.slice(0, 7).map((x, i)=>({l:x.a.name, v:x.v, c:["#4f8dff","#2fbfa8","#8b7cf6","#e3ac4b","#f0832e","#e85d8a","#9aa4b2"][i]})).concat(A.assets.length>7 ? [{l:"Autres", v:A.assets.slice(7).reduce((s,x)=>s+x.v, 0), c:"#5b564d"}] : []).concat(A.cash>0.5 ? [{l:"Liquidités", v:A.cash, c:INVEST_CAT_COLOR.cash}] : [])
+    ? A.assets.slice(0, 7).map((x, i)=>({l:x.a.name, v:x.v, c:["var(--iv-c1)","var(--iv-c2)","var(--iv-c3)","var(--iv-c4)","var(--iv-c5)","var(--iv-c6)","var(--iv-c7)"][i]})).concat(A.assets.length>7 ? [{l:"Autres", v:A.assets.slice(7).reduce((s,x)=>s+x.v, 0), c:"var(--text-faint)"}] : []).concat(A.cash>0.5 ? [{l:"Liquidités", v:A.cash, c:INVEST_CAT_COLOR.cash}] : [])
     : Object.keys(A.cats).sort((a,b)=>A.cats[b]-A.cats[a]).map(k=>({l:INVEST_CAT_LABEL[k]||k, v:A.cats[k], c:INVEST_CAT_COLOR[k]||"#888"}));
   const tot = items.reduce((s,x)=>s+x.v, 0) || 1;
   const R = 54, C = 2*Math.PI*R; let off = 0;
@@ -30658,6 +30788,7 @@ function renderInvestOrderModal(){
         (o.side==="buy" ? [2,5,10,20,50] : [25,50,75,100]).map(v=>'<button type="button" data-om-pct="'+v+'">'+v+' %</button>').join("")+
       '</div>'+
       '<div class="inv-om-sum" id="inv-om-sum"></div>'+
+      '<div class="inv-om-open" id="inv-om-open" hidden></div>'+
       '<div class="inv-om-err" id="inv-om-err" hidden></div>'+
       '<button type="button" class="btn-primary inv-om-go" id="inv-om-go">'+(o.side==="buy" ? "Acheter" : "Vendre")+'</button>'+
     '</div>'
@@ -30706,6 +30837,13 @@ function renderInvestOrderModal(){
   });
   document.getElementById("inv-om-go").addEventListener("click", ()=>{
     const qty = parseFloat(String(o.qty).replace(",", "."));
+    if (o.atOpen){
+      const r = investPlacePending(o.id, o.env, o.side, qty);
+      if (!r.ok){ updateInvestOrderPreview(r.err); return; }
+      closeModal(); renderInvest();
+      investToast((o.side==="buy" ? "Achat" : "Vente")+" de "+investFmtQty(a,qty)+" "+a.short+" programmé à l'ouverture");
+      return;
+    }
     const res = investExecute(o.id, o.env, o.side, qty);
     if (!res.ok){ updateInvestOrderPreview(res.err); return; }
     const msg = (o.side==="buy" ? "Achat" : "Vente")+" de "+investFmtQty(a,qty)+" "+a.short+" exécuté"+(o.side==="sell" ? " · "+fmtMoneySigned(res.pnl) : "");
@@ -30761,12 +30899,18 @@ function updateInvestOrderPreview(forcedErr){
   }
   document.getElementById("inv-om-sum").innerHTML = html;
   const errEl = document.getElementById("inv-om-err");
-  const err = forcedErr || (qty>0 && !chk.ok ? chk.err : (chk.closed ? chk.err : ""));
+  // Marché fermé : l'ordre peut être placé « à l'ouverture ».
+  const open = chk.closed ? investCheckOrder(o.id, o.env, o.side, qty>0 ? qty : 0, true) : null;
+  o.atOpen = !!(open && open.ok);
+  const err = forcedErr || (chk.closed ? (qty>0 && !open.ok ? open.err : "") : (qty>0 && !chk.ok ? chk.err : ""));
   errEl.hidden = !err;
   errEl.textContent = err || "";
+  const info = document.getElementById("inv-om-open");
+  if (info){ info.hidden = !chk.closed; info.innerHTML = chk.closed ? '<b>Marché fermé</b> · '+escapeHtml(st.label.replace("Fermé · ",""))+'. Ton ordre attendra l\'ouverture et passera au premier cours disponible (montant estimé au dernier cours). Annulable à tout moment.' : ''; }
   const go = document.getElementById("inv-om-go");
-  go.disabled = !chk.ok;
-  go.textContent = chk.closed ? "Marché fermé" : (o.side==="buy" ? "Acheter" : "Vendre")+(qty>0 ? " · "+fmtMoney(o.side==="buy" ? gross+fee : gross-fee) : "");
+  go.disabled = chk.closed ? !o.atOpen : !chk.ok;
+  go.textContent = chk.closed ? (o.side==="buy" ? "Acheter à l'ouverture" : "Vendre à l'ouverture")+(qty>0 ? " · ≈ "+fmtMoney(o.side==="buy" ? gross+fee : gross-fee) : "")
+    : (o.side==="buy" ? "Acheter" : "Vendre")+(qty>0 ? " · "+fmtMoney(o.side==="buy" ? gross+fee : gross-fee) : "");
 }
 
 /* ---- moteurs : investissements programmés + dividendes ---- */
@@ -30776,9 +30920,44 @@ function investRunEngines(){
   if (Date.now()-investEngineAt < 20000) return; // au plus toutes les 20 s
   investEngineAt = Date.now();
   let changed = investRunDividends();
+  changed = investRunPending() || changed;
   changed = investRunPlans() || changed;
   investRecordCurve();
   if (changed){ investPersistNow(); if (document.body.dataset.view==="invest") renderInvest(); }
+}
+function investPlacePending(aid, env, side, qty){
+  const chk = investCheckOrder(aid, env, side, qty, true);
+  if (!chk.ok) return chk;
+  const inv = state.invest;
+  (inv.pending || (inv.pending = [])).push({id:uid(), aid, env, side, qty, estPx:chk.px, created:new Date().toISOString()});
+  investPersistNow();
+  return {ok:true};
+}
+function investRunPending(){
+  const inv = state.invest, list = inv.pending || [];
+  if (!list.length) return false;
+  let changed = false;
+  list.slice().forEach(p=>{
+    const a = investAssetById(p.aid);
+    if (!a){ inv.pending = inv.pending.filter(x=>x!==p); changed = true; return; }
+    if (!investVenueStatus(a).open) return;
+    const q = investQuote(a); if (q.px==null) return;
+    // Titres européens : attendre un cours publié APRÈS le passage de l'ordre (pas celui de la veille).
+    if (a.src.eu && !(investEu.updatedAt > Date.parse(p.created) && Date.now()-investEu.updatedAt <= INVEST_EU_STALE_MS)) return;
+    inv.pending = inv.pending.filter(x=>x!==p); changed = true;
+    const r = investExecute(p.aid, p.env, p.side, p.qty, p.id);
+    if (r.ok){ const hh = inv.history[0]; if (hh && (hh.type==="buy" || hh.type==="sell")) hh.atOpen = true; investToast((p.side==="buy" ? "Achat" : "Vente")+" à l'ouverture exécuté : "+investFmtQty(a, p.qty)+" "+a.short); }
+    else investLog({type:"pending-fail", env:p.env, id:p.aid, why:r.err||""});
+  });
+  return changed;
+}
+function investPendingHtml(env){
+  const list = (state.invest.pending||[]).filter(p=>!env || p.env===env);
+  if (!list.length) return "";
+  return '<section class="iv-card iv-pending"><header><h3>Ordres à l\'ouverture</h3><span class="iv-sub">'+list.length+' en attente</span></header>'+
+    list.map(p=>{ const a = investAssetById(p.aid) || {name:p.aid, short:p.aid, cat:"etf", venue:"euronext"}, st = a.venue ? investVenueStatus(a) : {label:""};
+      return '<div class="iv-pd-row">'+investMonogram(a)+'<div><b>'+(p.side==="buy" ? "Achat" : "Vente")+' · '+investFmtQty(a, p.qty)+' '+escapeHtml(a.short)+'</b><span>'+escapeHtml(a.name)+' · '+investEnvName(p.env)+' · ≈ '+fmtMoney(p.qty*p.estPx)+' · '+escapeHtml(st.label)+'</span></div>'+
+        '<button type="button" class="iv-btn xs ghost" data-inv-act="pending-del" data-pd="'+p.id+'">Annuler</button></div>'; }).join("")+'</section>';
 }
 function investAddPeriod(d, freq){ const x = new Date(d); if (freq==="w") x.setDate(x.getDate()+7); else x.setMonth(x.getMonth()+1); return x; }
 function investRunPlans(){
@@ -31035,6 +31214,7 @@ function initInvest(){
       else { p.on = !p.on; if (p.on && new Date(p.next) < new Date()) p.next = new Date().toISOString(); }
       investPersistNow(); renderInvest();
     }
+    else if (act==="pending-del"){ state.invest.pending = (state.invest.pending||[]).filter(x=>x.id!==btn.dataset.pd); investPersistNow(); renderInvest(); investToast("Ordre annulé"); }
     else if (act==="ivc-pick"){ ivcAsset = btn.dataset.id; try{ localStorage.setItem(IVC_KEY, ivcAsset); }catch(e){} root.querySelectorAll(".ivc-row").forEach(x=>x.classList.toggle("on", x.dataset.id===ivcAsset)); ivcMount(); renderInvestLive();
       if (window.matchMedia("(max-width:720px)").matches){ const c = document.getElementById("ivc-head"); if (c) c.scrollIntoView({behavior:"smooth", block:"start"}); } }
     else if (act==="ivc-filter"){ ivcFilter = btn.dataset.cat; root.querySelectorAll('[data-inv-act="ivc-filter"]').forEach(x=>x.classList.toggle("on", x.dataset.cat===ivcFilter)); ivcRefreshList(); }
