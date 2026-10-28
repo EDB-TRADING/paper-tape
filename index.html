@@ -17024,7 +17024,7 @@ function mcOnMessage(e){
 }
 // ---------- Rendu ----------
 function mcTfLbl(tf){ return tfLabel(tf); }
-function mcLabel(p){ if (p && p.name) return p.name; return p.kind==="main" ? selectedSymbol+" · "+mcTfLbl(currentTimeframe) : p.sym+" · "+mcTfLbl(p.tf); }
+function mcLabel(p){ if (!p) return "Graphique"; if (p.name) return p.name; return p.kind==="main" ? selectedSymbol+" · "+mcTfLbl(currentTimeframe) : p.sym+" · "+mcTfLbl(p.tf); }
 function mcLabels(){
   if (!MC.on) return;
   MC.ws.querySelectorAll("[data-mc-tab]").forEach(t=>{ const p = MC.panes[t.dataset.mcTab], sp = t.querySelector("span"); if (p && sp){ const l = mcLabel(p); if (sp.textContent!==l) sp.textContent = l; } });
@@ -17159,14 +17159,22 @@ function mcBarSet(id, on){
 }
 // ---------- Interactions ----------
 function mcRenameContextMenu(e){
-  const tab = e.target.closest(".mc-tab");
-  if (!tab || !MC.ws.contains(tab) || e.target.closest(".mc-tx")) return;
+  // Le clic droit peut viser un nœud qui n'expose pas Element.closest().
+  // On ne gère que les onglets de graphiques, sans interférer avec le reste.
+  const target = e && e.target;
+  if (!target || typeof target.closest !== "function" || !MC.on || !MC.ws) return;
+  const tab = target.closest(".mc-tab");
+  if (!tab || !MC.ws.contains(tab) || target.closest(".mc-tx")) return;
+  const p = MC.panes && MC.panes[tab.dataset.mcTab];
+  if (!p) return;
   e.preventDefault();
-  const p = MC.panes[tab.dataset.mcTab]; if (!p) return;
-  const name = window.prompt("Renommer ce graphique :", mcLabel(p));
+  let name;
+  try { name = window.prompt("Renommer ce graphique :", mcLabel(p)); }
+  catch (err) { console.warn("Impossible d’ouvrir la boîte de renommage.", err); return; }
   if (name===null) return;
-  p.name = name.trim();
-  mcSave(); mcLabels();
+  p.name = String(name).trim();
+  mcSave();
+  mcLabels();
 }
 function mcClick(e){
   const t = e.target.closest("button"); if (!t) return;
