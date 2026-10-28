@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3332">
+<meta name="pt-build" content="3350">
 <script>
 /* Multi-graphiques : cette page est-elle un graphique seul dans une iframe ?
    Si oui, ses réglages de graphique (indicateurs, bougies, unité de temps,
@@ -996,6 +996,14 @@
   .chart-ind-sub[hidden]{display:none;}
   .chart-tpo-pop{width:280px;}
   .card.widget.chart-fs .chart-tpo-menu{z-index:2147483001;}
+  .chart-qty-edit{position:fixed;z-index:2147483450;display:flex;flex-direction:column;gap:5px;padding:8px 9px;border-radius:9px;border:1px solid var(--accent);background:var(--panel);box-shadow:0 12px 30px rgba(0,0,0,.45);}
+  .chart-qty-edit[hidden]{display:none;}
+  .chart-qty-edit label{font:600 10.5px var(--sans);color:var(--text-faint);}
+  .chart-qty-edit div{display:flex;align-items:center;gap:6px;}
+  .chart-qty-edit input{width:96px;font:600 13px var(--mono);padding:5px 7px;border-radius:6px;border:1px solid var(--border);background:var(--panel-2);color:var(--text);}
+  .chart-qty-edit span{font:700 10.5px var(--mono);color:var(--text-faint);}
+  .chart-qty-edit button{border:0;border-radius:6px;padding:5px 9px;background:var(--accent);color:var(--on-accent);font-weight:700;cursor:pointer;}
+  #chart-svg .qty-hit{cursor:text;}
   .chart-tpo-menu{position:fixed;z-index:80;min-width:250px;max-width:calc(100vw - 16px);background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:5px;box-shadow:0 18px 40px -14px rgba(0,0,0,.7);display:flex;flex-direction:column;}
   .chart-tpo-menu[hidden]{display:none;}
   .chart-tpo-menu button{display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;border:none;background:none;color:var(--text);font:13.5px var(--sans);padding:9px 11px;border-radius:6px;cursor:pointer;}
@@ -7056,7 +7064,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3332 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3350 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -13088,6 +13096,10 @@ function chartLevelHtml(g, o){
   if (o.pend) s += '<rect class="pend-hit" data-pend-drag="'+o.pend+'" x="'+g.padL+'" y="-7" width="'+(g.W-g.padL)+'" height="14" fill="transparent"><title>Glisser pour déplacer l\'ordre limite</title></rect>';
   if (o.pendLeg) s += '<rect class="pend-hit" data-pend-drag="'+o.pendLeg.id+'" data-pend-leg="'+o.pendLeg.leg+'" x="'+g.padL+'" y="-7" width="'+(g.W-g.padL)+'" height="14" fill="transparent"><title>Glisser pour ajuster</title></rect>';
   if (o.draft) s += '<rect class="pend-hit" data-draft-leg="'+o.draft+'" x="'+g.padL+'" y="-7" width="'+(g.W-g.padL)+'" height="14" fill="transparent"><title>Glisser pour ajuster</title></rect>';
+  if (o.qtyEdit && o.label){ // clic sur l'étiquette d'un ordre limite : changer sa quantité
+    const w = Math.round(chartTextW(o.label, 9.5)+12), x = o.align==="right" ? (g.W-g.padR-6-w) : (g.padL+4);
+    s += '<rect class="qty-hit" data-pend-qty="'+o.qtyEdit+'" x="'+x+'" y="-8" width="'+w+'" height="16" fill="transparent"><title>Cliquer pour changer la quantité (glisser la ligne pour déplacer l\'ordre)</title></rect>';
+  }
   if (o.close && o.label){ // ✕ à droite de l'étiquette d'une position : la fermer (tout ou partie)
     const w = Math.round(chartTextW(o.label, 9.5)+12), cx = g.padL+4+w+12;
     s += '<g class="pend-x" data-pos-close="'+o.close+'"><title>Fermer la position (tout ou partie)</title>'+
@@ -13106,9 +13118,10 @@ function chartLevelHtml(g, o){
 // Ligne d'un ordre limite en attente : « ✕ » pour l'annuler, glisser pour le déplacer.
 function chartPendingLevelHtml(g, o, price, preview){
   const a = ASSETS.find(x=>x.symbol===o.symbol) || {decimals:2};
-  const label = "Limite "+(o.side==="short"?"short":"long")+" · "+fmtMoney(o.notional);
+  const units = o.limitPrice>0 ? o.notional/o.limitPrice : 0;
+  const label = "Limite "+(o.side==="short"?"short":"long")+" · "+fmtUnits(units)+" "+(a.symbol||o.symbol)+(preview ? "" : " ✎")+" · "+fmtMoney(o.notional);
   return chartLevelHtml(g, {id:"pend-g-"+o.id, price, color:g.pal.accent, dash:"2,3", align:"right", label, opacity: preview ? 1 : 0.85,
-    cancel: preview ? null : o.id, pend: preview ? null : o.id});
+    cancel: preview ? null : o.id, pend: preview ? null : o.id, qtyEdit: preview ? null : o.id});
 }
 function chartTpSlLevelHtml(g, p, leg, price, idOverride){
   const pnl = pnlAtPrice(p, price);
@@ -15517,8 +15530,20 @@ function chartTicketSummary(){
 // l'actif) : l'ordre porte exactement cette quantité ; si la marge
 // disponible ne suffit pas au levier du ticket, le levier monte tout seul
 // jusqu'au minimum nécessaire (sans dépasser le levier maximum autorisé).
-const qtQtyBySym = {};
+// Quantité du trade depuis le graphique, par marché : mémorisée sur l'appareil
+// et commune à tous les graphiques du même marché (multi-graphiques compris :
+// l'événement « storage » met à jour les autres graphiques ouverts).
+const QT_QTY_KEY = "paperTapeQtQty";
+const qtQtyBySym = (function(){ try{ const o = JSON.parse(localStorage.getItem(QT_QTY_KEY)||"{}"); return (o && typeof o==="object") ? o : {}; }catch(e){ return {}; } })();
 let qtQtySym = null;
+function qtQtySave(){ try{ const o = {}; Object.keys(qtQtyBySym).forEach(k=>{ const v = String(qtQtyBySym[k]||""); if (v && parseFloat(v)>0) o[k] = v; }); localStorage.setItem(QT_QTY_KEY, JSON.stringify(o)); }catch(e){} }
+window.addEventListener("storage", (e)=>{
+  if (e.key!==QT_QTY_KEY) return;
+  let o = {}; try{ o = JSON.parse(e.newValue||"{}") || {}; }catch(err){}
+  Object.keys(qtQtyBySym).forEach(k=>{ if (!(k in o)) delete qtQtyBySym[k]; }); Object.assign(qtQtyBySym, o);
+  const el = document.getElementById("qt-qty");
+  if (el && document.activeElement!==el && el.value!==(qtQtyBySym[selectedSymbol]||"")){ el.value = qtQtyBySym[selectedSymbol]||""; try{ chartQtUpdate(); }catch(err){} }
+});
 function levCapNow(){
   const s = document.getElementById("lev-slider");
   const v = s ? parseInt(s.max, 10) : 200;
@@ -15661,7 +15686,26 @@ function chartPlaceLimit(dir, price){
 // Le menu ne place plus l'ordre directement : il pose une entrée + TP + SL
 // proposés (2R par défaut), que l'on glisse comme les lignes d'une position
 // ouverte, puis « Placer » envoie l'ordre limite avec son TP / SL.
+// Petit champ « quantité » ouvert sous l'étiquette d'un ordre limite (avant
+// ou après sa création). Entrée / ✓ : valider · Échap / clic ailleurs : annuler.
+function chartQtyEdit(x, y, cur, sym, onOk){
+  let box = document.getElementById("chart-qty-edit");
+  if (!box){
+    box = document.createElement("div"); box.id = "chart-qty-edit"; box.className = "chart-qty-edit";
+    document.addEventListener("pointerdown", ev=>{ const b = document.getElementById("chart-qty-edit"); if (b && !b.hidden && !b.contains(ev.target)) b.hidden = true; }, true);
+  }
+  ptPopHost(box);
+  box.innerHTML = '<label>Quantité</label><div><input type="number" min="0" step="any" inputmode="decimal" value="'+(cur>0 ? +cur.toPrecision(8) : "")+'"><span>'+escapeHtml(sym)+'</span><button type="button" title="Valider">✓</button></div>';
+  const inp = box.querySelector("input"), ok = ()=>{ const v = parseFloat(String(inp.value).replace(",", ".")); if (!(v>0)){ inp.focus(); return; } box.hidden = true; onOk(v); };
+  box.querySelector("button").addEventListener("click", ok);
+  inp.addEventListener("keydown", ev=>{ ev.stopPropagation(); if (ev.key==="Enter") ok(); if (ev.key==="Escape") box.hidden = true; });
+  ["pointerdown","wheel","dblclick"].forEach(t=>box.addEventListener(t, ev=>ev.stopPropagation()));
+  box.hidden = false;
+  box.style.left = Math.max(8, Math.min(window.innerWidth-200, x))+"px"; box.style.top = Math.max(8, Math.min(window.innerHeight-70, y))+"px";
+  setTimeout(()=>{ inp.focus(); inp.select(); }, 0);
+}
 function chartDraftUnits(d){
+  if (d && d.qty>0) return d.qty; // quantité choisie sur l'ordre lui-même
   const qty = chartQtyValue();
   if (qty) return qty;
   const n = currentSizeInputToNotional(d.entry);
@@ -15706,12 +15750,13 @@ function chartDraftHtml(g){
     label:"TP · "+fmtMoneySigned(pnl(d.tp))+" · "+rr.toFixed(2)+"R"});
   s += chartLevelHtml(g, {price:d.sl, color:CHART_SL_COLOR, dash:"5,4", align:"right", opacity:1, draft:"sl",
     label:"SL · "+fmtMoneySigned(pnl(d.sl))});
-  const label = (long?"LONG":"SHORT")+" LIMITE"+(units>0 ? " · "+fmtUnits(units)+" "+a.symbol : "");
+  const label = (long?"LONG":"SHORT")+" LIMITE · "+(units>0 ? fmtUnits(units)+" "+a.symbol : "quantité")+" ✎";
   s += chartLevelHtml(g, {price:d.entry, color:g.pal.accent, dash:"2,3", align:"left", opacity:1, draft:"entry", label});
   // Boutons « Placer » / « ✕ » juste après l'étiquette d'entrée.
   const lw = Math.round(chartTextW(label, 9.5)+12);
   const bx = g.padL+4+lw+5, okW = 46;
   s += '<g transform="translate(0,'+yE.toFixed(1)+')">'+
+    '<rect class="qty-hit" data-draft-qty="1" x="'+(g.padL+4)+'" y="-8" width="'+lw+'" height="16" fill="transparent"><title>Cliquer pour changer la quantité</title></rect>'+
     '<g class="draft-btn" data-draft-ok="1"><title>Envoyer l\'ordre limite avec ce TP / SL</title>'+
       '<rect x="'+bx+'" y="-8" width="'+okW+'" height="16" rx="4" fill="'+g.pal.accent+'"/>'+
       '<text x="'+(bx+okW/2)+'" y="3.4" fill="'+chartInkOn(g.pal.accent)+'" font-size="9.5" font-weight="700" '+CHART_FONT+' text-anchor="middle">Placer</text></g>'+
@@ -15735,6 +15780,13 @@ function chartDraftPointerDown(e, svg){
   const t = e.target;
   if (t.closest("[data-draft-ok]")){ e.preventDefault(); e.stopPropagation(); chartDraftConfirm(); return true; }
   if (t.closest("[data-draft-cancel]")){ e.preventDefault(); e.stopPropagation(); chartDraftCancel(); return true; }
+  const dq = t.closest("[data-draft-qty]");
+  if (dq){
+    e.preventDefault(); e.stopPropagation();
+    const d = chartLimitDraft, r = dq.getBoundingClientRect();
+    chartQtyEdit(r.left, r.bottom+4, chartDraftUnits(d), d.sym, (units)=>{ if (!chartLimitDraft) return; chartLimitDraft.qty = units; updateChart(); });
+    return true;
+  }
   const el = t.closest("[data-draft-leg]");
   if (!el || (e.pointerType==="mouse" && e.button!==0)) return false;
   const d = chartLimitDraft;
@@ -15789,7 +15841,9 @@ function chartDraftConfirm(){
     if (d.side==="long" && entry >= (m.ask||m.last)){ chartToast("Le prix est passé sous ton entrée : un long limite doit être sous le prix actuel. Redescends la ligne.", "err"); return; }
     if (d.side==="short" && entry <= (m.bid||m.last)){ chartToast("Le prix est passé au-dessus de ton entrée : un short limite doit être au-dessus du prix actuel. Remonte la ligne.", "err"); return; }
   }
-  const q = chartQtyOverride(d.side, entry, MAKER_FEE_RATE);
+  let q;
+  if (d.qty>0){ const plan = chartQtyPlan(d.qty, entry, MAKER_FEE_RATE); q = plan.ok ? {ov:{units:d.qty, lev:plan.lev}, plan} : {error: chartQtyPlanText(plan, a.symbol) || "Quantité invalide."}; }
+  else q = chartQtyOverride(d.side, entry, MAKER_FEE_RATE);
   if (q.error){ chartToast(q.error, "err"); return; }
   const tpEl = document.getElementById("tp-input"), slEl = document.getElementById("sl-input");
   const prevTp = tpEl.value, prevSl = slEl.value;
@@ -15828,8 +15882,8 @@ function initChartTrading(){
   if (sell) sell.addEventListener("click", ()=>chartQuickTrade("short"));
   const qtyIn = document.getElementById("qt-qty");
   if (qtyIn){
-    qtyIn.addEventListener("input", ()=>{ qtQtyBySym[selectedSymbol] = qtyIn.value; chartQtUpdate(); });
-    qtyIn.addEventListener("keydown", (e)=>{ e.stopPropagation(); if (e.key==="Escape"){ qtyIn.value = ""; qtQtyBySym[selectedSymbol] = ""; chartQtUpdate(); qtyIn.blur(); } });
+    qtyIn.addEventListener("input", ()=>{ qtQtyBySym[selectedSymbol] = qtyIn.value; qtQtySave(); chartQtUpdate(); });
+    qtyIn.addEventListener("keydown", (e)=>{ e.stopPropagation(); if (e.key==="Escape"){ qtyIn.value = ""; qtQtyBySym[selectedSymbol] = ""; qtQtySave(); chartQtUpdate(); qtyIn.blur(); } });
     ["pointerdown","wheel"].forEach(t=>qtyIn.addEventListener(t, (e)=>e.stopPropagation()));
   }
   if (buy) buy.addEventListener("click", ()=>chartQuickTrade("long"));
@@ -15930,6 +15984,21 @@ function initChartInteractions(){
     if (pcx){
       const p = (state.positions||[]).find(x=>x.id===pcx.dataset.posClose);
       if (p) openPartialCloseModal(p, 100);
+      e.preventDefault(); e.stopPropagation();
+      return;
+    }
+    const pq = t.closest && t.closest("[data-pend-qty]");
+    if (pq){
+      const o = (state.pendingOrders||[]).find(x=>x.id===pq.dataset.pendQty);
+      if (o){
+        const r = pq.getBoundingClientRect();
+        chartQtyEdit(r.left, r.bottom+4, o.limitPrice>0 ? o.notional/o.limitPrice : 0, o.symbol, (units)=>{
+          const cur = (state.pendingOrders||[]).find(x=>x.id===o.id); if (!cur) return;
+          const res = modifyPendingOrder(cur.id, cur.limitPrice, units*cur.limitPrice);
+          if (!res.ok){ chartToast(res.error || "Modification refusée", "err"); return; }
+          chartToast("Ordre limite : "+fmtUnits(units)+" "+cur.symbol+" ("+fmtMoney(cur.notional)+")", cur.side);
+        });
+      }
       e.preventDefault(); e.stopPropagation();
       return;
     }
