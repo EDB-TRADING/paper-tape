@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3411">
+<meta name="pt-build" content="3420">
 <script>
 /* Multi-graphiques : cette page est-elle un graphique seul dans une iframe ?
    Si oui, ses réglages de graphique (indicateurs, bougies, unité de temps,
@@ -595,6 +595,7 @@
   .lp-list{display:flex;flex-direction:column;gap:4px;}
   .lp-it{display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:8px;background:var(--panel-2);}
   .lp-it span{flex:1;min-width:0;display:flex;flex-direction:column;} .lp-it b{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .lp-it em{font-style:normal;font-size:11px;color:var(--text-faint);}
+  .lp-blank{width:100%;} .lp-arm{color:var(--red,#f0546a)!important;border-color:currentColor!important;}
   .lp-it button{border:1px solid var(--border);background:var(--panel);color:var(--text-dim);border-radius:6px;padding:4px 8px;font-size:11.5px;cursor:pointer;white-space:nowrap;}
   .lp-it button:hover{color:var(--text);border-color:var(--accent);}
   .lp-empty{font-size:12px;color:var(--text-faint);padding:4px 2px;}
@@ -7099,7 +7100,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3411 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3420 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -7278,6 +7279,34 @@ function saveWatchlistOrder(order){
 const CRYPTO_API_BASE = "https://api.crypto.com/exchange/v1/public";
 const BINANCE_API_BASE = "https://api.binance.com/api/v3";
 const BINANCE_FAPI_BASE = "https://fapi.binance.com/fapi/v1"; // perps USDⓈ-M (HYPE)
+// Binance perps : limite de 2 400 « poids » / min PAR IP, partagée par tous
+// les graphiques et onglets ouverts (aggTrades = 20). Dépassée → 429 puis 418
+// (IP bannie de quelques minutes à plusieurs jours, d'autant plus longtemps
+// qu'on insiste). Budget commun (localStorage) : 1 000 / min, et pause
+// générale dès qu'un 429 / 418 arrive (Retry-After).
+const FAPI_GATE_KEY = "ptFapiGate";
+function fapiGateGet(){ try{ return JSON.parse(localStorage.getItem(FAPI_GATE_KEY)||"null") || {m:0, w:0, hold:0}; }catch(e){ return {m:0, w:0, hold:0}; } }
+function fapiHeld(){ return fapiGateGet().hold > Date.now(); }
+async function fapiGate(weight){
+  for (let i=0; i<40; i++){
+    const g = fapiGateGet(), now = Date.now(), m = Math.floor(now/60000);
+    if (g.hold > now) throw new Error("fapi_hold");
+    if (g.m!==m){ g.m = m; g.w = 0; }
+    if (g.w + weight <= 1000){ g.w += weight; try{ localStorage.setItem(FAPI_GATE_KEY, JSON.stringify(g)); }catch(e){} return; }
+    await new Promise(r=>setTimeout(r, (m+1)*60000 - now + 300 + Math.random()*1500));
+  }
+  throw new Error("fapi_busy");
+}
+async function binFetch(base, path, weight, timeout){
+  const fut = base===BINANCE_FAPI_BASE;
+  if (fut) await fapiGate(weight||1);
+  const r = await fetch(base+path, {signal:AbortSignal.timeout(timeout||10000)});
+  if (fut && (r.status===429 || r.status===418)){
+    const ra = Math.max(60, Math.min(6*3600, parseInt(r.headers.get("Retry-After")||"", 10) || (r.status===418 ? 600 : 90)));
+    const g = fapiGateGet(); g.hold = Date.now()+ra*1000; try{ localStorage.setItem(FAPI_GATE_KEY, JSON.stringify(g)); }catch(e){}
+  }
+  return r;
+}
 // OIL only (see ASSETS) — Hyperliquid's public "info" endpoint, a single
 // POST+JSON URL (not a REST-per-verb API like the two above). No API key,
 // no auth (public market data), but every request needs a `type` field
@@ -11166,13 +11195,13 @@ function ladOpenTradesBinance(src, gen){
 async function ladLoadHistory(src, gen){
   LAD.hist = "loading";
   const base = src.kind==="bf" ? BINANCE_FAPI_BASE : BINANCE_API_BASE;
-  const get = async q=>{ const r = await fetch(base+"/aggTrades?symbol="+encodeURIComponent(src.ref)+"&limit=1000"+q, {signal:AbortSignal.timeout(10000)}); if (!r.ok) throw new Error("http"); const j = await r.json(); if (!Array.isArray(j)) throw new Error("bad"); return j; };
+  const get = async q=>{ const r = await binFetch(base, "/aggTrades?symbol="+encodeURIComponent(src.ref)+"&limit=1000"+q, 20); if (!r.ok) throw new Error("http"); const j = await r.json(); if (!Array.isArray(j)) throw new Error("bad"); return j; };
   const pages = [];
   try{
     const latest = await get(""); if (gen!==LAD.gen) return;
     if (latest.length){
       pages.push(latest);
-      const maxPages = src.kind==="bf" ? 12 : 40;
+      const maxPages = src.kind==="bf" ? 6 : 40;
       let firstId = +latest[0].a, oldest = +latest[0].T;
       while (oldest > LAD.sess && pages.length < maxPages && firstId > 0){
         const batch = [];
@@ -13317,7 +13346,7 @@ function fpStart(a){
   FP.sym = a.symbol;
   const src = fpSource(chartSrcAsset(a)) || fpSource(a);
   if (!src){ FP.note = "Footprint indisponible sur ce marché (pas de flux de transactions)."; return; }
-  FP.src = src;
+  FP.src = src; FP.histTry = 0;
   const gen = FP.gen;
   if (src.kind==="hl") fpOpenHl(src.ref, gen);
   else { fpOpenBinance(src, gen); fpLoadBinance(src, gen); }
@@ -13398,7 +13427,7 @@ async function fpCatchUp(){
   try{
     for (let pg=0; pg<8; pg++){
       let rows = null;
-      try{ const r = await fetch(base+"/aggTrades?symbol="+encodeURIComponent(src.ref)+"&limit=1000&fromId="+(FP.lastId+1), {signal:AbortSignal.timeout(8000)}); rows = r.ok ? await r.json() : null; }catch(e){ rows = null; }
+      try{ const r = await binFetch(base, "/aggTrades?symbol="+encodeURIComponent(src.ref)+"&limit=1000&fromId="+(FP.lastId+1), 20, 8000); rows = r.ok ? await r.json() : null; }catch(e){ rows = null; }
       if (gen!==FP.gen) return;
       if (!Array.isArray(rows)){ ok = false; break; }
       rows.forEach(t=>{ const id = +t.a; if (!(id > FP.lastId)) return; fpAdd(+t.T, +t.p, +t.q, !t.m); FP.lastId = id; FP.lastT = +t.T; got++; });
@@ -13443,7 +13472,7 @@ async function fpLoadBinance(src, gen){
   FP.hist = "loading"; FP.note = "Footprint : chargement de l'historique…";
   const base = src.kind==="bf" ? BINANCE_FAPI_BASE : BINANCE_API_BASE;
   const get = async (q)=>{
-    const r = await fetch(base+"/aggTrades?symbol="+encodeURIComponent(src.ref)+"&limit=1000"+q, {signal:AbortSignal.timeout(10000)});
+    const r = await binFetch(base, "/aggTrades?symbol="+encodeURIComponent(src.ref)+"&limit=1000"+q, 20);
     if (!r.ok) throw new Error("http_"+r.status);
     const j = await r.json();
     if (!Array.isArray(j)) throw new Error("bad_payload");
@@ -13456,7 +13485,7 @@ async function fpLoadBinance(src, gen){
     if (latest.length){
       pages.push(latest);
       // Poids de l'API : 2 par page en spot, 20 en perp → plafonds différents.
-      const maxPages = src.kind==="bf" ? 24 : 48, since = fpHistTarget();
+      const maxPages = src.kind==="bf" ? 10 : 48, since = fpHistTarget(); // perps : 20 de poids par page (plafond 2 400 / min, partagé par tous les graphiques ouverts)
       let firstId = +latest[0].a, oldest = +latest[0].T;
       while (oldest > since && pages.length < maxPages && firstId > 0){
         const batch = [];
@@ -13472,8 +13501,19 @@ async function fpLoadBinance(src, gen){
         if (stop) break;
       }
     }
-  }catch(e){ /* historique indisponible : direct seulement */ }
+  }catch(e){ FP.histErr = (e && e.message) || "err"; /* historique indisponible : direct seulement */ }
   if (gen!==FP.gen) return;
+  // Rien reçu (souvent : limite de requêtes Binance perps atteinte, 429 / 418,
+  // quand plusieurs graphiques chargent leur footprint en même temps) : on
+  // réessaie dans 30 à 60 s au lieu de rester sans historique.
+  const g = fapiGateGet(), held = src.kind==="bf" && g.hold > Date.now();
+  if (!pages.length && (held || (FP.histTry||0) < 4)){
+    if (!held) FP.histTry = (FP.histTry||0)+1;
+    FP.hist = "loading"; FP.note = held ? "Footprint perps : Binance a mis ta connexion en pause ("+Math.ceil((g.hold-Date.now())/60000)+" min), reprise automatique. En attendant : source « Binance spot »." : "Footprint : historique indisponible pour l'instant ("+(FP.histErr||"erreur")+"), nouvel essai…";
+    setTimeout(()=>{ if (gen===FP.gen) fpLoadBinance(src, gen); }, held ? Math.max(15000, g.hold-Date.now()+2000) : (20+Math.random()*30)*1000*FP.histTry);
+    return;
+  }
+  if (pages.length) FP.histTry = 0;
   const seen = new Set();
   let maxId = 0, minT = Infinity;
   pages.forEach(pg=>pg.forEach(t=>{
@@ -13489,7 +13529,7 @@ async function fpLoadBinance(src, gen){
   FP.covFrom = isFinite(minT) ? minT : Date.now();
   FP.exactFrom = FP.covFrom; // transactions exactes à partir d'ici ; avant : bougies d'une seconde
   FP.hist = "done";
-  FP.note = pages.length ? "" : "Historique des transactions indisponible : footprint en direct seulement.";
+  FP.note = pages.length ? "" : "Historique des transactions indisponible ("+(FP.histErr||"erreur")+") : footprint en direct seulement.";
   FP.histVer++;
   fpTouched(true);
 }
@@ -13533,7 +13573,7 @@ async function fpLoadBack(targetMs){
     const perp = coarse, unit = perp ? 60000 : 1000, span = unit*1000;
     const end = Math.floor(FP.covFrom/unit)*unit - 1;
     const nReq = Math.max(1, Math.min(perp ? 2 : 8, Math.ceil((end-goal)/span)));
-    const get = (k)=>fetch((src.kind==="bf" ? BINANCE_FAPI_BASE : BINANCE_API_BASE)+"/klines?symbol="+encodeURIComponent(src.ref)+"&interval="+(perp ? "1m" : "1s")+"&limit=1000&startTime="+(end-(k+1)*span+1)+"&endTime="+(end-k*span), {signal:AbortSignal.timeout(10000)})
+    const get = (k)=>binFetch(src.kind==="bf" ? BINANCE_FAPI_BASE : BINANCE_API_BASE, "/klines?symbol="+encodeURIComponent(src.ref)+"&interval="+(perp ? "1m" : "1s")+"&limit=1000&startTime="+(end-(k+1)*span+1)+"&endTime="+(end-k*span), 5)
       .then(r=>r.ok ? r.json() : null).catch(()=>null);
     const res = await Promise.all(Array.from({length:nReq}, (_, k)=>get(k)));
     if (gen!==FP.gen) return;
@@ -16338,6 +16378,17 @@ function layoutApply(d, id){
   }catch(e){}
   location.reload();
 }
+// Nouveau layout vide : un seul graphique, indicateurs par défaut, sans dessins
+// (thème, source, unité de temps et levier sont gardés).
+function layoutBlank(){
+  try{
+    const drop = [MC_KEY, CHART_DRAW_LINK_KEY, LAYOUT_CUR_KEY, "paperTapeChartInd", "paperTapeDrawings", "paperTapeIndPop", "paperTapeChartCompact"];
+    for (let i=localStorage.length-1; i>=0; i--){ const k = localStorage.key(i); if (k && k.includes("@") && MC_EMBED_KEYS.includes(k.split("@")[0])) drop.push(k); }
+    drop.forEach(k=>localStorage.removeItem(k));
+    sessionStorage.setItem("ptLayoutResume", JSON.stringify({sym:selectedSymbol||""}));
+  }catch(e){}
+  location.reload();
+}
 function layoutResume(){
   let r = null; try{ r = JSON.parse(sessionStorage.getItem("ptLayoutResume")||"null"); sessionStorage.removeItem("ptLayoutResume"); }catch(e){}
   if (!r || window.PT_EMBED) return;
@@ -16356,7 +16407,8 @@ async function layoutOpen(anchor){
     pop.innerHTML = '<div class="lp-h">Layouts</div>'+
       '<div class="lp-save"><input id="lp-name" maxlength="60" placeholder="Nom du layout" value="'+escapeHtml(mine ? cur.name : "")+'">'+
       '<div class="tpo-seg lp-vis"><button type="button" data-vis="0" class="'+(pub ? "" : "on")+'">Privé</button><button type="button" data-vis="1" class="'+(pub ? "on" : "")+'">Public</button></div>'+
-      '<div class="lp-btns"><button type="button" class="btn-primary" id="lp-save">'+(mine ? "Enregistrer" : "Enregistrer le layout")+'</button>'+(mine ? '<button type="button" class="btn-secondary" id="lp-new">Nouveau</button>' : '')+'</div>'+
+      '<div class="lp-btns"><button type="button" class="btn-primary" id="lp-save">'+(mine ? "Enregistrer" : "Enregistrer le layout")+'</button>'+(mine ? '<button type="button" class="btn-secondary" id="lp-copy" title="Enregistre la disposition actuelle sous un nouveau nom">Enregistrer une copie</button>' : '')+'</div>'+
+      '<button type="button" class="btn-secondary lp-blank" id="lp-blank">＋ Nouveau layout vide</button>'+
       (mine ? '<div class="lp-note">En cours : <b>'+escapeHtml(cur.name)+'</b> · « Enregistrer » le met à jour'+(cur.public ? ", version publique comprise" : "")+'.</div>' : '<div class="lp-note">Disposition, actifs, unités de temps, indicateurs et dessins de tous les graphiques.</div>')+
       '<div class="lp-msg" id="lp-msg">'+escapeHtml(msg||"")+'</div></div>'+
       '<div class="lp-l">Mes layouts</div><div class="lp-list">'+(mineList==null ? '<div class="lp-empty">Chargement…</div>' : mineList.length ? mineList.map(x=>'<div class="lp-it"><span><b>'+escapeHtml(x.d.name)+'</b><em>'+(x.d.public ? "Public" : "Privé")+' · '+(x.d.n||1)+' graph.</em></span><button type="button" data-lp-load="'+x.id+'">Charger</button><button type="button" data-lp-vis="'+x.id+'" title="Passer en '+(x.d.public ? "privé" : "public")+'">'+(x.d.public ? "Rendre privé" : "Rendre public")+'</button><button type="button" data-lp-del="'+x.id+'" title="Supprimer">✕</button></div>').join("") : '<div class="lp-empty">Aucun layout enregistré.</div>')+'</div>'+
@@ -16366,14 +16418,22 @@ async function layoutOpen(anchor){
       const r = await layoutSave(asNew, nm, pub); if (r.err){ pop.querySelector("#lp-msg").textContent = r.err; return; }
       chartToast(r.updated ? "Layout mis à jour"+(pub ? " (public)" : "") : "Layout enregistré"+(pub ? " en public" : ""), "info"); pop.hidden = true; };
     pop.querySelector("#lp-save").addEventListener("click", ()=>go(false));
-    const nb = pop.querySelector("#lp-new"); if (nb) nb.addEventListener("click", ()=>go(true));
+    const nb = pop.querySelector("#lp-copy"); if (nb) nb.addEventListener("click", ()=>go(true));
+    // Confirmation dans le bouton (pas de confirm() : la boîte native fait
+    // quitter le plein écran et démontait le multi-graphique → plantage).
+    const ask = (b, label, fn)=>{ if (b.dataset.armed){ fn(); return; } b.dataset.armed = "1"; const t0 = b.textContent; b.textContent = label; b.classList.add("lp-arm");
+      setTimeout(()=>{ if (b.isConnected){ delete b.dataset.armed; b.textContent = t0; b.classList.remove("lp-arm"); } }, 3500); };
+    pop.querySelector("#lp-blank").addEventListener("click", ev=>ask(ev.currentTarget, "Remplacer l'écran actuel ? (re-clique)", layoutBlank));
     const all = (mineList||[]).concat(pubList||[]);
     pop.querySelectorAll("[data-lp-load]").forEach(b=>b.addEventListener("click", ()=>{ const x = all.find(y=>y.id===b.dataset.lpLoad); if (!x) return;
-      if (!confirm("Charger « "+x.d.name+" » ? Ta disposition actuelle, ses indicateurs et ses dessins seront remplacés (enregistre-la avant si besoin).")) return; layoutApply(x.d, x.id); }));
+      ask(b, "Confirmer", ()=>layoutApply(x.d, x.id)); }));
     pop.querySelectorAll("[data-lp-vis]").forEach(b=>b.addEventListener("click", async ()=>{ const x = (mineList||[]).find(y=>y.id===b.dataset.lpVis); if (!x) return;
       try{ await db.collection("layouts").doc(x.id).set(Object.assign({}, x.d, {public:!x.d.public})); const c = layoutCur(); if (c && c.id===x.id){ c.public = !x.d.public; localStorage.setItem(LAYOUT_CUR_KEY, JSON.stringify(c)); } }catch(e){} load(); }));
-    pop.querySelectorAll("[data-lp-del]").forEach(b=>b.addEventListener("click", async ()=>{ const x = (mineList||[]).find(y=>y.id===b.dataset.lpDel); if (!x || !confirm("Supprimer « "+x.d.name+" » ?")) return;
-      try{ await db.collection("layouts").doc(x.id).delete(); const c = layoutCur(); if (c && c.id===x.id) localStorage.removeItem(LAYOUT_CUR_KEY); }catch(e){} load(); }));
+    pop.querySelectorAll("[data-lp-del]").forEach(b=>b.addEventListener("click", ev=>{ ev.stopPropagation(); const x = (mineList||[]).find(y=>y.id===b.dataset.lpDel); if (!x) return;
+      ask(b, "Supprimer ?", async ()=>{ b.disabled = true;
+        try{ await db.collection("layouts").doc(x.id).delete(); const c = layoutCur(); if (c && c.id===x.id) localStorage.removeItem(LAYOUT_CUR_KEY); chartToast("Layout supprimé", "info"); }
+        catch(e){ chartToast("Suppression impossible ("+((e && e.code)||"erreur")+")", "warn"); }
+        load(); }); }));
   };
   const load = async ()=>{
     if (!(dbReady && db && clientId)){ draw([], [], "Connecte-toi pour utiliser les layouts."); return; }
