@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3381">
+<meta name="pt-build" content="3410">
 <script>
 /* Multi-graphiques : cette page est-elle un graphique seul dans une iframe ?
    Si oui, ses réglages de graphique (indicateurs, bougies, unité de temps,
@@ -581,6 +581,23 @@
   .card.widget.chart-fs .ct-shield{display:none !important;}
   .card.widget.chart-fs:fullscreen{background:var(--panel);}
   /* ---------- Multi-graphiques (plein écran) ---------- */
+  .mc-lay-btn{margin-left:auto !important;}
+  .mc-lay-btn + .mc-add-btn{margin-left:0 !important;}
+  .layout-pop{position:fixed;z-index:2147483400;max-height:min(560px, 80vh);overflow:auto;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--panel);box-shadow:0 18px 40px rgba(0,0,0,.45);display:flex;flex-direction:column;gap:8px;}
+  .layout-pop[hidden]{display:none;}
+  .lp-h{font:600 14px var(--sans);}
+  .lp-save{display:flex;flex-direction:column;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--border-soft);}
+  .lp-save input{font:500 13px var(--sans);padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel-2);color:var(--text);}
+  .lp-vis{display:flex;} .lp-vis button{flex:1;}
+  .lp-btns{display:flex;gap:6px;} .lp-btns button{flex:1;}
+  .lp-note{font-size:11.5px;color:var(--text-faint);line-height:1.4;} .lp-msg{font-size:12px;color:var(--warn);min-height:0;}
+  .lp-l{font:600 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);margin-top:4px;}
+  .lp-list{display:flex;flex-direction:column;gap:4px;}
+  .lp-it{display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:8px;background:var(--panel-2);}
+  .lp-it span{flex:1;min-width:0;display:flex;flex-direction:column;} .lp-it b{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .lp-it em{font-style:normal;font-size:11px;color:var(--text-faint);}
+  .lp-it button{border:1px solid var(--border);background:var(--panel);color:var(--text-dim);border-radius:6px;padding:4px 8px;font-size:11.5px;cursor:pointer;white-space:nowrap;}
+  .lp-it button:hover{color:var(--text);border-color:var(--accent);}
+  .lp-empty{font-size:12px;color:var(--text-faint);padding:4px 2px;}
   .mc-add-btn{display:none;align-items:center;gap:5px;margin-left:auto;margin-right:6px;padding:5px 11px;border-radius:8px;border:1px solid var(--border-soft);background:var(--bg-raised);color:var(--text);font:600 12px var(--sans);cursor:pointer;}
   .mc-add-btn:hover{border-color:var(--accent);color:var(--accent);}
   .card.widget.chart-fs .mc-add-btn{display:inline-flex;}
@@ -3326,6 +3343,20 @@
   .tx-stats b{color:var(--text);font-weight:600;}
   .tx-dot{width:3px;height:3px;border-radius:50%;background:var(--text-faint);display:inline-block;}
   .tx-tabs{min-width:300px;}
+  .jn-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px;}
+  .jn-note{font-size:12.5px;color:var(--text-faint);margin:0 0 10px;}
+  .jn-form{display:flex;flex-direction:column;gap:8px;padding:14px;border:1px solid var(--border-soft);border-radius:12px;background:var(--panel-2);margin-bottom:16px;}
+  .jn-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .jn-form select, .jn-form input, .jn-form textarea{font:inherit;font-size:13px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--text);}
+  .jn-form select{flex:1;min-width:160px;}
+  .jn-px input{flex:1;min-width:90px;font-family:var(--mono);}
+  .jn-form textarea{resize:vertical;}
+  .jn-file{cursor:pointer;font-size:12.5px;padding:7px 10px;border-radius:8px;border:1px dashed var(--border);color:var(--text-dim);}
+  .jn-form .btn-primary{margin-left:auto;}
+  .jn-msg{font-size:12px;color:var(--warn);}
+  .jn-acts{display:flex;gap:6px;margin-left:auto;}
+  .jn-acts button{border:1px solid var(--border);background:var(--panel);color:var(--text-dim);border-radius:6px;padding:4px 9px;font-size:11.5px;cursor:pointer;}
+  .jn-acts button:hover{color:var(--text);border-color:var(--accent);}
   .tx-tabs button{white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px;}
   .tx-tabs button i{font-style:normal;font-family:var(--mono);font-size:10.5px;padding:1px 7px;border-radius:999px;background:color-mix(in srgb, var(--text) 10%, transparent);color:inherit;}
   .tx-tabs button i:empty{display:none;}
@@ -5063,6 +5094,8 @@
   .wz-shield span{font-size:12px;font-weight:500;color:var(--text);background:color-mix(in srgb, var(--panel-2) 92%, transparent);border:1px solid var(--border);border-radius:999px;padding:6px 12px;opacity:0;transform:translateY(6px);transition:opacity .2s, transform .2s;pointer-events:none;}
   .wz-shield:hover span{opacity:1;transform:none;}
   .wz-shield.is-off{pointer-events:none;}
+  .card.widget.chart-fs .wz-shield, html.pt-embed .wz-shield, html.pt-embed .ct-shield{display:none !important;}
+  .mc-rename{width:130px;font:600 11.5px var(--mono);padding:2px 6px;border-radius:5px;border:1px solid var(--accent);background:var(--panel-2);color:var(--text);}
   .wz-shield.is-off span{display:none;}
   @media (hover:none){ .wz-shield{display:none;} }
   /* Mobile : le graphique (interne ou TradingView) s'active d'un toucher.
@@ -6127,7 +6160,7 @@
 
         <div class="widget-col" data-col="1">
           <div class="card widget" draggable="true" data-widget="chart">
-            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Graphique</h3><span class="mc-hint">Double-clic : ce graphique seul / retour · ⤢ en haut du graphique : retirer / remettre sa barre</span><button type="button" class="mc-add-btn" id="mc-add" title="Ajouter un graphique à côté (plein écran)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Graphique</span></button><button type="button" class="widget-fs-toggle" id="chart-fs-btn" title="Plein écran" aria-label="Plein écran" aria-pressed="false"><svg class="fs-in" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><svg class="fs-out" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg><span class="fs-lbl">Quitter</span></button><button type="button" class="widget-free-toggle" data-widget-free="chart" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="chart" title="Masquer ce widget">✕</button></div>
+            <div class="widget-head"><span class="widget-grip" title="Déplacer">⠿</span><h3>Graphique</h3><span class="mc-hint">Double-clic : ce graphique seul / retour · ⤢ en haut du graphique : retirer / remettre sa barre</span><button type="button" class="mc-add-btn mc-lay-btn" id="mc-layouts" title="Enregistrer / charger un layout (privé ou public)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16M3 12h9"/></svg><span>Layouts</span></button><button type="button" class="mc-add-btn" id="mc-add" title="Ajouter un graphique à côté (plein écran)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Graphique</span></button><button type="button" class="widget-fs-toggle" id="chart-fs-btn" title="Plein écran" aria-label="Plein écran" aria-pressed="false"><svg class="fs-in" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><svg class="fs-out" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg><span class="fs-lbl">Quitter</span></button><button type="button" class="widget-free-toggle" data-widget-free="chart" title="Libérer la position — glisser n'importe où, chevauchement permis">📌</button><button type="button" class="widget-hide" data-widget-hide="chart" title="Masquer ce widget">✕</button></div>
             <div class="chart-head">
               <div class="chart-head-sym"><span class="sym-big" id="chart-sym">BTC</span><span class="name-big" id="chart-name">Bitcoin</span><span class="src-chip" id="chart-src-chip" hidden></span></div>
               <div class="chart-qt" id="chart-qt">
@@ -7066,7 +7099,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3381 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3410 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -16258,6 +16291,103 @@ function chartDblFs(){
   if (!chartFs){ chartFsSet(true); return; }
   mcDblPane("main");
 }
+/* ---------- Layouts enregistrés (v3400) ----------
+   Un layout = la disposition du plein écran + pour chaque graphique son actif,
+   son unité de temps, ses indicateurs, ses couleurs, sa source et ses dessins
+   (copie des clés localStorage du graphique principal et des clés « @panneau »
+   des graphiques ajoutés). Enregistré sur le compte (Firestore layouts/{id}),
+   privé ou public. « Enregistrer » met à jour le layout en cours (et donc sa
+   version publique) ; charger un layout remplace la disposition actuelle. */
+const LAYOUT_CUR_KEY = "paperTapeLayoutCur";
+const LAYOUT_SKIP = {paperTapeLeverage:1};
+function layoutAllowedKey(k){
+  const base = String(k).split("@")[0], suf = String(k).split("@")[1];
+  if (suf!=null && !/^[A-Za-z0-9_-]{1,20}$/.test(suf)) return false;
+  if (LAYOUT_SKIP[base]) return false;
+  return base===MC_KEY || base===CHART_DRAW_LINK_KEY || MC_EMBED_KEYS.includes(base);
+}
+function layoutCollect(){
+  if (MC.on) mcSave();
+  const keys = {}, take = k=>{ try{ const v = localStorage.getItem(k); if (v!=null && layoutAllowedKey(k)) keys[k] = v; }catch(e){} };
+  take(MC_KEY); take(CHART_DRAW_LINK_KEY);
+  MC_EMBED_KEYS.forEach(k=>take(k));
+  Object.keys(MC.panes||{}).forEach(id=>{ if (id!=="main") MC_EMBED_KEYS.forEach(k=>take(k+"@"+id)); });
+  return {keys, mainSym:selectedSymbol};
+}
+function layoutCur(){ try{ return JSON.parse(localStorage.getItem(LAYOUT_CUR_KEY)||"null"); }catch(e){ return null; } }
+async function layoutSave(asNew, name, pub){
+  if (!(dbReady && db && clientId)) return {err:"Connecte-toi pour enregistrer un layout."};
+  const c = layoutCollect(), cur = layoutCur();
+  const size = JSON.stringify(c.keys).length;
+  if (size > 900000) return {err:"Layout trop lourd (trop de dessins) : retire des dessins puis réessaie."};
+  const doc = {owner:clientId, ownerName:state.username||"Trader", name:String(name||"Mon layout").slice(0,60), public:!!pub, keys:c.keys, mainSym:c.mainSym, n:Object.keys(MC.panes||{}).length||1, updatedAt:new Date().toISOString()};
+  try{
+    if (!asNew && cur && cur.id && cur.owner===clientId){ await db.collection("layouts").doc(cur.id).set(doc); localStorage.setItem(LAYOUT_CUR_KEY, JSON.stringify({id:cur.id, owner:clientId, name:doc.name, public:doc.public})); return {ok:true, id:cur.id, updated:true}; }
+    doc.createdAt = doc.updatedAt;
+    const ref = db.collection("layouts").doc(); await ref.set(doc);
+    localStorage.setItem(LAYOUT_CUR_KEY, JSON.stringify({id:ref.id, owner:clientId, name:doc.name, public:doc.public}));
+    return {ok:true, id:ref.id};
+  }catch(e){ return {err:"Enregistrement impossible ("+((e && e.code)||"erreur")+")."}; }
+}
+function layoutApply(d, id){
+  const keys = d && d.keys; if (!keys || typeof keys!=="object") return;
+  try{
+    Object.keys(keys).forEach(k=>{ if (layoutAllowedKey(k) && typeof keys[k]==="string" && keys[k].length < 900000) localStorage.setItem(k, keys[k]); });
+    localStorage.setItem(LAYOUT_CUR_KEY, JSON.stringify({id, owner:d.owner, name:d.name, public:!!d.public}));
+    sessionStorage.setItem("ptLayoutResume", JSON.stringify({sym:d.mainSym||""}));
+  }catch(e){}
+  location.reload();
+}
+function layoutResume(){
+  let r = null; try{ r = JSON.parse(sessionStorage.getItem("ptLayoutResume")||"null"); sessionStorage.removeItem("ptLayoutResume"); }catch(e){}
+  if (!r || window.PT_EMBED) return;
+  if (r.sym && ASSETS.some(a=>a.symbol===r.sym) && r.sym!==selectedSymbol) selectSymbol(r.sym);
+  setTimeout(()=>{ if (!chartFs) chartFsSet(true); }, 300);
+}
+async function layoutOpen(anchor){
+  let pop = document.getElementById("layout-pop");
+  if (pop && !pop.hidden){ pop.hidden = true; return; }
+  if (!pop){ pop = document.createElement("div"); pop.id = "layout-pop"; pop.className = "layout-pop";
+    document.addEventListener("pointerdown", ev=>{ const p = document.getElementById("layout-pop"); if (p && !p.hidden && !p.contains(ev.target) && !ev.target.closest("#mc-layouts")) p.hidden = true; }, true); }
+  ptPopHost(pop);
+  const cur = layoutCur(), mine = cur && cur.owner===clientId;
+  let pub = mine ? !!cur.public : false;
+  const draw = (mineList, pubList, msg)=>{
+    pop.innerHTML = '<div class="lp-h">Layouts</div>'+
+      '<div class="lp-save"><input id="lp-name" maxlength="60" placeholder="Nom du layout" value="'+escapeHtml(mine ? cur.name : "")+'">'+
+      '<div class="tpo-seg lp-vis"><button type="button" data-vis="0" class="'+(pub ? "" : "on")+'">Privé</button><button type="button" data-vis="1" class="'+(pub ? "on" : "")+'">Public</button></div>'+
+      '<div class="lp-btns"><button type="button" class="btn-primary" id="lp-save">'+(mine ? "Enregistrer" : "Enregistrer le layout")+'</button>'+(mine ? '<button type="button" class="btn-secondary" id="lp-new">Nouveau</button>' : '')+'</div>'+
+      (mine ? '<div class="lp-note">En cours : <b>'+escapeHtml(cur.name)+'</b> · « Enregistrer » le met à jour'+(cur.public ? ", version publique comprise" : "")+'.</div>' : '<div class="lp-note">Disposition, actifs, unités de temps, indicateurs et dessins de tous les graphiques.</div>')+
+      '<div class="lp-msg" id="lp-msg">'+escapeHtml(msg||"")+'</div></div>'+
+      '<div class="lp-l">Mes layouts</div><div class="lp-list">'+(mineList==null ? '<div class="lp-empty">Chargement…</div>' : mineList.length ? mineList.map(x=>'<div class="lp-it"><span><b>'+escapeHtml(x.d.name)+'</b><em>'+(x.d.public ? "Public" : "Privé")+' · '+(x.d.n||1)+' graph.</em></span><button type="button" data-lp-load="'+x.id+'">Charger</button><button type="button" data-lp-vis="'+x.id+'" title="Passer en '+(x.d.public ? "privé" : "public")+'">'+(x.d.public ? "Rendre privé" : "Rendre public")+'</button><button type="button" data-lp-del="'+x.id+'" title="Supprimer">✕</button></div>').join("") : '<div class="lp-empty">Aucun layout enregistré.</div>')+'</div>'+
+      '<div class="lp-l">Layouts publics</div><div class="lp-list">'+(pubList==null ? '<div class="lp-empty">Chargement…</div>' : pubList.length ? pubList.map(x=>'<div class="lp-it"><span><b>'+escapeHtml(x.d.name)+'</b><em>par '+escapeHtml(x.d.ownerName||"?")+' · '+(x.d.n||1)+' graph.</em></span><button type="button" data-lp-load="'+x.id+'">Charger</button></div>').join("") : '<div class="lp-empty">Aucun layout public pour l\'instant.</div>')+'</div>';
+    pop.querySelectorAll("[data-vis]").forEach(b=>b.addEventListener("click", ()=>{ pub = b.dataset.vis==="1"; pop.querySelectorAll("[data-vis]").forEach(x=>x.classList.toggle("on", x===b)); }));
+    const go = async (asNew)=>{ const nm = pop.querySelector("#lp-name").value.trim() || "Mon layout"; pop.querySelector("#lp-msg").textContent = "Enregistrement…";
+      const r = await layoutSave(asNew, nm, pub); if (r.err){ pop.querySelector("#lp-msg").textContent = r.err; return; }
+      chartToast(r.updated ? "Layout mis à jour"+(pub ? " (public)" : "") : "Layout enregistré"+(pub ? " en public" : ""), "info"); pop.hidden = true; };
+    pop.querySelector("#lp-save").addEventListener("click", ()=>go(false));
+    const nb = pop.querySelector("#lp-new"); if (nb) nb.addEventListener("click", ()=>go(true));
+    const all = (mineList||[]).concat(pubList||[]);
+    pop.querySelectorAll("[data-lp-load]").forEach(b=>b.addEventListener("click", ()=>{ const x = all.find(y=>y.id===b.dataset.lpLoad); if (!x) return;
+      if (!confirm("Charger « "+x.d.name+" » ? Ta disposition actuelle, ses indicateurs et ses dessins seront remplacés (enregistre-la avant si besoin).")) return; layoutApply(x.d, x.id); }));
+    pop.querySelectorAll("[data-lp-vis]").forEach(b=>b.addEventListener("click", async ()=>{ const x = (mineList||[]).find(y=>y.id===b.dataset.lpVis); if (!x) return;
+      try{ await db.collection("layouts").doc(x.id).set(Object.assign({}, x.d, {public:!x.d.public})); const c = layoutCur(); if (c && c.id===x.id){ c.public = !x.d.public; localStorage.setItem(LAYOUT_CUR_KEY, JSON.stringify(c)); } }catch(e){} load(); }));
+    pop.querySelectorAll("[data-lp-del]").forEach(b=>b.addEventListener("click", async ()=>{ const x = (mineList||[]).find(y=>y.id===b.dataset.lpDel); if (!x || !confirm("Supprimer « "+x.d.name+" » ?")) return;
+      try{ await db.collection("layouts").doc(x.id).delete(); const c = layoutCur(); if (c && c.id===x.id) localStorage.removeItem(LAYOUT_CUR_KEY); }catch(e){} load(); }));
+  };
+  const load = async ()=>{
+    if (!(dbReady && db && clientId)){ draw([], [], "Connecte-toi pour utiliser les layouts."); return; }
+    let mineList = [], pubList = [];
+    try{ const s = await db.collection("layouts").where("owner","==",clientId).get(); s.forEach(d=>mineList.push({id:d.id, d:d.data()})); }catch(e){}
+    try{ const s = await db.collection("layouts").where("public","==",true).limit(40).get(); s.forEach(d=>{ if (d.data().owner!==clientId) pubList.push({id:d.id, d:d.data()}); }); }catch(e){}
+    const by = (a,b)=>String(b.d.updatedAt||"").localeCompare(String(a.d.updatedAt||""));
+    draw(mineList.sort(by), pubList.sort(by));
+  };
+  draw(null, null); pop.hidden = false;
+  const r = anchor.getBoundingClientRect(), w = Math.min(360, window.innerWidth-16);
+  pop.style.width = w+"px"; pop.style.left = Math.max(8, Math.min(window.innerWidth-w-8, r.right-w))+"px"; pop.style.top = (r.bottom+6)+"px";
+  load();
+}
 function mcStackCount(){ let n = 0; if (typeof MC!=="undefined" && MC.root) mcWalk(MC.root, x=>{ if (x.t==="stack") n++; return null; }); return n; }
 function mcDblPane(id){
   if (typeof MC==="undefined" || !MC.on){ chartFsSet(false); return; }
@@ -16836,10 +16966,16 @@ function initChartDrawing(){
     });
   }
   document.addEventListener("keydown", (e)=>{
-    if (document.body.dataset.view!=="terminal") return;
+    if (document.body.dataset.view!=="terminal" && !window.PT_EMBED && !document.documentElement.classList.contains("chart-fs-on")) return;
     const tag = (document.activeElement && document.activeElement.tagName) || "";
     if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
     const k = (e.key||"").toLowerCase();
+    // Plein écran : si le graphique actif est un graphique ajouté, le raccourci lui est transmis.
+    if (!window.PT_EMBED && typeof MC!=="undefined" && MC.on && MC.act!=="main" && MC.panes[MC.act]){
+      const undo = (e.metaKey || e.ctrlKey) && !e.altKey && (k==="z" || k==="y");
+      const del = e.key==="Delete" || e.key==="Backspace", esc = e.key==="Escape", ent = e.key==="Enter";
+      if (undo || del || esc || ent){ if (undo || del) e.preventDefault(); mcRailSend({cmd:"key", key:e.key, ctrl:e.ctrlKey||e.metaKey, shift:e.shiftKey}); return; }
+    }
     if ((e.metaKey || e.ctrlKey) && !e.altKey && (k==="z" || k==="y")){
       const redo = k==="y" || e.shiftKey;
       if (drawPending){ drawPending = null; drawSetTool(null); e.preventDefault(); return; }
@@ -16912,7 +17048,7 @@ const MC_EMBED_KEYS = ["paperTapeCandleTheme","paperTapeChartInd","paperTapeChar
 const MC = {on:false, el:null, ws:null, rootEl:null, layer:null, tray:null, root:null, panes:{}, mini:[], seq:2, els:{}, bits:null, maxed:null, drag:null, gut:null, act:"main", ro:null, shell:null, rail:null, tools:{}};
 function mcState(){ try{ const v = JSON.parse(localStorage.getItem(MC_KEY)||"null"); if (v && v.root && v.panes && v.panes.main) return v; }catch(e){} return null; }
 function mcSave(){
-  try{ const panes = {}; Object.values(MC.panes).forEach(p=>{ panes[p.id] = {id:p.id, kind:p.kind, sym:p.sym, tf:p.tf}; });
+  try{ const panes = {}; Object.values(MC.panes).forEach(p=>{ panes[p.id] = {id:p.id, kind:p.kind, sym:p.sym, tf:p.tf, name:p.name||undefined}; });
     localStorage.setItem(MC_KEY, JSON.stringify({root:MC.root, panes, mini:MC.mini, seq:MC.seq})); }catch(e){}
 }
 function mcNewId(p){ return p+(MC.seq++); }
@@ -16962,7 +17098,7 @@ function mcEnter(el){
   MC.on = true; MC.el = el;
   const st = mcState() || {root:{t:"stack", id:"s1", tabs:["main"], act:"main"}, panes:{main:{id:"main", kind:"main"}}, mini:[], seq:2};
   MC.root = st.root; MC.mini = st.mini||[]; MC.seq = st.seq||2; MC.panes = {};
-  Object.values(st.panes).forEach(p=>{ MC.panes[p.id] = p.kind==="main" ? {id:"main", kind:"main"} : {id:p.id, kind:"frame", sym:p.sym||"BTC", tf:p.tf||currentTimeframe}; });
+  Object.values(st.panes).forEach(p=>{ MC.panes[p.id] = p.kind==="main" ? {id:"main", kind:"main", name:p.name} : {id:p.id, kind:"frame", sym:p.sym||"BTC", tf:p.tf||currentTimeframe, name:p.name}; });
   if (!mcStackOf("main") && !MC.mini.includes("main")){ MC.root = mcNorm(MC.root); mcInsert("main", MC.root ? "ws" : null, "left"); }
   MC.mini = MC.mini.filter(id=>MC.panes[id] && !mcStackOf(id));
   Object.keys(MC.panes).forEach(id=>{ if (!mcStackOf(id) && !MC.mini.includes(id)) MC.mini.push(id); });
@@ -16982,6 +17118,19 @@ function mcEnter(el){
   el.classList.add("mc-on"); MC.tools = {main: drawTool||""};
   MC.ws.addEventListener("pointerdown", mcPointerDown);
   MC.ws.addEventListener("click", mcClick);
+  // Clic droit sur un onglet : le renommer (vide = nom automatique « BTC · 5m »).
+  MC.ws.addEventListener("contextmenu", (e)=>{
+    const tab = e.target.closest(".mc-tab"); if (!tab) return;
+    e.preventDefault();
+    const p = MC.panes[tab.dataset.mcTab], sp = tab.querySelector("span"); if (!p || !sp) return;
+    const inp = document.createElement("input"); inp.className = "mc-rename"; inp.value = p.name || ""; inp.placeholder = mcLabel(Object.assign({}, p, {name:""})); inp.maxLength = 40;
+    sp.replaceWith(inp); inp.focus(); inp.select();
+    let done = false;
+    const fin = (save)=>{ if (done) return; done = true; if (save){ const v = inp.value.trim(); p.name = v || undefined; mcSave(); } mcRender(); };
+    inp.addEventListener("keydown", ev=>{ ev.stopPropagation(); if (ev.key==="Enter") fin(true); if (ev.key==="Escape") fin(false); });
+    inp.addEventListener("blur", ()=>fin(true));
+    ["pointerdown","click","dblclick"].forEach(t=>inp.addEventListener(t, ev=>ev.stopPropagation()));
+  });
   if (typeof ResizeObserver==="function"){ MC.ro = new ResizeObserver(()=>mcPlace()); MC.ro.observe(MC.rootEl); }
   window.addEventListener("message", mcOnMessage);
   mcRender();
@@ -17023,7 +17172,7 @@ function mcOnMessage(e){
 }
 // ---------- Rendu ----------
 function mcTfLbl(tf){ return tfLabel(tf); }
-function mcLabel(p){ return p.kind==="main" ? selectedSymbol+" · "+mcTfLbl(currentTimeframe) : p.sym+" · "+mcTfLbl(p.tf); }
+function mcLabel(p){ if (p && p.name) return p.name; return p.kind==="main" ? selectedSymbol+" · "+mcTfLbl(currentTimeframe) : p.sym+" · "+mcTfLbl(p.tf); }
 function mcLabels(){
   if (!MC.on) return;
   MC.ws.querySelectorAll("[data-mc-tab]").forEach(t=>{ const p = MC.panes[t.dataset.mcTab], sp = t.querySelector("span"); if (p && sp){ const l = mcLabel(p); if (sp.textContent!==l) sp.textContent = l; } });
@@ -17145,6 +17294,7 @@ function ptEmbedCmd(m){
   else if (m.cmd==="del"){ const d = document.getElementById("chart-draw-del"); if (d) d.click(); }
   else if (m.cmd==="compact") chartCompactToggle();
   else if (m.cmd==="bar") chartCompactSet(!!m.on);
+  else if (m.cmd==="key"){ try{ document.dispatchEvent(new KeyboardEvent("keydown", {key:m.key, ctrlKey:!!m.ctrl, metaKey:false, shiftKey:!!m.shift, bubbles:true, cancelable:true})); }catch(e){} }
 }
 // Barre masquée (true) ou non pour un panneau du multi-graphiques.
 function mcBarState(id){
@@ -22544,6 +22694,9 @@ function switchTradesEdbSubTab(tab){
   const aTab = document.getElementById("tradesedb-tab-analyses");
   if (tTab) tTab.classList.toggle("active", tab==="trades");
   if (aTab) aTab.classList.toggle("active", tab==="analyses");
+  const jTab = document.getElementById("tradesedb-tab-journals"), jSection = document.getElementById("tradesedb-journals-section");
+  if (jTab) jTab.classList.toggle("active", tab==="journals");
+  if (jSection){ jSection.hidden = tab!=="journals"; if (tab==="journals") loadJournals(); }
   const tSection = document.getElementById("tradesedb-trades-section");
   const aSection = document.getElementById("tradesedb-analyses-section");
   if (tSection) tSection.hidden = tab!=="trades";
@@ -22575,6 +22728,7 @@ function renderTradesEdbPage(){
         '<div class="seg tx-tabs">'+
           '<button type="button" id="tradesedb-tab-trades" class="on-mode active">📈 Trades <i id="tradesedb-count-trades"></i></button>'+
           '<button type="button" id="tradesedb-tab-analyses" class="on-mode">🧠 Analyses <i id="tradesedb-count-analyses"></i></button>'+
+          '<button type="button" id="tradesedb-tab-journals" class="on-mode">📓 Journaux</button>'+
         '</div>'+
       '</header>'+
       '<p class="tx-disclaimer">ⓘ Trades et analyses partagés par le bureau à titre pédagogique, pas des conseils en investissement.</p>'+
@@ -22585,13 +22739,105 @@ function renderTradesEdbPage(){
       '<div id="tradesedb-analyses-section" hidden>'+
         '<div id="tradesedb-analyses-wrap"><div class="tx-empty">Chargement…</div></div>'+
       '</div>'+
+      '<div id="tradesedb-journals-section" hidden><div id="tradesedb-journals-wrap"></div></div>'+
     '</div>';
   document.getElementById("tradesedb-tab-trades").addEventListener("click", ()=>switchTradesEdbSubTab("trades"));
   document.getElementById("tradesedb-tab-analyses").addEventListener("click", ()=>switchTradesEdbSubTab("analyses"));
+  document.getElementById("tradesedb-tab-journals").addEventListener("click", ()=>switchTradesEdbSubTab("journals"));
   subscribeTradesEdb();
   subscribeAnalysesEdb();
 }
 
+/* ============================= JOURNAUX DES ÉLÈVES (3e onglet de Trades EDB+, v3410) =============================
+   Chaque élève tient son propre journal de trades, comme le journal du bureau :
+   actif, sens, entrée / stop / objectif / sortie, commentaire, captures. Le
+   journal est privé (visible par soi seul) ou public (visible par tous les
+   membres) : le choix s'applique à toutes ses entrées. Firestore
+   journalEntries/{id} = {owner, postedBy, public, symbol, side, entryPrice,
+   stopLoss, takeProfit, exitPrice, status, comment, imageUrls, createdAt,
+   closedAt}. Captures : Storage feed/{uid}/jn_{id}_{i} (règle existante). */
+const JN_PUB_KEY = "paperTapeJournalPublic";
+let jnMine = null, jnPublic = null, jnAuthor = "all", jnImgs = [];
+function jnIsPublic(){ try{ return localStorage.getItem(JN_PUB_KEY)==="1"; }catch(e){ return false; } }
+function jnCardHtml(doc, mine){
+  const d = doc.d, a = edbTradeAssetMeta(d.symbol), side = d.side==="short" ? "short" : "long", out = edbTradeOutcome(d);
+  const status = out ? '<span class="tx-result '+(out.v>=0?"up":"down")+'">'+escapeHtml(out.label)+'</span>' : '<span class="tx-status'+(d.status!=="closed" ? " live" : "")+'">'+(d.status==="closed" ? "Clôturé" : "<i></i>En cours")+'</span>';
+  return '<article class="tx-card" style="--side:var(--'+side+');">'+
+    '<div class="tx-top"><div class="tx-head"><span class="tx-coin">'+a.icon+'</span><span class="tx-sym">'+escapeHtml(d.symbol||"")+'</span>'+
+      '<span class="tx-side '+side+'">'+(side==="short"?"Short":"Long")+'</span>'+(mine ? '<span class="tx-kind">'+(d.public ? "Public" : "Privé")+'</span>' : '')+
+      '<span class="tx-head-right">'+status+'</span></div>'+
+      (d.comment ? '<p class="tx-comment">'+escapeHtml(d.comment)+'</p>' : '')+edbTradeLevelsHtml(d, a)+'</div>'+
+    edbTradeImagesHtml(d)+
+    '<div class="tx-foot">'+edbAuthorHtml(d)+(mine ? '<span class="jn-acts">'+(d.status!=="closed" ? '<button type="button" data-jn-close="'+doc.id+'">Clôturer</button>' : '')+'<button type="button" data-jn-del="'+doc.id+'">Supprimer</button></span>' : '')+'</div>'+
+  '</article>';
+}
+function jnFormHtml(){
+  const opts = visibleAssets().map(a=>'<option value="'+a.symbol+'"'+(a.symbol===selectedSymbol ? " selected" : "")+'>'+escapeHtml(a.symbol+" · "+String(a.name||"").split(" (")[0])+'</option>').join("");
+  return '<div class="jn-form">'+
+    '<div class="jn-row"><select id="jn-sym">'+opts+'</select><div class="seg jn-side"><button type="button" class="on-long active" data-jn-side="long">Long</button><button type="button" class="on-short" data-jn-side="short">Short</button></div></div>'+
+    '<div class="jn-row jn-px"><input id="jn-entry" type="number" step="any" placeholder="Entrée"><input id="jn-sl" type="number" step="any" placeholder="Stop"><input id="jn-tp" type="number" step="any" placeholder="Objectif"><input id="jn-exit" type="number" step="any" placeholder="Sortie (si clôturé)"></div>'+
+    '<textarea id="jn-comment" rows="3" maxlength="800" placeholder="Pourquoi ce trade ? Contexte, setup, émotions, ce que tu retiens…"></textarea>'+
+    '<div class="jn-row"><label class="jn-file">📷 Captures (3 max)<input id="jn-img" type="file" accept="image/*" multiple hidden></label><span id="jn-img-n" class="jn-note"></span><button type="button" class="btn-primary" id="jn-add">Ajouter au journal</button></div>'+
+    '<div class="jn-msg" id="jn-msg"></div></div>';
+}
+function renderJournals(){
+  const el = document.getElementById("tradesedb-journals-wrap"); if (!el) return;
+  const pub = jnIsPublic();
+  const authors = jnPublic ? Array.from(new Set(jnPublic.map(x=>x.d.postedBy||"?"))) : [];
+  if (jnAuthor!=="all" && !authors.includes(jnAuthor)) jnAuthor = "all";
+  const pubShown = (jnPublic||[]).filter(x=>jnAuthor==="all" || (x.d.postedBy||"?")===jnAuthor);
+  el.innerHTML =
+    '<div class="jn-head"><div class="tx-section-title">Mon journal</div><div class="seg jn-vis"><button type="button" class="on-mode'+(pub ? "" : " active")+'" data-jn-vis="0">🔒 Privé</button><button type="button" class="on-mode'+(pub ? " active" : "")+'" data-jn-vis="1">🌍 Public</button></div></div>'+
+    '<p class="jn-note">'+(pub ? "Ton journal est public : tous les membres voient tes entrées dans « Journaux publics »." : "Ton journal est privé : toi seul le vois.")+'</p>'+
+    jnFormHtml()+
+    (jnMine==null ? '<div class="tx-empty">Chargement…</div>' : jnMine.length ? '<div class="tx-list">'+jnMine.map(x=>jnCardHtml(x, true)).join("")+'</div>' : '<div class="tx-empty">📓<b>Ton journal est vide</b><span>Ajoute ton premier trade ci-dessus.</span></div>')+
+    '<div class="jn-head" style="margin-top:22px;"><div class="tx-section-title">Journaux publics</div></div>'+
+    (authors.length>1 ? '<div class="nw-chips">'+['all'].concat(authors).map(x=>'<button type="button" class="nw-chip'+(jnAuthor===x ? " is-active" : "")+'" data-jn-author="'+escapeHtml(x)+'">'+escapeHtml(x==="all" ? "Tous" : x)+'</button>').join("")+'</div>' : '')+
+    (jnPublic==null ? '<div class="tx-empty">Chargement…</div>' : pubShown.length ? '<div class="tx-list">'+pubShown.map(x=>jnCardHtml(x, false)).join("")+'</div>' : '<div class="tx-empty">🌍<b>Aucun journal public pour l\'instant</b><span>Passe le tien en public pour l\'inaugurer.</span></div>');
+  let side = "long";
+  el.querySelectorAll("[data-jn-side]").forEach(b=>b.addEventListener("click", ()=>{ side = b.dataset.jnSide; el.querySelectorAll("[data-jn-side]").forEach(x=>x.classList.toggle("active", x===b)); }));
+  el.querySelectorAll("[data-jn-vis]").forEach(b=>b.addEventListener("click", ()=>jnSetVisibility(b.dataset.jnVis==="1")));
+  el.querySelectorAll("[data-jn-author]").forEach(b=>b.addEventListener("click", ()=>{ jnAuthor = b.dataset.jnAuthor; renderJournals(); }));
+  el.querySelectorAll("[data-jn-del]").forEach(b=>b.addEventListener("click", async ()=>{ if (!confirm("Supprimer cette entrée du journal ?")) return; try{ await db.collection("journalEntries").doc(b.dataset.jnDel).delete(); }catch(e){} loadJournals(); }));
+  el.querySelectorAll("[data-jn-close]").forEach(b=>b.addEventListener("click", async ()=>{ const v = parseFloat(String(prompt("Prix de sortie ?")||"").replace(",", ".")); if (!(v>0)) return;
+    try{ await db.collection("journalEntries").doc(b.dataset.jnClose).update({exitPrice:v, status:"closed", closedAt:new Date().toISOString()}); }catch(e){ alert("Mise à jour impossible."); } loadJournals(); }));
+  const img = el.querySelector("#jn-img"), imgN = el.querySelector("#jn-img-n");
+  jnImgs = [];
+  img.addEventListener("change", ()=>{ jnImgs = Array.from(img.files||[]).filter(f=>/^image\//.test(f.type) && f.size < 6*1024*1024).slice(0,3); imgN.textContent = jnImgs.length ? jnImgs.length+" capture"+(jnImgs.length>1 ? "s" : "") : ""; });
+  el.querySelector("#jn-add").addEventListener("click", ()=>jnAdd(side));
+}
+async function jnAdd(side){
+  const msg = document.getElementById("jn-msg"), btn = document.getElementById("jn-add");
+  const num = id=>{ const v = parseFloat(String(document.getElementById(id).value||"").replace(",", ".")); return v>0 ? v : null; };
+  const entry = num("jn-entry"), exit = num("jn-exit"), comment = document.getElementById("jn-comment").value.trim().slice(0,800);
+  if (!entry && !comment){ msg.textContent = "Indique au moins une entrée ou un commentaire."; return; }
+  if (!(dbReady && db && clientId)){ msg.textContent = "Connecte-toi pour tenir ton journal."; return; }
+  btn.disabled = true; msg.textContent = "Enregistrement…";
+  const ref = db.collection("journalEntries").doc(), now = new Date().toISOString();
+  const doc = {owner:clientId, postedBy:state.username||"Trader", public:jnIsPublic(), symbol:document.getElementById("jn-sym").value, side,
+    entryPrice:entry, stopLoss:num("jn-sl"), takeProfit:num("jn-tp"), exitPrice:exit, status:exit ? "closed" : "open", comment, createdAt:now, closedAt:exit ? now : null};
+  try{
+    if (jnImgs.length){ const urls = []; for (let i=0;i<jnImgs.length;i++) urls.push(await uploadToStorage(jnImgs[i], "feed/"+clientId+"/jn_"+ref.id+"_"+i)); doc.imageUrls = urls; }
+    await ref.set(doc);
+    msg.textContent = ""; loadJournals();
+  }catch(e){ msg.textContent = "Enregistrement impossible ("+((e && e.code)||"erreur")+")."; btn.disabled = false; }
+}
+async function jnSetVisibility(pub){
+  try{ localStorage.setItem(JN_PUB_KEY, pub ? "1" : "0"); }catch(e){}
+  renderJournals();
+  if (!(dbReady && db) || !jnMine) return;
+  try{ const b = db.batch(); jnMine.forEach(x=>{ if (!!x.d.public!==pub) b.update(db.collection("journalEntries").doc(x.id), {public:pub}); }); await b.commit(); }catch(e){ console.warn("journal visibility", e); }
+  loadJournals();
+}
+async function loadJournals(){
+  if (!(dbReady && db && clientId)){ jnMine = []; jnPublic = []; renderJournals(); return; }
+  const by = (a,b)=>String(b.d.createdAt||"").localeCompare(String(a.d.createdAt||""));
+  try{ const s = await db.collection("journalEntries").where("owner","==",clientId).get(); jnMine = []; s.forEach(d=>jnMine.push({id:d.id, d:d.data()})); jnMine.sort(by); }catch(e){ jnMine = []; }
+  // Le réglage public / privé suit les entrées déjà publiées (autre appareil).
+  if (jnMine.length){ try{ localStorage.setItem(JN_PUB_KEY, jnMine[0].d.public ? "1" : "0"); }catch(e){} }
+  try{ const s = await db.collection("journalEntries").where("public","==",true).limit(150).get(); jnPublic = []; s.forEach(d=>jnPublic.push({id:d.id, d:d.data()})); jnPublic.sort(by); }catch(e){ jnPublic = []; }
+  renderJournals();
+}
 /* ============================= ANALYSES EDB+ (2nd sub-tab of the Trades EDB+ page) ============================= */
 // Same collection/lifecycle shape as edbTrades just above: one doc per post
 // in a new Firestore collection "edbAnalyses", admin-only write, read open
@@ -35020,6 +35266,7 @@ async function init(){
   renderAll();
   try{ if (new URLSearchParams(location.search).has("defi")) switchView("daily"); }catch(e){}
   if (!EMB) setInterval(()=>{ if (state.positions.length>0 || state.pendingOrders.length>0) persistAccount(); }, 10000); // un graphique seul ne sauvegarde que sur ses propres actions
+  if (!EMB){ const lb = document.getElementById("mc-layouts"); if (lb) lb.addEventListener("click", ()=>layoutOpen(lb)); layoutResume(); }
   if (EMB){ ptEmbedLayout(); if (window.PT_EMBED.sym && ASSETS.some(a=>a.symbol===window.PT_EMBED.sym) && selectedSymbol!==window.PT_EMBED.sym) selectSymbol(window.PT_EMBED.sym); ptEmbedReport(true); setInterval(()=>ptEmbedReport(false), 1000); }
 }
 init();
