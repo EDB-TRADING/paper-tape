@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3500">
+<meta name="pt-build" content="3531">
 <script>
 /* Multi-graphiques : cette page est-elle un graphique seul dans une iframe ?
    Si oui, ses réglages de graphique (indicateurs, bougies, unité de temps,
@@ -7113,7 +7113,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3500 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3531 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -8705,6 +8705,7 @@ function tfSelect(tf){
   try{ localStorage.setItem(CHART_TF_KEY, currentTimeframe); }catch(e){}
   document.querySelectorAll("#tf-seg button[data-tf]").forEach(x=>x.classList.toggle("active", x.dataset.tf===tf));
   scheduleCandleRefresh();
+  if (typeof MC!=="undefined" && MC.on) mcLabels(); // onglet du graphique principal : « SPY · 1h »
 }
 function tfCustomRender(){
   const seg = document.getElementById("tf-seg"); if (!seg) return;
@@ -12399,6 +12400,7 @@ function selectSymbol(sym){
   updateOrderReadout();
   scheduleCandleRefresh();
   refreshDom();
+  if (typeof MC!=="undefined" && MC.on) mcLabels();
 }
 function drawSpark(canvas, hist, up){
   const ctx = canvas.getContext("2d");
@@ -26807,8 +26809,8 @@ const DAILY_POOL = [
 // La liste est pondérée : 15 min y figure 3 fois sur 6 (1 tirage sur 2).
 const DAILY_IV = [["15m", 15*60e3, "15 min", "1h"], ["15m", 15*60e3, "15 min", "1h"], ["15m", 15*60e3, "15 min", "1h"],
   ["1h", 3600e3, "1 h", "4h"], ["1h", 3600e3, "1 h", "4h"], ["4h", 4*3600e3, "4 h", "1d"]];
-const DAILY_IV_MS = {"15m":15*60e3, "1h":3600e3, "4h":4*3600e3, "1d":86400e3, "1w":7*86400e3};
-const DAILY_IV_LABEL = {"15m":"15 min", "1h":"1 h", "4h":"4 h", "1d":"1 jour", "1w":"1 semaine"};
+const DAILY_IV_MS = {"5m":5*60e3, "30m":30*60e3, "15m":15*60e3, "1h":3600e3, "4h":4*3600e3, "1d":86400e3, "1w":7*86400e3};
+const DAILY_IV_LABEL = {"5m":"5 min", "30m":"30 min", "15m":"15 min", "1h":"1 h", "4h":"4 h", "1d":"1 jour", "1w":"1 semaine"};
 const DAILY_FROM = Date.UTC(2021, 0, 1);
 const DAILY_DONE_KEY = "paperTapeDailyDone", DAILY_IND_KEY = "paperTapeDailyInd";
 function dailyDayKey(d){
@@ -28385,7 +28387,8 @@ const GQ_THEMES = [
   {k:"tendance", t:"Moyennes & VWAP", d:"EMA 50 / 200, croisements, prix face au VWAP."},
   {k:"momentum", t:"Momentum", d:"RSI en surachat / survente, divergences, MACD."},
   {k:"volume", t:"Volume & volatilité", d:"Pics de volume, squeeze, value area, graphiques nerveux ou endormis."},
-  {k:"liquidite", t:"Liquidité & figures", d:"Prises de liquidité, clusters liquidés, sommets égaux, doubles sommets."},
+  {k:"bougies", t:"Bougies & cassures", d:"Avalements, mèches de rejet, bougies d'impulsion, cassures de range, replis dans la tendance."},
+  {k:"liquidite", t:"Liquidité & figures", d:"FVG et IFVG, mèches de liquidation, prises de liquidité, clusters liquidés, sommets égaux, doubles sommets."},
 ];
 const gqMaxH = (c,k0,k1)=>{ let m = -Infinity; for (let j=k0;j<=k1;j++) m = Math.max(m, c[j][2]); return m; };
 const gqMinL = (c,k0,k1)=>{ let m = Infinity; for (let j=k0;j<=k1;j++) m = Math.min(m, c[j][3]); return m; };
@@ -28572,8 +28575,75 @@ function gqFeatures(rd){
   { let m = 0; for (let k=a;k<=ci;k++){ const [, o, h, l, x] = c[k]; m = Math.max(m, h-Math.max(o,x), Math.min(o,x)-l); } f.maxWick = m/atr; }
   { const A1 = gqAmd(f, c, 1), A2 = gqAmd(f, c, 0.5); f.amd = A1.amd; f.amdLoose = A2.amd; f.rgo = A1.go; }
   { const C1 = gqCluster(f, c, 1), C2 = gqCluster(f, c, 0.5); f.clu = C1.clu; f.cluLoose = C2.clu; f.cluGo = C1.go; }
+  // v3520 — bougies, cassures, replis, Bollinger.
+  { const [, o2, h2, l2, c2] = c[ci], [, o1, , , c1] = c[ci-1], r2 = h2-l2, b2 = Math.abs(c2-o2);
+    const up = Math.max(o2, c2), dn = Math.min(o2, c2);
+    f.lastBody = b2; f.lastRange = r2; f.lastUpW = h2-up; f.lastDnW = dn-l2; f.lastGreen = c2 >= o2;
+    f.engBull = c1 < o1 && c2 > o2 && o2 <= c1 && c2 >= o1 && b2 >= 0.5*atr && cl[ci-1] < cl[ci-6] - 0.3*atr;
+    f.engBear = c1 > o1 && c2 < o2 && o2 >= c1 && c2 <= o1 && b2 >= 0.5*atr && cl[ci-1] > cl[ci-6] + 0.3*atr;
+    f.pinBull = r2 >= atr && f.lastDnW >= 0.6*r2 && b2 <= 0.3*r2 && l2 <= minL(ci-15, ci-1);
+    f.pinBear = r2 >= atr && f.lastUpW >= 0.6*r2 && b2 <= 0.3*r2 && h2 >= maxH(ci-15, ci-1);
+    f.impulse = b2 >= 1.5*atr && b2 >= 0.7*r2;
+    f.calm3 = Math.max(Math.abs(c[ci][4]-c[ci][1]), Math.abs(c[ci-1][4]-c[ci-1][1]), Math.abs(c[ci-2][4]-c[ci-2][1])) <= 0.8*atr;
+    f.doji = r2 >= 0.8*atr && b2 <= 0.1*r2; }
+  { const e = ci-8, hp = maxH(a, e), lp = minL(a, e), w = hp-lp;
+    let n = 0, sx = 0, sy = 0, sxx = 0, sxy = 0, syy = 0;
+    for (let k=a;k<=e;k++){ const xx = k-a, yy = cl[k]; n++; sx += xx; sy += yy; sxx += xx*xx; sxy += xx*yy; syy += yy*yy; }
+    const cov = sxy - sx*sy/n, vx = sxx - sx*sx/n, vy = syy - sy*sy/n, r2p = vx>0 && vy>0 ? cov*cov/(vx*vy) : 1;
+    f.box = {hp, lp, w, e};
+    const flat = r2p <= 0.3 && w <= 0.7*f.span;
+    f.boUp = flat && cl[ci] > hp + 0.5*atr; f.boDn = flat && cl[ci] < lp - 0.5*atr;
+    f.notBoUp = cl[ci] < hp - 0.2*w; f.notBoDn = cl[ci] > lp + 0.2*w; }
+  { const top = maxH(ci-10, ci), bot = minL(ci-10, ci);
+    f.pbUp = f.T.trend==="up" && f.r2 >= 0.35 && f.net > 0.25 && top - cl[ci] >= 1.2*atr && f.e50[ci]!=null && cl[ci] > f.e50[ci] ? {top} : null;
+    f.pbDn = f.T.trend==="down" && f.r2 >= 0.35 && f.net < -0.25 && cl[ci] - bot >= 1.2*atr && f.e50[ci]!=null && cl[ci] < f.e50[ci] ? {bot} : null; }
+  f.bbUpOut = f.bb.up[ci]!=null && cl[ci] > f.bb.up[ci]; f.bbDnOut = f.bb.lo[ci]!=null && cl[ci] < f.bb.lo[ci];
+  f.bbBelowMid = f.bb.mid[ci]!=null && cl[ci] < f.bb.mid[ci]; f.bbAboveMid = f.bb.mid[ci]!=null && cl[ci] > f.bb.mid[ci];
+  // v3530 — FVG, IFVG, mèches de liquidation.
+  f.fv = gqFvg(f, c, 0.5); f.fvL = gqFvg(f, c, 0.2);
+  { const v = []; for (let k=a;k<=ci;k++) v.push(c[k][5]); v.sort((x,y)=>x-y); const med = v[Math.floor(v.length/2)] || 0;
+    f.lwDn = null; f.lwUp = null;
+    for (let k=ci; k>=ci-10; k--){ const [, o, h, l, x, vol] = c[k], r = h-l, top = Math.max(o, x), bot = Math.min(o, x);
+      if (!f.lwDn && bot-l >= 2.5*atr && bot-l >= 0.65*r && vol >= 2*med && l <= minL(Math.max(a, k-20), k)) f.lwDn = {k, p:l};
+      if (!f.lwUp && h-top >= 2.5*atr && h-top >= 0.65*r && vol >= 2*med && h >= maxH(Math.max(a, k-20), k)) f.lwUp = {k, p:h}; } }
   return f;
 }
+// Fair value gaps (FVG) de la fenêtre : trou entre la mèche de la bougie k−1 et
+// celle de la bougie k+1 (≥ g × ATR). Pour chacun : jamais revisité (ouvert),
+// revisité puis rejeté (rebond), ou cassé puis retesté de l'autre côté (IFVG).
+function gqFvg(f, c, g){
+  const {a, ci, atr} = f, cl = k=>c[k][4], R = {openUp:null, openDn:null, rejUp:null, rejDn:null, ifvUp:null, ifvDn:null};
+  for (let k=ci-2; k>=a+1; k--){
+    const h0 = c[k-1][2], l0 = c[k-1][3], h2 = c[k+1][2], l2 = c[k+1][3];
+    const up = l2 - h0 >= g*atr, dn = l0 - h2 >= g*atr; if (!up && !dn) continue;
+    const bot = up ? h0 : h2, top = up ? l2 : l0, z = {k, up, bot, top};
+    let touch = -1, through = -1;
+    for (let j=k+2; j<=ci; j++){
+      if (touch<0 && (up ? c[j][3] <= top : c[j][2] >= bot)) touch = j;
+      if (through<0 && (up ? cl(j) < bot : cl(j) > top)){ through = j; break; }
+    }
+    if (up && touch<0 && !R.openUp && k >= ci-40 && cl(ci) > top + atr) R.openUp = z;
+    if (dn && touch<0 && !R.openDn && k >= ci-40 && cl(ci) < bot - atr) R.openDn = z;
+    // Rebond : revisité dans les 10 dernières bougies, jamais clôturé de l'autre côté, puis reparti.
+    if (up && through<0 && touch >= ci-10 && k <= ci-6 && !R.rejUp && cl(ci) >= top + 0.5*atr) R.rejUp = Object.assign({j:touch}, z);
+    if (dn && through<0 && touch >= ci-10 && k <= ci-6 && !R.rejDn && cl(ci) <= bot - 0.5*atr) R.rejDn = Object.assign({j:touch}, z);
+    // IFVG : FVG cassé (clôture de l'autre côté), puis retesté depuis l'autre côté et rejeté.
+    if (through >= 0 && through <= ci-3){
+      let rt = -1, bad = false;
+      for (let j=through+1; j<=ci; j++){
+        if (up ? cl(j) > top : cl(j) < bot){ bad = true; break; } // repassé : l'inversion ne tient pas
+        if (rt<0 && (up ? c[j][2] >= bot : c[j][3] <= top)) rt = j;
+      }
+      if (!bad && rt >= ci-10 && rt > through){
+        if (up && !R.ifvDn && cl(ci) <= bot - 0.5*atr) R.ifvDn = Object.assign({j:rt, b:through}, z); // FVG haussier devenu résistance
+        if (dn && !R.ifvUp && cl(ci) >= top + 0.5*atr) R.ifvUp = Object.assign({j:rt, b:through}, z); // FVG baissier devenu support
+      }
+    }
+  }
+  return R;
+}
+function gqAnnFvg(z, t, col){ return {lab:[], lev:[], marks:[], zones:[], box:[{k1:z.k-1, k2:z.j!=null ? z.j : z.k+1, top:z.top, bot:z.bot, t, col}], pts:z.j!=null ? [{k:z.j, p:z.up===(t!=="IFVG") ? z.top : z.bot, t:"↺", col, above:false}] : []}; }
+function gqAnnLast(f, t, col, above){ const k = f.ci, c = f.rd.c[k]; return {lab:[], lev:[], zones:[], marks:[], pts:[{k, p:above ? c[2] : c[3], t, col, above}]}; }
 function gqAnnStruct(f){ const an = {lab:f.T.lab.filter(l=>l.k>=f.a), lev:[], marks:[], zones:[]}; if (f.T.inv) an.lev.push({p:f.T.inv.p, t:"Invalidation", col:f.T.trend==="up" ? "dn" : "up"}); if (f.T.bos && f.T.bos.k>=f.a) an.marks.push({k:f.T.bos.k, p:f.T.bos.p, t:"BOS", col:f.T.trend==="up" ? "up" : "dn"}); return an; }
 function gqAnnRange(f){ return {lab:[], lev:[{p:f.hi, t:"Haut du range", col:"faint"}, {p:f.lo, t:"Bas du range", col:"faint"}], marks:[], zones:[]}; }
 function gqAnnDiv(d, col){ return {lab:[], lev:[], zones:[], marks:[{k:d.p1.k, p:d.p1.p, t:"1", col}, {k:d.p2.k, p:d.p2.p, t:"2", col}], segs:[{k1:d.p1.k, p1:d.p1.p, k2:d.p2.k, p2:d.p2.p, col}], rsiSeg:{k1:d.p1.k, r1:d.r1, k2:d.p2.k, r2:d.r2, col}}; }
@@ -28655,11 +28725,75 @@ const GQ_QS = [
     pos:f=>f.pat && /Double sommet/.test(f.pat.line), neg:f=>f.pat && !f.pat.bias && !f.nearH, why:f=>f.pat.line, an:f=>f.pat.annot},
   {th:"liquidite", k:"dbot", nm:"double creux", q:"Sur lequel vois-tu un double creux ?", sub:"Deux creux au même niveau, séparés par un sommet (la ligne de cou).",
     pos:f=>f.pat && /Double creux/.test(f.pat.line), neg:f=>f.pat && !f.pat.bias && !f.nearL, why:f=>f.pat.line, an:f=>f.pat.annot},
+  // v3520 — Bougies & cassures
+  {th:"bougies", k:"engbull", nm:"avalement haussier", q:"Lequel finit sur un avalement haussier ?", sub:"Après une baisse, une bougie verte dont le corps recouvre entièrement la bougie rouge d'avant.",
+    pos:f=>f.engBull, neg:f=>!f.lastGreen && f.lastBody >= 0.3*f.atr, why:f=>"La dernière bougie verte ouvre sous la clôture de la précédente et clôture au-dessus de son ouverture : les acheteurs effacent toute la bougie rouge, juste après une baisse. Signal de retournement possible, à confirmer.", an:f=>gqAnnLast(f, "Avalement", "up", false)},
+  {th:"bougies", k:"engbear", nm:"avalement baissier", q:"Lequel finit sur un avalement baissier ?", sub:"Après une hausse, une bougie rouge dont le corps recouvre entièrement la bougie verte d'avant.",
+    pos:f=>f.engBear, neg:f=>f.lastGreen && f.lastBody >= 0.3*f.atr, why:f=>"La dernière bougie rouge ouvre au-dessus de la clôture de la précédente et clôture sous son ouverture : les vendeurs effacent toute la bougie verte, juste après une hausse. Retournement possible, à confirmer.", an:f=>gqAnnLast(f, "Avalement", "dn", true)},
+  {th:"bougies", k:"pinbull", nm:"mèche de rejet basse", q:"Lequel finit sur une longue mèche de rejet en bas ?", sub:"Le prix descend sur un nouveau plus bas, puis remonte : il reste une longue mèche sous un petit corps.",
+    pos:f=>f.pinBull, neg:f=>f.lastRange > 0 && f.lastDnW <= 0.15*f.lastRange, why:f=>"La dernière bougie va chercher un nouveau plus bas puis remonte presque tout : la mèche basse fait plus de 60 % de la bougie. Les vendeurs ont été rejetés à ce niveau.", an:f=>gqAnnLast(f, "Rejet", "up", false)},
+  {th:"bougies", k:"pinbear", nm:"mèche de rejet haute", q:"Lequel finit sur une longue mèche de rejet en haut ?", sub:"Le prix monte sur un nouveau plus haut, puis redescend : il reste une longue mèche au-dessus d'un petit corps.",
+    pos:f=>f.pinBear, neg:f=>f.lastRange > 0 && f.lastUpW <= 0.15*f.lastRange, why:f=>"La dernière bougie va chercher un nouveau plus haut puis redescend presque tout : la mèche haute fait plus de 60 % de la bougie. Les acheteurs ont été rejetés à ce niveau.", an:f=>gqAnnLast(f, "Rejet", "dn", true)},
+  {th:"bougies", k:"impulse", nm:"bougie d'impulsion", q:"Lequel finit sur une bougie d'impulsion ?", sub:"Une très grosse bougie, presque sans mèche : un camp a pris le contrôle d'un coup.",
+    pos:f=>f.impulse, neg:f=>f.calm3, why:f=>"La dernière bougie fait plus de "+dxNum(f.lastBody/f.atr, 1)+" fois la taille moyenne d'une bougie, avec très peu de mèche : "+(f.lastGreen ? "les acheteurs" : "les vendeurs")+" ont poussé fort jusqu'à la clôture.", an:f=>gqAnnLast(f, "Impulsion", f.lastGreen ? "up" : "dn", f.lastGreen)},
+  {th:"bougies", k:"doji", nm:"doji", q:"Lequel finit sur un doji (indécision) ?", sub:"Ouverture et clôture presque au même prix, avec des mèches des deux côtés.",
+    pos:f=>f.doji, neg:f=>f.lastRange > 0 && f.lastBody >= 0.6*f.lastRange, why:f=>"La dernière bougie a bougé, mais clôture quasiment à son prix d'ouverture : ni les acheteurs ni les vendeurs n'ont gagné. C'est de l'indécision, souvent avant un mouvement.", an:f=>gqAnnLast(f, "Doji", "gold", true)},
+  {th:"bougies", k:"boup", nm:"cassure par le haut", q:"Lequel vient de casser son range par le haut ?", sub:"Le prix tournait en rond entre deux bornes, puis sort franchement au-dessus.",
+    pos:f=>f.boUp, neg:f=>f.notBoUp && !f.boDn, why:f=>"Pendant l'essentiel de la période, le prix reste entre "+dxP(f.box.lp)+" et "+dxP(f.box.hp)+". Les dernières bougies clôturent nettement au-dessus de "+dxP(f.box.hp)+" : cassure haussière.", an:f=>({lab:[], marks:[], zones:[], lev:[{p:f.box.hp, t:"Haut du range", col:"up"}, {p:f.box.lp, t:"Bas du range", col:"faint"}]})},
+  {th:"bougies", k:"bodn", nm:"cassure par le bas", q:"Lequel vient de casser son range par le bas ?", sub:"Le prix tournait en rond entre deux bornes, puis sort franchement en dessous.",
+    pos:f=>f.boDn, neg:f=>f.notBoDn && !f.boUp, why:f=>"Pendant l'essentiel de la période, le prix reste entre "+dxP(f.box.lp)+" et "+dxP(f.box.hp)+". Les dernières bougies clôturent nettement sous "+dxP(f.box.lp)+" : cassure baissière.", an:f=>({lab:[], marks:[], zones:[], lev:[{p:f.box.hp, t:"Haut du range", col:"faint"}, {p:f.box.lp, t:"Bas du range", col:"dn"}]})},
+  {th:"bougies", k:"pbup", nm:"repli dans une hausse", ov:{ema:true}, q:"Lequel fait un repli dans une tendance haussière ?", sub:"Tendance haussière, le prix recule depuis son dernier sommet mais reste au-dessus de l'EMA 50 (bleu).",
+    pos:f=>!!f.pbUp, neg:f=>f.T.trend==="down" && f.net < -0.3, why:f=>"La tendance est haussière, et le prix a reculé de "+dxP(f.pbUp.top)+" à "+dxP(f.rd.c[f.ci][4])+" sans repasser sous l'EMA 50 : c'est un repli (pullback), pas un retournement. Les trois autres sont en tendance baissière.", an:f=>({lab:[], marks:[], zones:[], lev:[{p:f.pbUp.top, t:"Dernier sommet", col:"up"}]})},
+  {th:"bougies", k:"pbdn", nm:"rebond dans une baisse", ov:{ema:true}, q:"Lequel fait un rebond dans une tendance baissière ?", sub:"Tendance baissière, le prix remonte depuis son dernier creux mais reste sous l'EMA 50 (bleu).",
+    pos:f=>!!f.pbDn, neg:f=>f.T.trend==="up" && f.net > 0.3, why:f=>"La tendance est baissière, et le prix est remonté de "+dxP(f.pbDn.bot)+" à "+dxP(f.rd.c[f.ci][4])+" sans repasser au-dessus de l'EMA 50 : c'est un rebond dans la baisse, pas un retournement. Les trois autres sont en tendance haussière.", an:f=>({lab:[], marks:[], zones:[], lev:[{p:f.pbDn.bot, t:"Dernier creux", col:"dn"}]})},
+  // v3520 — Bollinger
+  {th:"volume", k:"bbup", nm:"au-dessus de la bande haute", ov:{bb:true}, q:"Sur lequel le prix clôture-t-il au-dessus de la bande de Bollinger haute ?", sub:"Bandes de Bollinger (20, 2) : la bande haute est à deux écarts-types au-dessus de la moyenne.",
+    pos:f=>f.bbUpOut, neg:f=>f.bbBelowMid, why:f=>"La dernière clôture est au-dessus de la bande haute : le prix s'est étiré très vite vers le haut. En tendance, ça montre de la force ; en range, un excès qui revient souvent vers la moyenne. Les autres sont sous la moyenne (ligne pointillée)."},
+  {th:"volume", k:"bbdn", nm:"sous la bande basse", ov:{bb:true}, q:"Sur lequel le prix clôture-t-il sous la bande de Bollinger basse ?", sub:"Bandes de Bollinger (20, 2) : la bande basse est à deux écarts-types sous la moyenne.",
+    pos:f=>f.bbDnOut, neg:f=>f.bbAboveMid, why:f=>"La dernière clôture est sous la bande basse : le prix s'est étiré très vite vers le bas. En tendance, ça montre de la faiblesse ; en range, un excès qui revient souvent vers la moyenne. Les autres sont au-dessus de la moyenne (ligne pointillée)."},
+  // v3530 — FVG, IFVG, mèches de liquidation
+  {th:"liquidite", k:"fvgopenup", nm:"FVG haussier ouvert", q:"Lequel a laissé un FVG haussier jamais revisité sous le prix ?", sub:"Fair value gap : un trou entre la mèche haute d'une bougie et la mèche basse de l'avant-dernière suivante, laissé par une forte poussée.",
+    pos:f=>!!f.fv.openUp, neg:f=>!f.fvL.openUp && !f.fvL.rejUp, why:f=>{ const z = f.fv.openUp; return "Une poussée haussière a laissé un trou entre "+dxP(z.bot)+" et "+dxP(z.top)+" : aucune transaction n'y a eu lieu des deux côtés. Le prix n'y est jamais revenu ; ces zones servent souvent d'aimant ou de support au retour."; }, an:f=>gqAnnFvg(Object.assign({j:f.ci}, f.fv.openUp), "FVG", "up")},
+  {th:"liquidite", k:"fvgopendn", nm:"FVG baissier ouvert", q:"Lequel a laissé un FVG baissier jamais revisité au-dessus du prix ?", sub:"Fair value gap : un trou entre la mèche basse d'une bougie et la mèche haute de l'avant-dernière suivante, laissé par une forte baisse.",
+    pos:f=>!!f.fv.openDn, neg:f=>!f.fvL.openDn && !f.fvL.rejDn, why:f=>{ const z = f.fv.openDn; return "Une poussée baissière a laissé un trou entre "+dxP(z.bot)+" et "+dxP(z.top)+". Le prix n'y est jamais revenu ; ces zones servent souvent d'aimant ou de résistance au retour."; }, an:f=>gqAnnFvg(Object.assign({j:f.ci}, f.fv.openDn), "FVG", "dn")},
+  {th:"liquidite", k:"fvgrejup", nm:"rejet sur FVG haussier", q:"Sur lequel le prix revient dans un FVG haussier et rebondit ?", sub:"Le prix revient combler une partie du trou laissé par la poussée, sans clôturer en dessous, puis repart vers le haut.",
+    pos:f=>!!f.fv.rejUp, neg:f=>!f.fvL.rejUp && !f.fvL.ifvUp, why:f=>{ const z = f.fv.rejUp; return "FVG haussier entre "+dxP(z.bot)+" et "+dxP(z.top)+". Le prix y revient, les acheteurs défendent la zone (aucune clôture en dessous), puis il repart au-dessus de "+dxP(z.top)+" : rejet sur le FVG."; }, an:f=>gqAnnFvg(f.fv.rejUp, "FVG", "up")},
+  {th:"liquidite", k:"fvgrejdn", nm:"rejet sur FVG baissier", q:"Sur lequel le prix revient dans un FVG baissier et rechute ?", sub:"Le prix revient combler une partie du trou laissé par la baisse, sans clôturer au-dessus, puis repart vers le bas.",
+    pos:f=>!!f.fv.rejDn, neg:f=>!f.fvL.rejDn && !f.fvL.ifvDn, why:f=>{ const z = f.fv.rejDn; return "FVG baissier entre "+dxP(z.bot)+" et "+dxP(z.top)+". Le prix y revient, les vendeurs défendent la zone (aucune clôture au-dessus), puis il repart sous "+dxP(z.bot)+" : rejet sur le FVG."; }, an:f=>gqAnnFvg(f.fv.rejDn, "FVG", "dn")},
+  {th:"liquidite", k:"ifvgup", nm:"IFVG haussier", q:"Lequel retourne un FVG baissier en support (IFVG) ?", sub:"Inverse FVG : un FVG baissier est cassé par le haut, puis le prix revient le tester par au-dessus et rebondit.",
+    pos:f=>!!f.fv.ifvUp, neg:f=>!f.fvL.ifvUp && !f.fvL.rejUp, why:f=>{ const z = f.fv.ifvUp; return "Un FVG baissier ("+dxP(z.bot)+" – "+dxP(z.top)+") devait freiner le prix. Il est cassé par une clôture au-dessus, puis retesté par le haut et défendu : l'ancienne résistance est devenue support. C'est un IFVG haussier."; }, an:f=>gqAnnFvg(f.fv.ifvUp, "IFVG", "up")},
+  {th:"liquidite", k:"ifvgdn", nm:"IFVG baissier", q:"Lequel retourne un FVG haussier en résistance (IFVG) ?", sub:"Inverse FVG : un FVG haussier est cassé par le bas, puis le prix revient le tester par en dessous et rechute.",
+    pos:f=>!!f.fv.ifvDn, neg:f=>!f.fvL.ifvDn && !f.fvL.rejDn, why:f=>{ const z = f.fv.ifvDn; return "Un FVG haussier ("+dxP(z.bot)+" – "+dxP(z.top)+") devait soutenir le prix. Il est cassé par une clôture en dessous, puis retesté par le bas et rejeté : l'ancien support est devenu résistance. C'est un IFVG baissier."; }, an:f=>gqAnnFvg(f.fv.ifvDn, "IFVG", "dn")},
+  {th:"liquidite", k:"liqwickdn", nm:"mèche de liquidation basse", ov:{vol:true}, q:"Lequel montre une mèche de liquidation vers le bas ?", sub:"Une chute éclair sur un nouveau plus bas, avec un gros volume, aussitôt rachetée : les longs à levier ont été liquidés.",
+    pos:f=>!!f.lwDn, neg:f=>f.maxWick <= 1.2, why:f=>"Une bougie plonge jusqu'à "+dxP(f.lwDn.p)+" avec un volume au moins deux fois supérieur à la normale, puis remonte presque tout : la mèche fait plus de 2,5 fois une bougie moyenne. Ce sont typiquement des liquidations de longs en cascade, rachetées aussitôt.", an:f=>({lab:[], lev:[], zones:[], marks:[], pts:[{k:f.lwDn.k, p:f.lwDn.p, t:"Liq.", col:"dn", above:false}]})},
+  {th:"liquidite", k:"liqwickup", nm:"mèche de liquidation haute", ov:{vol:true}, q:"Lequel montre une mèche de liquidation vers le haut ?", sub:"Une envolée éclair sur un nouveau plus haut, avec un gros volume, aussitôt revendue : les shorts à levier ont été liquidés.",
+    pos:f=>!!f.lwUp, neg:f=>f.maxWick <= 1.2, why:f=>"Une bougie grimpe jusqu'à "+dxP(f.lwUp.p)+" avec un volume au moins deux fois supérieur à la normale, puis redescend presque tout : la mèche fait plus de 2,5 fois une bougie moyenne. Ce sont typiquement des liquidations de shorts en cascade (short squeeze), revendues aussitôt.", an:f=>({lab:[], lev:[], zones:[], marks:[], pts:[{k:f.lwUp.k, p:f.lwUp.p, t:"Liq.", col:"up", above:true}]})},
 ];
+// Chart Check : sa propre sélection, plus large que le Défi du jour (qui garde
+// la sienne, identique pour tous) : mêmes marchés, 6 unités de temps, depuis 2020.
+const GQ_POOL = DAILY_POOL; // mêmes marchés que le Défi du jour (les grosses cryptos et l’or)
+const GQ_IV = [["5m", 5*60e3, "5 min", "1h"], ["15m", 15*60e3, "15 min", "1h"], ["15m", 15*60e3, "15 min", "1h"], ["30m", 30*60e3, "30 min", "4h"],
+  ["1h", 3600e3, "1 h", "4h"], ["1h", 3600e3, "1 h", "4h"], ["4h", 4*3600e3, "4 h", "1d"], ["1d", 86400e3, "1 jour", "1w"]];
+function gqPlan(seed, nCand){
+  const r = dailyRng(seed), end = Date.now() - 30*86400e3, out = [], used = new Map();
+  let tries = 0;
+  for (let i=0; i<nCand; i++){
+    if (++tries > nCand*20) break;
+    const a = GQ_POOL[Math.floor(r()*GQ_POOL.length)];
+    if ((used.get(a.s)||0) >= 4){ i--; continue; } // 3 graphiques max par marché
+    used.set(a.s, (used.get(a.s)||0)+1);
+    const iv = GQ_IV[Math.floor(r()*GQ_IV.length)], from = a.from ? Date.UTC(Math.floor(a.from), Math.round((a.from%1)*12), 1) : Date.UTC(2020, 0, 1);
+    const span = (DAILY_PLAN_WARM+DAILY_SHOW+DAILY_AFTER)*iv[1];
+    if (end - from < 3*span){ i--; continue; }
+    const t = from + span + Math.floor(r()*(end - from - 2*span));
+    out.push({sym:a.s, name:a.n, tick:a.t, iv:iv[0], ivMs:iv[1], ivLabel:iv[2], ivUp:iv[3], cut:Math.floor(t/iv[1])*iv[1]});
+  }
+  return out;
+}
 async function gqFetch(n){
   if (GQ.loading) return GQ.loading;
   GQ.loading = (async ()=>{
-    const cands = dailyPlan(dailyDayKey(), "gq|"+Date.now()+"|"+Math.random().toString(36).slice(2,7), n||30);
+    const cands = gqPlan("gq|"+Date.now()+"|"+Math.random().toString(36).slice(2,7), n||40);
     // Chaque graphique est ajouté dès qu'il arrive (avant : on attendait les 30) :
     // le bandeau du sommaire s'affiche avec le premier.
     await Promise.allSettled(cands.map(rd=>dailyFetchRound(rd).then(c=>{
@@ -28706,18 +28840,18 @@ async function gqNextQuestion(){
   S.cur = null;
   for (let tries=0; tries<5 && !S.cur; tries++){
     S.cur = gqBuild(S.theme, S.done.map(d=>d.Q.k).slice(-3));
-    if (!S.cur){ gqRender("loading"); await gqFetch(30); }
+    if (!S.cur){ gqRender("loading"); await gqFetch(40); }
   }
   if (!S.cur){ gqRender("error"); return; }
   gqRender(); window.scrollTo(0, 0); // nouvelle question : on la remet en haut de l'écran
-  if (GQ.charts.filter(f=>!GQ.used.has(f)).length < 24) gqFetch(30).catch(()=>{}); // la suite se prépare en fond
+  if (GQ.charts.filter(f=>!GQ.used.has(f)).length < 24) gqFetch(40).catch(()=>{}); // la suite se prépare en fond
 }
 async function gqStart(theme){
   if (GQ.s && GQ.view==="quiz") gqFlush(false);
   GQ.s = {id:Date.now().toString(36)+Math.random().toString(36).slice(2,6), theme:theme||"mix", i:0, score:0, done:[], cur:null, streak:0, bestStreak:0, pend:{ok:0, n:0, th:{}, q:{}}};
   gqLoadRemote();
   GQ.view = "quiz"; window.scrollTo(0, 0);
-  if (GQ.charts.filter(f=>!GQ.used.has(f)).length < 24){ gqRender("loading"); await gqFetch(30); }
+  if (GQ.charts.filter(f=>!GQ.used.has(f)).length < 24){ gqRender("loading"); await gqFetch(40); }
   gqNextQuestion();
 }
 function gqAnswer(i){
@@ -28846,7 +28980,7 @@ function gqRender(st){
   if (GQ.view==="hub"){
     el.innerHTML = gqHubHtml(); gqMastDraw();
     if (gqCanSync() && GQ.remoteTried!==clientId) gqLoadRemote().then(()=>{ if (GQ.view==="hub") gqRender(); });
-    if (!GQ.charts.length) gqFetch(30).then(()=>{ if (GQ.view==="hub") gqMastDraw(); }).catch(()=>{});
+    if (!GQ.charts.length) gqFetch(40).then(()=>{ if (GQ.view==="hub") gqMastDraw(); }).catch(()=>{});
     return;
   }
   if (GQ.view==="result"){
