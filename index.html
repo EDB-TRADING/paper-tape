@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3580">
+<meta name="pt-build" content="3591">
 <script>
 /* Multi-graphiques : cette page est-elle un graphique seul dans une iframe ?
    Si oui, ses réglages de graphique (indicateurs, bougies, unité de temps,
@@ -1879,24 +1879,70 @@
   .beginner-btn:hover{border-color:var(--accent);color:var(--accent);}
   .beginner-btn[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb, var(--accent) 12%, transparent);}
   @media (max-width:720px){ .beginner-btn span{display:none;} .beginner-btn{padding:0;width:34px;height:34px;} }
-  .bg-guide{display:none;margin:0 0 14px;padding:14px 16px;border:1px solid color-mix(in srgb, var(--accent) 45%, var(--border));border-radius:var(--radius);background:color-mix(in srgb, var(--accent) 7%, var(--panel, transparent));}
-  html.pt-beginner .bg-guide{display:block;}
-  .bg-guide-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-bottom:10px;}
-  .bg-guide-head b{color:var(--accent);font-size:15px;}
-  .bg-guide-head span{color:var(--text-dim);font-size:13px;flex:1 1 220px;}
-  .bg-guide-x{border:1px solid var(--border);background:none;color:var(--text-dim);border-radius:8px;padding:5px 10px;font:inherit;font-size:12px;cursor:pointer;}
-  .bg-guide-x:hover{color:var(--text);border-color:var(--text-dim);}
-  .bg-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
-  .bg-steps li{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-radius:10px;background:var(--bg, rgba(0,0,0,.15));border:1px solid var(--border);}
-  .bg-steps b{font-size:13px;}
-  .bg-steps span{font-size:12.5px;line-height:1.45;color:var(--text-dim);}
-  .bg-steps em{font-style:normal;color:var(--text);font-weight:600;}
-  @media (max-width:820px){ .bg-steps{grid-template-columns:1fr;} }
-  html.pt-beginner .widget[data-widget="sessions"], html.pt-beginner .widget[data-widget="econcal"], html.pt-beginner .widget[data-widget="dom"],
-  html.pt-beginner .widget[data-widget="poscalc"], html.pt-beginner .widget[data-widget="performance"],
-  html.pt-beginner #candle-theme-seg, html.pt-beginner #chart-draw-seg, html.pt-beginner #chart-ind, html.pt-beginner .mc-hint,
-  html.pt-beginner #chart-source-seg,
-  html.pt-beginner .tk-mini:has(#mode-cross), html.pt-beginner #widget-panel-btn{display:none !important;}
+  .easy-term{display:none;}
+  html.pt-beginner #view-terminal .terminal-grid{display:none;}
+  html.pt-beginner .easy-term{display:grid;grid-template-columns:250px minmax(0,1fr) 330px;gap:14px;align-items:start;}
+  @media (max-width:1180px){ html.pt-beginner .easy-term{grid-template-columns:minmax(0,1fr) 320px;} html.pt-beginner .easy-list{grid-column:1 / -1;order:3;} }
+  @media (max-width:820px){ html.pt-beginner .easy-term{grid-template-columns:1fr;} .easy-chart{order:1;} .easy-side{order:2;} }
+  .easy-h{font-size:14px;margin:0 0 10px;}
+  .easy-h2{margin-top:16px;}
+  .easy-list,.easy-trade,.easy-pos{padding:14px;}
+  .easy-search{width:100%;box-sizing:border-box;padding:9px 11px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font:inherit;font-size:13px;margin-bottom:8px;}
+  .easy-rows{display:flex;flex-direction:column;gap:4px;max-height:640px;overflow-y:auto;}
+  @media (max-width:1180px){ .easy-rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));max-height:320px;} }
+  .easy-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;border:1px solid transparent;background:none;color:var(--text);font:inherit;text-align:left;cursor:pointer;width:100%;}
+  .easy-row:hover{background:var(--panel-2);}
+  .easy-row.on{border-color:var(--accent);background:color-mix(in srgb, var(--accent) 9%, transparent);}
+  .easy-row .easy-ic{width:28px;height:28px;font-size:14px;}
+  .easy-row b{display:block;font-size:13px;}
+  .easy-row small{display:block;font-size:11px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .easy-row .r{margin-left:auto;text-align:right;flex:none;}
+  .easy-row .r b{font-family:var(--mono);font-size:12px;font-weight:600;}
+  .easy-row .r small{font-weight:700;}
+  .easy-ic{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;flex:none;background:color-mix(in srgb, var(--c, var(--accent)) 18%, transparent);color:var(--c, var(--accent));font-weight:700;}
+  .easy-up-t{color:var(--long) !important;} .easy-dn-t{color:var(--short) !important;}
+  .easy-asset{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .easy-asset .easy-ic{width:38px;height:38px;font-size:18px;}
+  .easy-asset b{display:block;font-size:16px;}
+  .easy-asset small{font-size:12px;font-weight:700;}
+  .easy-price{margin-left:auto;font-family:var(--mono);font-size:20px;font-weight:700;}
+  .easy-cash{display:flex;justify-content:space-between;font-size:13px;color:var(--text-dim);padding:9px 11px;border-radius:10px;background:var(--panel-2);margin-bottom:14px;}
+  .easy-cash b{color:var(--text);font-family:var(--mono);}
+  .easy-lbl{display:block;font-size:13px;font-weight:600;margin-bottom:6px;}
+  .easy-amt-row{display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:10px;padding:0 12px;background:var(--bg);}
+  .easy-amt-row input{flex:1;min-width:0;border:0;background:none;color:var(--text);font-family:var(--mono);font-size:20px;font-weight:700;padding:10px 0;outline:none;}
+  .easy-amt-row span{color:var(--text-dim);font-weight:700;}
+  .easy-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0 14px;}
+  .easy-chips button{padding:7px 0;border-radius:8px;border:1px solid var(--border);background:none;color:var(--text-dim);font:inherit;font-size:12px;font-weight:600;cursor:pointer;}
+  .easy-chips button.on{border-color:var(--accent);color:var(--accent);}
+  .easy-go{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .easy-go button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px 6px;border-radius:12px;border:0;cursor:pointer;font:inherit;color:#fff;}
+  .easy-go b{font-size:15px;} .easy-go small{font-size:11px;opacity:.85;}
+  .easy-up{background:var(--long);} .easy-down{background:var(--short);}
+  .easy-go button:hover{filter:brightness(1.08);} .easy-go button:disabled{opacity:.5;cursor:not-allowed;}
+  .easy-prot{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-dim);margin-top:12px;cursor:pointer;}
+  .easy-msg{font-size:12.5px;min-height:16px;margin-top:8px;color:var(--warn, #f2b33d);}
+  .easy-msg.ok{color:var(--long);}
+  .easy-p{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--border-soft, var(--border));}
+  .easy-p:first-child{border-top:0;}
+  .easy-p .l{flex:1;min-width:0;}
+  .easy-p .l b{display:block;font-size:13px;}
+  .easy-p .l small{display:block;font-size:11.5px;color:var(--text-faint);}
+  .easy-p .pnl{font-family:var(--mono);font-weight:700;font-size:13px;text-align:right;white-space:nowrap;}
+  .easy-p .pnl small{display:block;font-size:11px;}
+  .easy-close{padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--text);font:inherit;font-size:12px;font-weight:600;cursor:pointer;flex:none;}
+  .easy-close:hover{border-color:var(--accent);color:var(--accent);}
+  .easy-empty{font-size:12.5px;color:var(--text-faint);padding:6px 0;}
+  /* Graphique déplacé dans le terminal facile : place fixe, outils avancés masqués. */
+  #easy-chart-slot > .widget{position:relative !important;left:auto !important;top:auto !important;width:auto !important;z-index:auto !important;margin:0 !important;}
+  #easy-chart-slot > .widget > .widget-head, #easy-chart-slot .wz-grip, #easy-chart-slot .chart-qt, #easy-chart-slot #chart-zoom-seg, #easy-chart-slot #candle-theme-seg,
+  #easy-chart-slot #chart-draw-seg, #easy-chart-slot #chart-ind, #easy-chart-slot #chart-source-seg, #easy-chart-slot .src-chip,
+  #easy-chart-slot #tf-seg [data-tf="1m"], #easy-chart-slot #tf-seg [data-tf="30m"], #easy-chart-slot #tf-seg [data-tf="4h"], #easy-chart-slot #tf-seg [data-tf="1w"],
+  #easy-chart-slot #tf-seg > :not([data-tf]){display:none !important;}
+  #easy-chart-slot > .widget > .widget-body{height:auto !important;max-height:none !important;overflow:visible !important;}
+  #easy-chart-slot #chart-svg, #easy-chart-slot #tv-chart-wrap{height:min(560px, 62vh) !important;}
+  html.pt-beginner #widget-panel-btn{display:none !important;}
+  @media (max-width:820px){ #easy-chart-slot #chart-svg, #easy-chart-slot #tv-chart-wrap{height:340px !important;} }
   .widget-panel-btn{margin-left:0;width:36px;height:36px;border-radius:10px;}
   .widget-panel{top:calc(100% + 10px);right:0;border-radius:var(--radius);width:240px;}
   .theme-popover{
@@ -6176,13 +6222,34 @@
   <main>
     <!-- ================= TERMINAL ================= -->
     <section class="view active" id="view-terminal">
-      <div class="bg-guide" id="bg-guide">
-        <div class="bg-guide-head"><b>🎓 Mode débutant</b><span>Seul l'essentiel est affiché. L'argent est 100 % fictif : tu ne risques rien.</span><button type="button" class="bg-guide-x" data-beginner-off>Quitter le mode débutant</button></div>
-        <ol class="bg-steps">
-          <li><b>1 · Choisis un actif</b><span>Clique sur une ligne de la liste <em>Marchés</em> (Bitcoin, Ethereum…). Le graphique affiche son prix.</span></li>
-          <li><b>2 · Passe un ordre</b><span>Dans le <em>Ticket d'ordre</em> : <em>Long</em> si tu penses que ça monte, <em>Short</em> si tu penses que ça baisse. Garde un petit levier (×1 à ×5) et mets un <em>SL</em> (stop loss) pour limiter ta perte.</span></li>
-          <li><b>3 · Suis et ferme</b><span>Ta position apparaît dans <em>Positions ouvertes</em> avec son gain ou sa perte en direct. Clique sur <em>Fermer</em> quand tu veux encaisser.</span></li>
-        </ol>
+      <div class="easy-term" id="easy-term">
+        <div class="card easy-list">
+          <h3 class="easy-h">Marchés</h3>
+          <input type="search" id="easy-search" class="easy-search" placeholder="Rechercher (Bitcoin, Apple…)" autocomplete="off">
+          <div class="easy-rows" id="easy-rows"></div>
+        </div>
+        <div class="easy-chart" id="easy-chart-slot"></div>
+        <div class="easy-side">
+          <div class="card easy-trade">
+            <div class="easy-asset"><span id="easy-ic" class="easy-ic"></span><div><b id="easy-name">—</b><small id="easy-chg"></small></div><span class="easy-price num" id="easy-price">—</span></div>
+            <div class="easy-cash">Argent disponible <b class="num" id="easy-cash">—</b></div>
+            <label class="easy-lbl" for="easy-amt">Combien tu investis ?</label>
+            <div class="easy-amt-row"><input type="number" id="easy-amt" min="10" step="10" value="1000" inputmode="decimal"><span>$</span></div>
+            <div class="easy-chips" id="easy-chips"><button type="button" data-easy-amt="100">100 $</button><button type="button" data-easy-amt="500">500 $</button><button type="button" data-easy-amt="1000" class="on">1 000 $</button><button type="button" data-easy-amt="5000">5 000 $</button></div>
+            <div class="easy-go">
+              <button type="button" class="easy-up" data-easy-side="long"><b>📈 Ça va monter</b><small>J'achète</small></button>
+              <button type="button" class="easy-down" data-easy-side="short"><b>📉 Ça va baisser</b><small>Je vends</small></button>
+            </div>
+            <label class="easy-prot"><input type="checkbox" id="easy-prot" checked> Couper automatiquement si je perds 10 %</label>
+            <div class="easy-msg" id="easy-msg" role="status" aria-live="polite"></div>
+          </div>
+          <div class="card easy-pos">
+            <h3 class="easy-h">Mes trades en cours</h3>
+            <div id="easy-pos-list"></div>
+            <h3 class="easy-h easy-h2">Derniers résultats</h3>
+            <div id="easy-hist"></div>
+          </div>
+        </div>
       </div>
       <div class="terminal-grid">
         <div class="widget-col" data-col="0">
@@ -7151,7 +7218,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3580 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3591 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -8024,28 +8091,135 @@ function edbPlusTease(k){
   box.querySelectorAll("[data-ep-tease-go]").forEach(b=>b.addEventListener("click", ()=>{ closeModal(); goToEdbPlus(); }));
   const tr = box.querySelector("[data-ep-tease-trial]"); if (tr) tr.addEventListener("click", ()=>{ closeModal(); openEdbPlusTrialModal(); });
 }
-// Mode débutant du terminal : masque les outils avancés (widgets, dessins,
-// indicateurs, sources TPO / liquidations, mode de marge) et affiche un
-// guide en 3 étapes. Préférence gardée sur l'appareil.
+// Mode débutant (v3590) : le terminal entier passe en version « trading pour
+// les nuls ». Liste de marchés simple, le graphique (outils avancés masqués),
+// un ticket à deux boutons (monte / baisse, montant en $, levier ×1, ordre au
+// marché, protection -10 % optionnelle) et les trades en cours avec leur
+// gain / perte. Le widget graphique est déplacé dans le terminal facile puis
+// remis à sa place (layout) en sortant. Préférence gardée sur l'appareil.
+const EZ = {timer:0, posKey:"", listKey:"", amt:1000};
+function easyOn(){ return document.documentElement.classList.contains("pt-beginner"); }
+function easyMountChart(){
+  const slot = document.getElementById("easy-chart-slot"), ch = widgetEl("chart");
+  if (slot && ch && ch.parentElement!==slot) slot.appendChild(ch);
+}
 function setBeginnerMode(on){
-  document.documentElement.classList.toggle("pt-beginner", !!on);
+  on = !!on;
+  const was = easyOn();
+  document.documentElement.classList.toggle("pt-beginner", on);
   try{ localStorage.setItem("paperTapeBeginner", on ? "1" : "0"); }catch(e){}
-  const b = document.getElementById("beginner-btn"); if (b) b.setAttribute("aria-pressed", String(!!on));
+  const b = document.getElementById("beginner-btn"); if (b) b.setAttribute("aria-pressed", String(on));
+  clearInterval(EZ.timer);
   if (on){
-    // Revient au graphique simple si TPO / liquidations / TradingView étaient affichés.
     const src = document.getElementById("chart-src-internal"); if (src && !src.classList.contains("active")) src.click();
+    const tf = document.querySelector('#tf-seg [data-tf].active');
+    if (tf && ["1m","30m","4h","1w"].indexOf(tf.dataset.tf)!==-1){ const t = document.querySelector('#tf-seg [data-tf="15m"]'); if (t) t.click(); }
+    easyMountChart();
+    EZ.posKey = EZ.listKey = "";
+    easyRender();
+    EZ.timer = setInterval(()=>{ if (easyOn() && document.body.dataset.view==="terminal" && !document.hidden) easyRender(); }, 1000);
+  } else if (was){
+    try{ applyWidgetLayout(loadWidgetLayout()); applyWidgetFreeState(); }catch(e){}
   }
   window.dispatchEvent(new Event("resize"));
+  if (typeof updateChart==="function") setTimeout(updateChart, 50);
+}
+function easyRender(){
+  const A = ASSETS.find(a=>a.symbol===selectedSymbol) || ASSETS[0], m = market[A.symbol] || {};
+  const $ = id=>document.getElementById(id);
+  // Liste des marchés : reconstruite seulement si la recherche change.
+  const q = ($("easy-search").value||"").trim().toLowerCase();
+  const list = ASSETS.filter(a=>!q || a.symbol.toLowerCase().includes(q) || (a.name||"").toLowerCase().includes(q));
+  const lk = q+"|"+list.length;
+  if (lk!==EZ.listKey){
+    EZ.listKey = lk;
+    $("easy-rows").innerHTML = list.map(a=>'<button type="button" class="easy-row" data-easy-sym="'+a.symbol+'"><span class="easy-ic" style="--c:'+(a.color||"var(--accent)")+'">'+escapeHtml(a.icon||a.symbol[0])+'</span><span style="min-width:0;"><b>'+escapeHtml(a.name)+'</b><small>'+escapeHtml(a.symbol)+'</small></span><span class="r"><b data-ez-px></b><small data-ez-ch></small></span></button>').join("") || '<div class="easy-empty">Aucun marché trouvé.</div>';
+  }
+  $("easy-rows").querySelectorAll("[data-easy-sym]").forEach(r=>{
+    const mk = market[r.dataset.easySym] || {}, a = mk.cfg || {};
+    r.classList.toggle("on", r.dataset.easySym===A.symbol);
+    r.querySelector("[data-ez-px]").textContent = mk.last!=null ? fmtPrice(mk.last, a.decimals) : "…";
+    const c = r.querySelector("[data-ez-ch]"), v = mk.changePct||0;
+    c.textContent = mk.last!=null ? fmtPct(v) : ""; c.className = v>=0 ? "easy-up-t" : "easy-dn-t";
+  });
+  // Ticket
+  $("easy-ic").textContent = A.icon || A.symbol[0]; $("easy-ic").style.setProperty("--c", A.color || "var(--accent)");
+  $("easy-name").textContent = A.name;
+  const v = m.changePct||0;
+  $("easy-chg").textContent = m.last!=null ? fmtPct(v)+" aujourd'hui" : "Prix en chargement…";
+  $("easy-chg").className = m.last!=null ? (v>=0 ? "easy-up-t" : "easy-dn-t") : "";
+  $("easy-price").textContent = m.last!=null ? fmtPrice(m.last, A.decimals) : "—";
+  $("easy-cash").textContent = fmtMoney(Math.max(0, freeBalance()));
+  // Trades en cours : structure reconstruite seulement si la liste change.
+  const P = state.positions || [];
+  const pk = P.map(p=>p.id).join(",");
+  if (pk!==EZ.posKey){
+    EZ.posKey = pk;
+    $("easy-pos-list").innerHTML = P.length ? P.map(p=>{
+      const a = (market[p.symbol]||{}).cfg || {};
+      return '<div class="easy-p" data-ez-pos="'+p.id+'"><div class="l"><b>'+escapeHtml(a.name||p.symbol)+' · '+(p.side==="long" ? "📈 Hausse" : "📉 Baisse")+'</b><small>Investi '+fmtMoney(p.initMargin)+(p.leverage>1.01 ? " · levier ×"+(+p.leverage.toFixed(1)) : "")+'</small></div>'+
+        '<div class="pnl" data-ez-pnl></div><button type="button" class="easy-close" data-easy-close="'+p.id+'">Fermer</button></div>';
+    }).join("") : '<div class="easy-empty">Aucun trade en cours. Choisis un marché puis « Ça va monter » ou « Ça va baisser ».</div>';
+    const H = (state.history||[]).slice(0,5);
+    $("easy-hist").innerHTML = H.length ? H.map(h=>{
+      const a = (market[h.symbol]||{}).cfg || {}, up = (h.pnl||0)>=0;
+      return '<div class="easy-p"><div class="l"><b>'+escapeHtml(a.name||h.symbol)+' · '+(h.side==="long" ? "Hausse" : "Baisse")+'</b><small>'+(h.reason==="sl" ? "Coupé par la protection" : h.reason==="liquidated" ? "Liquidé" : h.reason==="tp" ? "Objectif atteint" : "Fermé")+'</small></div><div class="pnl '+(up ? "easy-up-t" : "easy-dn-t")+'">'+(up ? "+" : "")+fmtMoney(h.pnl||0)+'</div></div>';
+    }).join("") : '<div class="easy-empty">Pas encore de trade terminé.</div>';
+  }
+  P.forEach(p=>{
+    const el = document.querySelector('[data-ez-pos="'+p.id+'"] [data-ez-pnl]'); if (!el) return;
+    const u = hasLive(p.symbol) ? posUnrealized(p) : 0, pc = p.initMargin>0 ? u/p.initMargin*100 : 0;
+    el.className = "pnl "+(u>=0 ? "easy-up-t" : "easy-dn-t");
+    el.innerHTML = (u>=0 ? "+" : "")+fmtMoney(u)+'<small>'+fmtPct(pc)+'</small>';
+  });
+}
+function easyTrade(side){
+  const msg = document.getElementById("easy-msg"); msg.className = "easy-msg";
+  const sym = selectedSymbol;
+  if (RPV && sym===RPV.sym){ msg.textContent = "Replay en cours : reviens au terminal pour trader."; return; }
+  if (currentBookName()==="prop" && state.challenge && state.challenge.phase==="failed"){ msg.textContent = "Ce compte prop est gelé (challenge échoué)."; return; }
+  if (!hasLive(sym)){ msg.textContent = "Le prix de ce marché n'est pas encore disponible, réessaie dans un instant."; return; }
+  const entry = entryFill(sym, side);
+  if (!(entry>0)){ msg.textContent = "Prix indisponible, réessaie dans un instant."; return; }
+  const amt = parseFloat(document.getElementById("easy-amt").value);
+  if (!(amt>=10)){ msg.textContent = "Mets au moins 10 $."; return; }
+  const fee = amt*TAKER_FEE_RATE;
+  if (amt+fee > freeBalance()){ msg.textContent = "Pas assez d'argent disponible : il te reste "+fmtMoney(Math.max(0, freeBalance()))+"."; return; }
+  const prot = document.getElementById("easy-prot").checked;
+  const slVal = prot ? (side==="long" ? entry*0.9 : entry*1.1) : null;
+  try{
+    openPositionCore({symbol:sym, side, mode:"cross", leverage:1, entry, notional:amt, initMargin:amt, entryFee:fee, tpVal:null, slVal});
+    state.marginUsed += amt;
+    state.cash -= fee;
+    mirrorOrderToOtherBook("market", {symbol:sym, side, mode:"cross", leverage:1, entry, notional:amt, tpVal:null, slVal});
+    renderAll(); persistAccount(); checkTradeBadges();
+    msg.className = "easy-msg ok";
+    msg.textContent = (side==="long" ? "C'est parti : tu gagnes si le prix monte." : "C'est parti : tu gagnes si le prix baisse.")+" Suis ton trade juste en dessous.";
+    EZ.posKey = ""; easyRender();
+  }catch(e){
+    console.error("easyTrade failed", e);
+    msg.textContent = "Erreur inattendue, réessaie.";
+  }
 }
 function initBeginnerMode(){
   let on = false; try{ on = localStorage.getItem("paperTapeBeginner")==="1"; }catch(e){}
   const b = document.getElementById("beginner-btn");
   if (b) b.addEventListener("click", ()=>{
-    const nx = !document.documentElement.classList.contains("pt-beginner");
+    const nx = !easyOn();
     setBeginnerMode(nx);
-    appToast(nx ? "Mode débutant activé : seul l'essentiel est affiché." : "Mode débutant désactivé : tous les outils sont de retour.");
+    appToast(nx ? "Mode débutant activé : terminal simplifié." : "Mode débutant désactivé : le terminal complet est de retour.");
   });
-  document.querySelectorAll("[data-beginner-off]").forEach(x=>x.addEventListener("click", ()=>setBeginnerMode(false)));
+  const T = document.getElementById("easy-term");
+  if (T){
+    T.addEventListener("click", e=>{
+      const r = e.target.closest("[data-easy-sym]"); if (r){ selectSymbol(r.dataset.easySym); easyRender(); return; }
+      const c = e.target.closest("[data-easy-amt]"); if (c){ document.getElementById("easy-amt").value = c.dataset.easyAmt; T.querySelectorAll("[data-easy-amt]").forEach(x=>x.classList.toggle("on", x===c)); return; }
+      const g = e.target.closest("[data-easy-side]"); if (g){ easyTrade(g.dataset.easySide); return; }
+      const x = e.target.closest("[data-easy-close]"); if (x){ closePosition(x.dataset.easyClose, "closed"); EZ.posKey = ""; easyRender(); return; }
+    });
+    document.getElementById("easy-search").addEventListener("input", ()=>easyRender());
+    document.getElementById("easy-amt").addEventListener("input", ()=>T.querySelectorAll("[data-easy-amt]").forEach(x=>x.classList.toggle("on", x.dataset.easyAmt===document.getElementById("easy-amt").value)));
+  }
   setBeginnerMode(on);
 }
 function goToEdbPlus(){
@@ -9599,7 +9773,7 @@ function adoptAdminChanges(raw, silent){
   if (typeof renderPnlCalendarProp==="function") renderPnlCalendarProp();
   const v = document.body.dataset.view;
   if (v && v!=="admin" && document.getElementById("view-"+v)) switchView(v);
-  if (!silent) appToast(raw.adminMsg && raw.adminMsgEpoch===raw.adminEpoch ? raw.adminMsg : "Un admin vient de réinitialiser une partie de ton compte : l'affichage a été mis à jour.");
+  if (!silent) appToast("Un admin vient de réinitialiser une partie de ton compte : l'affichage a été mis à jour.");
 }
 function appToast(msg){
   let t = document.getElementById("app-toast");
@@ -13434,7 +13608,8 @@ function positionLinesHtml(g, positions, pending){
     const text = "Limite "+(o.side==="short"?"short":"long");
     out += '<g id="pendb-'+o.id+'">'+chartPendBracketHtml(g, o, o.limitPrice, o.takeProfit, o.stopLoss, false, edge)+'</g>';
   });
-  positions.forEach(p=>{
+  const ez = typeof easyOn==="function" && easyOn(); // mode débutant : ni liquidation ni « + TP / + SL »
+  if (!ez) positions.forEach(p=>{
     if (typeof p.entryPrice!=="number") return;
     if (typeof p.liqPrice==="number" && isFinite(p.liqPrice) && p.liqPrice>0){
       if (inRange(p.liqPrice)) out += chartLevelHtml(g, {price:p.liqPrice, color:g.pal.warn, dash:"1,3", align:"right", label:"Liq. "+(p.side==="short"?"short":"long"), opacity:0.85});
@@ -13448,14 +13623,14 @@ function positionLinesHtml(g, positions, pending){
     const pnlColor = pnl>=0 ? g.cc.up : g.cc.down;
     out += chartLevelHtml(g, {
       price:p.entryPrice, color:g.pal.text, align:"left", labelColor:pnlColor, opacity:0.75, close:RPV ? null : p.id,
-      label:(p.side==="short"?"SHORT":"LONG")+" x"+fmtLev(p.leverage)+" · "+fmtMoneySigned(pnl)+" ("+(roe>=0?"+":"")+roe.toFixed(1)+"%)",
+      label:(ez ? (p.side==="short"?"Baisse":"Hausse") : (p.side==="short"?"SHORT":"LONG")+" x"+fmtLev(p.leverage))+" · "+fmtMoneySigned(pnl)+" ("+(roe>=0?"+":"")+roe.toFixed(1)+"%)",
     });
     const entryY = g.y(p.entryPrice);
     const tpDir = p.side==="long" ? -1 : 1, slDir = -tpDir;
     if (typeof p.takeProfit==="number") out += chartTpSlLevelHtml(g, p, "tp", p.takeProfit);
-    else out += chartCreateChipHtml(g, entryY, CHART_TP_COLOR, "+ TP", p.id, "tp", tpDir);
+    else if (!ez) out += chartCreateChipHtml(g, entryY, CHART_TP_COLOR, "+ TP", p.id, "tp", tpDir);
     if (typeof p.stopLoss==="number") out += chartTpSlLevelHtml(g, p, "sl", p.stopLoss);
-    else out += chartCreateChipHtml(g, entryY, CHART_SL_COLOR, "+ SL", p.id, "sl", slDir);
+    else if (!ez) out += chartCreateChipHtml(g, entryY, CHART_SL_COLOR, "+ SL", p.id, "sl", slDir);
   });
   return out;
 }
@@ -33292,8 +33467,10 @@ function applyWidgetLayout(layout){
   });
   renderWidgetPanel();
   if (typeof updateFreeLayerExtent==="function") updateFreeLayerExtent();
+  if (typeof easyOn==="function" && easyOn()) easyMountChart();
 }
 function currentLayoutFromDom(){
+  if (typeof easyOn==="function" && easyOn()) return loadWidgetLayout(); // graphique prêté au terminal facile
   const cols = Array.from(document.querySelectorAll(".widget-col"));
   const layoutCols = cols.map(col => Array.from(col.querySelectorAll(".widget")).map(el=>el.dataset.widget));
   // While an edbPlusOnly widget is forced hidden by the lock above, its live
@@ -33594,6 +33771,7 @@ function applyWidgetFreeState(){
       el.style.zIndex = "";
     }
   });
+  if (typeof easyOn==="function" && easyOn()) easyMountChart();
 }
 // ---- Taille des widgets (v2) ----
 // Un seul modèle, le même pour tous les widgets :
@@ -34392,7 +34570,6 @@ function adminActionsHtml(id, d){
       btn("data-admin-adjust","Ajuster le solde")+
       btn("data-admin-badges","Badges")+
       btn("data-admin-trades","Historique des trades")+
-      btn("data-admin-sendtrade","Envoyer un trade…")+
     '</div>'+
     '<div class="adm-act-group"><span>Réinitialiser</span>'+
       btn("data-admin-reset-trading","Trading", "warn")+
@@ -35081,88 +35258,6 @@ async function adminToggleThemes(id){
     console.warn("admin themes toggle failed", e);
     alert("Échec — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).");
   }
-}
-// v3580 : l'admin ouvre une position sur le compte de trading normal d'un
-// joueur (même forme que openPositionCore : le serveur la suit, TP / SL et
-// liquidation compris). Prix d'entrée = prix du marché, ou saisi à la main.
-function adminSendTrade(id){
-  const doc = adminFindDoc(id); if (!doc) return;
-  const d = doc.data(), name = d.username || id;
-  const opts = ASSETS.map(a=>'<option value="'+a.symbol+'">'+escapeHtml(a.symbol+" · "+a.name)+'</option>').join("");
-  openModal(
-    '<h3 style="margin-bottom:6px;">Envoyer un trade — '+escapeHtml(name)+'</h3>'+
-    '<div class="chart-note" style="margin-bottom:12px;">Ouvre une position sur son compte de trading normal (pas le prop). Le joueur la voit dans « Positions ouvertes » et peut la fermer.</div>'+
-    '<div class="field-row"><label>Actif</label><select id="ast-sym" class="tpsl-input">'+opts+'</select></div>'+
-    '<div class="field-row"><label>Sens</label><div class="seg tk-pills"><button type="button" class="on-long active" data-ast-side="long">Long</button><button type="button" class="on-short" data-ast-side="short">Short</button></div></div>'+
-    '<div class="field-row"><label>Mode de marge</label><div class="seg tk-pills"><button type="button" class="on-mode active" data-ast-mode="cross">Cross</button><button type="button" class="on-mode" data-ast-mode="isolated">Isolated</button></div></div>'+
-    '<div class="field-row"><label>Taille ($ de notionnel)</label><input type="number" step="any" min="10" id="ast-not" class="tpsl-input" value="1000"></div>'+
-    '<div class="field-row"><label>Levier</label><input type="number" step="1" min="1" max="200" id="ast-lev" class="tpsl-input" value="10"></div>'+
-    '<div class="field-row"><label>Prix d\'entrée (vide = prix du marché)</label><input type="number" step="any" id="ast-px" class="tpsl-input" placeholder="Marché"></div>'+
-    '<div class="field-row"><label>Take profit (optionnel)</label><input type="number" step="any" id="ast-tp" class="tpsl-input" placeholder="Prix"></div>'+
-    '<div class="field-row"><label>Stop loss (optionnel)</label><input type="number" step="any" id="ast-sl" class="tpsl-input" placeholder="Prix"></div>'+
-    '<label style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;font-size:13px;"><input type="checkbox" id="ast-fee" checked> Prélever les frais d\'entrée (0,04 %)</label>'+
-    '<div class="chart-note" id="ast-info" style="margin:6px 0;min-height:30px;"></div>'+
-    '<button class="btn-primary" id="ast-go" style="width:100%;margin-top:6px;">Envoyer le trade</button>');
-  const $ = q=>document.getElementById(q);
-  let side = "long", mode = "cross";
-  const box = $("modal-box");
-  box.querySelectorAll("[data-ast-side]").forEach(b=>b.addEventListener("click", ()=>{ side = b.dataset.astSide; box.querySelectorAll("[data-ast-side]").forEach(x=>x.classList.toggle("active", x===b)); info(); }));
-  box.querySelectorAll("[data-ast-mode]").forEach(b=>b.addEventListener("click", ()=>{ mode = b.dataset.astMode; box.querySelectorAll("[data-ast-mode]").forEach(x=>x.classList.toggle("active", x===b)); info(); }));
-  const prop = d.activeBookName==="prop" && d.parked;
-  const book = prop ? d.parked : d;
-  function calc(){
-    const sym = $("ast-sym").value, not = parseFloat($("ast-not").value), lev = Math.max(1, Math.min(200, parseFloat($("ast-lev").value)||0));
-    const mk = market[sym] && market[sym].last!=null ? entryFill(sym, side) : null;
-    const px = parseFloat($("ast-px").value) || mk;
-    const tp = parseFloat($("ast-tp").value), sl = parseFloat($("ast-sl").value);
-    const fee = $("ast-fee").checked && isFinite(not) ? not*TAKER_FEE_RATE : 0;
-    const cash = typeof book.cash==="number" ? book.cash : START_CASH, used = book.marginUsed||0;
-    return {sym, not, lev, px, mk, tp:isFinite(tp)?tp:null, sl:isFinite(sl)?sl:null, fee, free:cash-used, margin:isFinite(not)&&lev ? not/lev : NaN};
-  }
-  function info(){
-    const c = calc(), dec = (ASSETS.find(a=>a.symbol===c.sym)||{}).decimals||2;
-    $("ast-info").innerHTML = (c.px ? 'Entrée : <b>'+fmtPrice(c.px, dec)+'</b>'+(c.mk && !parseFloat($("ast-px").value) ? ' (marché)' : '')+' · liquidation ≈ '+fmtPrice(liqPriceFor(c.px, side, c.lev), dec) : 'Pas de prix en direct pour cet actif : saisis un prix d\'entrée.')+
-      '<br>Marge : <b>'+(isFinite(c.margin) ? fmtMoney(c.margin) : "—")+'</b> · marge libre du joueur : '+fmtMoney(c.free)+(prop ? ' (compte normal, il est en prop)' : '');
-  }
-  ["ast-sym","ast-not","ast-lev","ast-px","ast-fee"].forEach(k=>$(k).addEventListener("input", info));
-  info();
-  $("ast-go").addEventListener("click", async ()=>{
-    const c = calc(), msg = $("ast-info"), go = $("ast-go");
-    const bad = t=>{ msg.style.color = "var(--warn)"; msg.textContent = t; };
-    if (!(c.not>=10)) return bad("Taille minimale : 10 $.");
-    if (!(c.px>0)) return bad("Prix d'entrée manquant.");
-    if (c.margin + c.fee > c.free) return bad("Marge insuffisante sur son compte ("+fmtMoney(c.free)+" de libre).");
-    if (c.tp!=null && (side==="long" ? c.tp<=c.px : c.tp>=c.px)) return bad("Le TP doit être "+(side==="long" ? "au-dessus" : "en dessous")+" du prix d'entrée.");
-    if (c.sl!=null && (side==="long" ? c.sl>=c.px : c.sl<=c.px)) return bad("Le SL doit être "+(side==="long" ? "en dessous" : "au-dessus")+" du prix d'entrée.");
-    go.disabled = true;
-    try{
-      const ref = db.collection("traders").doc(id);
-      const fresh = (await ref.get()).data() || {};
-      const isProp = fresh.activeBookName==="prop" && fresh.parked;
-      const bk = isProp ? fresh.parked : fresh;
-      const cash = typeof bk.cash==="number" ? bk.cash : START_CASH, used = bk.marginUsed||0;
-      if (c.margin + c.fee > cash - used) throw new Error("marge");
-      const now = new Date().toISOString();
-      const pos = {id:uid(), symbol:c.sym, side, sizeUnits:c.not/c.px, notional:c.not, entryPrice:c.px, leverage:c.lev, mode, initMargin:c.margin,
-        maintMargin:c.not*MMR, liqPrice:liqPriceFor(c.px, side, c.lev), entryFee:c.fee, feesPaid:c.fee, takeProfit:c.tp, stopLoss:c.sl, openedAt:now, byAdmin:true};
-      const pre = isProp ? "parked." : "";
-      const patch = {};
-      patch[pre+"positions"] = (Array.isArray(bk.positions) ? bk.positions : []).concat([pos]);
-      patch[pre+"marginUsed"] = used + c.margin;
-      patch[pre+"cash"] = cash - c.fee;
-      patch.adminMsg = "📨 Un admin t'a envoyé un trade : "+(side==="long" ? "Long " : "Short ")+c.sym+" · "+fmtMoney(c.not)+" · ×"+(+c.lev.toFixed(2))+". Il est dans « Positions ouvertes ».";
-      patch.adminMsgEpoch = (fresh.adminEpoch||0) + 1;
-      await ref.update(adminOverridePatch(patch));
-      await adminRefreshSelf(id);
-      closeModal();
-      appToast("Trade envoyé à "+name+".");
-      loadAdminTraders();
-    }catch(e){
-      console.warn("admin send trade failed", e);
-      go.disabled = false;
-      bad(e && e.message==="marge" ? "Marge insuffisante sur son compte." : "Échec — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).");
-    }
-  });
 }
 async function adminSetEdbPlus(id, value){
   try{
@@ -36049,7 +36144,6 @@ function initAdminUI(){
       else if (t.dataset.adminRename) adminRenameTrader(t.dataset.adminRename);
       else if (t.dataset.adminTrades) adminTradesOpen(t.dataset.adminTrades);
       else if (t.dataset.adminThemes) adminToggleThemes(t.dataset.adminThemes);
-      else if (t.dataset.adminSendtrade) adminSendTrade(t.dataset.adminSendtrade);
       else if (t.dataset.adminBadges) adminManageBadges(t.dataset.adminBadges);
       else if (t.dataset.adminEdbplus) adminToggleEdbPlus(t.dataset.adminEdbplus);
       else if (t.dataset.adminTrial) adminOpenTrialMenu(t.dataset.adminTrial);
