@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3591">
+<meta name="pt-build" content="3600">
 <script>
 /* Multi-graphiques : cette page est-elle un graphique seul dans une iframe ?
    Si oui, ses réglages de graphique (indicateurs, bougies, unité de temps,
@@ -3417,6 +3417,84 @@
   .tx-stats b{color:var(--text);font-weight:600;}
   .tx-dot{width:3px;height:3px;border-radius:50%;background:var(--text-faint);display:inline-block;}
   .tx-tabs{min-width:300px;}
+  .jn2{display:flex;flex-direction:column;gap:14px;}
+  .jn2-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+  .jn2-tabs button{border:0;background:none;color:var(--text-dim);font:inherit;font-size:14px;font-weight:600;padding:10px 14px;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;}
+  .jn2-tabs button.on{color:var(--text);border-bottom-color:var(--accent);}
+  .jn2-bar{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;}
+  .jn2-bar .jn-note{margin:0;flex:1 1 200px;}
+  .jn2-new{margin-left:auto;}
+  .jn2-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--border-soft);border:1px solid var(--border-soft);border-radius:12px;overflow:hidden;}
+  .jn2-stats.sm{grid-template-columns:repeat(4,minmax(0,1fr));}
+  .jn2-stats > div{display:flex;flex-direction:column;gap:4px;padding:12px 14px;background:var(--panel);}
+  .jn2-stats span{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);}
+  .jn2-stats b{font-family:var(--mono);font-size:18px;}
+  @media (max-width:720px){ .jn2-stats{grid-template-columns:repeat(2,minmax(0,1fr));} .jn2-stats.sm{grid-template-columns:repeat(2,minmax(0,1fr));} }
+  .jn2 .up{color:var(--long);} .jn2 .down{color:var(--short);}
+  .jn2-inbox{border:1px solid color-mix(in srgb, var(--accent) 40%, var(--border));border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;background:color-mix(in srgb, var(--accent) 5%, var(--panel));}
+  .jn2-inbox-h{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;margin-bottom:6px;}
+  .jn2-inbox-h span{font-size:12.5px;color:var(--text-faint);}
+  .jn2-ib-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--border-soft);flex-wrap:wrap;}
+  .jn2-ib-row:first-of-type{border-top:0;}
+  .jn2-ib-row .jn2-res{margin-left:auto;}
+  .jn2-btn{border:1px solid var(--accent);background:var(--accent);color:var(--on-accent, #fff);border-radius:8px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;}
+  .jn2-btn.ghost{background:none;color:var(--text);border-color:var(--border);}
+  .jn2-skip{border:0;background:none;color:var(--text-faint);font:inherit;font-size:12px;cursor:pointer;padding:6px 4px;}
+  .jn2-skip:hover{color:var(--text);}
+  .jn2-insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;}
+  .jn2-ins{border:1px solid var(--border-soft);border-radius:12px;padding:12px 14px;background:var(--panel);}
+  .jn2-ins h4{margin:0 0 8px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);font-weight:600;}
+  .jn2-ins table{width:100%;border-collapse:collapse;font-size:13px;}
+  .jn2-ins th{font-size:11px;color:var(--text-faint);font-weight:500;text-align:right;padding:4px 0;}
+  .jn2-ins td{padding:6px 0;border-top:1px solid var(--border-soft);text-align:right;font-family:var(--mono);}
+  .jn2-ins td:first-child, .jn2-ins th:first-child{text-align:left;font-family:inherit;}
+  .jn2-filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between;}
+  .jn2-filters .nw-chips{margin:0;}
+  .jn2-filters select{font:inherit;font-size:13px;padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--text);}
+  .jn2-list{display:flex;flex-direction:column;gap:10px;}
+  .jn2-card{border:1px solid var(--border-soft);border-left:3px solid var(--side);border-radius:12px;background:var(--panel);padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+  .jn2-c-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .jn2-sym{font-family:var(--mono);font-size:15px;}
+  .jn2-src{font-size:11px;padding:2px 7px;border-radius:999px;border:1px solid var(--border);color:var(--text-dim);}
+  .jn2-when{font-size:12px;color:var(--text-faint);}
+  .jn2-c-res{margin-left:auto;display:flex;align-items:baseline;gap:8px;}
+  .jn2-res{font-family:var(--mono);font-size:15px;}
+  .jn2-r{font-family:var(--mono);font-size:12.5px;padding:2px 7px;border-radius:6px;background:var(--panel-2);}
+  .jn2-live{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-dim);}
+  .jn2-live i{width:7px;height:7px;border-radius:50%;background:var(--warn, #f2b33d);}
+  .jn2-lv{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:var(--mono);font-size:13px;}
+  .jn2-lv em{font-style:normal;font-family:var(--sans, inherit);font-size:11px;color:var(--text-faint);margin-right:6px;}
+  .jn2-tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+  .jn2-tag{font-size:11.5px;padding:3px 8px;border-radius:999px;background:var(--panel-2);color:var(--text-dim);}
+  .jn2-tag.setup{background:color-mix(in srgb, var(--accent) 14%, transparent);color:var(--accent);font-weight:600;}
+  .jn2-tag.plan-oui{color:var(--long);} .jn2-tag.plan-non{color:var(--short);}
+  .jn2-stars{color:var(--gold, #d7b563);font-size:13px;letter-spacing:1px;} .jn2-stars i{font-style:normal;color:var(--border);}
+  .jn2-txt em{display:block;font-style:normal;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);margin-bottom:3px;}
+  .jn2-txt p{margin:0;font-size:13.5px;line-height:1.5;white-space:pre-wrap;}
+  .jn2-lesson{padding:9px 11px;border-radius:8px;background:var(--panel-2);}
+  .jn2-c-foot{display:flex;align-items:center;gap:10px;padding-top:8px;border-top:1px solid var(--border-soft);}
+  .jn2-vis{font-size:11.5px;color:var(--text-faint);}
+  .jn2-ed-box{max-width:min(640px, 96vw) !important;}
+  .jn2-ed{display:flex;flex-direction:column;gap:14px;}
+  .jn2-ed h3{margin:0;}
+  .jn2-ed .jn-note{margin:0;}
+  .jn2-ed-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;}
+  .jn2-ed-row.end{justify-content:flex-end;}
+  .jn2-f{display:flex;flex-direction:column;gap:6px;min-width:0;}
+  .jn2-f.grow{flex:1 1 220px;}
+  .jn2-f > span{font-size:12px;font-weight:600;color:var(--text-dim);}
+  .jn2-ed select, .jn2-ed input[type=number], .jn2-ed textarea{font:inherit;font-size:14px;padding:9px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--text);width:100%;box-sizing:border-box;}
+  .jn2-ed input[type=number]{font-family:var(--mono);}
+  .jn2-ed input[readonly], .jn2-ed select:disabled{opacity:.7;}
+  .jn2-ed textarea{resize:vertical;}
+  .jn2-ed-px{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+  @media (max-width:560px){ .jn2-ed-px{grid-template-columns:repeat(2,minmax(0,1fr));} }
+  .jn2-chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .jn2-chip{border:1px solid var(--border);background:none;color:var(--text-dim);border-radius:999px;padding:6px 11px;font:inherit;font-size:12.5px;cursor:pointer;}
+  .jn2-chip.on{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb, var(--accent) 10%, transparent);}
+  .jn2-rate{display:flex;gap:2px;}
+  .jn2-rate button{border:0;background:none;font-size:22px;color:var(--border);cursor:pointer;padding:0 2px;line-height:1;}
+  .jn2-rate button.on{color:var(--gold, #d7b563);}
   .jn-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px;}
   .jn-note{font-size:12.5px;color:var(--text-faint);margin:0 0 10px;}
   .jn-form{display:flex;flex-direction:column;gap:8px;padding:14px;border:1px solid var(--border-soft);border-radius:12px;background:var(--panel-2);margin-bottom:16px;}
@@ -7218,7 +7296,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3591 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3600 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -23593,85 +23671,210 @@ function renderTradesEdbPage(){
    journalEntries/{id} = {owner, postedBy, public, symbol, side, entryPrice,
    stopLoss, takeProfit, exitPrice, status, comment, imageUrls, createdAt,
    closedAt}. Captures : Storage feed/{uid}/jn_{id}_{i} (règle existante). */
-const JN_PUB_KEY = "paperTapeJournalPublic";
+const JN_PUB_KEY = "paperTapeJournalPublic", JN_SKIP_KEY = "paperTapeJournalSkip";
 let jnMine = null, jnPublic = null, jnAuthor = "all", jnImgs = [], jnPriv = null, jnPrivAuthor = "all";
+let jnTab = "mine", jnFilter = "all", jnSetupF = "all";
+// v3600 : journal refait. Entrées liées aux vrais trades Paper Tape (bouton
+// « Journaliser » depuis l'historique), setup, émotions, respect du plan,
+// note, leçon retenue, résultat en $ et en R, statistiques par setup et par
+// émotion, modification d'une entrée. Champs Firestore ajoutés (les règles
+// acceptent les champs en plus) : tradeId, pnl, leverage, setup, emotions,
+// plan, rating, lesson, openedAt.
+const JN_SETUPS = ["Cassure","Pullback","Range","Retournement","Suivi de tendance","News / macro","Order flow","Autre"];
+const JN_EMOS = ["Calme","Confiant","Impatient","FOMO","Peur","Revanche","Hésitant","Euphorique"];
+const JN_PLAN = {oui:"Plan respecté", partiel:"Plan à moitié", non:"Plan pas respecté"};
 function jnIsPublic(){ try{ return localStorage.getItem(JN_PUB_KEY)==="1"; }catch(e){ return false; } }
+function jnSkipped(){ try{ return JSON.parse(localStorage.getItem(JN_SKIP_KEY)||"[]"); }catch(e){ return []; } }
+function jnR(d){
+  if (typeof d.entryPrice!=="number" || typeof d.stopLoss!=="number" || typeof d.exitPrice!=="number" || d.status!=="closed") return null;
+  const risk = Math.abs(d.entryPrice - d.stopLoss); if (!(risk>0)) return null;
+  return (d.side==="short" ? d.entryPrice - d.exitPrice : d.exitPrice - d.entryPrice)/risk;
+}
+function jnRes(d){
+  const usd = typeof d.pnl==="number" && d.status==="closed" ? d.pnl : null, pct = edbTradePnlPct(d), r = jnR(d);
+  const k = usd!=null ? usd : pct!=null ? pct : r;
+  return {usd, pct, r, win: k==null ? null : k>0};
+}
+function jnFmtR(r){ return (r>=0 ? "+" : "")+r.toFixed(2).replace(".", ",")+" R"; }
+function jnStats(list){
+  const closed = list.filter(x=>x.d.status==="closed"), res = closed.map(x=>jnRes(x.d)).filter(x=>x.win!=null);
+  const wins = res.filter(x=>x.win).length, rs = res.filter(x=>x.r!=null).map(x=>x.r), usd = res.filter(x=>x.usd!=null);
+  const planned = list.filter(x=>x.d.plan), ok = planned.filter(x=>x.d.plan==="oui").length;
+  return {n:list.length, closed:res.length, win: res.length ? wins/res.length*100 : null, usd: usd.length ? usd.reduce((s,x)=>s+x.usd, 0) : null,
+    r: rs.length ? rs.reduce((s,x)=>s+x, 0)/rs.length : null, plan: planned.length ? ok/planned.length*100 : null};
+}
+function jnGroupRows(list, key){
+  const m = {};
+  list.forEach(x=>{ const r = jnRes(x.d); if (r.win==null) return; (key==="emotions" ? (x.d.emotions||[]) : [x.d[key]||"Sans setup"]).forEach(g=>{
+    const o = m[g] || (m[g] = {g, n:0, w:0, usd:0, hasUsd:false}); o.n++; if (r.win) o.w++; if (r.usd!=null){ o.usd += r.usd; o.hasUsd = true; } }); });
+  return Object.values(m).sort((a,b)=>b.n-a.n).slice(0,6);
+}
+function jnGroupHtml(title, rows){
+  if (!rows.length) return "";
+  return '<div class="jn2-ins"><h4>'+title+'</h4><table><thead><tr><th></th><th>Trades</th><th>Réussite</th><th>Résultat</th></tr></thead><tbody>'+
+    rows.map(o=>'<tr><td>'+escapeHtml(o.g)+'</td><td>'+o.n+'</td><td>'+Math.round(o.w/o.n*100)+' %</td><td class="'+(o.hasUsd ? (o.usd>=0 ? "up" : "down") : "")+'">'+(o.hasUsd ? fmtMoneySigned(o.usd) : "—")+'</td></tr>').join("")+
+    '</tbody></table></div>';
+}
 function jnCardHtml(doc, mine, admin){
-  const d = doc.d, a = edbTradeAssetMeta(d.symbol), side = d.side==="short" ? "short" : "long", out = edbTradeOutcome(d);
-  const status = out ? '<span class="tx-result '+(out.v>=0?"up":"down")+'">'+escapeHtml(out.label)+'</span>' : '<span class="tx-status'+(d.status!=="closed" ? " live" : "")+'">'+(d.status==="closed" ? "Clôturé" : "<i></i>En cours")+'</span>';
-  return '<article class="tx-card" style="--side:var(--'+side+');">'+
-    '<div class="tx-top"><div class="tx-head"><span class="tx-coin">'+a.icon+'</span><span class="tx-sym">'+escapeHtml(d.symbol||"")+'</span>'+
-      '<span class="tx-side '+side+'">'+(side==="short"?"Short":"Long")+'</span>'+(mine ? '<span class="tx-kind">'+(d.public ? "Public" : "Privé")+'</span>' : '')+
-      '<span class="tx-head-right">'+status+'</span></div>'+
-      (d.comment ? '<p class="tx-comment">'+escapeHtml(d.comment)+'</p>' : '')+edbTradeLevelsHtml(d, a)+'</div>'+
+  const d = doc.d, a = edbTradeAssetMeta(d.symbol), side = d.side==="short" ? "short" : "long", R = jnRes(d), dec = a.decimals;
+  const res = d.status!=="closed" ? '<span class="jn2-live"><i></i>En cours</span>'
+    : (R.usd!=null || R.pct!=null ? '<b class="jn2-res '+(R.win ? "up" : "down")+'">'+(R.usd!=null ? fmtMoneySigned(R.usd) : fmtPct(R.pct))+'</b>' : '<span class="jn2-live">Clôturé</span>')+
+      (R.r!=null ? '<span class="jn2-r '+(R.r>=0 ? "up" : "down")+'">'+jnFmtR(R.r)+'</span>' : '');
+  const lv = [["Entrée", d.entryPrice], ["Stop", d.stopLoss], ["Objectif", d.takeProfit], ["Sortie", d.exitPrice]].filter(x=>typeof x[1]==="number")
+    .map(x=>'<span><em>'+x[0]+'</em>'+fmtPrice(x[1], dec)+'</span>').join("");
+  const tags = (d.setup ? '<span class="jn2-tag setup">'+escapeHtml(d.setup)+'</span>' : '')+(d.emotions||[]).map(e=>'<span class="jn2-tag">'+escapeHtml(e)+'</span>').join("")+
+    (d.plan ? '<span class="jn2-tag plan-'+d.plan+'">'+JN_PLAN[d.plan]+'</span>' : '');
+  const stars = d.rating ? '<span class="jn2-stars" aria-label="Note '+d.rating+' sur 5">'+"★".repeat(d.rating)+'<i>'+"★".repeat(5-d.rating)+'</i></span>' : '';
+  const acts = mine ? '<span class="jn-acts"><button type="button" data-jn-edit="'+doc.id+'">Modifier</button>'+(d.status!=="closed" ? '<button type="button" data-jn-close="'+doc.id+'">Clôturer</button>' : '')+'<button type="button" data-jn-del="'+doc.id+'">Supprimer</button></span>'
+    : admin ? '<span class="jn-acts"><button type="button" data-jn-del="'+doc.id+'" title="Suppression (admin)">Supprimer</button></span>' : '';
+  return '<article class="jn2-card" style="--side:var(--'+side+');">'+
+    '<div class="jn2-c-top"><span class="tx-coin">'+a.icon+'</span><b class="jn2-sym">'+escapeHtml(d.symbol||"")+'</b>'+
+      '<span class="tx-side '+side+'">'+(side==="short" ? "Short" : "Long")+(d.leverage>1.01 ? ' ×'+(+(+d.leverage).toFixed(1)) : '')+'</span>'+
+      (d.tradeId ? '<span class="jn2-src" title="Lié à un trade réel de Paper Tape">Paper Tape</span>' : '')+
+      '<span class="jn2-when">'+escapeHtml(fmtWhen(d.closedAt || d.createdAt))+'</span><span class="jn2-c-res">'+res+'</span></div>'+
+    (lv ? '<div class="jn2-lv">'+lv+'</div>' : '')+
+    (tags || stars ? '<div class="jn2-tags">'+tags+stars+'</div>' : '')+
+    (d.comment ? '<div class="jn2-txt"><em>Pourquoi ce trade</em><p>'+escapeHtml(d.comment)+'</p></div>' : '')+
+    (d.lesson ? '<div class="jn2-txt jn2-lesson"><em>Ce que je retiens</em><p>'+escapeHtml(d.lesson)+'</p></div>' : '')+
     edbTradeImagesHtml(d)+
-    '<div class="tx-foot">'+edbAuthorHtml(d)+(mine ? '<span class="jn-acts">'+(d.status!=="closed" ? '<button type="button" data-jn-close="'+doc.id+'">Clôturer</button>' : '')+'<button type="button" data-jn-del="'+doc.id+'">Supprimer</button></span>' : admin ? '<span class="jn-acts"><button type="button" data-jn-del="'+doc.id+'" title="Suppression (admin)">Supprimer</button></span>' : '')+'</div>'+
+    (mine && !acts ? '' : '<div class="jn2-c-foot">'+(mine ? '<span class="jn2-vis">'+(d.public ? "Public" : "Privé")+'</span>' : edbAuthorHtml(d))+acts+'</div>')+
   '</article>';
 }
-function jnFormHtml(){
-  const opts = visibleAssets().map(a=>'<option value="'+a.symbol+'"'+(a.symbol===selectedSymbol ? " selected" : "")+'>'+escapeHtml(a.symbol+" · "+String(a.name||"").split(" (")[0])+'</option>').join("");
-  return '<div class="jn-form">'+
-    '<div class="jn-row"><select id="jn-sym">'+opts+'</select><div class="seg jn-side"><button type="button" class="on-long active" data-jn-side="long">Long</button><button type="button" class="on-short" data-jn-side="short">Short</button></div></div>'+
-    '<div class="jn-row jn-px"><input id="jn-entry" type="number" step="any" placeholder="Entrée"><input id="jn-sl" type="number" step="any" placeholder="Stop"><input id="jn-tp" type="number" step="any" placeholder="Objectif"><input id="jn-exit" type="number" step="any" placeholder="Sortie (si clôturé)"></div>'+
-    '<textarea id="jn-comment" rows="3" maxlength="800" placeholder="Pourquoi ce trade ? Contexte, setup, émotions, ce que tu retiens…"></textarea>'+
-    '<div class="jn-row"><label class="jn-file">📷 Captures (3 max)<input id="jn-img" type="file" accept="image/*" multiple hidden></label><span id="jn-img-n" class="jn-note"></span><button type="button" class="btn-primary" id="jn-add">Ajouter au journal</button></div>'+
-    '<div class="jn-msg" id="jn-msg"></div></div>';
+// Trades Paper Tape clôturés pas encore journalisés (compte actif, 30 jours).
+function jnInbox(){
+  const done = new Set((jnMine||[]).map(x=>x.d.tradeId).filter(Boolean)), skip = new Set(jnSkipped()), lim = Date.now() - 30*864e5;
+  return (state.history||[]).filter(h=>h && h.id && !done.has(h.id) && !skip.has(h.id) && Date.parse(h.closedAt||0) > lim).slice(0, 6);
+}
+function jnInboxHtml(){
+  const L = jnInbox(); if (!L.length) return "";
+  return '<section class="jn2-inbox"><div class="jn2-inbox-h"><b>À journaliser</b><span>Tes derniers trades sur Paper Tape. Un clic pré-remplit l\'entrée.</span></div>'+
+    L.map(h=>{ const a = edbTradeAssetMeta(h.symbol), up = (h.pnl||0)>=0;
+      return '<div class="jn2-ib-row"><span class="tx-coin">'+a.icon+'</span><b>'+escapeHtml(h.symbol)+'</b><span class="tx-side '+(h.side==="short" ? "short" : "long")+'">'+(h.side==="short" ? "Short" : "Long")+(h.leverage>1.01 ? ' ×'+(+(+h.leverage).toFixed(1)) : '')+'</span>'+
+        '<span class="jn2-when">'+escapeHtml(fmtWhen(h.closedAt))+'</span><b class="jn2-res '+(up ? "up" : "down")+'">'+fmtMoneySigned(h.pnl||0)+'</b>'+
+        '<button type="button" class="jn2-btn" data-jn-from="'+escapeHtml(h.id)+'">Journaliser</button><button type="button" class="jn2-skip" data-jn-skip="'+escapeHtml(h.id)+'" aria-label="Ignorer ce trade">Ignorer</button></div>'; }).join("")+
+  '</section>';
+}
+function jnMineHtml(){
+  if (jnMine==null) return '<div class="tx-empty">Chargement…</div>';
+  const pub = jnIsPublic(), S = jnStats(jnMine);
+  const stat = (l, v, cls)=>'<div><span>'+l+'</span><b'+(cls ? ' class="'+cls+'"' : '')+'>'+v+'</b></div>';
+  const setups = Array.from(new Set(jnMine.map(x=>x.d.setup).filter(Boolean)));
+  if (jnSetupF!=="all" && !setups.includes(jnSetupF)) jnSetupF = "all";
+  const list = jnMine.filter(x=>{ const r = jnRes(x.d);
+    if (jnFilter==="open" && x.d.status==="closed") return false;
+    if (jnFilter==="win" && r.win!==true) return false;
+    if (jnFilter==="loss" && r.win!==false) return false;
+    return jnSetupF==="all" || x.d.setup===jnSetupF; });
+  const F = [["all","Toutes"],["open","En cours"],["win","Gagnants"],["loss","Perdants"]];
+  return '<div class="jn2-bar"><div class="seg jn-vis"><button type="button" class="on-mode'+(pub ? "" : " active")+'" data-jn-vis="0">Privé</button><button type="button" class="on-mode'+(pub ? " active" : "")+'" data-jn-vis="1">Public</button></div>'+
+      '<span class="jn-note">'+(pub ? "Tous les membres voient ton journal." : "Visible par toi seul (et les admins de l'association).")+'</span>'+
+      '<button type="button" class="btn-primary jn2-new" data-jn-new>+ Nouvelle entrée</button></div>'+
+    '<div class="jn2-stats">'+stat("Entrées", S.n)+stat("Réussite", S.win!=null ? Math.round(S.win)+" %" : "—")+
+      stat("Résultat", S.usd!=null ? fmtMoneySigned(S.usd) : "—", S.usd!=null ? (S.usd>=0 ? "up" : "down") : "")+
+      stat("R moyen", S.r!=null ? jnFmtR(S.r) : "—", S.r!=null ? (S.r>=0 ? "up" : "down") : "")+stat("Plan respecté", S.plan!=null ? Math.round(S.plan)+" %" : "—")+'</div>'+
+    jnInboxHtml()+
+    (S.closed>=3 ? '<div class="jn2-insights">'+jnGroupHtml("Par setup", jnGroupRows(jnMine, "setup"))+jnGroupHtml("Par émotion", jnGroupRows(jnMine, "emotions"))+'</div>' : '')+
+    (jnMine.length ? '<div class="jn2-filters"><div class="nw-chips">'+F.map(f=>'<button type="button" class="nw-chip'+(jnFilter===f[0] ? " is-active" : "")+'" data-jn-f="'+f[0]+'">'+f[1]+'</button>').join("")+'</div>'+
+      (setups.length ? '<select data-jn-setupf aria-label="Filtrer par setup"><option value="all">Tous les setups</option>'+setups.map(s=>'<option'+(s===jnSetupF ? " selected" : "")+'>'+escapeHtml(s)+'</option>').join("")+'</select>' : '')+'</div>' : '')+
+    (list.length ? '<div class="jn2-list">'+list.map(x=>jnCardHtml(x, true)).join("")+'</div>'
+      : jnMine.length ? '<div class="tx-empty"><b>Aucune entrée pour ce filtre</b></div>'
+      : '<div class="tx-empty">📓<b>Ton journal est vide</b><span>Journalise un de tes trades ci-dessus, ou crée une entrée.</span></div>');
+}
+function jnListByAuthorHtml(list, cur, attr, admin){
+  const authors = Array.from(new Set(list.map(x=>x.d.postedBy||"?")));
+  const shown = list.filter(x=>cur==="all" || (x.d.postedBy||"?")===cur);
+  return (authors.length>1 ? '<div class="nw-chips">'+['all'].concat(authors).map(x=>'<button type="button" class="nw-chip'+(cur===x ? " is-active" : "")+'" '+attr+'="'+escapeHtml(x)+'">'+escapeHtml(x==="all" ? "Tous ("+list.length+")" : x+" ("+list.filter(y=>(y.d.postedBy||"?")===x).length+")")+'</button>').join("")+'</div>' : '')+
+    (cur!=="all" ? (()=>{ const S = jnStats(shown); return '<div class="jn2-stats sm"><div><span>Entrées</span><b>'+S.n+'</b></div><div><span>Réussite</span><b>'+(S.win!=null ? Math.round(S.win)+" %" : "—")+'</b></div><div><span>R moyen</span><b>'+(S.r!=null ? jnFmtR(S.r) : "—")+'</b></div><div><span>Plan respecté</span><b>'+(S.plan!=null ? Math.round(S.plan)+" %" : "—")+'</b></div></div>'; })() : '')+
+    (shown.length ? '<div class="jn2-list">'+shown.map(x=>jnCardHtml(x, false, admin)).join("")+'</div>' : '');
+}
+function jnPrivHtml(){ // conservé pour compatibilité : section admin
+  if (!state.isAdmin) return "";
+  if (jnPriv==null) return '<div class="tx-empty">Chargement…</div>';
+  if (jnPrivAuthor!=="all" && !jnPriv.some(x=>(x.d.postedBy||"?")===jnPrivAuthor)) jnPrivAuthor = "all";
+  return '<p class="jn-note">Journaux privés des membres, visibles uniquement par les admins.</p>'+
+    (jnPriv.length ? jnListByAuthorHtml(jnPriv, jnPrivAuthor, "data-jn-pauthor", true) : '<div class="tx-empty"><b>Aucun journal privé</b></div>');
 }
 function renderJournals(){
   const el = document.getElementById("tradesedb-journals-wrap"); if (!el) return;
-  const pub = jnIsPublic();
-  const authors = jnPublic ? Array.from(new Set(jnPublic.map(x=>x.d.postedBy||"?"))) : [];
-  if (jnAuthor!=="all" && !authors.includes(jnAuthor)) jnAuthor = "all";
-  const pubShown = (jnPublic||[]).filter(x=>jnAuthor==="all" || (x.d.postedBy||"?")===jnAuthor);
-  el.innerHTML =
-    '<div class="jn-head"><div class="tx-section-title">Mon journal</div><div class="seg jn-vis"><button type="button" class="on-mode'+(pub ? "" : " active")+'" data-jn-vis="0">🔒 Privé</button><button type="button" class="on-mode'+(pub ? " active" : "")+'" data-jn-vis="1">🌍 Public</button></div></div>'+
-    '<p class="jn-note">'+(pub ? "Ton journal est public : tous les membres voient tes entrées dans « Journaux publics »." : "Ton journal est privé : il n'apparaît pas aux autres membres (seuls les admins de l'association peuvent le consulter).")+'</p>'+
-    jnFormHtml()+
-    (jnMine==null ? '<div class="tx-empty">Chargement…</div>' : jnMine.length ? '<div class="tx-list">'+jnMine.map(x=>jnCardHtml(x, true)).join("")+'</div>' : '<div class="tx-empty">📓<b>Ton journal est vide</b><span>Ajoute ton premier trade ci-dessus.</span></div>')+
-    '<div class="jn-head" style="margin-top:22px;"><div class="tx-section-title">Journaux publics</div></div>'+
-    (authors.length>1 ? '<div class="nw-chips">'+['all'].concat(authors).map(x=>'<button type="button" class="nw-chip'+(jnAuthor===x ? " is-active" : "")+'" data-jn-author="'+escapeHtml(x)+'">'+escapeHtml(x==="all" ? "Tous" : x)+'</button>').join("")+'</div>' : '')+
-    (jnPublic==null ? '<div class="tx-empty">Chargement…</div>' : pubShown.length ? '<div class="tx-list">'+pubShown.map(x=>jnCardHtml(x, false, !!state.isAdmin)).join("")+'</div>' : '<div class="tx-empty">🌍<b>Aucun journal public pour l\'instant</b><span>Passe le tien en public pour l\'inaugurer.</span></div>')+
-    jnPrivHtml();
-  let side = "long";
-  el.querySelectorAll("[data-jn-side]").forEach(b=>b.addEventListener("click", ()=>{ side = b.dataset.jnSide; el.querySelectorAll("[data-jn-side]").forEach(x=>x.classList.toggle("active", x===b)); }));
-  el.querySelectorAll("[data-jn-vis]").forEach(b=>b.addEventListener("click", ()=>jnSetVisibility(b.dataset.jnVis==="1")));
-  el.querySelectorAll("[data-jn-author]").forEach(b=>b.addEventListener("click", ()=>{ jnAuthor = b.dataset.jnAuthor; renderJournals(); }));
-  el.querySelectorAll("[data-jn-pauthor]").forEach(b=>b.addEventListener("click", ()=>{ jnPrivAuthor = b.dataset.jnPauthor; renderJournals(); }));
-  el.querySelectorAll("[data-jn-del]").forEach(b=>b.addEventListener("click", async ()=>{ if (!confirm("Supprimer cette entrée du journal ?")) return; try{ await db.collection("journalEntries").doc(b.dataset.jnDel).delete(); }catch(e){} loadJournals(); }));
-  el.querySelectorAll("[data-jn-close]").forEach(b=>b.addEventListener("click", async ()=>{ const v = parseFloat(String(prompt("Prix de sortie ?")||"").replace(",", ".")); if (!(v>0)) return;
-    try{ await db.collection("journalEntries").doc(b.dataset.jnClose).update({exitPrice:v, status:"closed", closedAt:new Date().toISOString()}); }catch(e){ alert("Mise à jour impossible."); } loadJournals(); }));
-  const img = el.querySelector("#jn-img"), imgN = el.querySelector("#jn-img-n");
+  if (jnTab==="priv" && !state.isAdmin) jnTab = "mine";
+  if (jnPublic && jnAuthor!=="all" && !jnPublic.some(x=>(x.d.postedBy||"?")===jnAuthor)) jnAuthor = "all";
+  const T = [["mine","Mon journal"],["pub","Journaux publics"+(jnPublic ? " · "+jnPublic.length : "")]].concat(state.isAdmin ? [["priv","Privés · admin"]] : []);
+  el.innerHTML = '<div class="jn2">'+
+    '<div class="jn2-tabs" role="tablist">'+T.map(t=>'<button type="button" role="tab" aria-selected="'+(jnTab===t[0])+'" class="'+(jnTab===t[0] ? "on" : "")+'" data-jn-tab="'+t[0]+'">'+t[1]+'</button>').join("")+'</div>'+
+    (jnTab==="mine" ? jnMineHtml()
+      : jnTab==="pub" ? (jnPublic==null ? '<div class="tx-empty">Chargement…</div>' : jnPublic.length ? jnListByAuthorHtml(jnPublic, jnAuthor, "data-jn-author", !!state.isAdmin) : '<div class="tx-empty">🌍<b>Aucun journal public pour l\'instant</b><span>Passe le tien en public pour l\'inaugurer.</span></div>')
+      : jnPrivHtml())+
+  '</div>';
+  const on = (sel, fn)=>el.querySelectorAll(sel).forEach(b=>b.addEventListener("click", ()=>fn(b)));
+  on("[data-jn-tab]", b=>{ jnTab = b.dataset.jnTab; renderJournals(); });
+  on("[data-jn-vis]", b=>jnSetVisibility(b.dataset.jnVis==="1"));
+  on("[data-jn-author]", b=>{ jnAuthor = b.dataset.jnAuthor; renderJournals(); });
+  on("[data-jn-pauthor]", b=>{ jnPrivAuthor = b.dataset.jnPauthor; renderJournals(); });
+  on("[data-jn-f]", b=>{ jnFilter = b.dataset.jnF; renderJournals(); });
+  on("[data-jn-new]", ()=>jnOpenEditor(null));
+  on("[data-jn-edit]", b=>{ const x = (jnMine||[]).find(y=>y.id===b.dataset.jnEdit); if (x) jnOpenEditor(x); });
+  on("[data-jn-close]", b=>{ const x = (jnMine||[]).find(y=>y.id===b.dataset.jnClose); if (x) jnOpenEditor(x, "close"); });
+  on("[data-jn-from]", b=>{ const h = (state.history||[]).find(y=>y.id===b.dataset.jnFrom); if (h) jnOpenEditor(null, null, h); });
+  on("[data-jn-skip]", b=>{ const s = jnSkipped(); s.push(b.dataset.jnSkip); try{ localStorage.setItem(JN_SKIP_KEY, JSON.stringify(s.slice(-300))); }catch(e){} renderJournals(); });
+  on("[data-jn-del]", async b=>{ if (!confirm("Supprimer cette entrée du journal ?")) return; try{ await db.collection("journalEntries").doc(b.dataset.jnDel).delete(); }catch(e){} loadJournals(); });
+  const sf = el.querySelector("[data-jn-setupf]"); if (sf) sf.addEventListener("change", ()=>{ jnSetupF = sf.value; renderJournals(); });
+}
+// Éditeur (nouvelle entrée, depuis un trade Paper Tape, modification, clôture).
+function jnOpenEditor(x, mode, h){
+  const d = x ? x.d : h ? {symbol:h.symbol, side:h.side, entryPrice:h.entryPrice, exitPrice:h.exitPrice, pnl:h.pnl, leverage:h.leverage, tradeId:h.id, openedAt:h.openedAt, closedAt:h.closedAt, status:"closed"} : {symbol:selectedSymbol, side:"long"};
+  let side = d.side==="short" ? "short" : "long", setup = d.setup||"", emos = new Set(d.emotions||[]), plan = d.plan||"", rating = d.rating||0;
+  const v = n=>typeof n==="number" ? String(n) : "";
+  const linked = !!d.tradeId;
+  const opts = visibleAssets().map(a=>'<option value="'+a.symbol+'"'+(a.symbol===d.symbol ? " selected" : "")+'>'+escapeHtml(a.symbol+" · "+String(a.name||"").split(" (")[0])+'</option>').join("");
+  const chips = (arr, attr, cur)=>arr.map(s=>'<button type="button" class="jn2-chip'+(cur(s) ? " on" : "")+'" '+attr+'="'+escapeHtml(s)+'">'+escapeHtml(s)+'</button>').join("");
+  openModal('<div class="jn2-ed">'+
+    '<h3>'+(x ? (mode==="close" ? "Clôturer le trade" : "Modifier l'entrée") : linked ? "Journaliser ce trade" : "Nouvelle entrée")+'</h3>'+
+    (linked ? '<p class="jn-note">Lié à ton trade Paper Tape'+(typeof d.pnl==="number" ? ' · résultat <b class="'+(d.pnl>=0 ? "up" : "down")+'">'+fmtMoneySigned(d.pnl)+'</b>' : '')+'. Les prix sont repris du trade.</p>' : '')+
+    '<div class="jn2-ed-row"><label class="jn2-f grow"><span>Actif</span><select id="jne-sym"'+(linked ? " disabled" : "")+'>'+opts+'</select></label>'+
+      '<div class="jn2-f"><span>Sens</span><div class="seg"><button type="button" class="on-long'+(side==="long" ? " active" : "")+'" data-jne-side="long"'+(linked ? " disabled" : "")+'>Long</button><button type="button" class="on-short'+(side==="short" ? " active" : "")+'" data-jne-side="short"'+(linked ? " disabled" : "")+'>Short</button></div></div></div>'+
+    '<div class="jn2-ed-px">'+[["entry","Entrée",d.entryPrice],["sl","Stop",d.stopLoss],["tp","Objectif",d.takeProfit],["exit","Sortie",d.exitPrice]].map(f=>'<label class="jn2-f"><span>'+f[1]+'</span><input id="jne-'+f[0]+'" type="number" step="any" inputmode="decimal" value="'+v(f[2])+'"'+(linked && (f[0]==="entry"||f[0]==="exit") ? " readonly" : "")+'></label>').join("")+'</div>'+
+    '<div class="jn2-f"><span>Setup</span><div class="jn2-chips">'+chips(JN_SETUPS, "data-jne-setup", s=>s===setup)+'</div></div>'+
+    '<div class="jn2-f"><span>Émotions pendant le trade</span><div class="jn2-chips">'+chips(JN_EMOS, "data-jne-emo", s=>emos.has(s))+'</div></div>'+
+    '<div class="jn2-ed-row"><div class="jn2-f"><span>As-tu suivi ton plan ?</span><div class="jn2-chips">'+Object.keys(JN_PLAN).map(k=>'<button type="button" class="jn2-chip'+(plan===k ? " on" : "")+'" data-jne-plan="'+k+'">'+(k==="oui" ? "Oui" : k==="partiel" ? "En partie" : "Non")+'</button>').join("")+'</div></div>'+
+      '<div class="jn2-f"><span>Note du trade</span><div class="jn2-rate">'+[1,2,3,4,5].map(i=>'<button type="button" data-jne-rate="'+i+'" aria-label="'+i+' sur 5" class="'+(i<=rating ? "on" : "")+'">★</button>').join("")+'</div></div></div>'+
+    '<label class="jn2-f"><span>Pourquoi ce trade ?</span><textarea id="jne-why" rows="3" maxlength="800" placeholder="Contexte, signal d\'entrée, où était ton invalidation…">'+escapeHtml(d.comment||"")+'</textarea></label>'+
+    '<label class="jn2-f"><span>Ce que je retiens</span><textarea id="jne-lesson" rows="2" maxlength="400" placeholder="Une leçon en une phrase : ce que tu refais, ou ce que tu ne refais plus.">'+escapeHtml(d.lesson||"")+'</textarea></label>'+
+    '<div class="jn2-ed-row"><label class="jn-file">Captures (3 max)<input id="jne-img" type="file" accept="image/*" multiple hidden></label><span id="jne-img-n" class="jn-note">'+((d.imageUrls||[]).length ? (d.imageUrls.length+" capture(s) déjà jointe(s)") : "")+'</span></div>'+
+    '<div class="jn-msg" id="jne-msg"></div>'+
+    '<div class="jn2-ed-row end"><button type="button" class="jn2-btn ghost" id="jne-cancel">Annuler</button><button type="button" class="btn-primary" id="jne-save">'+(mode==="close" ? "Clôturer" : "Enregistrer")+'</button></div>'+
+  '</div>');
+  const box = document.getElementById("modal-box"); box.classList.add("jn2-ed-box");
+  const q = s=>box.querySelector(s), qa = s=>box.querySelectorAll(s);
+  qa("[data-jne-side]").forEach(b=>b.addEventListener("click", ()=>{ side = b.dataset.jneSide; qa("[data-jne-side]").forEach(y=>y.classList.toggle("active", y===b)); }));
+  qa("[data-jne-setup]").forEach(b=>b.addEventListener("click", ()=>{ setup = setup===b.dataset.jneSetup ? "" : b.dataset.jneSetup; qa("[data-jne-setup]").forEach(y=>y.classList.toggle("on", y.dataset.jneSetup===setup)); }));
+  qa("[data-jne-emo]").forEach(b=>b.addEventListener("click", ()=>{ const e = b.dataset.jneEmo; if (emos.has(e)) emos.delete(e); else emos.add(e); b.classList.toggle("on", emos.has(e)); }));
+  qa("[data-jne-plan]").forEach(b=>b.addEventListener("click", ()=>{ plan = plan===b.dataset.jnePlan ? "" : b.dataset.jnePlan; qa("[data-jne-plan]").forEach(y=>y.classList.toggle("on", y.dataset.jnePlan===plan)); }));
+  qa("[data-jne-rate]").forEach(b=>b.addEventListener("click", ()=>{ rating = +b.dataset.jneRate===rating ? 0 : +b.dataset.jneRate; qa("[data-jne-rate]").forEach(y=>y.classList.toggle("on", +y.dataset.jneRate<=rating)); }));
   jnImgs = [];
-  img.addEventListener("change", ()=>{ jnImgs = Array.from(img.files||[]).filter(f=>/^image\//.test(f.type) && f.size < 6*1024*1024).slice(0,3); imgN.textContent = jnImgs.length ? jnImgs.length+" capture"+(jnImgs.length>1 ? "s" : "") : ""; });
-  el.querySelector("#jn-add").addEventListener("click", ()=>jnAdd(side));
-}
-// Admins : journaux privés des membres (lecture autorisée par les règles
-// Firestore), regroupables par auteur. Section absente pour les autres.
-function jnPrivHtml(){
-  if (!state.isAdmin) return "";
-  const list = (jnPriv||[]), authors = Array.from(new Set(list.map(x=>x.d.postedBy||"?")));
-  if (jnPrivAuthor!=="all" && !authors.includes(jnPrivAuthor)) jnPrivAuthor = "all";
-  const shown = list.filter(x=>jnPrivAuthor==="all" || (x.d.postedBy||"?")===jnPrivAuthor);
-  return '<div class="jn-head" style="margin-top:22px;"><div class="tx-section-title">🔒 Journaux privés des membres <span class="tx-kind">Admin</span></div></div>'+
-    '<p class="jn-note">Visible uniquement par les admins.</p>'+
-    (authors.length>1 ? '<div class="nw-chips">'+['all'].concat(authors).map(x=>'<button type="button" class="nw-chip'+(jnPrivAuthor===x ? " is-active" : "")+'" data-jn-pauthor="'+escapeHtml(x)+'">'+escapeHtml(x==="all" ? "Tous ("+list.length+")" : x+" ("+list.filter(y=>(y.d.postedBy||"?")===x).length+")")+'</button>').join("")+'</div>' : '')+
-    (jnPriv==null ? '<div class="tx-empty">Chargement…</div>' : shown.length ? '<div class="tx-list">'+shown.map(x=>jnCardHtml(x, false, true)).join("")+'</div>' : '<div class="tx-empty">🔒<b>Aucun journal privé</b><span>Ou règles Firestore pas encore déployées.</span></div>');
-}
-async function jnAdd(side){
-  const msg = document.getElementById("jn-msg"), btn = document.getElementById("jn-add");
-  const num = id=>{ const v = parseFloat(String(document.getElementById(id).value||"").replace(",", ".")); return v>0 ? v : null; };
-  const entry = num("jn-entry"), exit = num("jn-exit"), comment = document.getElementById("jn-comment").value.trim().slice(0,800);
-  if (!entry && !comment){ msg.textContent = "Indique au moins une entrée ou un commentaire."; return; }
-  if (!(dbReady && db && clientId)){ msg.textContent = "Connecte-toi pour tenir ton journal."; return; }
-  btn.disabled = true; msg.textContent = "Enregistrement…";
-  const ref = db.collection("journalEntries").doc(), now = new Date().toISOString();
-  const doc = {owner:clientId, postedBy:state.username||"Trader", public:jnIsPublic(), symbol:document.getElementById("jn-sym").value, side,
-    entryPrice:entry, stopLoss:num("jn-sl"), takeProfit:num("jn-tp"), exitPrice:exit, status:exit ? "closed" : "open", comment, createdAt:now, closedAt:exit ? now : null};
-  try{
-    if (jnImgs.length){ const urls = []; for (let i=0;i<jnImgs.length;i++) urls.push(await uploadToStorage(jnImgs[i], "feed/"+clientId+"/jn_"+ref.id+"_"+i)); doc.imageUrls = urls; }
-    await ref.set(doc);
-    msg.textContent = ""; loadJournals();
-  }catch(e){ msg.textContent = "Enregistrement impossible ("+((e && e.code)||"erreur")+")."; btn.disabled = false; }
+  const img = q("#jne-img"); img.addEventListener("change", ()=>{ jnImgs = Array.from(img.files||[]).filter(f=>/^image\//.test(f.type) && f.size < 6*1024*1024).slice(0, Math.max(0, 3-(d.imageUrls||[]).length)); q("#jne-img-n").textContent = jnImgs.length ? jnImgs.length+" capture(s) à ajouter" : ""; });
+  q("#jne-cancel").addEventListener("click", closeModal);
+  if (mode==="close") setTimeout(()=>q("#jne-exit").focus(), 50);
+  q("#jne-save").addEventListener("click", async ()=>{
+    const msg = q("#jne-msg"), btn = q("#jne-save");
+    const num = id=>{ const n = parseFloat(String(q(id).value||"").replace(",", ".")); return n>0 ? n : null; };
+    const entry = num("#jne-entry"), exit = num("#jne-exit"), why = q("#jne-why").value.trim().slice(0,800), lesson = q("#jne-lesson").value.trim().slice(0,400);
+    if (mode==="close" && !exit){ msg.textContent = "Indique le prix de sortie."; return; }
+    if (!entry && !why && !lesson){ msg.textContent = "Indique au moins un prix d'entrée ou un commentaire."; return; }
+    if (!(dbReady && db && clientId)){ msg.textContent = "Connecte-toi pour tenir ton journal."; return; }
+    btn.disabled = true; msg.textContent = "Enregistrement…";
+    const now = new Date().toISOString(), ref = x ? db.collection("journalEntries").doc(x.id) : db.collection("journalEntries").doc();
+    const doc = {owner:clientId, postedBy:state.username||"Trader", public: x ? !!x.d.public : jnIsPublic(), symbol: linked ? d.symbol : q("#jne-sym").value, side,
+      entryPrice:entry, stopLoss:num("#jne-sl"), takeProfit:num("#jne-tp"), exitPrice:exit, status: exit ? "closed" : "open",
+      comment:why, lesson, setup:setup||null, emotions:Array.from(emos), plan:plan||null, rating:rating||null};
+    if (linked){ doc.tradeId = d.tradeId; doc.pnl = typeof d.pnl==="number" ? d.pnl : null; doc.leverage = d.leverage||null; doc.openedAt = d.openedAt||null; }
+    doc.closedAt = exit ? (d.closedAt || (x && x.d.closedAt) || now) : null;
+    if (!x) doc.createdAt = now;
+    try{
+      if (jnImgs.length){ const urls = (d.imageUrls||[]).slice(); for (let i=0;i<jnImgs.length;i++) urls.push(await uploadToStorage(jnImgs[i], "feed/"+clientId+"/jn_"+ref.id+"_"+(urls.length))); doc.imageUrls = urls.slice(0,3); }
+      if (x) await ref.update(doc); else await ref.set(doc);
+      closeModal(); loadJournals();
+    }catch(e){ msg.textContent = "Enregistrement impossible ("+((e && e.code)||"erreur")+")."; btn.disabled = false; }
+  });
 }
 async function jnSetVisibility(pub){
   try{ localStorage.setItem(JN_PUB_KEY, pub ? "1" : "0"); }catch(e){}
