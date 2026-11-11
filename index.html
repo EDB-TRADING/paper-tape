@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3600">
+<meta name="pt-build" content="3610">
 <script>
 /* Multi-graphiques : cette page est-elle un graphique seul dans une iframe ?
    Si oui, ses réglages de graphique (indicateurs, bougies, unité de temps,
@@ -600,6 +600,13 @@
   .adm-tr-t{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--mono);}
   .adm-tr-t th{position:sticky;top:0;background:var(--panel-2);text-align:left;padding:7px 8px;color:var(--text-dim);font-weight:600;white-space:nowrap;}
   .adm-tr-t td{padding:6px 8px;border-top:1px solid var(--border-soft);white-space:nowrap;} .adm-tr-t .r{text-align:right;} .adm-tr-t em{font-style:normal;color:var(--text-faint);}
+  .adm-tr-tools{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:0 0 10px;font-size:12.5px;color:var(--text-dim);}
+  .adm-tr-tools label{display:flex;gap:6px;align-items:center;}
+  .adm-tr-del{border:1px solid var(--border);background:none;color:var(--text-faint);border-radius:6px;width:26px;height:24px;cursor:pointer;font-size:12px;line-height:1;}
+  .adm-tr-del:hover{color:var(--short);border-color:var(--short);}
+  .adm-ta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+  .adm-ta label{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--text-dim);}
+  @media (max-width:520px){ .adm-ta{grid-template-columns:1fr;} }
   .adm-tr-kpi{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-bottom:10px;font-size:12.5px;color:var(--text-dim);} .adm-tr-kpi b{color:var(--text);} .adm-tr-kpi button{margin-left:auto;} .agg-ex{flex-wrap:wrap;} .lad-bar #lad-agg.on{color:var(--accent,#4f8dff);border-color:currentColor;} .lp-arm{color:var(--red,#f0546a)!important;border-color:currentColor!important;}
   .lp-it button{border:1px solid var(--border);background:var(--panel);color:var(--text-dim);border-radius:6px;padding:4px 8px;font-size:11.5px;cursor:pointer;white-space:nowrap;}
   .lp-it button:hover{color:var(--text);border-color:var(--accent);}
@@ -7296,7 +7303,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3600 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3610 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -34719,7 +34726,7 @@ function renderAdminTable(){
 // Admin : historique complet des trades d'un joueur (compte normal, prop firm,
 // investissement), lu dans son document trader déjà chargé (aucune lecture en plus).
 // Limite : chaque compte garde ses 200 derniers trades clôturés (TRADE_HISTORY_RETAIN).
-function adminTradesOpen(id){
+function adminTradesOpen(id, startBook){
   const doc = adminDocs.find(x=>x.id===id); if (!doc) return;
   const d = doc.data(), books = [
     {k:"main", t:"Trading", rows:Array.isArray(d.history) ? d.history : []},
@@ -34730,7 +34737,7 @@ function adminTradesOpen(id){
   const dt = iso=>{ const x = new Date(iso); return isNaN(x) ? "—" : x.toLocaleString("fr-FR", {day:"2-digit", month:"2-digit", year:"2-digit", hour:"2-digit", minute:"2-digit"}); };
   const num = (v, dec)=>typeof v==="number" && isFinite(v) ? v.toLocaleString("fr-FR", {maximumFractionDigits:dec==null ? 2 : dec}) : "—";
   const pnlCell = v=>typeof v==="number" ? '<td class="r" style="color:var(--'+(v>=0 ? "long" : "short")+')">'+(v>=0 ? "+" : "")+fmtMoney(v)+'</td>' : '<td class="r">—</td>';
-  let cur = books.find(b=>b.rows.length) ? books.find(b=>b.rows.length).k : "main";
+  let cur = startBook || (books.find(b=>b.rows.length) ? books.find(b=>b.rows.length).k : "main");
   const csv = (b)=>{
     const head = b.k==="inv" ? ["date","type","compte","actif","quantite","prix","montant","frais","pnl"] : ["ouverture","cloture","actif","sens","levier","taille","entree","sortie","notionnel","frais","pnl","raison"];
     const lines = b.rows.map(h=>b.k==="inv" ? [h.t, h.type, h.env, h.id, h.qty, h.px, h.amount, h.fee, h.pnl] : [h.openedAt, h.closedAt, h.symbol, h.side, h.leverage, h.sizeUnits, h.entryPrice, h.exitPrice, h.notional, h.feesPaid, h.pnl, h.reason]);
@@ -34743,19 +34750,111 @@ function adminTradesOpen(id){
     const table = !rows.length ? '<div class="empty-note">Aucun trade enregistré.</div>' : b.k==="inv"
       ? '<table class="adm-tr-t"><tr><th>Date</th><th>Type</th><th>Compte</th><th>Actif</th><th class="r">Qté</th><th class="r">Prix</th><th class="r">Montant</th><th class="r">P&amp;L</th></tr>'+
         rows.map(h=>'<tr><td>'+dt(h.t)+'</td><td>'+escapeHtml(h.type||"")+'</td><td>'+escapeHtml(String(h.env||"").toUpperCase())+'</td><td>'+escapeHtml(h.id||"—")+'</td><td class="r">'+num(h.qty, 4)+'</td><td class="r">'+num(h.px)+'</td><td class="r">'+num(h.amount)+'</td>'+pnlCell(h.pnl)+'</tr>').join("")+'</table>'
-      : '<table class="adm-tr-t"><tr><th>Clôture</th><th>Actif</th><th>Sens</th><th class="r">Levier</th><th class="r">Taille</th><th class="r">Entrée</th><th class="r">Sortie</th><th class="r">P&amp;L</th><th>Raison</th></tr>'+
-        rows.map(h=>'<tr title="Ouvert le '+escapeHtml(dt(h.openedAt))+' · frais '+escapeHtml(num(h.feesPaid))+'"><td>'+dt(h.closedAt)+'</td><td>'+escapeHtml(h.symbol||"—")+(h.partial ? ' <em>('+(h.closedPct||"?")+' %)</em>' : '')+'</td><td style="color:var(--'+(h.side==="short" ? "short" : "long")+')">'+(h.side==="short" ? "Short" : "Long")+'</td><td class="r">×'+num(h.leverage, 0)+'</td><td class="r">'+num(h.sizeUnits, 6)+'</td><td class="r">'+num(h.entryPrice, 6)+'</td><td class="r">'+num(h.exitPrice, 6)+'</td>'+pnlCell(h.pnl)+'<td>'+escapeHtml(RS[h.reason] || h.reason || "—")+'</td></tr>').join("")+'</table>';
+      : '<table class="adm-tr-t"><tr><th>Clôture</th><th>Actif</th><th>Sens</th><th class="r">Levier</th><th class="r">Taille</th><th class="r">Entrée</th><th class="r">Sortie</th><th class="r">P&amp;L</th><th>Raison</th><th></th></tr>'+
+        rows.map((h, i)=>'<tr title="Ouvert le '+escapeHtml(dt(h.openedAt))+' · frais '+escapeHtml(num(h.feesPaid))+'"><td>'+dt(h.closedAt)+'</td><td>'+escapeHtml(h.symbol||"—")+(h.partial ? ' <em>('+(h.closedPct||"?")+' %)</em>' : '')+'</td><td style="color:var(--'+(h.side==="short" ? "short" : "long")+')">'+(h.side==="short" ? "Short" : "Long")+'</td><td class="r">×'+num(h.leverage, 0)+'</td><td class="r">'+num(h.sizeUnits, 6)+'</td><td class="r">'+num(h.entryPrice, 6)+'</td><td class="r">'+num(h.exitPrice, 6)+'</td>'+pnlCell(h.pnl)+'<td>'+escapeHtml(RS[h.reason] || h.reason || "—")+'</td><td class="r"><button type="button" class="adm-tr-del" data-tr-del="'+i+'" title="Supprimer ce trade" aria-label="Supprimer ce trade">✕</button></td></tr>').join("")+'</table>';
     openModal('<h3 style="margin:0 0 4px;">Trades de '+escapeHtml(d.username||"Trader")+'</h3>'+
       '<div class="chart-note" style="margin-bottom:12px;">Les 200 derniers trades clôturés de chaque compte (au-delà, ils ne sont pas conservés).</div>'+
       '<div class="seg adm-tr-seg" style="margin-bottom:12px;">'+books.map(x=>'<button type="button" class="on-mode'+(x.k===cur ? " active" : "")+'" data-tr-book="'+x.k+'">'+x.t+' ('+x.rows.length+')</button>').join("")+'</div>'+
       (rows.length ? '<div class="adm-tr-kpi"><span>'+rows.length+' lignes</span>'+(n ? '<span>P&amp;L total <b style="color:var(--'+(sum>=0 ? "long" : "short")+')">'+(sum>=0 ? "+" : "")+fmtMoney(sum)+'</b></span><span>Gagnants <b>'+Math.round(win/n*100)+' %</b></span>' : '')+'<span>Frais <b>'+fmtMoney(fees)+'</b></span><button type="button" class="btn-secondary" id="adm-tr-csv">Exporter CSV</button></div>' : '')+
+      (b.k!=="inv" ? '<div class="adm-tr-tools"><button type="button" class="btn-primary" id="adm-tr-add">+ Ajouter un trade</button><label><input type="checkbox" id="adm-tr-adj" checked> Répercuter sur le solde du compte</label></div>' : '')+
       '<div class="adm-tr-wrap">'+table+'</div>');
     document.querySelectorAll("[data-tr-book]").forEach(x=>x.addEventListener("click", ()=>{ cur = x.dataset.trBook; draw(); }));
     const box = document.getElementById("modal-box"); if (box){ box.style.maxWidth = "min(1100px, 96vw)"; modalCloseHook = ()=>{ box.style.maxWidth = ""; }; }
+    const add = document.getElementById("adm-tr-add"); if (add) add.addEventListener("click", ()=>adminTradeAddForm(id, cur));
+    document.querySelectorAll("[data-tr-del]").forEach(x=>x.addEventListener("click", ()=>{
+      const h = rows[+x.dataset.trDel]; if (!h) return;
+      const adj = !!(document.getElementById("adm-tr-adj")||{}).checked;
+      if (!confirm("Supprimer ce trade de l'historique ("+(h.symbol||"?")+", "+(typeof h.pnl==="number" ? (h.pnl>=0 ? "+" : "")+fmtMoney(h.pnl) : "P&L inconnu")+") ?"+(adj && typeof h.pnl==="number" ? "\nLe solde du compte sera corrigé de "+(h.pnl>=0 ? "−" : "+")+fmtMoney(Math.abs(h.pnl))+"." : "\nLe solde ne sera pas modifié."))) return;
+      adminTradeEdit(id, cur, "del", h, adj);
+    }));
     const ex = document.getElementById("adm-tr-csv");
     if (ex) ex.addEventListener("click", ()=>{ const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿"+csv(b)], {type:"text/csv;charset=utf-8"})); a.download = "trades-"+(d.username||id).replace(/[^\w-]+/g, "_")+"-"+b.k+".csv"; document.body.appendChild(a); a.click(); a.remove(); });
   };
   draw();
+}
+// v3610 : ajout / suppression d'un trade dans l'historique Trading ou Prop
+// firm d'un joueur. Option « Répercuter sur le solde » : le P&L du trade est
+// ajouté (ajout) ou retiré (suppression) du cash, et les statistiques du
+// compte (trades clôturés, gagnants / perdants, gains / pertes) suivent.
+async function adminTradeEdit(id, book, op, h, adj){
+  try{
+    const ref = db.collection("traders").doc(id), fresh = (await ref.get()).data() || {};
+    const prop = book==="prop";
+    if (prop && !(fresh.propBook && typeof fresh.propBook==="object")){ alert("Ce joueur n'a pas de compte prop firm."); return; }
+    const bk = prop ? fresh.propBook : fresh;
+    let hist = Array.isArray(bk.history) ? bk.history.slice() : [];
+    const same = x=>x===h || (h.id && x.id===h.id && x.closedAt===h.closedAt) || (!h.id && x.closedAt===h.closedAt && x.symbol===h.symbol && x.pnl===h.pnl);
+    if (op==="del"){ const i = hist.findIndex(same); if (i<0){ alert("Trade introuvable (l'historique a changé entre-temps). Rouvre la fenêtre."); return; } hist.splice(i, 1); }
+    else { hist.push(h); hist.sort((a,b)=>String(b.closedAt||"").localeCompare(String(a.closedAt||""))); hist = hist.slice(0, typeof TRADE_HISTORY_RETAIN==="number" ? TRADE_HISTORY_RETAIN : 200); }
+    const pre = prop ? "propBook." : "", patch = {}, sgn = op==="del" ? -1 : 1, pnl = typeof h.pnl==="number" ? h.pnl : 0;
+    patch[pre+"history"] = hist;
+    if (adj && pnl){
+      const cash = (typeof bk.cash==="number" ? bk.cash : START_CASH) + sgn*pnl;
+      patch[pre+"cash"] = cash;
+      if (!prop && !(Array.isArray(fresh.positions) && fresh.positions.length)) patch.equity = cash;
+      if (prop && !(Array.isArray(bk.positions) && bk.positions.length)) patch.propEquity = cash;
+      const st = bk.stats && typeof bk.stats==="object" ? Object.assign({}, bk.stats) : null;
+      if (st){
+        st.tradesClosed = Math.max(0, (st.tradesClosed||0) + sgn);
+        if (pnl>0){ st.wins = Math.max(0, (st.wins||0) + sgn); st.grossProfit = Math.max(0, (st.grossProfit||0) + sgn*pnl); }
+        else { st.losses = Math.max(0, (st.losses||0) + sgn); st.grossLoss = Math.max(0, (st.grossLoss||0) + sgn*Math.abs(pnl)); }
+        patch[pre+"stats"] = st;
+      }
+    }
+    await ref.update(adminOverridePatch(patch));
+    await adminRefreshSelf(id);
+    const snap = await ref.get(), k = adminDocs.findIndex(x=>x.id===id); if (k>=0) adminDocs[k] = snap;
+    appToast(op==="del" ? "Trade supprimé de l'historique." : "Trade ajouté à l'historique.");
+    adminTradesOpen(id, book);
+    loadAdminTraders();
+  }catch(e){
+    console.warn("admin trade edit failed", e);
+    alert("Échec — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).");
+  }
+}
+function adminTradeAddForm(id, book){
+  const doc = adminDocs.find(x=>x.id===id); if (!doc) return;
+  const d = doc.data(), name = d.username || id;
+  const nowLocal = new Date(Date.now() - new Date().getTimezoneOffset()*60000).toISOString().slice(0,16);
+  const opts = ASSETS.map(a=>'<option value="'+a.symbol+'">'+escapeHtml(a.symbol+" · "+a.name)+'</option>').join("");
+  openModal('<h3 style="margin:0 0 4px;">Ajouter un trade — '+escapeHtml(name)+'</h3>'+
+    '<div class="chart-note" style="margin-bottom:12px;">Trade clôturé ajouté à l\'historique '+(book==="prop" ? "Prop firm" : "Trading")+'. Le P&amp;L est calculé à partir des prix, de la taille et du sens.</div>'+
+    '<div class="adm-ta">'+
+      '<label>Actif<select id="ata-sym" class="tpsl-input">'+opts+'</select></label>'+
+      '<label>Sens<select id="ata-side" class="tpsl-input"><option value="long">Long</option><option value="short">Short</option></select></label>'+
+      '<label>Taille ($ de notionnel)<input id="ata-not" type="number" step="any" min="1" value="1000" class="tpsl-input"></label>'+
+      '<label>Levier<input id="ata-lev" type="number" step="1" min="1" max="200" value="1" class="tpsl-input"></label>'+
+      '<label>Prix d\'entrée<input id="ata-in" type="number" step="any" class="tpsl-input"></label>'+
+      '<label>Prix de sortie<input id="ata-out" type="number" step="any" class="tpsl-input"></label>'+
+      '<label>Ouverture<input id="ata-open" type="datetime-local" value="'+nowLocal+'" class="tpsl-input"></label>'+
+      '<label>Clôture<input id="ata-close" type="datetime-local" value="'+nowLocal+'" class="tpsl-input"></label>'+
+    '</div>'+
+    '<label style="display:flex;gap:8px;align-items:center;margin:10px 0 4px;font-size:13px;"><input type="checkbox" id="ata-fee" checked> Compter les frais (0,04 % à l\'entrée et à la sortie)</label>'+
+    '<label style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;font-size:13px;"><input type="checkbox" id="ata-adj" checked> Répercuter le P&amp;L sur le solde du compte</label>'+
+    '<div class="chart-note" id="ata-info" style="min-height:18px;margin:6px 0;"></div>'+
+    '<div style="display:flex;gap:8px;justify-content:flex-end;"><button type="button" class="btn-secondary" id="ata-back">Retour</button><button type="button" class="btn-primary" id="ata-go">Ajouter le trade</button></div>');
+  { const box = document.getElementById("modal-box"); if (box){ box.style.maxWidth = "min(560px, 96vw)"; modalCloseHook = ()=>{ box.style.maxWidth = ""; }; } }
+  const $ = q=>document.getElementById(q);
+  const calc = ()=>{
+    const not = parseFloat($("ata-not").value), lev = Math.max(1, Math.min(200, parseFloat($("ata-lev").value)||1)), pin = parseFloat($("ata-in").value), pout = parseFloat($("ata-out").value), side = $("ata-side").value;
+    const fee = $("ata-fee").checked && not>0 ? not*TAKER_FEE_RATE*2 : 0;
+    const gross = not>0 && pin>0 && pout>0 ? (side==="short" ? (pin-pout) : (pout-pin))/pin*not : NaN;
+    return {not, lev, pin, pout, side, fee, pnl: gross - fee};
+  };
+  const info = ()=>{ const c = calc(); const el = $("ata-info"); el.style.color = ""; el.innerHTML = isFinite(c.pnl) ? 'P&amp;L net : <b style="color:var(--'+(c.pnl>=0 ? "long" : "short")+')">'+(c.pnl>=0 ? "+" : "")+fmtMoney(c.pnl)+'</b>'+(c.fee ? ' (frais '+fmtMoney(c.fee)+')' : '') : 'Renseigne la taille et les deux prix.'; };
+  ["ata-not","ata-in","ata-out","ata-side","ata-fee","ata-lev"].forEach(k=>$(k).addEventListener("input", info)); info();
+  $("ata-back").addEventListener("click", ()=>adminTradesOpen(id, book));
+  $("ata-go").addEventListener("click", ()=>{
+    const c = calc(), el = $("ata-info");
+    if (!isFinite(c.pnl)){ el.style.color = "var(--warn)"; el.textContent = "Taille et prix obligatoires."; return; }
+    const op = new Date($("ata-open").value), cl = new Date($("ata-close").value);
+    if (isNaN(cl)){ el.style.color = "var(--warn)"; el.textContent = "Date de clôture invalide."; return; }
+    if (!isNaN(op) && op > cl){ el.style.color = "var(--warn)"; el.textContent = "L'ouverture doit être avant la clôture."; return; }
+    $("ata-go").disabled = true;
+    adminTradeEdit(id, book, "add", {id:uid(), symbol:$("ata-sym").value, side:c.side, pnl:c.pnl, reason:"manual", exitFee:c.fee/2, feesPaid:c.fee,
+      closedAt:cl.toISOString(), openedAt:isNaN(op) ? cl.toISOString() : op.toISOString(), sizeUnits:c.not/c.pin, leverage:c.lev, mode:"cross",
+      entryPrice:c.pin, exitPrice:c.pout, notional:c.not, byAdmin:true}, $("ata-adj").checked);
+  });
 }
 // Actions sur un trader, rangées par thème (affichées dans le panneau « Gérer »).
 function adminActionsHtml(id, d){
