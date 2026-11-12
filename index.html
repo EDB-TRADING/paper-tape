@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3721">
+<meta name="pt-build" content="3750">
 <script>
 /* Multi-graphiques : cette page est-elle un graphique seul dans une iframe ?
    Si oui, ses réglages de graphique (indicateurs, bougies, unité de temps,
@@ -629,6 +629,47 @@
   .lb-admin-toggle input:checked + .lb-sw{background:var(--accent);}
   .lb-admin-toggle input:checked + .lb-sw::after{transform:translateX(14px);background:var(--on-accent, #fff);}
   .lb-admin-toggle input:focus-visible + .lb-sw{outline:2px solid var(--accent);outline-offset:2px;}
+  .bt{display:grid;grid-template-columns:minmax(320px,400px) minmax(0,1fr);gap:16px;align-items:start;}
+  @media (max-width:1000px){ .bt{grid-template-columns:1fr;} }
+  .bt-cfg{display:flex;flex-direction:column;gap:12px;padding:18px;}
+  .bt-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+  .bt-head h2{margin:0;font-size:20px;} .bt-head span{font-size:12px;color:var(--text-faint);}
+  .bt-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+  .bt-f{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--text-dim);min-width:0;}
+  .bt input, .bt select, .bt textarea{font:inherit;font-size:13px;padding:8px 9px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--text);min-width:0;box-sizing:border-box;}
+  .bt-modes{margin-top:4px;}
+  .bt-presets{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:var(--text-faint);}
+  .bt-blk{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--border-soft);border-radius:10px;background:var(--panel-2);}
+  .bt-blk-h{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;} .bt-blk-h b{font-size:13px;} .bt-blk-h span{font-size:11.5px;color:var(--text-faint);}
+  .bt-cond{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+  .bt-cond select{flex:1 1 120px;} .bt-cond input{width:64px;font-family:var(--mono);}
+  .bt-x{border:1px solid var(--border);background:none;color:var(--text-faint);border-radius:6px;width:28px;height:30px;cursor:pointer;}
+  .bt-x:hover{color:var(--short);border-color:var(--short);}
+  .bt-add{align-self:flex-start;border:1px dashed var(--border);background:none;color:var(--text-dim);border-radius:8px;padding:6px 10px;font:inherit;font-size:12.5px;cursor:pointer;}
+  .bt-row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;} .bt-row .bt-f{flex:1 1 130px;}
+  .bt-chk{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--text-dim);flex:1 1 200px;}
+  .bt-code{width:100%;min-height:340px;font-family:var(--mono) !important;font-size:12.5px !important;line-height:1.5;resize:vertical;tab-size:2;white-space:pre;}
+  .bt-hint{margin:0;font-size:12px;color:var(--text-faint);}
+  .bt-saverow{display:flex;gap:8px;flex-wrap:wrap;} .bt-saverow input{flex:1 1 140px;} .bt-saverow select{flex:1 1 140px;}
+  .bt-prog{height:4px;border-radius:2px;background:var(--border);overflow:hidden;} .bt-prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s;}
+  .bt-msg{font-size:12.5px;color:var(--warn, #f2b33d);min-height:16px;}
+  .bt-run{width:100%;height:44px;}
+  .bt-res{padding:18px;min-width:0;display:flex;flex-direction:column;gap:14px;}
+  .bt-empty{display:flex;flex-direction:column;gap:6px;padding:40px 16px;text-align:center;color:var(--text-faint);font-size:13px;line-height:1.5;} .bt-empty b{color:var(--text);font-size:15px;}
+  .bt-err b{color:var(--short);}
+  .bt-sum{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;background:var(--border-soft);border:1px solid var(--border-soft);border-radius:12px;overflow:hidden;}
+  @media (max-width:760px){ .bt-sum{grid-template-columns:repeat(3,minmax(0,1fr));} }
+  .bt-sum > div{display:flex;flex-direction:column;gap:4px;padding:12px;background:var(--panel);} .bt-sum span{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--text-faint);} .bt-sum b{font-family:var(--mono);font-size:17px;}
+  .bt .up{color:var(--long);} .bt .down{color:var(--short);}
+  .bt-curve{width:100%;height:300px;display:block;}
+  .bt-curve-leg{display:flex;gap:16px;font-size:11.5px;color:var(--text-faint);margin-top:-6px;}
+  .bt-tables{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;} @media (max-width:760px){ .bt-tables{grid-template-columns:1fr;} }
+  .bt-t{width:100%;border-collapse:collapse;font-size:13px;}
+  .bt-t th{text-align:left;padding:8px 10px;font-size:12px;letter-spacing:.05em;text-transform:uppercase;background:var(--panel-2);color:var(--text-dim);}
+  .bt-t td{padding:7px 10px;border-top:1px solid var(--border-soft);} .bt-t td:last-child{text-align:right;font-family:var(--mono);}
+  .bt-logs{font-size:12px;font-family:var(--mono);padding:10px 12px;border-radius:8px;background:var(--panel-2);display:flex;flex-direction:column;gap:3px;}
+  .bt-tr-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;} .bt-tr-h span{font-size:12px;color:var(--text-faint);} .bt-tr-h button{margin-left:auto;}
+  .bt-lock{padding:28px;display:flex;flex-direction:column;gap:12px;max-width:720px;} .bt-lock h2{margin:0;} .bt-lock p{margin:0;color:var(--text-dim);line-height:1.5;}
   .adm-tr-kpi{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-bottom:10px;font-size:12.5px;color:var(--text-dim);} .adm-tr-kpi b{color:var(--text);} .adm-tr-kpi button{margin-left:auto;} .agg-ex{flex-wrap:wrap;} .lad-bar #lad-agg.on{color:var(--accent,#4f8dff);border-color:currentColor;} .lp-arm{color:var(--red,#f0546a)!important;border-color:currentColor!important;}
   .lp-it button{border:1px solid var(--border);background:var(--panel);color:var(--text-dim);border-radius:6px;padding:4px 8px;font-size:11.5px;cursor:pointer;white-space:nowrap;}
   .lp-it button:hover{color:var(--text);border-color:var(--accent);}
@@ -6165,6 +6206,7 @@
     <symbol id="i-news" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8z"/></symbol>
     <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></symbol>
     <symbol id="i-pie" viewBox="0 0 24 24"><path d="M21 12c.55 0 1-.45.95-1A10 10 0 0 0 13 2.05c-.55-.05-1 .4-1 .95v8a1 1 0 0 0 1 1z"/><path d="M21.2 15.9A10 10 0 1 1 8 2.8"/></symbol>
+    <symbol id="i-flask" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-7"/><path d="M20 7v4M20 7h-4"/></symbol>
     <symbol id="i-replay" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 4v5h5"/><path d="m10.5 9 4.5 3-4.5 3z"/></symbol>
     <symbol id="i-eye" viewBox="0 0 24 24"><path d="M6 4v3M6 15v3M10 7v5M10 16v2"/><rect x="4.5" y="7" width="3" height="8" rx=".6"/><rect x="8.5" y="12" width="3" height="4" rx=".6"/><path d="M13.5 15.5l3 3 5-6.5"/></symbol>
     <symbol id="i-game" viewBox="0 0 24 24"><path d="M7 8h10a4 4 0 0 1 4 4v1.5a3.5 3.5 0 0 1-6.3 2.1L13.5 14h-3l-1.2 1.6A3.5 3.5 0 0 1 3 13.5V12a4 4 0 0 1 4-4z"/><path d="M7.5 10.5v3M6 12h3"/><circle cx="16" cy="11.2" r=".6" fill="currentColor"/><circle cx="17.6" cy="12.8" r=".6" fill="currentColor"/></symbol>
@@ -6259,6 +6301,7 @@
       <button data-view="invest"><svg class="ic" aria-hidden="true"><use href="#i-pie"/></svg><span class="sb-label">Investir</span></button>
       <button data-view="challenge"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg><span class="sb-label">Challenge</span><span class="sb-short">Challenge</span></button>
       <button data-view="replay"><svg class="ic" aria-hidden="true"><use href="#i-replay"/></svg><span class="sb-label">Replay</span><span class="sb-short">Replay</span></button>
+      <button data-view="backtest"><svg class="ic" aria-hidden="true"><use href="#i-flask"/></svg><span class="sb-label">Backtest</span><span class="sb-short">Backtest</span></button>
       <button data-view="daily"><svg class="ic" aria-hidden="true"><use href="#i-daily"/></svg><span class="sb-label">Défi du jour</span><span class="sb-short">Défi</span></button>
       <button data-view="games" id="nav-games-btn"><svg class="ic" aria-hidden="true"><use href="#i-eye"/></svg><span class="sb-label">Chart Check</span><span class="sb-short">Check</span></button>
       <button data-view="concoursedbplus"><svg class="ic" aria-hidden="true"><use href="#i-gem"/></svg><span class="sb-label">Concours EDB+</span><span class="sb-short">Concours</span></button>
@@ -7271,6 +7314,10 @@
       <div id="replay-root"></div>
     </section>
 
+    <section class="view" id="view-backtest">
+      <div id="backtest-root"></div>
+    </section>
+
     <section class="view" id="view-challenge">
       <div class="learn-wrap ch-wrap">
         <div class="card" id="challenge-profile-card">
@@ -7331,7 +7378,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3721 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3750 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -26330,6 +26377,396 @@ function rpShapeSvg(kind){
     '<path class="rp-shape-area" d="'+d+' L200 60 L0 60 Z"/><path class="rp-shape-line" d="'+d+'"/></svg>';
 }
 function rpLocalDateStr(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+/* ============================= BACKTEST (v3740, EDB+) =============================
+   Tester une stratégie sur des mois / années de bougies Binance (crypto).
+   Deux façons de l'écrire : constructeur sans code (conditions à cliquer) ou
+   script JavaScript (fonction onBar). Le calcul tourne dans un Web Worker
+   (pas de gel de la page, pas d'accès au compte depuis un script).
+   Règles du moteur : une position à la fois ; signal évalué à la clôture
+   d'une bougie, exécution à l'ouverture de la suivante (pas de regard vers le
+   futur) ; stop / objectif testés dans chaque bougie (si les deux sont
+   touchés dans la même bougie, le stop est compté en premier) ; frais et
+   glissement appliqués à l'entrée et à la sortie. */
+const BT = {cache:{}, res:null, worker:null, running:false};
+const BT_TF = [["5m","5 min",3e5],["15m","15 min",9e5],["1h","1 heure",36e5],["4h","4 heures",144e5],["1d","1 jour",864e5]];
+const BT_OPS = [["xup","croise au-dessus de"],["xdn","croise en dessous de"],["gt","est au-dessus de"],["lt","est en dessous de"]];
+const BT_SRC = [["close","Prix (clôture)",0],["open","Ouverture",0],["high","Plus haut",0],["low","Plus bas",0],["ema","EMA",1],["sma","SMA",1],["rsi","RSI",1],["atr","ATR",1],["hh","Plus haut des N bougies",1],["ll","Plus bas des N bougies",1],["bbu","Bollinger haute",1],["bbl","Bollinger basse",1],["macd","MACD",0],["macds","Signal MACD",0],["vol","Volume",0],["vsma","Volume moyen",1],["num","Valeur",2]];
+const BT_KEY = "paperTapeBacktests";
+const BT_DEFAULT_SCRIPT = `// onBar(c) est appelée à la clôture de chaque bougie.
+// Séries : c.close, c.open, c.high, c.low, c.volume (tableaux)
+// Indicateurs : c.ema(n), c.sma(n), c.rsi(n), c.atr(n), c.hh(n), c.ll(n),
+//   c.bbUpper(n, k), c.bbLower(n, k), c.macd(), c.macdSignal()
+// Lecture : c.at(serie, recul) -> valeur (recul 0 = bougie actuelle)
+// Croisements : c.crossUp(a, b), c.crossDown(a, b) (séries ou nombres)
+// Ordres (exécutés à l'ouverture de la bougie suivante) :
+//   c.long({stop, target}), c.short({stop, target}), c.exit()
+// État : c.position (null ou {side, entry, stop, target, bars}), c.i, c.time
+function onBar(c){
+  const fast = c.ema(9), slow = c.ema(21), atr = c.atr(14);
+  const px = c.at(c.close), a = c.at(atr);
+  if (!c.position){
+    if (c.crossUp(fast, slow)) c.long({stop: px - 2*a, target: px + 4*a});
+    if (c.crossDown(fast, slow)) c.short({stop: px + 2*a, target: px - 4*a});
+  }
+}`;
+const BT_PRESETS = {
+  ema: {name:"Croisement EMA 9 / 21", sides:"both", long:[{a:"ema",ap:9,op:"xup",b:"ema",bp:21}], short:[{a:"ema",ap:9,op:"xdn",b:"ema",bp:21}], stop:{t:"atr",v:2,p:14}, tgt:{t:"r",v:2}, rev:true, maxBars:0},
+  rsi: {name:"RSI survente / surachat", sides:"both", long:[{a:"rsi",ap:14,op:"xup",b:"num",bv:30}], short:[{a:"rsi",ap:14,op:"xdn",b:"num",bv:70}], stop:{t:"pct",v:2}, tgt:{t:"r",v:1.5}, rev:false, maxBars:48},
+  don: {name:"Cassure du plus haut 20", sides:"both", long:[{a:"close",op:"gt",b:"hh",bp:20}], short:[{a:"close",op:"lt",b:"ll",bp:20}], stop:{t:"atr",v:1.5,p:14}, tgt:{t:"r",v:3}, rev:false, maxBars:0},
+  bb: {name:"Rebond Bollinger", sides:"both", long:[{a:"close",op:"xup",b:"bbl",bp:20}], short:[{a:"close",op:"xdn",b:"bbu",bp:20}], stop:{t:"pct",v:1.5}, tgt:{t:"r",v:2}, rev:false, maxBars:24},
+};
+function btAssets(){ return ASSETS.filter(a=>a.binanceSymbol && !a.delisted && a.cat==="crypto"); }
+function btSaved(){ try{ return JSON.parse(localStorage.getItem(BT_KEY)||"[]"); }catch(e){ return []; } }
+function btSaveList(l){ try{ localStorage.setItem(BT_KEY, JSON.stringify(l.slice(0,40))); }catch(e){} }
+let btState = null;
+function btDefaultState(){
+  const day = t=>new Date(t - new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
+  return {sym:"BTC", tf:"1h", from:day(Date.now()-365*864e5), to:day(Date.now()), start:10000, sizing:"risk", risk:1, alloc:100, lev:10, fee:0.04, slip:0.02,
+    mode:"builder", b:JSON.parse(JSON.stringify(BT_PRESETS.ema)), script:BT_DEFAULT_SCRIPT, name:""};
+}
+async function btKlines(sym, tf, t0, t1, onProg){
+  const key = sym+"|"+tf+"|"+t0+"|"+t1; if (BT.cache[key]) return BT.cache[key];
+  const step = (BT_TF.find(x=>x[0]===tf)||[0,0,36e5])[2], total = Math.max(1, Math.ceil((t1-t0)/step)), out = [];
+  let s = t0;
+  while (s < t1){
+    const r = await fetch("https://api.binance.com/api/v3/klines?symbol="+sym+"&interval="+tf+"&startTime="+s+"&endTime="+t1+"&limit=1000");
+    if (!r.ok) throw new Error("Binance a refusé la demande ("+r.status+"). Réessaie dans une minute.");
+    const k = await r.json(); if (!k.length) break;
+    k.forEach(x=>out.push([x[0], +x[1], +x[2], +x[3], +x[4], +x[5]]));
+    if (onProg) onProg(Math.min(1, out.length/total));
+    const last = k[k.length-1][0]; if (last<=s) break; s = last + step;
+    if (k.length < 1000) break;
+  }
+  BT.cache[key] = out; return out;
+}
+// ---- Moteur (s'exécute dans le Worker) ----
+function btWorkerMain(){
+  const ind = {};
+  function ema(a, n){ const o = new Array(a.length).fill(NaN), k = 2/(n+1); let s = 0; for (let i=0;i<a.length;i++){ if (i<n){ s += a[i]; if (i===n-1) o[i] = s/n; } else o[i] = a[i]*k + o[i-1]*(1-k); } return o; }
+  function sma(a, n){ const o = new Array(a.length).fill(NaN); let s = 0; for (let i=0;i<a.length;i++){ s += a[i]; if (i>=n) s -= a[i-n]; if (i>=n-1) o[i] = s/n; } return o; }
+  function rsi(c, n){ const o = new Array(c.length).fill(NaN); let g = 0, l = 0; for (let i=1;i<c.length;i++){ const d = c[i]-c[i-1], up = Math.max(0,d), dn = Math.max(0,-d); if (i<=n){ g += up; l += dn; if (i===n){ g /= n; l /= n; o[i] = l===0 ? 100 : 100 - 100/(1+g/l); } } else { g = (g*(n-1)+up)/n; l = (l*(n-1)+dn)/n; o[i] = l===0 ? 100 : 100 - 100/(1+g/l); } } return o; }
+  function atr(h, l, c, n){ const tr = h.map((x,i)=>i ? Math.max(x-l[i], Math.abs(x-c[i-1]), Math.abs(l[i]-c[i-1])) : x-l[i]); const o = new Array(c.length).fill(NaN); let s = 0; for (let i=0;i<c.length;i++){ if (i<n){ s += tr[i]; if (i===n-1) o[i] = s/n; } else o[i] = (o[i-1]*(n-1)+tr[i])/n; } return o; }
+  function hh(h, n){ const o = new Array(h.length).fill(NaN); for (let i=n;i<h.length;i++){ let m = -Infinity; for (let j=i-n;j<i;j++) if (h[j]>m) m = h[j]; o[i] = m; } return o; }
+  function ll(l, n){ const o = new Array(l.length).fill(NaN); for (let i=n;i<l.length;i++){ let m = Infinity; for (let j=i-n;j<i;j++) if (l[j]<m) m = l[j]; o[i] = m; } return o; }
+  function bb(c, n, k, up){ const m = sma(c, n), o = new Array(c.length).fill(NaN); for (let i=n-1;i<c.length;i++){ let v = 0; for (let j=i-n+1;j<=i;j++) v += (c[j]-m[i])**2; const sd = Math.sqrt(v/n); o[i] = m[i] + (up ? 1 : -1)*k*sd; } return o; }
+  self.onmessage = (ev)=>{
+    const {K, cfg} = ev.data;
+    try{
+      const T = K.map(x=>x[0]), O = K.map(x=>x[1]), H = K.map(x=>x[2]), L = K.map(x=>x[3]), C = K.map(x=>x[4]), V = K.map(x=>x[5]), N = K.length;
+      const get = (key, f)=>ind[key] || (ind[key] = f());
+      const S = {
+        close:C, open:O, high:H, low:L, volume:V,
+        ema:n=>get("ema"+n, ()=>ema(C, n)), sma:n=>get("sma"+n, ()=>sma(C, n)), rsi:n=>get("rsi"+n, ()=>rsi(C, n)), atr:n=>get("atr"+n, ()=>atr(H, L, C, n)),
+        hh:n=>get("hh"+n, ()=>hh(H, n)), ll:n=>get("ll"+n, ()=>ll(L, n)),
+        bbUpper:(n,k)=>get("bbu"+n+"_"+(k||2), ()=>bb(C, n, k||2, true)), bbLower:(n,k)=>get("bbl"+n+"_"+(k||2), ()=>bb(C, n, k||2, false)),
+        macd:()=>get("macd", ()=>{ const a = ema(C,12), b = ema(C,26); return a.map((x,i)=>x-b[i]); }),
+        macdSignal:()=>get("macds", ()=>{ const m = S.macd(); const st = m.findIndex(x=>!isNaN(x)); const e = ema(m.slice(st), 9); return new Array(st).fill(NaN).concat(e); }),
+        vsma:n=>get("vsma"+n, ()=>sma(V, n)),
+      };
+      let i = 0;
+      const at = (s, b)=>typeof s==="number" ? s : (s ? s[i-(b||0)] : NaN);
+      const cross = (a, b, up)=>{ const a0 = at(a), a1 = at(a,1), b0 = at(b), b1 = at(b,1); return up ? (a1<=b1 && a0>b0) : (a1>=b1 && a0<b0); };
+      // Constructeur -> fonctions de signal
+      const ser = (t, p, v)=>{ switch(t){ case "close": return C; case "open": return O; case "high": return H; case "low": return L; case "vol": return V; case "ema": return S.ema(p); case "sma": return S.sma(p); case "rsi": return S.rsi(p); case "atr": return S.atr(p); case "hh": return S.hh(p); case "ll": return S.ll(p); case "bbu": return S.bbUpper(p); case "bbl": return S.bbLower(p); case "macd": return S.macd(); case "macds": return S.macdSignal(); case "vsma": return S.vsma(p); default: return +v; } };
+      const condOk = c=>{ const a = ser(c.a, c.ap, c.av), b = ser(c.b, c.bp, c.bv); if (c.op==="xup") return cross(a, b, true); if (c.op==="xdn") return cross(a, b, false); const x = at(a), y = at(b); if (isNaN(x)||isNaN(y)) return false; return c.op==="gt" ? x>y : x<y; };
+      const B = cfg.b, fee = cfg.fee/100, slip = cfg.slip/100;
+      let onBar = null;
+      if (cfg.mode==="script"){
+        const f = new Function("Math", cfg.script+"\n;return typeof onBar==='function' ? onBar : null;");
+        onBar = f(Math); if (!onBar) throw new Error("Le script doit définir une fonction onBar(c).");
+      }
+      let eq = cfg.start, pos = null, pend = null; const trades = [], curve = [], logs = [];
+      const every = Math.max(1, Math.floor(N/1500));
+      const levelsFor = (side, px)=>{
+        if (cfg.mode==="script") return null;
+        let stop = null, tgt = null;
+        const st = B.stop||{t:"none"}, tg = B.tgt||{t:"none"}, d = side==="long" ? 1 : -1;
+        if (st.t==="pct") stop = px*(1 - d*st.v/100);
+        else if (st.t==="atr"){ const a = at(S.atr(st.p||14)); if (!isNaN(a)) stop = px - d*st.v*a; }
+        else if (st.t==="swing"){ const s = side==="long" ? at(S.ll(st.p||10)) : at(S.hh(st.p||10)); if (!isNaN(s)) stop = s; }
+        if (tg.t==="pct") tgt = px*(1 + d*tg.v/100);
+        else if (tg.t==="atr"){ const a = at(S.atr(tg.p||14)); if (!isNaN(a)) tgt = px + d*tg.v*a; }
+        else if (tg.t==="r" && stop!=null) tgt = px + d*tg.v*Math.abs(px - stop);
+        return {stop, target:tgt};
+      };
+      const closeAt = (j, price, reason)=>{
+        const d = pos.side==="long" ? 1 : -1;
+        const exit = reason==="tp" ? price : price*(1 - d*slip);
+        const gross = (exit - pos.entry)*d*pos.qty, f = pos.qty*exit*fee;
+        const pnl = gross - f - pos.feeIn;
+        eq += gross - f;
+        trades.push({openedAt:T[pos.i], closedAt:T[j] + (reason==="signal" || reason==="time" ? 0 : 0), symbol:cfg.symbol, side:pos.side, sizeUnits:pos.qty, notional:pos.qty*pos.entry,
+          leverage:pos.qty*pos.entry/Math.max(1e-9, pos.eq0), entryPrice:pos.entry, exitPrice:exit, stopLoss:pos.stop, takeProfit:pos.target, feesPaid:pos.feeIn + f, exitFee:pos.feeIn + f,
+          pnl, reason: reason==="sl" ? "sl" : reason==="tp" ? "tp" : "closed", bars:j - pos.i});
+        pos = null;
+      };
+      const open = (j, o)=>{
+        const side = o.side, d = side==="long" ? 1 : -1, px = O[j]*(1 + d*slip);
+        let stop = o.stop, target = o.target;
+        if (stop!=null && (d*(px - stop) <= 0)) stop = null;
+        if (target!=null && (d*(target - px) <= 0)) target = null;
+        let notional;
+        if (cfg.sizing==="risk" && stop!=null) notional = (eq*cfg.risk/100)/Math.abs(px - stop)*px;
+        else notional = eq*cfg.alloc/100;
+        notional = Math.min(notional, eq*cfg.lev);
+        if (!(notional>0) || eq<=0) return;
+        const qty = notional/px, feeIn = notional*fee;
+        eq -= feeIn;
+        pos = {side, entry:px, qty, stop, target, i:j, feeIn, eq0:eq + feeIn};
+      };
+      const warm = 2;
+      for (i=0;i<N;i++){
+        // 1. ordre en attente -> ouverture de cette bougie
+        if (pend){
+          if (pend.type==="exit" && pos) closeAt(i, O[i], "signal");
+          else if (pend.type==="open"){ if (pos && pos.side!==pend.side) closeAt(i, O[i], "signal"); if (!pos) open(i, pend); }
+          pend = null;
+        }
+        // 2. stop / objectif dans la bougie
+        if (pos){
+          const d = pos.side==="long" ? 1 : -1;
+          const hitS = pos.stop!=null && (d>0 ? L[i]<=pos.stop : H[i]>=pos.stop);
+          const hitT = pos.target!=null && (d>0 ? H[i]>=pos.target : L[i]<=pos.target);
+          if (hitS) closeAt(i, d>0 ? Math.min(O[i], pos.stop) : Math.max(O[i], pos.stop), "sl");
+          else if (hitT) closeAt(i, d>0 ? Math.max(O[i], pos.target) : Math.min(O[i], pos.target), "tp");
+          else if (cfg.mode!=="script" && B.maxBars>0 && i - pos.i >= B.maxBars) closeAt(i, C[i], "time");
+          if (pos && eq + (C[i]-pos.entry)*d*pos.qty <= 0){ closeAt(i, C[i], "sl"); logs.push("Compte à zéro le "+new Date(T[i]).toISOString().slice(0,10)+"."); }
+        }
+        // 3. signal à la clôture
+        if (i>=warm && i<N-1 && eq>0){
+          if (cfg.mode==="script"){
+            let act = null;
+            const c = {i, time:T[i], close:C, open:O, high:H, low:L, volume:V, at, crossUp:(a,b)=>cross(a,b,true), crossDown:(a,b)=>cross(a,b,false),
+              ema:S.ema, sma:S.sma, rsi:S.rsi, atr:S.atr, hh:S.hh, ll:S.ll, bbUpper:S.bbUpper, bbLower:S.bbLower, macd:S.macd, macdSignal:S.macdSignal,
+              position: pos ? {side:pos.side, entry:pos.entry, stop:pos.stop, target:pos.target, bars:i - pos.i} : null, equity:eq,
+              long:o=>{ act = {type:"open", side:"long", stop:o&&isFinite(o.stop) ? +o.stop : null, target:o&&isFinite(o.target) ? +o.target : null}; },
+              short:o=>{ act = {type:"open", side:"short", stop:o&&isFinite(o.stop) ? +o.stop : null, target:o&&isFinite(o.target) ? +o.target : null}; },
+              exit:()=>{ act = {type:"exit"}; }, log:m=>{ if (logs.length<50) logs.push(String(m)); }};
+            onBar(c);
+            if (act && !(act.type==="open" && pos && pos.side===act.side)) pend = act;
+          } else {
+            const wantL = B.sides!=="short" && (B.long||[]).length && B.long.every(condOk);
+            const wantS = B.sides!=="long" && (B.short||[]).length && B.short.every(condOk);
+            const sig = wantL && !wantS ? "long" : wantS && !wantL ? "short" : null;
+            if (sig){
+              if (!pos){ const lv = levelsFor(sig, C[i]); pend = {type:"open", side:sig, stop:lv.stop, target:lv.target}; }
+              else if (pos.side!==sig && B.rev){ const lv = levelsFor(sig, C[i]); pend = {type:"open", side:sig, stop:lv.stop, target:lv.target}; }
+            }
+          }
+        }
+        if (i%every===0 || i===N-1) curve.push([T[i], eq + (pos ? (C[i]-pos.entry)*(pos.side==="long" ? 1 : -1)*pos.qty : 0)]);
+      }
+      if (pos) closeAt(N-1, C[N-1], "time");
+      curve.push([T[N-1], eq]);
+      self.postMessage({ok:true, trades, curve, logs, bh:[C[0], C[N-1]], bars:N});
+    }catch(e){ self.postMessage({ok:false, err:(e && e.message) || String(e)}); }
+  };
+}
+function btRunWorker(K, cfg){
+  return new Promise((resolve)=>{
+    if (BT.worker){ try{ BT.worker.terminate(); }catch(e){} }
+    const url = URL.createObjectURL(new Blob(["("+btWorkerMain.toString()+")()"], {type:"text/javascript"}));
+    const w = BT.worker = new Worker(url);
+    const to = setTimeout(()=>{ w.terminate(); resolve({ok:false, err:"Calcul trop long (plus de 60 s) : boucle infinie dans le script ?"}); }, 60000);
+    w.onmessage = e=>{ clearTimeout(to); w.terminate(); URL.revokeObjectURL(url); resolve(e.data); };
+    w.onerror = e=>{ clearTimeout(to); w.terminate(); resolve({ok:false, err:(e && e.message) || "Erreur du script."}); };
+    w.postMessage({K, cfg});
+  });
+}
+function btStats(r, start){
+  const T = r.trades, n = T.length, win = T.filter(t=>t.pnl>0), los = T.filter(t=>t.pnl<0), be = n - win.length - los.length;
+  const sum = a=>a.reduce((s,t)=>s+t.pnl, 0), gp = sum(win), gl = -sum(los), net = gp - gl, end = start + net;
+  const avgW = win.length ? gp/win.length : 0, avgL = los.length ? gl/los.length : 0;
+  let peak = start, mdd = 0; r.curve.forEach(p=>{ peak = Math.max(peak, p[1]); mdd = Math.max(mdd, (peak - p[1])/peak); });
+  const last = r.curve.length ? r.curve[r.curve.length-1][1] : start, cdd = peak>0 ? (peak - last)/peak : 0;
+  let ws = 0, ls = 0, cw = 0, cl = 0; T.forEach(t=>{ if (t.pnl>0){ cw++; cl = 0; } else if (t.pnl<0){ cl++; cw = 0; } ws = Math.max(ws, cw); ls = Math.max(ls, cl); });
+  const R = T.map(t=>t.stopLoss!=null ? t.pnl/(Math.abs(t.entryPrice - t.stopLoss)*t.sizeUnits) : null).filter(x=>x!=null && isFinite(x));
+  const fees = T.reduce((s,t)=>s+(t.feesPaid||0), 0), dur = n ? T.reduce((s,t)=>s+(t.closedAt - t.openedAt), 0)/n/60000 : 0;
+  const days = new Set(T.map(t=>new Date(t.closedAt).toISOString().slice(0,10))).size;
+  const mean = n ? net/n : 0, sd = n>1 ? Math.sqrt(T.reduce((s,t)=>s+(t.pnl-mean)**2, 0)/(n-1)) : 0;
+  return {n, win:win.length, los:los.length, be, gp, gl, net, end, ret:net/start*100, wr:n ? win.length/n*100 : 0, avgW, avgL, payoff:avgL ? avgW/avgL : 0,
+    pf:gl ? gp/gl : (gp>0 ? Infinity : 0), exp:mean, expR:R.length ? R.reduce((a,b)=>a+b,0)/R.length : null, best:n ? Math.max(...T.map(t=>t.pnl)) : 0, worst:n ? Math.min(...T.map(t=>t.pnl)) : 0,
+    mdd:mdd*100, cdd:cdd*100, ws, ls, fees, dur, days, perDay:days ? n/days : 0, sd, bh:(r.bh[1]/r.bh[0]-1)*100};
+}
+function btCurveSvg(curve, start){
+  if (curve.length<2) return "";
+  const W = 900, H = 230, D = 70, xs = curve.map(p=>p[0]), ys = curve.map(p=>p[1]);
+  const x0 = xs[0], x1 = xs[xs.length-1], mn = Math.min(start, ...ys), mx = Math.max(start, ...ys);
+  const x = t=>(t - x0)/((x1 - x0) || 1)*W, y = v=>H - 10 - (v - mn)/((mx - mn) || 1)*(H - 20);
+  let peak = -Infinity; const dd = curve.map(p=>{ peak = Math.max(peak, p[1]); return (peak - p[1])/peak; }), mdd = Math.max(0.0001, ...dd);
+  const line = curve.map((p,i)=>(i ? "L" : "M")+x(p[0]).toFixed(1)+" "+y(p[1]).toFixed(1)).join("");
+  const ddp = "M0 "+(H+8)+curve.map((p,i)=>"L"+x(p[0]).toFixed(1)+" "+(H + 8 + dd[i]/mdd*(D-14)).toFixed(1)).join("")+"L"+W+" "+(H+8)+"Z";
+  const end = ys[ys.length-1] >= start;
+  return '<svg viewBox="0 0 '+W+' '+(H+D)+'" preserveAspectRatio="none" class="bt-curve" role="img" aria-label="Courbe du capital et drawdown">'+
+    '<path d="M0 '+y(start).toFixed(1)+'H'+W+'" stroke="var(--border)" stroke-dasharray="4 4" fill="none" vector-effect="non-scaling-stroke"/>'+
+    '<path d="'+line+'L'+W+' '+H+'L0 '+H+'Z" fill="color-mix(in srgb, var(--'+(end ? "long" : "short")+') 10%, transparent)"/>'+
+    '<path d="'+line+'" stroke="var(--'+(end ? "long" : "short")+')" stroke-width="2" fill="none" vector-effect="non-scaling-stroke"/>'+
+    '<path d="'+ddp+'" fill="color-mix(in srgb, var(--short) 30%, transparent)"/></svg>'+
+    '<div class="bt-curve-leg"><span>Capital</span><span>Drawdown (max −'+(mdd*100).toFixed(1).replace(".", ",")+' %)</span></div>';
+}
+function btCsv(r, start){
+  const z = n=>String(n).padStart(2,"0"), ts = t=>{ const x = new Date(t); return x.getFullYear()+"-"+z(x.getMonth()+1)+"-"+z(x.getDate())+" "+z(x.getHours())+":"+z(x.getMinutes()); };
+  const f = (v,n)=>typeof v==="number" && isFinite(v) ? +v.toFixed(n==null ? 2 : n) : "";
+  const RS = {tp:"Take profit", sl:"Stop loss", closed:"Clôture manuelle"};
+  let cap = start;
+  const head = ["ouverture","cloture","actif","sens","levier","quantite","notionnel","prix_entree","prix_sortie","stop_loss","take_profit","risque_usd","risque_pct_capital","rr_prevu","r_realise","frais","pnl_net","capital_avant","capital_apres","duree_min","raison","source"];
+  const rows = r.trades.map(t=>{
+    const risk = t.stopLoss!=null ? Math.abs(t.entryPrice - t.stopLoss)*t.sizeUnits : null, rr = risk && t.takeProfit!=null ? Math.abs(t.takeProfit - t.entryPrice)/Math.abs(t.entryPrice - t.stopLoss) : null;
+    const before = cap; cap += t.pnl;
+    return [ts(t.openedAt), ts(t.closedAt), t.symbol, t.side, f(t.leverage,1), f(t.sizeUnits,6), f(t.notional), f(t.entryPrice,6), f(t.exitPrice,6), f(t.stopLoss,6), f(t.takeProfit,6), f(risk), risk && before>0 ? f(risk/before*100,3) : "", f(rr), risk ? f(t.pnl/risk) : "", f(t.feesPaid), f(t.pnl), f(before), f(cap), f((t.closedAt - t.openedAt)/60000, 0), RS[t.reason] || "", "backtest"];
+  });
+  return [head].concat(rows).map(x=>x.join(";")).join("\n");
+}
+// ---- Interface ----
+function btSrcOptions(cur, withNum){ return BT_SRC.filter(s=>withNum || s[0]!=="num").map(s=>'<option value="'+s[0]+'"'+(s[0]===cur ? " selected" : "")+'>'+s[1]+'</option>').join(""); }
+function btCondHtml(side, c, k){
+  const needP = t=>(BT_SRC.find(s=>s[0]===t)||[])[2]===1, isNum = t=>t==="num";
+  return '<div class="bt-cond" data-side="'+side+'" data-k="'+k+'">'+
+    '<select data-f="a" aria-label="Indicateur">'+btSrcOptions(c.a, false)+'</select>'+
+    (needP(c.a) ? '<input data-f="ap" type="number" min="1" max="500" value="'+(c.ap||14)+'" aria-label="Période">' : '')+
+    '<select data-f="op" aria-label="Condition">'+BT_OPS.map(o=>'<option value="'+o[0]+'"'+(o[0]===c.op ? " selected" : "")+'>'+o[1]+'</option>').join("")+'</select>'+
+    '<select data-f="b" aria-label="Comparé à">'+btSrcOptions(c.b, true)+'</select>'+
+    (needP(c.b) ? '<input data-f="bp" type="number" min="1" max="500" value="'+(c.bp||14)+'" aria-label="Période">' : isNum(c.b) ? '<input data-f="bv" type="number" step="any" value="'+(c.bv!=null ? c.bv : 0)+'" aria-label="Valeur">' : '')+
+    '<button type="button" class="bt-x" data-bt-del="'+side+':'+k+'" aria-label="Retirer la condition">✕</button></div>';
+}
+function btBuilderHtml(){
+  const B = btState.b, st = B.stop||{t:"none"}, tg = B.tgt||{t:"none"};
+  const side = (s, t)=>'<div class="bt-blk"><div class="bt-blk-h"><b>'+t+'</b><span>toutes les conditions doivent être vraies</span></div>'+(B[s]||[]).map((c,k)=>btCondHtml(s, c, k)).join("")+'<button type="button" class="bt-add" data-bt-addc="'+s+'">+ Ajouter une condition</button></div>';
+  return '<div class="bt-presets"><span>Modèles :</span>'+Object.keys(BT_PRESETS).map(k=>'<button type="button" class="jn2-chip" data-bt-preset="'+k+'">'+BT_PRESETS[k].name+'</button>').join("")+'</div>'+
+    '<label class="bt-f">Sens<select data-bt="sides"><option value="both"'+(B.sides==="both" ? " selected" : "")+'>Long et short</option><option value="long"'+(B.sides==="long" ? " selected" : "")+'>Long seulement</option><option value="short"'+(B.sides==="short" ? " selected" : "")+'>Short seulement</option></select></label>'+
+    (B.sides!=="short" ? side("long", "Entrée long") : '')+(B.sides!=="long" ? side("short", "Entrée short") : '')+
+    '<div class="bt-blk"><div class="bt-blk-h"><b>Sortie</b></div><div class="bt-row">'+
+      '<label class="bt-f">Stop<select data-bt="stopT"><option value="none"'+(st.t==="none" ? " selected" : "")+'>Aucun</option><option value="pct"'+(st.t==="pct" ? " selected" : "")+'>% du prix</option><option value="atr"'+(st.t==="atr" ? " selected" : "")+'>× ATR(14)</option><option value="swing"'+(st.t==="swing" ? " selected" : "")+'>Dernier plus bas / haut (N)</option></select></label>'+
+      (st.t!=="none" ? '<label class="bt-f">'+(st.t==="swing" ? "N bougies" : "Valeur")+'<input data-bt="stopV" type="number" step="any" min="0" value="'+(st.t==="swing" ? (st.p||10) : st.v)+'"></label>' : '')+
+      '<label class="bt-f">Objectif<select data-bt="tgtT"><option value="none"'+(tg.t==="none" ? " selected" : "")+'>Aucun</option><option value="r"'+(tg.t==="r" ? " selected" : "")+'>× le risque (R)</option><option value="pct"'+(tg.t==="pct" ? " selected" : "")+'>% du prix</option><option value="atr"'+(tg.t==="atr" ? " selected" : "")+'>× ATR(14)</option></select></label>'+
+      (tg.t!=="none" ? '<label class="bt-f">Valeur<input data-bt="tgtV" type="number" step="any" min="0" value="'+tg.v+'"></label>' : '')+
+    '</div><div class="bt-row">'+
+      '<label class="bt-chk"><input type="checkbox" data-bt="rev"'+(B.rev ? " checked" : "")+'> Retourner la position sur signal inverse</label>'+
+      '<label class="bt-f">Sortie après N bougies (0 = jamais)<input data-bt="maxBars" type="number" min="0" value="'+(B.maxBars||0)+'"></label>'+
+    '</div></div>';
+}
+function btResultsHtml(){
+  const r = BT.res; if (!r) return '<div class="bt-empty"><b>Configure ta stratégie puis lance le backtest.</b><span>Les bougies Binance de la période sont chargées, puis chaque bougie est rejouée dans l\'ordre : entrée à l\'ouverture suivant le signal, stop et objectif testés dans chaque bougie, frais et glissement compris.</span></div>';
+  if (!r.ok) return '<div class="bt-empty bt-err"><b>Erreur</b><span>'+escapeHtml(r.err||"")+'</span></div>';
+  const s = btStats(r, r.start), m = v=>fmtMoney(v), p = (v,d)=>(v>=0 ? "" : "−")+Math.abs(v).toFixed(d==null ? 2 : d).replace(".", ",")+" %", cl = v=>v>0 ? "up" : v<0 ? "down" : "";
+  const row = (l, v, c)=>'<tr><td>'+l+'</td><td class="'+(c||"")+'">'+v+'</td></tr>';
+  return '<div class="bt-sum"><div><span>Capital final</span><b class="'+cl(s.net)+'">'+m(s.end)+'</b></div><div><span>Rendement</span><b class="'+cl(s.net)+'">'+(s.ret>=0 ? "+" : "")+p(s.ret)+'</b></div><div><span>Buy &amp; hold</span><b class="'+cl(s.bh)+'">'+(s.bh>=0 ? "+" : "")+p(s.bh)+'</b></div><div><span>Drawdown max</span><b class="down">−'+p(s.mdd).replace("−","")+'</b></div><div><span>Trades</span><b>'+s.n+'</b></div><div><span>Win rate</span><b>'+p(s.wr,1)+'</b></div></div>'+
+    btCurveSvg(r.curve, r.start)+
+    '<div class="bt-tables"><table class="bt-t"><thead><tr><th colspan="2">Performance</th></tr></thead><tbody>'+
+      row("Capital initial", m(r.start))+row("Capital final", m(s.end))+row("P&amp;L net total", m(s.net), cl(s.net))+row("Rendement", p(s.ret), cl(s.ret))+row("Nombre de trades", s.n)+row("Gagnants", s.win)+row("Perdants", s.los)+row("Break-even", s.be)+row("Win rate", p(s.wr,1))+
+      row("Gain moyen", m(s.avgW), "up")+row("Perte moyenne", "−"+m(s.avgL), "down")+row("Payoff ratio", s.payoff.toFixed(2))+row("Profit factor", isFinite(s.pf) ? s.pf.toFixed(2) : "∞")+row("Espérance par trade", m(s.exp), cl(s.exp))+row("Espérance en R", s.expR!=null ? s.expR.toFixed(2) : "—")+row("Meilleur trade", m(s.best), "up")+row("Pire trade", m(s.worst), "down")+
+    '</tbody></table><table class="bt-t"><thead><tr><th colspan="2">Risque &amp; statistiques</th></tr></thead><tbody>'+
+      row("Drawdown maximum", "−"+p(s.mdd).replace("−",""), "down")+row("Drawdown actuel", "−"+p(s.cdd).replace("−",""))+row("Plus longue série gagnante", s.ws)+row("Plus longue série perdante", s.ls)+row("Écart-type des P&amp;L", m(s.sd))+
+      row("Frais totaux", m(s.fees))+row("Frais en % du gain brut", s.gp ? p(s.fees/s.gp*100,1) : "—")+row("Durée moyenne d'un trade", s.dur>=1440 ? (s.dur/1440).toFixed(1).replace(".", ",")+" j" : Math.round(s.dur)+" min")+row("Jours tradés", s.days)+row("Trades par jour tradé", s.perDay.toFixed(1).replace(".", ","))+row("Bougies testées", r.bars.toLocaleString("fr-FR"))+row("Buy &amp; hold sur la période", p(s.bh), cl(s.bh))+
+    '</tbody></table></div>'+
+    (r.logs && r.logs.length ? '<div class="bt-logs"><b>Messages du script</b>'+r.logs.map(l=>'<div>'+escapeHtml(l)+'</div>').join("")+'</div>' : '')+
+    '<div class="bt-tr-h"><b>Trades</b><span>'+(s.n>300 ? "300 derniers affichés · " : "")+'tous dans l\'export</span><button type="button" class="btn-secondary" data-bt-csv>Exporter CSV</button></div>'+
+    '<div class="adm-tr-wrap"><table class="adm-tr-t"><tr><th>Ouverture</th><th>Clôture</th><th>Sens</th><th class="r">Entrée</th><th class="r">Sortie</th><th class="r">Stop</th><th class="r">Objectif</th><th class="r">P&amp;L</th><th>Raison</th></tr>'+
+      r.trades.slice(-300).reverse().map(t=>{ const dt = x=>new Date(x).toLocaleString("fr-FR", {day:"2-digit", month:"2-digit", year:"2-digit", hour:"2-digit", minute:"2-digit"}), nf = v=>v==null ? "—" : (+v).toLocaleString("fr-FR", {maximumFractionDigits:4});
+        return '<tr><td>'+dt(t.openedAt)+'</td><td>'+dt(t.closedAt)+'</td><td style="color:var(--'+t.side+')">'+(t.side==="short" ? "Short" : "Long")+'</td><td class="r">'+nf(t.entryPrice)+'</td><td class="r">'+nf(t.exitPrice)+'</td><td class="r">'+nf(t.stopLoss)+'</td><td class="r">'+nf(t.takeProfit)+'</td><td class="r" style="color:var(--'+(t.pnl>=0 ? "long" : "short")+')">'+(t.pnl>=0 ? "+" : "")+fmtMoney(t.pnl)+'</td><td>'+({tp:"Take profit", sl:"Stop loss"}[t.reason] || "Clôture")+'</td></tr>'; }).join("")+
+    '</table></div>';
+}
+function renderBacktest(){
+  const root = document.getElementById("backtest-root"); if (!root) return;
+  if (!isEdbPlus()){
+    const trialOk = !state.edbPlus && !edbPlusTrialActive() && !edbPlusTrialUsed();
+    root.innerHTML = '<div class="card bt-lock"><span class="ep-tease-k">🔒 Réservé aux membres EDB+</span><h2>Backtest de stratégies</h2><p>Teste une stratégie sur des mois ou des années de bougies réelles : constructeur sans code ou script JavaScript, courbe du capital, drawdown, win rate, profit factor, espérance en R et export CSV.</p><div class="ep-tease-cta">'+(trialOk ? '<button type="button" class="pw-btn pw-btn-trial" data-bt-trial>Essayer 24 h gratuitement</button>' : '')+'<button type="button" class="pw-btn '+(trialOk ? "pw-btn-ghost" : "pw-btn-trial")+'" data-bt-plus>Découvrir EDB+</button></div></div>';
+    const t = root.querySelector("[data-bt-trial]"); if (t) t.addEventListener("click", openEdbPlusTrialModal);
+    root.querySelector("[data-bt-plus]").addEventListener("click", goToEdbPlus);
+    return;
+  }
+  if (!btState) btState = btDefaultState();
+  const S = btState, saved = btSaved();
+  root.innerHTML = '<div class="bt">'+
+    '<aside class="card bt-cfg">'+
+      '<div class="bt-head"><h2>Backtest</h2><span>Crypto · bougies Binance</span></div>'+
+      '<div class="bt-grid">'+
+        '<label class="bt-f">Marché<select data-bt="sym">'+btAssets().map(a=>'<option value="'+a.symbol+'"'+(a.symbol===S.sym ? " selected" : "")+'>'+escapeHtml(a.symbol+" · "+a.name)+'</option>').join("")+'</select></label>'+
+        '<label class="bt-f">Unité de temps<select data-bt="tf">'+BT_TF.map(t=>'<option value="'+t[0]+'"'+(t[0]===S.tf ? " selected" : "")+'>'+t[1]+'</option>').join("")+'</select></label>'+
+        '<label class="bt-f">Du<input data-bt="from" type="date" value="'+S.from+'"></label>'+
+        '<label class="bt-f">Au<input data-bt="to" type="date" value="'+S.to+'"></label>'+
+        '<label class="bt-f">Capital de départ ($)<input data-bt="start" type="number" min="1" step="any" value="'+S.start+'"></label>'+
+        '<label class="bt-f">Levier max<input data-bt="lev" type="number" min="1" max="125" value="'+S.lev+'"></label>'+
+        '<label class="bt-f">Taille<select data-bt="sizing"><option value="risk"'+(S.sizing==="risk" ? " selected" : "")+'>Risque % du capital (au stop)</option><option value="alloc"'+(S.sizing==="alloc" ? " selected" : "")+'>% du capital investi</option></select></label>'+
+        (S.sizing==="risk" ? '<label class="bt-f">Risque par trade (%)<input data-bt="risk" type="number" min="0.05" max="20" step="0.05" value="'+S.risk+'"></label>' : '<label class="bt-f">% du capital (avant levier)<input data-bt="alloc" type="number" min="1" max="1000" value="'+S.alloc+'"></label>')+
+        '<label class="bt-f">Frais par côté (%)<input data-bt="fee" type="number" min="0" step="0.005" value="'+S.fee+'"></label>'+
+        '<label class="bt-f">Glissement (%)<input data-bt="slip" type="number" min="0" step="0.005" value="'+S.slip+'"></label>'+
+      '</div>'+
+      '<div class="jn2-tabs bt-modes" role="tablist"><button type="button" role="tab" aria-selected="'+(S.mode==="builder")+'" class="'+(S.mode==="builder" ? "on" : "")+'" data-bt-mode="builder">Constructeur</button><button type="button" role="tab" aria-selected="'+(S.mode==="script")+'" class="'+(S.mode==="script" ? "on" : "")+'" data-bt-mode="script">Script JavaScript</button></div>'+
+      (S.mode==="builder" ? btBuilderHtml() : '<textarea class="bt-code" data-bt="script" spellcheck="false" aria-label="Script de la stratégie">'+escapeHtml(S.script)+'</textarea><p class="bt-hint">Le script tourne isolé dans le navigateur (aucun accès à ton compte). Les ordres passés à la clôture d\'une bougie sont exécutés à l\'ouverture de la suivante.</p>')+
+      '<div class="bt-saverow"><input data-bt="name" placeholder="Nom de la stratégie" value="'+escapeHtml(S.name||"")+'"><button type="button" class="btn-secondary" data-bt-save>Enregistrer</button>'+
+        (saved.length ? '<select data-bt-load aria-label="Mes stratégies"><option value="">Mes stratégies…</option>'+saved.map((x,i)=>'<option value="'+i+'">'+escapeHtml(x.name||("Stratégie "+(i+1)))+'</option>').join("")+'</select>' : '')+'</div>'+
+      '<div class="bt-prog" id="bt-prog" hidden><i></i></div><div class="bt-msg" id="bt-msg"></div>'+
+      '<button type="button" class="btn-primary bt-run" data-bt-run'+(BT.running ? " disabled" : "")+'>Lancer le backtest</button>'+
+    '</aside>'+
+    '<section class="card bt-res" id="bt-res">'+btResultsHtml()+'</section>'+
+  '</div>';
+  btWire(root);
+}
+function btReadInputs(root){
+  const S = btState, B = S.b;
+  root.querySelectorAll("[data-bt]").forEach(el=>{
+    const k = el.dataset.bt, v = el.type==="checkbox" ? el.checked : el.value;
+    if (["sym","tf","from","to","sizing","script","name"].includes(k)) S[k] = v;
+    else if (["start","lev","risk","alloc","fee","slip"].includes(k)) S[k] = parseFloat(v)||0;
+    else if (k==="sides") B.sides = v;
+    else if (k==="stopT") B.stop = Object.assign({}, B.stop, {t:v});
+    else if (k==="stopV"){ const x = parseFloat(v)||0; if ((B.stop||{}).t==="swing") B.stop.p = Math.max(1, Math.round(x)); else B.stop.v = x; }
+    else if (k==="tgtT") B.tgt = Object.assign({}, B.tgt, {t:v});
+    else if (k==="tgtV") B.tgt.v = parseFloat(v)||0;
+    else if (k==="rev") B.rev = !!v;
+    else if (k==="maxBars") B.maxBars = Math.max(0, parseInt(v)||0);
+  });
+  root.querySelectorAll(".bt-cond").forEach(row=>{
+    const c = B[row.dataset.side][+row.dataset.k]; if (!c) return;
+    row.querySelectorAll("[data-f]").forEach(el=>{ const f = el.dataset.f; c[f] = ["ap","bp","bv"].includes(f) ? parseFloat(el.value) : el.value; });
+  });
+  if (B.stop && B.stop.t==="atr" && !B.stop.p) B.stop.p = 14;
+  if (B.stop && B.stop.t!=="none" && B.stop.v==null) B.stop.v = 2;
+  if (B.tgt && B.tgt.t!=="none" && B.tgt.v==null) B.tgt.v = 2;
+}
+function btWireCsv(el){
+  const csv = el.querySelector("[data-bt-csv]"); if (csv) csv.addEventListener("click", ()=>{ const r = BT.res; if (!r || !r.ok) return; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿"+btCsv(r, r.start)], {type:"text/csv;charset=utf-8"})); a.download = "backtest-"+r.symbol+"-"+r.tf+".csv"; document.body.appendChild(a); a.click(); a.remove(); });
+}
+function btWire(root){
+  const re = ()=>{ btReadInputs(root); renderBacktest(); };
+  root.querySelectorAll('[data-bt="sizing"],[data-bt="sides"],[data-bt="stopT"],[data-bt="tgtT"]').forEach(el=>el.addEventListener("change", re));
+  root.querySelectorAll('.bt-cond select[data-f="a"],.bt-cond select[data-f="b"]').forEach(el=>el.addEventListener("change", re));
+  root.querySelectorAll("[data-bt-mode]").forEach(b=>b.addEventListener("click", ()=>{ btReadInputs(root); btState.mode = b.dataset.btMode; renderBacktest(); }));
+  root.querySelectorAll("[data-bt-preset]").forEach(b=>b.addEventListener("click", ()=>{ btReadInputs(root); btState.b = JSON.parse(JSON.stringify(BT_PRESETS[b.dataset.btPreset])); btState.name = btState.b.name; renderBacktest(); }));
+  root.querySelectorAll("[data-bt-addc]").forEach(b=>b.addEventListener("click", ()=>{ btReadInputs(root); const s = b.dataset.btAddc; (btState.b[s] = btState.b[s] || []).push({a:"close", op:"gt", b:"ema", bp:50}); renderBacktest(); }));
+  root.querySelectorAll("[data-bt-del]").forEach(b=>b.addEventListener("click", ()=>{ btReadInputs(root); const [s,k] = b.dataset.btDel.split(":"); btState.b[s].splice(+k, 1); renderBacktest(); }));
+  const sv = root.querySelector("[data-bt-save]"); if (sv) sv.addEventListener("click", ()=>{ btReadInputs(root); const l = btSaved(), name = (btState.name||"").trim() || ("Stratégie "+(l.length+1)); btState.name = name;
+    const item = {name, mode:btState.mode, b:btState.b, script:btState.script, sym:btState.sym, tf:btState.tf}; const i = l.findIndex(x=>x.name===name); if (i>=0) l[i] = item; else l.unshift(item); btSaveList(l); appToast("Stratégie « "+name+" » enregistrée sur cet appareil."); renderBacktest(); });
+  const ld = root.querySelector("[data-bt-load]"); if (ld) ld.addEventListener("change", ()=>{ const x = btSaved()[+ld.value]; if (!x) return; Object.assign(btState, {name:x.name, mode:x.mode, b:JSON.parse(JSON.stringify(x.b)), script:x.script||BT_DEFAULT_SCRIPT, sym:x.sym||btState.sym, tf:x.tf||btState.tf}); renderBacktest(); });
+  btWireCsv(root);
+  const code = root.querySelector(".bt-code"); if (code) code.addEventListener("keydown", e=>{ if (e.key==="Tab"){ e.preventDefault(); const s = code.selectionStart; code.value = code.value.slice(0,s)+"  "+code.value.slice(code.selectionEnd); code.selectionStart = code.selectionEnd = s+2; } });
+  root.querySelector("[data-bt-run]").addEventListener("click", ()=>btRun(root));
+}
+async function btRun(root){
+  btReadInputs(root);
+  const S = btState, msg = document.getElementById("bt-msg"), prog = document.getElementById("bt-prog"), run = root.querySelector("[data-bt-run]");
+  const t0 = new Date(S.from+"T00:00:00").getTime(), t1 = Math.min(Date.now(), new Date(S.to+"T23:59:59").getTime());
+  const step = (BT_TF.find(x=>x[0]===S.tf)||[0,0,36e5])[2], bars = (t1 - t0)/step;
+  msg.className = "bt-msg";
+  if (!(t1 > t0)) return void (msg.textContent = "La période est vide.");
+  if (bars > 400000) return void (msg.textContent = "Trop de bougies ("+Math.round(bars).toLocaleString("fr-FR")+") : prends une unité de temps plus grande ou une période plus courte.");
+  if (!(S.start>0)) return void (msg.textContent = "Capital de départ invalide.");
+  if (S.mode==="builder" && !((S.b.long||[]).length || (S.b.short||[]).length)) return void (msg.textContent = "Ajoute au moins une condition d'entrée.");
+  const a = ASSETS.find(x=>x.symbol===S.sym);
+  BT.running = true; run.disabled = true; prog.hidden = false; const bar = prog.querySelector("i"); bar.style.width = "0%";
+  msg.textContent = "Chargement des bougies "+S.sym+" "+S.tf+"…";
+  try{
+    const K = await btKlines(a.binanceSymbol, S.tf, t0, t1, p=>{ bar.style.width = Math.round(p*90)+"%"; });
+    if (K.length < 50) throw new Error("Pas assez de bougies sur cette période ("+K.length+").");
+    msg.textContent = "Calcul sur "+K.length.toLocaleString("fr-FR")+" bougies…"; bar.style.width = "95%";
+    const r = await btRunWorker(K, {mode:S.mode, b:S.b, script:S.script, start:S.start, sizing:S.sizing, risk:S.risk, alloc:S.alloc, lev:Math.max(1, S.lev), fee:S.fee, slip:S.slip, symbol:S.sym});
+    BT.res = Object.assign(r, {start:S.start, symbol:S.sym, tf:S.tf});
+    msg.textContent = r.ok ? (r.trades.length ? "" : "Aucun trade sur la période : les conditions ne se sont jamais réalisées.") : "";
+  }catch(e){ BT.res = {ok:false, err:(e && e.message) || "Erreur."}; msg.textContent = ""; }
+  BT.running = false; prog.hidden = true; run.disabled = false;
+  const res = document.getElementById("bt-res"); if (res){ res.innerHTML = btResultsHtml(); btWireCsv(res); }
+}
 function renderReplay(){
   // Réservé aux membres EDB+ (et à l'essai 24 h) : sinon, page d'adhésion.
   if (!isEdbPlus()){
@@ -31477,7 +31914,7 @@ async function certVerifyBoot(){
 // badges, admin visibility) keeps working unchanged on both.
 const VIEW_TITLES = {
   terminal:"Terminal", news:"News", chat:"Chat", leaderboard:"Classement", concoursedbplus:"Concours EDB+",
-  challenge:"Challenge Prop Firm", replay:"Replay", daily:"Défi du jour", games:"Chart Check", quiz:"Connaissances", resources:"Ressources", edbplus:"EDB+",
+  challenge:"Challenge Prop Firm", replay:"Replay", backtest:"Backtest", daily:"Défi du jour", games:"Chart Check", quiz:"Connaissances", resources:"Ressources", edbplus:"EDB+",
   tradesedb:"Trades EDB+", profile:"Profil", admin:"Admin", invest:"Investissement",
 };
 const SIDEBAR_KEY = "paperTapeSidebar"; // "full" | "rail" — per-browser preference, like the theme
@@ -31606,6 +32043,7 @@ function switchView(name){
   }
   if (name==="daily") renderDaily();
   if (name==="games") renderGames();
+  if (name==="backtest") renderBacktest();
   if (name==="replay") renderReplay();
   else { if (typeof replayPause==="function") replayPause(); if (RPV) rpChartDetach(); } // le graphique retourne au terminal
   if (name==="profile"){
@@ -34842,330 +35280,92 @@ function adminTradesOpen(id, startBook){
     const table = !rows.length ? '<div class="empty-note">Aucun trade enregistré.</div>' : b.k==="inv"
       ? '<table class="adm-tr-t"><tr><th>Date</th><th>Type</th><th>Compte</th><th>Actif</th><th class="r">Qté</th><th class="r">Prix</th><th class="r">Montant</th><th class="r">P&amp;L</th></tr>'+
         rows.map(h=>'<tr><td>'+dt(h.t)+'</td><td>'+escapeHtml(h.type||"")+'</td><td>'+escapeHtml(String(h.env||"").toUpperCase())+'</td><td>'+escapeHtml(h.id||"—")+'</td><td class="r">'+num(h.qty, 4)+'</td><td class="r">'+num(h.px)+'</td><td class="r">'+num(h.amount)+'</td>'+pnlCell(h.pnl)+'</tr>').join("")+'</table>'
-      : '<table class="adm-tr-t"><tr><th>Clôture</th><th>Actif</th><th>Sens</th><th class="r">Levier</th><th class="r">Taille</th><th class="r">Entrée</th><th class="r">Sortie</th><th class="r">P&amp;L</th><th>Raison</th><th></th></tr>'+
-        rows.map((h, i)=>'<tr title="Ouvert le '+escapeHtml(dt(h.openedAt))+' · frais '+escapeHtml(num(h.feesPaid))+'"><td>'+dt(h.closedAt)+'</td><td>'+escapeHtml(h.symbol||"—")+(h.partial ? ' <em>('+(h.closedPct||"?")+' %)</em>' : '')+'</td><td style="color:var(--'+(h.side==="short" ? "short" : "long")+')">'+(h.side==="short" ? "Short" : "Long")+'</td><td class="r">×'+num(h.leverage, 0)+'</td><td class="r">'+num(h.sizeUnits, 6)+'</td><td class="r">'+num(h.entryPrice, 6)+'</td><td class="r">'+num(h.exitPrice, 6)+'</td>'+pnlCell(h.pnl)+'<td>'+escapeHtml(RS[h.reason] || h.reason || "—")+(h.generated ? ' <em>(généré)</em>' : h.byAdmin ? ' <em>(admin)</em>' : '')+'</td><td class="r">'+(h._arch ? '<em>archive</em>' : '<button type="button" class="adm-tr-del" data-tr-del="'+i+'" title="Supprimer ce trade" aria-label="Supprimer ce trade">✕</button>')+'</td></tr>').join("")+'</table>';
+      : '<table class="adm-tr-t"><tr><th>Clôture</th><th>Actif</th><th>Sens</th><th class="r">Levier</th><th class="r">Taille</th><th class="r">Entrée</th><th class="r">Sortie</th><th class="r">P&amp;L</th><th>Raison</th></tr>'+
+        rows.map(h=>'<tr title="Ouvert le '+escapeHtml(dt(h.openedAt))+' · frais '+escapeHtml(num(h.feesPaid))+'"><td>'+dt(h.closedAt)+'</td><td>'+escapeHtml(h.symbol||"—")+(h.partial ? ' <em>('+(h.closedPct||"?")+' %)</em>' : '')+'</td><td style="color:var(--'+(h.side==="short" ? "short" : "long")+')">'+(h.side==="short" ? "Short" : "Long")+'</td><td class="r">×'+num(h.leverage, 0)+'</td><td class="r">'+num(h.sizeUnits, 6)+'</td><td class="r">'+num(h.entryPrice, 6)+'</td><td class="r">'+num(h.exitPrice, 6)+'</td>'+pnlCell(h.pnl)+'<td>'+escapeHtml(RS[h.reason] || h.reason || "—")+(h.generated ? ' <em>(généré)</em>' : h.byAdmin ? ' <em>(admin)</em>' : '')+'</td></tr>').join("")+'</table>';
     openModal('<h3 style="margin:0 0 4px;">Trades de '+escapeHtml(d.username||"Trader")+'</h3>'+
       '<div class="chart-note" style="margin-bottom:12px;">Les 200 derniers trades de chaque compte. Au-delà, les trades du compte Trading sont rangés dans l\'archive.</div>'+
       '<div class="seg adm-tr-seg" style="margin-bottom:12px;">'+books.map(x=>'<button type="button" class="on-mode'+(x.k===cur ? " active" : "")+'" data-tr-book="'+x.k+'">'+x.t+' ('+x.rows.length+')</button>').join("")+'</div>'+
       (rows.length ? '<div class="adm-tr-kpi"><span>'+rows.length+' lignes</span>'+(n ? '<span>P&amp;L total <b style="color:var(--'+(sum>=0 ? "long" : "short")+')">'+(sum>=0 ? "+" : "")+fmtMoney(sum)+'</b></span><span>Gagnants <b>'+Math.round(win/n*100)+' %</b></span>' : '')+'<span>Frais <b>'+fmtMoney(fees)+'</b></span><button type="button" class="btn-secondary" id="adm-tr-csv">Exporter CSV</button></div>' : '')+
-      (b.k!=="inv" ? '<div class="adm-tr-tools"><button type="button" class="btn-primary" id="adm-tr-add">+ Ajouter un trade</button>'+(b.k==="main" ? (arch ? '<span>'+arch.length+' trades archivés inclus</span>' : '<button type="button" class="btn-secondary" id="adm-tr-arch">Afficher les trades archivés</button>') : '')+(b.k==="main" && id===clientId ? '<button type="button" class="btn-secondary" id="adm-tr-rebuild">Reconstruire mon historique…</button>' : '')+(rows.length ? '<button type="button" class="btn-secondary adm-tr-wipe" id="adm-tr-wipe">Supprimer tout l\'historique</button>' : '')+'<label><input type="checkbox" id="adm-tr-adj" checked> Répercuter sur le solde et les statistiques</label></div>' : '')+
+      (b.k==="main" ? '<div class="adm-tr-tools">'+(arch ? '<span>'+arch.length+' trades archivés inclus</span>' : '<button type="button" class="btn-secondary" id="adm-tr-arch">Afficher les trades archivés</button>')+(id===clientId ? '<button type="button" class="btn-secondary" id="adm-tr-import">Importer un CSV…</button>' : '')+'</div>' : '')+
       '<div class="adm-tr-wrap">'+table+'</div>');
     document.querySelectorAll("[data-tr-book]").forEach(x=>x.addEventListener("click", ()=>{ cur = x.dataset.trBook; draw(); }));
     const box = document.getElementById("modal-box"); if (box){ box.style.maxWidth = "min(1100px, 96vw)"; modalCloseHook = ()=>{ box.style.maxWidth = ""; }; }
-    const adjOn = ()=>!!(document.getElementById("adm-tr-adj")||{}).checked;
-    const add = document.getElementById("adm-tr-add"); if (add) add.addEventListener("click", ()=>adminTradeAddForm(id, cur));
-    const rb = document.getElementById("adm-tr-rebuild"); if (rb) rb.addEventListener("click", ()=>adminRebuildHistory(id));
+    const im = document.getElementById("adm-tr-import"); if (im) im.addEventListener("click", ()=>adminImportCsv(id));
     const ar = document.getElementById("adm-tr-arch"); if (ar) ar.addEventListener("click", async ()=>{ ar.disabled = true; ar.textContent = "Chargement…"; try{ arch = await tradeArchiveLoad(id); }catch(e){ arch = []; alert("Archive illisible (règles Firestore déployées ?)."); } draw(); });
-    const wipe = document.getElementById("adm-tr-wipe"); if (wipe) wipe.addEventListener("click", ()=>{
-      const adj = adjOn(), tot = rows.reduce((t,h)=>t+(typeof h.pnl==="number" ? h.pnl : 0), 0);
-      if (!confirm("Supprimer les "+rows.length+" trades de l'historique "+(cur==="prop" ? "Prop firm" : "Trading")+" ?"+(adj ? "\nLe solde sera corrigé de "+(tot>=0 ? "−" : "+")+fmtMoney(Math.abs(tot))+" et les statistiques remises à zéro." : "\nLe solde et les statistiques ne changent pas.")+"\nAction définitive.")) return;
-      adminTradeEdit(id, cur, "wipe", null, adj);
-    });
-    document.querySelectorAll("[data-tr-del]").forEach(x=>x.addEventListener("click", ()=>{
-      const h = rows[+x.dataset.trDel]; if (!h) return;
-      const adj = adjOn();
-      if (!confirm("Supprimer ce trade ("+(h.symbol||"?")+", "+(typeof h.pnl==="number" ? (h.pnl>=0 ? "+" : "")+fmtMoney(h.pnl) : "P&L inconnu")+") ?"+(adj && typeof h.pnl==="number" ? "\nLe solde sera corrigé de "+(h.pnl>=0 ? "−" : "+")+fmtMoney(Math.abs(h.pnl))+"." : "\nLe solde ne sera pas modifié."))) return;
-      adminTradeEdit(id, cur, "del", h, adj);
-    }));
     const ex = document.getElementById("adm-tr-csv");
     if (ex) ex.addEventListener("click", async ()=>{ if (b.k==="main" && !arch){ ex.disabled = true; ex.textContent = "Chargement…"; try{ arch = await tradeArchiveLoad(id); }catch(e){ arch = []; } }
       const all = b.k==="main" ? b.rows.concat(arch||[]) : rows; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿"+csv(b, all)], {type:"text/csv;charset=utf-8"})); a.download = "trades-"+(d.username||id).replace(/[^\w-]+/g, "_")+"-"+b.k+".csv"; document.body.appendChild(a); a.click(); a.remove(); });
   };
   draw();
 }
-// v3640 : ajout / suppression d'un trade (ou de tout l'historique) Trading ou
-// Prop firm d'un joueur. « Répercuter » : le P&L est ajouté / retiré du cash,
-// l'équité suit (sans position ouverte), et les statistiques aussi (perte
-// totale et pire trade stockés en NÉGATIF, comme updatePerfStats()).
-async function adminTradeEdit(id, book, op, h, adj){
-  try{
-    const ref = db.collection("traders").doc(id), fresh = (await ref.get()).data() || {};
-    const prop = book==="prop";
-    if (prop && !(fresh.propBook && typeof fresh.propBook==="object")){ alert("Ce joueur n'a pas de compte prop firm."); return; }
-    const bk = prop ? fresh.propBook : fresh;
-    let hist = Array.isArray(bk.history) ? bk.history.slice() : [], delta = 0;
-    const st = Object.assign(freshBookStats(), bk.stats||{});
-    let archWipe = false;
-    if (op==="wipe"){ delta = -hist.reduce((t,x)=>t+(typeof x.pnl==="number" ? x.pnl : 0), 0); hist = [];
-      if (!prop){ try{ const A = await tradeArchiveLoad(id); delta -= A.reduce((t,x)=>t+(typeof x.pnl==="number" ? x.pnl : 0), 0); archWipe = true; }catch(e){} } }
-    else if (op==="del"){
-      const same = x=>(h.id && x.id===h.id && x.closedAt===h.closedAt) || (!h.id && x.closedAt===h.closedAt && x.symbol===h.symbol && x.pnl===h.pnl);
-      const i = hist.findIndex(same); if (i<0){ alert("Trade introuvable (l'historique a changé entre-temps). Rouvre la fenêtre."); return; }
-      hist.splice(i, 1); delta = typeof h.pnl==="number" ? -h.pnl : 0;
-      if (adj && typeof h.pnl==="number"){ st.tradesClosed = Math.max(0, st.tradesClosed-1);
-        if (h.pnl>=0){ st.wins = Math.max(0, st.wins-1); st.grossProfit = Math.max(0, st.grossProfit-h.pnl); } else { st.losses = Math.max(0, st.losses-1); st.grossLoss = Math.min(0, st.grossLoss-h.pnl); } }
-    } else {
-      hist.push(h); hist.sort((a,b)=>String(b.closedAt||"").localeCompare(String(a.closedAt||""))); hist = hist.slice(0, TRADE_HISTORY_RETAIN); delta = h.pnl;
-      if (adj){ st.tradesClosed++; st.tradesOpened = Math.max(st.tradesOpened||0, st.tradesClosed);
-        if (h.pnl>=0){ st.wins++; st.grossProfit += h.pnl; st.bestTrade = Math.max(st.bestTrade||0, h.pnl); } else { st.losses++; st.grossLoss += h.pnl; st.worstTrade = Math.min(st.worstTrade||0, h.pnl); } }
-    }
-    const pre = prop ? "propBook." : "", patch = {};
-    patch[pre+"history"] = hist;
-    if (adj){
-      if (delta){
-        const cash = (typeof bk.cash==="number" ? bk.cash : START_CASH) + delta;
-        patch[pre+"cash"] = cash;
-        if (!(Array.isArray(bk.positions) && bk.positions.length)) patch[prop ? "propEquity" : "equity"] = cash;
-      }
-      patch[pre+"stats"] = op==="wipe" ? freshBookStats() : st;
-    }
-    await ref.update(adminOverridePatch(patch));
-    if (archWipe) await tradeArchiveClear(id);
-    await adminRefreshSelf(id);
-    const snap = await ref.get(), k = adminDocs.findIndex(x=>x.id===id); if (k>=0) adminDocs[k] = snap;
-    appToast(op==="wipe" ? "Historique supprimé." : op==="del" ? "Trade supprimé de l'historique." : "Trade ajouté à l'historique.");
-    adminTradesOpen(id, book);
-    loadAdminTraders();
-  }catch(e){
-    console.warn("admin trade edit failed", e);
-    alert("Échec — vérifie que les règles Firestore admin sont bien déployées (SERVER_SETUP.md).");
-  }
-}
-function adminTradeAddForm(id, book){
-  const doc = adminDocs.find(x=>x.id===id); if (!doc) return;
-  const d = doc.data(), name = d.username || id;
-  const nowLocal = new Date(Date.now() - new Date().getTimezoneOffset()*60000).toISOString().slice(0,16);
-  const opts = ASSETS.map(a=>'<option value="'+a.symbol+'">'+escapeHtml(a.symbol+" · "+a.name)+'</option>').join("");
-  openModal('<h3 style="margin:0 0 4px;">Ajouter un trade — '+escapeHtml(name)+'</h3>'+
-    '<div class="chart-note" style="margin-bottom:12px;">Trade clôturé ajouté à l\'historique '+(book==="prop" ? "Prop firm" : "Trading")+'. Taille de la position = marge × levier ; le P&amp;L est calculé sur cette taille.</div>'+
-    '<div class="adm-ta">'+
-      '<label>Actif<select id="ata-sym" class="tpsl-input">'+opts+'</select></label>'+
-      '<label>Sens<select id="ata-side" class="tpsl-input"><option value="long">Long</option><option value="short">Short</option></select></label>'+
-      '<label>Marge engagée ($)<input id="ata-not" type="number" step="any" min="1" value="1000" class="tpsl-input"></label>'+
-      '<label>Levier<input id="ata-lev" type="number" step="1" min="1" max="200" value="1" class="tpsl-input"></label>'+
-      '<label>Prix d\'entrée<input id="ata-in" type="number" step="any" class="tpsl-input"></label>'+
-      '<label>Prix de sortie<input id="ata-out" type="number" step="any" class="tpsl-input"></label>'+
-      '<label>Ouverture<input id="ata-open" type="datetime-local" value="'+nowLocal+'" class="tpsl-input"></label>'+
-      '<label>Clôture<input id="ata-close" type="datetime-local" value="'+nowLocal+'" class="tpsl-input"></label>'+
-      '<label>Type de clôture<select id="ata-reason" class="tpsl-input"><option value="closed">Clôture manuelle</option><option value="tp">Take profit</option><option value="sl">Stop loss</option><option value="liquidated">Liquidation</option></select></label>'+
-    '</div>'+
-    '<label style="display:flex;gap:8px;align-items:center;margin:10px 0 4px;font-size:13px;"><input type="checkbox" id="ata-fee" checked> Compter les frais (0,04 % à l\'entrée et à la sortie)</label>'+
-    '<label style="display:flex;gap:8px;align-items:center;margin:4px 0 8px;font-size:13px;"><input type="checkbox" id="ata-adj" checked> Répercuter sur le solde et les statistiques</label>'+
-    '<div class="chart-note" id="ata-info" style="min-height:18px;margin:6px 0;"></div>'+
-    '<div style="display:flex;gap:8px;justify-content:flex-end;"><button type="button" class="btn-secondary" id="ata-back">Retour</button><button type="button" class="btn-primary" id="ata-go">Ajouter le trade</button></div>');
-  { const box = document.getElementById("modal-box"); if (box){ box.style.maxWidth = "min(560px, 96vw)"; modalCloseHook = ()=>{ box.style.maxWidth = ""; }; } }
-  const $ = q=>document.getElementById(q);
-  const calc = ()=>{
-    const lev = Math.max(1, Math.min(200, parseFloat($("ata-lev").value)||1)), not = parseFloat($("ata-not").value)*lev, pin = parseFloat($("ata-in").value), pout = parseFloat($("ata-out").value), side = $("ata-side").value;
-    const fee = $("ata-fee").checked && not>0 ? not*TAKER_FEE_RATE*2 : 0;
-    const gross = not>0 && pin>0 && pout>0 ? (side==="short" ? (pin-pout) : (pout-pin))/pin*not : NaN;
-    return {not, lev, pin, pout, side, fee, pnl: gross - fee};
-  };
-  const info = ()=>{ const c = calc(); const el = $("ata-info"); el.style.color = ""; el.innerHTML = isFinite(c.pnl) ? 'Taille de la position : <b>'+fmtMoney(c.not)+'</b> · P&amp;L net : <b style="color:var(--'+(c.pnl>=0 ? "long" : "short")+')">'+(c.pnl>=0 ? "+" : "")+fmtMoney(c.pnl)+'</b>'+(c.fee ? ' (frais '+fmtMoney(c.fee)+')' : '') : 'Renseigne la marge et les deux prix.'; };
-  ["ata-not","ata-in","ata-out","ata-side","ata-fee","ata-lev"].forEach(k=>$(k).addEventListener("input", info)); info();
-  $("ata-back").addEventListener("click", ()=>adminTradesOpen(id, book));
-  $("ata-go").addEventListener("click", ()=>{
-    const c = calc(), el = $("ata-info");
-    if (!isFinite(c.pnl)){ el.style.color = "var(--warn)"; el.textContent = "Marge et prix obligatoires."; return; }
-    const op = new Date($("ata-open").value), cl = new Date($("ata-close").value);
-    if (isNaN(cl)){ el.style.color = "var(--warn)"; el.textContent = "Date de clôture invalide."; return; }
-    if (!isNaN(op) && op > cl){ el.style.color = "var(--warn)"; el.textContent = "L'ouverture doit être avant la clôture."; return; }
-    $("ata-go").disabled = true;
-    adminTradeEdit(id, book, "add", {id:uid(), symbol:$("ata-sym").value, side:c.side, pnl:c.pnl, reason:$("ata-reason").value, exitFee:c.fee/2, feesPaid:c.fee,
-      closedAt:cl.toISOString(), openedAt:isNaN(op) ? cl.toISOString() : op.toISOString(), sizeUnits:c.not/c.pin, leverage:c.lev, mode:"cross",
-      entryPrice:c.pin, exitPrice:c.pout, notional:c.not, byAdmin:true}, $("ata-adj").checked);
+// v3730 : « Importer un CSV » (ton propre compte uniquement) : remplace
+// l'historique Trading par les trades d'un fichier au format de l'export CSV
+// de Paper Tape (séparateur « ; »). Solde = dernier capital_apres, stats
+// recalculées, archive remplacée. La colonne « source » est conservée
+// (généré / admin / plateforme).
+function adminCsvToTrades(text){
+  const lines = String(text||"").replace(/^\uFEFF/, "").split(/\r?\n/).filter(l=>l.trim());
+  if (lines.length<2) return {err:"Fichier vide."};
+  const H = lines[0].split(";").map(x=>x.trim()), ix = k=>H.indexOf(k);
+  const need = ["cloture","actif","sens","prix_entree","prix_sortie","pnl_net"];
+  const miss = need.filter(k=>ix(k)<0); if (miss.length) return {err:"Colonnes manquantes : "+miss.join(", ")+". Utilise un fichier exporté depuis Paper Tape."};
+  const RSI = {"clôture manuelle":"closed", "take profit":"tp", "stop loss":"sl", "liquidation":"liquidated", "ajout admin":"closed"};
+  const num = v=>{ const x = parseFloat(String(v||"").replace(",", ".")); return isFinite(x) ? x : null; };
+  const dt = v=>{ const m = String(v||"").match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/); if (!m) return null; const d = new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5]); return isNaN(d) ? null : d.toISOString(); };
+  const trades = [], bad = [];
+  let start = null, end = null;
+  lines.slice(1).forEach((l, i)=>{
+    const c = l.split(";"), g = k=>ix(k)>=0 ? c[ix(k)] : "";
+    const closedAt = dt(g("cloture")), pnl = num(g("pnl_net")), sym = String(g("actif")||"").trim().toUpperCase();
+    if (!closedAt || pnl==null || !sym){ bad.push(i+2); return; }
+    const src = String(g("source")||"").trim().toLowerCase(), fees = num(g("frais")) || 0;
+    const t = {id:uid(), symbol:sym, side:String(g("sens")).trim().toLowerCase()==="short" ? "short" : "long", pnl,
+      reason:RSI[String(g("raison")||"").trim().toLowerCase()] || "closed", exitFee:fees, feesPaid:fees,
+      closedAt, openedAt:dt(g("ouverture")) || closedAt, sizeUnits:num(g("quantite")), leverage:num(g("levier")) || 1, mode:"cross",
+      entryPrice:num(g("prix_entree")), exitPrice:num(g("prix_sortie")), notional:num(g("notionnel")),
+      stopLoss:num(g("stop_loss")), takeProfit:num(g("take_profit"))};
+    if (src==="généré" || src==="genere") t.generated = true; else if (src==="admin") t.byAdmin = true;
+    if (pnl===0) t.breakEven = true;
+    const ca = num(g("capital_avant")), cp = num(g("capital_apres"));
+    trades.push(Object.assign(t, {_ca:ca, _cp:cp}));
   });
+  if (!trades.length) return {err:"Aucune ligne lisible."};
+  const asc = trades.slice().sort((a,b)=>String(a.closedAt).localeCompare(String(b.closedAt)));
+  start = asc[0]._ca; end = asc[asc.length-1]._cp;
+  const sum = asc.reduce((t,x)=>t+x.pnl, 0);
+  if (start==null && end!=null) start = end - sum;
+  if (end==null) end = (start!=null ? start : START_CASH) + sum;
+  if (start==null) start = end - sum;
+  trades.forEach(t=>{ delete t._ca; delete t._cp; });
+  return {trades, start, end, bad};
 }
-// v3710 : « Reconstruire mon historique » (admin, sur SON propre compte
-// uniquement). Remplace l'historique Trading par N trades placés sur de vrais
-// prix passés (bougies 1 h Binance des actifs choisis), avec le win rate et le
-// solde final demandés. Ordre des gains / pertes tiré au hasard puis choisi
-// parmi 300 essais pour une courbe haussière irrégulière (creux petits et
-// gros, fin proche du plus haut). Chaque trade : prix d'entrée et de sortie
-// pris dans les bougies réelles, sens cohérent avec le mouvement, taille
-// calculée pour donner le P&L voulu, levier choisi pour ne jamais toucher la
-// liquidation pendant le trade, stop loss et take profit cohérents avec les
-// prix (jamais touchés avant la sortie, sauf clôture « Stop loss » / « Take
-// profit » au niveau exact). Jusqu'à 1 000 trades : les 200 plus récents dans
-// la fiche, le reste dans l'archive tradeArchive. Champ `generated:true`.
-const RB_ASSETS = ()=>ASSETS.filter(a=>a.binanceSymbol && !a.delisted && a.cat==="crypto");
-async function rbKlines(sym, t0, t1){
-  const out = []; let s = t0;
-  while (s < t1){
-    const r = await fetch("https://api.binance.com/api/v3/klines?symbol="+sym+"&interval=1h&startTime="+s+"&endTime="+t1+"&limit=1000");
-    if (!r.ok) throw new Error("Binance "+r.status);
-    const k = await r.json(); if (!k.length) break;
-    k.forEach(x=>out.push({t:x[0], o:+x[1], h:+x[2], l:+x[3], c:+x[4]}));
-    const last = k[k.length-1][0]; if (last<=s) break; s = last + 3600e3;
-    if (k.length < 1000) break;
-  }
-  return out;
-}
-function rbRng(seed){ let x = seed>>>0 || 1; return ()=>{ x ^= x<<13; x ^= x>>>17; x ^= x<<5; return ((x>>>0)%1e9)/1e9; }; }
-// Plan : ordre des issues + montants, puis courbe. Renvoie null si impossible.
-function rbPlan(o, rnd){
-  const N = o.n, W = Math.round(N*o.wr/100), B = Math.round(N*(o.be||0)/100), L = N - W - B, P = o.target - o.start;
-  if (L<0) return {err:"Win rate + break-even dépassent 100 %."};
-  if (W===0 && P>0) return {err:"Avec 0 % de réussite, le solde ne peut pas monter."};
-  if (L===0 && P<0) return {err:"Avec 100 % de réussite, le solde ne peut pas baisser."};
-  const ln = (m, sd)=>Math.exp(Math.log(m) + sd*Math.sqrt(-2*Math.log(rnd()+1e-9))*Math.cos(2*Math.PI*rnd()));
-  let best = null;
-  for (let tr=0; tr<300; tr++){
-    const seq = Array(W).fill(1).concat(Array(B).fill(2), Array(L).fill(0)); // 1 gagnant, 2 break-even, 0 perdant
-    for (let i=seq.length-1;i>0;i--){ const j = Math.floor(rnd()*(i+1)); [seq[i],seq[j]] = [seq[j],seq[i]]; }
-    // Montants : pertes en % du solde estimé, gains répartis pour tomber pile sur P.
-    const bal = i=>o.start + P*(i/N);
-    const lm = 0.012*Math.min(1, Math.sqrt(80/N)); // plus il y a de trades, plus chaque perte est petite (creux réalistes)
-    const loss = seq.map((w,i)=>w===0 ? bal(i)*Math.min(0.06, ln(lm, 0.55)) : 0);
-    let lossSum = loss.reduce((a,b)=>a+b, 0), winTot = P + lossSum;
-    if (W && winTot < W*o.start*0.0015){ const f = Math.max(0, (P + 0) < 0 ? 1 : 1); const need = W*o.start*0.0015 - winTot; if (lossSum>0){ const k = (lossSum+need)/lossSum; for (let i=0;i<N;i++) loss[i] *= k; } lossSum = loss.reduce((a,b)=>a+b, 0); winTot = P + lossSum; }
-    if (W && winTot<=0) continue;
-    const wt = seq.map((w,i)=>w===1 ? ln(1, 0.6)*bal(i) : 0), wtSum = wt.reduce((a,b)=>a+b, 0) || 1;
-    const pnl = seq.map((w,i)=>w===1 ? winTot*wt[i]/wtSum : w===2 ? 0 : -loss[i]);
-    // Note de la courbe : fin près du plus haut, au moins 2 creux, creux max raisonnable.
-    let eq = o.start, peak = eq, maxDD = 0, dds = 0, inDD = false; const curve = [eq];
-    pnl.forEach(p=>{ eq += p; curve.push(eq); if (eq>peak){ peak = eq; inDD = false; } else { const dd = (peak-eq)/peak; maxDD = Math.max(maxDD, dd); if (dd>0.01 && !inDD){ dds++; inDD = true; } } });
-    const endNearPeak = P<=0 ? 1 : (eq - o.start)/(peak - o.start || 1);
-    const ddTarget = Math.min(0.25, Math.max(0.04, Math.abs(P)/o.start*0.35));
-    const score = (endNearPeak>=0.9 ? 0 : (0.9-endNearPeak)*10) + Math.abs(maxDD-ddTarget)*8 + (dds>=Math.min(3, Math.floor(N/8)) ? 0 : 1) + (curve[Math.floor(N/2)] > o.start || P<=0 ? 0 : 0.6);
-    if (!best || score < best.score) best = {seq, pnl, curve, maxDD, score};
-  }
-  return best || {err:"Réglages impossibles à combiner : baisse le nombre de trades perdants ou change le solde visé."};
-}
-// Place chaque issue sur une vraie fenêtre de prix d'un actif choisi.
-function rbPlace(plan, o, kl, rnd){
-  const N = o.n, t0 = o.from, t1 = o.to, span = t1 - t0, trades = [];
-  const times = Array.from({length:N}, ()=>t0 + span*(0.02 + 0.96*rnd())).sort((a,b)=>a-b);
-  let bal = o.start;
-  const W_ = plan.pnl.filter(x=>x>0), L_ = plan.pnl.filter(x=>x<0);
-  const payoff = W_.length && L_.length ? (W_.reduce((a,b)=>a+b,0)/W_.length)/(-L_.reduce((a,b)=>a+b,0)/L_.length) : 1.5;
-  for (let i=0;i<N;i++){
-    const win = plan.seq[i]===1, pnl = plan.pnl[i];
-    let done = null;
-    if (plan.seq[i]===2){ done = rbBreakEven(o, kl, rnd, times[i], ()=>bal, span); if (!done) return {err:"Pas assez de données de prix pour placer un break-even. Allonge la période ou ajoute des actifs."}; trades.push(done); continue; }
-    for (let tr=0; tr<60 && !done; tr++){
-      const sym = o.assets[Math.floor(rnd()*o.assets.length)], K = kl[sym]; if (!K || K.length<10) continue;
-      const close = Math.min(t1 - 60e3, times[i] + (tr ? (rnd()-0.5)*span*0.02 : 0));
-      const dur = Math.exp(Math.log(15*60e3) + rnd()*Math.log(48*3600e3/(15*60e3)));
-      const open = close - dur; if (open < K[0].t) continue;
-      const at = t=>{ let lo = 0, hi = K.length-1; while (lo<hi){ const m = (lo+hi+1)>>1; if (K[m].t<=t) lo = m; else hi = m-1; } return lo; };
-      const io = at(open), ic = at(close), co = K[io], cc = K[ic];
-      if (!co || !cc || ic<io) continue;
-      const pick = c=>c.l + (c.h - c.l)*(0.2 + 0.6*rnd());
-      const pin = pick(co), pout = pick(cc), mv = (pout - pin)/pin;
-      if (Math.abs(mv) < 0.003) continue;
-      const side = (mv>0) === win ? "long" : "short", fee = TAKER_FEE_RATE*2;
-      const notional = win ? pnl/(Math.abs(mv) - fee) : -pnl/(Math.abs(mv) + fee);
-      if (!(notional>0) || Math.abs(mv) <= fee) continue;
-      // Pire excursion contre la position pendant le trade -> levier sans liquidation.
-      let adv = 0, fav = 0; for (let j=io;j<=ic;j++){ const c = K[j]; adv = Math.max(adv, side==="long" ? (pin - c.l)/pin : (c.h - pin)/pin); fav = Math.max(fav, side==="long" ? (c.h - pin)/pin : (pin - c.l)/pin); }
-      const levMax = Math.floor(0.8/Math.max(adv, 0.004)), levNeed = notional/(bal*0.35);
-      const L = [1,2,3,5,10,15,20,25,50,75,100].filter(l=>l<=levMax && l>=levNeed);
-      if (!L.length) continue;
-      const lev = L[Math.min(L.length-1, Math.floor(rnd()*Math.min(3, L.length)))];
-      const dec = (ASSETS.find(a=>a.symbol===sym)||{}).decimals || 2, r = v=>+v.toFixed(dec);
-      const amv = Math.abs(mv), dir = side==="long" ? 1 : -1;
-      let reason = win ? (rnd()<0.55 && fav <= amv*1.02 ? "tp" : "closed") : (rnd()<0.7 && adv <= amv*1.02 ? "sl" : "closed");
-      const riskT = win ? pnl/Math.max(0.3, payoff*(0.6 + rnd()*0.8)) : -pnl/(0.45 + rnd()*0.55);
-      const stopD = reason==="sl" ? amv : Math.max(adv*1.12 + 0.0008, riskT/notional);
-      const tpD = reason==="tp" ? amv : Math.max(fav*1.12 + 0.0008, stopD*(1.4 + rnd()*1.6));
-      done = {id:uid(), symbol:sym, side, pnl, reason, stopLoss:r(pin*(1 - dir*stopD)), takeProfit:r(pin*(1 + dir*tpD)),
-        exitFee:notional*fee, feesPaid:notional*fee, closedAt:new Date(close).toISOString(), openedAt:new Date(open).toISOString(),
-        sizeUnits:notional/pin, leverage:lev, mode:"cross", entryPrice:r(pin), exitPrice:r(pout), notional, generated:true};
-    }
-    if (!done) return {err:"Pas assez de mouvements de prix sur cette période pour placer le trade n°"+(i+1)+". Allonge la période, ajoute des actifs ou baisse le nombre de trades."};
-    trades.push(done); bal += pnl;
-  }
-  return {trades};
-}
-// Break-even : sortie au prix d'entrée + frais (P&L net = 0), sur une vraie
-// bougie qui a traversé ce niveau ; stop et objectif jamais touchés avant.
-function rbBreakEven(o, kl, rnd, t, bal, span){
-  const fee = TAKER_FEE_RATE*2;
-  for (let tr=0; tr<80; tr++){
-    const sym = o.assets[Math.floor(rnd()*o.assets.length)], K = kl[sym]; if (!K || K.length<10) continue;
-    const at = x=>{ let lo = 0, hi = K.length-1; while (lo<hi){ const m = (lo+hi+1)>>1; if (K[m].t<=x) lo = m; else hi = m-1; } return lo; };
-    const open = Math.max(K[0].t, Math.min(o.to - 3*3600e3, t - Math.exp(Math.log(15*60e3) + rnd()*Math.log(24*3600e3/(15*60e3))) + (tr ? (rnd()-0.5)*span*0.02 : 0)));
-    const io = at(open), co = K[io]; if (!co) continue;
-    const pin = co.l + (co.h - co.l)*(0.2 + 0.6*rnd()), side = rnd()<0.5 ? "long" : "short", dir = side==="long" ? 1 : -1, target = pin*(1 + dir*fee);
-    let jc = -1; for (let j=io+1; j<Math.min(K.length, io+48); j++){ if (K[j].l<=target && K[j].h>=target){ jc = j; break; } }
-    if (jc<0) continue;
-    let adv = 0, fav = 0; for (let j=io;j<=jc;j++){ const c = K[j]; adv = Math.max(adv, side==="long" ? (pin - c.l)/pin : (c.h - pin)/pin); fav = Math.max(fav, side==="long" ? (c.h - pin)/pin : (pin - c.l)/pin); }
-    const b = bal(0), notional = b*(0.05 + rnd()*0.35), levMax = Math.floor(0.8/Math.max(adv, 0.004)), levNeed = notional/(b*0.35);
-    const L = [1,2,3,5,10,15,20,25,50].filter(l=>l<=levMax && l>=levNeed); if (!L.length) continue;
-    const lev = L[Math.min(L.length-1, Math.floor(rnd()*Math.min(3, L.length)))];
-    const dec = (ASSETS.find(a=>a.symbol===sym)||{}).decimals || 2, r = v=>+v.toFixed(dec);
-    const stopD = Math.max(adv*1.12 + 0.0008, b*(0.005 + rnd()*0.01)/notional), tpD = Math.max(fav*1.12 + 0.0008, stopD*(1.4 + rnd()*1.6));
-    const close = Math.min(o.to - 60e3, K[jc].t + rnd()*3600e3);
-    return {id:uid(), symbol:sym, side, pnl:0, reason:"closed", stopLoss:r(pin*(1 - dir*stopD)), takeProfit:r(pin*(1 + dir*tpD)),
-      exitFee:notional*fee, feesPaid:notional*fee, closedAt:new Date(close).toISOString(), openedAt:new Date(Math.min(open, close - 60e3)).toISOString(),
-      sizeUnits:notional/pin, leverage:lev, mode:"cross", entryPrice:r(pin), exitPrice:r(target), notional, generated:true, breakEven:true};
-  }
-  return null;
-}
-function rbCurveSvg(curve, base){
-  const W = 520, H = 150, mn = Math.min(...curve), mx = Math.max(...curve), y = v=>H - 8 - (v - mn)/((mx - mn) || 1)*(H - 16);
-  const d = curve.map((v,i)=>(i ? "L" : "M")+(i/(curve.length-1)*W).toFixed(1)+" "+y(v).toFixed(1)).join("");
-  return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="width:100%;height:150px;display:block;border:1px solid var(--border-soft);border-radius:8px;background:var(--panel-2);" role="img" aria-label="Courbe du solde"><path d="M0 '+y(base).toFixed(1)+'H'+W+'" stroke="var(--border)" stroke-dasharray="4 4" fill="none"/><path d="'+d+'" stroke="var(--long)" stroke-width="2" fill="none" vector-effect="non-scaling-stroke"/></svg>';
-}
-function adminRebuildHistory(id){
-  if (id!==clientId){ alert("Cet outil ne fonctionne que sur ton propre compte."); return; }
-  const day = t=>new Date(t - new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
-  const A = RB_ASSETS();
-  openModal('<h3 style="margin:0 0 4px;">Reconstruire mon historique</h3>'+
-    '<div class="chart-note" style="margin-bottom:12px;">Remplace tout ton historique Trading (archive comprise) par des trades placés sur de vrais prix passés, avec stop loss et take profit. Tu choisis le capital de départ et le solde final ; ton solde devient le solde final et tes statistiques sont recalculées. Positions ouvertes non touchées. Les trades sont marqués « généré » (colonne source de l\'export CSV).</div>'+
-    '<div class="adm-ta">'+
-      '<label>Du<input id="rb-from" type="date" class="tpsl-input" value="'+day(Date.now()-180*864e5)+'"></label>'+
-      '<label>Au<input id="rb-to" type="date" class="tpsl-input" value="'+day(Date.now())+'"></label>'+
-      '<label>Nombre de trades (1 000 max)<input id="rb-n" type="number" min="1" max="1000" value="150" class="tpsl-input"></label>'+
-      '<label>Win rate (%)<input id="rb-wr" type="number" min="0" max="100" value="58" class="tpsl-input"></label>'+
-      '<label>Break-even (%)<input id="rb-be" type="number" min="0" max="50" value="5" class="tpsl-input"></label>'+
-      '<label>Capital de départ ($)<input id="rb-start" type="number" step="any" min="1" value="'+START_CASH+'" class="tpsl-input"></label>'+
-      '<label>Solde final visé ($)<input id="rb-target" type="number" step="any" value="'+Math.round(START_CASH*1.12)+'" class="tpsl-input"></label>'+
-    '</div>'+
-    '<div style="margin:12px 0 4px;font-size:12px;font-weight:600;color:var(--text-dim);">Actifs</div>'+
-    '<div class="jn2-chips" id="rb-assets">'+A.map((a,i)=>'<button type="button" class="jn2-chip'+(i<3 ? " on" : "")+'" data-rb-a="'+a.symbol+'">'+escapeHtml(a.symbol)+'</button>').join("")+'</div>'+
-    '<div id="rb-prev" style="margin-top:14px;"></div>'+
-    '<div class="chart-note" id="rb-msg" style="min-height:16px;margin:8px 0;"></div>'+
-    '<div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;"><button type="button" class="btn-secondary" id="rb-back">Retour</button><button type="button" class="btn-secondary" id="rb-gen">Générer un aperçu</button><button type="button" class="btn-primary" id="rb-go" disabled>Remplacer mon historique</button></div>');
-  const box = document.getElementById("modal-box"); if (box){ box.style.maxWidth = "min(640px, 96vw)"; modalCloseHook = ()=>{ box.style.maxWidth = ""; }; }
-  const $ = q=>document.getElementById(q), msg = $("rb-msg"); let res = null, cache = {};
-  box.querySelectorAll("[data-rb-a]").forEach(b=>b.addEventListener("click", ()=>b.classList.toggle("on")));
-  $("rb-back").addEventListener("click", ()=>adminTradesOpen(id, "main"));
-  $("rb-gen").addEventListener("click", async ()=>{
-    const o = {from:new Date($("rb-from").value+"T00:00:00").getTime(), to:Math.min(Date.now(), new Date($("rb-to").value+"T23:59:59").getTime()),
-      n:Math.max(1, Math.min(1000, parseInt($("rb-n").value)||0)), wr:Math.max(0, Math.min(100, parseFloat($("rb-wr").value)||0)), be:Math.max(0, Math.min(50, parseFloat($("rb-be").value)||0)), target:parseFloat($("rb-target").value), start:parseFloat($("rb-start").value),
-      assets:Array.from(box.querySelectorAll("[data-rb-a].on")).map(b=>b.dataset.rbA)};
-    msg.style.color = "var(--warn)";
-    if (!(o.to - o.from >= 2*864e5)) return void (msg.textContent = "La période doit faire au moins 2 jours.");
-    if (!o.assets.length) return void (msg.textContent = "Choisis au moins un actif.");
-    if (!(o.target>0)) return void (msg.textContent = "Solde final invalide.");
-    if (!(o.start>0)) return void (msg.textContent = "Capital de départ invalide.");
-    $("rb-gen").disabled = true; $("rb-go").disabled = true; msg.style.color = ""; msg.textContent = "Chargement des prix réels…";
-    try{
-      const kl = {};
-      for (const s of o.assets){ const a = ASSETS.find(x=>x.symbol===s), key = s+o.from+"_"+o.to; kl[s] = cache[key] || (cache[key] = await rbKlines(a.binanceSymbol, o.from, o.to)); }
-      const rnd = rbRng(Date.now() ^ Math.floor(Math.random()*1e9)), plan = rbPlan(o, rnd);
-      if (plan.err) throw new Error(plan.err);
-      const pl = rbPlace(plan, o, kl, rnd); if (pl.err) throw new Error(pl.err);
-      res = {o, trades:pl.trades};
-      const st = adminStatsFromHistory(pl.trades), lev = pl.trades.reduce((t,x)=>t+x.leverage, 0)/pl.trades.length;
-      $("rb-prev").innerHTML = rbCurveSvg(plan.curve, o.start)+
-        '<div class="adm-tr-kpi" style="margin-top:8px;"><span>Résultat <b style="color:var(--'+(o.target>=o.start ? "long" : "short")+')">'+fmtMoneySigned(o.target-o.start)+'</b></span><span>Réussite <b>'+Math.round(st.wins/st.tradesClosed*100)+' %</b></span><span>Break-even <b>'+pl.trades.filter(x=>x.pnl===0).length+'</b></span><span>Creux max <b>−'+(plan.maxDD*100).toFixed(1).replace(".", ",")+' %</b></span><span>Meilleur <b>'+fmtMoney(st.bestTrade)+'</b></span><span>Pire <b>'+fmtMoney(st.worstTrade)+'</b></span><span>Levier moyen <b>×'+lev.toFixed(1).replace(".", ",")+'</b></span></div>';
-      msg.textContent = "Aperçu prêt. « Générer un aperçu » refait un tirage ; « Remplacer » enregistre."; $("rb-go").disabled = false;
-    }catch(e){ msg.style.color = "var(--warn)"; msg.textContent = (e && e.message) || "Erreur."; }
-    $("rb-gen").disabled = false;
-  });
-  $("rb-go").addEventListener("click", async ()=>{
-    if (!res) return;
-    if (!confirm("Remplacer tout ton historique Trading par ces "+res.trades.length+" trades ? Ton solde passera à "+fmtMoney(res.o.target)+". Action définitive.")) return;
-    $("rb-go").disabled = true; msg.style.color = ""; msg.textContent = "Enregistrement…";
+function adminImportCsv(id){
+  if (id!==clientId){ alert("L'import ne fonctionne que sur ton propre compte."); return; }
+  const inp = document.createElement("input"); inp.type = "file"; inp.accept = ".csv,text/csv";
+  inp.addEventListener("change", async ()=>{
+    const f = inp.files && inp.files[0]; if (!f) return;
+    const r = adminCsvToTrades(await f.text());
+    if (r.err){ alert(r.err); return; }
+    if (r.trades.length > 1000 && !confirm(r.trades.length+" trades : c'est beaucoup. Continuer ?")) return;
+    if (!confirm("Remplacer tout ton historique Trading (archive comprise) par les "+r.trades.length+" trades de « "+f.name+" » ?\nCapital de départ : "+fmtMoney(r.start)+" · solde final : "+fmtMoney(r.end)+(r.bad.length ? "\n"+r.bad.length+" ligne(s) illisible(s) ignorée(s)." : "")+"\nAction définitive.")) return;
     try{
       const ref = db.collection("traders").doc(id), fresh = (await ref.get()).data() || {};
-      const all = res.trades.slice().sort((a,b)=>String(b.closedAt).localeCompare(String(a.closedAt)));
+      const all = r.trades.slice().sort((a,b)=>String(b.closedAt).localeCompare(String(a.closedAt)));
       const hist = all.slice(0, TRADE_HISTORY_RETAIN), rest = all.slice(TRADE_HISTORY_RETAIN);
-      msg.textContent = "Nettoyage de l'ancienne archive…"; await tradeArchiveClear(id);
-      if (rest.length){ msg.textContent = "Archivage de "+rest.length+" trades…"; await tradeArchiveAdd(id, rest, true); }
-      const cash = res.o.target, wk = (()=>{ const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - ((d.getDay()+6)%7)); return d.getTime(); })();
-      const weekStart = res.o.start + res.trades.filter(t=>Date.parse(t.closedAt) < wk).reduce((s,t)=>s+t.pnl, 0);
-      const patch = {history:hist, cash, stats:adminStatsFromHistory(res.trades), weekStartEquity:weekStart};
-      if (!(Array.isArray(fresh.positions) && fresh.positions.length)) patch.equity = cash;
+      appToast("Import en cours…");
+      await tradeArchiveClear(id);
+      if (rest.length) await tradeArchiveAdd(id, rest, true);
+      const wk = (()=>{ const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - ((d.getDay()+6)%7)); return d.getTime(); })();
+      const weekStart = r.start + r.trades.filter(t=>Date.parse(t.closedAt) < wk).reduce((s,t)=>s+t.pnl, 0);
+      const patch = {history:hist, cash:r.end, stats:adminStatsFromHistory(r.trades), weekStartEquity:weekStart};
+      if (!(Array.isArray(fresh.positions) && fresh.positions.length)) patch.equity = r.end;
       await ref.update(adminOverridePatch(patch));
       await adminRefreshSelf(id);
       const snap = await ref.get(), k = adminDocs.findIndex(x=>x.id===id); if (k>=0) adminDocs[k] = snap;
-      appToast("Historique reconstruit : "+res.trades.length+" trades."); adminTradesOpen(id, "main"); loadAdminTraders();
-    }catch(e){ console.warn("rebuild failed", e); msg.style.color = "var(--warn)"; msg.textContent = "Échec de l'enregistrement."; $("rb-go").disabled = false; }
+      appToast("Historique importé : "+r.trades.length+" trades."); adminTradesOpen(id, "main"); loadAdminTraders();
+    }catch(e){ console.warn("import csv failed", e); alert("Échec de l'import (règles Firestore déployées ?)."); }
   });
+  inp.click();
 }
 // v3630 : corriger les statistiques du widget Performance d'un joueur
 // (compte normal ou prop firm). Saisie manuelle, ou « Recalculer depuis
