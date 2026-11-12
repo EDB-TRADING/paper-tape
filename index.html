@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3690">
+<meta name="pt-build" content="3710">
 <script>
 /* Multi-graphiques : cette page est-elle un graphique seul dans une iframe ?
    Si oui, ses réglages de graphique (indicateurs, bougies, unité de temps,
@@ -7331,7 +7331,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3690 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3710 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -20873,6 +20873,30 @@ function checkPendingOrders(){
     checkTradeBadges();
   });
 }
+/* v3710 : archive des trades au-delà des 200 derniers (compte normal).
+   traders/{uid}/tradeArchive/{AAAA-MM} = {trades:[...]} ; le serveur
+   (paperTapeMark) y range aussi ses dépassements. */
+function tradeArchiveRef(uid){ return db.collection("traders").doc(uid).collection("tradeArchive"); }
+function tradeArchiveOverflow(){
+  const over = state.history.slice(TRADE_HISTORY_RETAIN);
+  state.history = state.history.slice(0, TRADE_HISTORY_RETAIN);
+  if (over.length && currentBookName()==="normal" && dbReady && db && clientId) tradeArchiveAdd(clientId, over).catch(e=>console.warn("archive", e));
+}
+async function tradeArchiveAdd(uid, trades, replace){
+  const by = {};
+  trades.forEach(t=>{ const k = String(t.closedAt||"").slice(0,7) || "inconnu"; (by[k] = by[k] || []).push(t); });
+  await Promise.all(Object.keys(by).map(k=>replace ? tradeArchiveRef(uid).doc(k).set({trades:by[k]}) : tradeArchiveRef(uid).doc(k).set({trades:firebase.firestore.FieldValue.arrayUnion(...by[k])}, {merge:true})));
+}
+async function tradeArchiveLoad(uid){
+  const s = await tradeArchiveRef(uid).get(), out = [];
+  s.forEach(d=>{ const t = (d.data()||{}).trades; if (Array.isArray(t)) out.push(...t); });
+  return out.sort((a,b)=>String(b.closedAt||"").localeCompare(String(a.closedAt||"")));
+}
+async function tradeArchiveClear(uid){
+  const s = await tradeArchiveRef(uid).get(), ps = [];
+  s.forEach(d=>ps.push(d.ref.delete()));
+  await Promise.all(ps);
+}
 function closePosition(id, reason){
   try{
     const idx = state.positions.findIndex(p=>p.id===id);
@@ -20912,8 +20936,9 @@ function closePosition(id, reason){
     state.positions.splice(idx,1);
     const feesPaid = (p.entryFee||0) + exitFee;
     state.history.unshift({id:p.id, symbol:p.symbol, side:p.side, pnl, reason, exitFee, feesPaid, closedAt:(tpSlOverride && tpSlOverride.at) || new Date().toISOString(),
-      sizeUnits:p.sizeUnits, leverage:p.leverage, mode:p.mode, entryPrice:p.entryPrice, exitPrice, notional:p.notional, openedAt:p.openedAt});
-    state.history = state.history.slice(0,TRADE_HISTORY_RETAIN);
+      sizeUnits:p.sizeUnits, leverage:p.leverage, mode:p.mode, entryPrice:p.entryPrice, exitPrice, notional:p.notional, openedAt:p.openedAt,
+      stopLoss: typeof p.stopLoss==="number" ? p.stopLoss : null, takeProfit: typeof p.takeProfit==="number" ? p.takeProfit : null});
+    tradeArchiveOverflow();
     updatePerfStats(pnl);
     if (typeof enforceLeverageAccess==="function") enforceLeverageAccess(); // stats.tradesClosed just moved — a new leverage tier may have unlocked
     renderAll();
@@ -20962,8 +20987,9 @@ function closePositionPartial(id, fraction, reason){
 
     const feesPaid = closedEntryFee + exitFee;
     state.history.unshift({id:uid(), symbol:p.symbol, side:p.side, pnl, reason, exitFee, feesPaid, closedAt:(tpSlOverride && tpSlOverride.at) || new Date().toISOString(), partial:true, closedPct:Math.round(f*100),
-      sizeUnits:closedSizeUnits, leverage:p.leverage, mode:p.mode, entryPrice:p.entryPrice, exitPrice:exit, notional:closedNotional, openedAt:p.openedAt});
-    state.history = state.history.slice(0,TRADE_HISTORY_RETAIN);
+      sizeUnits:closedSizeUnits, leverage:p.leverage, mode:p.mode, entryPrice:p.entryPrice, exitPrice:exit, notional:closedNotional, openedAt:p.openedAt,
+      stopLoss: typeof p.stopLoss==="number" ? p.stopLoss : null, takeProfit: typeof p.takeProfit==="number" ? p.takeProfit : null});
+    tradeArchiveOverflow();
     updatePerfStats(pnl);
     if (typeof enforceLeverageAccess==="function") enforceLeverageAccess(); // stats.tradesClosed just moved — a new leverage tier may have unlocked
     renderAll();
@@ -34782,31 +34808,53 @@ function adminTradesOpen(id, startBook){
   const num = (v, dec)=>typeof v==="number" && isFinite(v) ? v.toLocaleString("fr-FR", {maximumFractionDigits:dec==null ? 2 : dec}) : "—";
   const pnlCell = v=>typeof v==="number" ? '<td class="r" style="color:var(--'+(v>=0 ? "long" : "short")+')">'+(v>=0 ? "+" : "")+fmtMoney(v)+'</td>' : '<td class="r">—</td>';
   let cur = startBook || (books.find(b=>b.rows.length) ? books.find(b=>b.rows.length).k : "main");
-  const csv = (b)=>{
-    const head = b.k==="inv" ? ["date","type","compte","actif","quantite","prix","montant","frais","pnl"] : ["ouverture","cloture","actif","sens","levier","taille","entree","sortie","notionnel","frais","pnl","raison"];
-    const lines = b.rows.map(h=>b.k==="inv" ? [h.t, h.type, h.env, h.id, h.qty, h.px, h.amount, h.fee, h.pnl] : [h.openedAt, h.closedAt, h.symbol, h.side, h.leverage, h.sizeUnits, h.entryPrice, h.exitPrice, h.notional, h.feesPaid, h.pnl, h.reason]);
+  let arch = null;
+  // v3710 : export CSV détaillé (de quoi remplir un tableau de performance :
+  // capital après chaque trade, risque au stop, R:R prévu, R réalisé, durée,
+  // source du trade). Séparateur « ; », décimales avec un point.
+  const csv = (b, rows)=>{
+    if (b.k==="inv"){
+      const head = ["date","type","compte","actif","quantite","prix","montant","frais","pnl"];
+      return [head].concat(rows.map(h=>[h.t, h.type, h.env, h.id, h.qty, h.px, h.amount, h.fee, h.pnl])).map(r=>r.map(x=>x==null ? "" : String(x).replace(/[;\n]/g, " ")).join(";")).join("\n");
+    }
+    const asc = rows.slice().sort((x,y)=>String(x.closedAt||"").localeCompare(String(y.closedAt||"")));
+    const bk = b.k==="prop" ? (d.propBook||{}) : d, endCash = typeof bk.cash==="number" ? bk.cash : START_CASH;
+    let cap = endCash - asc.reduce((t,h)=>t+(typeof h.pnl==="number" ? h.pnl : 0), 0);
+    const f = (v, n)=>typeof v==="number" && isFinite(v) ? +v.toFixed(n==null ? 2 : n) : "";
+    const ts = iso=>{ const x = new Date(iso); if (isNaN(x)) return ""; const z = n=>String(n).padStart(2,"0"); return x.getFullYear()+"-"+z(x.getMonth()+1)+"-"+z(x.getDate())+" "+z(x.getHours())+":"+z(x.getMinutes()); };
+    const head = ["ouverture","cloture","actif","sens","levier","quantite","notionnel","prix_entree","prix_sortie","stop_loss","take_profit","risque_usd","risque_pct_capital","rr_prevu","r_realise","frais","pnl_net","capital_avant","capital_apres","duree_min","raison","source"];
+    const lines = asc.map(h=>{
+      const qty = typeof h.sizeUnits==="number" ? h.sizeUnits : (h.notional && h.entryPrice ? h.notional/h.entryPrice : null);
+      const risk = typeof h.stopLoss==="number" && typeof h.entryPrice==="number" && qty ? Math.abs(h.entryPrice - h.stopLoss)*qty : null;
+      const rr = risk && typeof h.takeProfit==="number" ? Math.abs(h.takeProfit - h.entryPrice)/Math.abs(h.entryPrice - h.stopLoss) : null;
+      const before = cap, pnl = typeof h.pnl==="number" ? h.pnl : 0; cap += pnl;
+      const dur = h.openedAt && h.closedAt ? (Date.parse(h.closedAt) - Date.parse(h.openedAt))/60000 : null;
+      return [ts(h.openedAt), ts(h.closedAt), h.symbol, h.side==="short" ? "short" : "long", f(h.leverage, 1), f(qty, 6), f(h.notional), h.entryPrice, h.exitPrice, h.stopLoss ?? "", h.takeProfit ?? "",
+        f(risk), risk && before>0 ? f(risk/before*100, 3) : "", f(rr), risk ? f(pnl/risk) : "", f(h.feesPaid), f(h.pnl), f(before), f(cap), f(dur, 0), RS[h.reason] || h.reason || "", h.generated ? "généré" : h.byAdmin ? "admin" : "plateforme"];
+    });
     return [head].concat(lines).map(r=>r.map(x=>x==null ? "" : String(x).replace(/[;\n]/g, " ")).join(";")).join("\n");
   };
   const draw = ()=>{
-    const b = books.find(x=>x.k===cur), rows = b.rows;
+    const b = books.find(x=>x.k===cur), rows = b.k==="main" && arch ? b.rows.concat(arch.map(t=>Object.assign({_arch:true}, t))) : b.rows;
     let sum = 0, win = 0, fees = 0, n = 0;
     rows.forEach(h=>{ if (typeof h.pnl==="number"){ sum += h.pnl; n++; if (h.pnl > 0) win++; } fees += +(h.feesPaid || h.fee || 0) || 0; });
     const table = !rows.length ? '<div class="empty-note">Aucun trade enregistré.</div>' : b.k==="inv"
       ? '<table class="adm-tr-t"><tr><th>Date</th><th>Type</th><th>Compte</th><th>Actif</th><th class="r">Qté</th><th class="r">Prix</th><th class="r">Montant</th><th class="r">P&amp;L</th></tr>'+
         rows.map(h=>'<tr><td>'+dt(h.t)+'</td><td>'+escapeHtml(h.type||"")+'</td><td>'+escapeHtml(String(h.env||"").toUpperCase())+'</td><td>'+escapeHtml(h.id||"—")+'</td><td class="r">'+num(h.qty, 4)+'</td><td class="r">'+num(h.px)+'</td><td class="r">'+num(h.amount)+'</td>'+pnlCell(h.pnl)+'</tr>').join("")+'</table>'
       : '<table class="adm-tr-t"><tr><th>Clôture</th><th>Actif</th><th>Sens</th><th class="r">Levier</th><th class="r">Taille</th><th class="r">Entrée</th><th class="r">Sortie</th><th class="r">P&amp;L</th><th>Raison</th><th></th></tr>'+
-        rows.map((h, i)=>'<tr title="Ouvert le '+escapeHtml(dt(h.openedAt))+' · frais '+escapeHtml(num(h.feesPaid))+'"><td>'+dt(h.closedAt)+'</td><td>'+escapeHtml(h.symbol||"—")+(h.partial ? ' <em>('+(h.closedPct||"?")+' %)</em>' : '')+'</td><td style="color:var(--'+(h.side==="short" ? "short" : "long")+')">'+(h.side==="short" ? "Short" : "Long")+'</td><td class="r">×'+num(h.leverage, 0)+'</td><td class="r">'+num(h.sizeUnits, 6)+'</td><td class="r">'+num(h.entryPrice, 6)+'</td><td class="r">'+num(h.exitPrice, 6)+'</td>'+pnlCell(h.pnl)+'<td>'+escapeHtml(RS[h.reason] || h.reason || "—")+(h.generated ? ' <em>(généré)</em>' : h.byAdmin ? ' <em>(admin)</em>' : '')+'</td><td class="r"><button type="button" class="adm-tr-del" data-tr-del="'+i+'" title="Supprimer ce trade" aria-label="Supprimer ce trade">✕</button></td></tr>').join("")+'</table>';
+        rows.map((h, i)=>'<tr title="Ouvert le '+escapeHtml(dt(h.openedAt))+' · frais '+escapeHtml(num(h.feesPaid))+'"><td>'+dt(h.closedAt)+'</td><td>'+escapeHtml(h.symbol||"—")+(h.partial ? ' <em>('+(h.closedPct||"?")+' %)</em>' : '')+'</td><td style="color:var(--'+(h.side==="short" ? "short" : "long")+')">'+(h.side==="short" ? "Short" : "Long")+'</td><td class="r">×'+num(h.leverage, 0)+'</td><td class="r">'+num(h.sizeUnits, 6)+'</td><td class="r">'+num(h.entryPrice, 6)+'</td><td class="r">'+num(h.exitPrice, 6)+'</td>'+pnlCell(h.pnl)+'<td>'+escapeHtml(RS[h.reason] || h.reason || "—")+(h.generated ? ' <em>(généré)</em>' : h.byAdmin ? ' <em>(admin)</em>' : '')+'</td><td class="r">'+(h._arch ? '<em>archive</em>' : '<button type="button" class="adm-tr-del" data-tr-del="'+i+'" title="Supprimer ce trade" aria-label="Supprimer ce trade">✕</button>')+'</td></tr>').join("")+'</table>';
     openModal('<h3 style="margin:0 0 4px;">Trades de '+escapeHtml(d.username||"Trader")+'</h3>'+
-      '<div class="chart-note" style="margin-bottom:12px;">Les 200 derniers trades clôturés de chaque compte (au-delà, ils ne sont pas conservés).</div>'+
+      '<div class="chart-note" style="margin-bottom:12px;">Les 200 derniers trades de chaque compte. Au-delà, les trades du compte Trading sont rangés dans l\'archive.</div>'+
       '<div class="seg adm-tr-seg" style="margin-bottom:12px;">'+books.map(x=>'<button type="button" class="on-mode'+(x.k===cur ? " active" : "")+'" data-tr-book="'+x.k+'">'+x.t+' ('+x.rows.length+')</button>').join("")+'</div>'+
       (rows.length ? '<div class="adm-tr-kpi"><span>'+rows.length+' lignes</span>'+(n ? '<span>P&amp;L total <b style="color:var(--'+(sum>=0 ? "long" : "short")+')">'+(sum>=0 ? "+" : "")+fmtMoney(sum)+'</b></span><span>Gagnants <b>'+Math.round(win/n*100)+' %</b></span>' : '')+'<span>Frais <b>'+fmtMoney(fees)+'</b></span><button type="button" class="btn-secondary" id="adm-tr-csv">Exporter CSV</button></div>' : '')+
-      (b.k!=="inv" ? '<div class="adm-tr-tools"><button type="button" class="btn-primary" id="adm-tr-add">+ Ajouter un trade</button>'+(b.k==="main" && id===clientId ? '<button type="button" class="btn-secondary" id="adm-tr-rebuild">Reconstruire mon historique…</button>' : '')+(rows.length ? '<button type="button" class="btn-secondary adm-tr-wipe" id="adm-tr-wipe">Supprimer tout l\'historique</button>' : '')+'<label><input type="checkbox" id="adm-tr-adj" checked> Répercuter sur le solde et les statistiques</label></div>' : '')+
+      (b.k!=="inv" ? '<div class="adm-tr-tools"><button type="button" class="btn-primary" id="adm-tr-add">+ Ajouter un trade</button>'+(b.k==="main" ? (arch ? '<span>'+arch.length+' trades archivés inclus</span>' : '<button type="button" class="btn-secondary" id="adm-tr-arch">Afficher les trades archivés</button>') : '')+(b.k==="main" && id===clientId ? '<button type="button" class="btn-secondary" id="adm-tr-rebuild">Reconstruire mon historique…</button>' : '')+(rows.length ? '<button type="button" class="btn-secondary adm-tr-wipe" id="adm-tr-wipe">Supprimer tout l\'historique</button>' : '')+'<label><input type="checkbox" id="adm-tr-adj" checked> Répercuter sur le solde et les statistiques</label></div>' : '')+
       '<div class="adm-tr-wrap">'+table+'</div>');
     document.querySelectorAll("[data-tr-book]").forEach(x=>x.addEventListener("click", ()=>{ cur = x.dataset.trBook; draw(); }));
     const box = document.getElementById("modal-box"); if (box){ box.style.maxWidth = "min(1100px, 96vw)"; modalCloseHook = ()=>{ box.style.maxWidth = ""; }; }
     const adjOn = ()=>!!(document.getElementById("adm-tr-adj")||{}).checked;
     const add = document.getElementById("adm-tr-add"); if (add) add.addEventListener("click", ()=>adminTradeAddForm(id, cur));
     const rb = document.getElementById("adm-tr-rebuild"); if (rb) rb.addEventListener("click", ()=>adminRebuildHistory(id));
+    const ar = document.getElementById("adm-tr-arch"); if (ar) ar.addEventListener("click", async ()=>{ ar.disabled = true; ar.textContent = "Chargement…"; try{ arch = await tradeArchiveLoad(id); }catch(e){ arch = []; alert("Archive illisible (règles Firestore déployées ?)."); } draw(); });
     const wipe = document.getElementById("adm-tr-wipe"); if (wipe) wipe.addEventListener("click", ()=>{
       const adj = adjOn(), tot = rows.reduce((t,h)=>t+(typeof h.pnl==="number" ? h.pnl : 0), 0);
       if (!confirm("Supprimer les "+rows.length+" trades de l'historique "+(cur==="prop" ? "Prop firm" : "Trading")+" ?"+(adj ? "\nLe solde sera corrigé de "+(tot>=0 ? "−" : "+")+fmtMoney(Math.abs(tot))+" et les statistiques remises à zéro." : "\nLe solde et les statistiques ne changent pas.")+"\nAction définitive.")) return;
@@ -34819,7 +34867,8 @@ function adminTradesOpen(id, startBook){
       adminTradeEdit(id, cur, "del", h, adj);
     }));
     const ex = document.getElementById("adm-tr-csv");
-    if (ex) ex.addEventListener("click", ()=>{ const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿"+csv(b)], {type:"text/csv;charset=utf-8"})); a.download = "trades-"+(d.username||id).replace(/[^\w-]+/g, "_")+"-"+b.k+".csv"; document.body.appendChild(a); a.click(); a.remove(); });
+    if (ex) ex.addEventListener("click", async ()=>{ if (b.k==="main" && !arch){ ex.disabled = true; ex.textContent = "Chargement…"; try{ arch = await tradeArchiveLoad(id); }catch(e){ arch = []; } }
+      const all = b.k==="main" ? b.rows.concat(arch||[]) : rows; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿"+csv(b, all)], {type:"text/csv;charset=utf-8"})); a.download = "trades-"+(d.username||id).replace(/[^\w-]+/g, "_")+"-"+b.k+".csv"; document.body.appendChild(a); a.click(); a.remove(); });
   };
   draw();
 }
@@ -34835,7 +34884,9 @@ async function adminTradeEdit(id, book, op, h, adj){
     const bk = prop ? fresh.propBook : fresh;
     let hist = Array.isArray(bk.history) ? bk.history.slice() : [], delta = 0;
     const st = Object.assign(freshBookStats(), bk.stats||{});
-    if (op==="wipe"){ delta = -hist.reduce((t,x)=>t+(typeof x.pnl==="number" ? x.pnl : 0), 0); hist = []; }
+    let archWipe = false;
+    if (op==="wipe"){ delta = -hist.reduce((t,x)=>t+(typeof x.pnl==="number" ? x.pnl : 0), 0); hist = [];
+      if (!prop){ try{ const A = await tradeArchiveLoad(id); delta -= A.reduce((t,x)=>t+(typeof x.pnl==="number" ? x.pnl : 0), 0); archWipe = true; }catch(e){} } }
     else if (op==="del"){
       const same = x=>(h.id && x.id===h.id && x.closedAt===h.closedAt) || (!h.id && x.closedAt===h.closedAt && x.symbol===h.symbol && x.pnl===h.pnl);
       const i = hist.findIndex(same); if (i<0){ alert("Trade introuvable (l'historique a changé entre-temps). Rouvre la fenêtre."); return; }
@@ -34858,6 +34909,7 @@ async function adminTradeEdit(id, book, op, h, adj){
       patch[pre+"stats"] = op==="wipe" ? freshBookStats() : st;
     }
     await ref.update(adminOverridePatch(patch));
+    if (archWipe) await tradeArchiveClear(id);
     await adminRefreshSelf(id);
     const snap = await ref.get(), k = adminDocs.findIndex(x=>x.id===id); if (k>=0) adminDocs[k] = snap;
     appToast(op==="wipe" ? "Historique supprimé." : op==="del" ? "Trade supprimé de l'historique." : "Trade ajouté à l'historique.");
@@ -34913,7 +34965,7 @@ function adminTradeAddForm(id, book){
       entryPrice:c.pin, exitPrice:c.pout, notional:c.not, byAdmin:true}, $("ata-adj").checked);
   });
 }
-// v3650 : « Reconstruire mon historique » (admin, sur SON propre compte
+// v3710 : « Reconstruire mon historique » (admin, sur SON propre compte
 // uniquement). Remplace l'historique Trading par N trades placés sur de vrais
 // prix passés (bougies 1 h Binance des actifs choisis), avec le win rate et le
 // solde final demandés. Ordre des gains / pertes tiré au hasard puis choisi
@@ -34921,7 +34973,10 @@ function adminTradeAddForm(id, book){
 // gros, fin proche du plus haut). Chaque trade : prix d'entrée et de sortie
 // pris dans les bougies réelles, sens cohérent avec le mouvement, taille
 // calculée pour donner le P&L voulu, levier choisi pour ne jamais toucher la
-// liquidation pendant le trade. Champ `generated:true` (visible dans l'admin).
+// liquidation pendant le trade, stop loss et take profit cohérents avec les
+// prix (jamais touchés avant la sortie, sauf clôture « Stop loss » / « Take
+// profit » au niveau exact). Jusqu'à 1 000 trades : les 200 plus récents dans
+// la fiche, le reste dans l'archive tradeArchive. Champ `generated:true`.
 const RB_ASSETS = ()=>ASSETS.filter(a=>a.binanceSymbol && !a.delisted && a.cat==="crypto");
 async function rbKlines(sym, t0, t1){
   const out = []; let s = t0;
@@ -34948,7 +35003,8 @@ function rbPlan(o, rnd){
     for (let i=seq.length-1;i>0;i--){ const j = Math.floor(rnd()*(i+1)); [seq[i],seq[j]] = [seq[j],seq[i]]; }
     // Montants : pertes en % du solde estimé, gains répartis pour tomber pile sur P.
     const bal = i=>START_CASH + P*(i/N);
-    const loss = seq.map((w,i)=>w ? 0 : bal(i)*Math.min(0.06, ln(0.012, 0.55)));
+    const lm = 0.012*Math.min(1, Math.sqrt(80/N)); // plus il y a de trades, plus chaque perte est petite (creux réalistes)
+    const loss = seq.map((w,i)=>w ? 0 : bal(i)*Math.min(0.06, ln(lm, 0.55)));
     let lossSum = loss.reduce((a,b)=>a+b, 0), winTot = P + lossSum;
     if (W && winTot < W*START_CASH*0.0015){ const f = Math.max(0, (P + 0) < 0 ? 1 : 1); const need = W*START_CASH*0.0015 - winTot; if (lossSum>0){ const k = (lossSum+need)/lossSum; for (let i=0;i<N;i++) loss[i] *= k; } lossSum = loss.reduce((a,b)=>a+b, 0); winTot = P + lossSum; }
     if (W && winTot<=0) continue;
@@ -34969,6 +35025,8 @@ function rbPlace(plan, o, kl, rnd){
   const N = o.n, t0 = o.from, t1 = o.to, span = t1 - t0, trades = [];
   const times = Array.from({length:N}, ()=>t0 + span*(0.02 + 0.96*rnd())).sort((a,b)=>a-b);
   let bal = START_CASH;
+  const W_ = plan.pnl.filter(x=>x>0), L_ = plan.pnl.filter(x=>x<0);
+  const payoff = W_.length && L_.length ? (W_.reduce((a,b)=>a+b,0)/W_.length)/(-L_.reduce((a,b)=>a+b,0)/L_.length) : 1.5;
   for (let i=0;i<N;i++){
     const win = plan.seq[i]===1, pnl = plan.pnl[i];
     let done = null;
@@ -34987,13 +35045,18 @@ function rbPlace(plan, o, kl, rnd){
       const notional = win ? pnl/(Math.abs(mv) - fee) : -pnl/(Math.abs(mv) + fee);
       if (!(notional>0) || Math.abs(mv) <= fee) continue;
       // Pire excursion contre la position pendant le trade -> levier sans liquidation.
-      let adv = 0; for (let j=io;j<=ic;j++){ const c = K[j]; adv = Math.max(adv, side==="long" ? (pin - c.l)/pin : (c.h - pin)/pin); }
+      let adv = 0, fav = 0; for (let j=io;j<=ic;j++){ const c = K[j]; adv = Math.max(adv, side==="long" ? (pin - c.l)/pin : (c.h - pin)/pin); fav = Math.max(fav, side==="long" ? (c.h - pin)/pin : (pin - c.l)/pin); }
       const levMax = Math.floor(0.8/Math.max(adv, 0.004)), levNeed = notional/(bal*0.35);
       const L = [1,2,3,5,10,15,20,25,50,75,100].filter(l=>l<=levMax && l>=levNeed);
       if (!L.length) continue;
       const lev = L[Math.min(L.length-1, Math.floor(rnd()*Math.min(3, L.length)))];
       const dec = (ASSETS.find(a=>a.symbol===sym)||{}).decimals || 2, r = v=>+v.toFixed(dec);
-      done = {id:uid(), symbol:sym, side, pnl, reason: win ? (rnd()<0.55 ? "tp" : "closed") : (rnd()<0.7 ? "sl" : "closed"),
+      const amv = Math.abs(mv), dir = side==="long" ? 1 : -1;
+      let reason = win ? (rnd()<0.55 && fav <= amv*1.02 ? "tp" : "closed") : (rnd()<0.7 && adv <= amv*1.02 ? "sl" : "closed");
+      const riskT = win ? pnl/Math.max(0.3, payoff*(0.6 + rnd()*0.8)) : -pnl/(0.45 + rnd()*0.55);
+      const stopD = reason==="sl" ? amv : Math.max(adv*1.12 + 0.0008, riskT/notional);
+      const tpD = reason==="tp" ? amv : Math.max(fav*1.12 + 0.0008, stopD*(1.4 + rnd()*1.6));
+      done = {id:uid(), symbol:sym, side, pnl, reason, stopLoss:r(pin*(1 - dir*stopD)), takeProfit:r(pin*(1 + dir*tpD)),
         exitFee:notional*fee, feesPaid:notional*fee, closedAt:new Date(close).toISOString(), openedAt:new Date(open).toISOString(),
         sizeUnits:notional/pin, leverage:lev, mode:"cross", entryPrice:r(pin), exitPrice:r(pout), notional, generated:true};
     }
@@ -35012,11 +35075,11 @@ function adminRebuildHistory(id){
   const day = t=>new Date(t - new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
   const A = RB_ASSETS();
   openModal('<h3 style="margin:0 0 4px;">Reconstruire mon historique</h3>'+
-    '<div class="chart-note" style="margin-bottom:12px;">Remplace tout ton historique Trading par des trades placés sur de vrais prix passés. Ton solde devient le solde final choisi et tes statistiques sont recalculées. Positions ouvertes non touchées.</div>'+
+    '<div class="chart-note" style="margin-bottom:12px;">Remplace tout ton historique Trading (archive comprise) par des trades placés sur de vrais prix passés, avec stop loss et take profit. Ton solde devient le solde final choisi et tes statistiques sont recalculées. Positions ouvertes non touchées. Les trades sont marqués « généré » (colonne source de l\'export CSV).</div>'+
     '<div class="adm-ta">'+
-      '<label>Du<input id="rb-from" type="date" class="tpsl-input" value="'+day(Date.now()-90*864e5)+'"></label>'+
+      '<label>Du<input id="rb-from" type="date" class="tpsl-input" value="'+day(Date.now()-180*864e5)+'"></label>'+
       '<label>Au<input id="rb-to" type="date" class="tpsl-input" value="'+day(Date.now())+'"></label>'+
-      '<label>Nombre de trades (200 max)<input id="rb-n" type="number" min="1" max="200" value="60" class="tpsl-input"></label>'+
+      '<label>Nombre de trades (1 000 max)<input id="rb-n" type="number" min="1" max="1000" value="150" class="tpsl-input"></label>'+
       '<label>Win rate (%)<input id="rb-wr" type="number" min="0" max="100" value="58" class="tpsl-input"></label>'+
       '<label>Solde final visé ($)<input id="rb-target" type="number" step="any" value="'+Math.round(START_CASH*1.12)+'" class="tpsl-input"></label>'+
     '</div>'+
@@ -35031,7 +35094,7 @@ function adminRebuildHistory(id){
   $("rb-back").addEventListener("click", ()=>adminTradesOpen(id, "main"));
   $("rb-gen").addEventListener("click", async ()=>{
     const o = {from:new Date($("rb-from").value+"T00:00:00").getTime(), to:Math.min(Date.now(), new Date($("rb-to").value+"T23:59:59").getTime()),
-      n:Math.max(1, Math.min(200, parseInt($("rb-n").value)||0)), wr:Math.max(0, Math.min(100, parseFloat($("rb-wr").value)||0)), target:parseFloat($("rb-target").value),
+      n:Math.max(1, Math.min(1000, parseInt($("rb-n").value)||0)), wr:Math.max(0, Math.min(100, parseFloat($("rb-wr").value)||0)), target:parseFloat($("rb-target").value),
       assets:Array.from(box.querySelectorAll("[data-rb-a].on")).map(b=>b.dataset.rbA)};
     msg.style.color = "var(--warn)";
     if (!(o.to - o.from >= 2*864e5)) return void (msg.textContent = "La période doit faire au moins 2 jours.");
@@ -35058,7 +35121,10 @@ function adminRebuildHistory(id){
     $("rb-go").disabled = true; msg.style.color = ""; msg.textContent = "Enregistrement…";
     try{
       const ref = db.collection("traders").doc(id), fresh = (await ref.get()).data() || {};
-      const hist = res.trades.slice().sort((a,b)=>String(b.closedAt).localeCompare(String(a.closedAt)));
+      const all = res.trades.slice().sort((a,b)=>String(b.closedAt).localeCompare(String(a.closedAt)));
+      const hist = all.slice(0, TRADE_HISTORY_RETAIN), rest = all.slice(TRADE_HISTORY_RETAIN);
+      msg.textContent = "Nettoyage de l'ancienne archive…"; await tradeArchiveClear(id);
+      if (rest.length){ msg.textContent = "Archivage de "+rest.length+" trades…"; await tradeArchiveAdd(id, rest, true); }
       const cash = res.o.target, wk = (()=>{ const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - ((d.getDay()+6)%7)); return d.getTime(); })();
       const weekStart = START_CASH + res.trades.filter(t=>Date.parse(t.closedAt) < wk).reduce((s,t)=>s+t.pnl, 0);
       const patch = {history:hist, cash, stats:adminStatsFromHistory(res.trades), weekStartEquity:weekStart};
@@ -35092,7 +35158,7 @@ function adminEditStats(id, book){
   const F = [["tradesClosed","Trades clôturés",1],["wins","Gagnants",1],["losses","Perdants",1],["grossProfit","Gain total ($)",0],["grossLoss","Perte totale ($, en positif)",0],["bestTrade","Meilleur trade ($)",0],["worstTrade","Pire trade ($, en positif)",0],["bestWinStreak","Meilleure série de gains",1],["bestLossStreak","Pire série de pertes",1],["currentStreak","Série en cours",1]];
   const show = (k, v)=>k==="grossLoss"||k==="worstTrade" ? Math.abs(v||0) : (v||0);
   openModal('<h3 style="margin:0 0 4px;">Statistiques — '+escapeHtml(d.username||id)+'</h3>'+
-    '<div class="chart-note" style="margin-bottom:12px;">Valeurs affichées dans le widget Performance du joueur. « Recalculer » les reconstruit à partir de son historique (les 200 derniers trades conservés).</div>'+
+    '<div class="chart-note" style="margin-bottom:12px;">Valeurs affichées dans le widget Performance du joueur. « Recalculer » les reconstruit à partir de son historique (archive comprise pour le compte Trading).</div>'+
     (hasProp ? '<div class="seg" style="margin-bottom:12px;"><button type="button" class="on-mode'+(book==="main" ? " active" : "")+'" data-st-book="main">Compte normal</button><button type="button" class="on-mode'+(book==="prop" ? " active" : "")+'" data-st-book="prop">Prop firm</button></div>' : '')+
     '<div class="adm-st">'+F.map(f=>'<label>'+f[1]+'<input type="number" step="'+(f[2] ? "1" : "any")+'" min="0" data-st="'+f[0]+'" class="tpsl-input" value="'+(+show(f[0], st[f[0]]).toFixed(2))+'"></label>').join("")+
       '<label>Type de série<select data-st="streakType" class="tpsl-input"><option value="">Aucune</option><option value="win"'+(st.streakType==="win" ? " selected" : "")+'>Gains</option><option value="loss"'+(st.streakType==="loss" ? " selected" : "")+'>Pertes</option></select></label></div>'+
@@ -35102,7 +35168,10 @@ function adminEditStats(id, book){
   box.querySelectorAll("[data-st-book]").forEach(b=>b.addEventListener("click", ()=>adminEditStats(id, b.dataset.stBook)));
   const fill = o=>box.querySelectorAll("[data-st]").forEach(i=>{ const k = i.dataset.st; i.value = k==="streakType" ? (o[k]||"") : +show(k, o[k]).toFixed(2); });
   const msg = document.getElementById("adm-st-msg");
-  document.getElementById("adm-st-recalc").addEventListener("click", ()=>{ fill(adminStatsFromHistory(bk.history)); msg.style.color = ""; msg.textContent = "Valeurs recalculées depuis "+((bk.history||[]).length)+" trade(s). Vérifie puis enregistre."; });
+  document.getElementById("adm-st-recalc").addEventListener("click", async ()=>{
+    let all = (bk.history||[]).slice();
+    if (book!=="prop"){ msg.style.color = ""; msg.textContent = "Chargement de l'archive…"; try{ all = all.concat(await tradeArchiveLoad(id)); }catch(e){} }
+    fill(adminStatsFromHistory(all)); msg.style.color = ""; msg.textContent = "Valeurs recalculées depuis "+all.length+" trade(s). Vérifie puis enregistre."; });
   document.getElementById("adm-st-save").addEventListener("click", async ()=>{
     const out = Object.assign({}, st);
     box.querySelectorAll("[data-st]").forEach(i=>{ const k = i.dataset.st; if (k==="streakType"){ out[k] = i.value || null; return; } const v = Math.abs(parseFloat(i.value)||0); out[k] = (k==="grossLoss"||k==="worstTrade") ? -v : v; });
