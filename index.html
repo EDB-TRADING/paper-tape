@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3781">
+<meta name="pt-build" content="3790">
 <script>
 /* Multi-graphiques : cette page est-elle un graphique seul dans une iframe ?
    Si oui, ses réglages de graphique (indicateurs, bougies, unité de temps,
@@ -714,6 +714,56 @@
   .bt-lock-svg{width:100%;height:150px;display:block;}
   .bt-lock-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
   @media (max-width:760px){ .bt-lock-steps{grid-template-columns:1fr;} }
+  /* Backtest · v3790 : nouveau design */
+  .bt2{display:flex;flex-direction:column;gap:18px;}
+  .bt2-top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:4px 2px 2px;}
+  .bt2-k{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);display:inline-flex;align-items:center;gap:8px;}
+  .bt2-k em{font-style:normal;font-size:10px;padding:2px 7px;border-radius:999px;border:1px solid color-mix(in srgb, var(--gold, #d7b563) 55%, transparent);color:var(--gold, #d7b563);letter-spacing:.06em;}
+  .bt2-top h2{margin:6px 0 4px;font-size:clamp(22px, 2.4vw, 30px);letter-spacing:-.01em;}
+  .bt2-top p{margin:0;font-size:13px;color:var(--text-faint);}
+  .bt2-saved select{min-width:220px;}
+  .bt2 .bt{grid-template-columns:minmax(340px,440px) minmax(0,1fr);gap:18px;}
+  .bt2-cfg{display:flex;flex-direction:column;gap:12px;padding:0;background:none;border:0;box-shadow:none;}
+  .bt2-s{display:flex;flex-direction:column;gap:12px;padding:16px;border:1px solid var(--border-soft);border-radius:16px;background:var(--panel);}
+  .bt2-s h3{display:flex;align-items:center;gap:10px;margin:0;font-size:14.5px;}
+  .bt2-s h3 i{font-style:normal;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;color:#14110f;background:var(--accent);}
+  .bt2-sts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+  .bt2-st{display:grid;grid-template-columns:40px 1fr;grid-template-rows:auto auto;column-gap:10px;row-gap:2px;align-items:center;text-align:left;padding:10px 12px;border-radius:12px;border:1px solid var(--border-soft);background:var(--panel-2);color:var(--text);cursor:pointer;font:inherit;transition:border-color .15s, background .15s;}
+  .bt2-st svg{grid-row:1 / 3;width:40px;height:24px;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+  .bt2-st svg .a{stroke:var(--accent);} .bt2-st svg .b{stroke:var(--text-faint);} .bt2-st svg .g{stroke:var(--border);stroke-dasharray:2 3;} .bt2-st svg .d{fill:var(--panel-2);stroke:var(--accent);}
+  .bt2-st b{font-size:13px;} .bt2-st span{font-size:11.5px;line-height:1.35;color:var(--text-faint);}
+  .bt2-st:hover{border-color:color-mix(in srgb, var(--accent) 60%, var(--border-soft));}
+  .bt2-st.on{border-color:var(--accent);background:color-mix(in srgb, var(--accent) 10%, var(--panel-2));box-shadow:0 0 0 1px var(--accent);}
+  .bt2-say{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-radius:12px;background:var(--panel-2);border:1px dashed var(--border);font-size:13px;line-height:1.5;color:var(--text-dim);}
+  .bt2-say p{margin:0;} .bt2-say b.up{color:var(--long);} .bt2-say b.down{color:var(--short);} .bt2-say u{text-decoration:none;font-weight:700;color:var(--text);}
+  .bt2-say-x{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+  .bt2-say-x span{display:inline-flex;gap:6px;align-items:baseline;padding:4px 10px;border-radius:999px;background:var(--panel);border:1px solid var(--border-soft);font-size:12px;color:var(--text);}
+  .bt2-say-x i{font-style:normal;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);}
+  .bt2-more{border-top:1px solid var(--border-soft);padding-top:10px;}
+  .bt2-more > summary{cursor:pointer;list-style:none;font-size:12.5px;font-weight:600;color:var(--text-dim);display:flex;align-items:center;gap:6px;user-select:none;}
+  .bt2-more > summary::-webkit-details-marker{display:none;}
+  .bt2-more > summary::before{content:"";width:6px;height:6px;border-right:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(-45deg);transition:transform .15s;margin:0 4px 0 2px;}
+  .bt2-more[open] > summary::before{transform:rotate(45deg);}
+  .bt2-more[open] > summary{margin-bottom:10px;color:var(--text);}
+  .bt2-more > .bt-grid, .bt2-more > .bt-blk, .bt2-more > .bt-f{margin-top:8px;}
+  .bt2-more .bt-blk{margin-top:8px;}
+  .bt2-seg{display:flex;gap:4px;padding:3px;border-radius:11px;background:var(--panel-2);border:1px solid var(--border-soft);}
+  .bt2-seg button{flex:1 1 0;min-width:0;padding:8px 4px;border:0;border-radius:8px;background:none;color:var(--text-dim);font:600 12.5px var(--sans);cursor:pointer;white-space:nowrap;}
+  .bt2-seg button:hover{color:var(--text);}
+  .bt2-seg button.on{background:var(--panel);color:var(--text);box-shadow:0 1px 0 rgba(0,0,0,.25), 0 0 0 1px var(--border);}
+  .bt2-note{margin:0;font-size:12px;color:var(--text-faint);line-height:1.45;}
+  .bt2-in{position:relative;display:block;} .bt2-in input{width:100%;padding-right:30px;} .bt2-in em{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-style:normal;font-size:12.5px;color:var(--text-faint);pointer-events:none;}
+  .bt2-savebox{padding:12px 16px;}
+  .bt2 .bt-runbar{margin:0;padding:12px 0 2px;background:linear-gradient(to top, var(--bg) 70%, transparent);}
+  .bt2 .bt-run{height:48px;border-radius:12px;font-size:15px;}
+  .bt2 .bt-cfg{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;scrollbar-width:thin;padding-right:2px;}
+  .bt2 .bt-res{border-radius:16px;}
+  @media (max-width:1000px){ .bt2 .bt{grid-template-columns:minmax(0,1fr);} .bt2 .bt-cfg{position:static;max-height:none;overflow:visible;} }
+  .bt2 .bt-cond{display:flex;flex-wrap:wrap;gap:6px;padding:8px;border-radius:10px;background:var(--panel);border:1px solid var(--border-soft);}
+  .bt2 .bt-cond select[data-f="a"], .bt2 .bt-cond select[data-f="b"]{flex:1 1 0;min-width:0;}
+  .bt2 .bt-cond select[data-f="op"]{flex:1 1 100%;}
+  .bt2 .bt-cond select[data-f="b"] ~ input{width:70px;}
+  @media (max-width:560px){ .bt2-st{grid-template-columns:30px 1fr;padding:9px 10px;} .bt2-st svg{width:30px;height:18px;grid-row:auto;} .bt2-st span{display:none;} .bt2-saved, .bt2-saved select{width:100%;} }
   .bt-lock-steps .card{padding:18px;display:flex;flex-direction:column;gap:6px;}
   .bt-lock-steps b{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:color-mix(in srgb, var(--accent) 16%, transparent);color:var(--accent);font-size:13px;}
   .bt-lock-steps h3{margin:4px 0 0;font-size:15.5px;} .bt-lock-steps p{margin:0;font-size:13px;color:var(--text-dim);line-height:1.5;}
@@ -4460,6 +4510,7 @@
   @keyframes lvSh{from{background-position:200% 0;}to{background-position:-200% 0;}}
   .lv-cnt{position:absolute;top:10px;right:12px;z-index:1;font:700 18px var(--mono);padding:2px 10px;border-radius:8px;background:var(--bg);border:1px solid var(--border-soft);}
   .lv-rev{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px;align-items:start;}
+  .lv-grid,.lv-why,.lv-rev .gq-grid{grid-area:auto;} .lv-rev-side .gq-go{white-space:nowrap;} .lv-grid .gq-meta{left:52px;top:17px;}
   .lv-rev-side{display:flex;flex-direction:column;gap:20px;align-items:flex-start;}
   .lv-why{margin-top:14px;}
   .lv-board{width:100%;} .lv-board ol{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;}
@@ -4473,8 +4524,10 @@
   .lv-me-end{font-size:18px;margin:0;}
   .lv-end .lv-board{max-width:520px;}
   @media (max-width:760px){
-    .lv-card{grid-template-columns:1fr;} .lv-form input{flex:1;width:auto;}
-    .lv-lobby,.lv-rev{grid-template-columns:1fr;}
+    .lv-card{grid-template-columns:minmax(0,1fr);padding:20px 18px;} .lv-card > *{min-width:0;}
+    .lv-card h2{font-size:26px;}
+    .lv-form input{flex:1 1 0;width:0;min-width:0;font-size:20px;} .lv-form .gq-go{flex:none;padding:12px 18px;}
+    .lv-lobby,.lv-rev{grid-template-columns:minmax(0,1fr);}
     .lv-grid .gq-opt canvas{height:150px;} .lv-ph{height:150px;}
   }
   .gq-wait{display:flex;flex-direction:column;align-items:center;gap:10px;padding:110px 20px;text-align:center;}
@@ -7481,7 +7534,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3781 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3790 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -26732,10 +26785,10 @@ function btCondHtml(side, c, k){
     (needP(c.b) ? '<input data-f="bp" type="number" min="1" max="500" value="'+(c.bp||14)+'" aria-label="Période">' : isNum(c.b) ? '<input data-f="bv" type="number" step="any" value="'+(c.bv!=null ? c.bv : 0)+'" aria-label="Valeur">' : '')+
     '<button type="button" class="bt-x" data-bt-del="'+side+':'+k+'" aria-label="Retirer la condition">✕</button></div>';
 }
-function btBuilderHtml(){
+function btBuilderHtml(noPresets){
   const B = btState.b, st = B.stop||{t:"none"}, tg = B.tgt||{t:"none"};
   const side = (s, t)=>'<div class="bt-blk"><div class="bt-blk-h"><b>'+t+'</b><span>toutes les conditions doivent être vraies</span></div>'+(B[s]||[]).map((c,k)=>btCondHtml(s, c, k)).join("")+'<button type="button" class="bt-add" data-bt-addc="'+s+'">+ Ajouter une condition</button></div>';
-  return '<div class="bt-presets"><span>Modèles :</span>'+Object.keys(BT_PRESETS).map(k=>'<button type="button" class="jn2-chip" data-bt-preset="'+k+'">'+BT_PRESETS[k].name+'</button>').join("")+'</div>'+
+  return (noPresets ? '' : '<div class="bt-presets"><span>Modèles :</span>'+Object.keys(BT_PRESETS).map(k=>'<button type="button" class="jn2-chip" data-bt-preset="'+k+'">'+BT_PRESETS[k].name+'</button>').join("")+'</div>')+
     '<label class="bt-f">Sens<select data-bt="sides"><option value="both"'+(B.sides==="both" ? " selected" : "")+'>Long et short</option><option value="long"'+(B.sides==="long" ? " selected" : "")+'>Long seulement</option><option value="short"'+(B.sides==="short" ? " selected" : "")+'>Short seulement</option></select></label>'+
     (B.sides!=="short" ? side("long", "Entrée long") : '')+(B.sides!=="long" ? side("short", "Entrée short") : '')+
     '<div class="bt-blk"><div class="bt-blk-h"><b>Sortie</b></div><div class="bt-row">'+
@@ -26805,35 +26858,88 @@ function renderBacktest(){
     return;
   }
   if (!btState) btState = btDefaultState();
-  const S = btState, saved = btSaved();
-  root.innerHTML = '<div class="bt">'+
-    '<aside class="card bt-cfg">'+
-      '<div class="bt-head"><div><h2>Backtest</h2><span>Bougies réelles Binance · une position à la fois</span></div><span class="bt-plus">EDB+</span></div>'+
-      '<div class="bt-sec"><span class="bt-step">1</span><b>Marché et période</b></div>'+
-      '<div class="bt-grid">'+
-        '<label class="bt-f">Marché<select data-bt="sym">'+btAssets().map(a=>'<option value="'+a.symbol+'"'+(a.symbol===S.sym ? " selected" : "")+'>'+escapeHtml(a.symbol+" · "+a.name)+'</option>').join("")+'</select></label>'+
-        '<label class="bt-f">Unité de temps<select data-bt="tf">'+BT_TF.map(t=>'<option value="'+t[0]+'"'+(t[0]===S.tf ? " selected" : "")+'>'+t[1]+'</option>').join("")+'</select></label>'+
-        '<label class="bt-f">Du<input data-bt="from" type="date" value="'+S.from+'"></label>'+
-        '<label class="bt-f">Au<input data-bt="to" type="date" value="'+S.to+'"></label>'+
-      '</div><div class="bt-sec"><span class="bt-step">2</span><b>Capital et risque</b></div><div class="bt-grid">'+
-        '<label class="bt-f">Capital de départ ($)<input data-bt="start" type="number" min="1" step="any" value="'+S.start+'"></label>'+
-        '<label class="bt-f">Levier max<input data-bt="lev" type="number" min="1" max="125" value="'+S.lev+'"></label>'+
-        '<label class="bt-f">Taille<select data-bt="sizing"><option value="risk"'+(S.sizing==="risk" ? " selected" : "")+'>Risque % du capital (au stop)</option><option value="alloc"'+(S.sizing==="alloc" ? " selected" : "")+'>% du capital investi</option></select></label>'+
-        (S.sizing==="risk" ? '<label class="bt-f">Risque par trade (%)<input data-bt="risk" type="number" min="0.05" max="20" step="0.05" value="'+S.risk+'"></label>' : '<label class="bt-f">% du capital (avant levier)<input data-bt="alloc" type="number" min="1" max="1000" value="'+S.alloc+'"></label>')+
-        '<label class="bt-f">Frais par côté (%)<input data-bt="fee" type="number" min="0" step="0.005" value="'+S.fee+'"></label>'+
-        '<label class="bt-f">Glissement (%)<input data-bt="slip" type="number" min="0" step="0.005" value="'+S.slip+'"></label>'+
-      '</div>'+
-      '<div class="bt-sec"><span class="bt-step">3</span><b>Stratégie</b></div>'+
-      '<div class="jn2-tabs bt-modes" role="tablist"><button type="button" role="tab" aria-selected="'+(S.mode==="builder")+'" class="'+(S.mode==="builder" ? "on" : "")+'" data-bt-mode="builder">Constructeur</button><button type="button" role="tab" aria-selected="'+(S.mode==="script")+'" class="'+(S.mode==="script" ? "on" : "")+'" data-bt-mode="script">Script JavaScript</button></div>'+
-      (S.mode==="builder" ? btBuilderHtml() : '<textarea class="bt-code" data-bt="script" spellcheck="false" aria-label="Script de la stratégie">'+escapeHtml(S.script)+'</textarea><p class="bt-hint">Le script tourne isolé dans le navigateur (aucun accès à ton compte). Les ordres passés à la clôture d\'une bougie sont exécutés à l\'ouverture de la suivante.</p>')+
-      '<div class="bt-saverow"><input data-bt="name" placeholder="Nom de la stratégie" value="'+escapeHtml(S.name||"")+'"><button type="button" class="btn-secondary" data-bt-save>Enregistrer</button>'+
-        (saved.length ? '<select data-bt-load aria-label="Mes stratégies"><option value="">Mes stratégies…</option>'+saved.map((x,i)=>'<option value="'+i+'">'+escapeHtml(x.name||("Stratégie "+(i+1)))+'</option>').join("")+'</select>' : '')+'</div>'+
+  const S = btState, saved = btSaved(), strat = btStratKey();
+  const days = Math.max(0, (new Date(S.to) - new Date(S.from))/864e5), step = (BT_TF.find(x=>x[0]===S.tf)||[0,0,36e5])[2], nb = Math.round(days*864e5/step);
+  const per = btPeriodKey();
+  const card = (k, name, desc, ico)=>'<button type="button" class="bt2-st'+(strat===k ? " on" : "")+'" data-bt-strat="'+k+'" aria-pressed="'+(strat===k)+'"><svg viewBox="0 0 40 24" aria-hidden="true">'+ico+'</svg><b>'+name+'</b><span>'+desc+'</span></button>';
+  root.innerHTML = '<div class="bt2">'+
+    '<header class="bt2-top"><div><span class="bt2-k">Backtest <em>EDB+</em></span><h2>Teste une stratégie sur des années de marché</h2>'+
+      '<p>Bougies réelles Binance · signal à la clôture, entrée à l\'ouverture suivante · frais et glissement inclus</p></div>'+
+      '<div class="bt2-saved">'+(saved.length ? '<select data-bt-load aria-label="Mes stratégies"><option value="">Mes stratégies ('+saved.length+')</option>'+saved.map((x,i)=>'<option value="'+i+'">'+escapeHtml(x.name||("Stratégie "+(i+1)))+'</option>').join("")+'</select>' : '')+'</div></header>'+
+    '<div class="bt">'+
+    '<aside class="bt-cfg bt2-cfg">'+
+      '<section class="bt2-s"><h3><i>1</i>Choisis une stratégie</h3>'+
+        '<div class="bt2-sts">'+
+          card("ema", "Croisement EMA", "Suit la tendance : EMA 9 croise l\'EMA 21.", '<path d="M2 20C10 18 14 8 22 7S34 4 38 3" class="a"/><path d="M2 14C12 15 18 12 26 9S34 7 38 6" class="b"/>')+
+          card("rsi", "RSI extrêmes", "Contre-tendance : achète sous 30, vend au-dessus de 70.", '<path d="M2 6H38M2 18H38" class="g"/><path d="M2 12L8 4L14 14L20 20L26 10L32 5L38 12" class="a"/>')+
+          card("don", "Cassure", "Breakout du plus haut / plus bas des 20 bougies.", '<path d="M2 9H26" class="g"/><path d="M2 16L7 10L12 15L17 10L22 14L27 9L32 4L38 2" class="a"/>')+
+          card("bb", "Bollinger", "Retour à la moyenne : rebond sur les bandes.", '<path d="M2 4C12 2 26 2 38 4M2 20C12 22 26 22 38 20" class="g"/><path d="M2 12L8 18L14 8L20 4L26 14L32 19L38 10" class="a"/>')+
+          card("custom", "Sur mesure", "Tes propres conditions, sans code.", '<path d="M6 6H34M6 12H34M6 18H22" class="a"/><circle cx="14" cy="6" r="2.5" class="d"/><circle cx="26" cy="12" r="2.5" class="d"/><circle cx="18" cy="18" r="2.5" class="d"/>')+
+          card("script", "Script JS", "N\'importe quelle logique, en JavaScript.", '<path d="M14 6L6 12L14 18M26 6L34 12L26 18" class="a"/>')+
+        '</div>'+
+        (S.mode==="script"
+          ? '<textarea class="bt-code" data-bt="script" spellcheck="false" aria-label="Script de la stratégie">'+escapeHtml(S.script)+'</textarea><p class="bt-hint">Le script tourne isolé dans le navigateur (aucun accès à ton compte). Les ordres passés à la clôture d\'une bougie sont exécutés à l\'ouverture de la suivante.</p>'
+          : '<div class="bt2-say">'+btSentence()+'</div><details class="bt2-more"'+(strat==="custom" || S.open ? " open" : "")+'><summary>Modifier les règles</summary>'+btBuilderHtml(true)+'</details>')+
+      '</section>'+
+      '<section class="bt2-s"><h3><i>2</i>Marché et période</h3>'+
+        '<label class="bt-f">Marché<select data-bt="sym">'+btAssets().map(a=>'<option value="'+a.symbol+'"'+(a.symbol===S.sym ? " selected" : "")+'>'+escapeHtml(a.name+" ("+a.symbol+")")+'</option>').join("")+'</select></label>'+
+        '<div class="bt-f">Unité de temps<input type="hidden" data-bt="tf" value="'+S.tf+'"><div class="bt2-seg" role="group">'+BT_TF.map(t=>'<button type="button" data-bt-tf="'+t[0]+'" class="'+(t[0]===S.tf ? "on" : "")+'">'+({"5m":"5 min","15m":"15 min","1h":"1 h","4h":"4 h","1d":"1 j"}[t[0]]||t[1])+'</button>').join("")+'</div></div>'+
+        '<div class="bt-f">Période<div class="bt2-seg" role="group">'+BT_PERIODS.map(x=>'<button type="button" data-bt-period="'+x[0]+'" class="'+(per===x[0] ? "on" : "")+'">'+x[1]+'</button>').join("")+'</div></div>'+
+        '<details class="bt2-more bt2-dates"'+(per ? "" : " open")+'><summary>Dates précises</summary><div class="bt-grid"><label class="bt-f">Du<input data-bt="from" type="date" value="'+S.from+'"></label><label class="bt-f">Au<input data-bt="to" type="date" value="'+S.to+'"></label></div></details>'+
+        '<p class="bt2-note">≈ '+nb.toLocaleString("fr-FR")+' bougies'+(nb > 400000 ? ' · trop : prends une unité de temps plus grande' : '')+'</p>'+
+      '</section>'+
+      '<section class="bt2-s"><h3><i>3</i>Capital et risque</h3><div class="bt-grid">'+
+        '<label class="bt-f">Capital de départ<span class="bt2-in"><input data-bt="start" type="number" min="1" step="any" value="'+S.start+'"><em>$</em></span></label>'+
+        (S.sizing==="risk" ? '<label class="bt-f">Risque par trade<span class="bt2-in"><input data-bt="risk" type="number" min="0.05" max="20" step="0.05" value="'+S.risk+'"><em>%</em></span></label>' : '<label class="bt-f">Capital investi<span class="bt2-in"><input data-bt="alloc" type="number" min="1" max="1000" value="'+S.alloc+'"><em>%</em></span></label>')+
+      '</div><p class="bt2-note">'+(S.sizing==="risk" ? 'Si le stop est touché, tu perds '+fmtMoney(S.start*S.risk/100)+' ('+String(S.risk).replace(".", ",")+' % du capital). La taille est calculée pour ça.' : 'Chaque trade engage '+String(S.alloc)+' % du capital (avant levier).')+'</p>'+
+        '<details class="bt2-more"><summary>Réglages avancés</summary><div class="bt-grid">'+
+          '<label class="bt-f">Taille de position<select data-bt="sizing"><option value="risk"'+(S.sizing==="risk" ? " selected" : "")+'>Risque % au stop</option><option value="alloc"'+(S.sizing==="alloc" ? " selected" : "")+'>% du capital investi</option></select></label>'+
+          '<label class="bt-f">Levier max<span class="bt2-in"><input data-bt="lev" type="number" min="1" max="125" value="'+S.lev+'"><em>×</em></span></label>'+
+          '<label class="bt-f">Frais par côté<span class="bt2-in"><input data-bt="fee" type="number" min="0" step="0.005" value="'+S.fee+'"><em>%</em></span></label>'+
+          '<label class="bt-f">Glissement<span class="bt2-in"><input data-bt="slip" type="number" min="0" step="0.005" value="'+S.slip+'"><em>%</em></span></label>'+
+        '</div></details>'+
+      '</section>'+
+      '<section class="bt2-s bt2-savebox"><div class="bt-saverow"><input data-bt="name" placeholder="Nom de la stratégie" value="'+escapeHtml(S.name||"")+'"><button type="button" class="btn-secondary" data-bt-save>Enregistrer</button></div></section>'+
       '<div class="bt-runbar"><div class="bt-prog" id="bt-prog" hidden><i></i></div><div class="bt-msg" id="bt-msg"></div>'+
       '<button type="button" class="btn-primary bt-run" data-bt-run'+(BT.running ? " disabled" : "")+'><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="currentColor"><path d="M4 2.5v11l9-5.5z"/></svg>Lancer le backtest</button></div>'+
     '</aside>'+
     '<section class="card bt-res" id="bt-res">'+btResultsHtml()+'</section>'+
-  '</div>';
+  '</div></div>';
   btWire(root);
+}
+// ---- Aides du nouveau design ----
+const BT_PERIODS = [["3","3 mois"],["6","6 mois"],["12","1 an"],["24","2 ans"],["36","3 ans"]];
+function btDay(t){ return new Date(t - new Date().getTimezoneOffset()*60000).toISOString().slice(0,10); }
+function btPeriodKey(){
+  const S = btState; if (S.to!==btDay(Date.now())) return "";
+  const d = new Date(); return (BT_PERIODS.find(x=>{ const f = new Date(d); f.setMonth(f.getMonth()-(+x[0])); return btDay(f.getTime())===S.from; })||[""])[0];
+}
+function btCanon(o){ return JSON.stringify(o, (k, v)=>v && typeof v==="object" && !Array.isArray(v) ? Object.keys(v).sort().reduce((a, x)=>(a[x] = v[x], a), {}) : v); }
+function btStratKey(){
+  const S = btState; if (S.mode==="script") return "script";
+  if (S.preset==="custom") return "custom";
+  if (S.preset && S.preset!=="custom" && BT_PRESETS[S.preset]){ const P = Object.assign({}, BT_PRESETS[S.preset]), B = Object.assign({}, S.b); delete P.name; delete B.name; if (btCanon(P)===btCanon(B)) return S.preset; }
+  for (const k of Object.keys(BT_PRESETS)){ const P = Object.assign({}, BT_PRESETS[k]), B = Object.assign({}, S.b); delete P.name; delete B.name; if (btCanon(P)===btCanon(B)) return k; }
+  return "custom";
+}
+function btSrcTxt(t, p, v){
+  if (t==="num") return String(v!=null ? v : 0).replace(".", ",");
+  const s = BT_SRC.find(x=>x[0]===t) || [t, t, 0];
+  if (s[2]!==1) return s[1].replace(" (clôture)", "");
+  return /N bougies/.test(s[1]) ? s[1].replace("N", p||14) : s[1]+" "+(p||14);
+}
+function btCondTxt(c){ const op = (BT_OPS.find(o=>o[0]===c.op)||[0, c.op])[1]; return btSrcTxt(c.a, c.ap)+" "+op+" "+btSrcTxt(c.b, c.bp, c.bv); }
+function btSentence(){
+  const B = btState.b, st = B.stop||{t:"none"}, tg = B.tgt||{t:"none"}, n = v=>String(v).replace(".", ",");
+  const L = [];
+  const side = (k, lab, cls)=>{ const cs = B[k]||[]; if (!cs.length) return; L.push('<p><b class="'+cls+'">'+lab+'</b> quand '+cs.map(c=>escapeHtml(btCondTxt(c))).join(" <u>et</u> ")+'</p>'); };
+  if (B.sides!=="short") side("long", "Achat", "up");
+  if (B.sides!=="long") side("short", "Vente à découvert", "down");
+  const stT = st.t==="pct" ? n(st.v)+" % du prix" : st.t==="atr" ? n(st.v)+" × ATR" : st.t==="swing" ? "dernier plus bas / haut ("+(st.p||10)+" bougies)" : "aucun";
+  const tgT = tg.t==="r" ? n(tg.v)+" × le risque" : tg.t==="pct" ? n(tg.v)+" % du prix" : tg.t==="atr" ? n(tg.v)+" × ATR" : "aucun";
+  L.push('<div class="bt2-say-x"><span><i>Stop</i>'+stT+'</span><span><i>Objectif</i>'+tgT+'</span>'+(B.maxBars ? '<span><i>Durée max</i>'+B.maxBars+' bougies</span>' : '')+(B.rev ? '<span><i>Signal inverse</i>retourne la position</span>' : '')+'</div>');
+  if (!L.length) return '<p>Aucune condition d\'entrée : ouvre « Modifier les règles ».</p>';
+  return L.join("");
 }
 function btReadInputs(root){
   const S = btState, B = S.b;
@@ -26861,13 +26967,24 @@ function btWireCsv(el){
   const csv = el.querySelector("[data-bt-csv]"); if (csv) csv.addEventListener("click", ()=>{ const r = BT.res; if (!r || !r.ok) return; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿"+btCsv(r, r.start)], {type:"text/csv;charset=utf-8"})); a.download = "backtest-"+r.symbol+"-"+r.tf+".csv"; document.body.appendChild(a); a.click(); a.remove(); });
 }
 function btWire(root){
-  const re = ()=>{ btReadInputs(root); renderBacktest(); };
+  const re = (e)=>{ btReadInputs(root); if (e && e.target && e.target.closest(".bt2-more")) btState.open = true; renderBacktest(); };
   root.querySelectorAll('[data-bt="sizing"],[data-bt="sides"],[data-bt="stopT"],[data-bt="tgtT"]').forEach(el=>el.addEventListener("change", re));
   root.querySelectorAll('.bt-cond select[data-f="a"],.bt-cond select[data-f="b"]').forEach(el=>el.addEventListener("change", re));
   root.querySelectorAll("[data-bt-mode]").forEach(b=>b.addEventListener("click", ()=>{ btReadInputs(root); btState.mode = b.dataset.btMode; renderBacktest(); }));
+  root.querySelectorAll("[data-bt-strat]").forEach(b=>b.addEventListener("click", ()=>{
+    btReadInputs(root); const k = b.dataset.btStrat, S = btState;
+    if (k==="script") S.mode = "script";
+    else { S.mode = "builder"; S.preset = k; S.open = k==="custom";
+      if (BT_PRESETS[k]){ S.b = JSON.parse(JSON.stringify(BT_PRESETS[k])); S.name = BT_PRESETS[k].name; } }
+    renderBacktest();
+  }));
+  root.querySelectorAll("[data-bt-tf]").forEach(b=>b.addEventListener("click", ()=>{ btReadInputs(root); btState.tf = b.dataset.btTf; renderBacktest(); }));
+  root.querySelectorAll("[data-bt-period]").forEach(b=>b.addEventListener("click", ()=>{ btReadInputs(root); const f = new Date(); f.setMonth(f.getMonth()-(+b.dataset.btPeriod)); btState.from = btDay(f.getTime()); btState.to = btDay(Date.now()); renderBacktest(); }));
+  // Règles modifiées : la phrase « en clair » et la carte active suivent.
+  root.querySelectorAll('.bt2-more [data-f], .bt2-more [data-bt="stopV"], .bt2-more [data-bt="tgtV"], .bt2-more [data-bt="maxBars"], .bt2-more [data-bt="rev"], [data-bt="risk"], [data-bt="alloc"], [data-bt="start"], [data-bt="from"], [data-bt="to"]').forEach(el=>el.addEventListener("change", ()=>{ btReadInputs(root); if (el.closest(".bt2-more") && !el.closest(".bt2-dates")) btState.open = true; renderBacktest(); }));
   root.querySelectorAll("[data-bt-preset]").forEach(b=>b.addEventListener("click", ()=>{ btReadInputs(root); btState.b = JSON.parse(JSON.stringify(BT_PRESETS[b.dataset.btPreset])); btState.name = btState.b.name; renderBacktest(); }));
-  root.querySelectorAll("[data-bt-addc]").forEach(b=>b.addEventListener("click", ()=>{ btReadInputs(root); const s = b.dataset.btAddc; (btState.b[s] = btState.b[s] || []).push({a:"close", op:"gt", b:"ema", bp:50}); renderBacktest(); }));
-  root.querySelectorAll("[data-bt-del]").forEach(b=>b.addEventListener("click", ()=>{ btReadInputs(root); const [s,k] = b.dataset.btDel.split(":"); btState.b[s].splice(+k, 1); renderBacktest(); }));
+  root.querySelectorAll("[data-bt-addc]").forEach(b=>b.addEventListener("click", ()=>{ btReadInputs(root); const s = b.dataset.btAddc; (btState.b[s] = btState.b[s] || []).push({a:"close", op:"gt", b:"ema", bp:50}); btState.open = true; renderBacktest(); }));
+  root.querySelectorAll("[data-bt-del]").forEach(b=>b.addEventListener("click", ()=>{ btReadInputs(root); const [s,k] = b.dataset.btDel.split(":"); btState.b[s].splice(+k, 1); btState.open = true; renderBacktest(); }));
   const sv = root.querySelector("[data-bt-save]"); if (sv) sv.addEventListener("click", ()=>{ btReadInputs(root); const l = btSaved(), name = (btState.name||"").trim() || ("Stratégie "+(l.length+1)); btState.name = name;
     const item = {name, mode:btState.mode, b:btState.b, script:btState.script, sym:btState.sym, tf:btState.tf}; const i = l.findIndex(x=>x.name===name); if (i>=0) l[i] = item; else l.unshift(item); btSaveList(l); appToast("Stratégie « "+name+" » enregistrée sur cet appareil."); renderBacktest(); });
   const ld = root.querySelector("[data-bt-load]"); if (ld) ld.addEventListener("change", ()=>{ const x = btSaved()[+ld.value]; if (!x) return; Object.assign(btState, {name:x.name, mode:x.mode, b:JSON.parse(JSON.stringify(x.b)), script:x.script||BT_DEFAULT_SCRIPT, sym:x.sym||btState.sym, tf:x.tf||btState.tf}); renderBacktest(); });
@@ -30094,7 +30211,7 @@ function lvStop(){
   clearInterval(LV.timer); LV.timer = 0;
   Object.assign(LV, {role:null, code:null, doc:null, players:[], me:null, cur:null, qi:-1, opts:null, revealing:false, err:""});
 }
-function lvLeave(){ lvStop(); GQ.view = "hub"; gqRender(); window.scrollTo({top:0, behavior:"smooth"}); }
+function lvLeave(){ lvStop(); GQ.liveAuto = null; try{ const u = new URL(location.href); if (u.searchParams.has("live")){ u.searchParams.delete("live"); history.replaceState(null, "", u.pathname+u.search+u.hash); } }catch(e){} GQ.view = "hub"; gqRender(); window.scrollTo({top:0, behavior:"smooth"}); }
 function lvSignedIn(){ return !!(gqCanSync() && accountDocExists); }
 function lvPaint(){ if (document.body.dataset.view==="games" && GQ.view==="live") gqRender(); }
 
@@ -30178,14 +30295,19 @@ async function lvHostReveal(){
 
 // ----- Joueur -----
 async function lvJoin(code){
+  if (LV.joining) return;
+  LV.joining = true;
+  try{ await lvJoinRun(code); } finally { LV.joining = false; }
+}
+async function lvJoinRun(code){
   code = String(code||"").replace(/\D/g, "").slice(0, 6);
   if (code.length!==6){ LV.err = "Le code fait 6 chiffres."; lvPaint(); gqRender(); return; }
   if (!lvSignedIn()){ GQ.liveCode = code; LV.err = "Connecte-toi à ton compte Paper Tape pour rejoindre."; gqRender(); return; }
   lvStop();
   let s = null;
   try{ s = await lvRef(code).get(); }catch(e){}
-  if (!s || !s.exists){ GQ.liveCode = code; LV.err = "Partie introuvable : vérifie le code."; gqRender(); return; }
-  if ((s.data()||{}).status==="end"){ GQ.liveCode = code; LV.err = "Cette partie est terminée."; gqRender(); return; }
+  if (!s || !s.exists){ GQ.liveCode = code; GQ.liveAuto = null; LV.err = "Partie introuvable : vérifie le code."; gqRender(); return; }
+  if ((s.data()||{}).status==="end"){ GQ.liveCode = code; GQ.liveAuto = null; LV.err = "Cette partie est terminée."; gqRender(); return; }
   const me = lvRef(code).collection("players").doc(clientId);
   try{
     const m = await me.get();
@@ -37779,8 +37901,13 @@ async function init(){
   try{
     const lc = (new URLSearchParams(location.search).get("live")||"").replace(/\D/g, "").slice(0, 6);
     if (lc.length===6){
-      GQ.liveCode = lc; switchView("games");
-      let n = 0; const tryJoin = ()=>{ if (lvSignedIn() || ++n > 10) lvJoin(lc); else setTimeout(tryJoin, 800); }; tryJoin();
+      // Scan du QR code : on rejoint tout seul dès que le compte est chargé
+      // (ou juste après la connexion, si le joueur doit d'abord se connecter).
+      GQ.liveCode = lc; GQ.liveAuto = lc; switchView("games");
+      const t0 = Date.now(), iv = setInterval(()=>{
+        if (!GQ.liveAuto || LV.role || Date.now()-t0 > 15*60e3){ clearInterval(iv); return; }
+        if (lvSignedIn() && !LV.joining){ const c = GQ.liveAuto; lvJoin(c).then(()=>{ if (LV.role) GQ.liveAuto = null; }); }
+      }, 1000);
     }
   }catch(e){}
   if (!EMB) setInterval(()=>{ if (state.positions.length>0 || state.pendingOrders.length>0) persistAccount(); }, 10000); // un graphique seul ne sauvegarde que sur ses propres actions
