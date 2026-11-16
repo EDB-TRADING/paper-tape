@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3771">
+<meta name="pt-build" content="3780">
 <script>
 /* Multi-graphiques : cette page est-elle un graphique seul dans une iframe ?
    Si oui, ses réglages de graphique (indicateurs, bougies, unité de temps,
@@ -4422,6 +4422,61 @@
   .gq-why b{font-family:var(--gq-serif);font-weight:400;font-size:28px;line-height:1.1;}
   .gq-why.ok b{color:var(--long);} .gq-why.ko b{color:var(--short);}
   .gq-why p{margin:0 0 6px;font-size:14px;line-height:1.6;color:var(--text-dim);}
+  /* Chart Check en direct */
+  .lv-card{display:grid;grid-template-columns:1fr auto;gap:14px 28px;align-items:center;padding:24px 26px;border:1px solid var(--border-soft);border-radius:18px;background:color-mix(in srgb, var(--dd-a) 6%, transparent);}
+  .lv-card h2{font-family:var(--gq-serif);font-weight:400;font-size:30px;margin:6px 0 4px;}
+  .lv-card p{margin:0;font-size:13.5px;color:var(--text-dim);}
+  .lv-form{display:flex;gap:8px;}
+  .lv-form input{width:150px;font:700 22px var(--mono);letter-spacing:.12em;text-align:center;padding:10px 12px;border-radius:12px;border:1px solid var(--border-soft);background:var(--bg);color:var(--text);}
+  .lv-host{grid-column:1 / -1;justify-self:start;}
+  .lv-err{grid-column:1 / -1;margin:0;font-size:13px;color:var(--short);}
+  .lv-top{display:flex;align-items:center;gap:14px;padding:6px 0 18px;font-size:12.5px;color:var(--text-faint);}
+  .lv-top .lv-code{margin-left:auto;font:700 15px var(--mono);letter-spacing:.12em;color:var(--dd-a);}
+  .lv-lobby{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:30px;align-items:start;}
+  .lv-join{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding:30px;border:1px solid var(--border-soft);border-radius:20px;}
+  .lv-join p{margin:0;color:var(--text-dim);}
+  .lv-pin{font:700 clamp(54px, 8vw, 96px) var(--mono);letter-spacing:.08em;line-height:1;color:var(--dd-a);}
+  .lv-qr{width:min(260px, 60vw);border-radius:12px;overflow:hidden;} .lv-qr svg{display:block;width:100%;height:auto;}
+  .lv-join small{font:12px var(--mono);color:var(--text-faint);}
+  .lv-side{display:flex;flex-direction:column;gap:16px;align-items:flex-start;}
+  .lv-count{font-size:15px;color:var(--text-dim);} .lv-count b{font-family:var(--gq-serif);font-weight:400;font-size:64px;line-height:1;color:var(--text);margin-right:8px;}
+  .lv-chips{display:flex;flex-wrap:wrap;gap:8px;max-height:260px;overflow:auto;}
+  .lv-chips span{padding:6px 12px;border-radius:999px;background:var(--bg);border:1px solid var(--border-soft);font-size:13.5px;animation:lvPop .25s ease-out;}
+  .lv-chips em{font-style:normal;color:var(--text-faint);font-size:13px;}
+  @keyframes lvPop{from{transform:scale(.7);opacity:0;}to{transform:none;opacity:1;}}
+  .lv-set{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-dim);}
+  .lv-set select{font:inherit;padding:7px 10px;border-radius:10px;border:1px solid var(--border-soft);background:var(--bg);color:var(--text);}
+  .lv-wait,.lv-end{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;padding:60px 10px;}
+  .lv-wait h2{font-family:var(--gq-serif);font-weight:400;font-size:42px;margin:0;}
+  .lv-wait p{margin:0;color:var(--text-dim);}
+  .lv-qhead{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+  .lv-stat{display:flex;align-items:center;gap:18px;flex-wrap:wrap;font-size:14px;color:var(--text-dim);} .lv-stat b{font-size:22px;color:var(--text);}
+  .lv-sent{margin:0;font-weight:600;color:var(--dd-a);}
+  .lv-timebar{height:6px;border-radius:3px;background:var(--border-soft);overflow:hidden;margin-bottom:14px;} .lv-timebar i{display:block;height:100%;background:var(--dd-a);transition:width .2s linear;}
+  .lv-grid .lv-l{font-weight:700;font-family:var(--sans);font-size:15px;width:30px;height:30px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:#fff;}
+  .lv-c0{background:#e2445c;} .lv-c1{background:#2f6fe0;} .lv-c2{background:#d89a1d;} .lv-c3{background:#26a65b;}
+  .gq-opt.lv-mine{border-color:var(--dd-a);box-shadow:0 0 0 2px var(--dd-a);}
+  .lv-ph{display:block;height:clamp(150px, calc((100vh - 260px) / 2), 300px);background:linear-gradient(90deg, transparent, color-mix(in srgb, var(--text) 5%, transparent), transparent);background-size:200% 100%;animation:lvSh 1.2s linear infinite;}
+  @keyframes lvSh{from{background-position:200% 0;}to{background-position:-200% 0;}}
+  .lv-cnt{position:absolute;top:10px;right:12px;z-index:1;font:700 18px var(--mono);padding:2px 10px;border-radius:8px;background:var(--bg);border:1px solid var(--border-soft);}
+  .lv-rev{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px;align-items:start;}
+  .lv-rev-side{display:flex;flex-direction:column;gap:20px;align-items:flex-start;}
+  .lv-why{margin-top:14px;}
+  .lv-board{width:100%;} .lv-board ol{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;}
+  .lv-board li{display:grid;grid-template-columns:28px 1fr auto auto;gap:10px;align-items:center;padding:9px 12px;border-radius:10px;background:var(--bg);border:1px solid var(--border-soft);}
+  .lv-board li i{font-style:normal;font:700 13px var(--mono);color:var(--dd-a);} .lv-board li b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lv-board li em{font-style:normal;font-size:12px;color:var(--long);} .lv-board li span{font:700 15px var(--mono);}
+  .lv-board li:first-child{border-color:var(--dd-a);}
+  .lv-res{display:flex;flex-direction:column;gap:4px;padding:14px 18px;border-radius:14px;margin-bottom:14px;border:1px solid var(--border-soft);}
+  .lv-res b{font-family:var(--gq-serif);font-weight:400;font-size:30px;} .lv-res span{font-size:14px;color:var(--text-dim);}
+  .lv-res.ok{border-color:var(--long);} .lv-res.ok b{color:var(--long);} .lv-res.ko{border-color:var(--short);} .lv-res.ko b{color:var(--short);}
+  .lv-me-end{font-size:18px;margin:0;}
+  .lv-end .lv-board{max-width:520px;}
+  @media (max-width:760px){
+    .lv-card{grid-template-columns:1fr;} .lv-form input{flex:1;width:auto;}
+    .lv-lobby,.lv-rev{grid-template-columns:1fr;}
+    .lv-grid .gq-opt canvas{height:150px;} .lv-ph{height:150px;}
+  }
   .gq-wait{display:flex;flex-direction:column;align-items:center;gap:10px;padding:110px 20px;text-align:center;}
   .gq-wait b{font-family:var(--gq-serif);font-weight:400;font-size:30px;} .gq-wait span{color:var(--text-faint);font-size:13.5px;}
   /* Fin de partie */
@@ -7426,7 +7481,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3771 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3780 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -29946,12 +30001,344 @@ function gqNext(){
   gqNextQuestion();
 }
 
+// ---------- QR code (mode octet, correction L, versions 1 à 5) ----------
+// Encodeur minimal sans bibliothèque externe, pour le lien « rejoindre ».
+function ptQrMatrix(text){
+  const data = Array.from(new TextEncoder().encode(text));
+  const V = [null, [26,19,1], [44,34,1], [70,55,1], [100,80,1], [134,108,1]], AL = [0, 0, 18, 22, 26, 30, 34];
+  let ver = 1; while (ver<=5 && 12+data.length*8 > V[ver][1]*8) ver++;
+  if (ver>5) return null;
+  const [tot, dc, nb] = V[ver], ecl = (tot-dc)/nb, N = 17+4*ver;
+  const bits = [], put = (v, n)=>{ for (let i=n-1;i>=0;i--) bits.push((v>>>i)&1); };
+  put(4, 4); put(data.length, 8); data.forEach(b=>put(b, 8));
+  put(0, Math.min(4, dc*8-bits.length)); while (bits.length%8) bits.push(0);
+  const cw = []; for (let i=0;i<bits.length;i+=8){ let b = 0; for (let j=0;j<8;j++) b = b<<1 | bits[i+j]; cw.push(b); }
+  for (let p=0xEC; cw.length<dc; p^=0xEC^0x11) cw.push(p);
+  const EXP = new Array(512), LOG = new Array(256); let x = 1;
+  for (let i=0;i<255;i++){ EXP[i] = x; LOG[x] = i; x <<= 1; if (x & 256) x ^= 0x11D; }
+  for (let i=255;i<512;i++) EXP[i] = EXP[i-255];
+  const mul = (a, b)=>a && b ? EXP[LOG[a]+LOG[b]] : 0;
+  let gen = [1];
+  for (let i=0;i<ecl;i++){ const g = new Array(gen.length+1).fill(0); for (let j=0;j<gen.length;j++){ g[j] ^= gen[j]; g[j+1] ^= mul(gen[j], EXP[i]); } gen = g; }
+  const rs = d=>{ const r = new Array(ecl).fill(0); d.forEach(b=>{ const f = b ^ r[0]; r.shift(); r.push(0); for (let j=0;j<ecl;j++) r[j] ^= mul(gen[j+1], f); }); return r; };
+  const bl = dc/nb, blocks = [], ecs = [];
+  for (let b=0;b<nb;b++){ const d = cw.slice(b*bl, (b+1)*bl); blocks.push(d); ecs.push(rs(d)); }
+  const fin = []; for (let i=0;i<bl;i++) blocks.forEach(d=>fin.push(d[i])); for (let i=0;i<ecl;i++) ecs.forEach(e=>fin.push(e[i]));
+  const M = Array.from({length:N}, ()=>new Array(N).fill(false)), F = Array.from({length:N}, ()=>new Array(N).fill(false));
+  const setF = (cx, cy, d)=>{ M[cy][cx] = d; F[cy][cx] = true; };
+  for (let i=0;i<N;i++){ setF(6, i, i%2===0); setF(i, 6, i%2===0); }
+  [[3,3],[N-4,3],[3,N-4]].forEach(([cx, cy])=>{ for (let dy=-4;dy<=4;dy++) for (let dx=-4;dx<=4;dx++){ const xx = cx+dx, yy = cy+dy; if (xx<0 || yy<0 || xx>=N || yy>=N) continue; const d = Math.max(Math.abs(dx), Math.abs(dy)); setF(xx, yy, d!==2 && d!==4); } });
+  if (ver>=2){ const c = AL[ver]; for (let dy=-2;dy<=2;dy++) for (let dx=-2;dx<=2;dx++) setF(c+dx, c+dy, Math.max(Math.abs(dx), Math.abs(dy))!==1); }
+  const fmt = (mask)=>{
+    const d = 1<<3 | mask; let rem = d; for (let i=0;i<10;i++) rem = (rem<<1) ^ ((rem>>>9)*0x537);
+    const b = (d<<10 | rem) ^ 0x5412, g = i=>((b>>>i)&1)===1;
+    for (let i=0;i<=5;i++) setF(8, i, g(i));
+    setF(8, 7, g(6)); setF(8, 8, g(7)); setF(7, 8, g(8));
+    for (let i=9;i<15;i++) setF(14-i, 8, g(i));
+    for (let i=0;i<8;i++) setF(N-1-i, 8, g(i));
+    for (let i=8;i<15;i++) setF(8, N-15+i, g(i));
+    setF(8, N-8, true);
+  };
+  fmt(0);
+  let k = 0;
+  for (let right=N-1; right>=1; right-=2){
+    if (right===6) right = 5;
+    for (let vert=0; vert<N; vert++) for (let j=0;j<2;j++){
+      const xx = right-j, up = ((right+1) & 2)===0, yy = up ? N-1-vert : vert;
+      if (!F[yy][xx] && k < fin.length*8){ M[yy][xx] = ((fin[k>>>3] >>> (7-(k&7))) & 1)===1; k++; }
+    }
+  }
+  const MASKS = [(x,y)=>(x+y)%2===0, (x,y)=>y%2===0, (x,y)=>x%3===0, (x,y)=>(x+y)%3===0, (x,y)=>(Math.floor(x/3)+Math.floor(y/2))%2===0, (x,y)=>x*y%2+x*y%3===0, (x,y)=>(x*y%2+x*y%3)%2===0, (x,y)=>((x+y)%2+x*y%3)%2===0];
+  const apply = m=>{ for (let yy=0;yy<N;yy++) for (let xx=0;xx<N;xx++) if (!F[yy][xx] && MASKS[m](xx, yy)) M[yy][xx] = !M[yy][xx]; };
+  const penalty = ()=>{
+    let p = 0, dark = 0;
+    for (let a=0;a<N;a++){ let rr = 1, rc = 1;
+      for (let b=1;b<N;b++){
+        if (M[a][b]===M[a][b-1]){ rr++; if (rr===5) p += 3; else if (rr>5) p++; } else rr = 1;
+        if (M[b][a]===M[b-1][a]){ rc++; if (rc===5) p += 3; else if (rc>5) p++; } else rc = 1;
+      } }
+    for (let yy=0;yy<N;yy++) for (let xx=0;xx<N;xx++){ if (M[yy][xx]) dark++; if (xx<N-1 && yy<N-1){ const c = M[yy][xx]; if (c===M[yy][xx+1] && c===M[yy+1][xx] && c===M[yy+1][xx+1]) p += 3; } }
+    return p + Math.floor(Math.abs(dark*20 - N*N*10)/(N*N))*10;
+  };
+  let best = 0, bp = Infinity;
+  for (let m=0;m<8;m++){ apply(m); fmt(m); const p = penalty(); if (p<bp){ bp = p; best = m; } apply(m); }
+  apply(best); fmt(best);
+  return M;
+}
+function ptQrSvg(text){
+  const M = ptQrMatrix(text); if (!M) return "";
+  const N = M.length, q = 4; let d = "";
+  for (let y=0;y<N;y++) for (let x=0;x<N;x++) if (M[y][x]) d += "M"+(x+q)+" "+(y+q)+"h1v1h-1z";
+  return '<svg viewBox="0 0 '+(N+2*q)+' '+(N+2*q)+'" shape-rendering="crispEdges" role="img" aria-label="QR code pour rejoindre"><rect width="100%" height="100%" fill="#fff"/><path d="'+d+'" fill="#000"/></svg>';
+}
+
+// ---------- Chart Check en direct (mode « Kahoot ») ----------
+// Un admin anime une partie projetée en salle (code à 6 chiffres + QR code),
+// les joueurs connectés rejoignent depuis leur téléphone et répondent A B C D.
+// Firestore : live/{code} (état de la partie, écrit par l'admin) et
+// live/{code}/players/{uid} (une réponse par question, notée par l'admin
+// à la révélation : 1000 pts max, moins si on répond lentement).
+const LV_LIMITS = [15, 20, 30, 45];
+const LV = {role:null, code:null, doc:null, players:[], me:null, unsub:[], cur:null, used:0, timer:0, qRecv:0, qi:-1, opts:null, revealing:false, theme:"mix", limit:20, err:""};
+function lvRef(code){ return db.collection("live").doc(String(code || LV.code)); }
+function lvUrl(code){ return location.origin + location.pathname + "?live=" + code; }
+function lvRd(rd){ return {sym:rd.sym, name:rd.name, tick:rd.tick, iv:rd.iv, ivMs:rd.ivMs, ivLabel:rd.ivLabel, ivUp:rd.ivUp, cut:rd.cut}; }
+function lvQ(k){ return GQ_QS.find(Q=>Q.k===k) || null; }
+function lvStop(){
+  LV.unsub.forEach(u=>{ try{ u(); }catch(e){} }); LV.unsub = [];
+  clearInterval(LV.timer); LV.timer = 0;
+  Object.assign(LV, {role:null, code:null, doc:null, players:[], me:null, cur:null, qi:-1, opts:null, revealing:false, err:""});
+}
+function lvLeave(){ lvStop(); GQ.view = "hub"; gqRender(); window.scrollTo({top:0, behavior:"smooth"}); }
+function lvSignedIn(){ return !!(gqCanSync() && accountDocExists); }
+function lvPaint(){ if (document.body.dataset.view==="games" && GQ.view==="live") gqRender(); }
+
+// ----- Hôte (admins) -----
+async function lvHostCreate(){
+  if (!state.isAdmin){ appToast("Réservé aux admins."); return; }
+  if (!lvSignedIn()){ appToast("Connecte-toi d'abord."); return; }
+  lvStop();
+  let code = null;
+  for (let t=0; t<6 && !code; t++){
+    const c = String(100000 + Math.floor(Math.random()*900000));
+    try{ const s = await lvRef(c).get(); if (!s.exists) code = c; }catch(e){ appToast("Firebase indisponible."); return; }
+  }
+  if (!code){ appToast("Impossible de créer la partie, réessaie."); return; }
+  try{
+    await lvRef(code).set({host:clientId, hostName:String(state.username||""), status:"lobby", qi:-1, n:GQ_N, theme:LV.theme, limit:LV.limit,
+      q:null, ans:null, why:"", board:[], dist:null, answered:0, created:firebase.firestore.FieldValue.serverTimestamp()});
+  }catch(e){ appToast("Création refusée : les règles Firebase du mode direct sont-elles déployées ?"); return; }
+  LV.role = "host"; LV.code = code; GQ.view = "live";
+  LV.unsub.push(lvRef(code).onSnapshot(s=>{ LV.doc = s.data() || null; lvPaint(); }));
+  LV.unsub.push(lvRef(code).collection("players").onSnapshot(s=>{
+    LV.players = s.docs.map(d=>Object.assign({uid:d.id}, d.data()));
+    const D0 = LV.doc;
+    if (D0 && D0.status==="q" && LV.players.length && LV.players.every(p=>p.qi===D0.qi)) lvHostReveal(); // tout le monde a répondu
+    lvPaint();
+  }));
+  gqRender(); window.scrollTo(0, 0);
+  if (GQ.charts.filter(f=>!GQ.used.has(f)).length < 30) gqFetch(40).catch(()=>{});
+}
+async function lvHostNext(){
+  const D0 = LV.doc; if (LV.role!=="host" || !D0 || LV.busy) return;
+  if (D0.qi+1 >= D0.n){ lvRef().update({status:"end"}); return; }
+  LV.busy = true; LV.err = ""; lvPaint();
+  let C = null;
+  for (let t=0; t<5 && !C; t++){
+    C = gqBuild(D0.theme||"mix", LV.recent||[]);
+    if (!C) await gqFetch(40);
+  }
+  if (!C){ LV.busy = false; LV.err = "Pas assez de graphiques nets pour l'instant, réessaie."; lvPaint(); return; }
+  LV.recent = (LV.recent||[]).concat(C.Q.k).slice(-3);
+  LV.cur = C; LV.revealing = false;
+  try{
+    await lvRef().update({status:"q", qi:D0.qi+1, q:{k:C.Q.k, opts:C.opts.map(f=>lvRd(f.rd))}, ans:null, why:"", dist:null, answered:0,
+      limit:LV.limit, startAt:firebase.firestore.FieldValue.serverTimestamp()});
+  }catch(e){ LV.err = "Écriture refusée par Firebase."; }
+  LV.busy = false; LV.qRecv = Date.now();
+  clearInterval(LV.timer);
+  LV.timer = setInterval(()=>{
+    const left = LV.limit*1000 - (Date.now()-LV.qRecv);
+    const bar = document.getElementById("lv-timer"); if (bar) bar.style.width = Math.max(0, left/(LV.limit*10))+"%";
+    const n = document.getElementById("lv-left"); if (n) n.textContent = Math.max(0, Math.ceil(left/1000));
+    if (left <= 0){ clearInterval(LV.timer); lvHostReveal(); }
+  }, 200);
+  if (GQ.charts.filter(f=>!GQ.used.has(f)).length < 24) gqFetch(40).catch(()=>{});
+  lvPaint();
+}
+async function lvHostReveal(){
+  const D0 = LV.doc, C = LV.cur;
+  if (LV.role!=="host" || !D0 || D0.status!=="q" || !C || LV.revealing) return;
+  LV.revealing = true; clearInterval(LV.timer);
+  const t0 = D0.startAt && D0.startAt.toMillis ? D0.startAt.toMillis() : LV.qRecv, lim = (D0.limit||LV.limit)*1000;
+  const dist = [0,0,0,0];
+  const rows = LV.players.map(p=>{
+    const did = p.qi===D0.qi && p.pick>=0 && p.pick<=3, ok = did && p.pick===C.ans;
+    if (did) dist[p.pick]++;
+    const dt = did && p.at && p.at.toMillis ? Math.max(0, Math.min(lim, p.at.toMillis()-t0)) : lim;
+    const pts = ok ? Math.round(1000*(1 - 0.5*dt/lim)) : 0;
+    return {p, ok, did, pts, score:(p.score||0)+pts};
+  }).sort((a, b)=>b.score-a.score);
+  let why = ""; try{ why = C.Q.why(C.opts[C.ans], C.opts) || ""; }catch(e){}
+  try{
+    for (let i=0; i<rows.length; i+=400){
+      const b = db.batch();
+      rows.slice(i, i+400).forEach((r, j)=>b.update(lvRef().collection("players").doc(r.p.uid), {score:r.score, last:r.pts, ok:r.ok, rank:i+j+1}));
+      await b.commit();
+    }
+    await lvRef().update({status:"reveal", ans:C.ans, why:String(why).slice(0, 600), dist, answered:dist.reduce((s,v)=>s+v, 0),
+      board:rows.slice(0, 5).map(r=>({n:String(r.p.name||"").slice(0, 40), s:r.score, d:r.pts}))});
+  }catch(e){ LV.revealing = false; LV.err = "Révélation refusée par Firebase."; lvPaint(); }
+}
+
+// ----- Joueur -----
+async function lvJoin(code){
+  code = String(code||"").replace(/\D/g, "").slice(0, 6);
+  if (code.length!==6){ LV.err = "Le code fait 6 chiffres."; lvPaint(); gqRender(); return; }
+  if (!lvSignedIn()){ GQ.liveCode = code; LV.err = "Connecte-toi à ton compte Paper Tape pour rejoindre."; gqRender(); return; }
+  lvStop();
+  let s = null;
+  try{ s = await lvRef(code).get(); }catch(e){}
+  if (!s || !s.exists){ GQ.liveCode = code; LV.err = "Partie introuvable : vérifie le code."; gqRender(); return; }
+  if ((s.data()||{}).status==="end"){ GQ.liveCode = code; LV.err = "Cette partie est terminée."; gqRender(); return; }
+  const me = lvRef(code).collection("players").doc(clientId);
+  try{
+    const m = await me.get();
+    if (!m.exists) await me.set({name:String(state.username||"Joueur").slice(0, 40), score:0, qi:-1, pick:-1, at:null, joinedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  }catch(e){ GQ.liveCode = code; LV.err = "Impossible de rejoindre (règles Firebase)."; gqRender(); return; }
+  GQ.liveCode = null; LV.err = "";
+  LV.role = "player"; LV.code = code; GQ.view = "live";
+  LV.unsub.push(lvRef(code).onSnapshot(sn=>{
+    const d = sn.data() || null, prev = LV.doc;
+    LV.doc = d;
+    if (d && d.status==="q" && (!prev || prev.qi!==d.qi || prev.status!=="q")){ LV.qRecv = Date.now(); LV.opts = null; lvLoadOpts(d); lvTick(); }
+    lvPaint();
+  }));
+  LV.unsub.push(me.onSnapshot(sn=>{ LV.me = sn.data() || null; lvPaint(); }));
+  gqRender(); window.scrollTo(0, 0);
+}
+function lvTick(){
+  clearInterval(LV.timer);
+  LV.timer = setInterval(()=>{
+    const D0 = LV.doc; if (!D0 || D0.status!=="q"){ clearInterval(LV.timer); return; }
+    const left = (D0.limit||20)*1000 - (Date.now()-LV.qRecv);
+    const bar = document.getElementById("lv-timer"); if (bar) bar.style.width = Math.max(0, left/((D0.limit||20)*10))+"%";
+    const n = document.getElementById("lv-left"); if (n) n.textContent = Math.max(0, Math.ceil(left/1000));
+  }, 200);
+}
+// Les 4 graphiques sont rechargés sur le téléphone (mêmes bougies Binance).
+function lvLoadOpts(d){
+  const qi = d.qi, rds = (d.q && d.q.opts) || [];
+  const got = new Array(rds.length).fill(null);
+  Promise.allSettled(rds.map((rd, i)=>dailyFetchRound(rd).then(c=>{ got[i] = gqFeatures(Object.assign({}, rd, {c})); }))).then(()=>{
+    if (!LV.doc || LV.doc.qi!==qi) return;
+    if (got.every(Boolean)){ LV.opts = got; lvPaint(); }
+  });
+}
+function lvAnswer(i){
+  const D0 = LV.doc, me = LV.me;
+  if (LV.role!=="player" || !D0 || D0.status!=="q" || (me && me.qi===D0.qi) || i<0 || i>3) return;
+  LV.me = Object.assign({}, me||{}, {qi:D0.qi, pick:i}); lvPaint();
+  lvRef().collection("players").doc(clientId).update({qi:D0.qi, pick:i, at:firebase.firestore.FieldValue.serverTimestamp()})
+    .catch(()=>{ appToast("Réponse refusée (temps écoulé ?)."); });
+}
+
+// ----- Affichage -----
+function lvCharts(opts, Q, ans, picks, mine){
+  const L = ["A","B","C","D"], done = ans!=null;
+  return '<div class="gq-grid lv-grid">'+opts.map((f, i)=>{
+    const cls = !done ? (mine===i ? " lv-mine" : "") : i===ans ? " ok" : mine===i ? " ko" : " dim";
+    return '<button type="button" class="gq-opt lv-opt'+cls+'" data-lv-opt="'+i+'"'+(done || mine!=null ? " disabled" : "")+' aria-label="Graphique '+L[i]+'">'+
+      '<span class="gq-l lv-l lv-c'+i+'">'+L[i]+'</span>'+(f ? '<canvas id="lv-cv-'+i+'"></canvas>' : '<span class="lv-ph"></span>')+
+      (picks ? '<span class="lv-cnt">'+picks[i]+'</span>' : '')+(done && f ? '<span class="gq-meta">'+escapeHtml(f.rd.name)+' · '+f.rd.ivLabel+'</span>' : '')+'</button>';
+  }).join("")+'</div>';
+}
+function lvDrawCharts(opts, Q, ans){
+  if (!opts || !Q || opts.some(f=>!f)) return;
+  const ov = Object.assign({}, Q.ov||{});
+  if (ov.same) ov.same = Math.max(...opts.map(f=>{ const a = Q.show ? Math.max(f.a, f.ci-Q.show+1) : f.a; let lo = Infinity, hi = -Infinity; for (let k=a;k<=f.ci;k++){ lo = Math.min(lo, f.rd.c[k][3]); hi = Math.max(hi, f.rd.c[k][2]); } return Math.log(hi/lo); }));
+  GQ.redraw = ()=>opts.forEach((f, i)=>{ let an = null; if (ans!=null && i===ans && Q.an){ try{ an = Q.an(f); }catch(e){} } const cv = document.getElementById("lv-cv-"+i); if (cv) gqDraw(cv, f, ov, an, Q.show); });
+  GQ.redraw();
+}
+function lvBoard(board, title){
+  return '<div class="lv-board"><span class="gq-eyebrow">'+escapeHtml(title)+'</span><ol>'+(board||[]).map((r, i)=>'<li><i>'+(i+1)+'</i><b>'+escapeHtml(r.n)+'</b>'+(r.d ? '<em>+'+r.d+'</em>' : '<em></em>')+'<span>'+r.s+'</span></li>').join("")+'</ol></div>';
+}
+function lvRender(el){
+  const D0 = LV.doc, host = LV.role==="host";
+  if (!D0){ el.innerHTML = '<div class="gq-wait"><div class="rp-spin"></div><b>Connexion à la partie…</b></div>'; return; }
+  const top = '<div class="lv-top"><button type="button" class="gq-link" data-lv="leave">← Quitter</button><span>Chart Check · en direct</span><b class="lv-code">'+LV.code+'</b></div>';
+  const err = LV.err ? '<p class="lv-err">'+escapeHtml(LV.err)+'</p>' : '';
+  const Q = D0.q ? lvQ(D0.q.k) : null, qn = 'Question '+(D0.qi+1)+' / '+D0.n;
+  // Salle d'attente
+  if (D0.status==="lobby"){
+    if (host){
+      const url = lvUrl(LV.code);
+      el.innerHTML = top+'<div class="lv-lobby">'+
+        '<div class="lv-join"><span class="gq-eyebrow">Rejoindre la partie</span><p>Chart Check → <b>Rejoindre en direct</b>, ou scanne le QR code</p>'+
+          '<div class="lv-pin">'+LV.code.slice(0,3)+' '+LV.code.slice(3)+'</div><div class="lv-qr">'+ptQrSvg(url)+'</div><small>'+escapeHtml(url.replace(/^https?:\/\//, ""))+'</small></div>'+
+        '<div class="lv-side"><div class="lv-count"><b>'+LV.players.length+'</b> joueur'+(LV.players.length>1 ? "s" : "")+'</div>'+
+          '<div class="lv-chips">'+(LV.players.length ? LV.players.map(p=>'<span>'+escapeHtml(p.name||"")+'</span>').join("") : '<em>En attente des joueurs…</em>')+'</div>'+
+          '<label class="lv-set">Chapitre <select data-lv-set="theme"><option value="mix">Partie mixte</option>'+GQ_THEMES.map(t=>'<option value="'+t.k+'"'+(D0.theme===t.k ? " selected" : "")+'>'+escapeHtml(t.t)+'</option>').join("")+'</select></label>'+
+          '<label class="lv-set">Temps par question <select data-lv-set="limit">'+LV_LIMITS.map(s=>'<option value="'+s+'"'+(LV.limit===s ? " selected" : "")+'>'+s+' s</option>').join("")+'</select></label>'+
+          err+'<button type="button" class="gq-go" data-lv="next"'+(LV.busy ? " disabled" : "")+'>'+(LV.busy ? "Préparation…" : "Lancer la partie →")+'</button></div></div>';
+    } else {
+      el.innerHTML = top+'<div class="lv-wait"><span class="gq-eyebrow">Tu es dans la partie</span><h2>'+escapeHtml((LV.me && LV.me.name) || state.username || "")+'</h2><p>Regarde l\'écran : la partie commence bientôt.</p><div class="rp-spin"></div></div>';
+    }
+    return;
+  }
+  // Fin : podium
+  if (D0.status==="end"){
+    const me = LV.me;
+    el.innerHTML = top+'<div class="lv-end"><span class="gq-eyebrow">Partie terminée</span><h2 class="gq-title">Podium<span>.</span></h2>'+
+      (host ? '' : me ? '<p class="lv-me-end">Tu finis <b>'+(me.rank||"–")+(me.rank===1 ? "er" : "e")+'</b> avec <b>'+(me.score||0)+' pts</b>.</p>' : '')+
+      lvBoard(D0.board, "Classement final")+
+      (host ? '<div class="gq-end-act"><button type="button" class="gq-go" data-lv="new">Nouvelle partie</button><button type="button" class="gq-link" data-lv="leave">Sommaire</button></div>' : '')+'</div>';
+    return;
+  }
+  const head = (sub)=>'<div class="lv-qhead"><span class="gq-chap">'+qn+(Q ? ' · '+escapeHtml(gqThemeName(Q.th)) : '')+'</span><h2 class="gq-qt">'+escapeHtml(Q ? Q.q : "")+'</h2>'+(sub||"")+'</div>';
+  // Question en cours
+  if (D0.status==="q"){
+    const timer = '<div class="lv-timebar"><i id="lv-timer" style="width:100%"></i></div>';
+    if (host){
+      const C = LV.cur, n = LV.players.filter(p=>p.qi===D0.qi).length;
+      el.innerHTML = top+head('<div class="lv-stat"><span><b id="lv-left">'+(D0.limit||LV.limit)+'</b> s</span><span><b>'+n+'</b> / '+LV.players.length+' réponses</span><button type="button" class="gq-link" data-lv="reveal">Révéler maintenant</button></div>')+timer+
+        (C ? lvCharts(C.opts, Q, null, null, null) : '<p class="lv-err">Graphiques perdus (page rechargée) : révèle puis passe à la suite.</p>')+err;
+      if (C) lvDrawCharts(C.opts, Q, null);
+    } else {
+      const me = LV.me, mine = me && me.qi===D0.qi ? me.pick : null, opts = LV.opts || [null, null, null, null];
+      el.innerHTML = top+head(mine!=null ? '<p class="lv-sent">Réponse '+"ABCD"[mine]+' envoyée. On attend les autres…</p>' : '<p class="gq-qs">'+escapeHtml(Q ? Q.sub : "")+'</p>')+timer+lvCharts(opts, Q, null, null, mine);
+      lvDrawCharts(LV.opts, Q, null);
+    }
+    return;
+  }
+  // Révélation
+  if (D0.status==="reveal"){
+    const last = D0.qi+1 >= D0.n, why = '<div class="gq-why lv-why ok"><b>C\'était le graphique '+"ABCD"[D0.ans]+'.</b><p>'+escapeHtml(D0.why||"")+'</p></div>';
+    if (host){
+      const C = LV.cur;
+      el.innerHTML = top+head('<div class="lv-stat"><span><b>'+(D0.answered||0)+'</b> / '+LV.players.length+' réponses</span></div>')+
+        '<div class="lv-rev">'+(C ? lvCharts(C.opts, Q, D0.ans, D0.dist||[0,0,0,0], null) : '')+'<div class="lv-rev-side">'+why+lvBoard(D0.board, "Top 5")+err+
+        '<button type="button" class="gq-go" data-lv="next"'+(LV.busy ? " disabled" : "")+'>'+(LV.busy ? "Préparation…" : last ? "Voir le podium →" : "Question suivante →")+'</button></div></div>';
+      if (C) lvDrawCharts(C.opts, Q, D0.ans);
+    } else {
+      const me = LV.me || {}, did = me.qi===D0.qi && me.pick>=0, ok = did && me.pick===D0.ans;
+      el.innerHTML = top+head('')+'<div class="lv-res '+(ok ? "ok" : "ko")+'"><b>'+(ok ? "Bonne réponse !" : did ? "Raté." : "Pas de réponse.")+'</b>'+
+        '<span>'+(ok ? "+"+(me.last||0)+" pts" : "+0 pt")+' · total '+(me.score||0)+' pts'+(me.rank ? ' · '+me.rank+(me.rank===1 ? "er" : "e") : '')+'</span></div>'+
+        (LV.opts ? lvCharts(LV.opts, Q, D0.ans, null, did ? me.pick : null) : '')+why;
+      lvDrawCharts(LV.opts, Q, D0.ans);
+    }
+  }
+}
+function lvJoinCard(){
+  const code = GQ.liveCode || "";
+  return '<section class="lv-card"><div><span class="gq-eyebrow">En direct</span><h2>Jouer ensemble en salle</h2><p>Entre le code affiché à l\'écran (compte Paper Tape connecté).</p></div>'+
+    '<form class="lv-form" data-lv-form="1"><input id="lv-code-in" inputmode="numeric" autocomplete="off" maxlength="7" placeholder="123 456" value="'+escapeHtml(code)+'" aria-label="Code de la partie"><button type="submit" class="gq-go">Rejoindre</button></form>'+
+    (LV.err && !LV.role ? '<p class="lv-err">'+escapeHtml(LV.err)+'</p>' : '')+
+    (state.isAdmin ? '<button type="button" class="gq-link lv-host" data-lv="host">Animer une partie en direct (admin) →</button>' : '')+'</section>';
+}
+function lvOnClick(e){
+  const o = e.target.closest("[data-lv-opt]"); if (o && LV.role==="player"){ lvAnswer(+o.dataset.lvOpt); return true; }
+  const b = e.target.closest("[data-lv]"); if (!b) return false;
+  const a = b.dataset.lv;
+  if (a==="host" || a==="new") lvHostCreate();
+  else if (a==="next") lvHostNext();
+  else if (a==="reveal") lvHostReveal();
+  else if (a==="leave") lvLeave();
+  return true;
+}
+
 // ---------- Page ----------
 function renderGames(){
   const root = document.getElementById("games-root"); if (!root) return;
   if (!root.querySelector(".gq")){
     root.innerHTML = '<div class="gq" id="gq"></div>';
     root.querySelector(".gq").addEventListener("click", gqOnClick);
+    root.querySelector(".gq").addEventListener("submit", (e)=>{ if (!e.target.matches("[data-lv-form]")) return; e.preventDefault(); const i = document.getElementById("lv-code-in"); lvJoin(i ? i.value : ""); });
+    root.querySelector(".gq").addEventListener("change", (e)=>{
+      const t = e.target.closest("[data-lv-set]"); if (!t || LV.role!=="host") return;
+      if (t.dataset.lvSet==="theme"){ LV.theme = t.value; lvRef().update({theme:t.value}).catch(()=>{}); }
+      else if (t.dataset.lvSet==="limit"){ LV.limit = +t.value || 20; lvRef().update({limit:LV.limit}).catch(()=>{}); }
+    });
   }
   if (!GQ.bound){
     GQ.bound = true;
@@ -29962,6 +30349,7 @@ function renderGames(){
   gqRender();
 }
 function gqOnClick(e){
+  if (lvOnClick(e)) return;
   const o = e.target.closest("[data-gq-opt]"); if (o){ gqAnswer(+o.dataset.gqOpt); return; }
   const b = e.target.closest("[data-gq]"); if (!b) return;
   const a = b.dataset.gq;
@@ -29974,6 +30362,7 @@ function gqKey(e){
   if (document.body.dataset.view!=="games" || !document.getElementById("gq") || e.metaKey || e.ctrlKey || e.altKey) return;
   const tg = e.target; if (tg && (/^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName) || tg.isContentEditable)) return;
   const k = (e.key||"").toLowerCase(), onBtn = tg && tg.tagName==="BUTTON";
+  if (GQ.view==="live"){ const i = k.length===1 ? Math.max("abcd".indexOf(k), "1234".indexOf(k)) : -1; if (i>=0 && LV.role==="player"){ e.preventDefault(); lvAnswer(i); } return; }
   if (GQ.view==="quiz" && GQ.s && GQ.s.cur){
     const i = k.length===1 ? Math.max("abcd".indexOf(k), "1234".indexOf(k)) : -1;
     if (i>=0 && GQ.s.cur.pick==null){ e.preventDefault(); gqAnswer(i); return; }
@@ -30008,6 +30397,7 @@ function gqHubHtml(){
         '<div><dt>Meilleure série</dt><dd>'+(st.streak||0)+'</dd></div>'+
       '</dl>'+
     '</header>'+
+    lvJoinCard()+
     '<section class="gq-toc"><header><h2>Sommaire</h2><span>'+GQ_QS.length+' questions en '+GQ_THEMES.length+' chapitres. Choisis-en un pour t\'entraîner dessus.</span></header><ol>'+rows+'</ol></section>'+
   '</div>';
 }
@@ -30051,6 +30441,7 @@ function gqMastDraw(){
 function gqRender(st){
   const el = document.getElementById("gq"); if (!el) return;
   GQ.redraw = null;
+  if (GQ.view==="live"){ lvRender(el); return; }
   if (GQ.view==="hub"){
     el.innerHTML = gqHubHtml(); gqMastDraw();
     if (gqCanSync() && GQ.remoteTried!==clientId) gqLoadRemote().then(()=>{ if (GQ.view==="hub") gqRender(); });
@@ -37379,6 +37770,14 @@ async function init(){
   await Promise.all([initDb(), initPriceFeed()]);
   renderAll();
   try{ if (new URLSearchParams(location.search).has("defi")) switchView("daily"); }catch(e){}
+  // Lien / QR code d'une partie Chart Check en direct : ?live=123456
+  try{
+    const lc = (new URLSearchParams(location.search).get("live")||"").replace(/\D/g, "").slice(0, 6);
+    if (lc.length===6){
+      GQ.liveCode = lc; switchView("games");
+      let n = 0; const tryJoin = ()=>{ if (lvSignedIn() || ++n > 10) lvJoin(lc); else setTimeout(tryJoin, 800); }; tryJoin();
+    }
+  }catch(e){}
   if (!EMB) setInterval(()=>{ if (state.positions.length>0 || state.pendingOrders.length>0) persistAccount(); }, 10000); // un graphique seul ne sauvegarde que sur ses propres actions
   if (!EMB){ const lb = document.getElementById("mc-layouts"); if (lb) lb.addEventListener("click", ()=>layoutOpen(lb)); layoutResume(); }
   if (EMB){ ptEmbedLayout(); if (window.PT_EMBED.sym && ASSETS.some(a=>a.symbol===window.PT_EMBED.sym) && selectedSymbol!==window.PT_EMBED.sym) selectSymbol(window.PT_EMBED.sym); ptEmbedReport(true); setInterval(()=>ptEmbedReport(false), 1000); }
