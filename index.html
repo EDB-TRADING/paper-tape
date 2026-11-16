@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3800">
+<meta name="pt-build" content="3810">
 <script>
 /* Multi-graphiques : cette page est-elle un graphique seul dans une iframe ?
    Si oui, ses réglages de graphique (indicateurs, bougies, unité de temps,
@@ -3280,6 +3280,9 @@
   .lev-lock-ladder{display:flex;flex-wrap:wrap;gap:4px;}
   .lev-lock-ladder span{font-family:var(--mono);font-size:10.5px;padding:2px 6px;border-radius:5px;border:1px solid var(--border-soft);color:var(--text-faint);}
   .lev-lock-ladder span.ok{color:var(--long);border-color:color-mix(in srgb, var(--long) 40%, var(--border-soft));}
+  .lev-req-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;}
+  .lev-req-btn{font:600 12px var(--sans);padding:6px 12px;border-radius:999px;border:1px solid var(--accent);background:color-mix(in srgb, var(--accent) 12%, transparent);color:var(--text);cursor:pointer;}
+  .lev-req-btn:disabled{opacity:.45;cursor:default;}
   .lev-lock-why{font-size:11.5px;color:var(--text-faint);}
   @keyframes levNoteIn{from{opacity:0;transform:translateY(-3px);}to{opacity:1;transform:none;}}
 
@@ -7604,7 +7607,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3800 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3810 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -9556,9 +9559,11 @@ const LEVERAGE_PROGRESSION = [
   {trades:0,   cap:10},
   {trades:10,  cap:25},
   {trades:30,  cap:50},
-  {trades:75,  cap:100},
-  {trades:150, cap:200},
 ];
+// v3810 : x50 maximum par l'expérience. Au-delà (x100, x200), uniquement sur
+// demande acceptée par un admin (traders/{uid}.levUnlocked, écrit par l'admin ;
+// demande dans levRequests/{uid}).
+const LEV_FREE_MAX = 50, LEV_REQ_STEPS = [100, 200];
 function progressiveLeverageCap(tradesClosed){
   // Mode rattrapage (compte de 5 000 $ après un compte à 0) : levier x10 max.
   if (typeof state!=="undefined" && state && state.recovery && state.recovery.active) return 10;
@@ -9566,7 +9571,8 @@ function progressiveLeverageCap(tradesClosed){
   const n = typeof tradesClosed==="number" ? tradesClosed : 0;
   let cap = LEVERAGE_PROGRESSION[0].cap;
   LEVERAGE_PROGRESSION.forEach(tier=>{ if (n>=tier.trades) cap = tier.cap; });
-  return cap;
+  const un = typeof state!=="undefined" && state ? (+state.levUnlocked||0) : 0;
+  return un > cap ? Math.min(200, un) : cap;
 }
 // The next tier a trader hasn't reached yet (or null once fully unlocked at
 // x200) — used to word the lock tooltip on presets above their current cap.
@@ -9574,7 +9580,8 @@ function nextLeverageTier(tradesClosed){
   const n = typeof tradesClosed==="number" ? tradesClosed : 0;
   return LEVERAGE_PROGRESSION.find(t=>t.trades>n) || null;
 }
-function leverageLockTitle(tradesClosed){
+function leverageLockTitle(tradesClosed, wanted){
+  if (wanted > LEV_FREE_MAX) return "Au-delà de x"+LEV_FREE_MAX+" : sur demande, validée par un admin";
   const n = typeof tradesClosed==="number" ? tradesClosed : 0;
   const tier = nextLeverageTier(n);
   if (!tier) return ""; // fully unlocked, shouldn't be reachable but just in case
@@ -9877,6 +9884,7 @@ function hydrateStateFromDoc(snap){
   state.edbPlusExpired = !!(d.edbPlus && d.edbPlusUntil && Date.parse(d.edbPlusUntil) < Date.now());
   state.edbPlus = !!d.edbPlus && !state.edbPlusExpired;
   state.themesUnlocked = !!d.themesUnlocked; // v3580 : thèmes offerts par un admin, sans EDB+
+  state.levUnlocked = +d.levUnlocked || 0; // v3810 : levier > x50 accordé par un admin
   state.edbPlusRequested = !!d.edbPlusRequested;
   state.edbPlusRequestedAt = d.edbPlusRequestedAt || null;
   state.edbPlusTrialStartedAt = trialTimestampToMs(d.edbPlusTrialStartedAt);
@@ -35018,8 +35026,18 @@ function showLeverageLockNote(wanted){
   if (!el) return;
   const n = (state.stats && state.stats.tradesClosed) || 0;
   let html;
+  const capNow = progressiveLeverageCap(n);
   if (state.activeBookName==="prop"){
     html = '<b>🔒 Levier restreint à x'+CHALLENGE_LEVERAGE_CAP+'</b> sur le Challenge Prop Firm, comme chez les vraies prop firms crypto. Repasse sur ton compte normal pour utiliser plus de levier.';
+  } else if ((wanted && wanted > LEV_FREE_MAX) || (!wanted && capNow >= LEV_FREE_MAX)){
+    // Au-delà de x50 : demande obligatoire aux admins.
+    const R = state.levReq, pend = R && R.status==="pending";
+    html = '<b>🔒 Au-delà de x'+LEV_FREE_MAX+', le levier se débloque sur demande</b>'+
+      '<span class="lev-lock-why">Un admin valide chaque demande. Ton levier actuel : x'+capNow+'.</span>'+
+      (pend ? '<span class="lev-lock-count">⏳ Demande de x'+R.wanted+' envoyée, en attente d\'un admin.</span>'
+        : R && R.status==="no" && R.wanted >= (wanted||0) ? '<span class="lev-lock-count">Ta dernière demande (x'+R.wanted+') a été refusée.</span>' : '')+
+      '<span class="lev-req-row">'+LEV_REQ_STEPS.filter(x=>x>capNow).map(x=>'<button type="button" class="lev-req-btn" data-lev-req="'+x+'"'+(pend ? " disabled" : "")+'>Demander x'+x+'</button>').join("")+'</span>';
+    if (!state.levReqLoaded) levReqLoad().then(()=>{ const e2 = document.getElementById("lev-lock-note"); if (e2 && !e2.hidden) showLeverageLockNote(wanted); });
   } else {
     const tier = wanted ? LEVERAGE_PROGRESSION.find(t=>t.cap>=wanted) : nextLeverageTier(n);
     const need = tier ? Math.max(0, tier.trades-n) : 0;
@@ -35027,13 +35045,30 @@ function showLeverageLockNote(wanted){
     html = '<b>🔒 Levier restreint'+(tier ? ' : x'+tier.cap+' se débloque à '+tier.trades+' trades clôturés' : '')+'</b>'+
       (tier ? '<span class="lev-lock-count">Tu en as '+n+', encore <b>'+need+'</b> trade'+(need>1?'s':'')+'.</span>'+
         '<span class="lev-lock-bar"><i style="width:'+pct.toFixed(0)+'%"></i></span>' : '')+
-      '<span class="lev-lock-ladder">'+LEVERAGE_PROGRESSION.map(t=>'<span class="'+(n>=t.trades?'ok':'')+'">x'+t.cap+(t.trades ? ' · '+t.trades+' trades' : ' · dès le début')+'</span>').join('')+'</span>'+
+      '<span class="lev-lock-ladder">'+LEVERAGE_PROGRESSION.map(t=>'<span class="'+(n>=t.trades?'ok':'')+'">x'+t.cap+(t.trades ? ' · '+t.trades+' trades' : ' · dès le début')+'</span>').join('')+LEV_REQ_STEPS.map(x=>'<span>x'+x+' · sur demande</span>').join('')+'</span>'+
       '<span class="lev-lock-why">Le levier se gagne avec l\'expérience : plus il est élevé, plus la liquidation est proche.</span>';
   }
   el.innerHTML = html;
   el.hidden = false;
+  el.querySelectorAll("[data-lev-req]").forEach(b=>b.addEventListener("click", ()=>levReqSend(+b.dataset.levReq, wanted)));
   clearTimeout(levLockNoteTimer);
-  levLockNoteTimer = setTimeout(hideLeverageLockNote, 9000);
+  levLockNoteTimer = setTimeout(hideLeverageLockNote, el.querySelector("[data-lev-req]") ? 20000 : 9000);
+}
+// ---- Demande de levier supérieur (v3810) ----
+async function levReqLoad(){
+  state.levReqLoaded = true;
+  if (!dbReady || !db || !clientId) return;
+  try{ const s = await db.collection("levRequests").doc(clientId).get(); state.levReq = s.exists ? s.data() : null; }catch(e){}
+}
+async function levReqSend(x, wanted){
+  if (!dbReady || !db || !clientId || !accountDocExists){ appToast("Connecte-toi pour envoyer une demande."); return; }
+  const doc = {uid:clientId, username:String(state.username||""), wanted:x, status:"pending", at:new Date().toISOString(), tradesClosed:(state.stats && state.stats.tradesClosed) || 0, current:progressiveLeverageCap((state.stats && state.stats.tradesClosed) || 0)};
+  try{
+    await db.collection("levRequests").doc(clientId).set(doc);
+    state.levReq = doc; state.levReqLoaded = true;
+    appToast("Demande de levier x"+x+" envoyée aux admins.");
+    showLeverageLockNote(wanted);
+  }catch(e){ console.warn("lev request", e); appToast("Envoi impossible (règles Firebase à déployer ?)."); }
 }
 function hideLeverageLockNote(){
   const el = document.getElementById("lev-lock-note");
@@ -35060,7 +35095,7 @@ function enforceLeverageAccess(){
     const isLocked = v>cap;
     b.classList.toggle("locked", isLocked);
     b.classList.toggle("active", v===leverage);
-    b.title = !isLocked ? "" : (onChallenge ? "Plafonné à x"+CHALLENGE_LEVERAGE_CAP+" sur le Challenge Prop Firm — aligné sur les vrais prop firms crypto" : leverageLockTitle(tradesClosed));
+    b.title = !isLocked ? "" : (onChallenge ? "Plafonné à x"+CHALLENGE_LEVERAGE_CAP+" sur le Challenge Prop Firm — aligné sur les vrais prop firms crypto" : leverageLockTitle(tradesClosed, v));
   });
   if (typeof updateOrderReadout==="function") updateOrderReadout();
 }
@@ -35956,6 +35991,7 @@ async function loadAdminTraders(){
   try{
     const snap = await db.collection("traders").orderBy("equity","desc").limit(200).get();
     adminDocs = snap.docs;
+    try{ const rq = await db.collection("levRequests").where("status", "==", "pending").get(); adminLevReqs = {}; rq.docs.forEach(x=>{ adminLevReqs[x.id] = x.data(); }); }catch(e){ adminLevReqs = {}; }
     if (status) status.textContent = adminDocs.length+(adminDocs.length>1?" traders":" trader")+" — dernière actualisation "+new Date().toLocaleTimeString("fr-FR");
     renderAdminTable();
     if (typeof renderAdminPages==="function") renderAdminPages();
@@ -35965,13 +36001,13 @@ async function loadAdminTraders(){
     if (body) body.innerHTML = '<tr><td colspan="6" class="empty-note">Impossible de charger la liste.</td></tr>';
   }
 }
-let adminFilter = "all", adminQuery = "";
+let adminFilter = "all", adminQuery = "", adminLevReqs = {};
 function adminFilteredDocs(){
   const q = adminQuery.trim().toLowerCase();
   return adminDocs.filter(doc=>{
     const d = doc.data();
     if (adminFilter==="plus" && !d.edbPlus) return false;
-    if (adminFilter==="req" && !(d.edbPlusRequested && !d.edbPlus)) return false;
+    if (adminFilter==="req" && !(d.edbPlusRequested && !d.edbPlus) && !adminLevReqs[doc.id]) return false;
     if (adminFilter==="admin" && !d.isAdmin) return false;
     if (adminFilter==="trial" && adminTrialInfo(d).st!=="active") return false;
     if (adminFilter==="trialused" && adminTrialInfo(d).st==="none") return false;
@@ -35995,6 +36031,8 @@ function renderAdminTable(){
     if (d.isAdmin) tags.push('<span class="adm-tag admin">Admin</span>');
     if (d.edbPlus) tags.push('<span class="adm-tag plus">EDB+</span>');
     else if (d.edbPlusRequested) tags.push('<span class="adm-tag req">Demande EDB+</span>');
+    if (adminLevReqs[id]) tags.push('<span class="adm-tag req" title="Demande envoyée le '+escapeHtml(new Date(adminLevReqs[id].at).toLocaleString("fr-FR"))+' · '+(adminLevReqs[id].tradesClosed||0)+' trades clôturés">Demande levier x'+(adminLevReqs[id].wanted||"?")+'</span>');
+    if (+d.levUnlocked > LEV_FREE_MAX) tags.push('<span class="adm-tag plus">Levier x'+d.levUnlocked+'</span>');
     { const T = adminTrialInfo(d);
       if (T.st==="active") tags.push('<span class="adm-tag trial" title="Essai démarré le '+escapeHtml(new Date(T.ms).toLocaleString("fr-FR"))+'">Essai · '+escapeHtml(T.left)+'</span>');
       else if (T.st==="used" && !d.edbPlus) tags.push('<span class="adm-tag trial-used" title="Essai utilisé le '+escapeHtml(new Date(T.ms).toLocaleString("fr-FR"))+'">Essai utilisé</span>'); }
@@ -36208,6 +36246,10 @@ function adminActionsHtml(id, d){
       btn("data-admin-edbplus", d.edbPlus?"Retirer EDB+":"Activer EDB+", "gold")+
       btn("data-admin-trial", "Essai 24 h…")+
       btn("data-admin-themes", d.themesUnlocked ? "Reverrouiller les thèmes" : "Débloquer les thèmes")+
+    '</div>'+
+    '<div class="adm-act-group"><span>Levier'+(adminLevReqs[id] ? ' · demande x'+adminLevReqs[id].wanted : '')+'</span>'+
+      [0].concat(LEV_REQ_STEPS).map(x=>'<button type="button" class="adm-act'+(((+d.levUnlocked||0) > LEV_FREE_MAX ? +d.levUnlocked : 0)===x ? " gold" : "")+'" data-admin-lev="'+id+'" data-lev-val="'+x+'">'+(x ? "Autoriser x"+x : "Max x"+LEV_FREE_MAX)+'</button>').join("")+
+      (adminLevReqs[id] ? '<button type="button" class="adm-act" data-admin-lev="'+id+'" data-lev-val="-1">Refuser la demande</button>' : '')+
       btn("data-admin-isadmin", d.isAdmin?"Retirer admin":"Passer admin")+
     '</div>'+
     '<div class="adm-act-group"><span>Compte</span>'+
@@ -36890,6 +36932,17 @@ async function adminSetTrial(id, what){
     console.warn("admin trial", e);
     if (msg){ msg.style.color = "var(--short)"; msg.textContent = "Échec de la mise à jour (règles Firestore ?)."; }
   }
+}
+// v3810 : levier au-delà de x50 accordé (ou retiré) par un admin ; -1 = refuser la demande.
+async function adminSetLeverage(id, x){
+  const doc = adminFindDoc(id), d = doc ? doc.data() : {}, name = d.username || id;
+  try{
+    if (x >= 0) await db.collection("traders").doc(id).update({levUnlocked: x, updatedAt: new Date().toISOString()});
+    if (adminLevReqs[id]) await db.collection("levRequests").doc(id).update({status: x > 0 ? "ok" : "no", decidedAt: new Date().toISOString(), decidedBy: clientId, granted: Math.max(0, x)});
+    if (id===clientId && x >= 0){ state.levUnlocked = x; enforceLeverageAccess(); }
+    appToast(x > 0 ? "Levier x"+x+" autorisé pour "+name+"." : x===0 ? "Levier ramené à x"+LEV_FREE_MAX+" max pour "+name+"." : "Demande de levier refusée pour "+name+".");
+    loadAdminTraders();
+  }catch(e){ console.warn("admin lev", e); alert("Échec — vérifie que les règles Firestore (levRequests, levUnlocked) sont déployées (SERVER_SETUP.md)."); }
 }
 // v3580 : débloquer / reverrouiller les 6 thèmes pour un joueur, sans EDB+.
 async function adminToggleThemes(id){
@@ -37790,6 +37843,7 @@ function initAdminUI(){
       else if (t.dataset.adminRename) adminRenameTrader(t.dataset.adminRename);
       else if (t.dataset.adminTrades) adminTradesOpen(t.dataset.adminTrades);
       else if (t.dataset.adminThemes) adminToggleThemes(t.dataset.adminThemes);
+      else if (t.dataset.adminLev) adminSetLeverage(t.dataset.adminLev, +t.dataset.levVal);
       else if (t.dataset.adminBadges) adminManageBadges(t.dataset.adminBadges);
       else if (t.dataset.adminStats) adminEditStats(t.dataset.adminStats);
       else if (t.dataset.adminEdbplus) adminToggleEdbPlus(t.dataset.adminEdbplus);
