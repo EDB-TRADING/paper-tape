@@ -13,7 +13,7 @@
 <meta name="copyright" content="© 2026 École de la Bourse (EDB). Tous droits réservés.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Numéro de version : à changer à chaque mise en ligne (le site compare le sien à celui en ligne et propose de recharger). -->
-<meta name="pt-build" content="3831">
+<meta name="pt-build" content="3840">
 <script>
 /* Multi-graphiques : cette page est-elle un graphique seul dans une iframe ?
    Si oui, ses réglages de graphique (indicateurs, bougies, unité de temps,
@@ -7622,7 +7622,7 @@
     <button type="button" class="mtb-more" id="mtb-more-btn"><svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg><span>Menu</span></button>
   </div>
 
-  <div class="app-version-tag" id="app-version-tag">v3831 · © 2026 École de la Bourse · tous droits réservés</div>
+  <div class="app-version-tag" id="app-version-tag">v3840 · © 2026 École de la Bourse · tous droits réservés</div>
   <div class="new-build" id="new-build" role="status" hidden><span>🔄 Nouvelle version de Paper Tape disponible</span><button type="button" id="new-build-go">Recharger</button><button type="button" id="new-build-x" aria-label="Plus tard" title="Plus tard">✕</button></div>
   <div class="badge-toast" id="badge-toast" hidden></div>
   <button class="feedback-fab" id="feedback-fab" title="Signaler un bug / proposer une idée">💬<span class="fab-badge" id="feedback-fab-badge" hidden></span></button>
@@ -7744,6 +7744,10 @@ const ASSETS = [
   // against the real API) — that gap is on TradingView's data-feed side, not
   // this app; switch to the "Interne" chart toggle for a live-updating chart.
   {symbol:"OIL", name:"Pétrole (WTI, perp. Hyperliquid xyz:CL)", hyperliquid:{dex:"xyz", coin:"CL"}, decimals:2, icon:"🛢️", color:"#8b5e3c", cat:"commodity"},
+  // v3840 : Anthropic (ticker ANT). Avant l'introduction en Bourse prévue le
+  // 19/11/2026, prix du contrat perpétuel « pré-IPO » du dex HIP-3 xyz de
+  // Hyperliquid (coin ANT) ; même source ensuite (le perp suit l'action cotée).
+  {symbol:"ANT", name:"Anthropic (pré-IPO)", hyperliquid:{dex:"xyz", coin:"ANT"}, decimals:2, icon:"✳️", color:"#d97757", cat:"stock"},
 ];
 // Assets flagged `delisted` stay in ASSETS (price polling, mark-to-market,
 // liquidation checks and closing an existing position all still need to
@@ -12943,7 +12947,7 @@ function buildWatchlist(){
 // Filtres du widget Marchés : catégorie (mémorisée dans le navigateur) +
 // recherche par symbole ou nom. La liste elle-même a une hauteur maximale
 // et défile, pour ne pas faire une colonne sans fin.
-const WL_CATS = [["all","Tout"],["crypto","Crypto"],["index","Indices"],["commodity","Matières"],["forex","Forex"]];
+const WL_CATS = [["all","Tout"],["crypto","Crypto"],["index","Indices"],["stock","Actions"],["commodity","Matières"],["forex","Forex"]];
 const WL_CAT_KEY = "paperTapeWatchlistCat";
 let wlCat = (()=>{ try{ const v = localStorage.getItem(WL_CAT_KEY); return WL_CATS.some(c=>c[0]===v) ? v : "all"; }catch(e){ return "all"; } })();
 let wlQuery = "";
@@ -13176,6 +13180,7 @@ function initCandleTheme(){
 // Crypto.com/Binance exactly as before — only the chart's data source
 // changes here.
 const TV_SYMBOL_MAP = {
+  ANT:"HIP3XYZ:ANTUSDC.P",
   BTC:"BINANCE:BTCUSDT.P", ETH:"BINANCE:ETHUSDT.P", SOL:"BINANCE:SOLUSDT.P", HYPE:"BINANCE:HYPEUSDT.P",
   XRP:"BINANCE:XRPUSDT.P", ZEC:"BINANCE:ZECUSDT.P", ASTER:"BINANCE:ASTERUSDT.P", SUI:"BINANCE:SUIUSDT.P",
   DOGE:"BINANCE:DOGEUSDT.P", LINK:"BINANCE:LINKUSDT.P", AVAX:"BINANCE:AVAXUSDT.P",
@@ -32971,6 +32976,8 @@ const INVEST_ASSETS = [
   {id:"BESI", name:"BE Semiconductor",   short:"BESI", cat:"eu", pea:true, venue:"amsterdam", src:{eu:"BESI.AS"}, semi:true},
   {id:"SAP",  name:"SAP",                short:"SAP",  cat:"eu", pea:true, venue:"xetra", src:{eu:"SAP.DE"}},
   {id:"SIE",  name:"Siemens",            short:"SIE",  cat:"eu", pea:true, venue:"xetra", src:{eu:"SIE.DE"}},
+  {id:"ANT",   name:"Anthropic",  short:"ANT",   cat:"stock", venue:"nyse", src:{xyz:"ANT"},
+    desc:"L'entreprise derrière Claude. Introduction en Bourse prévue le 19 novembre 2026 (ticker ANT, fourchette annoncée 70–78 $). Jusqu'à la cotation, le prix affiché est celui du contrat « pré-IPO » échangé sur Hyperliquid : un pari sur le futur cours, qui peut être très différent du prix d'introduction."},
   {id:"AAPL",  name:"Apple",      short:"AAPL",  cat:"stock", venue:"nyse", src:{xyz:"AAPL"}},
   {id:"MSFT",  name:"Microsoft",  short:"MSFT",  cat:"stock", venue:"nyse", src:{xyz:"MSFT"}},
   {id:"NVDA",  name:"Nvidia",     short:"NVDA",  cat:"stock", venue:"nyse", src:{xyz:"NVDA"}, semi:true},
@@ -33469,7 +33476,7 @@ const INVEST_META = {
   BN:{y:3.4, sec:"Agroalimentaire"}, KER:{y:3.0, sec:"Luxe"}, CAPG:{y:2.6, sec:"Services informatiques"}, DSY:{y:0.9, sec:"Logiciels"}, EL:{y:1.4, sec:"Optique"},
   ASML:{y:0.9, sec:"Semi-conducteurs"}, STM:{y:1.2, sec:"Semi-conducteurs"}, SOI:{y:0, sec:"Semi-conducteurs"}, IFX:{y:1.1, sec:"Semi-conducteurs"}, ASMI:{y:0.8, sec:"Semi-conducteurs"}, BESI:{y:1.8, sec:"Semi-conducteurs"},
   SAP:{y:1.0, sec:"Logiciels"}, SIE:{y:2.4, sec:"Industrie"},
-  AAPL:{y:0.4, sec:"Tech"}, MSFT:{y:0.7, sec:"Logiciels / cloud"}, NVDA:{y:0, sec:"Semi-conducteurs (IA)"}, GOOGL:{y:0.4, sec:"Internet"}, AMZN:{y:0, sec:"E-commerce / cloud"}, META:{y:0.3, sec:"Réseaux sociaux"},
+  ANT:{y:0, sec:"Intelligence artificielle"}, AAPL:{y:0.4, sec:"Tech"}, MSFT:{y:0.7, sec:"Logiciels / cloud"}, NVDA:{y:0, sec:"Semi-conducteurs (IA)"}, GOOGL:{y:0.4, sec:"Internet"}, AMZN:{y:0, sec:"E-commerce / cloud"}, META:{y:0.3, sec:"Réseaux sociaux"},
   TSLA:{y:0, sec:"Automobile électrique"}, NFLX:{y:0, sec:"Streaming"}, AMD:{y:0, sec:"Semi-conducteurs"}, TSM:{y:1.2, sec:"Semi-conducteurs"}, AVGO:{y:1.0, sec:"Semi-conducteurs"},
   MU:{y:0.3, sec:"Semi-conducteurs"}, INTC:{y:0, sec:"Semi-conducteurs"}, QCOM:{y:2.0, sec:"Semi-conducteurs"}, LLY:{y:0.7, sec:"Santé"},
   EUGOV:{y:2.6, sec:"Obligations d'État"}, EUGOV13:{y:2.1, sec:"Obligations d'État courtes"}, EUCORP:{y:3.0, sec:"Obligations d'entreprises"}, UST710:{y:0, cap:true, sec:"Obligations d'État US"},
@@ -33748,7 +33755,7 @@ const INVEST_TV = {
   BN:"EURONEXT:BN", KER:"EURONEXT:KER", CAPG:"EURONEXT:CAP", DSY:"EURONEXT:DSY", EL:"EURONEXT:EL",
   ASML:"EURONEXT:ASML", STM:"EURONEXT:STMPA", SOI:"EURONEXT:SOI", IFX:"XETR:IFX", ASMI:"EURONEXT:ASM", BESI:"EURONEXT:BESI",
   SAP:"XETR:SAP", SIE:"XETR:SIE",
-  AAPL:"NASDAQ:AAPL", MSFT:"NASDAQ:MSFT", NVDA:"NASDAQ:NVDA", GOOGL:"NASDAQ:GOOGL", AMZN:"NASDAQ:AMZN", META:"NASDAQ:META",
+  ANT:"HIP3XYZ:ANTUSDC.P", AAPL:"NASDAQ:AAPL", MSFT:"NASDAQ:MSFT", NVDA:"NASDAQ:NVDA", GOOGL:"NASDAQ:GOOGL", AMZN:"NASDAQ:AMZN", META:"NASDAQ:META",
   TSLA:"NASDAQ:TSLA", NFLX:"NASDAQ:NFLX", AMD:"NASDAQ:AMD", TSM:"NYSE:TSM", AVGO:"NASDAQ:AVGO", MU:"NASDAQ:MU",
   INTC:"NASDAQ:INTC", QCOM:"NASDAQ:QCOM", LLY:"NYSE:LLY",
   EUGOV:"XETR:EUNH", EUGOV13:"EURONEXT:IBGS", EUCORP:"XETR:EUN5", UST710:"XETR:SXRM",
@@ -34261,23 +34268,16 @@ function investBondFactsHtml(a, q){
     '<div><span>Coupon couru</span><b>'+(p ? investFmtPctNom(p.acc) : "—")+'</b></div>'+
     (b.isin ? '<div><span>ISIN</span><b>'+escapeHtml(b.isin)+'</b></div>' : '');
 }
-// v3820 : depuis la fiche d'un actif, aller voir son graphique. Terminal quand
-// le marché y existe (ETF S&P 500 / Nasdaq → SPY / QQQ, or, argent, pétrole,
-// crypto), sinon TradingView dans un nouvel onglet (actions et ETF européens,
-// actions US). Pas de graphique pour les obligations.
-function investChartTarget(a){
-  const s = a && a.src || {};
-  if (s.symbol && ASSETS.some(x=>x.symbol===s.symbol)) return {term:s.symbol};
-  if (s.eu){ const parts = s.eu.split("."), ex = {PA:"EURONEXT", AS:"EURONEXT", DE:"XETR"}[parts[1]]; return ex ? {tv:ex+":"+parts[0]} : null; }
-  if (s.xyz) return {tv:s.xyz};
-  return null;
-}
+// v3840 : depuis la fiche d'un actif, « Voir le graphique » ouvre la page
+// Graphiques de l'espace Investissement sur cet actif (ni terminal, ni site externe).
 function investChartLinkHtml(a){
-  const T = investChartTarget(a); if (!T) return "";
   const ico = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/></svg>';
-  if (T.term){ const t = ASSETS.find(x=>x.symbol===T.term);
-    return '<button type="button" class="iv-fa-chartlink" data-fa="chart">'+ico+'<span><b>Voir le graphique dans le terminal</b><small>'+escapeHtml(t ? t.name+" ("+t.symbol+")" : T.term)+(a.src.ratio && a.src.ratio!==1 ? " · même évolution que cet ETF" : "")+' · bougies, indicateurs, dessins</small></span><i>→</i></button>'; }
-  return '<a class="iv-fa-chartlink" href="https://www.tradingview.com/chart/?symbol='+encodeURIComponent(T.tv)+'" target="_blank" rel="noopener">'+ico+'<span><b>Voir le graphique sur TradingView</b><small>'+escapeHtml(T.tv)+' · s\'ouvre dans un nouvel onglet</small></span><i>↗</i></a>';
+  return '<button type="button" class="iv-fa-chartlink" data-fa="chart">'+ico+'<span><b>Voir le graphique</b><small>Page Graphiques de ton espace Investissement · '+escapeHtml(a.short)+'</small></span><i>→</i></button>';
+}
+function investOpenChart(id){
+  ivcAsset = id; try{ localStorage.setItem(IVC_KEY, id); }catch(e){}
+  ivcFilter = "all"; ivcSearch = ""; investTab = "charts";
+  renderInvest(); window.scrollTo({top:0, behavior:"smooth"});
 }
 function openInvestAsset(id, range){
   const a = investAssetById(id); if (!a || !state.invest) return;
@@ -34313,7 +34313,7 @@ function openInvestAsset(id, range){
     const r = e.target.closest("[data-fa-range]"); if (r){ openInvestAsset(id, r.dataset.faRange); return; }
     const b = e.target.closest("[data-fa]"); if (!b) return;
     if (b.dataset.fa==="plan"){ openInvestPlan(id); return; }
-    if (b.dataset.fa==="chart"){ const T = investChartTarget(a); if (T && T.term){ closeModal(); switchView("terminal"); selectSymbol(T.term); window.scrollTo({top:0}); } return; }
+    if (b.dataset.fa==="chart"){ closeModal(); investOpenChart(id); return; }
     const env = b.dataset.fa==="sell" ? (state.invest.pea.holdings[id] ? "pea" : "cto") : (investTab==="pea" || investTab==="cto" ? investTab : null);
     openInvestOrder(id, env, b.dataset.fa);
   });
